@@ -5,10 +5,10 @@ use std::io::Result;
 #[derive(Subcommand, Clone, Debug)]
 /// Command
 pub enum Command {
-    /// view the individual picture FILE_NAME
-    File { 
-        #[arg(value_name="FILE_NAME")]
-        file_name: String
+    /// <FILE_NAME> view the individual picture FILE_NAME
+    File {
+        #[arg(value_name = "FILE_NAME")]
+        file_name: String,
     },
 }
 
@@ -38,8 +38,8 @@ impl CommandLineInterface {
 
 #[cfg(test)]
 mod tests {
-    use crate::command_line_interface::Command::File;
     use super::*;
+    use crate::command_line_interface::Command::File;
 
     #[test]
     fn command_line_interface_with_specified_directory() {
