@@ -8,9 +8,13 @@ pub struct CommandLineInterface {
     pub directory: Option<String>,
 }
 
-pub fn check(cli: &CommandLineInterface) -> Result<CommandLineInterface> {
-    Ok(cli.clone())
+impl CommandLineInterface {
+    pub fn parse_and_check() -> Result<Self> {
+        let cli = Self::parse();
+        Ok(cli.clone())
+    }
 }
+
 #[cfg(test)]
 mod tests {
     use super::*;
