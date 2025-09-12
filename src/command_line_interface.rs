@@ -1,12 +1,23 @@
+use crate::command_line_interface::Command::File;
 use crate::paths::check_path;
-use clap::Parser;
+use clap::{Parser, Subcommand};
 use std::io::Result;
+
+#[derive(Subcommand, Clone, Debug)]
+/// Command
+pub enum Command {
+    /// view the individual picture FILE_NAME
+    File { file_name: String },
+}
 
 #[derive(Parser, Clone, Debug)]
 /// Gallery Show
 pub struct CommandLineInterface {
     /// Directory to search
     pub directory: Option<String>,
+
+    #[command(subcommand)]
+    pub command: Option<Command>,
 }
 
 impl CommandLineInterface {
@@ -39,5 +50,13 @@ mod tests {
         let args = vec!["gsr"];
         let cli = CommandLineInterface::parse_from(args);
         assert_eq!(None, cli.directory);
+    }
+
+    #[test]
+    fn command_line_interface_with_command_file_with_adequate_argument() {
+        let args = vec!["gsr", "file", "fool.jpg"];
+        let cli = CommandLineInterface::parse_from(args);
+        let File { file_name } = File { file_name: String::from("fool.jpg") };
+        assert_eq!(String::from("fool.jpg"), file_name);
     }
 }
