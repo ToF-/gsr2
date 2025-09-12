@@ -1,4 +1,4 @@
-use std::io::{ErrorKind, Result, Error};
+use std::io::{Error, ErrorKind, Result};
 use std::path::PathBuf;
 
 fn check_path_exists(path: &PathBuf) -> Result<&PathBuf> {
@@ -6,25 +6,24 @@ fn check_path_exists(path: &PathBuf) -> Result<&PathBuf> {
         Ok(path)
     } else {
         Err(Error::new(
-                ErrorKind::NotFound,
-                format!("directory {} doesn't exist", path.display().to_string()))
-            )
+            ErrorKind::NotFound,
+            format!("directory {} doesn't exist", path.display().to_string()),
+        ))
     }
 }
 
-fn  check_path_is_directory(path: &PathBuf) -> Result<&PathBuf> {
+fn check_path_is_directory(path: &PathBuf) -> Result<&PathBuf> {
     if path.is_dir() {
         Ok(path)
     } else {
         Err(Error::new(
-                ErrorKind::NotADirectory,
-                format!("{} is not a directory", path.display().to_string()))
-            )
+            ErrorKind::NotADirectory,
+            format!("{} is not a directory", path.display().to_string()),
+        ))
     }
 }
 pub fn check_path(source: &str) -> Result<String> {
-    match check_path_exists(&PathBuf::from(source))
-        .and_then(check_path_is_directory) {
+    match check_path_exists(&PathBuf::from(source)).and_then(check_path_is_directory) {
         Ok(path) => Ok(path.display().to_string()),
         Err(e) => Err(e),
     }

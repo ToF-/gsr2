@@ -1,5 +1,5 @@
-use std::process::exit;
 use crate::command_line_interface::CommandLineInterface;
+use std::process::exit;
 
 mod command_line_interface;
 mod paths;
@@ -13,7 +13,7 @@ fn main() {
         Err(err) => {
             eprintln!("{}", err);
             exit(1);
-        },
+        }
     };
     exit(0);
 }

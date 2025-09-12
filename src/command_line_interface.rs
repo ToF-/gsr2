@@ -1,12 +1,11 @@
-use clap::{Parser};
 use crate::paths::check_path;
+use clap::Parser;
 use std::io::Result;
-
 
 #[derive(Parser, Clone, Debug)]
 /// Gallery Show
 pub struct CommandLineInterface {
-     /// Directory to search
+    /// Directory to search
     pub directory: Option<String>,
 }
 
@@ -18,9 +17,8 @@ impl CommandLineInterface {
                 Ok(_) => Ok(cli.clone()),
                 Err(e) => Err(e),
             }
-        }
-        else {
-        Ok(cli.clone())
+        } else {
+            Ok(cli.clone())
         }
     }
 }
@@ -31,7 +29,7 @@ mod tests {
 
     #[test]
     fn command_line_interface_with_specified_directory() {
-        let args = vec!["gsr","foo"];
+        let args = vec!["gsr", "foo"];
         let cli = CommandLineInterface::parse_from(args);
         assert_eq!(Some(String::from("foo")), cli.directory);
     }
@@ -42,6 +40,4 @@ mod tests {
         let cli = CommandLineInterface::parse_from(args);
         assert_eq!(None, cli.directory);
     }
-
 }
-
