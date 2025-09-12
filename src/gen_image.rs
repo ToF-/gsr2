@@ -16,4 +16,3 @@ pub fn gen_single_dot() {
     // write it out to a file
     image.save(SINGLE_DOT).unwrap();
 }
-

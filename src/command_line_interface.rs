@@ -25,7 +25,7 @@ pub struct CommandLineInterface {
 
 impl CommandLineInterface {
     pub fn parse_and_check(args_opt: Option<Vec<&str>>) -> Result<Self> {
-        let cli:Self = match args_opt {
+        let cli: Self = match args_opt {
             Some(args) => Self::parse_from(args),
             None => Self::parse(),
         };
@@ -49,7 +49,7 @@ impl CommandLineInterface {
 mod tests {
     use super::*;
     use crate::command_line_interface::Command::File;
-    use crate::gen_image::{gen_single_dot, SINGLE_DOT};
+    use crate::gen_image::{SINGLE_DOT, gen_single_dot};
 
     #[test]
     fn command_line_interface_with_specified_directory() {
@@ -83,5 +83,4 @@ mod tests {
         let cli = CommandLineInterface::parse_and_check(Some(args));
         assert!(cli.is_err());
     }
-
 }
