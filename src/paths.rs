@@ -24,7 +24,8 @@ fn  check_path_is_directory(path: &PathBuf) -> Result<&PathBuf> {
 }
 pub fn check_path(source: &str) -> Result<String> {
     let path = PathBuf::from(source);
-    let result = check_path_exists(&path);
+    let result = check_path_exists(&path)
+        .and_then(check_path_is_directory);
     if path.exists() {
         if path.is_dir() {
             Ok(source.to_string())
