@@ -12,6 +12,9 @@ fn check_path_exists(path: &PathBuf) -> Result<PathBuf> {
     }
 }
 
+fn  check_path_is_directory(path: &PathBuf) -> Result<PathBuf> {
+    Ok(path.clone())
+}
 pub fn check_path(source: &str) -> Result<String> {
     let path = PathBuf::from(source);
     let result = check_path_exists(&path);
