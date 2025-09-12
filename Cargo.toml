@@ -2,5 +2,7 @@
 name = "gsr2"
 version = "0.1.0"
 edition = "2024"
+authors = ["ToF-"]
 
 [dependencies]
+clap = { version = "4.5.4", features = ["derive"] }
