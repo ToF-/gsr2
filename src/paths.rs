@@ -18,7 +18,7 @@ fn  check_path_is_directory(path: &PathBuf) -> Result<&PathBuf> {
     } else {
         Err(Error::new(
                 ErrorKind::NotADirectory,
-                format!("directory {} doesn't exist", path.display().to_string()))
+                format!("{} is not a directory", path.display().to_string()))
             )
     }
 }

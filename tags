@@ -6,6 +6,8 @@
 !_TAG_PROGRAM_VERSION	5.8	//
 CommandLineInterface	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^pub struct CommandLineInterface {$/;"	s
 check_path	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^pub fn check_path(source: &str) -> Result<String> {$/;"	f
+check_path_exists	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^fn check_path_exists(path: &PathBuf) -> Result<&PathBuf> {$/;"	f
+check_path_is_directory	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^fn  check_path_is_directory(path: &PathBuf) -> Result<&PathBuf> {$/;"	f
 check_path_return_error_on_non_existent_path	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^    fn check_path_return_error_on_non_existent_path() {$/;"	f
 check_path_return_error_on_path_that_is_not_a_directory	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^    fn check_path_return_error_on_path_that_is_not_a_directory() {$/;"	f
 command_line_interface_with_no_specified_directory	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    fn command_line_interface_with_no_specified_directory() {$/;"	f

@@ -5,7 +5,7 @@ mod command_line_interface;
 mod paths;
 
 fn main() {
-    let cli = match CommandLineInterface::parse_and_check() {
+    match CommandLineInterface::parse_and_check() {
         Ok(cli) => match cli.directory {
             Some(dir) => println!("directory: {}", dir),
             None => println!("no directory supplied"),
