@@ -3,6 +3,7 @@ use crate::command_line_interface::CommandLineInterface;
 use std::process::exit;
 
 mod command_line_interface;
+mod gen_image;
 mod paths;
 
 fn main() {

@@ -1,0 +1,15 @@
+extern crate image;
+
+use image::{ImageBuffer, Rgb, RgbImage};
+
+pub fn gen_single_dot() {
+    // a default (black) image containing Rgb values
+    let mut image = RgbImage::new(10, 10);
+
+    // set a central pixel to white
+    image.put_pixel(5, 5, Rgb([255, 255, 255]));
+
+    // write it out to a file
+    image.save("output.png").unwrap();
+}
+

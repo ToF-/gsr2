@@ -40,6 +40,7 @@ impl CommandLineInterface {
 mod tests {
     use super::*;
     use crate::command_line_interface::Command::File;
+    use crate::gen_image::gen_single_dot;
 
     #[test]
     fn command_line_interface_with_specified_directory() {
