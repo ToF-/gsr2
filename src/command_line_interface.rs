@@ -13,7 +13,7 @@ impl CommandLineInterface {
     pub fn parse_and_check() -> Result<Self> {
         let cli = Self::parse();
         if let Some(ref directory) = cli.directory {
-            match check_path(&directory) {
+            match check_path(directory) {
                 Ok(_) => Ok(cli.clone()),
                 Err(e) => Err(e),
             }
