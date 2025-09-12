@@ -1,5 +1,6 @@
 extern crate image;
 
+#[allow(deadcode)]
 pub const SINGLE_DOT: &str = "testdata/single_dot.png";
 
 use image::{Rgb, RgbImage};
