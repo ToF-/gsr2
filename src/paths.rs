@@ -18,7 +18,7 @@ mod tests {
     #[test]
     #[should_panic]
     fn check_path_return_error_on_non_existent_path() {
-        let dir: String = check_path("foo").unwrap();
-        assert_eq!(String::from("foo"), dir);
+        let dir: String = check_path("/this_dir_cant_exist").unwrap();
+        assert_eq!(String::from("/this_dir_cant_exist"), dir);
     }
 }
