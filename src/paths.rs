@@ -12,9 +12,9 @@ fn check_path_exists(path: &PathBuf) -> Result<&PathBuf> {
     }
 }
 
-fn  check_path_is_directory(path: &PathBuf) -> Result<PathBuf> {
+fn  check_path_is_directory(path: &PathBuf) -> Result<&PathBuf> {
     if path.is_dir() {
-        Ok(path.clone())
+        Ok(path)
     } else {
         Err(Error::new(
                 ErrorKind::NotADirectory,
