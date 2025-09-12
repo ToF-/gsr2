@@ -1,6 +1,9 @@
 use std::io::{ErrorKind, Result, Error};
 use std::path::PathBuf;
 
+fn check_path_exists(path: &PathBuf) -> Result<String> {
+    Ok(path.display().to_string())
+}
 pub fn check_path(source: &str) -> Result<String> {
     let path = PathBuf::from(source);
     if path.exists() {
