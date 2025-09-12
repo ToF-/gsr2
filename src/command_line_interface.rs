@@ -12,7 +12,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn command_line_interface_with_no_specified_directory() {
+    fn command_line_interface_with_specified_directory() {
         let args = vec!["gsr","foo"];
         let cli = CommandLineInterface::parse_from(args);
         assert_eq!(Some(String::from("foo")), cli.directory);
