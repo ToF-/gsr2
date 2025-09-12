@@ -13,7 +13,14 @@ fn check_path_exists(path: &PathBuf) -> Result<PathBuf> {
 }
 
 fn  check_path_is_directory(path: &PathBuf) -> Result<PathBuf> {
-    Ok(path.clone())
+    if path.is_dir() {
+        Ok(path.clone())
+    } else {
+        Err(Error::new(
+                ErrorKind::NotADirectory,
+                format!("directory {} doesn't exist", path.display().to_string()))
+            )
+    }
 }
 pub fn check_path(source: &str) -> Result<String> {
     let path = PathBuf::from(source);
