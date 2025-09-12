@@ -1,4 +1,4 @@
-use std::io::{ErrorKind, Result};
+use std::io::{ErrorKind, Result, Error};
 use std::path::PathBuf;
 
 pub fn check_path(source: &str) -> Result<String> {
@@ -6,7 +6,7 @@ pub fn check_path(source: &str) -> Result<String> {
     if path.exists() {
         Ok(source.to_string())
     } else {
-        Err(ErrorKind::NotFound.into())
+        Err(Error::new(ErrorKind::NotFound, source))
     }
 }
 
