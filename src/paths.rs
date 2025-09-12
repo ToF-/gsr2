@@ -9,3 +9,16 @@ pub fn check_path(source: &str) -> Result<String> {
         Err(ErrorKind::NotFound.into())
     }
 }
+
+#[cfg(test)]
+
+mod tests {
+    use super::*;
+
+    #[test]
+    #[should_panic]
+    fn check_path_return_error_on_non_existent_path() {
+        let dir: String = check_path("foo").unwrap();
+        assert_eq!(String::from("foo"), dir);
+    }
+}
