@@ -6,7 +6,7 @@ pub fn check_path(source: &str) -> Result<String> {
     if path.exists() {
         Ok(source.to_string())
     } else {
-        Err(Error::new(ErrorKind::NotFound, source))
+        Err(Error::new(ErrorKind::NotFound, format!("directory {} doesn't exist", source)))
     }
 }
 
