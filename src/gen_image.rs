@@ -2,7 +2,7 @@ extern crate image;
 
 pub const SINGLE_DOT: &str = "testdata/single_dot.png";
 
-use image::{ImageBuffer, Rgb, RgbImage};
+use image::{Rgb, RgbImage};
 
 pub fn gen_single_dot() {
     // a default (black) image containing Rgb values

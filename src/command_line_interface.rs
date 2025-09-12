@@ -23,8 +23,11 @@ pub struct CommandLineInterface {
 }
 
 impl CommandLineInterface {
-    pub fn parse_and_check() -> Result<Self> {
-        let cli = Self::parse();
+    pub fn parse_and_check(args_opt: Option<Vec<&str>>) -> Result<Self> {
+        let cli:Self = match args_opt {
+            Some(args) => Self::parse_from(args),
+            None => Self::parse(),
+        };
         if let Some(ref directory) = cli.directory {
             match check_path(directory) {
                 Ok(_) => Ok(cli.clone()),
@@ -44,15 +47,15 @@ mod tests {
 
     #[test]
     fn command_line_interface_with_specified_directory() {
-        let args = vec!["gsr", "foo"];
-        let cli = CommandLineInterface::parse_from(args);
-        assert_eq!(Some(String::from("foo")), cli.directory);
+        let args = vec!["gsr", "testdata"];
+        let cli = CommandLineInterface::parse_and_check(Some(args)).unwrap();
+        assert_eq!(Some(String::from("testdata")), cli.directory);
     }
 
     #[test]
     fn command_line_interface_with_no_specified_directory() {
         let args = vec!["gsr"];
-        let cli = CommandLineInterface::parse_from(args);
+        let cli = CommandLineInterface::parse_and_check(Some(args)).unwrap();
         assert_eq!(None, cli.directory);
     }
 
@@ -60,7 +63,7 @@ mod tests {
     fn command_line_interface_with_command_file_with_adequate_argument() {
         gen_single_dot();
         let args = vec!["gsr", "file", SINGLE_DOT];
-        let cli = CommandLineInterface::parse_from(args);
+        let cli = CommandLineInterface::parse_and_check(Some(args)).unwrap();
         if let Some(File { file_name }) = cli.command {
             assert_eq!(String::from(SINGLE_DOT), file_name);
         } else {
@@ -70,7 +73,7 @@ mod tests {
 
     fn command_line_interface_with_command_file_with_non_existing_file() {
         let args = vec!["gsr", "file", "not_existing.png"];
-        let cli = CommandLineInterface::parse_from(args);
+        let cli = CommandLineInterface::parse_and_check(Some(args)).unwrap();
         if let Some(File { file_name }) = cli.command {
             assert_eq!(String::from(SINGLE_DOT), file_name);
         } else {

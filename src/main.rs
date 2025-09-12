@@ -7,7 +7,7 @@ mod gen_image;
 mod paths;
 
 fn main() {
-    match CommandLineInterface::parse_and_check() {
+    match CommandLineInterface::parse_and_check(None) {
         Ok(cli) => {
             match cli.directory {
                 Some(dir) => println!("directory: {}", dir),
