@@ -5,6 +5,8 @@
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.8	//
 CommandLineInterface	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^pub struct CommandLineInterface {$/;"	s
+check_path	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^pub fn check_path(source: &str) -> Result<String> {$/;"	f
+check_path_return_error_on_non_existent_path	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^    fn check_path_return_error_on_non_existent_path() {$/;"	f
 command_line_interface_with_no_specified_directory	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    fn command_line_interface_with_no_specified_directory() {$/;"	f
 command_line_interface_with_specified_directory	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    fn command_line_interface_with_specified_directory() {$/;"	f
 main	/Users/christophethibaut/Coding/gsr2/src/main.rs	/^fn main() {$/;"	f
