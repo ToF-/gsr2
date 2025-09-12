@@ -1,7 +1,7 @@
 use crate::command_line_interface::CommandLineInterface;
-use clap::Parser;
 
 mod command_line_interface;
+mod paths;
 
 fn main() {
     let cli = CommandLineInterface::parse_and_check().unwrap();

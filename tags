@@ -8,3 +8,4 @@ CommandLineInterface	/Users/christophethibaut/Coding/gsr2/src/command_line_inter
 command_line_interface_with_no_specified_directory	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    fn command_line_interface_with_no_specified_directory() {$/;"	f
 command_line_interface_with_specified_directory	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    fn command_line_interface_with_specified_directory() {$/;"	f
 main	/Users/christophethibaut/Coding/gsr2/src/main.rs	/^fn main() {$/;"	f
+parse_and_check	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    pub fn parse_and_check() -> Result<Self> {$/;"	f

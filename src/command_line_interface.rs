@@ -1,5 +1,7 @@
 use clap::{Parser};
+use crate::paths::check_path;
 use std::io::Result;
+
 
 #[derive(Parser, Clone, Debug)]
 /// Gallery Show
@@ -11,7 +13,15 @@ pub struct CommandLineInterface {
 impl CommandLineInterface {
     pub fn parse_and_check() -> Result<Self> {
         let cli = Self::parse();
+        if let Some(ref directory) = cli.directory {
+            match check_path(&directory) {
+                Ok(_) => Ok(cli.clone()),
+                Err(e) => Err(e),
+            }
+        }
+        else {
         Ok(cli.clone())
+        }
     }
 }
 
