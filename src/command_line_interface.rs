@@ -58,7 +58,18 @@ mod tests {
 
     #[test]
     fn command_line_interface_with_command_file_with_adequate_argument() {
+        gen_single_dot();
         let args = vec!["gsr", "file", SINGLE_DOT];
+        let cli = CommandLineInterface::parse_from(args);
+        if let Some(File { file_name }) = cli.command {
+            assert_eq!(String::from(SINGLE_DOT), file_name);
+        } else {
+            assert!(false)
+        }
+    }
+
+    fn command_line_interface_with_command_file_with_non_existing_file() {
+        let args = vec!["gsr", "file", "not_existing.png"];
         let cli = CommandLineInterface::parse_from(args);
         if let Some(File { file_name }) = cli.command {
             assert_eq!(String::from(SINGLE_DOT), file_name);
