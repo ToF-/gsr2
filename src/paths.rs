@@ -7,7 +7,7 @@ fn check_path_exists(path: &PathBuf) -> Result<&PathBuf> {
     } else {
         Err(Error::new(
             ErrorKind::NotFound,
-            format!("directory {} doesn't exist", path.display().to_string()),
+            format!("directory {} doesn't exist", path.display()),
         ))
     }
 }
