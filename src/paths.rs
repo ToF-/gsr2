@@ -22,6 +22,14 @@ fn check_path_is_directory(path: &PathBuf) -> Result<&PathBuf> {
         ))
     }
 }
+
+pub fn check_picture_file(file_name: &str) -> Result<String> {
+    match check_path_exists(&PathBuf::from(file_name)) {
+        Ok(path) => Ok(path.display().to_string()),
+        Err(e) => Err(e),
+    }
+}
+
 pub fn check_path(source: &str) -> Result<String> {
     match check_path_exists(&PathBuf::from(source)).and_then(check_path_is_directory) {
         Ok(path) => Ok(path.display().to_string()),

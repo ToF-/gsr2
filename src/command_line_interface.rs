@@ -1,4 +1,5 @@
-use crate::paths::check_path;
+use crate::command_line_interface::Command::File;
+use crate::paths::{check_path, check_picture_file};
 use clap::{Parser, Subcommand};
 use std::io::Result;
 
@@ -30,12 +31,17 @@ impl CommandLineInterface {
         };
         if let Some(ref directory) = cli.directory {
             match check_path(directory) {
-                Ok(_) => Ok(cli.clone()),
-                Err(e) => Err(e),
+                Ok(_) => return Ok(cli.clone()),
+                Err(e) => return Err(e),
             }
-        } else {
-            Ok(cli.clone())
+        };
+        if let Some(File { ref file_name }) = cli.command {
+            match check_picture_file(&file_name) {
+                Ok(_) => return Ok(cli.clone()),
+                Err(e) => return Err(e),
+            }
         }
+        Ok(cli.clone())
     }
 }
 
@@ -71,14 +77,11 @@ mod tests {
         }
     }
 
+    #[test]
     fn command_line_interface_with_command_file_with_non_existing_file() {
         let args = vec!["gsr", "file", "not_existing.png"];
-        let cli = CommandLineInterface::parse_and_check(Some(args)).unwrap();
-        if let Some(File { file_name }) = cli.command {
-            assert_eq!(String::from(SINGLE_DOT), file_name);
-        } else {
-            assert!(false)
-        }
+        let cli = CommandLineInterface::parse_and_check(Some(args));
+        assert!(cli.is_err());
     }
 
 }
