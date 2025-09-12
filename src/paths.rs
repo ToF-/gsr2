@@ -1,9 +1,9 @@
 use std::io::{ErrorKind, Result, Error};
 use std::path::PathBuf;
 
-fn check_path_exists(path: &PathBuf) -> Result<PathBuf> {
+fn check_path_exists(path: &PathBuf) -> Result<&PathBuf> {
     if path.exists() {
-        Ok(path.clone())
+        Ok(path)
     } else {
         Err(Error::new(
                 ErrorKind::NotFound,
