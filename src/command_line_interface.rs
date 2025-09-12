@@ -1,4 +1,5 @@
 use clap::{Parser};
+use std::io::Result;
 
 #[derive(Parser, Clone, Debug)]
 /// Gallery Show
@@ -7,6 +8,9 @@ pub struct CommandLineInterface {
     pub directory: Option<String>,
 }
 
+pub fn check(cli: &CommandLineInterface) -> Result<CommandLineInterface> {
+    Ok(cli.clone())
+}
 #[cfg(test)]
 mod tests {
     use super::*;
