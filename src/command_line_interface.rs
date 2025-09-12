@@ -40,7 +40,7 @@ impl CommandLineInterface {
 mod tests {
     use super::*;
     use crate::command_line_interface::Command::File;
-    use crate::gen_image::gen_single_dot;
+    use crate::gen_image::{gen_single_dot, SINGLE_DOT};
 
     #[test]
     fn command_line_interface_with_specified_directory() {
@@ -58,12 +58,13 @@ mod tests {
 
     #[test]
     fn command_line_interface_with_command_file_with_adequate_argument() {
-        let args = vec!["gsr", "file", "fool.jpg"];
+        let args = vec!["gsr", "file", SINGLE_DOT];
         let cli = CommandLineInterface::parse_from(args);
         if let Some(File { file_name }) = cli.command {
-            assert_eq!(String::from("fool.jpg"), file_name);
+            assert_eq!(String::from(SINGLE_DOT), file_name);
         } else {
             assert!(false)
         }
     }
+
 }
