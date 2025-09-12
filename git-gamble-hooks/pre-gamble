@@ -1,5 +1,4 @@
 #!/usr/bin/env sh
 ls -l
 clear
-cargo fmt
-cargo build
+cargo clippy
