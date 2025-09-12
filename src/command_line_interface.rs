@@ -6,7 +6,10 @@ use std::io::Result;
 /// Command
 pub enum Command {
     /// view the individual picture FILE_NAME
-    File { file_name: String },
+    File { 
+        #[arg(value_name="FILE_NAME")]
+        file_name: String
+    },
 }
 
 #[derive(Parser, Clone, Debug)]
