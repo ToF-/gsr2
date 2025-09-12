@@ -56,7 +56,10 @@ mod tests {
     fn command_line_interface_with_command_file_with_adequate_argument() {
         let args = vec!["gsr", "file", "fool.jpg"];
         let cli = CommandLineInterface::parse_from(args);
-        let File { file_name } = File { file_name: String::from("fool.jpg") };
-        assert_eq!(String::from("fool.jpg"), file_name);
+        if let Some(File { file_name }) = cli.command {
+            assert_eq!(String::from("fool.jpg"), file_name);
+        } else {
+            assert!(false)
+        }
     }
 }
