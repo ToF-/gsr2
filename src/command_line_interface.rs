@@ -1,4 +1,3 @@
-use crate::command_line_interface::Command::File;
 use crate::paths::check_path;
 use clap::{Parser, Subcommand};
 use std::io::Result;
@@ -36,6 +35,7 @@ impl CommandLineInterface {
 
 #[cfg(test)]
 mod tests {
+    use crate::command_line_interface::Command::File;
     use super::*;
 
     #[test]
