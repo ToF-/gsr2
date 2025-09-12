@@ -24,22 +24,9 @@ fn  check_path_is_directory(path: &PathBuf) -> Result<&PathBuf> {
 }
 pub fn check_path(source: &str) -> Result<String> {
     let path = PathBuf::from(source);
-    let result = check_path_exists(&path)
-        .and_then(check_path_is_directory);
-    if path.exists() {
-        if path.is_dir() {
-            Ok(source.to_string())
-        } else {
-            Err(Error::new(
-                    ErrorKind::NotADirectory,
-                    format!("{} is not a directory", source))
-            )
-        }
-    } else {
-        Err(Error::new(
-                ErrorKind::NotFound,
-                format!("directory {} doesn't exist", source))
-            )
+    match check_path_exists(&path).and_then(check_path_is_directory) {
+        Ok(path) => Ok(path.display().to_string()),
+        Err(e) => Err(e),
     }
 }
 
