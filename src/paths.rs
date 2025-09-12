@@ -4,7 +4,14 @@ use std::path::PathBuf;
 pub fn check_path(source: &str) -> Result<String> {
     let path = PathBuf::from(source);
     if path.exists() {
-        Ok(source.to_string())
+        if path.is_dir() {
+            Ok(source.to_string())
+        } else {
+            Err(Error::new(
+                    ErrorKind::NotADirectory,
+                    format!("{} is not a directory", source))
+            )
+        }
     } else {
         Err(Error::new(
                 ErrorKind::NotFound,
@@ -23,5 +30,11 @@ mod tests {
     fn check_path_return_error_on_non_existent_path() {
         let dir: String = check_path("/this_dir_cant_exist").unwrap();
         assert_eq!(String::from("/this_dir_cant_exist"), dir);
+    }
+    #[test]
+    #[should_panic]
+    fn check_path_return_error_on_path_that_is_not_a_directory() {
+        let dir: String = check_path("./src/paths.rs").unwrap();
+        assert_eq!(String::from("./src/paths.rs"), dir);
     }
 }
