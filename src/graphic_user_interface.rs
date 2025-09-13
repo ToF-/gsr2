@@ -1,4 +1,5 @@
 use crate::command_line_interface::Command::File;
+use crate::default_values::{ DEFAULT_HEIGHT, DEFAULT_WIDTH };
 use std::cell::RefCell;
 use std::rc::Rc;
 use gtk::prelude::*;
@@ -37,8 +38,8 @@ pub fn build_gui(application: &gtk::Application, cli: &CommandLineInterface) {
     let application_window = ApplicationWindow::builder()
         .application(application)
         .title("gsr2")
-        .default_width(400)
-        .default_height(400)
+        .default_width(DEFAULT_WIDTH)
+        .default_height(DEFAULT_HEIGHT)
         .build();
     let single_view_scrolled_window = ScrolledWindow::builder()
         .hscrollbar_policy(gtk::PolicyType::Automatic)
