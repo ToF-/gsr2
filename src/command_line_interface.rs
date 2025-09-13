@@ -96,4 +96,13 @@ mod tests {
         assert_eq!(ErrorKind::NotFound, err.kind());
         assert_eq!("not found: not_existing.png", &err.to_string())
     }
+
+    #[test]
+    fn command_line_interface_with_command_file_with_non_file() {
+        let args = vec!["gsr", "file", "testdata"];
+        let cli = CommandLineInterface::parse_and_check(Some(args));
+        assert!(cli.is_err());
+        let err = cli.expect_err("can't extract error");
+        assert_eq!(ErrorKind::Other, err.kind());
+    }
 }

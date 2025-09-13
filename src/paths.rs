@@ -23,8 +23,18 @@ fn check_path_is_directory(path: &PathBuf) -> Result<&PathBuf> {
     }
 }
 
+fn check_path_is_a_file(path: &PathBuf) -> Result<&PathBuf> {
+    if path.is_file() {
+        Ok(path)
+    } else {
+        Err(Error::new(
+            ErrorKind::Other,
+            format!("{} is not a file", path.display()),
+        ))
+    }
+}
 pub fn check_picture_file(file_name: &str) -> Result<String> {
-    match check_path_exists(&PathBuf::from(file_name)) {
+    match check_path_exists(&PathBuf::from(file_name)).and_then(check_path_is_a_file) {
         Ok(path) => Ok(path.display().to_string()),
         Err(e) => Err(e),
     }
