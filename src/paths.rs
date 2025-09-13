@@ -1,6 +1,8 @@
 use std::io::{Error, ErrorKind, Result};
 use std::path::PathBuf;
 
+const VALID_EXTENSIONS: [&str; 6] = ["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"];
+
 fn check_path_exists(path: &PathBuf) -> Result<&PathBuf> {
     if path.exists() {
         Ok(path)
@@ -33,8 +35,23 @@ fn check_path_is_a_file(path: &PathBuf) -> Result<&PathBuf> {
         ))
     }
 }
+
+fn check_path_is_a_jpg_or_png_file(path: &PathBuf) -> Result<&PathBuf> {
+    if let Some(extension) = path.extension() {
+        if VALID_EXTENSIONS.contains(&extension.to_str().unwrap()) {
+            return Ok(path)
+        }
+    }
+    Err(Error::new(
+            ErrorKind::Other,
+            format!("{} is not a jpg or png file", path.display()),
+    ))
+}
+
 pub fn check_picture_file(file_name: &str) -> Result<String> {
-    match check_path_exists(&PathBuf::from(file_name)).and_then(check_path_is_a_file) {
+    match check_path_exists(&PathBuf::from(file_name))
+        .and_then(check_path_is_a_file)
+        .and_then(check_path_is_a_jpg_or_png_file){
         Ok(path) => Ok(path.display().to_string()),
         Err(e) => Err(e),
     }

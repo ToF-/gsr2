@@ -106,4 +106,13 @@ mod tests {
         assert_eq!(ErrorKind::Other, err.kind());
         assert_eq!("testdata is not a file", &err.to_string())
     }
+    #[test]
+    fn command_line_interface_with_command_file_with_non_jpg_or_png_file() {
+        let args = vec!["gsr", "file", "src/paths.rs"];
+        let cli = CommandLineInterface::parse_and_check(Some(args));
+        assert!(cli.is_err());
+        let err = cli.expect_err("can't extract error");
+        assert_eq!(ErrorKind::Other, err.kind());
+        assert_eq!("src/paths.rs is not a jpg or png file", &err.to_string())
+    }
 }
