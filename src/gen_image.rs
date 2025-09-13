@@ -20,8 +20,8 @@ pub fn gen_nine_colors() {
     let mut rng = rand::rng();
     let mut nums: Vec<i32> = (1..100).collect();
 
-    for cx in 0..9 {
-        for cy in 0..9 {
+    for cx in 0..90 {
+        for cy in 0..90 {
             let color = match rng.random::<u8>() % 10 {
                 0 => Rgb([0, 0, 0]),
                 1 => Rgb([238, 130, 238]),
@@ -34,9 +34,9 @@ pub fn gen_nine_colors() {
                 8 => Rgb([255, 255, 0]),
                 _ => Rgb([128, 128, 128]),
             };
-            for x in 0..100 {
-                for y in 0..100 {
-                    image.put_pixel(cx * 100 + x, cy * 100 + y, color)
+            for x in 0..10 {
+                for y in 0..10 {
+                    image.put_pixel(cx * 10 + x, cy * 10 + y, color)
                 }
             }
         }
