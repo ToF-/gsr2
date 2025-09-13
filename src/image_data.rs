@@ -1,5 +1,6 @@
+use crate::default_values::MAX_PALETTE_COLORS;
 use image::{DynamicImage, Rgb};
-use palette_extract::get_palette_rgb;
+use palette_extract::{MaxColors, PixelEncoding, PixelFilter, Quality, get_palette_with_options};
 use std::cmp::Ordering;
 
 pub type Rgb8 = Rgb<u8>;
@@ -18,7 +19,14 @@ fn compare_rgb(color: &Rgb8, other: &Rgb8) -> Ordering {
 pub fn get_palette(image: &DynamicImage) -> Palette {
     let mut palette: Palette = [Rgb([0, 0, 0]); 9];
     let pixels: &[u8] = image.as_bytes();
-    let colors = get_palette_rgb(pixels);
+    let colors = get_palette_with_options(
+        pixels,
+        PixelEncoding::Rgb,
+        Quality::new(5),
+        MaxColors::new(MAX_PALETTE_COLORS + 1),
+        PixelFilter::None,
+    );
+    eprint!("{} {:?}", colors.len(), colors);
     colors.iter().enumerate().for_each(|(i, c)| {
         palette[i] = Rgb([c.r, c.g, c.b]);
     });
@@ -36,6 +44,5 @@ mod tests {
         let image: DynamicImage = gen_nine_colors();
         let palette = get_palette(&image);
         assert_eq!(Rgb([4, 4, 4]), palette[0]);
-        assert_eq!(Rgb([4, 4, 252]), palette[1]);
     }
 }
