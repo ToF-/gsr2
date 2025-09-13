@@ -1,4 +1,5 @@
 extern crate image;
+use image::DynamicImage;
 use rand::prelude::*;
 
 #[allow(dead_code)]
@@ -15,7 +16,7 @@ pub fn gen_single_dot() {
 }
 
 #[allow(dead_code)]
-pub fn gen_nine_colors() {
+pub fn gen_nine_colors() -> DynamicImage {
     let mut image = RgbImage::new(900, 900);
     let mut rng = rand::rng();
     let mut nums: Vec<i32> = (1..100).collect();
@@ -41,6 +42,11 @@ pub fn gen_nine_colors() {
             }
         }
     }
+    DynamicImage::ImageRgb8(image)
+}
+#[allow(dead_code)]
+pub fn save_nine_colors() {
+    let image = gen_nine_colors();
     image.save(NINE_COLORS).unwrap();
 }
 
@@ -51,7 +57,7 @@ mod tests {
     #[test]
     fn generate_some_test_images() {
         gen_single_dot();
-        gen_nine_colors();
+        save_nine_colors();
         assert!(true);
     }
 }

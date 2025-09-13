@@ -8,4 +8,5 @@ authors = ["ToF-"]
 clap = { version = "4.5.4", features = ["derive"] }
 gtk = { version = "0.6.*", package = "gtk4", features = ["v4_6"] }
 image = "0.25.8"
+palette_extract = "0.1.0"
 rand = "0.9.2"

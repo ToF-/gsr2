@@ -7,6 +7,7 @@ mod command_line_interface;
 mod default_values;
 mod gen_image;
 mod graphic_user_interface;
+mod image_data;
 mod paths;
 
 fn main() {
