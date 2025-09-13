@@ -9,7 +9,11 @@ CommandLineInterface	/Users/christophethibaut/Coding/gsr2/src/command_line_inter
 DEFAULT_HEIGHT	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const DEFAULT_HEIGHT: i32 = 1000;$/;"	c
 DEFAULT_WIDTH	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const DEFAULT_WIDTH: i32 = 1000;$/;"	c
 GraphicalUserInterface	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^struct GraphicalUserInterface {$/;"	s
-RcRefCellGui	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub type RcRefCellGui = Rc<RefCell<GraphicalUserInterface>>;$/;"	T
+MAX_PALETTE_COLORS	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const MAX_PALETTE_COLORS: u8 = 9;$/;"	c
+NINE_COLORS	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub const NINE_COLORS: &str = "testdata\/nine_colors.png";$/;"	c
+Palette	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^pub type Palette = [Rgb8; 9];$/;"	T
+RcRefCellGui	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^type RcRefCellGui = Rc<RefCell<GraphicalUserInterface>>;$/;"	T
+Rgb8	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^pub type Rgb8 = Rgb<u8>;$/;"	T
 SINGLE_DOT	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub const SINGLE_DOT: &str = "testdata\/single_dot.png";$/;"	c
 VALID_EXTENSIONS	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^const VALID_EXTENSIONS: [&str; 6] = ["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"];$/;"	c
 build_gui	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn build_gui(application: &gtk::Application, cli: &CommandLineInterface) {$/;"	f
@@ -28,10 +32,16 @@ command_line_interface_with_command_file_with_non_jpg_or_png_file	/Users/christo
 command_line_interface_with_no_specified_directory	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    fn command_line_interface_with_no_specified_directory() {$/;"	f
 command_line_interface_with_non_existing_specified_directory	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    fn command_line_interface_with_non_existing_specified_directory() {$/;"	f
 command_line_interface_with_specified_directory	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    fn command_line_interface_with_specified_directory() {$/;"	f
+compare_rgb	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^fn compare_rgb(color: &Rgb8, other: &Rgb8) -> Ordering {$/;"	f
+extract_a_palette_of_9_most_used_colors	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^    fn extract_a_palette_of_9_most_used_colors() {$/;"	f
+gen_nine_colors	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub fn gen_nine_colors() -> DynamicImage {$/;"	f
 gen_single_dot	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub fn gen_single_dot() {$/;"	f
+generate_some_test_images	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^    fn generate_some_test_images() {$/;"	f
+get_palette	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^pub fn get_palette(image: &DynamicImage) -> Palette {$/;"	f
 launch_application	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn launch_application(cli: CommandLineInterface) {$/;"	f
 main	/Users/christophethibaut/Coding/gsr2/src/main.rs	/^fn main() {$/;"	f
 parse_and_check	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    pub fn parse_and_check(args_opt: Option<Vec<&str>>) -> Result<Self> {$/;"	f
 process_key	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {$/;"	f
-set_picture_for_file_view	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn set_picture_for_file_view(gui: &GraphicalUserInterface, cli: &CommandLineInterface) {$/;"	f
+save_nine_colors	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub fn save_nine_colors() {$/;"	f
+set_picture_for_file_view	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn set_picture_for_file_view(gui: &GraphicalUserInterface, cli: &CommandLineInterface) {$/;"	f
 startup_gui	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn startup_gui(_application: &gtk::Application) {$/;"	f
