@@ -1,16 +1,19 @@
 use crate::command_line_interface::Command::File;
+use crate::command_line_interface::CommandLineInterface;
 use crate::default_values::{ DEFAULT_HEIGHT, DEFAULT_WIDTH };
+use gtk::gdk::Key;
+use gtk::glib::clone;
+use gtk::prelude::*;
+use gtk::{Align, Application, ApplicationWindow, Orientation, Picture, ScrolledWindow, gdk};
 use std::cell::RefCell;
 use std::rc::Rc;
-use gtk::prelude::*;
-use gtk::gdk;
-use gtk::{Align, Application, ApplicationWindow, Orientation, Picture, ScrolledWindow};
-use crate::command_line_interface::CommandLineInterface;
 
 struct GraphicalUserInterface {
     application_window: gtk::ApplicationWindow,
     single_view_picture: gtk::Picture,
 }
+
+pub type RcRefCellGui = Rc<RefCell<GraphicalUserInterface>>;
 
 pub fn startup_gui(_application: &gtk::Application) {
     let css_provider = gtk::CssProvider::new();
@@ -71,13 +74,21 @@ pub fn build_gui(application: &gtk::Application, cli: &CommandLineInterface) {
         application_window,
         single_view_picture: picture,
     };
+    let evk = gtk::EventControllerKey::new();
     let gui_rc = Rc::new(RefCell::new(gui));
+    evk.connect_key_pressed(clone!(@strong gui_rc => move |_, key, _, _| {
+        process_key(&gui_rc, key)
+    }));
     if let Ok(gui) = gui_rc.try_borrow() {
         set_picture_for_file_view(&gui, cli);
+        gui.application_window.add_controller(evk);
         gui.application_window.present()
     }
 }
 
+fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
+    gtk::Inhibit(false)
+}
 pub fn launch_application(cli: CommandLineInterface) {
     println!("launching app…");
     let application = Application::builder()
