@@ -1,7 +1,15 @@
+use crate::command_line_interface::Command::File;
+use std::cell::RefCell;
+use std::rc::Rc;
 use gtk::prelude::*;
 use gtk::gdk;
 use gtk::{Align, Application, ApplicationWindow, Orientation, Picture, ScrolledWindow};
 use crate::command_line_interface::CommandLineInterface;
+
+struct GraphicalUserInterface {
+    application_window: gtk::ApplicationWindow,
+    single_view_picture: gtk::Picture,
+}
 
 pub fn startup_gui(_application: &gtk::Application) {
     let css_provider = gtk::CssProvider::new();
@@ -13,7 +21,19 @@ pub fn startup_gui(_application: &gtk::Application) {
     );
 }
 
-pub fn build_gui(application: &gtk::Application) {
+pub fn set_picture_for_file_view(gui: &GraphicalUserInterface, cli: &CommandLineInterface) {
+    let picture = &gui.single_view_picture;
+    picture.set_valign(Align::Center);
+    picture.set_halign(Align::Center);
+    picture.set_opacity(1.00);
+    if let Some(File { file_name }) = &cli.command {
+        println!("{}", file_name);
+        picture.set_filename(Some(file_name));
+    } else {
+        println!("no picture file to display")
+    }
+}
+pub fn build_gui(application: &gtk::Application, cli: &CommandLineInterface) {
     let application_window = ApplicationWindow::builder()
         .application(application)
         .title("gsr2")
@@ -45,7 +65,16 @@ pub fn build_gui(application: &gtk::Application) {
     let _ = view_stack.add_child(&single_view_scrolled_window);
     view_stack.set_visible_child(&single_view_scrolled_window);
     application_window.set_child(Some(&view_stack));
-    application_window.present()
+
+    let gui = GraphicalUserInterface {
+        application_window,
+        single_view_picture: picture,
+    };
+    let gui_rc = Rc::new(RefCell::new(gui));
+    if let Ok(gui) = gui_rc.try_borrow() {
+        set_picture_for_file_view(&gui, cli);
+        gui.application_window.present()
+    }
 }
 
 pub fn launch_application(cli: CommandLineInterface) {
@@ -55,7 +84,7 @@ pub fn launch_application(cli: CommandLineInterface) {
         .build();
     application.connect_startup(|application| { startup_gui(application); });
     application.connect_activate(move |application: &gtk::Application| {
-        build_gui(application)
+        build_gui(application, &cli)
     });
     let no_args: Vec<String> = vec![];
     application.run_with_args(&no_args);
