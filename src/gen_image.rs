@@ -22,7 +22,7 @@ pub fn gen_nine_colors() {
 
     for cx in 0..9 {
         for cy in 0..9 {
-            let color = match rng.random::<u8>() {
+            let color = match rng.random::<u8>() % 10 {
                 0 => Rgb([0, 0, 0]),
                 1 => Rgb([238, 130, 238]),
                 2 => Rgb([154, 205, 50]),
