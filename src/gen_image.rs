@@ -16,7 +16,7 @@ pub fn gen_single_dot() {
 #[allow(dead_code)]
 pub fn gen_nine_colors() {
     let mut image = RgbImage::new(900, 900);
-    for c in 0..8 {
+    for c in 0..9 {
         let color = match c {
             0 => Rgb([0, 0, 0]),
             1 => Rgb([238, 130, 238]),
