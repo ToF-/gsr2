@@ -1,6 +1,5 @@
 extern crate image;
 use image::DynamicImage;
-use rand::prelude::*;
 
 #[allow(dead_code)]
 pub const SINGLE_DOT: &str = "testdata/single_dot.png";
