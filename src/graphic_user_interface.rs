@@ -1,10 +1,16 @@
 use crate::command_line_interface::Command::File;
 use crate::command_line_interface::CommandLineInterface;
-use crate::default_values::{DEFAULT_HEIGHT, DEFAULT_WIDTH};
+use crate::default_values::{
+    DEFAULT_HEIGHT, DEFAULT_WIDTH, PALETTE_AREA_HEIGHT, PALETTE_AREA_WIDTH,
+};
+use crate::image_data::Palette;
+use gtk::cairo::{Context, Format, ImageSurface};
 use gtk::gdk::Key;
 use gtk::glib::clone;
 use gtk::prelude::*;
-use gtk::{Align, Application, ApplicationWindow, Orientation, Picture, ScrolledWindow, gdk};
+use gtk::{
+    Align, Application, ApplicationWindow, DrawingArea, Orientation, Picture, ScrolledWindow, gdk,
+};
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -27,6 +33,38 @@ pub fn startup_gui(_application: &gtk::Application) {
     );
 }
 
+fn palette_area(palette: Palette) -> gtk::DrawingArea {
+    let palette_area = gtk::DrawingArea::new();
+    palette_area.set_valign(Align::Center);
+    palette_area.set_halign(Align::Center);
+    palette_area.set_content_width(PALETTE_AREA_WIDTH);
+    palette_area.set_content_height(PALETTE_AREA_HEIGHT);
+    palette_area.set_draw_func(move |_, ctx, _, _| {
+        draw_palette(ctx, PALETTE_AREA_WIDTH, PALETTE_AREA_HEIGHT, &palette)
+    });
+    palette_area
+}
+
+fn draw_palette(ctx: &Context, width: i32, height: i32, palette: &Palette) {
+    const COLOR_MAX: f64 = 9.0;
+    let square_size: f64 = height as f64;
+    let offset: f64 = (width as f64 - (COLOR_MAX * square_size)) / 2.0;
+    let surface =
+        ImageSurface::create(Format::ARgb32, width, height).expect("can't create surface");
+    let context = Context::new(&surface).expect("can't create context");
+    for (i, color) in palette.iter().enumerate() {
+        let r = color[0];
+        let g = color[1];
+        let b = color[2];
+        context.set_source_rgb(r as f64 / 255.0, g as f64 / 255.0, b as f64 / 255.0);
+        let x = i as f64 * square_size;
+        context.rectangle(offset + x, 0.0, square_size, square_size);
+        context.fill().expect("can't fill rectangle");
+    }
+    ctx.set_source_surface(&surface, 0.0, 0.0)
+        .expect("can't set source surface");
+    ctx.paint().expect("can't paint surface")
+}
 fn set_picture_for_file_view(gui: &GraphicalUserInterface, cli: &CommandLineInterface) {
     let picture = &gui.single_view_picture;
     picture.set_valign(Align::Center);

@@ -4,6 +4,7 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.8	//
+COLOR_MAX	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^    const COLOR_MAX: f64 = 9.0;$/;"	c
 Command	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^pub enum Command {$/;"	g
 CommandLineInterface	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^pub struct CommandLineInterface {$/;"	s
 DEFAULT_HEIGHT	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const DEFAULT_HEIGHT: i32 = 1000;$/;"	c
@@ -11,6 +12,8 @@ DEFAULT_WIDTH	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub c
 GraphicalUserInterface	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^struct GraphicalUserInterface {$/;"	s
 MAX_PALETTE_COLORS	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const MAX_PALETTE_COLORS: u8 = 9;$/;"	c
 NINE_COLORS	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub const NINE_COLORS: &str = "testdata\/nine_colors.png";$/;"	c
+PALETTE_AREA_HEIGHT	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const PALETTE_AREA_HEIGHT: i32 = 10;$/;"	c
+PALETTE_AREA_WIDTH	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const PALETTE_AREA_WIDTH: i32 = 90;$/;"	c
 Palette	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^pub type Palette = [Rgb8; 9];$/;"	T
 RcRefCellGui	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^type RcRefCellGui = Rc<RefCell<GraphicalUserInterface>>;$/;"	T
 Rgb8	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^pub type Rgb8 = Rgb<u8>;$/;"	T
@@ -33,6 +36,7 @@ command_line_interface_with_no_specified_directory	/Users/christophethibaut/Codi
 command_line_interface_with_non_existing_specified_directory	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    fn command_line_interface_with_non_existing_specified_directory() {$/;"	f
 command_line_interface_with_specified_directory	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    fn command_line_interface_with_specified_directory() {$/;"	f
 compare_rgb	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^fn compare_rgb(color: &Rgb8, other: &Rgb8) -> Ordering {$/;"	f
+draw_palette	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn draw_palette(ctx: &Context, width: i32, height: i32, palette: &Palette) {$/;"	f
 extract_a_palette_of_9_most_used_colors	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^    fn extract_a_palette_of_9_most_used_colors() {$/;"	f
 gen_nine_colors	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub fn gen_nine_colors() -> DynamicImage {$/;"	f
 gen_single_dot	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub fn gen_single_dot() {$/;"	f
@@ -40,6 +44,7 @@ generate_some_test_images	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	
 get_palette	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^pub fn get_palette(image: &DynamicImage) -> Palette {$/;"	f
 launch_application	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn launch_application(cli: CommandLineInterface) {$/;"	f
 main	/Users/christophethibaut/Coding/gsr2/src/main.rs	/^fn main() {$/;"	f
+palette_area	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn palette_area(palette: &Palette) -> gtk::DrawingArea {$/;"	f
 parse_and_check	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    pub fn parse_and_check(args_opt: Option<Vec<&str>>) -> Result<Self> {$/;"	f
 process_key	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {$/;"	f
 save_nine_colors	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub fn save_nine_colors() {$/;"	f
