@@ -91,7 +91,10 @@ pub fn build_gui(application: &gtk::Application, cli: &CommandLineInterface) {
 fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
     if let Ok(mut gui) = gui_rc.try_borrow_mut() {
         if let Some(key_name) = key.name() {
-            gui.application_window.close()
+            match key_name.as_str() {
+                "q" => gui.application_window.close(),
+                _ => {}
+            }
         }
     };
     gtk::Inhibit(false)
