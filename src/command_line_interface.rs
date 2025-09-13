@@ -48,9 +48,9 @@ impl CommandLineInterface {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::io::{ErrorKind};
     use crate::command_line_interface::Command::File;
     use crate::gen_image::{SINGLE_DOT, gen_single_dot};
+    use std::io::ErrorKind;
 
     #[test]
     fn command_line_interface_with_specified_directory() {

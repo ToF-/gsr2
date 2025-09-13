@@ -4,9 +4,9 @@ use crate::graphic_user_interface::launch_application;
 use std::process::exit;
 
 mod command_line_interface;
-mod graphic_user_interface;
 mod default_values;
 mod gen_image;
+mod graphic_user_interface;
 mod paths;
 
 fn main() {

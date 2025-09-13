@@ -1,6 +1,6 @@
 use crate::command_line_interface::Command::File;
 use crate::command_line_interface::CommandLineInterface;
-use crate::default_values::{ DEFAULT_HEIGHT, DEFAULT_WIDTH };
+use crate::default_values::{DEFAULT_HEIGHT, DEFAULT_WIDTH};
 use gtk::gdk::Key;
 use gtk::glib::clone;
 use gtk::prelude::*;
@@ -17,7 +17,9 @@ pub type RcRefCellGui = Rc<RefCell<GraphicalUserInterface>>;
 
 pub fn startup_gui(_application: &gtk::Application) {
     let css_provider = gtk::CssProvider::new();
-    css_provider.load_from_data("window { background-color:black;} image { margin:1em ; } label { color:white; }");
+    css_provider.load_from_data(
+        "window { background-color:black;} image { margin:1em ; } label { color:white; }",
+    );
     gtk::style_context_add_provider_for_display(
         &gdk::Display::default().unwrap(),
         &css_provider,
@@ -89,7 +91,7 @@ pub fn build_gui(application: &gtk::Application, cli: &CommandLineInterface) {
 fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
     if let Ok(mut gui) = gui_rc.try_borrow_mut() {
         if let Some(key_name) = key.name() {
-        gui.application_window.close()
+            gui.application_window.close()
         }
     };
     gtk::Inhibit(false)
@@ -99,10 +101,11 @@ pub fn launch_application(cli: CommandLineInterface) {
     let application = Application::builder()
         .application_id("org.example.gsr2")
         .build();
-    application.connect_startup(|application| { startup_gui(application); });
-    application.connect_activate(move |application: &gtk::Application| {
-        build_gui(application, &cli)
+    application.connect_startup(|application| {
+        startup_gui(application);
     });
+    application
+        .connect_activate(move |application: &gtk::Application| build_gui(application, &cli));
     let no_args: Vec<String> = vec![];
     application.run_with_args(&no_args);
 }

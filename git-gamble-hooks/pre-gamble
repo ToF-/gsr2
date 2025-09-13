@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
 ls -l
 clear
+cargo fmt
 cargo test --no-run
