@@ -83,6 +83,7 @@ mod tests {
         let args = vec!["gsr", "file", "not_existing.png"];
         let cli = CommandLineInterface::parse_and_check(Some(args));
         assert!(cli.is_err());
-        assert_eq!(ErrorKind::NotFound, cli.expect_err("can't extract error").kind())
+        let err = cli.expect_err("can't extract error");
+        assert_eq!(ErrorKind::NotFound, err.kind());
     }
 }
