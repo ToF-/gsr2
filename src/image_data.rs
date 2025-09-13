@@ -45,5 +45,6 @@ mod tests {
         let palette = get_palette(&image);
         assert_eq!(Rgb([4, 4, 4]), palette[0]);
         assert_eq!(Rgb([4, 4, 252]), palette[1]);
+        assert_eq!(Rgb([4, 132, 132]), palette[2]);
     }
 }
