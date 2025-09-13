@@ -6,9 +6,10 @@
 !_TAG_PROGRAM_VERSION	5.8	//
 Command	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^pub enum Command {$/;"	g
 CommandLineInterface	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^pub struct CommandLineInterface {$/;"	s
+GraphicalUserInterface	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^struct GraphicalUserInterface {$/;"	s
 SINGLE_DOT	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub const SINGLE_DOT: &str = "testdata\/single_dot.png";$/;"	c
 VALID_EXTENSIONS	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^const VALID_EXTENSIONS: [&str; 6] = ["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"];$/;"	c
-build_gui	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn build_gui(application: &gtk::Application) {$/;"	f
+build_gui	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn build_gui(application: &gtk::Application, cli: &CommandLineInterface) {$/;"	f
 check_path	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^pub fn check_path(source: &str) -> Result<String> {$/;"	f
 check_path_exists	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^fn check_path_exists(path: &PathBuf) -> Result<&PathBuf> {$/;"	f
 check_path_is_a_file	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^fn check_path_is_a_file(path: &PathBuf) -> Result<&PathBuf> {$/;"	f
@@ -28,4 +29,5 @@ gen_single_dot	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub fn ge
 launch_application	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn launch_application(cli: CommandLineInterface) {$/;"	f
 main	/Users/christophethibaut/Coding/gsr2/src/main.rs	/^fn main() {$/;"	f
 parse_and_check	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    pub fn parse_and_check(args_opt: Option<Vec<&str>>) -> Result<Self> {$/;"	f
+set_picture_for_file_view	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn set_picture_for_file_view(gui: &GraphicalUserInterface, cli: &CommandLineInterface) {$/;"	f
 startup_gui	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn startup_gui(_application: &gtk::Application) {$/;"	f
