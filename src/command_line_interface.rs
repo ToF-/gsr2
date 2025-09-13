@@ -104,5 +104,6 @@ mod tests {
         assert!(cli.is_err());
         let err = cli.expect_err("can't extract error");
         assert_eq!(ErrorKind::Other, err.kind());
+        assert_eq!("testdata is not a file", &err.to_string())
     }
 }
