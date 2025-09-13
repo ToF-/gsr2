@@ -1,4 +1,5 @@
 extern crate image;
+use rand::prelude::*;
 
 #[allow(dead_code)]
 pub const SINGLE_DOT: &str = "testdata/single_dot.png";
@@ -16,22 +17,27 @@ pub fn gen_single_dot() {
 #[allow(dead_code)]
 pub fn gen_nine_colors() {
     let mut image = RgbImage::new(900, 900);
-    for c in 0..9 {
-        let color = match c {
-            0 => Rgb([0, 0, 0]),
-            1 => Rgb([238, 130, 238]),
-            2 => Rgb([154, 205, 50]),
-            3 => Rgb([0, 0, 255]),
-            4 => Rgb([255, 0, 0]),
-            5 => Rgb([255, 140, 0]),
-            6 => Rgb([0, 128, 128]),
-            7 => Rgb([139, 69, 19]),
-            8 => Rgb([255, 255, 0]),
-            _ => Rgb([128, 128, 128]),
-        };
-        for x in 0..100 {
-            for y in 0..100 {
-                image.put_pixel(c * 100 + x, c * 100 + y, color)
+    let mut rng = rand::rng();
+    let mut nums: Vec<i32> = (1..100).collect();
+
+    for cx in 0..9 {
+        for cy in 0..9 {
+            let color = match rng.random::<u8>() {
+                0 => Rgb([0, 0, 0]),
+                1 => Rgb([238, 130, 238]),
+                2 => Rgb([154, 205, 50]),
+                3 => Rgb([0, 0, 255]),
+                4 => Rgb([255, 0, 0]),
+                5 => Rgb([255, 140, 0]),
+                6 => Rgb([0, 128, 128]),
+                7 => Rgb([139, 69, 19]),
+                8 => Rgb([255, 255, 0]),
+                _ => Rgb([128, 128, 128]),
+            };
+            for x in 0..100 {
+                for y in 0..100 {
+                    image.put_pixel(cx * 100 + x, cy * 100 + y, color)
+                }
             }
         }
     }
