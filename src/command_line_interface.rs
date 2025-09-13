@@ -65,6 +65,15 @@ mod tests {
         let cli = CommandLineInterface::parse_and_check(Some(args)).unwrap();
         assert_eq!(None, cli.directory);
     }
+    #[test]
+    fn command_line_interface_with_non_existing_specified_directory() {
+        let args = vec!["gsr", "not_existing_dir"];
+        let cli = CommandLineInterface::parse_and_check(Some(args));
+        assert!(cli.is_err());
+        let err = cli.expect_err("can't extract error");
+        assert_eq!(ErrorKind::NotFound, err.kind());
+        assert_eq!("not found: not_existing_dir", &err.to_string())
+    }
 
     #[test]
     fn command_line_interface_with_command_file_with_adequate_argument() {
