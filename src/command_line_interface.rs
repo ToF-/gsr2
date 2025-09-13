@@ -43,6 +43,10 @@ impl CommandLineInterface {
         }
         Ok(cli.clone())
     }
+
+    pub fn palette_on(&self) -> bool {
+        true
+    }
 }
 
 #[cfg(test)]

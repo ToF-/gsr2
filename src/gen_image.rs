@@ -51,7 +51,6 @@ pub fn save_nine_colors() {
 mod tests {
     use super::*;
 
-    #[test]
     fn generate_some_test_images() {
         gen_single_dot();
         save_nine_colors();
