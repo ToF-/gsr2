@@ -3,7 +3,7 @@ use crate::paths::{check_path, check_picture_file};
 use clap::{Parser, Subcommand};
 use std::io::Result;
 
-#[derive(Subcommand, Clone, Debug)]
+#[derive(Subcommand, Clone, Debug, PartialEq)]
 /// Command
 pub enum Command {
     /// <FILE_NAME> view the individual picture FILE_NAME
@@ -13,7 +13,7 @@ pub enum Command {
     },
 }
 
-#[derive(Parser, Clone, Debug)]
+#[derive(Parser, Clone, Debug, PartialEq)]
 /// Gallery Show
 pub struct CommandLineInterface {
     /// Directory to search
@@ -48,6 +48,7 @@ impl CommandLineInterface {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::io::{Error, ErrorKind};
     use crate::command_line_interface::Command::File;
     use crate::gen_image::{SINGLE_DOT, gen_single_dot};
 
@@ -82,5 +83,6 @@ mod tests {
         let args = vec!["gsr", "file", "not_existing.png"];
         let cli = CommandLineInterface::parse_and_check(Some(args));
         assert!(cli.is_err());
+        assert_eq!(ErrorKind::NotFound, cli.expect_err("can't extract error").kind())
     }
 }
