@@ -54,4 +54,3 @@ mod tests {
         assert_eq!(Rgb([252, 252, 4]), palette[8]);
     }
 }
-// [Color { r: 252, g: 4, b: 4, hex: "#FC0404" }, , Color { r: 236, g: 132, b: 236, hex: "#EC84EC" }, Color { r: 252, g: 140, b: 4, hex: "#FC8C04" }, Color { r: 252, g: 252, b: 4, hex: "#FCFC04" }, }]
