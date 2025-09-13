@@ -46,5 +46,6 @@ mod tests {
         assert_eq!(Rgb([4, 4, 4]), palette[0]);
         assert_eq!(Rgb([4, 4, 252]), palette[1]);
         assert_eq!(Rgb([4, 132, 132]), palette[2]);
+        assert_eq!(Rgb([136, 100, 76]), palette[3]);
     }
 }
