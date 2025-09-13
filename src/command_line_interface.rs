@@ -48,7 +48,7 @@ impl CommandLineInterface {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::io::{Error, ErrorKind};
+    use std::io::{ErrorKind};
     use crate::command_line_interface::Command::File;
     use crate::gen_image::{SINGLE_DOT, gen_single_dot};
 
