@@ -13,7 +13,7 @@ struct GraphicalUserInterface {
     single_view_picture: gtk::Picture,
 }
 
-pub type RcRefCellGui = Rc<RefCell<GraphicalUserInterface>>;
+type RcRefCellGui = Rc<RefCell<GraphicalUserInterface>>;
 
 pub fn startup_gui(_application: &gtk::Application) {
     let css_provider = gtk::CssProvider::new();
@@ -27,7 +27,7 @@ pub fn startup_gui(_application: &gtk::Application) {
     );
 }
 
-pub fn set_picture_for_file_view(gui: &GraphicalUserInterface, cli: &CommandLineInterface) {
+fn set_picture_for_file_view(gui: &GraphicalUserInterface, cli: &CommandLineInterface) {
     let picture = &gui.single_view_picture;
     picture.set_valign(Align::Center);
     picture.set_halign(Align::Center);
@@ -89,12 +89,9 @@ pub fn build_gui(application: &gtk::Application, cli: &CommandLineInterface) {
 }
 
 fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
-    if let Ok(mut gui) = gui_rc.try_borrow_mut() {
+    if let Ok(gui) = gui_rc.try_borrow_mut() {
         if let Some(key_name) = key.name() {
-            match key_name.as_str() {
-                "q" => gui.application_window.close(),
-                _ => {}
-            }
+            if key_name.as_str() == "q" { gui.application_window.close() };
         }
     };
     gtk::Inhibit(false)

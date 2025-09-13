@@ -36,7 +36,7 @@ impl CommandLineInterface {
             }
         };
         if let Some(File { ref file_name }) = cli.command {
-            match check_picture_file(&file_name) {
+            match check_picture_file(file_name) {
                 Ok(_) => return Ok(cli.clone()),
                 Err(e) => return Err(e),
             }
