@@ -17,7 +17,6 @@ pub fn gen_single_dot() {
 #[allow(dead_code)]
 pub fn gen_nine_colors() -> DynamicImage {
     let mut image = RgbImage::new(900, 900);
-    let mut nums: Vec<i32> = (1..100).collect();
 
     for cx in 0..90 {
         for cy in 0..90 {
