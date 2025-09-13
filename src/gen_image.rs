@@ -23,7 +23,7 @@ pub fn gen_nine_colors() -> DynamicImage {
 
     for cx in 0..90 {
         for cy in 0..90 {
-            let color = match rng.random::<u8>() % 10 {
+            let color = match (cx * cy) % 10 {
                 0 => Rgb([0, 0, 0]),
                 1 => Rgb([238, 130, 238]),
                 2 => Rgb([154, 205, 50]),
