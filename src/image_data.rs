@@ -44,5 +44,6 @@ mod tests {
         let image: DynamicImage = gen_nine_colors();
         let palette = get_palette(&image);
         assert_eq!(Rgb([4, 4, 4]), palette[0]);
+        assert_eq!(Rgb([4, 4, 252]), palette[1]);
     }
 }
