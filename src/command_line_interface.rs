@@ -85,5 +85,6 @@ mod tests {
         assert!(cli.is_err());
         let err = cli.expect_err("can't extract error");
         assert_eq!(ErrorKind::NotFound, err.kind());
+        assert_eq!("not found: not_existing.png", &err.to_string())
     }
 }
