@@ -3,7 +3,7 @@ use crate::command_line_interface::CommandLineInterface;
 use crate::default_values::{
     DEFAULT_HEIGHT, DEFAULT_WIDTH, PALETTE_AREA_HEIGHT, PALETTE_AREA_WIDTH,
 };
-use crate::image_data::Palette;
+use crate::image_data::{Palette, get_palette_from_picture_file};
 use gtk::cairo::{Context, Format, ImageSurface};
 use gtk::gdk::Key;
 use gtk::glib::clone;
@@ -17,6 +17,7 @@ use std::rc::Rc;
 struct GraphicalUserInterface {
     application_window: gtk::ApplicationWindow,
     single_view_picture: gtk::Picture,
+    single_view_box: gtk::Box,
 }
 
 type RcRefCellGui = Rc<RefCell<GraphicalUserInterface>>;
@@ -33,7 +34,7 @@ pub fn startup_gui(_application: &gtk::Application) {
     );
 }
 
-fn palette_area(palette: Palette) -> gtk::DrawingArea {
+fn make_palette_area(palette: Palette) -> gtk::DrawingArea {
     let palette_area = gtk::DrawingArea::new();
     palette_area.set_valign(Align::Center);
     palette_area.set_halign(Align::Center);
@@ -67,15 +68,22 @@ fn draw_palette(ctx: &Context, width: i32, height: i32, palette: &Palette) {
 }
 fn set_picture_for_file_view(gui: &GraphicalUserInterface, cli: &CommandLineInterface) {
     let picture = &gui.single_view_picture;
+    let view_box = &gui.single_view_box;
     picture.set_valign(Align::Center);
     picture.set_halign(Align::Center);
     picture.set_opacity(1.00);
     if let Some(File { file_name }) = &cli.command {
         println!("{}", file_name);
         picture.set_filename(Some(file_name));
+        if cli.palette_on() {
+            if let Ok(colors) = get_palette_from_picture_file(file_name) {
+                let palette_area = make_palette_area(colors);
+                view_box.insert_child_after(&palette_area, Some(picture));
+            };
+        }
     } else {
         println!("no picture file to display")
-    }
+    };
 }
 pub fn build_gui(application: &gtk::Application, cli: &CommandLineInterface) {
     let application_window = ApplicationWindow::builder()
@@ -113,6 +121,7 @@ pub fn build_gui(application: &gtk::Application, cli: &CommandLineInterface) {
     let gui = GraphicalUserInterface {
         application_window,
         single_view_picture: picture,
+        single_view_box: view_box,
     };
     let evk = gtk::EventControllerKey::new();
     let gui_rc = Rc::new(RefCell::new(gui));
