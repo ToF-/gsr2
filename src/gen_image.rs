@@ -2,17 +2,50 @@ extern crate image;
 
 #[allow(dead_code)]
 pub const SINGLE_DOT: &str = "testdata/single_dot.png";
+pub const NINE_COLORS: &str = "testdata/nine_colors.png";
 
 use image::{Rgb, RgbImage};
 
 #[allow(dead_code)]
 pub fn gen_single_dot() {
-    // a default (black) image containing Rgb values
     let mut image = RgbImage::new(10, 10);
-
-    // set a central pixel to white
     image.put_pixel(5, 5, Rgb([255, 255, 255]));
-
-    // write it out to a file
     image.save(SINGLE_DOT).unwrap();
+}
+
+#[allow(dead_code)]
+pub fn gen_nine_colors() {
+    let mut image = RgbImage::new(900, 100);
+    for c in 0..8 {
+        let color = match c {
+            0 => Rgb([0, 0, 0]),
+            1 => Rgb([238, 130, 238]),
+            2 => Rgb([154, 205, 50]),
+            3 => Rgb([0, 0, 255]),
+            4 => Rgb([255, 0, 0]),
+            5 => Rgb([255, 140, 0]),
+            6 => Rgb([0, 128, 128]),
+            7 => Rgb([139, 69, 19]),
+            8 => Rgb([255, 255, 0]),
+            _ => Rgb([128, 128, 128]),
+        };
+        for x in 0..100 {
+            for y in 0..100 {
+                image.put_pixel(c * 100 + x, y, color)
+            }
+        }
+    }
+    image.save(NINE_COLORS).unwrap();
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn generate_some_test_images() {
+        gen_single_dot();
+        gen_nine_colors();
+        assert!(true);
+    }
 }
