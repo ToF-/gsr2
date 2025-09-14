@@ -70,8 +70,13 @@ fn draw_palette(ctx: &Context, width: i32, height: i32, palette: &Palette) {
 fn set_picture_for_file_view(gui: &GraphicalUserInterface, cli: &CommandLineInterface) {
     let picture = &gui.single_view_picture;
     let view_box = &gui.single_view_box;
-    picture.set_valign(Align::Center);
-    picture.set_halign(Align::Center);
+    if gui.application_state.expand_on() {
+        picture.set_valign(Align::Fill);
+        picture.set_halign(Align::Fill);
+    } else {
+        picture.set_valign(Align::Center);
+        picture.set_halign(Align::Center);
+    }
     picture.set_opacity(1.00);
     if let Some(File { file_name }) = &cli.command {
         println!("{}", file_name);

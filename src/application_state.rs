@@ -6,6 +6,10 @@ impl ApplicationState {
     pub fn new(palette_on: bool) -> Self {
         ApplicationState { palette_on }
     }
+    pub fn expand_on(&self) -> bool {
+        false
+    }
+
     pub fn palette_on(&self) -> bool {
         self.palette_on
     }
