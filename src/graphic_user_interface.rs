@@ -139,7 +139,7 @@ pub fn build_gui(application: &gtk::Application, cli: &CommandLineInterface) {
         application_window,
         single_view_picture: picture,
         single_view_box: view_box,
-        single_view_scrolled_window: single_view_scrolled_window,
+        single_view_scrolled_window,
     };
     let evk = gtk::EventControllerKey::new();
     let gui_rc = Rc::new(RefCell::new(gui));

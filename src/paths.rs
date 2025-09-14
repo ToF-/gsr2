@@ -3,7 +3,7 @@ use std::path::PathBuf;
 
 const VALID_EXTENSIONS: [&str; 6] = ["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"];
 
-fn check_path_exists(path: &PathBuf) -> Result<&PathBuf> {
+pub fn check_path_exists(path: &PathBuf) -> Result<&PathBuf> {
     if path.exists() {
         Ok(path)
     } else {
@@ -14,7 +14,7 @@ fn check_path_exists(path: &PathBuf) -> Result<&PathBuf> {
     }
 }
 
-fn check_path_is_directory(path: &PathBuf) -> Result<&PathBuf> {
+pub fn check_path_is_directory(path: &PathBuf) -> Result<&PathBuf> {
     if path.is_dir() {
         Ok(path)
     } else {
@@ -25,7 +25,7 @@ fn check_path_is_directory(path: &PathBuf) -> Result<&PathBuf> {
     }
 }
 
-fn check_path_is_a_file(path: &PathBuf) -> Result<&PathBuf> {
+pub fn check_path_is_a_file(path: &PathBuf) -> Result<&PathBuf> {
     if path.is_file() {
         Ok(path)
     } else {
@@ -33,7 +33,7 @@ fn check_path_is_a_file(path: &PathBuf) -> Result<&PathBuf> {
     }
 }
 
-fn check_path_is_a_jpg_or_png_file(path: &PathBuf) -> Result<&PathBuf> {
+pub fn check_path_is_a_jpg_or_png_file(path: &PathBuf) -> Result<&PathBuf> {
     if let Some(extension) = path.extension()
         && VALID_EXTENSIONS.contains(&extension.to_str().unwrap())
     {

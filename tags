@@ -23,6 +23,8 @@ RcRefCellGui	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	
 Rgb8	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^pub type Rgb8 = Rgb<u8>;$/;"	T
 SCROLL_STEP	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const SCROLL_STEP: f64 = 100.0;$/;"	c
 SINGLE_DOT	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub const SINGLE_DOT: &str = "testdata\/single_dot.png";$/;"	c
+THUMB_SUFFIX	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const THUMB_SUFFIX: &str = "THUMB";$/;"	c
+VALID_EXTENSIONS	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const VALID_EXTENSIONS: [&str; 6] = ["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"];$/;"	c
 VALID_EXTENSIONS	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^const VALID_EXTENSIONS: [&str; 6] = ["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"];$/;"	c
 a_picture_as_file_name_which_is_the_full_path_and_file_name_on_the_file_system	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    fn a_picture_as_file_name_which_is_the_full_path_and_file_name_on_the_file_system() {$/;"	f
 after_expand_toggle_expand_on_is_inverted	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    fn after_expand_toggle_expand_on_is_inverted() {$/;"	f
@@ -31,10 +33,10 @@ after_palette_toggle_palette_on_is_inverted	/Users/christophethibaut/Coding/gsr2
 arrow_command_full_size	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn arrow_command_full_size(direction: Direction, gui: &GraphicalUserInterface) -> bool {$/;"	f
 build_gui	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn build_gui(application: &gtk::Application, cli: &CommandLineInterface) {$/;"	f
 check_path	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^pub fn check_path(source: &str) -> Result<String> {$/;"	f
-check_path_exists	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^fn check_path_exists(path: &PathBuf) -> Result<&PathBuf> {$/;"	f
-check_path_is_a_file	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^fn check_path_is_a_file(path: &PathBuf) -> Result<&PathBuf> {$/;"	f
-check_path_is_a_jpg_or_png_file	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^fn check_path_is_a_jpg_or_png_file(path: &PathBuf) -> Result<&PathBuf> {$/;"	f
-check_path_is_directory	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^fn check_path_is_directory(path: &PathBuf) -> Result<&PathBuf> {$/;"	f
+check_path_exists	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^pub fn check_path_exists(path: &PathBuf) -> Result<&PathBuf> {$/;"	f
+check_path_is_a_file	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^pub fn check_path_is_a_file(path: &PathBuf) -> Result<&PathBuf> {$/;"	f
+check_path_is_a_jpg_or_png_file	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^pub fn check_path_is_a_jpg_or_png_file(path: &PathBuf) -> Result<&PathBuf> {$/;"	f
+check_path_is_directory	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^pub fn check_path_is_directory(path: &PathBuf) -> Result<&PathBuf> {$/;"	f
 check_path_return_error_on_non_existent_path	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^    fn check_path_return_error_on_non_existent_path() {$/;"	f
 check_path_return_error_on_path_that_is_not_a_directory	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^    fn check_path_return_error_on_path_that_is_not_a_directory() {$/;"	f
 check_picture_file	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^pub fn check_picture_file(file_name: &str) -> Result<String> {$/;"	f
@@ -56,12 +58,17 @@ from_key_name_to_a_direction	/Users/christophethibaut/Coding/gsr2/src/direction.
 full_size_on	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn full_size_on(&self) -> bool {$/;"	f
 gen_nine_colors	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub fn gen_nine_colors() -> DynamicImage {$/;"	f
 gen_single_dot	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub fn gen_single_dot() {$/;"	f
+get_all_picture_file_paths	/Users/christophethibaut/Coding/gsr2/src/file_system.rs	/^pub fn get_all_picture_file_paths(path: &str) -> Result<Vec<String>> {$/;"	f
 get_palette	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^pub fn get_palette(image: &DynamicImage) -> Palette {$/;"	f
 get_palette_from_picture_file	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^pub fn get_palette_from_picture_file(file_path: &str) -> Result<Palette> {$/;"	f
 launch_application	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn launch_application(cli: CommandLineInterface) {$/;"	f
+len	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn len(&self) -> usize {$/;"	f
+load_from_directory	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn load_from_directory(&mut self, path: &str) -> Result<usize> {$/;"	f
+loading_from_a_directory_collect_all_the_picture_files_from_that_directory	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    fn loading_from_a_directory_collect_all_the_picture_files_from_that_directory() {$/;"	f
 main	/Users/christophethibaut/Coding/gsr2/src/main.rs	/^fn main() {$/;"	f
 make_palette_area	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn make_palette_area(palette: Palette) -> gtk::DrawingArea {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn new(palette_on: bool) -> Self {$/;"	f
+new	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn new() -> Gallery {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    pub fn new(file_name: &str) -> Self {$/;"	f
 palette_on	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn palette_on(&self) -> bool {$/;"	f
 parse_and_check	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    pub fn parse_and_check(args_opt: Option<Vec<&str>>) -> Result<Self> {$/;"	f

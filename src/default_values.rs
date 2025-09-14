@@ -4,3 +4,5 @@ pub const MAX_PALETTE_COLORS: u8 = 9;
 pub const PALETTE_AREA_HEIGHT: i32 = 10;
 pub const PALETTE_AREA_WIDTH: i32 = 90;
 pub const SCROLL_STEP: f64 = 100.0;
+pub const VALID_EXTENSIONS: [&str; 6] = ["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"];
+pub const THUMB_SUFFIX: &str = "THUMB";

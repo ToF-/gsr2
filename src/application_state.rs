@@ -10,7 +10,7 @@ impl ApplicationState {
         ApplicationState {
             expand_on: false,
             full_size_on: false,
-            palette_on: palette_on,
+            palette_on,
         }
     }
     pub fn expand_on(&self) -> bool {
