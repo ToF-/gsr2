@@ -19,6 +19,7 @@ struct GraphicalUserInterface {
     application_state: ApplicationState,
     application_window: gtk::ApplicationWindow,
     single_view_picture: gtk::Picture,
+    single_view_scrolled_window: gtk::ScrolledWindow,
     single_view_box: gtk::Box,
 }
 
@@ -137,6 +138,7 @@ pub fn build_gui(application: &gtk::Application, cli: &CommandLineInterface) {
         application_window,
         single_view_picture: picture,
         single_view_box: view_box,
+        single_view_scrolled_window: single_view_scrolled_window,
     };
     let evk = gtk::EventControllerKey::new();
     let gui_rc = Rc::new(RefCell::new(gui));
@@ -149,6 +151,18 @@ pub fn build_gui(application: &gtk::Application, cli: &CommandLineInterface) {
         gui.application_window.present()
     }
 }
+
+// fn arrow_command_full_size(direction: Direction, gui: &Gui) -> bool {
+//     let step: f64 = 100.0;
+//     let (picture_adjustment, step) = match direction {
+//         Direction::Right => (gui.single_view_scrolled_window.hadjustment(), step),
+//         Direction::Left  => (gui.single_view_scrolled_window.hadjustment(), -step),
+//         Direction::Down  => (gui.single_view_scrolled_window.vadjustment(), step),
+//         Direction::Up    => (gui.single_view_scrolled_window.vadjustment(), -step),
+//     };
+//     picture_adjustment.set_value(picture_adjustment.value() + step);
+//     false
+// }
 
 fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
     if let Ok(gui) = gui_rc.try_borrow_mut()
