@@ -27,7 +27,6 @@ pub fn get_palette(image: &DynamicImage) -> Palette {
         MaxColors::new(MAX_PALETTE_COLORS + 1),
         PixelFilter::None,
     );
-    eprint!("{} {:?}", colors.len(), colors);
     colors.iter().enumerate().for_each(|(i, c)| {
         palette[i] = Rgb([c.r, c.g, c.b]);
     });
