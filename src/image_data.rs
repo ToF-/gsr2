@@ -41,10 +41,10 @@ pub fn get_palette_from_picture_file(file_path: &str) -> Result<Palette> {
             let palette = get_palette(&image);
             Ok(palette)
         }
-        Err(_) => Err(Error::new(
-            ErrorKind::Other,
-            format!("can't open image file {} for palette extraction", file_path),
-        )),
+        Err(_) => Err(Error::other(format!(
+            "can't open image file {} for palette extraction",
+            file_path
+        ))),
     }
 }
 
