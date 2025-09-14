@@ -69,6 +69,13 @@ mod tests {
 
     #[test]
     #[should_panic]
+    fn a_readme_file_is_not_a_picture_file() {
+        let path: PathBuf = PathBuf::from("README.md");
+        let _ = check_path_is_a_jpg_or_png_file(&path).unwrap();
+    }
+
+    #[test]
+    #[should_panic]
     fn check_path_return_error_on_non_existent_path() {
         let dir: String = check_path("/this_dir_cant_exist").unwrap();
         assert_eq!(String::from("/this_dir_cant_exist"), dir);

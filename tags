@@ -27,6 +27,7 @@ THUMB_SUFFIX	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub co
 VALID_EXTENSIONS	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const VALID_EXTENSIONS: [&str; 6] = ["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"];$/;"	c
 VALID_EXTENSIONS	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^const VALID_EXTENSIONS: [&str; 6] = ["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"];$/;"	c
 a_picture_as_file_name_which_is_the_full_path_and_file_name_on_the_file_system	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    fn a_picture_as_file_name_which_is_the_full_path_and_file_name_on_the_file_system() {$/;"	f
+a_readme_file_is_not_a_picture_file	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^    fn a_readme_file_is_not_a_picture_file() {$/;"	f
 after_expand_toggle_expand_on_is_inverted	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    fn after_expand_toggle_expand_on_is_inverted() {$/;"	f
 after_full_size_toggle_full_size_on_is_inverted	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    fn after_full_size_toggle_full_size_on_is_inverted() {$/;"	f
 after_palette_toggle_palette_on_is_inverted	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    fn after_palette_toggle_palette_on_is_inverted() {$/;"	f
