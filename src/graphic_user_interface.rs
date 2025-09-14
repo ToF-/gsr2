@@ -154,7 +154,6 @@ pub fn build_gui(application: &gtk::Application, cli: &CommandLineInterface) {
 }
 
 fn arrow_command_full_size(direction: Direction, gui: &GraphicalUserInterface) -> bool {
-    let step: f64 = 100.0;
     let (picture_adjustment, step) = match direction {
         Direction::Right => (gui.single_view_scrolled_window.hadjustment(), SCROLL_STEP),
         Direction::Left => (gui.single_view_scrolled_window.hadjustment(), -SCROLL_STEP),
@@ -196,7 +195,7 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
         let cli = gui.command_line_interface.clone();
         set_picture_for_file_view(&gui, &cli);
     };
-    if let Ok(mut gui) = gui_rc.try_borrow_mut()
+    if let Ok(gui) = gui_rc.try_borrow_mut()
         && let Some(key_name) = key.name()
         && gui.application_state.full_size_on()
         && let Some(direction) = from_key_name(&key_name)

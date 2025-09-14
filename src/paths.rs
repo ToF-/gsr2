@@ -1,7 +1,6 @@
+use crate::default_values::VALID_EXTENSIONS;
 use std::io::{Error, ErrorKind, Result};
 use std::path::PathBuf;
-
-const VALID_EXTENSIONS: [&str; 6] = ["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"];
 
 pub fn check_path_exists(path: &PathBuf) -> Result<&PathBuf> {
     if path.exists() {
