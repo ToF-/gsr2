@@ -3,3 +3,4 @@ ls -l
 clear
 cargo clippy
 cargo fmt
+cargo build

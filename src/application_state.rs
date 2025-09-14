@@ -3,6 +3,11 @@ pub struct ApplicationState {
 }
 
 impl ApplicationState {
+    pub fn new(palette_on: bool) -> Self {
+        ApplicationState {
+            palette_on: palette_on,
+        }
+    }
     pub fn palette_on(&self) -> bool {
         self.palette_on
     }
