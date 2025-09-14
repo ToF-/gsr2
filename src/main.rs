@@ -6,6 +6,7 @@ use std::process::exit;
 mod application_state;
 mod command_line_interface;
 mod default_values;
+mod direction;
 mod gen_image;
 mod graphic_user_interface;
 mod image_data;

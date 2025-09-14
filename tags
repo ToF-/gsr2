@@ -10,6 +10,7 @@ Command	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^pub
 CommandLineInterface	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^pub struct CommandLineInterface {$/;"	s
 DEFAULT_HEIGHT	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const DEFAULT_HEIGHT: i32 = 1000;$/;"	c
 DEFAULT_WIDTH	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const DEFAULT_WIDTH: i32 = 1000;$/;"	c
+Direction	/Users/christophethibaut/Coding/gsr2/src/direction.rs	/^pub enum Direction {$/;"	g
 GraphicalUserInterface	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^struct GraphicalUserInterface {$/;"	s
 MAX_PALETTE_COLORS	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const MAX_PALETTE_COLORS: u8 = 9;$/;"	c
 NINE_COLORS	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub const NINE_COLORS: &str = "testdata\/nine_colors.png";$/;"	c
@@ -44,6 +45,8 @@ draw_palette	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	
 expand_on	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn expand_on(&self) -> bool {$/;"	f
 extract_a_palette_from_a_picture_file	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^    fn extract_a_palette_from_a_picture_file() {$/;"	f
 extract_a_palette_of_9_most_used_colors	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^    fn extract_a_palette_of_9_most_used_colors() {$/;"	f
+from_key_name	/Users/christophethibaut/Coding/gsr2/src/direction.rs	/^pub fn from_key_name(key_name: &str) -> Option<Direction> {$/;"	f
+from_key_name_to_a_direction	/Users/christophethibaut/Coding/gsr2/src/direction.rs	/^    fn from_key_name_to_a_direction() {$/;"	f
 full_size_on	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn full_size_on(&self) -> bool {$/;"	f
 gen_nine_colors	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub fn gen_nine_colors() -> DynamicImage {$/;"	f
 gen_single_dot	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub fn gen_single_dot() {$/;"	f
