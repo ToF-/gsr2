@@ -29,10 +29,7 @@ fn check_path_is_a_file(path: &PathBuf) -> Result<&PathBuf> {
     if path.is_file() {
         Ok(path)
     } else {
-        Err(Error::new(
-            ErrorKind::Other,
-            format!("{} is not a file", path.display()),
-        ))
+        Err(Error::other(format!("{} is not a file", path.display())))
     }
 }
 
