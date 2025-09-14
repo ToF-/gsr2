@@ -3,6 +3,7 @@ use crate::command_line_interface::CommandLineInterface;
 use crate::graphic_user_interface::launch_application;
 use std::process::exit;
 
+mod application_state;
 mod command_line_interface;
 mod default_values;
 mod gen_image;
