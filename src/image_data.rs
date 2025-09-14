@@ -31,7 +31,7 @@ pub fn get_palette(image: &DynamicImage) -> Palette {
     colors.iter().enumerate().for_each(|(i, c)| {
         palette[i] = Rgb([c.r, c.g, c.b]);
     });
-    palette.sort_by(|a, b| compare_rgb(a, &b));
+    palette.sort_by(|a, b| compare_rgb(a, b));
     palette
 }
 
