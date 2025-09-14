@@ -2,7 +2,7 @@ use crate::default_values::MAX_PALETTE_COLORS;
 use image::{DynamicImage, Rgb};
 use palette_extract::{MaxColors, PixelEncoding, PixelFilter, Quality, get_palette_with_options};
 use std::cmp::Ordering;
-use std::io::{Error, ErrorKind, Result};
+use std::io::{Error, Result};
 
 pub type Rgb8 = Rgb<u8>;
 pub type Palette = [Rgb8; 9];
