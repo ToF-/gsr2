@@ -17,7 +17,7 @@ impl ApplicationState {
         self.expand_on
     }
 
-    pub fn full_size_on(&mut self) -> bool {
+    pub fn full_size_on(&self) -> bool {
         self.full_size_on
     }
 

@@ -79,7 +79,7 @@ fn set_picture_for_file_view(gui: &GraphicalUserInterface, cli: &CommandLineInte
         picture.set_halign(Align::Center);
     }
     picture.set_opacity(1.00);
-    picture.set_can_shrink(true);
+    picture.set_can_shrink(!&gui.application_state.full_size_on());
     if let Some(File { file_name }) = &cli.command {
         if let Some(widget) = view_box.last_child()
             && widget != *picture
@@ -170,6 +170,14 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
         && key_name.as_str() == "e"
     {
         gui.application_state.toggle_expand();
+        let cli = gui.command_line_interface.clone();
+        set_picture_for_file_view(&gui, &cli);
+    };
+    if let Ok(mut gui) = gui_rc.try_borrow_mut()
+        && let Some(key_name) = key.name()
+        && key_name.as_str() == "f"
+    {
+        gui.application_state.toggle_full_size();
         let cli = gui.command_line_interface.clone();
         set_picture_for_file_view(&gui, &cli);
     };
