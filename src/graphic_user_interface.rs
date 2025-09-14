@@ -151,6 +151,7 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
     {
         gui.application_state.toggle_palette();
         let cli = gui.command_line_interface.clone();
+        set_picture_for_file_view(&gui, &cli);
     };
     gtk::Inhibit(false)
 }
