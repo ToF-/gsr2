@@ -2,7 +2,7 @@ use crate::application_state::ApplicationState;
 use crate::command_line_interface::Command::File;
 use crate::command_line_interface::CommandLineInterface;
 use crate::default_values::{
-    DEFAULT_HEIGHT, DEFAULT_WIDTH, PALETTE_AREA_HEIGHT, PALETTE_AREA_WIDTH,
+    DEFAULT_HEIGHT, DEFAULT_WIDTH, PALETTE_AREA_HEIGHT, PALETTE_AREA_WIDTH, SCROLL_STEP,
 };
 use crate::direction::{Direction, from_key_name};
 use crate::image_data::{Palette, get_palette_from_picture_file};
@@ -156,10 +156,10 @@ pub fn build_gui(application: &gtk::Application, cli: &CommandLineInterface) {
 fn arrow_command_full_size(direction: Direction, gui: &GraphicalUserInterface) -> bool {
     let step: f64 = 100.0;
     let (picture_adjustment, step) = match direction {
-        Direction::Right => (gui.single_view_scrolled_window.hadjustment(), step),
-        Direction::Left => (gui.single_view_scrolled_window.hadjustment(), -step),
-        Direction::Down => (gui.single_view_scrolled_window.vadjustment(), step),
-        Direction::Up => (gui.single_view_scrolled_window.vadjustment(), -step),
+        Direction::Right => (gui.single_view_scrolled_window.hadjustment(), SCROLL_STEP),
+        Direction::Left => (gui.single_view_scrolled_window.hadjustment(), -SCROLL_STEP),
+        Direction::Down => (gui.single_view_scrolled_window.vadjustment(), SCROLL_STEP),
+        Direction::Up => (gui.single_view_scrolled_window.vadjustment(), -SCROLL_STEP),
     };
     picture_adjustment.set_value(picture_adjustment.value() + step);
     false

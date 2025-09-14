@@ -3,3 +3,4 @@ pub const DEFAULT_WIDTH: i32 = 1000;
 pub const MAX_PALETTE_COLORS: u8 = 9;
 pub const PALETTE_AREA_HEIGHT: i32 = 10;
 pub const PALETTE_AREA_WIDTH: i32 = 90;
+pub const SCROLL_STEP: f64 = 100.0;
