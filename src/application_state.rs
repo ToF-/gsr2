@@ -1,3 +1,4 @@
+#[derive(Debug)]
 pub struct ApplicationState {
     expand_on: bool,
     palette_on: bool,
@@ -19,7 +20,7 @@ impl ApplicationState {
     }
 
     pub fn toggle_expand(&mut self) {
-        self.expand_on = !self.palette_on
+        self.expand_on = !self.expand_on
     }
 
     pub fn toggle_palette(&mut self) {
@@ -43,5 +44,7 @@ mod tests {
         let mut state = ApplicationState::new(false);
         state.toggle_expand();
         assert_eq!(true, state.expand_on());
+        state.toggle_expand();
+        assert_eq!(false, state.expand_on());
     }
 }

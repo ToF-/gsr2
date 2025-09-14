@@ -13,6 +13,7 @@ use gtk::{Align, Application, ApplicationWindow, Orientation, Picture, ScrolledW
 use std::cell::RefCell;
 use std::rc::Rc;
 
+#[derive(Debug)]
 struct GraphicalUserInterface {
     command_line_interface: CommandLineInterface,
     application_state: ApplicationState,
@@ -78,6 +79,7 @@ fn set_picture_for_file_view(gui: &GraphicalUserInterface, cli: &CommandLineInte
         picture.set_halign(Align::Center);
     }
     picture.set_opacity(1.00);
+    picture.set_can_shrink(true);
     if let Some(File { file_name }) = &cli.command {
         println!("{}", file_name);
         picture.set_filename(Some(file_name));
@@ -161,6 +163,7 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
         gui.application_state.toggle_palette();
         let cli = gui.command_line_interface.clone();
         set_picture_for_file_view(&gui, &cli);
+        println!("{:?}", gui);
     };
     if let Ok(mut gui) = gui_rc.try_borrow_mut()
         && let Some(key_name) = key.name()
@@ -169,6 +172,7 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
         gui.application_state.toggle_expand();
         let cli = gui.command_line_interface.clone();
         set_picture_for_file_view(&gui, &cli);
+        println!("{:?}", gui);
     };
     gtk::Inhibit(false)
 }
