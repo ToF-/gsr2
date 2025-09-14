@@ -75,7 +75,7 @@ fn set_picture_for_file_view(gui: &GraphicalUserInterface, cli: &CommandLineInte
     if let Some(File { file_name }) = &cli.command {
         println!("{}", file_name);
         picture.set_filename(Some(file_name));
-        if cli.palette_on()
+        if gui.application_state.palette_on()
             && let Ok(colors) = get_palette_from_picture_file(file_name)
         {
             let palette_area = make_palette_area(colors);
