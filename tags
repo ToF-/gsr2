@@ -24,6 +24,7 @@ VALID_EXTENSIONS	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^const VALID
 after_expand_toggle_expand_on_is_inverted	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    fn after_expand_toggle_expand_on_is_inverted() {$/;"	f
 after_full_size_toggle_full_size_on_is_inverted	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    fn after_full_size_toggle_full_size_on_is_inverted() {$/;"	f
 after_palette_toggle_palette_on_is_inverted	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    fn after_palette_toggle_palette_on_is_inverted() {$/;"	f
+arrow_command_full_size	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn arrow_command_full_size(direction: Direction, gui: &GraphicalUserInterface) -> bool {$/;"	f
 build_gui	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn build_gui(application: &gtk::Application, cli: &CommandLineInterface) {$/;"	f
 check_path	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^pub fn check_path(source: &str) -> Result<String> {$/;"	f
 check_path_exists	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^fn check_path_exists(path: &PathBuf) -> Result<&PathBuf> {$/;"	f

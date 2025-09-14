@@ -4,6 +4,7 @@ use crate::command_line_interface::CommandLineInterface;
 use crate::default_values::{
     DEFAULT_HEIGHT, DEFAULT_WIDTH, PALETTE_AREA_HEIGHT, PALETTE_AREA_WIDTH,
 };
+use crate::direction::{Direction, from_key_name};
 use crate::image_data::{Palette, get_palette_from_picture_file};
 use gtk::cairo::{Context, Format, ImageSurface};
 use gtk::gdk::Key;
@@ -152,17 +153,17 @@ pub fn build_gui(application: &gtk::Application, cli: &CommandLineInterface) {
     }
 }
 
-// fn arrow_command_full_size(direction: Direction, gui: &Gui) -> bool {
-//     let step: f64 = 100.0;
-//     let (picture_adjustment, step) = match direction {
-//         Direction::Right => (gui.single_view_scrolled_window.hadjustment(), step),
-//         Direction::Left  => (gui.single_view_scrolled_window.hadjustment(), -step),
-//         Direction::Down  => (gui.single_view_scrolled_window.vadjustment(), step),
-//         Direction::Up    => (gui.single_view_scrolled_window.vadjustment(), -step),
-//     };
-//     picture_adjustment.set_value(picture_adjustment.value() + step);
-//     false
-// }
+fn arrow_command_full_size(direction: Direction, gui: &GraphicalUserInterface) -> bool {
+    let step: f64 = 100.0;
+    let (picture_adjustment, step) = match direction {
+        Direction::Right => (gui.single_view_scrolled_window.hadjustment(), step),
+        Direction::Left => (gui.single_view_scrolled_window.hadjustment(), -step),
+        Direction::Down => (gui.single_view_scrolled_window.vadjustment(), step),
+        Direction::Up => (gui.single_view_scrolled_window.vadjustment(), -step),
+    };
+    picture_adjustment.set_value(picture_adjustment.value() + step);
+    false
+}
 
 fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
     if let Ok(gui) = gui_rc.try_borrow_mut()
@@ -194,6 +195,13 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
         gui.application_state.toggle_full_size();
         let cli = gui.command_line_interface.clone();
         set_picture_for_file_view(&gui, &cli);
+    };
+    if let Ok(mut gui) = gui_rc.try_borrow_mut()
+        && let Some(key_name) = key.name()
+        && gui.application_state.full_size_on()
+        && let Some(direction) = from_key_name(&key_name)
+    {
+        arrow_command_full_size(direction, &gui);
     };
     gtk::Inhibit(false)
 }
