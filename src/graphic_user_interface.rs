@@ -14,6 +14,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 struct GraphicalUserInterface {
+    command_line_interface: CommandLineInterface,
     application_state: ApplicationState,
     application_window: gtk::ApplicationWindow,
     single_view_picture: gtk::Picture,
@@ -119,6 +120,7 @@ pub fn build_gui(application: &gtk::Application, cli: &CommandLineInterface) {
     application_window.set_child(Some(&view_stack));
 
     let gui = GraphicalUserInterface {
+        command_line_interface: cli.clone(),
         application_state: ApplicationState::new(false),
         application_window,
         single_view_picture: picture,
@@ -147,7 +149,7 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
         && let Some(key_name) = key.name()
         && key_name.as_str() == "x"
     {
-        gui.application_state.toggle_palette()
+        gui.application_state.toggle_palette();
     };
     gtk::Inhibit(false)
 }
