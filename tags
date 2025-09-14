@@ -11,12 +11,14 @@ CommandLineInterface	/Users/christophethibaut/Coding/gsr2/src/command_line_inter
 DEFAULT_HEIGHT	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const DEFAULT_HEIGHT: i32 = 1000;$/;"	c
 DEFAULT_WIDTH	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const DEFAULT_WIDTH: i32 = 1000;$/;"	c
 Direction	/Users/christophethibaut/Coding/gsr2/src/direction.rs	/^pub enum Direction {$/;"	g
+Gallery	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^pub struct Gallery {$/;"	s
 GraphicalUserInterface	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^struct GraphicalUserInterface {$/;"	s
 MAX_PALETTE_COLORS	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const MAX_PALETTE_COLORS: u8 = 9;$/;"	c
 NINE_COLORS	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub const NINE_COLORS: &str = "testdata\/nine_colors.png";$/;"	c
 PALETTE_AREA_HEIGHT	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const PALETTE_AREA_HEIGHT: i32 = 10;$/;"	c
 PALETTE_AREA_WIDTH	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const PALETTE_AREA_WIDTH: i32 = 90;$/;"	c
 Palette	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^pub type Palette = [Rgb8; 9];$/;"	T
+Picture	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^pub struct Picture {$/;"	s
 RcRefCellGui	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^type RcRefCellGui = Rc<RefCell<GraphicalUserInterface>>;$/;"	T
 Rgb8	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^pub type Rgb8 = Rgb<u8>;$/;"	T
 SCROLL_STEP	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const SCROLL_STEP: f64 = 100.0;$/;"	c
