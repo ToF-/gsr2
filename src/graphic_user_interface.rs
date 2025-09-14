@@ -8,9 +8,7 @@ use gtk::cairo::{Context, Format, ImageSurface};
 use gtk::gdk::Key;
 use gtk::glib::clone;
 use gtk::prelude::*;
-use gtk::{
-    Align, Application, ApplicationWindow, Orientation, Picture, ScrolledWindow, gdk,
-};
+use gtk::{Align, Application, ApplicationWindow, Orientation, Picture, ScrolledWindow, gdk};
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -75,12 +73,12 @@ fn set_picture_for_file_view(gui: &GraphicalUserInterface, cli: &CommandLineInte
     if let Some(File { file_name }) = &cli.command {
         println!("{}", file_name);
         picture.set_filename(Some(file_name));
-        if cli.palette_on() {
-            if let Ok(colors) = get_palette_from_picture_file(file_name) {
-                let palette_area = make_palette_area(colors);
-                view_box.insert_child_after(&palette_area, Some(picture));
-            };
-        }
+        if cli.palette_on()
+            && let Ok(colors) = get_palette_from_picture_file(file_name)
+        {
+            let palette_area = make_palette_area(colors);
+            view_box.insert_child_after(&palette_area, Some(picture));
+        };
     } else {
         println!("no picture file to display")
     };
