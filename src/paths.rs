@@ -39,10 +39,10 @@ fn check_path_is_a_jpg_or_png_file(path: &PathBuf) -> Result<&PathBuf> {
     {
         return Ok(path);
     }
-    Err(Error::new(
-        ErrorKind::Other,
-        format!("{} is not a jpg or png file", path.display()),
-    ))
+    Err(Error::other(format!(
+        "{} is not a jpg or png file",
+        path.display()
+    )))
 }
 
 pub fn check_picture_file(file_name: &str) -> Result<String> {
