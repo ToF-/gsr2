@@ -162,6 +162,14 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
         let cli = gui.command_line_interface.clone();
         set_picture_for_file_view(&gui, &cli);
     };
+    if let Ok(mut gui) = gui_rc.try_borrow_mut()
+        && let Some(key_name) = key.name()
+        && key_name.as_str() == "e"
+    {
+        gui.application_state.toggle_expand();
+        let cli = gui.command_line_interface.clone();
+        set_picture_for_file_view(&gui, &cli);
+    };
     gtk::Inhibit(false)
 }
 pub fn launch_application(cli: CommandLineInterface) {
