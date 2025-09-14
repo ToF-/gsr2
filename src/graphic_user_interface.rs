@@ -81,10 +81,10 @@ fn set_picture_for_file_view(gui: &GraphicalUserInterface, cli: &CommandLineInte
         {
             let palette_area = make_palette_area(colors);
             view_box.insert_child_after(&palette_area, Some(picture));
-        } else if let Some(widget) = view_box.last_child() {
-            if widget != *picture {
-                view_box.remove(&widget)
-            }
+        } else if let Some(widget) = view_box.last_child()
+            && widget != *picture
+        {
+            view_box.remove(&widget)
         }
     } else {
         println!("no picture file to display")
