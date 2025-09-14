@@ -11,6 +11,7 @@ mod gen_image;
 mod graphic_user_interface;
 mod image_data;
 mod paths;
+mod picture;
 
 fn main() {
     match CommandLineInterface::parse_and_check(None) {
