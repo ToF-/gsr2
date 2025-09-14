@@ -1,3 +1,4 @@
+use crate::application_state::ApplicationState;
 use crate::command_line_interface::Command::File;
 use crate::command_line_interface::CommandLineInterface;
 use crate::default_values::{
@@ -13,6 +14,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 struct GraphicalUserInterface {
+    application_state: ApplicationState,
     application_window: gtk::ApplicationWindow,
     single_view_picture: gtk::Picture,
     single_view_box: gtk::Box,
@@ -117,6 +119,7 @@ pub fn build_gui(application: &gtk::Application, cli: &CommandLineInterface) {
     application_window.set_child(Some(&view_stack));
 
     let gui = GraphicalUserInterface {
+        application_state: ApplicationState::new(false),
         application_window,
         single_view_picture: picture,
         single_view_box: view_box,
@@ -139,6 +142,12 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
         && key_name.as_str() == "q"
     {
         gui.application_window.close()
+    };
+    if let Ok(mut gui) = gui_rc.try_borrow_mut()
+        && let Some(key_name) = key.name()
+        && key_name.as_str() == "x"
+    {
+        gui.application_state.toggle_palette()
     };
     gtk::Inhibit(false)
 }
