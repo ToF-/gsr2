@@ -13,5 +13,5 @@
 - [x] upon launching with the command: File display a single view of the picture
 - [x] key q quits the application
 - [x] key x toggle showing palette under the picture
-- [ ] key e expand the picture to the surface of the view
+- [x] key e expand the picture to the surface of the view
 
