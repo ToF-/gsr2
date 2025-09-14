@@ -22,6 +22,10 @@ mod tests {
 
     #[test]
     fn from_key_name_to_a_direction() {
-        assert_eq!(Some(Direction::Left), from_key_name("Left"))
+        assert_eq!(Some(Direction::Left), from_key_name("Left"));
+        assert_eq!(Some(Direction::Right), from_key_name("Right"));
+        assert_eq!(Some(Direction::Up), from_key_name("Up"));
+        assert_eq!(Some(Direction::Down), from_key_name("Down"));
+        assert_eq!(None, from_key_name("foo"))
     }
 }
