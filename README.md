@@ -15,4 +15,5 @@
 - [x] key x toggle showing palette under the picture
 - [x] key e expand the picture to the surface of the view
 - [x] key f expand full view with arrow key to navigate the view
+- [ ] upon launching with the command: Directory followed by a directory, load pictures from that directory for display
 
