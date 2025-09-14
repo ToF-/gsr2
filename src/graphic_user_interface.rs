@@ -81,18 +81,19 @@ fn set_picture_for_file_view(gui: &GraphicalUserInterface, cli: &CommandLineInte
     picture.set_opacity(1.00);
     picture.set_can_shrink(true);
     if let Some(File { file_name }) = &cli.command {
-        println!("{}", file_name);
+        if let Some(widget) = view_box.last_child()
+            && widget != *picture
+        {
+            view_box.remove(&widget)
+        };
         picture.set_filename(Some(file_name));
         if gui.application_state.palette_on()
             && let Ok(colors) = get_palette_from_picture_file(file_name)
         {
             let palette_area = make_palette_area(colors);
             view_box.insert_child_after(&palette_area, Some(picture));
-        } else if let Some(widget) = view_box.last_child()
-            && widget != *picture
-        {
-            view_box.remove(&widget)
         }
+        gui.application_window.set_title(Some(&file_name));
     } else {
         println!("no picture file to display")
     };
@@ -163,7 +164,6 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
         gui.application_state.toggle_palette();
         let cli = gui.command_line_interface.clone();
         set_picture_for_file_view(&gui, &cli);
-        println!("{:?}", gui);
     };
     if let Ok(mut gui) = gui_rc.try_borrow_mut()
         && let Some(key_name) = key.name()
@@ -172,7 +172,6 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
         gui.application_state.toggle_expand();
         let cli = gui.command_line_interface.clone();
         set_picture_for_file_view(&gui, &cli);
-        println!("{:?}", gui);
     };
     gtk::Inhibit(false)
 }
