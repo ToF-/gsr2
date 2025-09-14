@@ -34,10 +34,10 @@ fn check_path_is_a_file(path: &PathBuf) -> Result<&PathBuf> {
 }
 
 fn check_path_is_a_jpg_or_png_file(path: &PathBuf) -> Result<&PathBuf> {
-    if let Some(extension) = path.extension() {
-        if VALID_EXTENSIONS.contains(&extension.to_str().unwrap()) {
-            return Ok(path);
-        }
+    if let Some(extension) = path.extension()
+        && VALID_EXTENSIONS.contains(&extension.to_str().unwrap())
+    {
+        return Ok(path);
     }
     Err(Error::new(
         ErrorKind::Other,
