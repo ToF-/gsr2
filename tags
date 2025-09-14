@@ -41,7 +41,6 @@ extract_a_palette_from_a_picture_file	/Users/christophethibaut/Coding/gsr2/src/i
 extract_a_palette_of_9_most_used_colors	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^    fn extract_a_palette_of_9_most_used_colors() {$/;"	f
 gen_nine_colors	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub fn gen_nine_colors() -> DynamicImage {$/;"	f
 gen_single_dot	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub fn gen_single_dot() {$/;"	f
-generate_some_test_images	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^    fn generate_some_test_images() {$/;"	f
 get_palette	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^pub fn get_palette(image: &DynamicImage) -> Palette {$/;"	f
 get_palette_from_picture_file	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^pub fn get_palette_from_picture_file(file_path: &str) -> Result<Palette> {$/;"	f
 launch_application	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn launch_application(cli: CommandLineInterface) {$/;"	f
