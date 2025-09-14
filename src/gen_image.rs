@@ -46,15 +46,3 @@ pub fn save_nine_colors() {
     let image = gen_nine_colors();
     image.save(NINE_COLORS).unwrap();
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn generate_some_test_images() {
-        gen_single_dot();
-        //        save_nine_colors();
-        assert!(true);
-    }
-}
