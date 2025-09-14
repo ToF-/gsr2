@@ -14,5 +14,5 @@
 - [x] key q quits the application
 - [x] key x toggle showing palette under the picture
 - [x] key e expand the picture to the surface of the view
-- [ ] key f expand full view with arrow key to navigate the view
+- [x] key f expand full view with arrow key to navigate the view
 
