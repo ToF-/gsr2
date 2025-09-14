@@ -12,5 +12,5 @@
 - [x] upon launching with the command: File followed by a file that doesn't have extension jpg,jpeg or png, exit with error message
 - [x] upon launching with the command: File display a single view of the picture
 - [x] key q quits the application
-- [ ] key x toggle showing palette under the picture
+- [x] key x toggle showing palette under the picture
 
