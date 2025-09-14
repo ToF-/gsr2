@@ -150,6 +150,7 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
         && key_name.as_str() == "x"
     {
         gui.application_state.toggle_palette();
+        let cli = gui.command_line_interface.clone();
     };
     gtk::Inhibit(false)
 }
