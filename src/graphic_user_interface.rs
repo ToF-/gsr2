@@ -9,7 +9,7 @@ use gtk::gdk::Key;
 use gtk::glib::clone;
 use gtk::prelude::*;
 use gtk::{
-    Align, Application, ApplicationWindow, DrawingArea, Orientation, Picture, ScrolledWindow, gdk,
+    Align, Application, ApplicationWindow, Orientation, Picture, ScrolledWindow, gdk,
 };
 use std::cell::RefCell;
 use std::rc::Rc;
