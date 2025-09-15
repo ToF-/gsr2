@@ -1,6 +1,7 @@
 use crate::application_state::ApplicationState;
 use crate::command::Command;
 use crate::command_line_interface::CommandLineInterface;
+use crate::control::Control;
 use crate::default_values::{
     DEFAULT_HEIGHT, DEFAULT_WIDTH, PALETTE_AREA_HEIGHT, PALETTE_AREA_WIDTH, SCROLL_STEP,
 };
@@ -189,7 +190,7 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
     };
     if let Ok(mut gui) = gui_rc.try_borrow_mut()
         && let Some(key_name) = key.name()
-        && key_name.as_str() == "f"
+        && let Some(Control::ToggleFullSize) = gui.application_state.get_control(key_name.as_str())
     {
         gui.application_state.toggle_full_size();
         let cli = gui.command_line_interface.clone();
