@@ -2,6 +2,10 @@ use std::collections::HashMap;
 
 #[derive(PartialEq, Clone, Debug)]
 pub enum Control {
+    Left,
+    Right,
+    Up,
+    Down,
     ToggleExpand,
     ToggleFullSize,
     TogglePalette,
@@ -16,6 +20,10 @@ pub fn default_controls() -> Controls {
         (String::from("f"), Control::ToggleFullSize),
         (String::from("x"), Control::TogglePalette),
         (String::from("q"), Control::Quit),
+        (String::from("Left"), Control::Left),
+        (String::from("Right"), Control::Right),
+        (String::from("Up"), Control::Up),
+        (String::from("Down"), Control::Down),
     ]);
     controls
 }

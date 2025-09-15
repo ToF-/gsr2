@@ -12,7 +12,6 @@ Control	/Users/christophethibaut/Coding/gsr2/src/control.rs	/^pub enum Control {
 Controls	/Users/christophethibaut/Coding/gsr2/src/control.rs	/^pub type Controls = HashMap<String, Control>;$/;"	T
 DEFAULT_HEIGHT	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const DEFAULT_HEIGHT: i32 = 1000;$/;"	c
 DEFAULT_WIDTH	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const DEFAULT_WIDTH: i32 = 1000;$/;"	c
-Direction	/Users/christophethibaut/Coding/gsr2/src/direction.rs	/^pub enum Direction {$/;"	g
 Gallery	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^pub struct Gallery {$/;"	s
 GraphicalUserInterface	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^struct GraphicalUserInterface {$/;"	s
 MAX_PALETTE_COLORS	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const MAX_PALETTE_COLORS: u8 = 9;$/;"	c
@@ -32,7 +31,7 @@ a_readme_file_is_not_a_picture_file	/Users/christophethibaut/Coding/gsr2/src/pat
 after_expand_toggle_expand_on_is_inverted	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    fn after_expand_toggle_expand_on_is_inverted() {$/;"	f
 after_full_size_toggle_full_size_on_is_inverted	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    fn after_full_size_toggle_full_size_on_is_inverted() {$/;"	f
 after_palette_toggle_palette_on_is_inverted	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    fn after_palette_toggle_palette_on_is_inverted() {$/;"	f
-arrow_command_full_size	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn arrow_command_full_size(direction: Direction, gui: &GraphicalUserInterface) -> bool {$/;"	f
+arrow_command_full_size	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn arrow_command_full_size(direction: Control, gui: &GraphicalUserInterface) -> bool {$/;"	f
 build_gui	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn build_gui(application: &gtk::Application, cli: &CommandLineInterface) {$/;"	f
 check_path	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^pub fn check_path(source: &str) -> Result<String> {$/;"	f
 check_path_exists	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^pub fn check_path_exists(path: &PathBuf) -> Result<&PathBuf> {$/;"	f
@@ -56,9 +55,7 @@ expand_on	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pu
 extract_a_palette_from_a_picture_file	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^    fn extract_a_palette_from_a_picture_file() {$/;"	f
 extract_a_palette_of_9_most_used_colors	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^    fn extract_a_palette_of_9_most_used_colors() {$/;"	f
 file_name	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    pub fn file_name(&self) -> String {$/;"	f
-from_key_name	/Users/christophethibaut/Coding/gsr2/src/direction.rs	/^pub fn from_key_name(key_name: &str) -> Option<Direction> {$/;"	f
 from_key_name_to_a_control	/Users/christophethibaut/Coding/gsr2/src/control.rs	/^    fn from_key_name_to_a_control() {$/;"	f
-from_key_name_to_a_direction	/Users/christophethibaut/Coding/gsr2/src/direction.rs	/^    fn from_key_name_to_a_direction() {$/;"	f
 full_size_on	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn full_size_on(&self) -> bool {$/;"	f
 gen_nine_colors	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub fn gen_nine_colors() -> DynamicImage {$/;"	f
 gen_single_dot	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub fn gen_single_dot() {$/;"	f

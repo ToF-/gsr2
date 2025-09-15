@@ -5,7 +5,6 @@ use crate::control::Control;
 use crate::default_values::{
     DEFAULT_HEIGHT, DEFAULT_WIDTH, PALETTE_AREA_HEIGHT, PALETTE_AREA_WIDTH, SCROLL_STEP,
 };
-use crate::direction::{Direction, from_key_name};
 use crate::image_data::{Palette, get_palette_from_picture_file};
 use gtk::cairo::{Context, Format, ImageSurface};
 use gtk::gdk::Key;
@@ -154,45 +153,49 @@ pub fn build_gui(application: &gtk::Application, cli: &CommandLineInterface) {
     }
 }
 
-fn arrow_command_full_size(direction: Direction, gui: &GraphicalUserInterface) -> bool {
+fn arrow_command_full_size(direction: Control, gui: &GraphicalUserInterface) -> bool {
     let (picture_adjustment, step) = match direction {
-        Direction::Right => (gui.single_view_scrolled_window.hadjustment(), SCROLL_STEP),
-        Direction::Left => (gui.single_view_scrolled_window.hadjustment(), -SCROLL_STEP),
-        Direction::Down => (gui.single_view_scrolled_window.vadjustment(), SCROLL_STEP),
-        Direction::Up => (gui.single_view_scrolled_window.vadjustment(), -SCROLL_STEP),
+        Control::Right => (gui.single_view_scrolled_window.hadjustment(), SCROLL_STEP),
+        Control::Left => (gui.single_view_scrolled_window.hadjustment(), -SCROLL_STEP),
+        Control::Down => (gui.single_view_scrolled_window.vadjustment(), SCROLL_STEP),
+        Control::Up => (gui.single_view_scrolled_window.vadjustment(), -SCROLL_STEP),
+        _ => return false,
     };
     picture_adjustment.set_value(picture_adjustment.value() + step);
     false
 }
 
 fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
-    if let Ok(mut gui) = gui_rc.try_borrow_mut() {
-        if let Some(key_name) = key.name() {
-            match gui.application_state.get_control(key_name.as_str()) {
-                Some(Control::Quit) => gui.application_window.close(),
-                Some(Control::TogglePalette) => {
-                    gui.application_state.toggle_palette();
-                    let cli = gui.command_line_interface.clone();
-                    set_picture_for_file_view(&gui, &cli);
+    if let Ok(mut gui) = gui_rc.try_borrow_mut()
+        && let Some(key_name) = key.name()
+    {
+        match gui.application_state.get_control(key_name.as_str()) {
+            Some(Control::Quit) => gui.application_window.close(),
+            Some(Control::TogglePalette) => {
+                gui.application_state.toggle_palette();
+                let cli = gui.command_line_interface.clone();
+                set_picture_for_file_view(&gui, &cli);
+            }
+            Some(Control::ToggleExpand) => {
+                gui.application_state.toggle_expand();
+                let cli = gui.command_line_interface.clone();
+                set_picture_for_file_view(&gui, &cli);
+            }
+            Some(Control::ToggleFullSize) => {
+                gui.application_state.toggle_full_size();
+                let cli = gui.command_line_interface.clone();
+                set_picture_for_file_view(&gui, &cli);
+            }
+            Some(direction @ Control::Left)
+            | Some(direction @ Control::Right)
+            | Some(direction @ Control::Up)
+            | Some(direction @ Control::Down) => {
+                if gui.application_state.full_size_on() {
+                    arrow_command_full_size(direction, &gui);
                 }
-                Some(Control::ToggleExpand) => {
-                    gui.application_state.toggle_expand();
-                    let cli = gui.command_line_interface.clone();
-                    set_picture_for_file_view(&gui, &cli);
-                }
-                Some(Control::ToggleFullSize) => {
-                    gui.application_state.toggle_full_size();
-                    let cli = gui.command_line_interface.clone();
-                    set_picture_for_file_view(&gui, &cli);
-                }
-                other => {
-                    if let Some(key_name) = key.name()
-                        && gui.application_state.full_size_on()
-                        && let Some(direction) = from_key_name(&key_name)
-                    {
-                        arrow_command_full_size(direction, &gui);
-                    };
-                }
+            }
+            _ => {
+                println!("{:?}", key_name)
             }
         }
     };
