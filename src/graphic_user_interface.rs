@@ -95,7 +95,7 @@ fn set_picture_for_file_view(gui: &GraphicalUserInterface, cli: &CommandLineInte
             let palette_area = make_palette_area(colors);
             view_box.insert_child_after(&palette_area, Some(picture));
         }
-        gui.application_window.set_title(Some(&file_name));
+        gui.application_window.set_title(Some(file_name));
     } else {
         println!("no picture file to display")
     };

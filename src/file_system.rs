@@ -4,7 +4,7 @@ use std::io::Result;
 use walkdir::WalkDir;
 
 pub fn get_all_picture_file_paths(path: &str) -> Result<Vec<String>> {
-    let result = check_path(path).and_then(|directory| {
+    check_path(path).map(|directory| {
         let mut file_paths: Vec<String> = Vec::new();
         for _entry in WalkDir::new(directory)
             .into_iter()
@@ -12,13 +12,12 @@ pub fn get_all_picture_file_paths(path: &str) -> Result<Vec<String>> {
             .map(|entry| entry.into_path())
             .filter(|path| {
                 path.is_file()
-                    && check_path_is_a_jpg_or_png_file(&path).is_ok()
+                    && check_path_is_a_jpg_or_png_file(path).is_ok()
                     && !path.display().to_string().contains(THUMB_SUFFIX)
             })
         {
             file_paths.push(path.to_string())
         }
-        Ok(file_paths)
-    });
-    result
+        file_paths
+    })
 }
