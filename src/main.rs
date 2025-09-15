@@ -1,4 +1,4 @@
-use crate::command::Command::File;
+use crate::command::Command;
 use crate::command_line_interface::CommandLineInterface;
 use crate::graphic_user_interface::launch_application;
 use std::process::exit;
@@ -23,7 +23,7 @@ fn main() {
                 Some(ref dir) => println!("directory: {}", dir),
                 None => println!("no directory supplied"),
             };
-            if let Some(File { ref file_name }) = cli.command {
+            if let Some(Command::File { ref file_name }) = cli.command {
                 println!("viewing file {}", file_name);
                 launch_application(cli.clone())
             }
