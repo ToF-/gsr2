@@ -1,4 +1,4 @@
-use crate::control::{Controls, default_controls};
+use crate::control::{Control, Controls, default_controls};
 
 #[derive(Debug)]
 pub struct ApplicationState {
@@ -40,6 +40,10 @@ impl ApplicationState {
     pub fn toggle_palette(&mut self) {
         self.palette_on = !self.palette_on
     }
+
+    pub fn get_control(&self, key_name: &str) -> Option<Control> {
+        self.controls.get(key_name).cloned()
+    }
 }
 
 #[cfg(test)]
@@ -68,5 +72,11 @@ mod tests {
         assert_eq!(true, state.full_size_on());
         state.toggle_full_size();
         assert_eq!(false, state.full_size_on());
+    }
+
+    #[test]
+    fn get_the_control_matching_a_keyname() {
+        let state = ApplicationState::new(false);
+        assert_eq!(Some(Control::ToggleFullSize), state.get_control("f"));
     }
 }

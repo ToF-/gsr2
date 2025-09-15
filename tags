@@ -63,8 +63,10 @@ full_size_on	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^   
 gen_nine_colors	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub fn gen_nine_colors() -> DynamicImage {$/;"	f
 gen_single_dot	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub fn gen_single_dot() {$/;"	f
 get_all_picture_file_paths	/Users/christophethibaut/Coding/gsr2/src/file_system.rs	/^pub fn get_all_picture_file_paths(path: &str) -> Result<Vec<String>> {$/;"	f
+get_control	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn get_control(&self, key_name: &str) -> Option<Control> {$/;"	f
 get_palette	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^pub fn get_palette(image: &DynamicImage) -> Palette {$/;"	f
 get_palette_from_picture_file	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^pub fn get_palette_from_picture_file(file_path: &str) -> Result<Palette> {$/;"	f
+get_the_control_matching_a_keyname	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    fn get_the_control_matching_a_keyname() {$/;"	f
 launch_application	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn launch_application(cli: CommandLineInterface) {$/;"	f
 len	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn len(&self) -> usize {$/;"	f
 load_from_directory	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn load_from_directory(&mut self, path: &str) -> Result<usize> {$/;"	f
