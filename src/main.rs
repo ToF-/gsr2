@@ -6,6 +6,7 @@ use std::process::exit;
 mod application_state;
 mod command;
 mod command_line_interface;
+mod control;
 mod default_values;
 mod direction;
 mod file_system;
