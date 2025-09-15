@@ -1,5 +1,5 @@
 use crate::application_state::ApplicationState;
-use crate::command::Command::File;
+use crate::command::Command;
 use crate::command_line_interface::CommandLineInterface;
 use crate::default_values::{
     DEFAULT_HEIGHT, DEFAULT_WIDTH, PALETTE_AREA_HEIGHT, PALETTE_AREA_WIDTH, SCROLL_STEP,
@@ -82,7 +82,7 @@ fn set_picture_for_file_view(gui: &GraphicalUserInterface, cli: &CommandLineInte
     }
     picture.set_opacity(1.00);
     picture.set_can_shrink(!&gui.application_state.full_size_on());
-    if let Some(File { file_name }) = &cli.command {
+    if let Some(Command::File { file_name }) = &cli.command {
         if let Some(widget) = view_box.last_child()
             && widget != *picture
         {
