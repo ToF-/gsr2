@@ -1,5 +1,5 @@
 use crate::application_state::ApplicationState;
-use crate::command_line_interface::Command::File;
+use crate::command::Command::File;
 use crate::command_line_interface::CommandLineInterface;
 use crate::default_values::{
     DEFAULT_HEIGHT, DEFAULT_WIDTH, PALETTE_AREA_HEIGHT, PALETTE_AREA_WIDTH, SCROLL_STEP,

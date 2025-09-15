@@ -1,9 +1,10 @@
-use crate::command_line_interface::Command::File;
+use crate::command::Command::File;
 use crate::command_line_interface::CommandLineInterface;
 use crate::graphic_user_interface::launch_application;
 use std::process::exit;
 
 mod application_state;
+mod command;
 mod command_line_interface;
 mod default_values;
 mod direction;

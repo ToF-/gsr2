@@ -1,17 +1,7 @@
-use crate::command_line_interface::Command::File;
+use crate::command::Command;
 use crate::paths::{check_path, check_picture_file};
 use clap::{Parser, Subcommand};
 use std::io::Result;
-
-#[derive(Subcommand, Clone, Debug, PartialEq)]
-/// Command
-pub enum Command {
-    /// <FILE_NAME> view the individual picture FILE_NAME
-    File {
-        #[arg(value_name = "FILE_NAME")]
-        file_name: String,
-    },
-}
 
 #[derive(Parser, Clone, Debug, PartialEq)]
 /// Gallery Show
@@ -35,7 +25,7 @@ impl CommandLineInterface {
                 Err(e) => return Err(e),
             }
         };
-        if let Some(File { ref file_name }) = cli.command {
+        if let Some(Command::File { ref file_name }) = cli.command {
             match check_picture_file(file_name) {
                 Ok(_) => return Ok(cli.clone()),
                 Err(e) => return Err(e),
