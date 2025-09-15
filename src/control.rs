@@ -5,6 +5,7 @@ pub enum Control {
     ToggleExpand,
     ToggleFullSize,
     TogglePalette,
+    Quit,
 }
 
 pub type Controls = HashMap<String, Control>;
@@ -14,6 +15,7 @@ pub fn default_controls() -> Controls {
         (String::from("e"), Control::ToggleExpand),
         (String::from("f"), Control::ToggleFullSize),
         (String::from("x"), Control::TogglePalette),
+        (String::from("q"), Control::Quit),
     ]);
     controls
 }

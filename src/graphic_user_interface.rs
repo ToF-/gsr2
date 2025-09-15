@@ -168,13 +168,13 @@ fn arrow_command_full_size(direction: Direction, gui: &GraphicalUserInterface) -
 fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
     if let Ok(gui) = gui_rc.try_borrow_mut()
         && let Some(key_name) = key.name()
-        && key_name.as_str() == "q"
+        && let Some(Control::Quit) = gui.application_state.get_control(key_name.as_str())
     {
         gui.application_window.close()
     };
     if let Ok(mut gui) = gui_rc.try_borrow_mut()
         && let Some(key_name) = key.name()
-        && key_name.as_str() == "x"
+        && let Some(Control::TogglePalette) = gui.application_state.get_control(key_name.as_str())
     {
         gui.application_state.toggle_palette();
         let cli = gui.command_line_interface.clone();
@@ -182,7 +182,7 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
     };
     if let Ok(mut gui) = gui_rc.try_borrow_mut()
         && let Some(key_name) = key.name()
-        && key_name.as_str() == "e"
+        && let Some(Control::ToggleExpand) = gui.application_state.get_control(key_name.as_str())
     {
         gui.application_state.toggle_expand();
         let cli = gui.command_line_interface.clone();
