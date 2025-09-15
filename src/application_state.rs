@@ -1,5 +1,8 @@
+use crate::control::{Controls, default_controls};
+
 #[derive(Debug)]
 pub struct ApplicationState {
+    controls: Controls,
     expand_on: bool,
     full_size_on: bool,
     palette_on: bool,
@@ -8,6 +11,7 @@ pub struct ApplicationState {
 impl ApplicationState {
     pub fn new(palette_on: bool) -> Self {
         ApplicationState {
+            controls: default_controls(),
             expand_on: false,
             full_size_on: false,
             palette_on,

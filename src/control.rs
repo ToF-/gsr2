@@ -7,7 +7,7 @@ pub enum Control {
     TogglePalette,
 }
 
-type Controls = HashMap<String, Control>;
+pub type Controls = HashMap<String, Control>;
 
 pub fn default_controls() -> Controls {
     let controls: HashMap<String, Control> = HashMap::from([
