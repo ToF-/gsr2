@@ -1,6 +1,6 @@
 use crate::command::Command;
 use crate::paths::{check_path, check_picture_file};
-use clap::{Parser, Subcommand};
+use clap::Parser;
 use std::io::Result;
 
 #[derive(Parser, Clone, Debug, PartialEq)]
