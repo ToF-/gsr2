@@ -1,3 +1,4 @@
+use crate::display::title_display;
 use crate::Command::{Dir, File};
 use crate::application_state::ApplicationState;
 use crate::command::Command;
@@ -102,7 +103,7 @@ fn set_picture_for_file_view(
         let palette_area = make_palette_area(colors);
         view_box.insert_child_after(&palette_area, Some(single_view_picture));
     }
-    gui.application_window.set_title(Some(&picture.file_path()));
+    gui.application_window.set_title(Some(&title_display(&gui.application_state)))
 }
 pub fn build_gui(application: &gtk::Application, cli: &CommandLineInterface) {
     let application_window = ApplicationWindow::builder()
@@ -220,14 +221,16 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
         let cli = gui.command_line_interface.clone();
         let mut refresh: bool = true;
         match gui.application_state.get_control(key_name.as_str()) {
-            Some(Control::MoveNext) => {
+            Some(Control::MoveNext) 
+            | Some(Control::Right) if ! gui.application_state.full_size_on() => {
                 if gui.application_state.navigator().can_move_next() {
                     gui.application_state.move_next();
                 } else {
                     println!("bump")
                 }
             }
-            Some(Control::MovePrev) => {
+            Some(Control::MovePrev)
+            | Some(Control::Left) if ! gui.application_state.full_size_on() => {
                 if gui.application_state.navigator().can_move_prev() {
                     gui.application_state.move_prev();
                 } else {
@@ -246,6 +249,7 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
             Some(Control::ToggleFullSize) => {
                 gui.application_state.toggle_full_size();
             }
+            
             Some(direction @ Control::Left)
             | Some(direction @ Control::Right)
             | Some(direction @ Control::Up)
