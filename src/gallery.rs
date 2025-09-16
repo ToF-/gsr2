@@ -61,6 +61,10 @@ mod tests {
             String::from("./testdata/nine_colors.png"),
             gallery.picture(0).file_name()
         );
+        assert_eq!(
+            String::from("./testdata/single_dot.png"),
+            gallery.picture(1).file_name()
+        );
     }
 
     #[test]
