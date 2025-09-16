@@ -41,7 +41,8 @@ impl ApplicationState {
     }
 
     pub fn set_gallery(&mut self, gallery: Gallery) {
-        self.gallery = gallery
+        self.gallery = gallery;
+        self.navigator = Navigator::new(self.gallery.len())
     }
 
     pub fn toggle_expand(&mut self) {
