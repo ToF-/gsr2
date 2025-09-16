@@ -1,5 +1,5 @@
 use crate::default_values::THUMB_SUFFIX;
-use crate::paths::thumbnail_name_from;
+use crate::paths::{file_name_from, thumbnail_name_from};
 use std::path::PathBuf;
 
 #[derive(Debug, Clone, Ord, PartialOrd, PartialEq, Eq)]
@@ -20,6 +20,9 @@ impl Picture {
         self.file_path.clone()
     }
 
+    pub fn file_name(&self) -> String {
+        file_name_from(&self.file_path)
+    }
     pub fn thumbnail_file_path(&self) -> String {
         self.thumbnail_file_path.clone()
     }
@@ -30,7 +33,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn a_picture_as_file_path_which_is_the_full_path_and_file_path_on_the_file_system() {
+    fn a_picture_has_file_path_which_is_the_full_path_and_file_path_on_the_file_system() {
         let picture = Picture::new("testdata/nine_colors.png");
         assert_eq!(
             String::from("testdata/nine_colors.png"),
@@ -45,5 +48,11 @@ mod tests {
             String::from("testdata/nine_colorsTHUMB.png"),
             picture.thumbnail_file_path()
         )
+    }
+
+    #[test]
+    fn a_picture_has_a_file_name() {
+        let picture = Picture::new("testdata/nine_colors.png");
+        assert_eq!(String::from("nine_colors.png"), picture.file_name())
     }
 }

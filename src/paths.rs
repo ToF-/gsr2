@@ -61,6 +61,16 @@ pub fn check_path(source: &str) -> Result<String> {
         Err(e) => Err(e),
     }
 }
+
+pub fn file_name_from(file_path: &str) -> String {
+    let path: PathBuf = PathBuf::from(file_path);
+    path.file_name()
+        .expect("can't extract file_name")
+        .to_str()
+        .unwrap()
+        .to_string()
+}
+
 pub fn thumbnail_name_from(file_name: &str) -> String {
     let path: PathBuf = PathBuf::from(file_name);
     let result = path.parent().and_then(|parent| {
