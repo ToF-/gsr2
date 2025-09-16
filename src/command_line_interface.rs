@@ -31,6 +31,12 @@ impl CommandLineInterface {
                 Err(e) => return Err(e),
             }
         }
+        if let Some(Command::Dir { ref directory }) = cli.command {
+            match check_path(directory) {
+                Ok(_) => return Ok(cli.clone()),
+                Err(e) => return Err(e),
+            }
+        }
         Ok(cli.clone())
     }
 }
@@ -115,5 +121,14 @@ mod tests {
         } else {
             assert!(false)
         }
+    }
+    #[test]
+    fn command_line_interface_dir_command_with_non_existing_specified_directory() {
+        let args = vec!["gsr", "dir", "not_existing_dir"];
+        let cli = CommandLineInterface::parse_and_check(Some(args));
+        assert!(cli.is_err());
+        let err = cli.expect_err("can't extract error");
+        assert_eq!(ErrorKind::NotFound, err.kind());
+        assert_eq!("not found: not_existing_dir", &err.to_string())
     }
 }
