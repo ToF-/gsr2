@@ -38,7 +38,7 @@ impl CommandLineInterface {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::command_line_interface::Command::File;
+    use crate::command_line_interface::Command::{Dir, File};
     use crate::gen_image::{SINGLE_DOT, gen_single_dot};
     use std::io::ErrorKind;
 
@@ -104,5 +104,16 @@ mod tests {
         let err = cli.expect_err("can't extract error");
         assert_eq!(ErrorKind::Other, err.kind());
         assert_eq!("src/paths.rs is not a jpg or png file", &err.to_string())
+    }
+
+    #[test]
+    fn command_line_interface_with_command_directory_and_adequate_argument() {
+        let args = vec!["gsr", "dir", "."];
+        let cli = CommandLineInterface::parse_and_check(Some(args)).unwrap();
+        if let Some(Dir { directory }) = cli.command {
+            assert_eq!(String::from("."), directory);
+        } else {
+            assert!(false)
+        }
     }
 }

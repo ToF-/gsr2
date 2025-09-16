@@ -41,6 +41,7 @@ check_path_is_directory	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^pub 
 check_path_return_error_on_non_existent_path	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^    fn check_path_return_error_on_non_existent_path() {$/;"	f
 check_path_return_error_on_path_that_is_not_a_directory	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^    fn check_path_return_error_on_path_that_is_not_a_directory() {$/;"	f
 check_picture_file	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^pub fn check_picture_file(file_name: &str) -> Result<String> {$/;"	f
+command_line_interface_with_command_directory_and_adequate_argument	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    fn command_line_interface_with_command_directory_and_adequate_argument() {$/;"	f
 command_line_interface_with_command_file_with_adequate_argument	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    fn command_line_interface_with_command_file_with_adequate_argument() {$/;"	f
 command_line_interface_with_command_file_with_non_existing_file	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    fn command_line_interface_with_command_file_with_non_existing_file() {$/;"	f
 command_line_interface_with_command_file_with_non_file	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    fn command_line_interface_with_command_file_with_non_file() {$/;"	f
