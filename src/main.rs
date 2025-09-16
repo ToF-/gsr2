@@ -8,6 +8,7 @@ mod command;
 mod command_line_interface;
 mod control;
 mod default_values;
+mod display;
 mod file_system;
 mod gallery;
 mod gen_image;
