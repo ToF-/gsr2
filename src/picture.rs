@@ -1,15 +1,18 @@
 use crate::default_values::THUMB_SUFFIX;
+use crate::paths::thumbnail_name_from;
 use std::path::PathBuf;
 
 #[derive(Debug, Clone, Ord, PartialOrd, PartialEq, Eq)]
 pub struct Picture {
     file_name: String,
+    thumbnail_file_name: String,
 }
 
 impl Picture {
     pub fn new(file_name: &str) -> Self {
         Picture {
             file_name: file_name.to_string(),
+            thumbnail_file_name: thumbnail_name_from(file_name),
         }
     }
 
@@ -17,23 +20,8 @@ impl Picture {
         self.file_name.clone()
     }
 
-    pub fn file_thumbnail_name(&self) -> String {
-        let path: PathBuf = PathBuf::from(&self.file_name);
-        let result = path.parent().and_then(|parent| {
-            path.extension().and_then(|extension| {
-                path.file_stem().and_then(|file_stem| {
-                    let new_file_name = format!(
-                        "{}{}.{}",
-                        file_stem.to_str().unwrap(),
-                        THUMB_SUFFIX,
-                        extension.to_str().unwrap()
-                    );
-                    let new_path = parent.join(new_file_name);
-                    Some(new_path.to_str().unwrap().to_string())
-                })
-            })
-        });
-        result.expect("can't convert file_name to file_thumbnail_name")
+    pub fn thumbnail_file_name(&self) -> String {
+        self.thumbnail_file_name.clone()
     }
 }
 #[cfg(test)]
@@ -55,7 +43,7 @@ mod tests {
         let picture = Picture::new("testdata/nine_colors.png");
         assert_eq!(
             String::from("testdata/nine_colorsTHUMB.png"),
-            picture.file_thumbnail_name()
+            picture.thumbnail_file_name()
         )
     }
 }

@@ -1,3 +1,4 @@
+use crate::default_values::THUMB_SUFFIX;
 use crate::default_values::VALID_EXTENSIONS;
 use std::io::{Error, ErrorKind, Result};
 use std::path::PathBuf;
@@ -60,6 +61,27 @@ pub fn check_path(source: &str) -> Result<String> {
         Err(e) => Err(e),
     }
 }
+pub fn thumbnail_name_from(file_name: &str) -> String {
+    let path: PathBuf = PathBuf::from(file_name);
+    let result = path.parent().and_then(|parent| {
+        path.extension().and_then(|extension| {
+            path.file_stem().and_then(|file_stem| {
+                let new_file_name = format!(
+                    "{}{}.{}",
+                    file_stem.to_str().unwrap(),
+                    THUMB_SUFFIX,
+                    extension.to_str().unwrap()
+                );
+                let new_path = parent.join(new_file_name);
+                Some(new_path.to_str().unwrap().to_string())
+            })
+        })
+    });
+    result.expect(&format!(
+        "can't convert {} to file_thumbnail_name",
+        file_name
+    ))
+}
 
 #[cfg(test)]
 
@@ -84,5 +106,13 @@ mod tests {
     fn check_path_return_error_on_path_that_is_not_a_directory() {
         let dir: String = check_path("./src/paths.rs").unwrap();
         assert_eq!(String::from("./src/paths.rs"), dir);
+    }
+
+    #[test]
+    fn thumbnail_name_from_normal_file_has_THUMB_suffix() {
+        assert_eq!(
+            "testdata/my_fileTHUMB.jpg",
+            thumbnail_name_from("testdata/my_file.jpg")
+        )
     }
 }

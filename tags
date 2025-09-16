@@ -60,7 +60,6 @@ expand_on	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pu
 extract_a_palette_from_a_picture_file	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^    fn extract_a_palette_from_a_picture_file() {$/;"	f
 extract_a_palette_of_9_most_used_colors	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^    fn extract_a_palette_of_9_most_used_colors() {$/;"	f
 file_name	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    pub fn file_name(&self) -> String {$/;"	f
-file_thumbnail_name	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    pub fn file_thumbnail_name(&self) -> String {$/;"	f
 from_key_name_to_a_control	/Users/christophethibaut/Coding/gsr2/src/control.rs	/^    fn from_key_name_to_a_control() {$/;"	f
 full_size_on	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn full_size_on(&self) -> bool {$/;"	f
 gallery	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn gallery(&self) -> &Gallery {$/;"	f
@@ -105,6 +104,9 @@ save_nine_colors	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub fn 
 set_gallery	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn set_gallery(&mut self, gallery: Gallery) {$/;"	f
 set_picture_for_file_view	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn set_picture_for_file_view($/;"	f
 startup_gui	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn startup_gui(_application: &gtk::Application) {$/;"	f
+thumbnail_file_name	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    pub fn thumbnail_file_name(&self) -> String {$/;"	f
+thumbnail_name_from	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^pub fn thumbnail_name_from(file_name: &str) -> String {$/;"	f
+thumbnail_name_from_normal_file_has_THUMB_suffix	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^    fn thumbnail_name_from_normal_file_has_THUMB_suffix() {$/;"	f
 toggle_expand	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn toggle_expand(&mut self) {$/;"	f
 toggle_full_size	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn toggle_full_size(&mut self) {$/;"	f
 toggle_palette	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn toggle_palette(&mut self) {$/;"	f
