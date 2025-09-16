@@ -6,6 +6,8 @@ pub enum Control {
     Right,
     Up,
     Down,
+    MoveNext,
+    MovePrev,
     ToggleExpand,
     ToggleFullSize,
     TogglePalette,
@@ -16,6 +18,8 @@ pub type Controls = HashMap<String, Control>;
 
 pub fn default_controls() -> Controls {
     let controls: HashMap<String, Control> = HashMap::from([
+        (String::from("n"), Control::MoveNext),
+        (String::from("p"), Control::MovePrev),
         (String::from("e"), Control::ToggleExpand),
         (String::from("f"), Control::ToggleFullSize),
         (String::from("x"), Control::TogglePalette),
