@@ -60,6 +60,7 @@ default_controls	/Users/christophethibaut/Coding/gsr2/src/control.rs	/^pub fn de
 display_title_for_application_state	/Users/christophethibaut/Coding/gsr2/src/display.rs	/^    fn display_title_for_application_state() {$/;"	f
 display_title_for_application_state_with_expand_on	/Users/christophethibaut/Coding/gsr2/src/display.rs	/^    fn display_title_for_application_state_with_expand_on() {$/;"	f
 draw_palette	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn draw_palette(ctx: &Context, width: i32, height: i32, palette: &Palette) {$/;"	f
+expand_display	/Users/christophethibaut/Coding/gsr2/src/display.rs	/^fn expand_display(on: bool) -> String {$/;"	f
 expand_on	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn expand_on(&self) -> bool {$/;"	f
 extract_a_palette_from_a_picture_file	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^    fn extract_a_palette_from_a_picture_file() {$/;"	f
 extract_a_palette_of_9_most_used_colors	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^    fn extract_a_palette_of_9_most_used_colors() {$/;"	f
