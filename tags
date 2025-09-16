@@ -52,6 +52,7 @@ command_line_interface_with_command_file_with_non_existing_file	/Users/christoph
 command_line_interface_with_command_file_with_non_file	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    fn command_line_interface_with_command_file_with_non_file() {$/;"	f
 command_line_interface_with_command_file_with_non_jpg_or_png_file	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    fn command_line_interface_with_command_file_with_non_jpg_or_png_file() {$/;"	f
 compare_rgb	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^fn compare_rgb(color: &Rgb8, other: &Rgb8) -> Ordering {$/;"	f
+current_picture	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn current_picture(&self) -> Picture {$/;"	f
 default_controls	/Users/christophethibaut/Coding/gsr2/src/control.rs	/^pub fn default_controls() -> Controls {$/;"	f
 draw_palette	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn draw_palette(ctx: &Context, width: i32, height: i32, palette: &Palette) {$/;"	f
 expand_on	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn expand_on(&self) -> bool {$/;"	f
@@ -77,10 +78,14 @@ loading_from_a_directory_collect_all_the_picture_files_from_that_directory	/User
 loading_from_a_single_file_name_collect_that_single_picture_file	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    fn loading_from_a_single_file_name_collect_that_single_picture_file() {$/;"	f
 main	/Users/christophethibaut/Coding/gsr2/src/main.rs	/^fn main() {$/;"	f
 make_palette_area	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn make_palette_area(palette: Palette) -> gtk::DrawingArea {$/;"	f
+move_first	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn move_first(&mut self) {$/;"	f
+move_last	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn move_last(&mut self) {$/;"	f
 move_next	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn move_next(&mut self) {$/;"	f
 move_next	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn move_next(&mut self) {$/;"	f
+move_prev	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn move_prev(&mut self) {$/;"	f
 move_prev	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn move_prev(&mut self) {$/;"	f
 navigator	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn navigator(&self) -> &Navigator {$/;"	f
+navigator_can_move_to_first_and_last_position	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn navigator_can_move_to_first_and_last_position() {$/;"	f
 navigator_cannot_move_before_first_position	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn navigator_cannot_move_before_first_position() {$/;"	f
 navigator_cannot_move_past_gallery_limit	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn navigator_cannot_move_past_gallery_limit() {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn new(palette_on: bool) -> Self {$/;"	f

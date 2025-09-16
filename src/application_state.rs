@@ -1,7 +1,7 @@
-use crate::picture::Picture;
 use crate::control::{Control, Controls, default_controls};
 use crate::gallery::Gallery;
 use crate::navigator::Navigator;
+use crate::picture::Picture;
 
 #[derive(Debug)]
 pub struct ApplicationState {
