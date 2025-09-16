@@ -1,9 +1,11 @@
 use crate::control::{Control, Controls, default_controls};
 use crate::gallery::Gallery;
+use crate::navigator::Navigator;
 
 #[derive(Debug)]
 pub struct ApplicationState {
     gallery: Gallery,
+    navigator: Navigator,
     controls: Controls,
     expand_on: bool,
     full_size_on: bool,
@@ -14,6 +16,7 @@ impl ApplicationState {
     pub fn new(palette_on: bool) -> Self {
         ApplicationState {
             gallery: Gallery::new(),
+            navigator: Navigator::new(0),
             controls: default_controls(),
             expand_on: false,
             full_size_on: false,
