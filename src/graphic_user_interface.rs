@@ -8,6 +8,7 @@ use crate::default_values::{
 };
 use crate::gallery::Gallery;
 use crate::image_data::{Palette, get_palette_from_picture_file};
+use crate::navigator;
 use crate::picture;
 use gtk::cairo::{Context, Format, ImageSurface};
 use gtk::gdk::Key;
@@ -217,6 +218,13 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
     {
         let picture: picture::Picture = gui.application_state.gallery().picture(0);
         match gui.application_state.get_control(key_name.as_str()) {
+            Some(Control::MoveNext) => {
+                if gui.application_state.navigator().can_move_next() {
+                    gui.application_state.move_next()
+                } else {
+                    println!("bump")
+                }
+            }
             Some(Control::Quit) => gui.application_window.close(),
             Some(Control::TogglePalette) => {
                 gui.application_state.toggle_palette();

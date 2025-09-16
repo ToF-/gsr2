@@ -77,8 +77,10 @@ loading_from_a_directory_collect_all_the_picture_files_from_that_directory	/User
 loading_from_a_single_file_name_collect_that_single_picture_file	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    fn loading_from_a_single_file_name_collect_that_single_picture_file() {$/;"	f
 main	/Users/christophethibaut/Coding/gsr2/src/main.rs	/^fn main() {$/;"	f
 make_palette_area	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn make_palette_area(palette: Palette) -> gtk::DrawingArea {$/;"	f
+move_next	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn move_next(&mut self) {$/;"	f
 move_next	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn move_next(&mut self) {$/;"	f
 move_prev	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn move_prev(&mut self) {$/;"	f
+navigator	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn navigator(&self) -> &Navigator {$/;"	f
 navigator_cannot_move_before_first_position	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn navigator_cannot_move_before_first_position() {$/;"	f
 navigator_cannot_move_past_gallery_limit	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn navigator_cannot_move_past_gallery_limit() {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn new(palette_on: bool) -> Self {$/;"	f

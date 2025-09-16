@@ -28,6 +28,14 @@ impl ApplicationState {
         &self.gallery
     }
 
+    pub fn navigator(&self) -> &Navigator {
+        &self.navigator
+    }
+
+    pub fn move_next(&mut self) {
+        self.navigator.move_next()
+    }
+
     pub fn expand_on(&self) -> bool {
         self.expand_on
     }
