@@ -234,12 +234,8 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
                     println!("bump")
                 }
             }
-            Some(Control::MoveLast) => {
-                gui.application_state.move_last()
-            }
-            Some(Control::MoveFirst) => {
-                gui.application_state.move_first()
-            }
+            Some(Control::MoveLast) => gui.application_state.move_last(),
+            Some(Control::MoveFirst) => gui.application_state.move_first(),
             Some(Control::Quit) => gui.application_window.close(),
             Some(Control::TogglePalette) => {
                 gui.application_state.toggle_palette();
