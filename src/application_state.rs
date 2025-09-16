@@ -1,7 +1,9 @@
 use crate::control::{Control, Controls, default_controls};
+use crate::gallery::Gallery;
 
 #[derive(Debug)]
 pub struct ApplicationState {
+    gallery: Gallery,
     controls: Controls,
     expand_on: bool,
     full_size_on: bool,
@@ -11,12 +13,18 @@ pub struct ApplicationState {
 impl ApplicationState {
     pub fn new(palette_on: bool) -> Self {
         ApplicationState {
+            gallery: Gallery::new(),
             controls: default_controls(),
             expand_on: false,
             full_size_on: false,
             palette_on,
         }
     }
+
+    pub fn gallery(&self) -> &Gallery {
+        &self.gallery
+    }
+
     pub fn expand_on(&self) -> bool {
         self.expand_on
     }
@@ -27,6 +35,10 @@ impl ApplicationState {
 
     pub fn palette_on(&self) -> bool {
         self.palette_on
+    }
+
+    pub fn set_gallery(&mut self, gallery: Gallery) {
+        self.gallery = gallery
     }
 
     pub fn toggle_expand(&mut self) {

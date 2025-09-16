@@ -2,6 +2,7 @@ use crate::file_system::{get_all_picture_file_paths, get_picture_file_path};
 use crate::picture::Picture;
 use std::io::Result;
 
+#[derive(Debug)]
 pub struct Gallery {
     pictures: Vec<Picture>,
 }
@@ -16,10 +17,14 @@ impl Gallery {
         self.pictures.len()
     }
 
+    pub fn picture(&self, index: usize) -> Picture {
+        self.pictures[index].clone()
+    }
     pub fn load_from_directory(&mut self, path: &str) -> Result<usize> {
         match get_all_picture_file_paths(path) {
             Ok(list) => {
                 for file_name in list {
+                    println!("{}…", &file_name);
                     self.pictures.push(Picture::new(&file_name))
                 }
                 Ok(self.pictures.len())

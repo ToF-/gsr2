@@ -6,7 +6,9 @@ use crate::control::Control;
 use crate::default_values::{
     DEFAULT_HEIGHT, DEFAULT_WIDTH, PALETTE_AREA_HEIGHT, PALETTE_AREA_WIDTH, SCROLL_STEP,
 };
+use crate::gallery::Gallery;
 use crate::image_data::{Palette, get_palette_from_picture_file};
+use crate::picture;
 use gtk::cairo::{Context, Format, ImageSurface};
 use gtk::gdk::Key;
 use gtk::glib::clone;
@@ -71,35 +73,35 @@ fn draw_palette(ctx: &Context, width: i32, height: i32, palette: &Palette) {
         .expect("can't set source surface");
     ctx.paint().expect("can't paint surface")
 }
-fn set_picture_for_file_view(gui: &GraphicalUserInterface, cli: &CommandLineInterface) {
-    let picture = &gui.single_view_picture;
+fn set_picture_for_file_view(
+    gui: &GraphicalUserInterface,
+    picture: &picture::Picture,
+    cli: &CommandLineInterface,
+) {
+    let single_view_picture = &gui.single_view_picture;
     let view_box = &gui.single_view_box;
     if gui.application_state.expand_on() {
-        picture.set_valign(Align::Fill);
-        picture.set_halign(Align::Fill);
+        single_view_picture.set_valign(Align::Fill);
+        single_view_picture.set_halign(Align::Fill);
     } else {
-        picture.set_valign(Align::Center);
-        picture.set_halign(Align::Center);
+        single_view_picture.set_valign(Align::Center);
+        single_view_picture.set_halign(Align::Center);
     }
-    picture.set_opacity(1.00);
-    picture.set_can_shrink(!&gui.application_state.full_size_on());
-    if let Some(Command::File { file_name }) = &cli.command {
-        if let Some(widget) = view_box.last_child()
-            && widget != *picture
-        {
-            view_box.remove(&widget)
-        };
-        picture.set_filename(Some(file_name));
-        if gui.application_state.palette_on()
-            && let Ok(colors) = get_palette_from_picture_file(file_name)
-        {
-            let palette_area = make_palette_area(colors);
-            view_box.insert_child_after(&palette_area, Some(picture));
-        }
-        gui.application_window.set_title(Some(file_name));
-    } else {
-        println!("no picture file to display")
+    single_view_picture.set_opacity(1.00);
+    single_view_picture.set_can_shrink(!&gui.application_state.full_size_on());
+    if let Some(widget) = view_box.last_child()
+        && widget != *single_view_picture
+    {
+        view_box.remove(&widget)
     };
+    single_view_picture.set_filename(Some(picture.file_name()));
+    if gui.application_state.palette_on()
+        && let Ok(colors) = get_palette_from_picture_file(&picture.file_name())
+    {
+        let palette_area = make_palette_area(colors);
+        view_box.insert_child_after(&palette_area, Some(single_view_picture));
+    }
+    gui.application_window.set_title(Some(&picture.file_name()));
 }
 pub fn build_gui(application: &gtk::Application, cli: &CommandLineInterface) {
     let application_window = ApplicationWindow::builder()
@@ -147,15 +149,52 @@ pub fn build_gui(application: &gtk::Application, cli: &CommandLineInterface) {
     evk.connect_key_pressed(clone!(@strong gui_rc => move |_, key, _, _| {
         process_key(&gui_rc, key)
     }));
-    if let Ok(gui) = gui_rc.try_borrow() {
+    // load the gallery and present the application window
+    if let Ok(mut gui) = gui_rc.try_borrow_mut() {
+        let mut gallery = Gallery::new();
         if let Some(File { file_name }) = &gui.command_line_interface.command {
-            set_picture_for_file_view(&gui, cli);
-            gui.application_window.add_controller(evk);
-            gui.application_window.present()
+            match gallery.load_from_file_name(file_name) {
+                Ok(count) => {
+                    gui.application_state.set_gallery(gallery);
+                    println!("{} picture names loaded", count);
+                    set_picture_for_file_view(
+                        &gui,
+                        &gui.application_state.gallery().picture(0),
+                        cli,
+                    );
+                    gui.application_window.add_controller(evk);
+                    gui.application_window.present()
+                }
+                Err(err) => {
+                    eprintln!("{}", err);
+                    gui.application_window.add_controller(evk);
+                    gui.application_window.present();
+                }
+            }
         } else if let Some(Dir { directory }) = &gui.command_line_interface.command {
-            println!("work in progress…");
-            gui.application_window.add_controller(evk);
-            gui.application_window.present()
+            println!("loading…");
+            match gallery.load_from_directory(directory) {
+                Ok(count) => {
+                    gui.application_state.set_gallery(gallery);
+                    println!("{} picture names loaded", count);
+                    println!(
+                        "showing {}",
+                        &gui.application_state.gallery().picture(0).file_name()
+                    );
+                    set_picture_for_file_view(
+                        &gui,
+                        &gui.application_state.gallery().picture(0),
+                        cli,
+                    );
+                    gui.application_window.add_controller(evk);
+                    gui.application_window.present()
+                }
+                Err(err) => {
+                    eprintln!("{}", err);
+                    gui.application_window.add_controller(evk);
+                    gui.application_window.present();
+                }
+            }
         }
     }
 }
@@ -176,22 +215,23 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
     if let Ok(mut gui) = gui_rc.try_borrow_mut()
         && let Some(key_name) = key.name()
     {
+        let picture: picture::Picture = gui.application_state.gallery().picture(0);
         match gui.application_state.get_control(key_name.as_str()) {
             Some(Control::Quit) => gui.application_window.close(),
             Some(Control::TogglePalette) => {
                 gui.application_state.toggle_palette();
                 let cli = gui.command_line_interface.clone();
-                set_picture_for_file_view(&gui, &cli);
+                set_picture_for_file_view(&gui, &picture, &cli);
             }
             Some(Control::ToggleExpand) => {
                 gui.application_state.toggle_expand();
                 let cli = gui.command_line_interface.clone();
-                set_picture_for_file_view(&gui, &cli);
+                set_picture_for_file_view(&gui, &picture, &cli);
             }
             Some(Control::ToggleFullSize) => {
                 gui.application_state.toggle_full_size();
                 let cli = gui.command_line_interface.clone();
-                set_picture_for_file_view(&gui, &cli);
+                set_picture_for_file_view(&gui, &picture, &cli);
             }
             Some(direction @ Control::Left)
             | Some(direction @ Control::Right)

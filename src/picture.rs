@@ -1,3 +1,4 @@
+#[derive(Debug, Clone)]
 pub struct Picture {
     file_name: String,
 }
