@@ -108,6 +108,7 @@ startup_gui	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/
 thumbnail_file_name	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    pub fn thumbnail_file_name(&self) -> String {$/;"	f
 thumbnail_name_from	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^pub fn thumbnail_name_from(file_name: &str) -> String {$/;"	f
 thumbnail_name_from_normal_file_has_THUMB_suffix	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^    fn thumbnail_name_from_normal_file_has_THUMB_suffix() {$/;"	f
+title_display	/Users/christophethibaut/Coding/gsr2/src/display.rs	/^pub fn title_display(application_state: &ApplicationState) -> String {$/;"	f
 toggle_expand	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn toggle_expand(&mut self) {$/;"	f
 toggle_full_size	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn toggle_full_size(&mut self) {$/;"	f
 toggle_palette	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn toggle_palette(&mut self) {$/;"	f
