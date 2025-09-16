@@ -8,14 +8,24 @@ pub fn title_display(application_state: &ApplicationState) -> String {
 mod tests {
     use super::*;
 
-    #[test]
-    fn display_title_for_application_state() {
+    fn an_application_state() -> ApplicationState {
         let mut application_state = ApplicationState::new(false);
         let mut gallery = Gallery::new();
         gallery
             .load_from_directory("./testdata/")
             .expect("can't load from directory");
         application_state.set_gallery(gallery);
+        application_state
+    }
+
+    #[test]
+    fn display_title_for_application_state() {
+        assert_eq!("nine_colors.png", title_display(&an_application_state()));
+    }
+
+    #[test]
+    fn display_title_for_application_state_with_expand_on() {
+        let mut application_state = an_application_state();
         assert_eq!("nine_colors.png", title_display(&application_state));
     }
 }
