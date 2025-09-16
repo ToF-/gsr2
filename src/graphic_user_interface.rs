@@ -216,11 +216,15 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
     if let Ok(mut gui) = gui_rc.try_borrow_mut()
         && let Some(key_name) = key.name()
     {
-        let picture: picture::Picture = gui.application_state.gallery().picture(0);
+        let mut picture: picture::Picture = gui.application_state.gallery().picture(0);
+        let cli = gui.command_line_interface.clone();
         match gui.application_state.get_control(key_name.as_str()) {
             Some(Control::MoveNext) => {
                 if gui.application_state.navigator().can_move_next() {
-                    gui.application_state.move_next()
+                    gui.application_state.move_next();
+                    let position = gui.application_state.navigator().position();
+                    picture = gui.application_state.gallery().picture(position);
+                    set_picture_for_file_view(&gui, &picture, &cli)
                 } else {
                     println!("bump")
                 }
@@ -228,17 +232,14 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
             Some(Control::Quit) => gui.application_window.close(),
             Some(Control::TogglePalette) => {
                 gui.application_state.toggle_palette();
-                let cli = gui.command_line_interface.clone();
                 set_picture_for_file_view(&gui, &picture, &cli);
             }
             Some(Control::ToggleExpand) => {
                 gui.application_state.toggle_expand();
-                let cli = gui.command_line_interface.clone();
                 set_picture_for_file_view(&gui, &picture, &cli);
             }
             Some(Control::ToggleFullSize) => {
                 gui.application_state.toggle_full_size();
-                let cli = gui.command_line_interface.clone();
                 set_picture_for_file_view(&gui, &picture, &cli);
             }
             Some(direction @ Control::Left)
