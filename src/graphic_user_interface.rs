@@ -224,7 +224,17 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
                     gui.application_state.move_next();
                     let position = gui.application_state.navigator().position();
                     picture = gui.application_state.gallery().picture(position);
-                    set_picture_for_file_view(&gui, &picture, &cli)
+                    set_picture_for_file_view(&gui, &gui.application_state.current_picture(), &cli)
+                } else {
+                    println!("bump")
+                }
+            }
+            Some(Control::MovePrev) => {
+                if gui.application_state.navigator().can_move_prev() {
+                    gui.application_state.move_prev();
+                    let position = gui.application_state.navigator().position();
+                    picture = gui.application_state.gallery().picture(position);
+                    set_picture_for_file_view(&gui, &gui.application_state.current_picture(), &cli)
                 } else {
                     println!("bump")
                 }
@@ -232,15 +242,15 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
             Some(Control::Quit) => gui.application_window.close(),
             Some(Control::TogglePalette) => {
                 gui.application_state.toggle_palette();
-                set_picture_for_file_view(&gui, &picture, &cli);
+                set_picture_for_file_view(&gui, &gui.application_state.current_picture(), &cli)
             }
             Some(Control::ToggleExpand) => {
                 gui.application_state.toggle_expand();
-                set_picture_for_file_view(&gui, &picture, &cli);
+                set_picture_for_file_view(&gui, &gui.application_state.current_picture(), &cli)
             }
             Some(Control::ToggleFullSize) => {
                 gui.application_state.toggle_full_size();
-                set_picture_for_file_view(&gui, &picture, &cli);
+                set_picture_for_file_view(&gui, &gui.application_state.current_picture(), &cli)
             }
             Some(direction @ Control::Left)
             | Some(direction @ Control::Right)

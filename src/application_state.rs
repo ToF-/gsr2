@@ -1,3 +1,4 @@
+use crate::picture::Picture;
 use crate::control::{Control, Controls, default_controls};
 use crate::gallery::Gallery;
 use crate::navigator::Navigator;
@@ -28,12 +29,20 @@ impl ApplicationState {
         &self.gallery
     }
 
+    pub fn current_picture(&self) -> Picture {
+        self.gallery.picture(self.navigator.position())
+    }
+
     pub fn navigator(&self) -> &Navigator {
         &self.navigator
     }
 
     pub fn move_next(&mut self) {
         self.navigator.move_next()
+    }
+
+    pub fn move_prev(&mut self) {
+        self.navigator.move_prev()
     }
 
     pub fn expand_on(&self) -> bool {

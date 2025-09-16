@@ -20,6 +20,7 @@ impl Gallery {
     pub fn picture(&self, index: usize) -> Picture {
         self.pictures[index].clone()
     }
+
     pub fn load_from_directory(&mut self, path: &str) -> Result<usize> {
         match get_all_picture_file_paths(path) {
             Ok(list) => {
