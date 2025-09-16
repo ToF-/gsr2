@@ -17,8 +17,16 @@ impl Navigator {
         self.position < self.limit - 1
     }
 
+    pub fn can_move_prev(&self) -> bool {
+        self.position > 0
+    }
+
     pub fn move_next(&mut self) {
         self.position += 1
+    }
+
+    pub fn move_prev(&mut self) {
+        self.position -= 1
     }
 }
 #[cfg(test)]
@@ -35,5 +43,15 @@ mod tests {
         assert_eq!(1, navigator.position());
         navigator.move_next();
         assert!(!navigator.can_move_next());
+    }
+
+    #[test]
+    fn navigator_cannot_move_before_first_position() {
+        let mut navigator = Navigator::new(3);
+        assert!(!navigator.can_move_prev());
+        navigator.move_next();
+        assert!(navigator.can_move_prev());
+        navigator.move_prev();
+        assert_eq!(0, navigator.position());
     }
 }

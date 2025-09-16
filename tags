@@ -35,6 +35,7 @@ after_palette_toggle_palette_on_is_inverted	/Users/christophethibaut/Coding/gsr2
 arrow_command_full_size	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn arrow_command_full_size(direction: Control, gui: &GraphicalUserInterface) -> bool {$/;"	f
 build_gui	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn build_gui(application: &gtk::Application, cli: &CommandLineInterface) {$/;"	f
 can_move_next	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn can_move_next(&self) -> bool {$/;"	f
+can_move_prev	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn can_move_prev(&self) -> bool {$/;"	f
 check_path	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^pub fn check_path(source: &str) -> Result<String> {$/;"	f
 check_path_exists	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^pub fn check_path_exists(path: &PathBuf) -> Result<&PathBuf> {$/;"	f
 check_path_is_a_file	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^pub fn check_path_is_a_file(path: &PathBuf) -> Result<&PathBuf> {$/;"	f
@@ -77,6 +78,8 @@ loading_from_a_single_file_name_collect_that_single_picture_file	/Users/christop
 main	/Users/christophethibaut/Coding/gsr2/src/main.rs	/^fn main() {$/;"	f
 make_palette_area	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn make_palette_area(palette: Palette) -> gtk::DrawingArea {$/;"	f
 move_next	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn move_next(&mut self) {$/;"	f
+move_prev	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn move_prev(&mut self) {$/;"	f
+navigator_cannot_move_before_first_position	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn navigator_cannot_move_before_first_position() {$/;"	f
 navigator_cannot_move_past_gallery_limit	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn navigator_cannot_move_past_gallery_limit() {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn new(palette_on: bool) -> Self {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn new() -> Gallery {$/;"	f
