@@ -13,6 +13,7 @@ Controls	/Users/christophethibaut/Coding/gsr2/src/control.rs	/^pub type Controls
 DEFAULT_HEIGHT	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const DEFAULT_HEIGHT: i32 = 1000;$/;"	c
 DEFAULT_WIDTH	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const DEFAULT_WIDTH: i32 = 1000;$/;"	c
 EXPAND_ON_SYMBOL	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const EXPAND_ON_SYMBOL: &str = "  ⃞";$/;"	c
+FULL_SIZE_ON_SYMBOL	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const FULL_SIZE_ON_SYMBOL: &str = " 🔍";$/;"	c
 Gallery	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^pub struct Gallery {$/;"	s
 GraphicalUserInterface	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^struct GraphicalUserInterface {$/;"	s
 MAX_PALETTE_COLORS	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const MAX_PALETTE_COLORS: u8 = 9;$/;"	c
@@ -60,6 +61,7 @@ current_picture	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^
 default_controls	/Users/christophethibaut/Coding/gsr2/src/control.rs	/^pub fn default_controls() -> Controls {$/;"	f
 display_title_for_application_state	/Users/christophethibaut/Coding/gsr2/src/display.rs	/^    fn display_title_for_application_state() {$/;"	f
 display_title_for_application_state_with_expand_on	/Users/christophethibaut/Coding/gsr2/src/display.rs	/^    fn display_title_for_application_state_with_expand_on() {$/;"	f
+display_title_for_application_state_with_full_size_on	/Users/christophethibaut/Coding/gsr2/src/display.rs	/^    fn display_title_for_application_state_with_full_size_on() {$/;"	f
 draw_palette	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn draw_palette(ctx: &Context, width: i32, height: i32, palette: &Palette) {$/;"	f
 expand_display	/Users/christophethibaut/Coding/gsr2/src/display.rs	/^fn expand_display(on: bool) -> String {$/;"	f
 expand_on	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn expand_on(&self) -> bool {$/;"	f
@@ -69,6 +71,7 @@ file_name	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    pub fn file_
 file_name_from	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^pub fn file_name_from(file_path: &str) -> String {$/;"	f
 file_path	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    pub fn file_path(&self) -> String {$/;"	f
 from_key_name_to_a_control	/Users/christophethibaut/Coding/gsr2/src/control.rs	/^    fn from_key_name_to_a_control() {$/;"	f
+full_size_display	/Users/christophethibaut/Coding/gsr2/src/display.rs	/^fn full_size_display(on: bool) -> String {$/;"	f
 full_size_on	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn full_size_on(&self) -> bool {$/;"	f
 gallery	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn gallery(&self) -> &Gallery {$/;"	f
 gen_nine_colors	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub fn gen_nine_colors() -> DynamicImage {$/;"	f
