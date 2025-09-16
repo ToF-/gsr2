@@ -18,7 +18,8 @@ fn full_size_display(on: bool) -> String {
 
 pub fn title_display(application_state: &ApplicationState) -> String {
     format!(
-        "{}{}{}",
+        "#{} {}{}{}",
+        application_state.navigator().position(),
         application_state.current_picture().file_name(),
         expand_display(application_state.expand_on()),
         full_size_display(application_state.full_size_on())
@@ -40,7 +41,7 @@ mod tests {
 
     #[test]
     fn display_title_for_application_state() {
-        assert_eq!("nine_colors.png", title_display(&an_application_state()));
+        assert_eq!("#0 nine_colors.png", title_display(&an_application_state()));
     }
 
     #[test]
@@ -48,7 +49,7 @@ mod tests {
         let mut application_state = an_application_state();
         application_state.toggle_expand();
         assert_eq!(
-            "nine_colors.png".to_owned() + EXPAND_ON_SYMBOL,
+            "#0 nine_colors.png".to_owned() + EXPAND_ON_SYMBOL,
             title_display(&application_state)
         )
     }
@@ -58,7 +59,7 @@ mod tests {
         let mut application_state = an_application_state();
         application_state.toggle_full_size();
         assert_eq!(
-            "nine_colors.png".to_owned() + FULL_SIZE_ON_SYMBOL,
+            "#0 nine_colors.png".to_owned() + FULL_SIZE_ON_SYMBOL,
             title_display(&application_state)
         )
     }
