@@ -24,7 +24,6 @@ impl Gallery {
         match get_all_picture_file_paths(path) {
             Ok(list) => {
                 for file_name in list {
-                    println!("{}…", &file_name);
                     self.pictures.push(Picture::new(&file_name))
                 }
                 Ok(self.pictures.len())
