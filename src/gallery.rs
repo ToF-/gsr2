@@ -24,8 +24,8 @@ impl Gallery {
     pub fn load_from_directory(&mut self, path: &str) -> Result<usize> {
         match get_all_picture_file_paths(path) {
             Ok(list) => {
-                for file_name in list {
-                    self.pictures.push(Picture::new(&file_name))
+                for file_path in list {
+                    self.pictures.push(Picture::new(&file_path))
                 }
                 self.pictures.sort();
                 Ok(self.pictures.len())
@@ -34,8 +34,8 @@ impl Gallery {
         }
     }
 
-    pub fn load_from_file_name(&mut self, file_name: &str) -> Result<usize> {
-        match get_picture_file_path(file_name) {
+    pub fn load_from_file_path(&mut self, file_path: &str) -> Result<usize> {
+        match get_picture_file_path(file_path) {
             Ok(path) => {
                 self.pictures.push(Picture::new(&path));
                 Ok(self.pictures.len())
@@ -60,19 +60,19 @@ mod tests {
         assert_eq!(2, gallery.len());
         assert_eq!(
             String::from("./testdata/nine_colors.png"),
-            gallery.picture(0).file_name()
+            gallery.picture(0).file_path()
         );
         assert_eq!(
             String::from("./testdata/single_dot.png"),
-            gallery.picture(1).file_name()
+            gallery.picture(1).file_path()
         );
     }
 
     #[test]
-    fn loading_from_a_single_file_name_collect_that_single_picture_file() {
+    fn loading_from_a_single_file_path_collect_that_single_picture_file() {
         let mut gallery = Gallery::new();
         gallery
-            .load_from_file_name(NINE_COLORS)
+            .load_from_file_path(NINE_COLORS)
             .expect("can't load the file");
         assert_eq!(1, gallery.len());
     }

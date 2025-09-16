@@ -21,8 +21,8 @@ mod picture;
 fn main() {
     match CommandLineInterface::parse_and_check(None) {
         Ok(cli) => {
-            if let Some(Command::File { ref file_name }) = cli.command {
-                println!("viewing file {}", file_name);
+            if let Some(Command::File { ref file_path }) = cli.command {
+                println!("viewing file {}", file_path);
                 launch_application(cli.clone())
             } else if let Some(Command::Dir { ref directory }) = cli.command {
                 println!("viewing files in directory {}", directory);

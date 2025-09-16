@@ -95,14 +95,14 @@ fn set_picture_for_file_view(
     {
         view_box.remove(&widget)
     };
-    single_view_picture.set_filename(Some(picture.file_name()));
+    single_view_picture.set_filename(Some(picture.file_path()));
     if gui.application_state.palette_on()
-        && let Ok(colors) = get_palette_from_picture_file(&picture.file_name())
+        && let Ok(colors) = get_palette_from_picture_file(&picture.file_path())
     {
         let palette_area = make_palette_area(colors);
         view_box.insert_child_after(&palette_area, Some(single_view_picture));
     }
-    gui.application_window.set_title(Some(&picture.file_name()));
+    gui.application_window.set_title(Some(&picture.file_path()));
 }
 pub fn build_gui(application: &gtk::Application, cli: &CommandLineInterface) {
     let application_window = ApplicationWindow::builder()
@@ -153,8 +153,8 @@ pub fn build_gui(application: &gtk::Application, cli: &CommandLineInterface) {
     // load the gallery and present the application window
     if let Ok(mut gui) = gui_rc.try_borrow_mut() {
         let mut gallery = Gallery::new();
-        if let Some(File { file_name }) = &gui.command_line_interface.command {
-            match gallery.load_from_file_name(file_name) {
+        if let Some(File { file_path }) = &gui.command_line_interface.command {
+            match gallery.load_from_file_path(file_path) {
                 Ok(count) => {
                     gui.application_state.set_gallery(gallery);
                     println!("{} picture names loaded", count);
@@ -180,7 +180,7 @@ pub fn build_gui(application: &gtk::Application, cli: &CommandLineInterface) {
                     println!("{} picture names loaded", count);
                     println!(
                         "showing {}",
-                        &gui.application_state.gallery().picture(0).file_name()
+                        &gui.application_state.gallery().picture(0).file_path()
                     );
                     set_picture_for_file_view(
                         &gui,

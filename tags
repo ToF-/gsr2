@@ -27,7 +27,7 @@ SCROLL_STEP	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub con
 SINGLE_DOT	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub const SINGLE_DOT: &str = "testdata\/single_dot.png";$/;"	c
 THUMB_SUFFIX	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const THUMB_SUFFIX: &str = "THUMB";$/;"	c
 VALID_EXTENSIONS	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const VALID_EXTENSIONS: [&str; 6] = ["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"];$/;"	c
-a_picture_as_file_name_which_is_the_full_path_and_file_name_on_the_file_system	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    fn a_picture_as_file_name_which_is_the_full_path_and_file_name_on_the_file_system() {$/;"	f
+a_picture_as_file_path_which_is_the_full_path_and_file_path_on_the_file_system	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    fn a_picture_as_file_path_which_is_the_full_path_and_file_path_on_the_file_system() {$/;"	f
 a_readme_file_is_not_a_picture_file	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^    fn a_readme_file_is_not_a_picture_file() {$/;"	f
 a_thumbnail_picture_has_the_name_as_the_original_picture_with_suffix_THUMB	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    fn a_thumbnail_picture_has_the_name_as_the_original_picture_with_suffix_THUMB() {$/;"	f
 after_expand_toggle_expand_on_is_inverted	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    fn after_expand_toggle_expand_on_is_inverted() {$/;"	f
@@ -60,7 +60,7 @@ draw_palette	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	
 expand_on	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn expand_on(&self) -> bool {$/;"	f
 extract_a_palette_from_a_picture_file	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^    fn extract_a_palette_from_a_picture_file() {$/;"	f
 extract_a_palette_of_9_most_used_colors	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^    fn extract_a_palette_of_9_most_used_colors() {$/;"	f
-file_name	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    pub fn file_name(&self) -> String {$/;"	f
+file_path	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    pub fn file_path(&self) -> String {$/;"	f
 from_key_name_to_a_control	/Users/christophethibaut/Coding/gsr2/src/control.rs	/^    fn from_key_name_to_a_control() {$/;"	f
 full_size_on	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn full_size_on(&self) -> bool {$/;"	f
 gallery	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn gallery(&self) -> &Gallery {$/;"	f
@@ -75,9 +75,9 @@ get_the_control_matching_a_keyname	/Users/christophethibaut/Coding/gsr2/src/appl
 launch_application	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn launch_application(cli: CommandLineInterface) {$/;"	f
 len	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn len(&self) -> usize {$/;"	f
 load_from_directory	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn load_from_directory(&mut self, path: &str) -> Result<usize> {$/;"	f
-load_from_file_name	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn load_from_file_name(&mut self, file_name: &str) -> Result<usize> {$/;"	f
+load_from_file_path	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn load_from_file_path(&mut self, file_path: &str) -> Result<usize> {$/;"	f
 loading_from_a_directory_collect_all_the_picture_files_from_that_directory	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    fn loading_from_a_directory_collect_all_the_picture_files_from_that_directory() {$/;"	f
-loading_from_a_single_file_name_collect_that_single_picture_file	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    fn loading_from_a_single_file_name_collect_that_single_picture_file() {$/;"	f
+loading_from_a_single_file_path_collect_that_single_picture_file	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    fn loading_from_a_single_file_path_collect_that_single_picture_file() {$/;"	f
 main	/Users/christophethibaut/Coding/gsr2/src/main.rs	/^fn main() {$/;"	f
 make_palette_area	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn make_palette_area(palette: Palette) -> gtk::DrawingArea {$/;"	f
 move_first	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn move_first(&mut self) {$/;"	f
@@ -95,7 +95,7 @@ navigator_cannot_move_past_gallery_limit	/Users/christophethibaut/Coding/gsr2/sr
 new	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn new(palette_on: bool) -> Self {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn new() -> Gallery {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn new(limit: usize) -> Self {$/;"	f
-new	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    pub fn new(file_name: &str) -> Self {$/;"	f
+new	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    pub fn new(file_path: &str) -> Self {$/;"	f
 palette_on	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn palette_on(&self) -> bool {$/;"	f
 parse_and_check	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    pub fn parse_and_check(args_opt: Option<Vec<&str>>) -> Result<Self> {$/;"	f
 picture	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn picture(&self, index: usize) -> Picture {$/;"	f
@@ -105,7 +105,7 @@ save_nine_colors	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub fn 
 set_gallery	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn set_gallery(&mut self, gallery: Gallery) {$/;"	f
 set_picture_for_file_view	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn set_picture_for_file_view($/;"	f
 startup_gui	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn startup_gui(_application: &gtk::Application) {$/;"	f
-thumbnail_file_name	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    pub fn thumbnail_file_name(&self) -> String {$/;"	f
+thumbnail_file_path	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    pub fn thumbnail_file_path(&self) -> String {$/;"	f
 thumbnail_name_from	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^pub fn thumbnail_name_from(file_name: &str) -> String {$/;"	f
 thumbnail_name_from_normal_file_has_THUMB_suffix	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^    fn thumbnail_name_from_normal_file_has_THUMB_suffix() {$/;"	f
 title_display	/Users/christophethibaut/Coding/gsr2/src/display.rs	/^pub fn title_display(application_state: &ApplicationState) -> String {$/;"	f

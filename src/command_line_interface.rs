@@ -30,8 +30,8 @@ impl CommandLineInterface {
             Some(args) => Self::parse_from(args),
             None => Self::parse(),
         };
-        if let Some(Command::File { ref file_name }) = cli.command {
-            match check_picture_file(file_name) {
+        if let Some(Command::File { ref file_path }) = cli.command {
+            match check_picture_file(file_path) {
                 Ok(_) => return Ok(cli.clone()),
                 Err(e) => return Err(e),
             }
@@ -58,8 +58,8 @@ mod tests {
         gen_single_dot();
         let args = vec!["gsr", "file", SINGLE_DOT];
         let cli = CommandLineInterface::parse_and_check(Some(args)).unwrap();
-        if let Some(File { file_name }) = cli.command {
-            assert_eq!(String::from(SINGLE_DOT), file_name);
+        if let Some(File { file_path }) = cli.command {
+            assert_eq!(String::from(SINGLE_DOT), file_path);
         } else {
             assert!(false)
         }

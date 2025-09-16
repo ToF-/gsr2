@@ -3,12 +3,12 @@ use clap::Subcommand;
 #[derive(Subcommand, Clone, Debug, PartialEq)]
 /// Command
 pub enum Command {
-    /// <FILE_NAME> view the individual picture FILE_NAME
+    /// <FILE_PATH> view the individual picture file_path
     File {
-        #[arg(value_name = "FILE_NAME")]
-        file_name: String,
+        #[arg(value_name = "FILE_PATH")]
+        file_path: String,
     },
-    /// <DIRECTORY> view the pictures in director DIRECTORY
+    /// <DIRECTORY> view the pictures in directory
     Dir {
         #[arg(value_name = "DIRECTORY")]
         directory: String,
