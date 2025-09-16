@@ -6,9 +6,6 @@ use std::io::Result;
 #[derive(Parser, Clone, Debug, PartialEq)]
 /// Gallery Show
 pub struct CommandLineInterface {
-    /// Directory to search
-    pub directory: Option<String>,
-
     #[command(subcommand)]
     pub command: Option<Command>,
 }
@@ -18,12 +15,6 @@ impl CommandLineInterface {
         let cli: Self = match args_opt {
             Some(args) => Self::parse_from(args),
             None => Self::parse(),
-        };
-        if let Some(ref directory) = cli.directory {
-            match check_path(directory) {
-                Ok(_) => return Ok(cli.clone()),
-                Err(e) => return Err(e),
-            }
         };
         if let Some(Command::File { ref file_name }) = cli.command {
             match check_picture_file(file_name) {
@@ -47,29 +38,6 @@ mod tests {
     use crate::command_line_interface::Command::{Dir, File};
     use crate::gen_image::{SINGLE_DOT, gen_single_dot};
     use std::io::ErrorKind;
-
-    #[test]
-    fn command_line_interface_with_specified_directory() {
-        let args = vec!["gsr", "testdata"];
-        let cli = CommandLineInterface::parse_and_check(Some(args)).unwrap();
-        assert_eq!(Some(String::from("testdata")), cli.directory);
-    }
-
-    #[test]
-    fn command_line_interface_with_no_specified_directory() {
-        let args = vec!["gsr"];
-        let cli = CommandLineInterface::parse_and_check(Some(args)).unwrap();
-        assert_eq!(None, cli.directory);
-    }
-    #[test]
-    fn command_line_interface_with_non_existing_specified_directory() {
-        let args = vec!["gsr", "not_existing_dir"];
-        let cli = CommandLineInterface::parse_and_check(Some(args));
-        assert!(cli.is_err());
-        let err = cli.expect_err("can't extract error");
-        assert_eq!(ErrorKind::NotFound, err.kind());
-        assert_eq!("not found: not_existing_dir", &err.to_string())
-    }
 
     #[test]
     fn command_line_interface_with_command_file_with_adequate_argument() {

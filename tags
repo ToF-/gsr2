@@ -48,9 +48,6 @@ command_line_interface_with_command_file_with_adequate_argument	/Users/christoph
 command_line_interface_with_command_file_with_non_existing_file	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    fn command_line_interface_with_command_file_with_non_existing_file() {$/;"	f
 command_line_interface_with_command_file_with_non_file	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    fn command_line_interface_with_command_file_with_non_file() {$/;"	f
 command_line_interface_with_command_file_with_non_jpg_or_png_file	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    fn command_line_interface_with_command_file_with_non_jpg_or_png_file() {$/;"	f
-command_line_interface_with_no_specified_directory	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    fn command_line_interface_with_no_specified_directory() {$/;"	f
-command_line_interface_with_non_existing_specified_directory	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    fn command_line_interface_with_non_existing_specified_directory() {$/;"	f
-command_line_interface_with_specified_directory	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    fn command_line_interface_with_specified_directory() {$/;"	f
 compare_rgb	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^fn compare_rgb(color: &Rgb8, other: &Rgb8) -> Ordering {$/;"	f
 default_controls	/Users/christophethibaut/Coding/gsr2/src/control.rs	/^pub fn default_controls() -> Controls {$/;"	f
 draw_palette	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn draw_palette(ctx: &Context, width: i32, height: i32, palette: &Palette) {$/;"	f

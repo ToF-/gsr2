@@ -19,10 +19,6 @@ mod picture;
 fn main() {
     match CommandLineInterface::parse_and_check(None) {
         Ok(cli) => {
-            match cli.directory {
-                Some(ref dir) => println!("directory: {}", dir),
-                None => println!("no directory supplied"),
-            };
             if let Some(Command::File { ref file_name }) = cli.command {
                 println!("viewing file {}", file_name);
                 launch_application(cli.clone())
