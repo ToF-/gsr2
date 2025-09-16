@@ -131,4 +131,13 @@ mod tests {
         assert_eq!(ErrorKind::NotFound, err.kind());
         assert_eq!("not found: not_existing_dir", &err.to_string())
     }
+    #[test]
+    fn command_line_interface_dir_command_with_object_specified_not_directory() {
+        let args = vec!["gsr", "dir", "README.md"];
+        let cli = CommandLineInterface::parse_and_check(Some(args));
+        assert!(cli.is_err());
+        let err = cli.expect_err("can't extract error");
+        assert_eq!(ErrorKind::NotADirectory, err.kind());
+        assert_eq!("README.md is not a directory", &err.to_string())
+    }
 }
