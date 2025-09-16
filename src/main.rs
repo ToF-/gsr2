@@ -13,6 +13,7 @@ mod gallery;
 mod gen_image;
 mod graphic_user_interface;
 mod image_data;
+mod navigator;
 mod paths;
 mod picture;
 
