@@ -22,6 +22,8 @@ fn main() {
             if let Some(Command::File { ref file_name }) = cli.command {
                 println!("viewing file {}", file_name);
                 launch_application(cli.clone())
+            } else if let Some(Command::Dir { ref directory }) = cli.command {
+                println!("viewing files in directory {}", directory);
             }
         }
         Err(err) => {

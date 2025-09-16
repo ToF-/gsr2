@@ -5,11 +5,20 @@ use std::io::Result;
 
 #[derive(Parser, Clone, Debug, PartialEq)]
 /// Gallery Show
-#[command(about("a picture viewer from terminal"), author("ToF"), version, infer_long_args = true, infer_subcommands = true, help_template("\
+#[command(
+    about("a picture viewer from terminal"),
+    author("ToF"),
+    version,
+    infer_long_args = true,
+    infer_subcommands = true,
+    help_template(
+        "\
 {before-help}{name} {version} {about} by {author-with-newline}
 {usage-heading} {usage}
 {all-args}{after-help}
-"))]
+"
+    )
+)]
 pub struct CommandLineInterface {
     #[command(subcommand)]
     pub command: Option<Command>,
