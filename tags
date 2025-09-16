@@ -12,6 +12,7 @@ Control	/Users/christophethibaut/Coding/gsr2/src/control.rs	/^pub enum Control {
 Controls	/Users/christophethibaut/Coding/gsr2/src/control.rs	/^pub type Controls = HashMap<String, Control>;$/;"	T
 DEFAULT_HEIGHT	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const DEFAULT_HEIGHT: i32 = 1000;$/;"	c
 DEFAULT_WIDTH	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const DEFAULT_WIDTH: i32 = 1000;$/;"	c
+EXPAND_ON_SYMBOL	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const EXPAND_ON_SYMBOL: &str = "  ⃞";$/;"	c
 Gallery	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^pub struct Gallery {$/;"	s
 GraphicalUserInterface	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^struct GraphicalUserInterface {$/;"	s
 MAX_PALETTE_COLORS	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const MAX_PALETTE_COLORS: u8 = 9;$/;"	c

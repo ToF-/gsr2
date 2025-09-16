@@ -1,10 +1,11 @@
 use crate::application_state::ApplicationState;
+use crate::default_values::EXPAND_ON_SYMBOL;
 use crate::gallery::Gallery;
 
 fn expand_display(on: bool) -> String {
     match on {
         false => String::from(""),
-        true => String::from(" ^"),
+        true => String::from(EXPAND_ON_SYMBOL),
     }
 }
 pub fn title_display(application_state: &ApplicationState) -> String {
@@ -37,6 +38,9 @@ mod tests {
     fn display_title_for_application_state_with_expand_on() {
         let mut application_state = an_application_state();
         application_state.toggle_expand();
-        assert_eq!("nine_colors.png ^", title_display(&application_state));
+        assert_eq!(
+            "nine_colors.png".to_owned() + EXPAND_ON_SYMBOL,
+            title_display(&application_state)
+        );
     } // 🔍
 }
