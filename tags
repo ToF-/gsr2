@@ -59,6 +59,7 @@ command_line_interface_with_command_file_with_non_jpg_or_png_file	/Users/christo
 compare_rgb	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^fn compare_rgb(color: &Rgb8, other: &Rgb8) -> Ordering {$/;"	f
 current_picture	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn current_picture(&self) -> Picture {$/;"	f
 default_controls	/Users/christophethibaut/Coding/gsr2/src/control.rs	/^pub fn default_controls() -> Controls {$/;"	f
+display_position_for_application_state	/Users/christophethibaut/Coding/gsr2/src/display.rs	/^    fn display_position_for_application_state() {$/;"	f
 display_title_for_application_state	/Users/christophethibaut/Coding/gsr2/src/display.rs	/^    fn display_title_for_application_state() {$/;"	f
 display_title_for_application_state_with_expand_on	/Users/christophethibaut/Coding/gsr2/src/display.rs	/^    fn display_title_for_application_state_with_expand_on() {$/;"	f
 display_title_for_application_state_with_full_size_on	/Users/christophethibaut/Coding/gsr2/src/display.rs	/^    fn display_title_for_application_state_with_full_size_on() {$/;"	f

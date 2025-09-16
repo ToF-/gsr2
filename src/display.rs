@@ -45,6 +45,13 @@ mod tests {
     }
 
     #[test]
+    fn display_position_for_application_state() {
+        let mut application_state = an_application_state();
+        application_state.move_next();
+        assert_eq!("#1 single_dot.png", title_display(&application_state));
+    }
+
+    #[test]
     fn display_title_for_application_state_with_expand_on() {
         let mut application_state = an_application_state();
         application_state.toggle_expand();
