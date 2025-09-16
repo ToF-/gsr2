@@ -1,4 +1,4 @@
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Ord,PartialOrd, PartialEq, Eq)]
 pub struct Picture {
     file_name: String,
 }

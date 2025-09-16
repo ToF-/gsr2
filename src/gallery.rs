@@ -27,6 +27,7 @@ impl Gallery {
                 for file_name in list {
                     self.pictures.push(Picture::new(&file_name))
                 }
+                self.pictures.sort();
                 Ok(self.pictures.len())
             }
             Err(err) => Err(err),

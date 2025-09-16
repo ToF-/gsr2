@@ -45,6 +45,14 @@ impl ApplicationState {
         self.navigator.move_prev()
     }
 
+    pub fn move_last(&mut self) {
+        self.navigator.move_last()
+    }
+
+    pub fn move_first(&mut self) {
+        self.navigator.move_first()
+    }
+
     pub fn expand_on(&self) -> bool {
         self.expand_on
     }

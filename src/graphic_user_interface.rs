@@ -218,13 +218,11 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
     {
         let mut picture: picture::Picture = gui.application_state.gallery().picture(0);
         let cli = gui.command_line_interface.clone();
+        let mut refresh: bool = true;
         match gui.application_state.get_control(key_name.as_str()) {
             Some(Control::MoveNext) => {
                 if gui.application_state.navigator().can_move_next() {
                     gui.application_state.move_next();
-                    let position = gui.application_state.navigator().position();
-                    picture = gui.application_state.gallery().picture(position);
-                    set_picture_for_file_view(&gui, &gui.application_state.current_picture(), &cli)
                 } else {
                     println!("bump")
                 }
@@ -232,25 +230,25 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
             Some(Control::MovePrev) => {
                 if gui.application_state.navigator().can_move_prev() {
                     gui.application_state.move_prev();
-                    let position = gui.application_state.navigator().position();
-                    picture = gui.application_state.gallery().picture(position);
-                    set_picture_for_file_view(&gui, &gui.application_state.current_picture(), &cli)
                 } else {
                     println!("bump")
                 }
             }
+            Some(Control::MoveLast) => {
+                gui.application_state.move_last()
+            }
+            Some(Control::MoveFirst) => {
+                gui.application_state.move_first()
+            }
             Some(Control::Quit) => gui.application_window.close(),
             Some(Control::TogglePalette) => {
                 gui.application_state.toggle_palette();
-                set_picture_for_file_view(&gui, &gui.application_state.current_picture(), &cli)
             }
             Some(Control::ToggleExpand) => {
                 gui.application_state.toggle_expand();
-                set_picture_for_file_view(&gui, &gui.application_state.current_picture(), &cli)
             }
             Some(Control::ToggleFullSize) => {
                 gui.application_state.toggle_full_size();
-                set_picture_for_file_view(&gui, &gui.application_state.current_picture(), &cli)
             }
             Some(direction @ Control::Left)
             | Some(direction @ Control::Right)
@@ -259,10 +257,17 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
                 if gui.application_state.full_size_on() {
                     arrow_command_full_size(direction, &gui);
                 }
+                refresh = false
             }
             _ => {
-                println!("{:?}", key_name)
+                println!("{:?}", key_name);
+                refresh = false
             }
+        };
+        if refresh {
+            let position = gui.application_state.navigator().position();
+            picture = gui.application_state.gallery().picture(position);
+            set_picture_for_file_view(&gui, &gui.application_state.current_picture(), &cli)
         }
     };
     gtk::Inhibit(false)
