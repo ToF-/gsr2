@@ -57,6 +57,10 @@ mod tests {
             .load_from_directory("./testdata/")
             .expect("can't load from directory");
         assert_eq!(2, gallery.len());
+        assert_eq!(
+            String::from("./testdata/nine_colors.png"),
+            gallery.picture(0).file_name()
+        );
     }
 
     #[test]

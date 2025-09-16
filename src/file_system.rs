@@ -16,8 +16,7 @@ pub fn get_all_picture_file_paths(path: &str) -> Result<Vec<String>> {
                     && !path.display().to_string().contains(THUMB_SUFFIX)
             })
         {
-            println!("…{}", path);
-            file_paths.push(path.to_string())
+            file_paths.push(_entry.display().to_string())
         }
         file_paths
     })
