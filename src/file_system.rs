@@ -1,5 +1,5 @@
 use crate::default_values::THUMB_SUFFIX;
-use crate::paths::{check_path, check_path_is_a_jpg_or_png_file};
+use crate::paths::{check_path, check_path_is_a_jpg_or_png_file, check_picture_file};
 use std::io::Result;
 use walkdir::WalkDir;
 
@@ -20,4 +20,8 @@ pub fn get_all_picture_file_paths(path: &str) -> Result<Vec<String>> {
         }
         file_paths
     })
+}
+
+pub fn get_picture_file_path(file_path: &str) -> Result<String> {
+    check_picture_file(file_path)
 }

@@ -1,3 +1,4 @@
+use crate::Command::{Dir, File};
 use crate::application_state::ApplicationState;
 use crate::command::Command;
 use crate::command_line_interface::CommandLineInterface;
@@ -147,9 +148,15 @@ pub fn build_gui(application: &gtk::Application, cli: &CommandLineInterface) {
         process_key(&gui_rc, key)
     }));
     if let Ok(gui) = gui_rc.try_borrow() {
-        set_picture_for_file_view(&gui, cli);
-        gui.application_window.add_controller(evk);
-        gui.application_window.present()
+        if let Some(File { file_name }) = &gui.command_line_interface.command {
+            set_picture_for_file_view(&gui, cli);
+            gui.application_window.add_controller(evk);
+            gui.application_window.present()
+        } else if let Some(Dir { directory }) = &gui.command_line_interface.command {
+            println!("work in progress…");
+            gui.application_window.add_controller(evk);
+            gui.application_window.present()
+        }
     }
 }
 
