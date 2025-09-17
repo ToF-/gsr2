@@ -67,8 +67,8 @@ mod tests {
         assert!(navigator.can_move(Direction::Right));
         navigator.move_towards(Direction::Right);
         assert_eq!(1, navigator.position());
-        navigator.move_next();
-        assert!(!navigator.can_move_next());
+        navigator.move_towards(Direction::Right);
+        assert!(!navigator.can_move(Direction::Right));
     }
 
     #[test]
