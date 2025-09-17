@@ -113,6 +113,10 @@ mod tests {
         assert_eq!(
             "testdata/my_fileTHUMB.jpg",
             thumbnail_name_from("testdata/my_file.jpg")
+        );
+        assert_eq!(
+            "testdata/my_other_fileTHUMB.PNG",
+            thumbnail_name_from("testdata/my_other_file.PNG")
         )
     }
 }
