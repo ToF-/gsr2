@@ -15,28 +15,12 @@ impl Navigator {
         self.position
     }
 
-    pub fn can_move_next(&self) -> bool {
-        self.position < self.limit - 1
-    }
-
-    pub fn can_move_prev(&self) -> bool {
-        self.position > 0
-    }
-
     pub fn can_move(&self, direction: Direction) -> bool {
         match direction {
             Direction::Left => self.position > 0,
             Direction::Right => self.position < self.limit - 1,
             _ => false,
         }
-    }
-
-    pub fn move_next(&mut self) {
-        self.position += 1
-    }
-
-    pub fn move_prev(&mut self) {
-        self.position -= 1
     }
 
     pub fn move_towards(&mut self, direction: Direction) {

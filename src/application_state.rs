@@ -42,14 +42,6 @@ impl ApplicationState {
         self.navigator.move_towards(direction)
     }
 
-    pub fn move_next(&mut self) {
-        self.navigator.move_next()
-    }
-
-    pub fn move_prev(&mut self) {
-        self.navigator.move_prev()
-    }
-
     pub fn move_last(&mut self) {
         self.navigator.move_last()
     }
