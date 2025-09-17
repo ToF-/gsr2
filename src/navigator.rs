@@ -75,9 +75,9 @@ mod tests {
     fn navigator_cannot_move_before_first_position() {
         let mut navigator = Navigator::new(3);
         assert!(!navigator.can_move(Direction::Left));
-        navigator.move_next();
-        assert!(navigator.can_move_prev());
-        navigator.move_prev();
+        navigator.move_towards(Direction::Right);
+        assert!(navigator.can_move(Direction::Left));
+        navigator.move_towards(Direction::Left);
         assert_eq!(0, navigator.position());
     }
 
