@@ -41,8 +41,8 @@ impl Navigator {
 
     pub fn move_towards(&mut self, direction: Direction) {
         match direction {
-            Direction::Right => self.move_next(),
-            Direction::Left => self.move_prev(),
+            Direction::Right => self.position += 1,
+            Direction::Left => self.position -= 1,
             _ => {}
         }
     }
