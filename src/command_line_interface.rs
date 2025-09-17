@@ -22,6 +22,14 @@ use std::io::Result;
 pub struct CommandLineInterface {
     #[command(subcommand)]
     pub command: Option<Command>,
+
+    /// display N x N pictures per page (N in range [2..10[)
+    #[arg(short, long, value_name = "N",value_parser(clap::value_parser!(u8).range(2..=9)))]
+    pub grid: Option<u8>,
+
+    /// display 10 x 10 thumbnail pictures per page
+    #[arg(short, long, default_value_t = false, conflicts_with("grid"))]
+    pub thumbnails: bool,
 }
 
 impl CommandLineInterface {
