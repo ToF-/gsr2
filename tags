@@ -38,6 +38,8 @@ after_full_size_toggle_full_size_on_is_inverted	/Users/christophethibaut/Coding/
 after_palette_toggle_palette_on_is_inverted	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    fn after_palette_toggle_palette_on_is_inverted() {$/;"	f
 an_application_state	/Users/christophethibaut/Coding/gsr2/src/display.rs	/^    fn an_application_state() -> ApplicationState {$/;"	f
 arrow_command_full_size	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn arrow_command_full_size(direction: Control, gui: &GraphicalUserInterface) -> bool {$/;"	f
+build_and_run_application	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn build_and_run_application(cli: CommandLineInterface) {$/;"	f
+build_application	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn build_application(cli: CommandLineInterface) ->gtk::Application {$/;"	f
 build_gui	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn build_gui(application: &gtk::Application, cli: &CommandLineInterface) {$/;"	f
 can_move_next	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn can_move_next(&self) -> bool {$/;"	f
 can_move_prev	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn can_move_prev(&self) -> bool {$/;"	f
@@ -83,7 +85,6 @@ get_palette	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^pub fn get_
 get_palette_from_picture_file	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^pub fn get_palette_from_picture_file(file_path: &str) -> Result<Palette> {$/;"	f
 get_picture_file_path	/Users/christophethibaut/Coding/gsr2/src/file_system.rs	/^pub fn get_picture_file_path(file_path: &str) -> Result<String> {$/;"	f
 get_the_control_matching_a_keyname	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    fn get_the_control_matching_a_keyname() {$/;"	f
-launch_application	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn launch_application(cli: CommandLineInterface) {$/;"	f
 len	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn len(&self) -> usize {$/;"	f
 load_and_launch	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn load_and_launch(gui_rc: RcRefCellGui, cli: &CommandLineInterface) {$/;"	f
 load_from_directory	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn load_from_directory(&mut self, path: &str) -> Result<usize> {$/;"	f

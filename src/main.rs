@@ -1,6 +1,6 @@
 use crate::command::Command;
 use crate::command_line_interface::CommandLineInterface;
-use crate::graphic_user_interface::launch_application;
+use crate::graphic_user_interface::build_and_run_application;
 use std::process::exit;
 
 mod application_state;
@@ -19,14 +19,15 @@ mod paths;
 mod picture;
 
 fn main() {
+    let no_args: Vec<String> = vec![];
     match CommandLineInterface::parse_and_check(None) {
         Ok(cli) => {
             if let Some(Command::File { ref file_path }) = cli.command {
                 println!("viewing file {}", file_path);
-                launch_application(cli.clone())
+                build_and_run_application(cli.clone())
             } else if let Some(Command::Dir { ref directory }) = cli.command {
                 println!("viewing files in directory {}", directory);
-                launch_application(cli.clone())
+                build_and_run_application(cli.clone())
             }
         }
         Err(err) => {

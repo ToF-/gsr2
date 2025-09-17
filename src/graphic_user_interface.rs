@@ -261,8 +261,7 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
     gtk::Inhibit(false)
 }
 
-pub fn launch_application(cli: CommandLineInterface) {
-    println!("launching app…");
+pub fn build_application(cli: CommandLineInterface) -> gtk::Application {
     let application = Application::builder()
         .application_id("org.example.gsr2")
         .build();
@@ -271,6 +270,11 @@ pub fn launch_application(cli: CommandLineInterface) {
     });
     application
         .connect_activate(move |application: &gtk::Application| build_gui(application, &cli));
+    application
+}
+
+pub fn build_and_run_application(cli: CommandLineInterface) {
+    let application = build_application(cli);
     let no_args: Vec<String> = vec![];
     application.run_with_args(&no_args);
 }
