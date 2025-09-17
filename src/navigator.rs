@@ -32,14 +32,6 @@ impl Navigator {
             _ => {}
         }
     }
-
-    pub fn move_first(&mut self) {
-        self.position = 0
-    }
-
-    pub fn move_last(&mut self) {
-        self.position = self.limit - 1
-    }
 }
 #[cfg(test)]
 
