@@ -187,7 +187,7 @@ fn load_and_launch(gui_rc: RcRefCellGui, cli: &CommandLineInterface) {
     }
 }
 
-fn arrow_command_full_size(direction: Control, gui: &GraphicalUserInterface) -> bool {
+fn process_arrow_key_in_fullsize(direction: Control, gui: &GraphicalUserInterface) -> bool {
     let (picture_adjustment, step) = match direction {
         Control::Right => (gui.single_view_scrolled_window.hadjustment(), SCROLL_STEP),
         Control::Left => (gui.single_view_scrolled_window.hadjustment(), -SCROLL_STEP),
@@ -243,7 +243,7 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
             | Some(direction @ Control::Up)
             | Some(direction @ Control::Down) => {
                 if gui.application_state.full_size_on() {
-                    arrow_command_full_size(direction, &gui);
+                    process_arrow_key_in_fullsize(direction, &gui);
                 }
                 refresh = false
             }

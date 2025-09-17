@@ -12,6 +12,7 @@ Control	/Users/christophethibaut/Coding/gsr2/src/control.rs	/^pub enum Control {
 Controls	/Users/christophethibaut/Coding/gsr2/src/control.rs	/^pub type Controls = HashMap<String, Control>;$/;"	T
 DEFAULT_HEIGHT	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const DEFAULT_HEIGHT: i32 = 1000;$/;"	c
 DEFAULT_WIDTH	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const DEFAULT_WIDTH: i32 = 1000;$/;"	c
+Direction	/Users/christophethibaut/Coding/gsr2/src/direction.rs	/^pub enum Direction {$/;"	g
 EXPAND_ON_SYMBOL	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const EXPAND_ON_SYMBOL: &str = "  ⃞";$/;"	c
 FULL_SIZE_ON_SYMBOL	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const FULL_SIZE_ON_SYMBOL: &str = " 🔍";$/;"	c
 Gallery	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^pub struct Gallery {$/;"	s
@@ -37,10 +38,10 @@ after_expand_toggle_expand_on_is_inverted	/Users/christophethibaut/Coding/gsr2/s
 after_full_size_toggle_full_size_on_is_inverted	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    fn after_full_size_toggle_full_size_on_is_inverted() {$/;"	f
 after_palette_toggle_palette_on_is_inverted	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    fn after_palette_toggle_palette_on_is_inverted() {$/;"	f
 an_application_state	/Users/christophethibaut/Coding/gsr2/src/display.rs	/^    fn an_application_state() -> ApplicationState {$/;"	f
-arrow_command_full_size	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn arrow_command_full_size(direction: Control, gui: &GraphicalUserInterface) -> bool {$/;"	f
 build_and_run_application	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn build_and_run_application(cli: CommandLineInterface) {$/;"	f
-build_application	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn build_application(cli: CommandLineInterface) ->gtk::Application {$/;"	f
+build_application	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn build_application(cli: CommandLineInterface) -> gtk::Application {$/;"	f
 build_gui	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn build_gui(application: &gtk::Application, cli: &CommandLineInterface) {$/;"	f
+can_move	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn can_move(&self, direction: Direction) -> bool {$/;"	f
 can_move_next	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn can_move_next(&self) -> bool {$/;"	f
 can_move_prev	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn can_move_prev(&self) -> bool {$/;"	f
 check_path	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^pub fn check_path(source: &str) -> Result<String> {$/;"	f
@@ -113,6 +114,7 @@ palette_on	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    p
 parse_and_check	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    pub fn parse_and_check(args_opt: Option<Vec<&str>>) -> Result<Self> {$/;"	f
 picture	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn picture(&self, index: usize) -> Picture {$/;"	f
 position	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn position(&self) -> usize {$/;"	f
+process_arrow_key_in_fullsize	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn process_arrow_key_in_fullsize(direction: Control, gui: &GraphicalUserInterface) -> bool {$/;"	f
 process_key	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {$/;"	f
 save_nine_colors	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub fn save_nine_colors() {$/;"	f
 set_gallery	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn set_gallery(&mut self, gallery: Gallery) {$/;"	f

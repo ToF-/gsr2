@@ -1,3 +1,5 @@
+use crate::direction::Direction;
+
 #[derive(Debug, Clone)]
 pub struct Navigator {
     limit: usize,
@@ -19,6 +21,14 @@ impl Navigator {
 
     pub fn can_move_prev(&self) -> bool {
         self.position > 0
+    }
+
+    pub fn can_move(&self, direction: Direction) -> bool {
+        match direction {
+            Direction::Left => self.can_move_prev(),
+            Direction::Right => self.can_move_next(),
+            _ => false,
+        }
     }
 
     pub fn move_next(&mut self) {
@@ -46,7 +56,7 @@ mod tests {
     fn navigator_cannot_move_past_gallery_limit() {
         let mut navigator = Navigator::new(3);
         assert_eq!(0, navigator.position());
-        assert!(navigator.can_move_next());
+        assert!(navigator.can_move(Direction::Right));
         navigator.move_next();
         assert_eq!(1, navigator.position());
         navigator.move_next();
