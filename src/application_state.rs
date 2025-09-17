@@ -60,9 +60,17 @@ impl ApplicationState {
         self.palette_on
     }
 
+    pub fn pictures_per_row(&self) -> usize {
+        self.pictures_per_row
+    }
+
     pub fn set_gallery(&mut self, gallery: Gallery) {
         self.gallery = gallery;
         self.navigator = Navigator::new(self.gallery.len())
+    }
+
+    pub fn set_pictures_per_row(&mut self, n: usize) {
+        self.pictures_per_row = n
     }
 
     pub fn toggle_expand(&mut self) {
