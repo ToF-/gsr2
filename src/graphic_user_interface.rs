@@ -76,11 +76,7 @@ fn draw_palette(ctx: &Context, width: i32, height: i32, palette: &Palette) {
         .expect("can't set source surface");
     ctx.paint().expect("can't paint surface")
 }
-fn set_picture_for_file_view(
-    gui: &GraphicalUserInterface,
-    picture: &picture::Picture,
-    cli: &CommandLineInterface,
-) {
+fn set_picture_for_file_view(gui: &GraphicalUserInterface, picture: &picture::Picture) {
     let single_view_picture = &gui.single_view_picture;
     let view_box = &gui.single_view_box;
     if gui.application_state.expand_on() {
@@ -183,7 +179,7 @@ fn load_and_launch(gui_rc: RcRefCellGui, cli: &CommandLineInterface) {
             }
         }
         gui.application_state.set_gallery(gallery);
-        set_picture_for_file_view(&gui, &gui.application_state.gallery().picture(0), cli);
+        set_picture_for_file_view(&gui, &gui.application_state.gallery().picture(0));
         gui.application_window.present()
     }
 }
@@ -256,7 +252,7 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
         if refresh {
             let position = gui.application_state.navigator().position();
             picture = gui.application_state.gallery().picture(position);
-            set_picture_for_file_view(&gui, &gui.application_state.current_picture(), &cli)
+            set_picture_for_file_view(&gui, &gui.application_state.current_picture())
         }
     };
     gtk::Inhibit(false)

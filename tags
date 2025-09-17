@@ -111,7 +111,7 @@ process_arrow_key_in_fullsize	/Users/christophethibaut/Coding/gsr2/src/graphic_u
 process_key	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {$/;"	f
 save_nine_colors	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub fn save_nine_colors() {$/;"	f
 set_gallery	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn set_gallery(&mut self, gallery: Gallery) {$/;"	f
-set_picture_for_file_view	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn set_picture_for_file_view($/;"	f
+set_picture_for_file_view	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn set_picture_for_file_view(gui: &GraphicalUserInterface, picture: &picture::Picture) {$/;"	f
 startup_gui	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn startup_gui(_application: &gtk::Application) {$/;"	f
 thumbnail_file_path	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    pub fn thumbnail_file_path(&self) -> String {$/;"	f
 thumbnail_name_from	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^pub fn thumbnail_name_from(file_name: &str) -> String {$/;"	f
