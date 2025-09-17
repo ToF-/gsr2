@@ -158,47 +158,27 @@ pub fn build_gui(application: &gtk::Application, cli: &CommandLineInterface) {
         if let Some(File { file_path }) = &gui.command_line_interface.command {
             match gallery.load_from_file_path(file_path) {
                 Ok(count) => {
-                    gui.application_state.set_gallery(gallery);
-                    println!("{} picture names loaded", count);
-                    set_picture_for_file_view(
-                        &gui,
-                        &gui.application_state.gallery().picture(0),
-                        cli,
-                    );
-                    gui.application_window.add_controller(evk);
-                    gui.application_window.present()
+                    println!("{} picture file paths loaded", count);
                 }
                 Err(err) => {
                     eprintln!("{}", err);
-                    gui.application_window.add_controller(evk);
-                    gui.application_window.present();
                 }
             }
         } else if let Some(Dir { directory }) = &gui.command_line_interface.command {
             println!("loading…");
             match gallery.load_from_directory(directory) {
                 Ok(count) => {
-                    gui.application_state.set_gallery(gallery);
-                    println!("{} picture names loaded", count);
-                    println!(
-                        "showing {}",
-                        &gui.application_state.gallery().picture(0).file_path()
-                    );
-                    set_picture_for_file_view(
-                        &gui,
-                        &gui.application_state.gallery().picture(0),
-                        cli,
-                    );
-                    gui.application_window.add_controller(evk);
-                    gui.application_window.present()
+                    println!("{} picture file path loaded", count);
                 }
                 Err(err) => {
                     eprintln!("{}", err);
-                    gui.application_window.add_controller(evk);
-                    gui.application_window.present();
                 }
             }
         }
+        gui.application_state.set_gallery(gallery);
+        set_picture_for_file_view(&gui, &gui.application_state.gallery().picture(0), cli);
+        gui.application_window.add_controller(evk);
+        gui.application_window.present()
     }
 }
 
