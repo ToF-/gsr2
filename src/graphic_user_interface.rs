@@ -156,29 +156,23 @@ fn process_control(gui: &mut GraphicalUserInterface, control: Control) -> bool {
 fn load_and_launch(gui_rc: RcRefCellGui, cli: &CommandLineInterface) {
     if let Ok(mut gui) = gui_rc.try_borrow_mut() {
         let mut gallery = Gallery::new();
-        if let Some(File { file_path }) = &gui.command_line_interface.command {
-            match gallery.load_from_file_path(file_path) {
-                Ok(count) => {
-                    println!("{} picture file paths loaded", count);
-                }
-                Err(err) => {
-                    eprintln!("{}", err);
-                }
+        let result = match &gui.command_line_interface.command {
+            Some(File { file_path }) => gallery.load_from_file_path(file_path),
+            Some(Dir { directory }) => gallery.load_from_directory(directory),
+            None => Ok(0),
+        };
+        match result {
+            Ok(0) => {}
+            Ok(count) => {
+                println!("{} picture file paths loaded", count);
+                gui.application_state.set_gallery(gallery);
+                set_picture_for_file_view(&gui, &gui.application_state.gallery().picture(0));
+                gui.application_window.present()
             }
-        } else if let Some(Dir { directory }) = &gui.command_line_interface.command {
-            println!("loading…");
-            match gallery.load_from_directory(directory) {
-                Ok(count) => {
-                    println!("{} picture file path loaded", count);
-                }
-                Err(err) => {
-                    eprintln!("{}", err);
-                }
+            Err(err) => {
+                eprintln!("{}", err);
             }
         }
-        gui.application_state.set_gallery(gallery);
-        set_picture_for_file_view(&gui, &gui.application_state.gallery().picture(0));
-        gui.application_window.present()
     }
 }
 
