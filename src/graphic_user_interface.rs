@@ -224,29 +224,25 @@ fn make_single_view_scrolled_window() -> gtk::ScrolledWindow {
 }
 
 fn make_view_box() -> gtk::Box {
-    let view_box = gtk::Box::new(Orientation::Vertical, 0);
-    view_box.set_valign(Align::Fill);
-    view_box.set_halign(Align::Fill);
-    view_box.set_hexpand(true);
-    view_box.set_vexpand(true);
-    view_box.set_homogeneous(false);
-    view_box
+    gtk::Box::builder()
+        .orientation(Orientation::Vertical)
+        .spacing(0)
+        .halign(Align::Fill)
+        .valign(Align::Fill)
+        .hexpand(true)
+        .vexpand(true)
+        .homogeneous(false)
+        .build()
 }
 
 fn make_picture() -> gtk::Picture {
-    Picture::builder().hexpand(true);
-    let picture = Picture::new();
-    picture.set_hexpand(true);
-    picture.set_vexpand(true);
-    picture
+    Picture::builder().hexpand(true).vexpand(true).build()
 }
 
 fn make_view_stack() -> gtk::Stack {
-    let view_stack = gtk::Stack::new();
-    view_stack.set_hexpand(true);
-    view_stack.set_vexpand(true);
-    view_stack
+    gtk::Stack::builder().hexpand(true).vexpand(true).build()
 }
+
 pub fn activate(application: &gtk::Application, cli: &CommandLineInterface) {
     let application_window = make_application_window(&application);
     let single_view_scrolled_window = make_single_view_scrolled_window();
@@ -260,16 +256,15 @@ pub fn activate(application: &gtk::Application, cli: &CommandLineInterface) {
     view_stack.set_visible_child(&single_view_scrolled_window);
     application_window.set_child(Some(&view_stack));
 
-    let gui = GraphicalUserInterface {
+    let gui_rc = Rc::new(RefCell::new(GraphicalUserInterface {
         command_line_interface: cli.clone(),
         application_state: ApplicationState::new(false),
         application_window,
         single_view_picture: picture,
         single_view_box: view_box,
         single_view_scrolled_window,
-    };
+    }));
     let evk = gtk::EventControllerKey::new();
-    let gui_rc = Rc::new(RefCell::new(gui));
     evk.connect_key_pressed(clone!(@strong gui_rc => move |_, key, _, _| {
         process_key(&gui_rc, key)
     }));
