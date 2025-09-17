@@ -20,7 +20,6 @@ mod paths;
 mod picture;
 
 fn main() {
-    let no_args: Vec<String> = vec![];
     match CommandLineInterface::parse_and_check(None) {
         Ok(cli) => {
             if let Some(Command::File { ref file_path }) = cli.command {
