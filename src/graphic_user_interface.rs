@@ -152,7 +152,13 @@ pub fn build_gui(application: &gtk::Application, cli: &CommandLineInterface) {
     evk.connect_key_pressed(clone!(@strong gui_rc => move |_, key, _, _| {
         process_key(&gui_rc, key)
     }));
-    // load the gallery and present the application window
+    if let Ok(mut gui) = gui_rc.try_borrow_mut() {
+        gui.application_window.add_controller(evk);
+    }
+    load_and_launch(gui_rc, cli);
+}
+
+fn load_and_launch(gui_rc: RcRefCellGui, cli: &CommandLineInterface) {
     if let Ok(mut gui) = gui_rc.try_borrow_mut() {
         let mut gallery = Gallery::new();
         if let Some(File { file_path }) = &gui.command_line_interface.command {
@@ -177,7 +183,6 @@ pub fn build_gui(application: &gtk::Application, cli: &CommandLineInterface) {
         }
         gui.application_state.set_gallery(gallery);
         set_picture_for_file_view(&gui, &gui.application_state.gallery().picture(0), cli);
-        gui.application_window.add_controller(evk);
         gui.application_window.present()
     }
 }
