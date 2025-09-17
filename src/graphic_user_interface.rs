@@ -32,18 +32,6 @@ struct GraphicalUserInterface {
 
 type RcRefCellGui = Rc<RefCell<GraphicalUserInterface>>;
 
-pub fn startup_gui(_application: &gtk::Application) {
-    let css_provider = gtk::CssProvider::new();
-    css_provider.load_from_data(
-        "window { background-color:black;} image { margin:1em ; } label { color:white; }",
-    );
-    gtk::style_context_add_provider_for_display(
-        &gdk::Display::default().unwrap(),
-        &css_provider,
-        1000,
-    );
-}
-
 fn make_palette_area(palette: Palette) -> gtk::DrawingArea {
     let palette_area = gtk::DrawingArea::new();
     palette_area.set_valign(Align::Center);
@@ -103,97 +91,20 @@ fn set_picture_for_file_view(gui: &GraphicalUserInterface, picture: &picture::Pi
     gui.application_window
         .set_title(Some(&title_display(&gui.application_state)))
 }
-pub fn build_gui(application: &gtk::Application, cli: &CommandLineInterface) {
-    let application_window = ApplicationWindow::builder()
-        .application(application)
-        .title("gsr2")
-        .default_width(DEFAULT_WIDTH)
-        .default_height(DEFAULT_HEIGHT)
-        .build();
-    let single_view_scrolled_window = ScrolledWindow::builder()
-        .hscrollbar_policy(gtk::PolicyType::Automatic)
-        .vscrollbar_policy(gtk::PolicyType::Automatic)
-        .name("view")
-        .build();
-    let view_box = gtk::Box::new(Orientation::Vertical, 0);
-    view_box.set_valign(Align::Fill);
-    view_box.set_halign(Align::Fill);
-    view_box.set_hexpand(true);
-    view_box.set_vexpand(true);
-    view_box.set_homogeneous(false);
-
-    let picture = Picture::new();
-    picture.set_hexpand(true);
-    picture.set_vexpand(true);
-
-    view_box.append(&picture);
-    single_view_scrolled_window.set_child(Some(&view_box));
-
-    let view_stack = gtk::Stack::new();
-    view_stack.set_hexpand(true);
-    view_stack.set_vexpand(true);
-    let _ = view_stack.add_child(&single_view_scrolled_window);
-    view_stack.set_visible_child(&single_view_scrolled_window);
-    application_window.set_child(Some(&view_stack));
-
-    let gui = GraphicalUserInterface {
-        command_line_interface: cli.clone(),
-        application_state: ApplicationState::new(false),
-        application_window,
-        single_view_picture: picture,
-        single_view_box: view_box,
-        single_view_scrolled_window,
-    };
-    let evk = gtk::EventControllerKey::new();
-    let gui_rc = Rc::new(RefCell::new(gui));
-    evk.connect_key_pressed(clone!(@strong gui_rc => move |_, key, _, _| {
-        process_key(&gui_rc, key)
-    }));
-    if let Ok(mut gui) = gui_rc.try_borrow_mut() {
-        gui.application_window.add_controller(evk);
-    }
-    load_and_launch(gui_rc, cli);
-}
-
-fn load_and_launch(gui_rc: RcRefCellGui, cli: &CommandLineInterface) {
-    if let Ok(mut gui) = gui_rc.try_borrow_mut() {
-        let mut gallery = Gallery::new();
-        if let Some(File { file_path }) = &gui.command_line_interface.command {
-            match gallery.load_from_file_path(file_path) {
-                Ok(count) => {
-                    println!("{} picture file paths loaded", count);
-                }
-                Err(err) => {
-                    eprintln!("{}", err);
-                }
-            }
-        } else if let Some(Dir { directory }) = &gui.command_line_interface.command {
-            println!("loading…");
-            match gallery.load_from_directory(directory) {
-                Ok(count) => {
-                    println!("{} picture file path loaded", count);
-                }
-                Err(err) => {
-                    eprintln!("{}", err);
-                }
-            }
+fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
+    if let Ok(mut gui) = gui_rc.try_borrow_mut()
+        && let Some(key_name) = key.name()
+        && let Some(control) = gui.application_state.get_control(key_name.as_str())
+    {
+        let mut picture: picture::Picture = gui.application_state.gallery().picture(0);
+        let refresh: bool = process_control(&mut gui, control);
+        if refresh {
+            let position = gui.application_state.navigator().position();
+            picture = gui.application_state.gallery().picture(position);
+            set_picture_for_file_view(&gui, &gui.application_state.current_picture())
         }
-        gui.application_state.set_gallery(gallery);
-        set_picture_for_file_view(&gui, &gui.application_state.gallery().picture(0));
-        gui.application_window.present()
-    }
-}
-
-fn process_arrow_key_in_fullsize(direction: Control, gui: &GraphicalUserInterface) -> bool {
-    let (picture_adjustment, step) = match direction {
-        Control::Right => (gui.single_view_scrolled_window.hadjustment(), SCROLL_STEP),
-        Control::Left => (gui.single_view_scrolled_window.hadjustment(), -SCROLL_STEP),
-        Control::Down => (gui.single_view_scrolled_window.vadjustment(), SCROLL_STEP),
-        Control::Up => (gui.single_view_scrolled_window.vadjustment(), -SCROLL_STEP),
-        _ => return false,
     };
-    picture_adjustment.set_value(picture_adjustment.value() + step);
-    false
+    gtk::Inhibit(false)
 }
 
 fn process_control(gui: &mut GraphicalUserInterface, control: Control) -> bool {
@@ -242,20 +153,125 @@ fn process_control(gui: &mut GraphicalUserInterface, control: Control) -> bool {
     refresh
 }
 
-fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
-    if let Ok(mut gui) = gui_rc.try_borrow_mut()
-        && let Some(key_name) = key.name()
-        && let Some(control) = gui.application_state.get_control(key_name.as_str())
-    {
-        let mut picture: picture::Picture = gui.application_state.gallery().picture(0);
-        let refresh: bool = process_control(&mut gui, control);
-        if refresh {
-            let position = gui.application_state.navigator().position();
-            picture = gui.application_state.gallery().picture(position);
-            set_picture_for_file_view(&gui, &gui.application_state.current_picture())
+fn load_and_launch(gui_rc: RcRefCellGui, cli: &CommandLineInterface) {
+    if let Ok(mut gui) = gui_rc.try_borrow_mut() {
+        let mut gallery = Gallery::new();
+        if let Some(File { file_path }) = &gui.command_line_interface.command {
+            match gallery.load_from_file_path(file_path) {
+                Ok(count) => {
+                    println!("{} picture file paths loaded", count);
+                }
+                Err(err) => {
+                    eprintln!("{}", err);
+                }
+            }
+        } else if let Some(Dir { directory }) = &gui.command_line_interface.command {
+            println!("loading…");
+            match gallery.load_from_directory(directory) {
+                Ok(count) => {
+                    println!("{} picture file path loaded", count);
+                }
+                Err(err) => {
+                    eprintln!("{}", err);
+                }
+            }
         }
+        gui.application_state.set_gallery(gallery);
+        set_picture_for_file_view(&gui, &gui.application_state.gallery().picture(0));
+        gui.application_window.present()
+    }
+}
+
+fn process_arrow_key_in_fullsize(direction: Control, gui: &GraphicalUserInterface) -> bool {
+    let (picture_adjustment, step) = match direction {
+        Control::Right => (gui.single_view_scrolled_window.hadjustment(), SCROLL_STEP),
+        Control::Left => (gui.single_view_scrolled_window.hadjustment(), -SCROLL_STEP),
+        Control::Down => (gui.single_view_scrolled_window.vadjustment(), SCROLL_STEP),
+        Control::Up => (gui.single_view_scrolled_window.vadjustment(), -SCROLL_STEP),
+        _ => return false,
     };
-    gtk::Inhibit(false)
+    picture_adjustment.set_value(picture_adjustment.value() + step);
+    false
+}
+
+pub fn startup_gui(_application: &gtk::Application) {
+    let css_provider = gtk::CssProvider::new();
+    css_provider.load_from_data(
+        "window { background-color:black;} image { margin:1em ; } label { color:white; }",
+    );
+    gtk::style_context_add_provider_for_display(
+        &gdk::Display::default().unwrap(),
+        &css_provider,
+        1000,
+    );
+}
+
+fn make_application_window(application: &gtk::Application) -> gtk::ApplicationWindow {
+    ApplicationWindow::builder()
+        .application(application)
+        .title("gsr2")
+        .default_width(DEFAULT_WIDTH)
+        .default_height(DEFAULT_HEIGHT)
+        .build()
+}
+
+fn make_single_view_scrolled_window() -> gtk::ScrolledWindow {
+    ScrolledWindow::builder()
+        .hscrollbar_policy(gtk::PolicyType::Automatic)
+        .vscrollbar_policy(gtk::PolicyType::Automatic)
+        .name("view")
+        .build()
+}
+
+fn make_view_box() -> gtk::Box {
+    let view_box = gtk::Box::new(Orientation::Vertical, 0);
+    view_box.set_valign(Align::Fill);
+    view_box.set_halign(Align::Fill);
+    view_box.set_hexpand(true);
+    view_box.set_vexpand(true);
+    view_box.set_homogeneous(false);
+    view_box
+}
+
+fn make_picture() -> gtk::Picture {
+    let picture = Picture::new();
+    picture.set_hexpand(true);
+    picture.set_vexpand(true);
+    picture
+}
+
+pub fn activate(application: &gtk::Application, cli: &CommandLineInterface) {
+    let application_window = make_application_window(&application);
+    let single_view_scrolled_window = make_single_view_scrolled_window();
+    let view_box = make_view_box();
+    let picture = make_picture();
+    view_box.append(&picture);
+    single_view_scrolled_window.set_child(Some(&view_box));
+
+    let view_stack = gtk::Stack::new();
+    view_stack.set_hexpand(true);
+    view_stack.set_vexpand(true);
+    let _ = view_stack.add_child(&single_view_scrolled_window);
+    view_stack.set_visible_child(&single_view_scrolled_window);
+    application_window.set_child(Some(&view_stack));
+
+    let gui = GraphicalUserInterface {
+        command_line_interface: cli.clone(),
+        application_state: ApplicationState::new(false),
+        application_window,
+        single_view_picture: picture,
+        single_view_box: view_box,
+        single_view_scrolled_window,
+    };
+    let evk = gtk::EventControllerKey::new();
+    let gui_rc = Rc::new(RefCell::new(gui));
+    evk.connect_key_pressed(clone!(@strong gui_rc => move |_, key, _, _| {
+        process_key(&gui_rc, key)
+    }));
+    if let Ok(mut gui) = gui_rc.try_borrow_mut() {
+        gui.application_window.add_controller(evk);
+    }
+    load_and_launch(gui_rc, cli);
 }
 
 pub fn build_application(cli: CommandLineInterface) -> gtk::Application {
@@ -265,8 +281,7 @@ pub fn build_application(cli: CommandLineInterface) -> gtk::Application {
     application.connect_startup(|application| {
         startup_gui(application);
     });
-    application
-        .connect_activate(move |application: &gtk::Application| build_gui(application, &cli));
+    application.connect_activate(move |application: &gtk::Application| activate(application, &cli));
     application
 }
 

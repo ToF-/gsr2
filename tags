@@ -34,13 +34,13 @@ a_picture_has_a_file_name	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^
 a_picture_has_file_path_which_is_the_full_path_and_file_path_on_the_file_system	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    fn a_picture_has_file_path_which_is_the_full_path_and_file_path_on_the_file_system() {$/;"	f
 a_readme_file_is_not_a_picture_file	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^    fn a_readme_file_is_not_a_picture_file() {$/;"	f
 a_thumbnail_picture_has_the_name_as_the_original_picture_with_suffix_THUMB	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    fn a_thumbnail_picture_has_the_name_as_the_original_picture_with_suffix_THUMB() {$/;"	f
+activate	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn activate(application: &gtk::Application, cli: &CommandLineInterface) {$/;"	f
 after_expand_toggle_expand_on_is_inverted	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    fn after_expand_toggle_expand_on_is_inverted() {$/;"	f
 after_full_size_toggle_full_size_on_is_inverted	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    fn after_full_size_toggle_full_size_on_is_inverted() {$/;"	f
 after_palette_toggle_palette_on_is_inverted	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    fn after_palette_toggle_palette_on_is_inverted() {$/;"	f
 an_application_state	/Users/christophethibaut/Coding/gsr2/src/display.rs	/^    fn an_application_state() -> ApplicationState {$/;"	f
 build_and_run_application	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn build_and_run_application(cli: CommandLineInterface) {$/;"	f
 build_application	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn build_application(cli: CommandLineInterface) -> gtk::Application {$/;"	f
-build_gui	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn build_gui(application: &gtk::Application, cli: &CommandLineInterface) {$/;"	f
 can_move	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn can_move(&mut self, direction: Direction) -> bool {$/;"	f
 can_move	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn can_move(&self, direction: Direction) -> bool {$/;"	f
 check_path	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^pub fn check_path(source: &str) -> Result<String> {$/;"	f
@@ -92,7 +92,11 @@ load_from_file_path	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pu
 loading_from_a_directory_collect_all_the_picture_files_from_that_directory	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    fn loading_from_a_directory_collect_all_the_picture_files_from_that_directory() {$/;"	f
 loading_from_a_single_file_path_collect_that_single_picture_file	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    fn loading_from_a_single_file_path_collect_that_single_picture_file() {$/;"	f
 main	/Users/christophethibaut/Coding/gsr2/src/main.rs	/^fn main() {$/;"	f
+make_application_window	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn make_application_window(application: &gtk::Application) -> gtk::ApplicationWindow {$/;"	f
 make_palette_area	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn make_palette_area(palette: Palette) -> gtk::DrawingArea {$/;"	f
+make_picture	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn make_picture() -> gtk::Picture {$/;"	f
+make_single_view_scrolled_window	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn make_single_view_scrolled_window() -> gtk::ScrolledWindow {$/;"	f
+make_view_box	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn make_view_box() -> gtk::Box {$/;"	f
 move_towards	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn move_towards(&mut self, direction: Direction) {$/;"	f
 move_towards	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn move_towards(&mut self, direction: Direction) {$/;"	f
 navigator	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn navigator(&self) -> &Navigator {$/;"	f
