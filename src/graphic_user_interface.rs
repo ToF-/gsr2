@@ -26,6 +26,7 @@ struct GraphicalUserInterface {
     single_view_picture: gtk::Picture,
     single_view_scrolled_window: gtk::ScrolledWindow,
     single_view_box: gtk::Box,
+    multiple_view_scrolled_window: gtk::ScrolledWindow,
 }
 
 type RcRefCellGui = Rc<RefCell<GraphicalUserInterface>>;
@@ -261,6 +262,7 @@ pub fn activate(application: &gtk::Application, cli: &CommandLineInterface) {
     view_stack.set_visible_child(&single_view_scrolled_window);
     application_window.set_child(Some(&view_stack));
 
+    let multiple_view_scrolled_window = make_multiple_view_scrolled_window();
     let gui_rc = Rc::new(RefCell::new(GraphicalUserInterface {
         command_line_interface: cli.clone(),
         application_state: ApplicationState::new(false),
@@ -268,6 +270,7 @@ pub fn activate(application: &gtk::Application, cli: &CommandLineInterface) {
         single_view_picture: picture,
         single_view_box: view_box,
         single_view_scrolled_window,
+        multiple_view_scrolled_window,
     }));
     let evk = gtk::EventControllerKey::new();
     evk.connect_key_pressed(clone!(@strong gui_rc => move |_, key, _, _| {
