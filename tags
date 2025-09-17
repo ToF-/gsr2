@@ -93,6 +93,8 @@ loading_from_a_directory_collect_all_the_picture_files_from_that_directory	/User
 loading_from_a_single_file_path_collect_that_single_picture_file	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    fn loading_from_a_single_file_path_collect_that_single_picture_file() {$/;"	f
 main	/Users/christophethibaut/Coding/gsr2/src/main.rs	/^fn main() {$/;"	f
 make_application_window	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn make_application_window(application: &gtk::Application) -> gtk::ApplicationWindow {$/;"	f
+make_multiple_view_grid	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn make_multiple_view_grid() -> gtk::Grid {$/;"	f
+make_multiple_view_scrolled_window	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn make_multiple_view_scrolled_window() -> gtk::ScrolledWindow {$/;"	f
 make_palette_area	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn make_palette_area(palette: Palette) -> gtk::DrawingArea {$/;"	f
 make_picture	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn make_picture() -> gtk::Picture {$/;"	f
 make_single_view_scrolled_window	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn make_single_view_scrolled_window() -> gtk::ScrolledWindow {$/;"	f

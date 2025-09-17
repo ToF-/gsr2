@@ -230,6 +230,24 @@ fn make_view_stack() -> gtk::Stack {
     gtk::Stack::builder().hexpand(true).vexpand(true).build()
 }
 
+fn make_multiple_view_scrolled_window() -> gtk::ScrolledWindow {
+    ScrolledWindow::builder()
+        .hscrollbar_policy(gtk::PolicyType::Automatic)
+        .vscrollbar_policy(gtk::PolicyType::Automatic)
+        .name("grid")
+        .build()
+}
+
+fn make_multiple_view_grid() -> gtk::Grid {
+    let grid = gtk::Grid::builder()
+        .row_homogeneous(true)
+        .column_homogeneous(true)
+        .hexpand(true)
+        .vexpand(true)
+        .build();
+    grid.set_widget_name("multiple_view_grid");
+    grid
+}
 pub fn activate(application: &gtk::Application, cli: &CommandLineInterface) {
     let application_window = make_application_window(application);
     let single_view_scrolled_window = make_single_view_scrolled_window();
