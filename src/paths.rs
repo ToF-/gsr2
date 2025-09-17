@@ -109,7 +109,7 @@ mod tests {
     }
 
     #[test]
-    fn thumbnail_name_from_normal_file_has_THUMB_suffix() {
+    fn thumbnail_name_from_normal_file_has_thumb_suffix() {
         assert_eq!(
             "testdata/my_fileTHUMB.jpg",
             thumbnail_name_from("testdata/my_file.jpg")
