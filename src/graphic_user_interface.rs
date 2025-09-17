@@ -285,6 +285,33 @@ fn make_label(symbol: &str) -> gtk::Label {
     label
 }
 
+fn make_cell_box() -> gtk::Box {
+    gtk::Box::builder()
+        .orientation(Orientation::Vertical)
+        .spacing(0)
+        .valign(Align::Center)
+        .halign(Align::Center)
+        .hexpand(true)
+        .vexpand(true)
+        .build()
+}
+
+fn setup_picture_cell(cell_box: &gtk::Box, col: i32, row: i32, gui_rc: &RcRefCellGui) {
+    // if let Ok(gui) = gui_rc.try_borrow() {
+    //     let coords = (col as usize, row as usize);
+    //     if let Some(index) = gui.navigator().index_from_position(coords) {
+    //         if gui.page_changed() {
+    //         while let Some(child) = cell_box.first_child() {
+    //             cell_box.remove(&child)
+    //         };
+    //         let entry = gui.entry_at_index(index).unwrap();
+    //         let picture = picture_for_entry(entry, &gui);
+    //         let label = label_for_entry(entry, index == gui.index().unwrap());
+    //         cell_box.append(&picture);
+    //         cell_box.append(&label);
+    //     }
+    // }
+}
 pub fn activate(application: &gtk::Application, cli: &CommandLineInterface) {
     let application_window = make_application_window(application);
     let single_view_scrolled_window = make_single_view_scrolled_window();
@@ -326,6 +353,14 @@ pub fn activate(application: &gtk::Application, cli: &CommandLineInterface) {
         process_key(&gui_rc, key)
     }));
     if let Ok(gui) = gui_rc.try_borrow_mut() {
+        let cells_per_row: i32 = gui.command_line_interface.cells_per_row();
+        for col in 0..cells_per_row {
+            for row in 0..cells_per_row {
+                let cell_box = make_cell_box();
+                setup_picture_cell(&cell_box, col, row, &gui_rc);
+                gui.multiple_view_grid.attach(&cell_box, col, row, 1, 1);
+            }
+        }
         gui.application_window.add_controller(evk);
     }
     load_and_launch(gui_rc);

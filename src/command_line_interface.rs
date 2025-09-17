@@ -53,7 +53,7 @@ impl CommandLineInterface {
         Ok(cli.clone())
     }
 
-    pub fn cells_per_row(&self) -> usize {
+    pub fn cells_per_row(&self) -> i32 {
         if let Some(grid) = self.grid {
             grid.into()
         } else if self.thumbnails {
