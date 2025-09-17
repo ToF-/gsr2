@@ -21,6 +21,8 @@ impl Picture {
     pub fn file_name(&self) -> String {
         file_name_from(&self.file_path)
     }
+
+    #[allow(dead_code)]
     pub fn thumbnail_file_path(&self) -> String {
         self.thumbnail_file_path.clone()
     }
