@@ -42,6 +42,10 @@ impl ApplicationState {
         self.navigator.move_towards(direction)
     }
 
+    pub fn can_move(&mut self, direction: Direction) -> bool {
+        self.navigator.can_move(direction)
+    }
+
     pub fn expand_on(&self) -> bool {
         self.expand_on
     }

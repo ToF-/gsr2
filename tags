@@ -41,6 +41,7 @@ an_application_state	/Users/christophethibaut/Coding/gsr2/src/display.rs	/^    f
 build_and_run_application	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn build_and_run_application(cli: CommandLineInterface) {$/;"	f
 build_application	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn build_application(cli: CommandLineInterface) -> gtk::Application {$/;"	f
 build_gui	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn build_gui(application: &gtk::Application, cli: &CommandLineInterface) {$/;"	f
+can_move	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn can_move(&mut self, direction: Direction) -> bool {$/;"	f
 can_move	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn can_move(&self, direction: Direction) -> bool {$/;"	f
 check_path	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^pub fn check_path(source: &str) -> Result<String> {$/;"	f
 check_path_exists	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^pub fn check_path_exists(path: &PathBuf) -> Result<&PathBuf> {$/;"	f
