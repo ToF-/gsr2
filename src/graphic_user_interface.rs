@@ -196,59 +196,59 @@ fn process_arrow_key_in_fullsize(direction: Control, gui: &GraphicalUserInterfac
     false
 }
 
+fn process_control(gui: &mut GraphicalUserInterface, control: Control) -> bool {
+    let mut refresh: bool = true;
+    let mut picture: picture::Picture = gui.application_state.gallery().picture(0);
+    let cli = gui.command_line_interface.clone();
+    match control {
+        Control::MoveNext | Control::Right if !gui.application_state.full_size_on() => {
+            if gui.application_state.can_move(Direction::Right) {
+                gui.application_state.move_towards(Direction::Right)
+            } else {
+                println!("bump")
+            }
+        }
+        Control::MovePrev | Control::Left if !gui.application_state.full_size_on() => {
+            if gui.application_state.can_move(Direction::Left) {
+                gui.application_state.move_towards(Direction::Left)
+            } else {
+                println!("bump")
+            }
+        }
+        Control::MoveLast => gui.application_state.move_towards(Direction::Last),
+        Control::MoveFirst => gui.application_state.move_towards(Direction::First),
+        Control::Quit => gui.application_window.close(),
+        Control::TogglePalette => {
+            gui.application_state.toggle_palette();
+        }
+        Control::ToggleExpand => {
+            gui.application_state.toggle_expand();
+        }
+        Control::ToggleFullSize => {
+            gui.application_state.toggle_full_size();
+        }
+
+        direction @ Control::Left
+        | direction @ Control::Right
+        | direction @ Control::Up
+        | direction @ Control::Down => {
+            if gui.application_state.full_size_on() {
+                process_arrow_key_in_fullsize(direction, &gui);
+            }
+            refresh = false
+        }
+        _ => refresh = false,
+    };
+    refresh
+}
+
 fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
     if let Ok(mut gui) = gui_rc.try_borrow_mut()
         && let Some(key_name) = key.name()
+        && let Some(control) = gui.application_state.get_control(key_name.as_str())
     {
         let mut picture: picture::Picture = gui.application_state.gallery().picture(0);
-        let cli = gui.command_line_interface.clone();
-        let mut refresh: bool = true;
-        match gui.application_state.get_control(key_name.as_str()) {
-            Some(Control::MoveNext) | Some(Control::Right)
-                if !gui.application_state.full_size_on() =>
-            {
-                if gui.application_state.can_move(Direction::Right) {
-                    gui.application_state.move_towards(Direction::Right)
-                } else {
-                    println!("bump")
-                }
-            }
-            Some(Control::MovePrev) | Some(Control::Left)
-                if !gui.application_state.full_size_on() =>
-            {
-                if gui.application_state.can_move(Direction::Left) {
-                    gui.application_state.move_towards(Direction::Left)
-                } else {
-                    println!("bump")
-                }
-            }
-            Some(Control::MoveLast) => gui.application_state.move_towards(Direction::Last),
-            Some(Control::MoveFirst) => gui.application_state.move_towards(Direction::First),
-            Some(Control::Quit) => gui.application_window.close(),
-            Some(Control::TogglePalette) => {
-                gui.application_state.toggle_palette();
-            }
-            Some(Control::ToggleExpand) => {
-                gui.application_state.toggle_expand();
-            }
-            Some(Control::ToggleFullSize) => {
-                gui.application_state.toggle_full_size();
-            }
-
-            Some(direction @ Control::Left)
-            | Some(direction @ Control::Right)
-            | Some(direction @ Control::Up)
-            | Some(direction @ Control::Down) => {
-                if gui.application_state.full_size_on() {
-                    process_arrow_key_in_fullsize(direction, &gui);
-                }
-                refresh = false
-            }
-            _ => {
-                println!("{:?}", key_name);
-                refresh = false
-            }
-        };
+        let refresh: bool = process_control(&mut gui, control);
         if refresh {
             let position = gui.application_state.navigator().position();
             picture = gui.application_state.gallery().picture(position);
