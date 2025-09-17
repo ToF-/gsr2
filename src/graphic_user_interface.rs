@@ -9,7 +9,6 @@ use crate::direction::Direction;
 use crate::display::title_display;
 use crate::gallery::Gallery;
 use crate::image_data::{Palette, get_palette_from_picture_file};
-use crate::navigator;
 use crate::picture;
 use gtk::cairo::{Context, Format, ImageSurface};
 use gtk::gdk::Key;
@@ -95,11 +94,8 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
         && let Some(key_name) = key.name()
         && let Some(control) = gui.application_state.get_control(key_name.as_str())
     {
-        let mut picture: picture::Picture = gui.application_state.gallery().picture(0);
         let refresh: bool = process_control(&mut gui, control);
         if refresh {
-            let position = gui.application_state.navigator().position();
-            picture = gui.application_state.gallery().picture(position);
             set_picture_for_file_view(&gui, &gui.application_state.current_picture())
         }
     };
@@ -108,8 +104,6 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
 
 fn process_control(gui: &mut GraphicalUserInterface, control: Control) -> bool {
     let mut refresh: bool = true;
-    let mut picture: picture::Picture = gui.application_state.gallery().picture(0);
-    let cli = gui.command_line_interface.clone();
     match control {
         Control::MoveNext | Control::Right if !gui.application_state.full_size_on() => {
             if gui.application_state.can_move(Direction::Right) {
@@ -152,7 +146,7 @@ fn process_control(gui: &mut GraphicalUserInterface, control: Control) -> bool {
     refresh
 }
 
-fn load_and_launch(gui_rc: RcRefCellGui, cli: &CommandLineInterface) {
+fn load_and_launch(gui_rc: RcRefCellGui) {
     if let Ok(mut gui) = gui_rc.try_borrow_mut() {
         let mut gallery = Gallery::new();
         let result = match &gui.command_line_interface.command {
@@ -261,10 +255,10 @@ pub fn activate(application: &gtk::Application, cli: &CommandLineInterface) {
     evk.connect_key_pressed(clone!(@strong gui_rc => move |_, key, _, _| {
         process_key(&gui_rc, key)
     }));
-    if let Ok(mut gui) = gui_rc.try_borrow_mut() {
+    if let Ok(gui) = gui_rc.try_borrow_mut() {
         gui.application_window.add_controller(evk);
     }
-    load_and_launch(gui_rc, cli);
+    load_and_launch(gui_rc);
 }
 
 pub fn build_application(cli: CommandLineInterface) -> gtk::Application {

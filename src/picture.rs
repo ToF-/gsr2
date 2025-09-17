@@ -1,6 +1,4 @@
-use crate::default_values::THUMB_SUFFIX;
 use crate::paths::{file_name_from, thumbnail_name_from};
-use std::path::PathBuf;
 
 #[derive(Debug, Clone, Ord, PartialOrd, PartialEq, Eq)]
 pub struct Picture {
