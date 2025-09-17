@@ -234,12 +234,19 @@ fn make_view_box() -> gtk::Box {
 }
 
 fn make_picture() -> gtk::Picture {
+    Picture::builder().hexpand(true);
     let picture = Picture::new();
     picture.set_hexpand(true);
     picture.set_vexpand(true);
     picture
 }
 
+fn make_view_stack() -> gtk::Stack {
+    let view_stack = gtk::Stack::new();
+    view_stack.set_hexpand(true);
+    view_stack.set_vexpand(true);
+    view_stack
+}
 pub fn activate(application: &gtk::Application, cli: &CommandLineInterface) {
     let application_window = make_application_window(&application);
     let single_view_scrolled_window = make_single_view_scrolled_window();
@@ -247,10 +254,8 @@ pub fn activate(application: &gtk::Application, cli: &CommandLineInterface) {
     let picture = make_picture();
     view_box.append(&picture);
     single_view_scrolled_window.set_child(Some(&view_box));
+    let view_stack = make_view_stack();
 
-    let view_stack = gtk::Stack::new();
-    view_stack.set_hexpand(true);
-    view_stack.set_vexpand(true);
     let _ = view_stack.add_child(&single_view_scrolled_window);
     view_stack.set_visible_child(&single_view_scrolled_window);
     application_window.set_child(Some(&view_stack));

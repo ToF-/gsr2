@@ -97,6 +97,7 @@ make_palette_area	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interfac
 make_picture	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn make_picture() -> gtk::Picture {$/;"	f
 make_single_view_scrolled_window	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn make_single_view_scrolled_window() -> gtk::ScrolledWindow {$/;"	f
 make_view_box	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn make_view_box() -> gtk::Box {$/;"	f
+make_view_stack	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn make_view_stack() -> gtk::Stack {$/;"	f
 move_towards	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn move_towards(&mut self, direction: Direction) {$/;"	f
 move_towards	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn move_towards(&mut self, direction: Direction) {$/;"	f
 navigator	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn navigator(&self) -> &Navigator {$/;"	f
