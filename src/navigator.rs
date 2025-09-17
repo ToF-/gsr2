@@ -30,7 +30,6 @@ impl Navigator {
             Direction::Left => self.position -= 1,
             Direction::Last => self.position = self.limit - 1,
             Direction::First => self.position = 0,
-            _ => {}
         }
     }
 }
