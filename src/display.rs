@@ -1,5 +1,6 @@
 use crate::application_state::ApplicationState;
 use crate::default_values::{EXPAND_ON_SYMBOL, FULL_SIZE_ON_SYMBOL};
+use crate::direction::Direction;
 use crate::gallery::Gallery;
 
 fn expand_display(on: bool) -> String {
@@ -47,7 +48,7 @@ mod tests {
     #[test]
     fn display_position_for_application_state() {
         let mut application_state = an_application_state();
-        application_state.move_next();
+        application_state.move_towards(Direction::Right);
         assert_eq!("#1 single_dot.png", title_display(&application_state));
     }
 
