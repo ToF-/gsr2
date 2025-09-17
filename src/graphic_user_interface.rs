@@ -14,7 +14,10 @@ use gtk::cairo::{Context, Format, ImageSurface};
 use gtk::gdk::Key;
 use gtk::glib::clone;
 use gtk::prelude::*;
-use gtk::{Align, Application, ApplicationWindow, Orientation, Picture, ScrolledWindow, gdk};
+use gtk::{
+    Align, Application, ApplicationWindow, CssProvider, Label, Orientation, Picture,
+    ScrolledWindow, gdk,
+};
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -27,6 +30,7 @@ struct GraphicalUserInterface {
     single_view_scrolled_window: gtk::ScrolledWindow,
     single_view_box: gtk::Box,
     multiple_view_scrolled_window: gtk::ScrolledWindow,
+    multiple_view_grid: gtk::Grid,
 }
 
 type RcRefCellGui = Rc<RefCell<GraphicalUserInterface>>;
@@ -249,6 +253,39 @@ fn make_multiple_view_grid() -> gtk::Grid {
     grid.set_widget_name("multiple_view_grid");
     grid
 }
+
+fn make_multiple_view_panel() -> gtk::Grid {
+    let panel = gtk::Grid::builder()
+        .row_homogeneous(true)
+        .column_homogeneous(true)
+        .hexpand(true)
+        .vexpand(true)
+        .build();
+    panel
+}
+
+fn make_label(symbol: &str) -> gtk::Label {
+    let buttons_css_provider = CssProvider::new();
+    buttons_css_provider.load_from_data(
+        "
+            label {
+                color: gray;
+                font-size: 12px;
+                }
+            text-button {
+                background-color: black;
+                }
+        ",
+    );
+    let label = Label::new(Some(symbol));
+    label.set_width_chars(10);
+    label.style_context().add_provider(
+        &buttons_css_provider,
+        gtk::STYLE_PROVIDER_PRIORITY_APPLICATION,
+    );
+    label
+}
+
 pub fn activate(application: &gtk::Application, cli: &CommandLineInterface) {
     let application_window = make_application_window(application);
     let single_view_scrolled_window = make_single_view_scrolled_window();
@@ -263,6 +300,17 @@ pub fn activate(application: &gtk::Application, cli: &CommandLineInterface) {
     application_window.set_child(Some(&view_stack));
 
     let multiple_view_scrolled_window = make_multiple_view_scrolled_window();
+    let multiple_view_grid = make_multiple_view_grid();
+
+    let multiple_view_panel = make_multiple_view_panel();
+
+    let left_button = make_label("←");
+    let right_button = make_label("→");
+
+    multiple_view_panel.attach(&left_button, 0, 0, 1, 1);
+    multiple_view_panel.attach(&multiple_view_grid, 1, 0, 1, 1);
+    multiple_view_panel.attach(&right_button, 2, 0, 1, 1);
+
     let gui_rc = Rc::new(RefCell::new(GraphicalUserInterface {
         command_line_interface: cli.clone(),
         application_state: ApplicationState::new(false),
@@ -271,6 +319,7 @@ pub fn activate(application: &gtk::Application, cli: &CommandLineInterface) {
         single_view_box: view_box,
         single_view_scrolled_window,
         multiple_view_scrolled_window,
+        multiple_view_grid,
     }));
     let evk = gtk::EventControllerKey::new();
     evk.connect_key_pressed(clone!(@strong gui_rc => move |_, key, _, _| {
