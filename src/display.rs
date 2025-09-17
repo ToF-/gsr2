@@ -31,7 +31,7 @@ mod tests {
     use crate::gallery::Gallery;
 
     fn an_application_state() -> ApplicationState {
-        let mut application_state = ApplicationState::new(false);
+        let mut application_state = ApplicationState::new();
         let mut gallery = Gallery::new();
         gallery
             .load_from_directory("./testdata/")

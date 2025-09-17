@@ -108,7 +108,7 @@ navigator	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pu
 navigator_can_move_to_first_and_last_position	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn navigator_can_move_to_first_and_last_position() {$/;"	f
 navigator_cannot_move_before_first_position	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn navigator_cannot_move_before_first_position() {$/;"	f
 navigator_cannot_move_past_gallery_limit	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn navigator_cannot_move_past_gallery_limit() {$/;"	f
-new	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn new(palette_on: bool) -> Self {$/;"	f
+new	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn new() -> Self {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn new() -> Gallery {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn new(limit: usize) -> Self {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    pub fn new(file_path: &str) -> Self {$/;"	f

@@ -312,7 +312,7 @@ pub fn activate(application: &gtk::Application, cli: &CommandLineInterface) {
 
     let gui_rc = Rc::new(RefCell::new(GraphicalUserInterface {
         command_line_interface: cli.clone(),
-        application_state: ApplicationState::new(false),
+        application_state: ApplicationState::new(),
         application_window,
         single_view_picture: picture,
         single_view_box: view_box,

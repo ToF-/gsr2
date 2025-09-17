@@ -16,7 +16,7 @@ pub struct ApplicationState {
 }
 
 impl ApplicationState {
-    pub fn new(palette_on: bool) -> Self {
+    pub fn new() -> Self {
         ApplicationState {
             gallery: Gallery::new(),
             navigator: Navigator::new(0),
@@ -24,7 +24,7 @@ impl ApplicationState {
             pictures_per_row: 1,
             expand_on: false,
             full_size_on: false,
-            palette_on,
+            palette_on: false,
         }
     }
 
@@ -96,14 +96,14 @@ mod tests {
 
     #[test]
     fn after_palette_toggle_palette_on_is_inverted() {
-        let mut state = ApplicationState::new(false);
+        let mut state = ApplicationState::new();
         state.toggle_palette();
         assert_eq!(true, state.palette_on());
     }
 
     #[test]
     fn after_expand_toggle_expand_on_is_inverted() {
-        let mut state = ApplicationState::new(false);
+        let mut state = ApplicationState::new();
         state.toggle_expand();
         assert_eq!(true, state.expand_on());
         state.toggle_expand();
@@ -111,7 +111,7 @@ mod tests {
     }
     #[test]
     fn after_full_size_toggle_full_size_on_is_inverted() {
-        let mut state = ApplicationState::new(false);
+        let mut state = ApplicationState::new();
         state.toggle_full_size();
         assert_eq!(true, state.full_size_on());
         state.toggle_full_size();
@@ -120,7 +120,7 @@ mod tests {
 
     #[test]
     fn get_the_control_matching_a_keyname() {
-        let state = ApplicationState::new(false);
+        let state = ApplicationState::new();
         assert_eq!(Some(Control::ToggleFullSize), state.get_control("f"));
     }
 }
