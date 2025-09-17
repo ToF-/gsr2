@@ -43,6 +43,7 @@ build_and_run_application	/Users/christophethibaut/Coding/gsr2/src/graphic_user_
 build_application	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn build_application(cli: CommandLineInterface) -> gtk::Application {$/;"	f
 can_move	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn can_move(&mut self, direction: Direction) -> bool {$/;"	f
 can_move	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn can_move(&self, direction: Direction) -> bool {$/;"	f
+cells_per_row	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    pub fn cells_per_row(&self) -> usize {$/;"	f
 check_path	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^pub fn check_path(source: &str) -> Result<String> {$/;"	f
 check_path_exists	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^pub fn check_path_exists(path: &PathBuf) -> Result<&PathBuf> {$/;"	f
 check_path_is_a_file	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^pub fn check_path_is_a_file(path: &PathBuf) -> Result<&PathBuf> {$/;"	f
@@ -85,6 +86,7 @@ get_palette	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^pub fn get_
 get_palette_from_picture_file	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^pub fn get_palette_from_picture_file(file_path: &str) -> Result<Palette> {$/;"	f
 get_picture_file_path	/Users/christophethibaut/Coding/gsr2/src/file_system.rs	/^pub fn get_picture_file_path(file_path: &str) -> Result<String> {$/;"	f
 get_the_control_matching_a_keyname	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    fn get_the_control_matching_a_keyname() {$/;"	f
+grid_option_determines_cells_per_row	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    fn grid_option_determines_cells_per_row() {$/;"	f
 len	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn len(&self) -> usize {$/;"	f
 load_and_launch	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn load_and_launch(gui_rc: RcRefCellGui) {$/;"	f
 load_from_directory	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn load_from_directory(&mut self, path: &str) -> Result<usize> {$/;"	f

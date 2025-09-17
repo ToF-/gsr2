@@ -52,6 +52,14 @@ impl CommandLineInterface {
         }
         Ok(cli.clone())
     }
+
+    pub fn cells_per_row(&self) -> usize {
+        if let Some(grid) = self.grid {
+            grid.into()
+        } else {
+            1
+        }
+    }
 }
 
 #[cfg(test)]
@@ -129,5 +137,11 @@ mod tests {
         let err = cli.expect_err("can't extract error");
         assert_eq!(ErrorKind::NotADirectory, err.kind());
         assert_eq!("README.md is not a directory", &err.to_string())
+    }
+    #[test]
+    fn grid_option_determines_cells_per_row() {
+        let args = vec!["gsr", "--grid", "5", "dir", "testdata"];
+        let cli = CommandLineInterface::parse_and_check(Some(args)).unwrap();
+        assert_eq!(5, cli.cells_per_row())
     }
 }
