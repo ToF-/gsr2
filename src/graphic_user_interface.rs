@@ -255,13 +255,12 @@ fn make_multiple_view_grid() -> gtk::Grid {
 }
 
 fn make_multiple_view_panel() -> gtk::Grid {
-    let panel = gtk::Grid::builder()
+    gtk::Grid::builder()
         .row_homogeneous(true)
         .column_homogeneous(true)
         .hexpand(true)
         .vexpand(true)
-        .build();
-    panel
+        .build()
 }
 
 fn make_label(symbol: &str) -> gtk::Label {
