@@ -1,6 +1,5 @@
 use crate::Command::{Dir, File};
 use crate::application_state::ApplicationState;
-use crate::command::Command;
 use crate::command_line_interface::CommandLineInterface;
 use crate::control::Control;
 use crate::default_values::{
