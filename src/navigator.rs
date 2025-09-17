@@ -39,6 +39,14 @@ impl Navigator {
         self.position -= 1
     }
 
+    pub fn move_towards(&mut self, direction: Direction) {
+        match direction {
+            Direction::Right => self.move_next(),
+            Direction::Left => self.move_prev(),
+            _ => {}
+        }
+    }
+
     pub fn move_first(&mut self) {
         self.position = 0
     }
@@ -57,7 +65,7 @@ mod tests {
         let mut navigator = Navigator::new(3);
         assert_eq!(0, navigator.position());
         assert!(navigator.can_move(Direction::Right));
-        navigator.move_next();
+        navigator.move_towards(Direction::Right);
         assert_eq!(1, navigator.position());
         navigator.move_next();
         assert!(!navigator.can_move_next());
