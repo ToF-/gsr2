@@ -211,8 +211,8 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
             Some(Control::MoveNext) | Some(Control::Right)
                 if !gui.application_state.full_size_on() =>
             {
-                if gui.application_state.navigator().can_move_next() {
-                    gui.application_state.move_next();
+                if gui.application_state.navigator().can_move(Direction::Right) {
+                    gui.application_state.move_towards(Direction::Right)
                 } else {
                     println!("bump")
                 }
