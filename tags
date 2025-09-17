@@ -45,6 +45,7 @@ can_move	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub
 can_move	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn can_move(&self, direction: Direction) -> bool {$/;"	f
 cells_per_row	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    pub fn cells_per_row(&self) -> usize {$/;"	f
 cells_per_row_is_determined_by_grid_option	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    fn cells_per_row_is_determined_by_grid_option() {$/;"	f
+cells_per_row_is_determined_by_thumbnails_option	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    fn cells_per_row_is_determined_by_thumbnails_option() {$/;"	f
 check_path	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^pub fn check_path(source: &str) -> Result<String> {$/;"	f
 check_path_exists	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^pub fn check_path_exists(path: &PathBuf) -> Result<&PathBuf> {$/;"	f
 check_path_is_a_file	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^pub fn check_path_is_a_file(path: &PathBuf) -> Result<&PathBuf> {$/;"	f

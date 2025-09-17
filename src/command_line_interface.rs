@@ -56,6 +56,8 @@ impl CommandLineInterface {
     pub fn cells_per_row(&self) -> usize {
         if let Some(grid) = self.grid {
             grid.into()
+        } else if self.thumbnails {
+            10
         } else {
             1
         }
@@ -149,5 +151,11 @@ mod tests {
         let args = vec!["gsr", "--grid", "5", "dir", "testdata"];
         let cli = CommandLineInterface::parse_and_check(Some(args)).unwrap();
         assert_eq!(5, cli.cells_per_row())
+    }
+    #[test]
+    fn cells_per_row_is_determined_by_thumbnails_option() {
+        let args = vec!["gsr", "--thumbnails", "dir", "testdata"];
+        let cli = CommandLineInterface::parse_and_check(Some(args)).unwrap();
+        assert_eq!(10, cli.cells_per_row())
     }
 }
