@@ -21,7 +21,6 @@ impl Navigator {
             Direction::Last => true,
             Direction::Left => self.position > 0,
             Direction::Right => self.position < self.limit - 1,
-            _ => false,
         }
     }
 
