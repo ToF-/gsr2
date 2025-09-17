@@ -320,6 +320,7 @@ pub fn activate(application: &gtk::Application, cli: &CommandLineInterface) {
         multiple_view_scrolled_window,
         multiple_view_grid,
     }));
+
     let evk = gtk::EventControllerKey::new();
     evk.connect_key_pressed(clone!(@strong gui_rc => move |_, key, _, _| {
         process_key(&gui_rc, key)
