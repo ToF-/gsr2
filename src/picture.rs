@@ -42,7 +42,7 @@ mod tests {
     }
 
     #[test]
-    fn a_thumbnail_picture_has_the_name_as_the_original_picture_with_suffix_THUMB() {
+    fn a_thumbnail_picture_has_the_name_as_the_original_picture_with_thumb_suffix() {
         let picture = Picture::new("testdata/nine_colors.png");
         assert_eq!(
             String::from("testdata/nine_colorsTHUMB.png"),
