@@ -25,8 +25,8 @@ impl Navigator {
 
     pub fn can_move(&self, direction: Direction) -> bool {
         match direction {
-            Direction::Left => self.can_move_prev(),
-            Direction::Right => self.can_move_next(),
+            Direction::Left => self.position > 0,
+            Direction::Right => self.position < self.limit - 1,
             _ => false,
         }
     }
