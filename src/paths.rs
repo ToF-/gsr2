@@ -73,24 +73,14 @@ pub fn file_name_from(file_path: &str) -> String {
 
 pub fn thumbnail_name_from(file_name: &str) -> String {
     let path: PathBuf = PathBuf::from(file_name);
-    let result = path.parent().and_then(|parent| {
-        path.extension().and_then(|extension| {
-            path.file_stem().and_then(|file_stem| {
-                let new_file_name = format!(
-                    "{}{}.{}",
-                    file_stem.to_str().unwrap(),
-                    THUMB_SUFFIX,
-                    extension.to_str().unwrap()
-                );
-                let new_path = parent.join(new_file_name);
-                Some(new_path.to_str().unwrap().to_string())
-            })
-        })
-    });
-    result.expect(&format!(
-        "can't convert {} to file_thumbnail_name",
-        file_name
-    ))
+    let extension = path.extension().expect("can't compute path extension");
+    let file_stem = path.file_stem().expect("can't compute path file stem");
+    let thumb_file_name = PathBuf::from(file_stem.to_str().unwrap().to_owned() + THUMB_SUFFIX)
+        .with_extension(extension);
+    path.with_file_name(thumb_file_name)
+        .to_str()
+        .unwrap()
+        .to_string()
 }
 
 #[cfg(test)]
