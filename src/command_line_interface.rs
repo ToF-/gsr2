@@ -139,7 +139,13 @@ mod tests {
         assert_eq!("README.md is not a directory", &err.to_string())
     }
     #[test]
-    fn grid_option_determines_cells_per_row() {
+    fn with_no_grid_or_thumbnail_option_cells_per_row_is_1() {
+        let args = vec!["gsr", "dir", "testdata"];
+        let cli = CommandLineInterface::parse_and_check(Some(args)).unwrap();
+        assert_eq!(1, cli.cells_per_row())
+    }
+    #[test]
+    fn cells_per_row_is_determined_by_grid_option() {
         let args = vec!["gsr", "--grid", "5", "dir", "testdata"];
         let cli = CommandLineInterface::parse_and_check(Some(args)).unwrap();
         assert_eq!(5, cli.cells_per_row())
