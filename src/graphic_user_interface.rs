@@ -137,7 +137,7 @@ fn process_control(gui: &mut GraphicalUserInterface, control: Control) -> bool {
         | direction @ Control::Up
         | direction @ Control::Down => {
             if gui.application_state.full_size_on() {
-                process_arrow_key_in_fullsize(direction, &gui);
+                process_arrow_key_in_fullsize(direction, gui);
             }
             refresh = false
         }
@@ -231,7 +231,7 @@ fn make_view_stack() -> gtk::Stack {
 }
 
 pub fn activate(application: &gtk::Application, cli: &CommandLineInterface) {
-    let application_window = make_application_window(&application);
+    let application_window = make_application_window(application);
     let single_view_scrolled_window = make_single_view_scrolled_window();
     let view_box = make_view_box();
     let picture = make_picture();
