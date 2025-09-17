@@ -27,6 +27,7 @@ impl Navigator {
         match direction {
             Direction::Right => self.position += 1,
             Direction::Left => self.position -= 1,
+            Direction::Last => self.position = self.limit - 1,
             _ => {}
         }
     }
@@ -68,7 +69,7 @@ mod tests {
     #[test]
     fn navigator_can_move_to_first_and_last_position() {
         let mut navigator = Navigator::new(3);
-        navigator.move_last();
+        navigator.move_towards(Direction::Last);
         assert_eq!(2, navigator.position());
         navigator.move_first();
         assert_eq!(0, navigator.position());
