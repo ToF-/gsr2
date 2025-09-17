@@ -1,6 +1,5 @@
 use crate::application_state::ApplicationState;
 use crate::default_values::{EXPAND_ON_SYMBOL, FULL_SIZE_ON_SYMBOL};
-use crate::gallery::Gallery;
 
 fn expand_display(on: bool) -> String {
     match on {
@@ -29,6 +28,7 @@ pub fn title_display(application_state: &ApplicationState) -> String {
 mod tests {
     use super::*;
     use crate::direction::Direction;
+    use crate::gallery::Gallery;
 
     fn an_application_state() -> ApplicationState {
         let mut application_state = ApplicationState::new(false);
