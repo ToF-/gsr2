@@ -1,4 +1,5 @@
 use crate::control::{Control, Controls, default_controls};
+use crate::direction::Direction;
 use crate::gallery::Gallery;
 use crate::navigator::Navigator;
 use crate::picture::Picture;
@@ -35,6 +36,10 @@ impl ApplicationState {
 
     pub fn navigator(&self) -> &Navigator {
         &self.navigator
+    }
+
+    pub fn move_towards(&mut self, direction: Direction) {
+        self.navigator.move_towards(direction)
     }
 
     pub fn move_next(&mut self) {

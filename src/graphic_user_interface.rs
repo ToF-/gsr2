@@ -6,6 +6,7 @@ use crate::control::Control;
 use crate::default_values::{
     DEFAULT_HEIGHT, DEFAULT_WIDTH, PALETTE_AREA_HEIGHT, PALETTE_AREA_WIDTH, SCROLL_STEP,
 };
+use crate::direction::Direction;
 use crate::display::title_display;
 use crate::gallery::Gallery;
 use crate::image_data::{Palette, get_palette_from_picture_file};
@@ -219,8 +220,8 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
             Some(Control::MovePrev) | Some(Control::Left)
                 if !gui.application_state.full_size_on() =>
             {
-                if gui.application_state.navigator().can_move_prev() {
-                    gui.application_state.move_prev();
+                if gui.application_state.navigator().can_move(Direction::Left) {
+                    gui.application_state.move_towards(Direction::Left)
                 } else {
                     println!("bump")
                 }

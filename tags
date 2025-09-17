@@ -102,6 +102,7 @@ move_next	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pu
 move_next	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn move_next(&mut self) {$/;"	f
 move_prev	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn move_prev(&mut self) {$/;"	f
 move_prev	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn move_prev(&mut self) {$/;"	f
+move_towards	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn move_towards(&mut self, direction: Direction) {$/;"	f
 move_towards	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn move_towards(&mut self, direction: Direction) {$/;"	f
 navigator	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn navigator(&self) -> &Navigator {$/;"	f
 navigator_can_move_to_first_and_last_position	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn navigator_can_move_to_first_and_last_position() {$/;"	f
