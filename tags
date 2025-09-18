@@ -89,6 +89,8 @@ get_palette	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^pub fn get_
 get_palette_from_picture_file	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^pub fn get_palette_from_picture_file(file_path: &str) -> Result<Palette> {$/;"	f
 get_picture_file_path	/Users/christophethibaut/Coding/gsr2/src/file_system.rs	/^pub fn get_picture_file_path(file_path: &str) -> Result<String> {$/;"	f
 get_the_control_matching_a_keyname	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    fn get_the_control_matching_a_keyname() {$/;"	f
+given_coords_can_tell_position_trivial_case	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn given_coords_can_tell_position_trivial_case() {$/;"	f
+given_coords_can_tell_position_with_several_cells_per_row	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn given_coords_can_tell_position_with_several_cells_per_row() {$/;"	f
 len	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn len(&self) -> usize {$/;"	f
 load_and_launch	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn load_and_launch(gui_rc: RcRefCellGui) {$/;"	f
 load_from_directory	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn load_from_directory(&mut self, path: &str) -> Result<usize> {$/;"	f
@@ -122,6 +124,7 @@ parse_and_check	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.
 picture	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn picture(&self, index: usize) -> Picture {$/;"	f
 pictures_per_row	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn pictures_per_row(&self) -> usize {$/;"	f
 position	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn position(&self) -> usize {$/;"	f
+position_from_coords	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn position_from_coords(&self, col: usize, row: usize) -> usize {$/;"	f
 process_arrow_key_in_fullsize	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn process_arrow_key_in_fullsize(direction: Control, gui: &GraphicalUserInterface) -> bool {$/;"	f
 process_control	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn process_control(gui: &mut GraphicalUserInterface, control: Control) -> bool {$/;"	f
 process_key	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {$/;"	f
