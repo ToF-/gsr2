@@ -65,10 +65,9 @@ impl Navigator {
     }
 
     fn update_page_start(&mut self) {
-        let old_page_start: usize  = self.page_start;
+        let old_page_start: usize = self.page_start;
         self.page_start = (self.position / self.page_size()) * self.page_size();
-        self.page_changed = !(old_page_start == self.page_start);
-        println!("{} {} {}", old_page_start, self.page_start, self.page_changed);
+        self.page_changed = !(old_page_start == self.page_start)
     }
 }
 #[cfg(test)]
@@ -140,11 +139,9 @@ mod tests {
     fn after_page_change_page_change_is_detected() {
         let mut navigator = Navigator::new(10, 2);
         assert!(!navigator.page_changed());
-        println!("{:?}", navigator);
         assert_eq!(Some(3), navigator.position_from_coords(1, 1));
         for _ in 1..=4 {
             navigator.move_towards(Direction::Right);
-                println!("{:?}", navigator);
         }
         assert!(navigator.page_changed());
     }
