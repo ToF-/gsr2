@@ -36,6 +36,14 @@ impl Navigator {
         self.page_start + self.page_size()
     }
 
+    pub fn prev_page_start(&self) -> usize {
+        if self.page_start >= self.page_size(){
+            self.page_start - self.page_size()
+        } else {
+            0
+        }
+    }
+
     pub fn page_changed(&self) -> bool {
         self.page_changed
     }
@@ -177,5 +185,20 @@ mod tests {
         });
         assert_eq!(8, navigator.page_start());
         assert_eq!(12, navigator.next_page_start());
+    }
+    #[test]
+    fn prev_page_start_is_page_start_minus_page_size() {
+        let mut navigator = Navigator::new(10, 2);
+        navigator.move_towards(Direction::Right);
+        assert_eq!(1, navigator.position());
+        assert_eq!(0, navigator.prev_page_start());
+        navigator.move_towards(Direction::Index {
+            value: navigator.next_page_start(),
+        });
+        navigator.move_towards(Direction::Index {
+            value: navigator.next_page_start(),
+        });
+        assert_eq!(8, navigator.page_start());
+        assert_eq!(4, navigator.prev_page_start());
     }
 }
