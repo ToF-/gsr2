@@ -80,7 +80,7 @@ mod tests {
 
     #[test]
     fn given_coords_can_tell_position_trivial_case() {
-        let mut navigator = Navigator::new(3, ONE_CELL_PER_ROW);
+        let navigator = Navigator::new(3, ONE_CELL_PER_ROW);
         assert_eq!(0, navigator.position_from_coords(0, 0));
     }
 
