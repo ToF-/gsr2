@@ -166,7 +166,8 @@ mod tests {
     #[test]
     fn next_page_start_is_page_start_plus_page_size_modulo_limit() {
         let mut navigator = Navigator::new(10, 2);
-        assert_eq!(0, navigator.page_start());
+        navigator.move_towards(Direction::Right);
+        assert_eq!(1, navigator.position());
         assert_eq!(4, navigator.next_page_start());
         navigator.move_towards(Direction::Index {
             value: navigator.next_page_start(),
