@@ -126,7 +126,8 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
     {
         let refresh: bool = process_control(&mut gui, control);
         if refresh {
-            set_picture_for_file_view(&gui, &gui.application_state.current_picture())
+            set_picture_view(&gui);
+                
         }
     };
     gtk::Inhibit(false)
@@ -144,25 +145,47 @@ fn process_control(gui: &mut GraphicalUserInterface, control: Control) -> bool {
                 }
             } else {
                 let next_page_start = gui.application_state.navigator().next_page_start();
-                if gui.application_state.can_move(Direction::Index { value: next_page_start }) {
-                    gui.application_state.move_towards(Direction::Index { value: next_page_start});
+                if gui.application_state.can_move(Direction::Index {
+                    value: next_page_start,
+                }) {
+                    gui.application_state.move_towards(Direction::Index {
+                        value: next_page_start,
+                    });
                 }
             }
-        }
+        },
         Control::Right if !gui.application_state.full_size_on() => {
             if gui.application_state.can_move(Direction::Right) {
                 gui.application_state.move_towards(Direction::Right)
             } else {
                 println!("bump")
             }
-        }
-        Control::MovePrev | Control::Left if !gui.application_state.full_size_on() => {
+        },
+        Control::MovePrev if !gui.application_state.full_size_on() => {
+            if gui.application_state.pictures_per_row() == 1 {
+                if gui.application_state.can_move(Direction::Left) {
+                    gui.application_state.move_towards(Direction::Left)
+                } else {
+                    println!("bump")
+                }
+            } else {
+                let prev_page_start = gui.application_state.navigator().prev_page_start();
+                if gui.application_state.can_move(Direction::Index {
+                    value: prev_page_start,
+                }) {
+                    gui.application_state.move_towards(Direction::Index {
+                        value: prev_page_start,
+                    });
+                }
+            }
+        },
+        Control::Left if !gui.application_state.full_size_on() => {
             if gui.application_state.can_move(Direction::Left) {
                 gui.application_state.move_towards(Direction::Left)
             } else {
                 println!("bump")
             }
-        }
+        },
         Control::MoveLast => gui.application_state.move_towards(Direction::Last),
         Control::MoveFirst => gui.application_state.move_towards(Direction::First),
         Control::Quit => gui.application_window.close(),
