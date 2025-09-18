@@ -168,8 +168,13 @@ mod tests {
         let mut navigator = Navigator::new(10, 2);
         assert_eq!(0, navigator.page_start());
         assert_eq!(4, navigator.next_page_start());
-        navigator.move_towards(Direction::Index { value: navigator.next_page_start() });
-        assert_eq!(4, navigator.page_start());
-        assert_eq!(8, navigator.next_page_start());
+        navigator.move_towards(Direction::Index {
+            value: navigator.next_page_start(),
+        });
+        navigator.move_towards(Direction::Index {
+            value: navigator.next_page_start(),
+        });
+        assert_eq!(8, navigator.page_start());
+        assert_eq!(12, navigator.next_page_start());
     }
 }
