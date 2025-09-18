@@ -90,7 +90,7 @@ get_palette_from_picture_file	/Users/christophethibaut/Coding/gsr2/src/image_dat
 get_picture_file_path	/Users/christophethibaut/Coding/gsr2/src/file_system.rs	/^pub fn get_picture_file_path(file_path: &str) -> Result<String> {$/;"	f
 get_the_control_matching_a_keyname	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    fn get_the_control_matching_a_keyname() {$/;"	f
 given_coords_can_tell_position_trivial_case	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn given_coords_can_tell_position_trivial_case() {$/;"	f
-given_coords_can_tell_position_with_several_cells_per_row	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn given_coords_can_tell_position_with_several_cells_per_row() {$/;"	f
+given_coords_can_tell_position_with_several_cells_per_row_on_first_page	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn given_coords_can_tell_position_with_several_cells_per_row_on_first_page() {$/;"	f
 len	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn len(&self) -> usize {$/;"	f
 load_and_launch	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn load_and_launch(gui_rc: RcRefCellGui) {$/;"	f
 load_from_directory	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn load_from_directory(&mut self, path: &str) -> Result<usize> {$/;"	f

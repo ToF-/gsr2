@@ -91,4 +91,7 @@ mod tests {
         assert_eq!(Some(2), Navigator::new(10, 2).position_from_coords(1, 0));
         assert_eq!(Some(3), Navigator::new(10, 2).position_from_coords(1, 1));
     }
+    // todo
+    // after a page change (page_start_position should give the base for absolute position)
+    // illegal coords
 }
