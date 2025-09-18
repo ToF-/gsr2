@@ -1,3 +1,4 @@
+use crate::gen_image::NINE_COLORS;
 use crate::Command::{Dir, File};
 use crate::application_state::ApplicationState;
 use crate::command_line_interface::CommandLineInterface;
@@ -16,7 +17,7 @@ use gtk::glib::clone;
 use gtk::prelude::*;
 use gtk::{
     Align, Application, ApplicationWindow, CssProvider, Label, Orientation, Picture,
-    ScrolledWindow, gdk,
+    ScrolledWindow, Widget, gdk
 };
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -82,13 +83,10 @@ fn set_picture_at(col: i32, row: i32, gui: &GraphicalUserInterface) {
         let cell_box = widget
             .downcast::<gtk::Box>()
             .expect("cannot downcast widget to Box");
-        while let Some(child) = cell_box.first_child() {
-            cell_box.remove(&child)
-        }
-        cell_box.append(&make_gtk_picture_from_picture(
-            &gui.application_state,
-            index,
-        ))
+            while let Some(child) = cell_box.first_child() {
+                cell_box.remove(&child)
+            }
+            cell_box.append(&make_gtk_picture_from_picture( &gui.application_state, index,))
     }
 }
 
@@ -129,7 +127,7 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
             set_picture_view(&gui);
         }
     };
-    gtk::Inhibit(false)
+    gtk::Inhibit(true)
 }
 
 fn process_control(gui: &mut GraphicalUserInterface, control: Control) -> bool {
@@ -187,7 +185,10 @@ fn process_control(gui: &mut GraphicalUserInterface, control: Control) -> bool {
         }
         Control::MoveLast => gui.application_state.move_towards(Direction::Last),
         Control::MoveFirst => gui.application_state.move_towards(Direction::First),
-        Control::Quit => gui.application_window.close(),
+        Control::Quit => {
+            gui.application_window.close();
+            refresh = false 
+        },
         Control::TogglePalette => {
             gui.application_state.toggle_palette();
         }
@@ -284,15 +285,6 @@ pub fn startup_gui(_application: &gtk::Application) {
     );
 }
 
-fn make_application_window(application: &gtk::Application) -> gtk::ApplicationWindow {
-    ApplicationWindow::builder()
-        .application(application)
-        .title("gsr2")
-        .default_width(DEFAULT_WIDTH)
-        .default_height(DEFAULT_HEIGHT)
-        .build()
-}
-
 fn make_single_view_scrolled_window() -> gtk::ScrolledWindow {
     ScrolledWindow::builder()
         .hscrollbar_policy(gtk::PolicyType::Automatic)
@@ -382,6 +374,19 @@ fn make_cell_box() -> gtk::Box {
         .build()
 }
 
+fn children_count(arg: &Widget) -> usize {
+    let mut widget: &Widget = arg;
+    let mut count: usize = 0;
+
+    if let Some(child) = widget.first_child() {
+        count += children_count(&child);
+        if let Some(sibling) = widget.next_sibling() {
+            count += children_count(&sibling);
+        }
+    }
+    count
+}
+
 fn make_gtk_picture_from_picture(
     application_state: &ApplicationState,
     index: usize,
@@ -393,7 +398,10 @@ fn make_gtk_picture_from_picture(
     gtk_picture.set_can_shrink(!application_state.full_size_on());
     gtk_picture.set_visible(true);
     let file_path = if application_state.thumbnails_on() {
-        application_state.gallery().picture(index).thumbnail_file_path()
+        application_state
+            .gallery()
+            .picture(index)
+            .thumbnail_file_path()
     } else {
         application_state.gallery().picture(index).file_path()
     };
@@ -401,24 +409,8 @@ fn make_gtk_picture_from_picture(
     gtk_picture
 }
 
-fn setup_picture_cell(cell_box: &gtk::Box, col: i32, row: i32, gui: &GraphicalUserInterface) {
-    let coords = (row as usize, col as usize);
-    if let Some(index) = gui
-        .application_state
-        .navigator()
-        .position_from_coords(coords.0, coords.1)
-    {
-        while let Some(child) = cell_box.first_child() {
-            cell_box.remove(&child)
-        }
-        let application_state: &ApplicationState = &gui.application_state;
-        let picture = make_gtk_picture_from_picture(application_state, index);
-        println!("appended at cell ({},{})", row, col);
-        cell_box.append(&picture);
-    }
-}
-
 pub fn activate(application: &gtk::Application, cli: &CommandLineInterface) {
+    println!("activate…");
     let application_window = make_application_window(application);
     let single_view_scrolled_window = make_single_view_scrolled_window();
     let view_box = make_view_box();
@@ -479,19 +471,17 @@ pub fn activate(application: &gtk::Application, cli: &CommandLineInterface) {
     load_and_launch(gui_rc);
 }
 
-pub fn build_application(cli: CommandLineInterface) -> gtk::Application {
+pub fn build_and_run_application(cli: CommandLineInterface) {
     let application = Application::builder()
         .application_id("org.example.gsr2")
         .build();
     application.connect_startup(|application| {
         startup_gui(application);
     });
-    application.connect_activate(move |application: &gtk::Application| activate(application, &cli));
-    application
-}
-
-pub fn build_and_run_application(cli: CommandLineInterface) {
-    let application = build_application(cli);
+    // clone! passes a strong reference to a variable in the closure that activates the application
+    // move converts any variables captured by reference or mutable reference to variables captured by value.
+    application.connect_activate(clone!(@strong cli, => move |application: &gtk::Application| {
+        activate(application, &cli); }));
     let no_args: Vec<String> = vec![];
     application.run_with_args(&no_args);
 }
