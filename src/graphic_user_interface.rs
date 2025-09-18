@@ -392,6 +392,11 @@ fn make_gtk_picture_from_picture(
     gtk_picture.set_opacity(1.00);
     gtk_picture.set_can_shrink(!application_state.full_size_on());
     gtk_picture.set_visible(true);
+    let file_path = if application_state.thumbnails_on() {
+        application_state.gallery().picture(index).thumbnail_file_path()
+    } else {
+        application_state.gallery().picture(index).file_path()
+    };
     gtk_picture.set_filename(Some(application_state.gallery().picture(index).file_path()));
     gtk_picture
 }
