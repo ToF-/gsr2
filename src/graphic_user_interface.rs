@@ -143,7 +143,6 @@ fn process_control(gui: &mut GraphicalUserInterface, control: Control) -> bool {
                     println!("bump")
                 }
             } else {
-
             }
         }
         Control::Right if !gui.application_state.full_size_on() => {

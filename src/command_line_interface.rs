@@ -40,17 +40,21 @@ impl CommandLineInterface {
         };
         if let Some(Command::File { ref file_path }) = cli.command {
             match check_picture_file(file_path) {
-                Ok(_) => if let Some(grid) = cli.grid {
+                Ok(_) => {
+                    if let Some(grid) = cli.grid {
                         return Err(Error::new(
-                                ErrorKind::Other,
-                                "option --grid not allowed for File command"))
+                            ErrorKind::Other,
+                            "option --grid not allowed for File command",
+                        ));
                     } else if cli.thumbnails {
                         return Err(Error::new(
-                                ErrorKind::Other,
-                                "option --thumbnails not allowed for File command"))
+                            ErrorKind::Other,
+                            "option --thumbnails not allowed for File command",
+                        ));
                     } else {
-                        return Ok(cli.clone())
-                    },
+                        return Ok(cli.clone());
+                    }
+                }
 
                 Err(e) => return Err(e),
             }
