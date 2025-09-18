@@ -2,6 +2,8 @@ use crate::command::Command;
 use crate::command_line_interface::CommandLineInterface;
 use crate::graphic_user_interface::build_and_run_application;
 use std::process::exit;
+use gtk::prelude::*;
+use gtk::{self, Application, glib};
 
 mod application_state;
 mod command;

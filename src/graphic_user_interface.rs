@@ -1,3 +1,4 @@
+use std::process::exit;
 use crate::gen_image::NINE_COLORS;
 use crate::Command::{Dir, File};
 use crate::application_state::ApplicationState;
@@ -21,8 +22,9 @@ use gtk::{
 };
 use std::cell::RefCell;
 use std::rc::Rc;
+use gtk::prelude::*;
+use gtk::{self, glib};
 
-#[derive(Debug)]
 struct GraphicalUserInterface {
     command_line_interface: CommandLineInterface,
     application_state: ApplicationState,
@@ -71,11 +73,6 @@ fn draw_palette(ctx: &Context, width: i32, height: i32, palette: &Palette) {
 }
 fn set_picture_at(col: i32, row: i32, gui: &GraphicalUserInterface) {
     let coords = (row as usize, col as usize);
-    if let Some(index) = gui
-        .application_state
-        .navigator()
-        .position_from_coords(coords.0, coords.1)
-    {
         let widget = gui
             .multiple_view_grid
             .child_at(col as i32, row as i32)
@@ -86,8 +83,19 @@ fn set_picture_at(col: i32, row: i32, gui: &GraphicalUserInterface) {
             while let Some(child) = cell_box.first_child() {
                 cell_box.remove(&child)
             }
-            cell_box.append(&make_gtk_picture_from_picture( &gui.application_state, index,))
-    }
+            if let Some(index) = gui
+                .application_state
+                    .navigator()
+                    .position_from_coords(coords.0, coords.1)
+            {
+                let picture = make_gtk_picture_from_picture( &gui.application_state, index);
+                cell_box.append(&picture);
+                let label = gtk::Label::new(Some("test"));
+                label.set_valign(Align::Center);
+                label.set_halign(Align::Center);
+                label.set_widget_name("picture_label");
+                cell_box.append(&label);
+            }
 }
 
 fn set_picture_for_file_view(gui: &GraphicalUserInterface, picture: &picture::Picture) {
@@ -127,8 +135,9 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
             set_picture_view(&gui);
         }
     };
-    gtk::Inhibit(true)
+    gtk::Inhibit(false)
 }
+
 
 fn process_control(gui: &mut GraphicalUserInterface, control: Control) -> bool {
     let mut refresh: bool = true;
@@ -396,7 +405,6 @@ fn make_gtk_picture_from_picture(
     gtk_picture.set_valign(Align::Center);
     gtk_picture.set_opacity(1.00);
     gtk_picture.set_can_shrink(!application_state.full_size_on());
-    gtk_picture.set_visible(true);
     let file_path = if application_state.thumbnails_on() {
         application_state
             .gallery()
@@ -405,12 +413,28 @@ fn make_gtk_picture_from_picture(
     } else {
         application_state.gallery().picture(index).file_path()
     };
-    gtk_picture.set_filename(Some(application_state.gallery().picture(index).file_path()));
+    gtk_picture.set_filename(Some(file_path));
+    gtk_picture.set_visible(true);
     gtk_picture
 }
 
-pub fn activate(application: &gtk::Application, cli: &CommandLineInterface) {
-    println!("activate…");
+fn make_application_window(application: &gtk::Application) -> gtk::ApplicationWindow {
+    ApplicationWindow::builder()
+        .application(application)
+        .title("gsr2")
+        .default_width(DEFAULT_WIDTH)
+        .default_height(DEFAULT_HEIGHT)
+        .build()
+}
+
+pub fn activate(application: &gtk::Application, cli_rc: &Rc<RefCell<CommandLineInterface>>) {
+    let command_line_interface = match cli_rc.try_borrow() {
+        Ok(cli) => cli,
+        Err(err) => {
+            eprintln!("{}", err);
+            exit(1);
+        },
+    };
     let application_window = make_application_window(application);
     let single_view_scrolled_window = make_single_view_scrolled_window();
     let view_box = make_view_box();
@@ -435,15 +459,14 @@ pub fn activate(application: &gtk::Application, cli: &CommandLineInterface) {
     let view_stack = make_view_stack();
     let _ = view_stack.add_child(&single_view_scrolled_window);
     let _ = view_stack.add_child(&multiple_view_scrolled_window);
-    if cli.cells_per_row() == 1 {
+    if command_line_interface.cells_per_row() == 1 {
         view_stack.set_visible_child(&single_view_scrolled_window);
     } else {
         view_stack.set_visible_child(&multiple_view_scrolled_window);
     }
-
     application_window.set_child(Some(&view_stack));
     let gui_rc = Rc::new(RefCell::new(GraphicalUserInterface {
-        command_line_interface: cli.clone(),
+        command_line_interface: command_line_interface.clone(),
         application_state: ApplicationState::new(),
         application_window,
         single_view_picture: picture,
@@ -458,7 +481,7 @@ pub fn activate(application: &gtk::Application, cli: &CommandLineInterface) {
     evk.connect_key_pressed(clone!(@strong gui_rc => move |_, key, _, _| {
         process_key(&gui_rc, key)
     }));
-    if let Ok(gui) = gui_rc.try_borrow_mut() {
+    if let Ok(gui) = gui_rc.try_borrow() {
         let cells_per_row: i32 = gui.command_line_interface.cells_per_row();
         for col in 0..cells_per_row {
             for row in 0..cells_per_row {
@@ -478,10 +501,11 @@ pub fn build_and_run_application(cli: CommandLineInterface) {
     application.connect_startup(|application| {
         startup_gui(application);
     });
+    let cli_rc = Rc::new(RefCell::new(cli));
     // clone! passes a strong reference to a variable in the closure that activates the application
     // move converts any variables captured by reference or mutable reference to variables captured by value.
-    application.connect_activate(clone!(@strong cli, => move |application: &gtk::Application| {
-        activate(application, &cli); }));
+    application.connect_activate(clone!(@strong cli_rc, => move |application: &gtk::Application| {
+        activate(application, &cli_rc); }));
     let no_args: Vec<String> = vec![];
     application.run_with_args(&no_args);
 }

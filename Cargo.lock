@@ -732,6 +732,7 @@ dependencies = [
  "image",
  "palette_extract",
  "rand 0.9.2",
+ "time-elapsed",
  "walkdir",
 ]
 
@@ -1563,6 +1564,12 @@ dependencies = [
  "weezl",
  "zune-jpeg",
 ]
+
+[[package]]
+name = "time-elapsed"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "389a558fb3fd8b7f55302d008fa4a829894bd1d9dc87d0dad019fa1170811de1"
 
 [[package]]
 name = "toml"

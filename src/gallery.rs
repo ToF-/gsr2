@@ -22,6 +22,7 @@ impl Gallery {
     }
 
     pub fn load_from_directory(&mut self, path: &str) -> Result<usize> {
+        println!("loading directory…");
         match get_all_picture_file_paths(path) {
             Ok(list) => {
                 for file_path in list {
