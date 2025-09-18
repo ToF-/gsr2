@@ -82,5 +82,10 @@ mod tests {
     fn given_coords_can_tell_position_trivial_case() {
         let mut navigator = Navigator::new(3, ONE_CELL_PER_ROW);
         assert_eq!(0, navigator.position_from_coords(0, 0));
-}
+    }
+
+    #[test]
+    fn given_coords_can_tell_position_with_several_cells_per_row() {
+        assert_eq!(0, Navigator::new(10, 2).position_from_coords(0, 0));
+    }
 }
