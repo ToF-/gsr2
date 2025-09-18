@@ -8,10 +8,10 @@ pub struct Navigator {
 }
 
 impl Navigator {
-    pub fn new(limit: usize) -> Self {
+    pub fn new(limit: usize, cells_per_row: usize) -> Self {
         Navigator {
             limit,
-            cells_per_row: 1,
+            cells_per_row,
             position: 0,
         }
     }
@@ -45,7 +45,7 @@ mod tests {
 
     #[test]
     fn navigator_cannot_move_past_gallery_limit() {
-        let mut navigator = Navigator::new(3);
+        let mut navigator = Navigator::new(3, 1);
         assert_eq!(0, navigator.position());
         assert!(navigator.can_move(Direction::Right));
         navigator.move_towards(Direction::Right);
@@ -56,7 +56,7 @@ mod tests {
 
     #[test]
     fn navigator_cannot_move_before_first_position() {
-        let mut navigator = Navigator::new(3);
+        let mut navigator = Navigator::new(3, 1);
         assert!(!navigator.can_move(Direction::Left));
         navigator.move_towards(Direction::Right);
         assert!(navigator.can_move(Direction::Left));
@@ -66,7 +66,7 @@ mod tests {
 
     #[test]
     fn navigator_can_move_to_first_and_last_position() {
-        let mut navigator = Navigator::new(3);
+        let mut navigator = Navigator::new(3, 1);
         navigator.move_towards(Direction::Last);
         assert_eq!(2, navigator.position());
         navigator.move_towards(Direction::First);

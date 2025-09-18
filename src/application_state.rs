@@ -19,7 +19,7 @@ impl ApplicationState {
     pub fn new() -> Self {
         ApplicationState {
             gallery: Gallery::new(),
-            navigator: Navigator::new(0),
+            navigator: Navigator::new(0, 1),
             controls: default_controls(),
             pictures_per_row: 1,
             expand_on: false,
@@ -66,7 +66,7 @@ impl ApplicationState {
 
     pub fn set_gallery(&mut self, gallery: Gallery) {
         self.gallery = gallery;
-        self.navigator = Navigator::new(self.gallery.len())
+        self.navigator = Navigator::new(self.gallery.len(), 1)
     }
 
     pub fn set_pictures_per_row(&mut self, n: usize) {
