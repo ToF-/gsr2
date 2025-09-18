@@ -27,9 +27,9 @@ pub fn title_display(application_state: &ApplicationState) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::default_values::ONE_CELL_PER_ROW;
     use crate::direction::Direction;
     use crate::gallery::Gallery;
-    use crate::default_values::ONE_CELL_PER_ROW;
 
     fn an_application_state() -> ApplicationState {
         let mut application_state = ApplicationState::new();

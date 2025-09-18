@@ -103,6 +103,7 @@ loading_from_a_single_file_path_collect_that_single_picture_file	/Users/christop
 main	/Users/christophethibaut/Coding/gsr2/src/main.rs	/^fn main() {$/;"	f
 make_application_window	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn make_application_window(application: &gtk::Application) -> gtk::ApplicationWindow {$/;"	f
 make_cell_box	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn make_cell_box() -> gtk::Box {$/;"	f
+make_gtk_picture_from_picture	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn make_gtk_picture_from_picture($/;"	f
 make_label	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn make_label(symbol: &str) -> gtk::Label {$/;"	f
 make_multiple_view_grid	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn make_multiple_view_grid() -> gtk::Grid {$/;"	f
 make_multiple_view_panel	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn make_multiple_view_panel() -> gtk::Grid {$/;"	f
@@ -135,10 +136,11 @@ process_arrow_key_in_fullsize	/Users/christophethibaut/Coding/gsr2/src/graphic_u
 process_control	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn process_control(gui: &mut GraphicalUserInterface, control: Control) -> bool {$/;"	f
 process_key	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {$/;"	f
 save_nine_colors	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub fn save_nine_colors() {$/;"	f
-set_gallery	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn set_gallery(&mut self, gallery: Gallery) {$/;"	f
+set_gallery	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn set_gallery(&mut self, gallery: Gallery, cells_per_row: usize) {$/;"	f
+set_picture_at	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn set_picture_at(col: i32, row: i32, gui: &GraphicalUserInterface) {$/;"	f
 set_picture_for_file_view	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn set_picture_for_file_view(gui: &GraphicalUserInterface, picture: &picture::Picture) {$/;"	f
 set_pictures_per_row	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn set_pictures_per_row(&mut self, n: usize) {$/;"	f
-setup_picture_cell	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn setup_picture_cell(cell_box: &gtk::Box, col: i32, row: i32, gui_rc: &RcRefCellGui) {$/;"	f
+setup_picture_cell	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn setup_picture_cell(cell_box: &gtk::Box, col: i32, row: i32, gui: &GraphicalUserInterface) {$/;"	f
 startup_gui	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn startup_gui(_application: &gtk::Application) {$/;"	f
 thumbnail_file_path	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    pub fn thumbnail_file_path(&self) -> String {$/;"	f
 thumbnail_name_from	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^pub fn thumbnail_name_from(file_name: &str) -> String {$/;"	f

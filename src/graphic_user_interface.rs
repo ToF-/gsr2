@@ -68,6 +68,19 @@ fn draw_palette(ctx: &Context, width: i32, height: i32, palette: &Palette) {
         .expect("can't set source surface");
     ctx.paint().expect("can't paint surface")
 }
+fn set_picture_at(col: i32, row: i32, gui: &GraphicalUserInterface) {
+    let coords = (row as usize, col as usize);
+    if let Some(index) = gui.application_state.navigator().position_from_coords(coords.0, coords.1) {
+        println!("at({},{}) #{} {}", col, row, index, gui.application_state.gallery().picture(index).file_path());
+        let widget = gui.multiple_view_grid.child_at(col as i32, row as i32).expect("cannot find cell box in multiple view grid");
+        let cell_box = widget.downcast::<gtk::Box>().expect("cannot downcast widget to Box");
+        while let Some(child) = cell_box.first_child() {
+            cell_box.remove(&child)
+        };
+        cell_box.append(&make_gtk_picture_from_picture(&gui.application_state, index))
+    }
+}
+
 fn set_picture_for_file_view(gui: &GraphicalUserInterface, picture: &picture::Picture) {
     let single_view_picture = &gui.single_view_picture;
     let view_box = &gui.single_view_box;
@@ -171,6 +184,13 @@ fn load_and_launch(gui_rc: RcRefCellGui) {
                         .set_visible_child(&gui.single_view_scrolled_window);
                     set_picture_for_file_view(&gui, &gui.application_state.gallery().picture(0));
                 } else {
+                    let limit: i32 = cells_per_row.try_into().unwrap();
+                    println!("cells per row: {}, limit:{}", cells_per_row, limit);
+                    for col in 0..limit {
+                        for row in 0..limit {
+                            set_picture_at(col, row, &gui)
+                        }
+                    }
                     gui.view_stack
                         .set_visible_child(&gui.multiple_view_scrolled_window);
                 }
@@ -305,8 +325,10 @@ fn make_cell_box() -> gtk::Box {
         .build()
 }
 
-fn make_gtk_picture_from_picture(application_state: &ApplicationState, index: usize) -> gtk::Picture {
-
+fn make_gtk_picture_from_picture(
+    application_state: &ApplicationState,
+    index: usize,
+) -> gtk::Picture {
     let gtk_picture = gtk::Picture::new();
     gtk_picture.set_halign(Align::Center);
     gtk_picture.set_valign(Align::Center);
@@ -314,30 +336,27 @@ fn make_gtk_picture_from_picture(application_state: &ApplicationState, index: us
     gtk_picture.set_can_shrink(!application_state.full_size_on());
     gtk_picture.set_visible(true);
     gtk_picture.set_filename(Some(application_state.gallery().picture(index).file_path()));
+    println!("picture cell with {}", application_state.gallery().picture(index).file_path());
     gtk_picture
 }
 
 fn setup_picture_cell(cell_box: &gtk::Box, col: i32, row: i32, gui: &GraphicalUserInterface) {
     let coords = (row as usize, col as usize);
-    if let Some(index) = gui.application_state.navigator().position_from_coords(coords.0, coords.1) {
+    if let Some(index) = gui
+        .application_state
+        .navigator()
+        .position_from_coords(coords.0, coords.1)
+    {
+        while let Some(child) = cell_box.first_child() {
+            cell_box.remove(&child)
+        };
         let application_state: &ApplicationState = &gui.application_state;
         let picture = make_gtk_picture_from_picture(application_state, index);
+        println!("appended at cell ({},{})", row, col);
         cell_box.append(&picture);
     }
-
-
-    //     if let Some(index) = gui.navigator().index_from_position(coords) {
-    //         if gui.page_changed() {
-    //         while let Some(child) = cell_box.first_child() {
-    //             cell_box.remove(&child)
-    //         };
-    //         let entry = gui.entry_at_index(index).unwrap();
-    //         let picture = picture_for_entry(entry, &gui);
-    //         let label = label_for_entry(entry, index == gui.index().unwrap());
-    //         cell_box.append(&picture);
-    //         cell_box.append(&label);
-    //     }
 }
+
 pub fn activate(application: &gtk::Application, cli: &CommandLineInterface) {
     let application_window = make_application_window(application);
     let single_view_scrolled_window = make_single_view_scrolled_window();
@@ -345,16 +364,13 @@ pub fn activate(application: &gtk::Application, cli: &CommandLineInterface) {
     let picture = make_picture();
     view_box.append(&picture);
     single_view_scrolled_window.set_child(Some(&view_box));
-    let view_stack = make_view_stack();
-
-    let _ = view_stack.add_child(&single_view_scrolled_window);
-    view_stack.set_visible_child(&single_view_scrolled_window);
-    application_window.set_child(Some(&view_stack));
 
     let multiple_view_scrolled_window = make_multiple_view_scrolled_window();
     let multiple_view_grid = make_multiple_view_grid();
 
     let multiple_view_panel = make_multiple_view_panel();
+
+    multiple_view_scrolled_window.set_child(Some(&multiple_view_panel));
 
     let left_button = make_label("←");
     let right_button = make_label("→");
@@ -363,6 +379,16 @@ pub fn activate(application: &gtk::Application, cli: &CommandLineInterface) {
     multiple_view_panel.attach(&multiple_view_grid, 1, 0, 1, 1);
     multiple_view_panel.attach(&right_button, 2, 0, 1, 1);
 
+    let view_stack = make_view_stack();
+    let _ = view_stack.add_child(&single_view_scrolled_window);
+    let _ = view_stack.add_child(&multiple_view_scrolled_window);
+    if cli.cells_per_row() == 1 {
+        view_stack.set_visible_child(&single_view_scrolled_window);
+    } else {
+        view_stack.set_visible_child(&multiple_view_scrolled_window);
+    }
+
+    application_window.set_child(Some(&view_stack));
     let gui_rc = Rc::new(RefCell::new(GraphicalUserInterface {
         command_line_interface: cli.clone(),
         application_state: ApplicationState::new(),
@@ -384,7 +410,6 @@ pub fn activate(application: &gtk::Application, cli: &CommandLineInterface) {
         for col in 0..cells_per_row {
             for row in 0..cells_per_row {
                 let cell_box = make_cell_box();
-                setup_picture_cell(&cell_box, col, row, &gui);
                 gui.multiple_view_grid.attach(&cell_box, col, row, 1, 1);
             }
         }
