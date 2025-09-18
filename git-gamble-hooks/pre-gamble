@@ -1,7 +1,2 @@
 #!/usr/bin/env sh
-ls -l
-rtags
-clear
-cargo clippy
-cargo fmt
-cargo build
+cargo test --no-run

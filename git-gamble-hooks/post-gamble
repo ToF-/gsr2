@@ -1,0 +1,4 @@
+if [ $1 -eq "pass" ]; then
+    echo "Woohoo!"
+fi
+
