@@ -143,6 +143,10 @@ fn process_control(gui: &mut GraphicalUserInterface, control: Control) -> bool {
                     println!("bump")
                 }
             } else {
+                let next_page_start = gui.application_state.navigator().next_page_start();
+                if gui.application_state.can_move(Direction::Index { value: next_page_start }) {
+                    gui.application_state.move_towards(Direction::Index { value: next_page_start});
+                }
             }
         }
         Control::Right if !gui.application_state.full_size_on() => {

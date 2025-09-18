@@ -37,7 +37,7 @@ impl Navigator {
     }
 
     pub fn prev_page_start(&self) -> usize {
-        if self.page_start >= self.page_size(){
+        if self.page_start >= self.page_size() {
             self.page_start - self.page_size()
         } else {
             0
