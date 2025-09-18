@@ -116,7 +116,7 @@ mod tests {
     fn after_page_change_position_from_coords_changes() {
         let mut navigator = Navigator::new(10, 2);
         assert_eq!(Some(3), navigator.position_from_coords(1, 1));
-        for _ in 0..3 {
+        for _ in 1..=4 {
             navigator.move_towards(Direction::Right)
         };
         // assert_eq!(Some(7), navigator.position_from_coords(1,1));
