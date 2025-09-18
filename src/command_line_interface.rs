@@ -1,7 +1,7 @@
 use crate::command::Command;
 use crate::paths::{check_path, check_picture_file};
 use clap::Parser;
-use std::io::Result;
+use std::io::{Error, ErrorKind, Result};
 
 #[derive(Parser, Clone, Debug, PartialEq)]
 /// Gallery Show
@@ -40,7 +40,18 @@ impl CommandLineInterface {
         };
         if let Some(Command::File { ref file_path }) = cli.command {
             match check_picture_file(file_path) {
-                Ok(_) => return Ok(cli.clone()),
+                Ok(_) => if let Some(grid) = cli.grid {
+                        return Err(Error::new(
+                                ErrorKind::Other,
+                                "option --grid not allowed for File command"))
+                    } else if cli.thumbnails {
+                        return Err(Error::new(
+                                ErrorKind::Other,
+                                "option --thumbnails not allowed for File command"))
+                    } else {
+                        return Ok(cli.clone())
+                    },
+
                 Err(e) => return Err(e),
             }
         }

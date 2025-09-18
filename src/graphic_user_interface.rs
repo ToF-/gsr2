@@ -188,11 +188,11 @@ fn set_picture_for_single_view(gui: &GraphicalUserInterface) {
 }
 
 fn set_picture_for_multiple_view(gui: &GraphicalUserInterface, pictures_per_row: i32) {
-        for col in 0..pictures_per_row {
-            for row in 0..pictures_per_row {
-                set_picture_at(col, row, &gui)
-            }
+    for col in 0..pictures_per_row {
+        for row in 0..pictures_per_row {
+            set_picture_at(col, row, &gui)
         }
+    }
 }
 
 fn set_picture_view(gui: &GraphicalUserInterface) {
@@ -200,10 +200,12 @@ fn set_picture_view(gui: &GraphicalUserInterface) {
     println!("{} pictures per row", cells_per_row);
     if cells_per_row == 1 {
         set_picture_for_single_view(gui);
-        gui.view_stack.set_visible_child(&gui.single_view_scrolled_window);
+        gui.view_stack
+            .set_visible_child(&gui.single_view_scrolled_window);
     } else {
         set_picture_for_multiple_view(gui, cells_per_row as i32);
-        gui.view_stack.set_visible_child(&gui.multiple_view_scrolled_window);
+        gui.view_stack
+            .set_visible_child(&gui.multiple_view_scrolled_window);
     };
 }
 
@@ -219,7 +221,10 @@ fn load_and_launch(gui_rc: RcRefCellGui) {
             Ok(0) => {}
             Ok(count) => {
                 let cells_per_row: usize = (&gui.command_line_interface).cells_per_row() as usize;
-                println!("{} picture file paths loaded. Setting {}X{} grid.", count, cells_per_row, cells_per_row);
+                println!(
+                    "{} picture file paths loaded. Setting {}X{} grid.",
+                    count, cells_per_row, cells_per_row
+                );
                 gui.application_state.set_gallery(gallery, cells_per_row);
                 set_picture_view(&gui);
                 gui.application_window.present()
