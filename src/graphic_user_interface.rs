@@ -75,13 +75,6 @@ fn set_picture_at(col: i32, row: i32, gui: &GraphicalUserInterface) {
         .navigator()
         .position_from_coords(coords.0, coords.1)
     {
-        println!(
-            "at({},{}) #{} {}",
-            col,
-            row,
-            index,
-            gui.application_state.gallery().picture(index).file_path()
-        );
         let widget = gui
             .multiple_view_grid
             .child_at(col as i32, row as i32)
@@ -142,7 +135,18 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
 fn process_control(gui: &mut GraphicalUserInterface, control: Control) -> bool {
     let mut refresh: bool = true;
     match control {
-        Control::MoveNext | Control::Right if !gui.application_state.full_size_on() => {
+        Control::MoveNext if !gui.application_state.full_size_on() => {
+            if gui.application_state.pictures_per_row() == 1 {
+                if gui.application_state.can_move(Direction::Right) {
+                    gui.application_state.move_towards(Direction::Right)
+                } else {
+                    println!("bump")
+                }
+            } else {
+
+            }
+        }
+        Control::Right if !gui.application_state.full_size_on() => {
             if gui.application_state.can_move(Direction::Right) {
                 gui.application_state.move_towards(Direction::Right)
             } else {
@@ -197,7 +201,6 @@ fn set_picture_for_multiple_view(gui: &GraphicalUserInterface, pictures_per_row:
 
 fn set_picture_view(gui: &GraphicalUserInterface) {
     let cells_per_row = gui.application_state.pictures_per_row();
-    println!("{} pictures per row", cells_per_row);
     if cells_per_row == 1 {
         set_picture_for_single_view(gui);
         gui.view_stack
@@ -221,10 +224,6 @@ fn load_and_launch(gui_rc: RcRefCellGui) {
             Ok(0) => {}
             Ok(count) => {
                 let cells_per_row: usize = (&gui.command_line_interface).cells_per_row() as usize;
-                println!(
-                    "{} picture file paths loaded. Setting {}X{} grid.",
-                    count, cells_per_row, cells_per_row
-                );
                 gui.application_state.set_gallery(gallery, cells_per_row);
                 set_picture_view(&gui);
                 gui.application_window.present()
@@ -369,10 +368,6 @@ fn make_gtk_picture_from_picture(
     gtk_picture.set_can_shrink(!application_state.full_size_on());
     gtk_picture.set_visible(true);
     gtk_picture.set_filename(Some(application_state.gallery().picture(index).file_path()));
-    println!(
-        "picture cell with {}",
-        application_state.gallery().picture(index).file_path()
-    );
     gtk_picture
 }
 
