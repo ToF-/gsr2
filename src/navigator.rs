@@ -21,7 +21,7 @@ impl Navigator {
     }
 
     pub fn position_from_coords(&self, row: usize, col: usize) -> usize {
-        col
+        row * self.cells_per_row + col
     }
 
     pub fn can_move(&self, direction: Direction) -> bool {
@@ -88,5 +88,6 @@ mod tests {
     fn given_coords_can_tell_position_with_several_cells_per_row() {
         assert_eq!(0, Navigator::new(10, 2).position_from_coords(0, 0));
         assert_eq!(1, Navigator::new(10, 2).position_from_coords(0, 1));
+        assert_eq!(2, Navigator::new(10, 2).position_from_coords(1, 0));
     }
 }
