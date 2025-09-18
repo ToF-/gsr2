@@ -5,6 +5,7 @@ pub struct Navigator {
     limit: usize,
     cells_per_row: usize,
     position: usize,
+    page_start: usize,
 }
 
 impl Navigator {
@@ -13,6 +14,7 @@ impl Navigator {
             limit,
             cells_per_row,
             position: 0,
+            page_start: 0,
         }
     }
 
@@ -21,7 +23,7 @@ impl Navigator {
     }
 
     pub fn position_from_coords(&self, row: usize, col: usize) -> Option<usize> {
-        let position_from_coords = row * self.cells_per_row + col;
+        let position_from_coords = self.page_start + row * self.cells_per_row + col;
         if position_from_coords < self.limit {
             Some(position_from_coords)
         } else {
@@ -44,7 +46,16 @@ impl Navigator {
             Direction::Left => self.position -= 1,
             Direction::Last => self.position = self.limit - 1,
             Direction::First => self.position = 0,
-        }
+        };
+        self.update_page_start();
+    }
+
+    fn page_size(&self) -> usize {
+        self.cells_per_row * self.cells_per_row
+    }
+
+    fn update_page_start(&mut self) {
+        self.page_start = (self.position / self.page_size()) * self.page_size()
     }
 }
 #[cfg(test)]
@@ -103,8 +114,12 @@ mod tests {
     }
     #[test]
     fn after_page_change_position_from_coords_changes() {
-        let mut navigator = Navigator::new(10,2);
-        assert_eq!(Some(3), navigator.position_from_coords(1,1));
+        let mut navigator = Navigator::new(10, 2);
+        assert_eq!(Some(3), navigator.position_from_coords(1, 1));
+        for _ in 0..3 {
+            navigator.move_towards(Direction::Right)
+        };
+        // assert_eq!(Some(7), navigator.position_from_coords(1,1));
     }
     // todo
     // after a page change (page_start_position should give the base for absolute position)

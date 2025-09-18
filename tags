@@ -38,6 +38,7 @@ a_thumbnail_picture_has_the_name_as_the_original_picture_with_thumb_suffix	/User
 activate	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn activate(application: &gtk::Application, cli: &CommandLineInterface) {$/;"	f
 after_expand_toggle_expand_on_is_inverted	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    fn after_expand_toggle_expand_on_is_inverted() {$/;"	f
 after_full_size_toggle_full_size_on_is_inverted	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    fn after_full_size_toggle_full_size_on_is_inverted() {$/;"	f
+after_page_change_position_from_coords_changes	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn after_page_change_position_from_coords_changes() {$/;"	f
 after_palette_toggle_palette_on_is_inverted	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    fn after_palette_toggle_palette_on_is_inverted() {$/;"	f
 an_application_state	/Users/christophethibaut/Coding/gsr2/src/display.rs	/^    fn an_application_state() -> ApplicationState {$/;"	f
 build_and_run_application	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn build_and_run_application(cli: CommandLineInterface) {$/;"	f
