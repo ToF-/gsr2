@@ -5,6 +5,7 @@ ACTUAL="$2"
 
 if [ "pass" = "${GAMBLED}" ] && [ "pass" = "${ACTUAL}" ] ; then
     cargo fmt
+    rtags
     echo "🟢"
 elif [ "pass" = "${GAMBLED}" ] && [ "fail" = "${ACTUAL}" ] ; then
     echo "🔴"
