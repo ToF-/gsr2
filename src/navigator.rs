@@ -20,6 +20,10 @@ impl Navigator {
         self.position
     }
 
+    pub fn position_from_coords(&self, col: usize, row: usize) -> usize {
+        0
+    }
+
     pub fn can_move(&self, direction: Direction) -> bool {
         match direction {
             Direction::First => true,
@@ -73,4 +77,10 @@ mod tests {
         navigator.move_towards(Direction::First);
         assert_eq!(0, navigator.position());
     }
+
+    #[test]
+    fn given_coords_can_tell_position_trivial_case() {
+        let mut navigator = Navigator::new(3, ONE_CELL_PER_ROW);
+        assert_eq!(0, navigator.position_from_coords(0, 0));
+}
 }
