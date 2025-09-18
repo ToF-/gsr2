@@ -4,6 +4,6 @@ GAMBLED="$1"
 ACTUAL="$2"
 
 if [ "pass" = "${GAMBLED}" ] && [ "pass" = "${ACTUAL}" ] ; then
-    echo "Woohoo!"
+    echo "🟢"
 fi
 
