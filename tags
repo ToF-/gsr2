@@ -121,6 +121,7 @@ new	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn n
 new	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn new() -> Gallery {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn new(limit: usize, cells_per_row: usize) -> Self {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    pub fn new(file_path: &str) -> Self {$/;"	f
+page_size	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn page_size(&self) -> usize {$/;"	f
 palette_on	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn palette_on(&self) -> bool {$/;"	f
 parse_and_check	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    pub fn parse_and_check(args_opt: Option<Vec<&str>>) -> Result<Self> {$/;"	f
 picture	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn picture(&self, index: usize) -> Picture {$/;"	f
@@ -143,4 +144,5 @@ title_display	/Users/christophethibaut/Coding/gsr2/src/display.rs	/^pub fn title
 toggle_expand	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn toggle_expand(&mut self) {$/;"	f
 toggle_full_size	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn toggle_full_size(&mut self) {$/;"	f
 toggle_palette	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn toggle_palette(&mut self) {$/;"	f
+update_page_start	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn update_page_start(&mut self) {$/;"	f
 with_no_grid_or_thumbnail_option_cells_per_row_is_1	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    fn with_no_grid_or_thumbnail_option_cells_per_row_is_1() {$/;"	f

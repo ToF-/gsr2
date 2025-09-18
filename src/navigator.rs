@@ -118,7 +118,8 @@ mod tests {
         assert_eq!(Some(3), navigator.position_from_coords(1, 1));
         for _ in 1..=4 {
             navigator.move_towards(Direction::Right)
-        };
+        }
+        assert_eq!(4, navigator.position());
         // assert_eq!(Some(7), navigator.position_from_coords(1,1));
     }
     // todo
