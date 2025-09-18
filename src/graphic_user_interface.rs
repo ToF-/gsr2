@@ -70,14 +70,32 @@ fn draw_palette(ctx: &Context, width: i32, height: i32, palette: &Palette) {
 }
 fn set_picture_at(col: i32, row: i32, gui: &GraphicalUserInterface) {
     let coords = (row as usize, col as usize);
-    if let Some(index) = gui.application_state.navigator().position_from_coords(coords.0, coords.1) {
-        println!("at({},{}) #{} {}", col, row, index, gui.application_state.gallery().picture(index).file_path());
-        let widget = gui.multiple_view_grid.child_at(col as i32, row as i32).expect("cannot find cell box in multiple view grid");
-        let cell_box = widget.downcast::<gtk::Box>().expect("cannot downcast widget to Box");
+    if let Some(index) = gui
+        .application_state
+        .navigator()
+        .position_from_coords(coords.0, coords.1)
+    {
+        println!(
+            "at({},{}) #{} {}",
+            col,
+            row,
+            index,
+            gui.application_state.gallery().picture(index).file_path()
+        );
+        let widget = gui
+            .multiple_view_grid
+            .child_at(col as i32, row as i32)
+            .expect("cannot find cell box in multiple view grid");
+        let cell_box = widget
+            .downcast::<gtk::Box>()
+            .expect("cannot downcast widget to Box");
         while let Some(child) = cell_box.first_child() {
             cell_box.remove(&child)
-        };
-        cell_box.append(&make_gtk_picture_from_picture(&gui.application_state, index))
+        }
+        cell_box.append(&make_gtk_picture_from_picture(
+            &gui.application_state,
+            index,
+        ))
     }
 }
 
@@ -336,7 +354,10 @@ fn make_gtk_picture_from_picture(
     gtk_picture.set_can_shrink(!application_state.full_size_on());
     gtk_picture.set_visible(true);
     gtk_picture.set_filename(Some(application_state.gallery().picture(index).file_path()));
-    println!("picture cell with {}", application_state.gallery().picture(index).file_path());
+    println!(
+        "picture cell with {}",
+        application_state.gallery().picture(index).file_path()
+    );
     gtk_picture
 }
 
@@ -349,7 +370,7 @@ fn setup_picture_cell(cell_box: &gtk::Box, col: i32, row: i32, gui: &GraphicalUs
     {
         while let Some(child) = cell_box.first_child() {
             cell_box.remove(&child)
-        };
+        }
         let application_state: &ApplicationState = &gui.application_state;
         let picture = make_gtk_picture_from_picture(application_state, index);
         println!("appended at cell ({},{})", row, col);
