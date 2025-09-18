@@ -163,7 +163,8 @@ fn load_and_launch(gui_rc: RcRefCellGui) {
             Ok(0) => {}
             Ok(count) => {
                 println!("{} picture file paths loaded", count);
-                gui.application_state.set_gallery(gallery);
+                let cells_per_row: usize = (&gui.command_line_interface).cells_per_row() as usize;
+                gui.application_state.set_gallery(gallery, cells_per_row);
                 set_picture_for_file_view(&gui, &gui.application_state.gallery().picture(0));
                 gui.application_window.present()
             }

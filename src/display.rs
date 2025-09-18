@@ -29,6 +29,7 @@ mod tests {
     use super::*;
     use crate::direction::Direction;
     use crate::gallery::Gallery;
+    use crate::default_values::ONE_CELL_PER_ROW;
 
     fn an_application_state() -> ApplicationState {
         let mut application_state = ApplicationState::new();
@@ -36,7 +37,7 @@ mod tests {
         gallery
             .load_from_directory("./testdata/")
             .expect("can't load from directory");
-        application_state.set_gallery(gallery);
+        application_state.set_gallery(gallery, ONE_CELL_PER_ROW);
         application_state
     }
 

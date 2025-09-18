@@ -64,9 +64,9 @@ impl ApplicationState {
         self.pictures_per_row
     }
 
-    pub fn set_gallery(&mut self, gallery: Gallery) {
+    pub fn set_gallery(&mut self, gallery: Gallery, cells_per_row: usize) {
         self.gallery = gallery;
-        self.navigator = Navigator::new(self.gallery.len(), 1)
+        self.navigator = Navigator::new(self.gallery.len(), cells_per_row)
     }
 
     pub fn set_pictures_per_row(&mut self, n: usize) {
