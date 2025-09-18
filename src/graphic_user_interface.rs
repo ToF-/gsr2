@@ -297,8 +297,8 @@ fn make_cell_box() -> gtk::Box {
 }
 
 fn setup_picture_cell(cell_box: &gtk::Box, col: i32, row: i32, gui_rc: &RcRefCellGui) {
-    // if let Ok(gui) = gui_rc.try_borrow() {
-    //     let coords = (col as usize, row as usize);
+    let gui = gui_rc.try_borrow().expect("can't borrow from ref cell");
+    let coords = (col as usize, row as usize);
     //     if let Some(index) = gui.navigator().index_from_position(coords) {
     //         if gui.page_changed() {
     //         while let Some(child) = cell_box.first_child() {
@@ -310,7 +310,6 @@ fn setup_picture_cell(cell_box: &gtk::Box, col: i32, row: i32, gui_rc: &RcRefCel
     //         cell_box.append(&picture);
     //         cell_box.append(&label);
     //     }
-    // }
 }
 pub fn activate(application: &gtk::Application, cli: &CommandLineInterface) {
     let application_window = make_application_window(application);
