@@ -20,8 +20,8 @@ impl Navigator {
         self.position
     }
 
-    pub fn position_from_coords(&self, row: usize, col: usize) -> usize {
-        row * self.cells_per_row + col
+    pub fn position_from_coords(&self, row: usize, col: usize) -> Option<usize> {
+        Some(row * self.cells_per_row + col)
     }
 
     pub fn can_move(&self, direction: Direction) -> bool {
@@ -81,13 +81,13 @@ mod tests {
     #[test]
     fn given_coords_can_tell_position_trivial_case() {
         let navigator = Navigator::new(3, ONE_CELL_PER_ROW);
-        assert_eq!(0, navigator.position_from_coords(0, 0));
+        assert_eq!(Some(0), navigator.position_from_coords(0, 0));
     }
 
     #[test]
     fn given_coords_can_tell_position_with_several_cells_per_row() {
-        assert_eq!(0, Navigator::new(10, 2).position_from_coords(0, 0));
-        assert_eq!(1, Navigator::new(10, 2).position_from_coords(0, 1));
-        assert_eq!(2, Navigator::new(10, 2).position_from_coords(1, 0));
+        assert_eq!(Some(0), Navigator::new(10, 2).position_from_coords(0, 0));
+        assert_eq!(Some(1), Navigator::new(10, 2).position_from_coords(0, 1));
+        assert_eq!(Some(2), Navigator::new(10, 2).position_from_coords(1, 0));
     }
 }
