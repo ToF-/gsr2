@@ -159,4 +159,10 @@ mod tests {
         navigator.move_towards(Direction::Index { value: 7 });
         assert_eq!(7, navigator.position());
     }
+    #[test]
+    fn next_page_start_is_page_start_plus_page_size_modulo_limit() {
+        let mut navigator = Navigator::new(10, 2);
+        assert_eq!(0, navigator.page_start());
+    }
+    
 }
