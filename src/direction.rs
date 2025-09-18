@@ -4,5 +4,5 @@ pub enum Direction {
     Right,
     First,
     Last,
-    Index {value: usize},
+    Index { value: usize },
 }

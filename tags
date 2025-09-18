@@ -91,6 +91,7 @@ get_palette	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^pub fn get_
 get_palette_from_picture_file	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^pub fn get_palette_from_picture_file(file_path: &str) -> Result<Palette> {$/;"	f
 get_picture_file_path	/Users/christophethibaut/Coding/gsr2/src/file_system.rs	/^pub fn get_picture_file_path(file_path: &str) -> Result<String> {$/;"	f
 get_the_control_matching_a_keyname	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    fn get_the_control_matching_a_keyname() {$/;"	f
+given_a_destination_index_can_move_if_within_limit	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn given_a_destination_index_can_move_if_within_limit() {$/;"	f
 given_coords_can_tell_position_trivial_case	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn given_coords_can_tell_position_trivial_case() {$/;"	f
 given_coords_can_tell_position_with_several_cells_per_row_on_first_page	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn given_coords_can_tell_position_with_several_cells_per_row_on_first_page() {$/;"	f
 given_illegal_coors_position_is_none	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn given_illegal_coors_position_is_none() {$/;"	f
