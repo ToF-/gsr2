@@ -293,7 +293,7 @@ fn make_multiple_view_scrolled_window() -> gtk::ScrolledWindow {
 fn make_multiple_view_grid() -> gtk::Grid {
     let grid = gtk::Grid::builder()
         .row_homogeneous(true)
-        .column_homogeneous(true)
+        .column_homogeneous(false)
         .hexpand(true)
         .vexpand(true)
         .build();
@@ -304,7 +304,7 @@ fn make_multiple_view_grid() -> gtk::Grid {
 fn make_multiple_view_panel() -> gtk::Grid {
     gtk::Grid::builder()
         .row_homogeneous(true)
-        .column_homogeneous(true)
+        .column_homogeneous(false)
         .hexpand(true)
         .vexpand(true)
         .build()
