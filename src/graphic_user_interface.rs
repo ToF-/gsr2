@@ -31,6 +31,7 @@ struct GraphicalUserInterface {
     single_view_box: gtk::Box,
     multiple_view_scrolled_window: gtk::ScrolledWindow,
     multiple_view_grid: gtk::Grid,
+    view_stack: gtk::Stack,
 }
 
 type RcRefCellGui = Rc<RefCell<GraphicalUserInterface>>;
@@ -165,7 +166,12 @@ fn load_and_launch(gui_rc: RcRefCellGui) {
                 println!("{} picture file paths loaded", count);
                 let cells_per_row: usize = (&gui.command_line_interface).cells_per_row() as usize;
                 gui.application_state.set_gallery(gallery, cells_per_row);
-                set_picture_for_file_view(&gui, &gui.application_state.gallery().picture(0));
+                if cells_per_row == 1 {
+                    gui.view_stack.set_visible_child(&gui.single_view_scrolled_window);
+                    set_picture_for_file_view(&gui, &gui.application_state.gallery().picture(0));
+                } else {
+                    gui.view_stack.set_visible_child(&gui.multiple_view_scrolled_window);
+                }
                 gui.application_window.present()
             }
             Err(err) => {
@@ -297,8 +303,7 @@ fn make_cell_box() -> gtk::Box {
         .build()
 }
 
-fn setup_picture_cell(cell_box: &gtk::Box, col: i32, row: i32, gui_rc: &RcRefCellGui) {
-    let gui = gui_rc.try_borrow().expect("can't borrow from ref cell");
+fn setup_picture_cell(cell_box: &gtk::Box, col: i32, row: i32, gui: &GraphicalUserInterface) {
     let coords = (col as usize, row as usize);
     //     if let Some(index) = gui.navigator().index_from_position(coords) {
     //         if gui.page_changed() {
@@ -346,6 +351,7 @@ pub fn activate(application: &gtk::Application, cli: &CommandLineInterface) {
         single_view_scrolled_window,
         multiple_view_scrolled_window,
         multiple_view_grid,
+        view_stack,
     }));
 
     let evk = gtk::EventControllerKey::new();
@@ -357,7 +363,7 @@ pub fn activate(application: &gtk::Application, cli: &CommandLineInterface) {
         for col in 0..cells_per_row {
             for row in 0..cells_per_row {
                 let cell_box = make_cell_box();
-                setup_picture_cell(&cell_box, col, row, &gui_rc);
+                setup_picture_cell(&cell_box, col, row, &gui);
                 gui.multiple_view_grid.attach(&cell_box, col, row, 1, 1);
             }
         }
