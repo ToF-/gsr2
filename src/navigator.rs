@@ -99,9 +99,13 @@ mod tests {
     #[test]
     fn given_illegal_coors_position_is_none() {
         assert_eq!(None, Navigator::new(1, 1).position_from_coords(0, 1));
-        assert_eq!(None, Navigator::new(10,4).position_from_coords(3, 3));
+        assert_eq!(None, Navigator::new(10, 4).position_from_coords(3, 3));
+    }
+    #[test]
+    fn after_page_change_position_from_coords_changes() {
+        let mut navigator = Navigator::new(10,2);
+        assert_eq!(Some(3), navigator.position_from_coords(1,1));
     }
     // todo
     // after a page change (page_start_position should give the base for absolute position)
-    // illegal coords
 }
