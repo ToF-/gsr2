@@ -28,6 +28,14 @@ impl Navigator {
         self.page_start
     }
 
+    pub fn page_size(&self) -> usize {
+        self.cells_per_row * self.cells_per_row
+    }
+
+    pub fn next_page_start(&self) -> usize {
+        self.page_start + self.page_size()
+    }
+
     pub fn page_changed(&self) -> bool {
         self.page_changed
     }
@@ -60,10 +68,6 @@ impl Navigator {
             Direction::Index { value } => self.position = value,
         };
         self.update_page_start();
-    }
-
-    fn page_size(&self) -> usize {
-        self.cells_per_row * self.cells_per_row
     }
 
     fn update_page_start(&mut self) {
@@ -163,6 +167,6 @@ mod tests {
     fn next_page_start_is_page_start_plus_page_size_modulo_limit() {
         let mut navigator = Navigator::new(10, 2);
         assert_eq!(0, navigator.page_start());
+        assert_eq!(4, navigator.next_page_start());
     }
-    
 }
