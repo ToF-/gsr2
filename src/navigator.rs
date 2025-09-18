@@ -120,7 +120,8 @@ mod tests {
             navigator.move_towards(Direction::Right)
         }
         assert_eq!(4, navigator.position());
-        assert_eq!(Some(4), navigator.position_from_coords(0,0));
+        assert_eq!(Some(4), navigator.position_from_coords(0, 0));
+        assert_eq!(Some(7), navigator.position_from_coords(1, 1));
     }
     // todo
     // after a page change (page_start_position should give the base for absolute position)
