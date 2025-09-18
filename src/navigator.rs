@@ -3,12 +3,17 @@ use crate::direction::Direction;
 #[derive(Debug, Clone)]
 pub struct Navigator {
     limit: usize,
+    cells_per_row: usize,
     position: usize,
 }
 
 impl Navigator {
     pub fn new(limit: usize) -> Self {
-        Navigator { limit, position: 0 }
+        Navigator {
+            limit,
+            cells_per_row: 1,
+            position: 0,
+        }
     }
 
     pub fn position(&self) -> usize {
