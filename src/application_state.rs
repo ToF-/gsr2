@@ -64,6 +64,10 @@ impl ApplicationState {
         self.pictures_per_row
     }
 
+    pub fn thumbnails_on(&self) -> bool {
+        self.pictures_per_row == 10
+    }
+
     pub fn page_size(&self) -> usize {
         self.pictures_per_row * self.pictures_per_row
     }
@@ -134,5 +138,11 @@ mod tests {
         state.set_gallery(Gallery::new(), 5);
         assert_eq!(5, state.pictures_per_row);
         assert_eq!(25, state.page_size());
+    }
+    #[test]
+    fn thumbnails_on_tells_if_10_pictures_per_row() {
+        let mut state = ApplicationState::new();
+        state.set_gallery(Gallery::new(), 10);
+        assert_eq!(true, state.thumbnails_on())
     }
 }
