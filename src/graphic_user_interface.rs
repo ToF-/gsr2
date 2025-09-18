@@ -183,6 +183,30 @@ fn process_control(gui: &mut GraphicalUserInterface, control: Control) -> bool {
     refresh
 }
 
+fn set_picture_for_single_view(gui: &GraphicalUserInterface) {
+    set_picture_for_file_view(gui, &gui.application_state.gallery().picture(0));
+}
+
+fn set_picture_for_multiple_view(gui: &GraphicalUserInterface, pictures_per_row: i32) {
+        for col in 0..pictures_per_row {
+            for row in 0..pictures_per_row {
+                set_picture_at(col, row, &gui)
+            }
+        }
+}
+
+fn set_picture_view(gui: &GraphicalUserInterface) {
+    let cells_per_row = gui.application_state.pictures_per_row();
+    println!("{} pictures per row", cells_per_row);
+    if cells_per_row == 1 {
+        set_picture_for_single_view(gui);
+        gui.view_stack.set_visible_child(&gui.single_view_scrolled_window);
+    } else {
+        set_picture_for_multiple_view(gui, cells_per_row as i32);
+        gui.view_stack.set_visible_child(&gui.multiple_view_scrolled_window);
+    };
+}
+
 fn load_and_launch(gui_rc: RcRefCellGui) {
     if let Ok(mut gui) = gui_rc.try_borrow_mut() {
         let mut gallery = Gallery::new();
@@ -194,24 +218,10 @@ fn load_and_launch(gui_rc: RcRefCellGui) {
         match result {
             Ok(0) => {}
             Ok(count) => {
-                println!("{} picture file paths loaded", count);
                 let cells_per_row: usize = (&gui.command_line_interface).cells_per_row() as usize;
+                println!("{} picture file paths loaded. Setting {}X{} grid.", count, cells_per_row, cells_per_row);
                 gui.application_state.set_gallery(gallery, cells_per_row);
-                if cells_per_row == 1 {
-                    gui.view_stack
-                        .set_visible_child(&gui.single_view_scrolled_window);
-                    set_picture_for_file_view(&gui, &gui.application_state.gallery().picture(0));
-                } else {
-                    let limit: i32 = cells_per_row.try_into().unwrap();
-                    println!("cells per row: {}, limit:{}", cells_per_row, limit);
-                    for col in 0..limit {
-                        for row in 0..limit {
-                            set_picture_at(col, row, &gui)
-                        }
-                    }
-                    gui.view_stack
-                        .set_visible_child(&gui.multiple_view_scrolled_window);
-                }
+                set_picture_view(&gui);
                 gui.application_window.present()
             }
             Err(err) => {

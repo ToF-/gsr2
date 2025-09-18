@@ -66,7 +66,8 @@ impl ApplicationState {
 
     pub fn set_gallery(&mut self, gallery: Gallery, cells_per_row: usize) {
         self.gallery = gallery;
-        self.navigator = Navigator::new(self.gallery.len(), cells_per_row)
+        self.navigator = Navigator::new(self.gallery.len(), cells_per_row);
+        self.pictures_per_row = cells_per_row
     }
 
     pub fn set_pictures_per_row(&mut self, n: usize) {
@@ -122,5 +123,11 @@ mod tests {
     fn get_the_control_matching_a_keyname() {
         let state = ApplicationState::new();
         assert_eq!(Some(Control::ToggleFullSize), state.get_control("f"));
+    }
+    #[test]
+    fn setting_the_gallery_and_pictures_per_row() {
+        let mut state = ApplicationState::new();
+        state.set_gallery(Gallery::new(), 5);
+        assert_eq!(5, state.pictures_per_row);
     }
 }
