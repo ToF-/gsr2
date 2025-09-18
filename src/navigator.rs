@@ -85,7 +85,7 @@ mod tests {
     }
 
     #[test]
-    fn given_coords_can_tell_position_with_several_cells_per_row() {
+    fn given_coords_can_tell_position_with_several_cells_per_row_on_first_page() {
         assert_eq!(Some(0), Navigator::new(10, 2).position_from_coords(0, 0));
         assert_eq!(Some(1), Navigator::new(10, 2).position_from_coords(0, 1));
         assert_eq!(Some(2), Navigator::new(10, 2).position_from_coords(1, 0));
