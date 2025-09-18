@@ -6,6 +6,7 @@ pub struct Navigator {
     cells_per_row: usize,
     position: usize,
     page_start: usize,
+    page_changed: bool,
 }
 
 impl Navigator {
@@ -15,11 +16,20 @@ impl Navigator {
             cells_per_row,
             position: 0,
             page_start: 0,
+            page_changed: false,
         }
     }
 
     pub fn position(&self) -> usize {
         self.position
+    }
+
+    pub fn page_start(&self) -> usize {
+        self.page_start
+    }
+
+    pub fn page_changed(&self) -> bool {
+        self.page_changed
     }
 
     pub fn position_from_coords(&self, row: usize, col: usize) -> Option<usize> {
@@ -55,7 +65,10 @@ impl Navigator {
     }
 
     fn update_page_start(&mut self) {
-        self.page_start = (self.position / self.page_size()) * self.page_size()
+        let old_page_start: usize  = self.page_start;
+        self.page_start = (self.position / self.page_size()) * self.page_size();
+        self.page_changed = !(old_page_start == self.page_start);
+        println!("{} {} {}", old_page_start, self.page_start, self.page_changed);
     }
 }
 #[cfg(test)]
@@ -123,6 +136,16 @@ mod tests {
         assert_eq!(Some(4), navigator.position_from_coords(0, 0));
         assert_eq!(Some(7), navigator.position_from_coords(1, 1));
     }
-    // todo
-    // after a page change (page_start_position should give the base for absolute position)
+    #[test]
+    fn after_page_change_page_change_is_detected() {
+        let mut navigator = Navigator::new(10, 2);
+        assert!(!navigator.page_changed());
+        println!("{:?}", navigator);
+        assert_eq!(Some(3), navigator.position_from_coords(1, 1));
+        for _ in 1..=4 {
+            navigator.move_towards(Direction::Right);
+                println!("{:?}", navigator);
+        }
+        assert!(navigator.page_changed());
+    }
 }
