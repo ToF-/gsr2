@@ -5,5 +5,11 @@ ACTUAL="$2"
 
 if [ "pass" = "${GAMBLED}" ] && [ "pass" = "${ACTUAL}" ] ; then
     echo "🟢"
+elif [ "pass" = "${GAMBLED}" ] && [ "fail" = "${ACTUAL}" ] ; then
+    echo "🔴"
+elif [ "fail" = "${GAMBLED}" ] && [ "fail" = "${ACTUAL}" ] ; then
+    echo "🟠"
+elif [ "fail" = "${GAMBLED}" ] && [ "pass" = "${ACTUAL}" ] ; then
+    echo "🟡"
 fi
 
