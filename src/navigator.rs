@@ -21,7 +21,12 @@ impl Navigator {
     }
 
     pub fn position_from_coords(&self, row: usize, col: usize) -> Option<usize> {
-        Some(row * self.cells_per_row + col)
+        let position_from_coords = row * self.cells_per_row + col;
+        if position_from_coords < self.limit {
+            Some(position_from_coords)
+        } else {
+            None
+        }
     }
 
     pub fn can_move(&self, direction: Direction) -> bool {
@@ -90,6 +95,10 @@ mod tests {
         assert_eq!(Some(1), Navigator::new(10, 2).position_from_coords(0, 1));
         assert_eq!(Some(2), Navigator::new(10, 2).position_from_coords(1, 0));
         assert_eq!(Some(3), Navigator::new(10, 2).position_from_coords(1, 1));
+    }
+    #[test]
+    fn given_illegal_coors_position_is_none() {
+        assert_eq!(None, Navigator::new(1,1).position_from_coords(0,1));
     }
     // todo
     // after a page change (page_start_position should give the base for absolute position)
