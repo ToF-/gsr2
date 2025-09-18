@@ -98,7 +98,8 @@ mod tests {
     }
     #[test]
     fn given_illegal_coors_position_is_none() {
-        assert_eq!(None, Navigator::new(1,1).position_from_coords(0,1));
+        assert_eq!(None, Navigator::new(1, 1).position_from_coords(0, 1));
+        assert_eq!(None, Navigator::new(10,4).position_from_coords(3, 3));
     }
     // todo
     // after a page change (page_start_position should give the base for absolute position)
