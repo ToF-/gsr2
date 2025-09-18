@@ -1,4 +1,9 @@
-if [ $1 -eq "pass" ]; then
+#!/usr/bin/env sh
+
+GAMBLED="$1"
+ACTUAL="$2"
+
+if [ "pass" = "${GAMBLED}"] && [ "pass" = "${ACTUAL}] ; then
     echo "Woohoo!"
 fi
 
