@@ -125,9 +125,11 @@ new	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn n
 new	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn new() -> Gallery {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn new(limit: usize, cells_per_row: usize) -> Self {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    pub fn new(file_path: &str) -> Self {$/;"	f
+next_page_start	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn next_page_start(&self) -> usize {$/;"	f
+next_page_start_is_page_start_plus_page_size_modulo_limit	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn next_page_start_is_page_start_plus_page_size_modulo_limit() {$/;"	f
 page_changed	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn page_changed(&self) -> bool {$/;"	f
 page_size	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn page_size(&self) -> usize {$/;"	f
-page_size	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn page_size(&self) -> usize {$/;"	f
+page_size	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn page_size(&self) -> usize {$/;"	f
 page_start	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn page_start(&self) -> usize {$/;"	f
 palette_on	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn palette_on(&self) -> bool {$/;"	f
 parse_and_check	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    pub fn parse_and_check(args_opt: Option<Vec<&str>>) -> Result<Self> {$/;"	f
