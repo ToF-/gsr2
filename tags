@@ -116,6 +116,7 @@ make_view_box	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs
 make_view_stack	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn make_view_stack() -> gtk::Stack {$/;"	f
 move_towards	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn move_towards(&mut self, direction: Direction) {$/;"	f
 move_towards	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn move_towards(&mut self, direction: Direction) {$/;"	f
+moving_to_a_specific_index	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn moving_to_a_specific_index() {$/;"	f
 navigator	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn navigator(&self) -> &Navigator {$/;"	f
 navigator_can_move_to_first_and_last_position	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn navigator_can_move_to_first_and_last_position() {$/;"	f
 navigator_cannot_move_before_first_position	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn navigator_cannot_move_before_first_position() {$/;"	f

@@ -64,6 +64,10 @@ impl ApplicationState {
         self.pictures_per_row
     }
 
+    pub fn page_size(&self) -> usize {
+        self.pictures_per_row * self.pictures_per_row
+    }
+
     pub fn set_gallery(&mut self, gallery: Gallery, cells_per_row: usize) {
         self.gallery = gallery;
         self.navigator = Navigator::new(self.gallery.len(), cells_per_row);
@@ -125,9 +129,10 @@ mod tests {
         assert_eq!(Some(Control::ToggleFullSize), state.get_control("f"));
     }
     #[test]
-    fn setting_the_gallery_and_pictures_per_row() {
+    fn setting_the_gallery_and_pictures_per_row_hence_page_size() {
         let mut state = ApplicationState::new();
         state.set_gallery(Gallery::new(), 5);
         assert_eq!(5, state.pictures_per_row);
+        assert_eq!(25, state.page_size());
     }
 }
