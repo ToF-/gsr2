@@ -57,7 +57,7 @@ impl Navigator {
             Direction::Left => self.position -= 1,
             Direction::Last => self.position = self.limit - 1,
             Direction::First => self.position = 0,
-            Direction::Index { .. } => {}
+            Direction::Index { value } => self.position = value,
         };
         self.update_page_start();
     }
@@ -152,5 +152,11 @@ mod tests {
         let mut navigator = Navigator::new(10, 2);
         assert!(!navigator.can_move(Direction::Index { value: 10 }));
         assert!(navigator.can_move(Direction::Index { value: 7 }));
+    }
+    #[test]
+    fn moving_to_a_specific_index() {
+        let mut navigator = Navigator::new(10, 2);
+        navigator.move_towards(Direction::Index { value: 7 });
+        assert_eq!(7, navigator.position());
     }
 }
