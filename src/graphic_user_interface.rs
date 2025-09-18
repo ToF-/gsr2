@@ -167,10 +167,12 @@ fn load_and_launch(gui_rc: RcRefCellGui) {
                 let cells_per_row: usize = (&gui.command_line_interface).cells_per_row() as usize;
                 gui.application_state.set_gallery(gallery, cells_per_row);
                 if cells_per_row == 1 {
-                    gui.view_stack.set_visible_child(&gui.single_view_scrolled_window);
+                    gui.view_stack
+                        .set_visible_child(&gui.single_view_scrolled_window);
                     set_picture_for_file_view(&gui, &gui.application_state.gallery().picture(0));
                 } else {
-                    gui.view_stack.set_visible_child(&gui.multiple_view_scrolled_window);
+                    gui.view_stack
+                        .set_visible_child(&gui.multiple_view_scrolled_window);
                 }
                 gui.application_window.present()
             }
@@ -303,8 +305,27 @@ fn make_cell_box() -> gtk::Box {
         .build()
 }
 
+fn make_gtk_picture_from_picture(application_state: &ApplicationState, index: usize) -> gtk::Picture {
+
+    let gtk_picture = gtk::Picture::new();
+    gtk_picture.set_halign(Align::Center);
+    gtk_picture.set_valign(Align::Center);
+    gtk_picture.set_opacity(1.00);
+    gtk_picture.set_can_shrink(!application_state.full_size_on());
+    gtk_picture.set_visible(true);
+    gtk_picture.set_filename(Some(application_state.gallery().picture(index).file_path()));
+    gtk_picture
+}
+
 fn setup_picture_cell(cell_box: &gtk::Box, col: i32, row: i32, gui: &GraphicalUserInterface) {
-    let coords = (col as usize, row as usize);
+    let coords = (row as usize, col as usize);
+    if let Some(index) = gui.application_state.navigator().position_from_coords(coords.0, coords.1) {
+        let application_state: &ApplicationState = &gui.application_state;
+        let picture = make_gtk_picture_from_picture(application_state, index);
+        cell_box.append(&picture);
+    }
+
+
     //     if let Some(index) = gui.navigator().index_from_position(coords) {
     //         if gui.page_changed() {
     //         while let Some(child) = cell_box.first_child() {
