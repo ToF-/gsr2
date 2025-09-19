@@ -64,6 +64,8 @@ impl Navigator {
             Direction::Left => self.position > 0,
             Direction::Right => self.position < self.limit - 1,
             Direction::Index { value } => value < self.limit,
+            Direction::Down => false,
+            Direction::Up => false,
         }
     }
 
@@ -74,6 +76,8 @@ impl Navigator {
             Direction::Last => self.position = self.limit - 1,
             Direction::First => self.position = 0,
             Direction::Index { value } => self.position = value,
+            Direction::Down => self.position += self.cells_per_row,
+            Direction::Up => {},
         };
         self.update_page_start();
     }
@@ -200,5 +204,12 @@ mod tests {
         });
         assert_eq!(8, navigator.page_start());
         assert_eq!(4, navigator.prev_page_start());
+    }
+    #[test]
+    fn moving_down_moves_to_entry_one_row_further() {
+        let mut navigator = Navigator::new(10, 2);
+        assert_eq!(0, navigator.position());
+        navigator.move_towards(Direction::Down);
+        assert_eq!(2, navigator.position());
     }
 }
