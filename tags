@@ -104,6 +104,7 @@ given_coords_can_tell_position_trivial_case	/Users/christophethibaut/Coding/gsr2
 given_coords_can_tell_position_with_several_cells_per_row_on_first_page	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn given_coords_can_tell_position_with_several_cells_per_row_on_first_page() {$/;"	f
 given_illegal_coors_position_is_none	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn given_illegal_coors_position_is_none() {$/;"	f
 image_data	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    pub fn image_data(&self) -> Option<ImageData> {$/;"	f
+insert_and_retrieve_a_picture	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    fn insert_and_retrieve_a_picture() {$/;"	f
 label	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^    pub fn label(&self) -> String {$/;"	f
 len	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn len(&self) -> usize {$/;"	f
 load_and_launch	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn load_and_launch(gui_rc: RcRefCellGui) {$/;"	f
@@ -141,7 +142,7 @@ new	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn new() -> Ga
 new	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^    pub fn new(label: &str) -> Self {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn new(limit: usize, cells_per_row: usize) -> Self {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    pub fn new(file_path: &str) -> Self {$/;"	f
-new_with_image_data	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    pub fn new_with_image_data(file_path: &str, image_data: &ImageData) -> Self {$/;"	f
+new_with_image_data	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    pub fn new_with_image_data(file_path: &str, label: &str) -> Self {$/;"	f
 next_page_start	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn next_page_start(&self) -> usize {$/;"	f
 next_page_start_is_page_start_plus_page_size_modulo_limit	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn next_page_start_is_page_start_plus_page_size_modulo_limit() {$/;"	f
 page_changed	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn page_changed(&self) -> bool {$/;"	f
