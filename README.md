@@ -21,4 +21,4 @@
 - [x] in grid mode, show the picture which is the current entry
 - [x] in grid mode, up and down arrow move the current entry
 - [x] key a goes to beginning of page, key z to end of page
-
+- [x] insert and retrieve Pictures in a sqlite database

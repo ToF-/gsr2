@@ -46,7 +46,8 @@ impl Database {
              FROM Picture               \n\
              WHERE FilePath = ?1;",
             params![file_path],
-            |row| Self::rusqlite_to_picture(row))
+            |row| Self::rusqlite_to_picture(row),
+        )
     }
 
     fn rusqlite_to_picture(row: &Row) -> Result<Picture> {
