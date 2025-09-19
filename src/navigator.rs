@@ -65,7 +65,7 @@ impl Navigator {
             Direction::Right => self.position < self.limit - 1,
             Direction::Index { value } => value < self.limit,
             Direction::Down => self.position + self.cells_per_row < self.limit,
-            Direction::Up => false,
+            Direction::Up => self.position >= self.cells_per_row,
         }
     }
 
@@ -235,5 +235,14 @@ mod tests {
         assert_eq!(3, navigator.position());
         navigator.move_towards(Direction::Up);
         assert_eq!(1, navigator.position());
+    }
+    #[test]
+    fn cannot_move_up_if_before_limit() {
+        let mut navigator = Navigator::new(10, 2);
+        navigator.move_towards(Direction::Down);
+        assert!(navigator.can_move(Direction::Up));
+        navigator.move_towards(Direction::Right);
+        navigator.move_towards(Direction::Up);
+        assert!(!navigator.can_move(Direction::Up));
     }
 }
