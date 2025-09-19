@@ -73,6 +73,17 @@ fn draw_palette(ctx: &Context, width: i32, height: i32, palette: &Palette) {
         .expect("can't set source surface");
     ctx.paint().expect("can't paint surface")
 }
+
+fn make_label_for_picture(gui: &GraphicalUserInterface, index: usize) -> gtk::Label {
+    let content = if index == gui.application_state.navigator().position()
+            { "▄" } 
+            else { "" };
+    let label = gtk::Label::new(Some(content));
+        label.set_valign(Align::Center);
+        label.set_halign(Align::Center);
+        label.set_widget_name("picture_label");
+        label
+}
 fn set_picture_at(col: i32, row: i32, gui: &GraphicalUserInterface) {
     let coords = (row as usize, col as usize);
     let widget = gui
@@ -92,9 +103,7 @@ fn set_picture_at(col: i32, row: i32, gui: &GraphicalUserInterface) {
     {
         let picture = make_gtk_picture_from_picture(&gui.application_state, index);
         cell_box.append(&picture);
-        let label = gtk::Label::new(Some("test"));
-        label.set_valign(Align::Center);
-        label.set_halign(Align::Center);
+        let label = make_label_for_picture(&gui, index);
         label.set_widget_name("picture_label");
         cell_box.append(&label);
     }
