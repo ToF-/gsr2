@@ -45,8 +45,8 @@ pub fn gen_nine_colors() -> DynamicImage {
 
 #[allow(dead_code)]
 pub fn gen_white_square() {
-    let range = 10..90;
-    let mut image = RgbImage::new(100, 100);
+    let range = 100..900;
+    let mut image = RgbImage::new(1000, 1000);
 
     for x in 0..900 {
         for y in 0..900 {

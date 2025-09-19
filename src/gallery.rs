@@ -52,7 +52,7 @@ impl Gallery {
 mod tests {
 
     use super::*;
-    use crate::gen_image::NINE_COLORS;
+    use crate::gen_image::{NINE_COLORS,gen_white_square};
 
     #[test]
     fn loading_from_a_directory_collect_all_the_picture_files_from_that_directory() {
@@ -80,5 +80,7 @@ mod tests {
         assert_eq!(1, gallery.len());
     }
     #[test]
-    fn sorting_by_different_criteria() {}
+    fn sorting_by_different_criteria() {
+        gen_white_square();
+    }
 }
