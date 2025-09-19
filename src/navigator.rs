@@ -271,6 +271,5 @@ mod tests {
         navigator.move_towards(Direction::Right);
         navigator.move_towards(Direction::PageEnd);
         assert_eq!(9, navigator.position());
-
     }
 }
