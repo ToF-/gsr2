@@ -4,6 +4,8 @@ pub enum Direction {
     Right,
     Up,
     Down,
+    PageStart,
+    PageEnd,
     First,
     Last,
     Index { value: usize },
