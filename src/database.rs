@@ -39,15 +39,19 @@ impl Database {
         )
     }
 
-    pub fn rusqlite_retrieve_picture(&self, file_path: &str) -> Result<Picture> {
-        self.connection.query_row(
+    pub fn rusqlite_retrieve_picture_with_file_path(&self, file_path: &str) -> Result<Picture> {
+        let result = self.connection.query_row(
             "SELECT FilePath,           \n\
              Label                      \n\
              FROM Picture               \n\
-             WHERE Id = ?1;",
+             WHERE FilePath = ?1;",
             params![file_path],
-            |row| Self::rusqlite_to_picture(row),
-        )
+            |row| {
+                println!("{:?}", row);
+                Self::rusqlite_to_picture(row)
+            });
+        println!("{:?}", result);
+        result
     }
 
     fn rusqlite_to_picture(row: &Row) -> Result<Picture> {
@@ -72,5 +76,14 @@ mod tests {
             .expect("test database can't be open");
         let _ = database.rusqlite_delete_picture_with_file_path(NINE_COLORS);
         assert_eq!(Ok(1), database.rusqlite_insert_picture(&original));
+        if let Ok(retrieved) = database.rusqlite_retrieve_picture_with_file_path(NINE_COLORS) {
+            if let Some(image_data) = retrieved.image_data() {
+                assert_eq!(String::from("sample"), image_data.label())
+            } else {
+                assert!(false, "there was no label")
+            }
+        } else {
+            assert!(false, "could not retrieve the picture")
+        }
     }
 }
