@@ -206,6 +206,8 @@ fn process_control(gui: &mut GraphicalUserInterface, control: Control) -> bool {
                 gui.application_state.move_towards(Direction::Up)
             }
         }
+        Control::MoveEndPage => gui.application_state.move_towards(Direction::PageEnd),
+        Control::MoveStartPage => gui.application_state.move_towards(Direction::PageStart),
         Control::MoveLast => gui.application_state.move_towards(Direction::Last),
         Control::MoveFirst => gui.application_state.move_towards(Direction::First),
         Control::Quit => {
