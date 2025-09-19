@@ -20,4 +20,5 @@
 - [x] option --random show the gallery in random order
 - [x] in grid mode, show the picture which is the current entry
 - [x] in grid mode, up and down arrow move the current entry
+- [ ] key a goes to beginning of page, key z to end of page
 
