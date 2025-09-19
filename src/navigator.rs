@@ -82,7 +82,9 @@ impl Navigator {
             Direction::Down => self.position += self.cells_per_row,
             Direction::Up => self.position = self.position.saturating_sub(self.cells_per_row),
             Direction::PageStart => self.position = self.page_start,
-            Direction::PageEnd => self.position = (self.page_start + self.page_size() - 1).min(self.limit - 1),
+            Direction::PageEnd => {
+                self.position = (self.page_start + self.page_size() - 1).min(self.limit - 1)
+            }
         };
         self.update_page_start();
     }
@@ -266,5 +268,9 @@ mod tests {
         navigator.move_towards(Direction::Down);
         navigator.move_towards(Direction::PageEnd);
         assert_eq!(7, navigator.position());
+        navigator.move_towards(Direction::Right);
+        navigator.move_towards(Direction::PageEnd);
+        assert_eq!(9, navigator.position());
+
     }
 }
