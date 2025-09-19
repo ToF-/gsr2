@@ -7,6 +7,11 @@ use std::io::{Error, Result};
 pub type Rgb8 = Rgb<u8>;
 pub type Palette = [Rgb8; 9];
 
+#[derive(Debug, Clone, Ord, PartialOrd, PartialEq, Eq)]
+pub struct ImageData {
+    label: String,
+}
+
 fn compare_rgb(color: &Rgb8, other: &Rgb8) -> Ordering {
     match color[0].cmp(&other[0]) {
         Ordering::Equal => match color[1].cmp(&other[1]) {
