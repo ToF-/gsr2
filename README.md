@@ -17,4 +17,5 @@
 - [x] key f expand full view with arrow key to navigate the view
 - [x] upon launching with the command: Directory followed by a directory, load pictures from that directory for display
 - [x] option --thumbnails show the gallery in a 10x10 grid, looking for the picture's THUMB
+- [x] option --random show the gallery in random order
 
