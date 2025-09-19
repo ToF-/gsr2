@@ -215,4 +215,13 @@ mod tests {
         navigator.move_towards(Direction::Down);
         assert_eq!(5, navigator.position());
     }
+    #[test]
+    fn cannot_move_down_if_beyond_limit() {
+        let mut navigator = Navigator::new(10, 2);
+        navigator.move_towards(Direction::Down);
+        navigator.move_towards(Direction::Down);
+        navigator.move_towards(Direction::Down);
+        navigator.move_towards(Direction::Down);
+        assert!(! navigator.can_move(Direction::Down));
+    }
 }
