@@ -1,3 +1,4 @@
+use crate::default_values::ONE_CELL_PER_ROW;
 use std::process::exit;
 use crate::gen_image::NINE_COLORS;
 use crate::Command::{Dir, File};
@@ -130,8 +131,8 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
         && let Some(key_name) = key.name()
         && let Some(control) = gui.application_state.get_control(key_name.as_str())
     {
-        let refresh: bool = process_control(&mut gui, control);
-        if refresh {
+        let refresh_view: bool = process_control(&mut gui, control);
+        if refresh_view {
             set_picture_view(&gui);
         }
     };
@@ -140,7 +141,7 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
 
 
 fn process_control(gui: &mut GraphicalUserInterface, control: Control) -> bool {
-    let mut refresh: bool = true;
+    let mut refresh_view: bool = true;
     match control {
         Control::MoveNext if !gui.application_state.full_size_on() => {
             if gui.application_state.pictures_per_row() == 1 {
@@ -196,7 +197,7 @@ fn process_control(gui: &mut GraphicalUserInterface, control: Control) -> bool {
         Control::MoveFirst => gui.application_state.move_towards(Direction::First),
         Control::Quit => {
             gui.application_window.close();
-            refresh = false 
+            refresh_view = false 
         },
         Control::TogglePalette => {
             gui.application_state.toggle_palette();
@@ -215,11 +216,11 @@ fn process_control(gui: &mut GraphicalUserInterface, control: Control) -> bool {
             if gui.application_state.full_size_on() {
                 process_arrow_key_in_fullsize(direction, gui);
             }
-            refresh = false
+            refresh_view = false
         }
-        _ => refresh = false,
+        _ => refresh_view = false,
     };
-    refresh
+    refresh_view
 }
 
 fn set_picture_for_single_view(gui: &GraphicalUserInterface) {
@@ -236,7 +237,7 @@ fn set_picture_for_multiple_view(gui: &GraphicalUserInterface, pictures_per_row:
 
 fn set_picture_view(gui: &GraphicalUserInterface) {
     let cells_per_row = gui.application_state.pictures_per_row();
-    if cells_per_row == 1 {
+    if cells_per_row == ONE_CELL_PER_ROW {
         set_picture_for_single_view(gui);
         gui.view_stack
             .set_visible_child(&gui.single_view_scrolled_window);
