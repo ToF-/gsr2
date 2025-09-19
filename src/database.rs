@@ -31,6 +31,13 @@ impl Database {
         )
     }
 
+    pub fn rusqlite_delete_picture_with_file_path(&self, file_path: &str) -> Result<usize> {
+        self.connection.execute(
+            "DELETE FROM Picture        \n\
+            WHERE FilePath = ?1;",
+            params![file_path.to_string()])
+    }
+
     pub fn rusqlite_retrieve_picture(&self, file_path: &str) -> Result<Picture> {
         self.connection.query_row(
             "SELECT FilePath,           \n\
@@ -61,6 +68,7 @@ mod tests {
     fn insert_and_retrieve_a_picture() {
         let original: Picture = Picture::new_with_image_data(NINE_COLORS, "sample");
         let mut database: Database = Database::rusqlite_from_connection(TEST_DATABASE_FILE).expect("test database can't be open");
+        let _ = database.rusqlite_delete_picture_with_file_path(NINE_COLORS);
         assert_eq!(Ok(1), database.rusqlite_insert_picture(&original));
 
     }
