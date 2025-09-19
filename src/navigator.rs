@@ -233,5 +233,7 @@ mod tests {
         navigator.move_towards(Direction::Right);
         navigator.move_towards(Direction::Up);
         assert_eq!(3, navigator.position());
+        navigator.move_towards(Direction::Up);
+        assert_eq!(1, navigator.position());
     }
 }
