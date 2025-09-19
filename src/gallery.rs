@@ -110,7 +110,11 @@ mod tests {
             .into_iter()
             .map(|p| p.file_path())
             .collect();
-        let matching = list_by_name.iter().zip(&list_by_random).filter(|&(a,b)| a != b).count();
+        let matching = list_by_name
+            .iter()
+            .zip(&list_by_random)
+            .filter(|&(a, b)| a != b)
+            .count();
         assert!(matching > 0);
     }
 }
