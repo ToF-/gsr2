@@ -122,7 +122,7 @@ mod tests {
         let mut result = false;
         for _ in 0..3 {
             result |= sort_and_compare_lists()
-        };
+        }
         assert!(result)
     }
 }
