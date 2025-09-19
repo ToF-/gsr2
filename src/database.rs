@@ -40,18 +40,13 @@ impl Database {
     }
 
     pub fn rusqlite_retrieve_picture_with_file_path(&self, file_path: &str) -> Result<Picture> {
-        let result = self.connection.query_row(
+        self.connection.query_row(
             "SELECT FilePath,           \n\
              Label                      \n\
              FROM Picture               \n\
              WHERE FilePath = ?1;",
             params![file_path],
-            |row| {
-                println!("{:?}", row);
-                Self::rusqlite_to_picture(row)
-            });
-        println!("{:?}", result);
-        result
+            |row| Self::rusqlite_to_picture(row))
     }
 
     fn rusqlite_to_picture(row: &Row) -> Result<Picture> {

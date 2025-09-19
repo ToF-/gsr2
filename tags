@@ -163,7 +163,7 @@ process_key	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/
 rusqlite_delete_picture_with_file_path	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    pub fn rusqlite_delete_picture_with_file_path(&self, file_path: &str) -> Result<usize> {$/;"	f
 rusqlite_from_connection	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    pub fn rusqlite_from_connection(connection_string: &str) -> Result<Self> {$/;"	f
 rusqlite_insert_picture	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    pub fn rusqlite_insert_picture(&self, picture: &Picture) -> Result<usize> {$/;"	f
-rusqlite_retrieve_picture	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    pub fn rusqlite_retrieve_picture(&self, file_path: &str) -> Result<Picture> {$/;"	f
+rusqlite_retrieve_picture_with_file_path	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    pub fn rusqlite_retrieve_picture_with_file_path(&self, file_path: &str) -> Result<Picture> {$/;"	f
 rusqlite_to_picture	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    fn rusqlite_to_picture(row: &Row) -> Result<Picture> {$/;"	f
 save_nine_colors	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub fn save_nine_colors() {$/;"	f
 set_gallery	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn set_gallery(&mut self, gallery: Gallery, cells_per_row: usize) {$/;"	f
