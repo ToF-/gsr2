@@ -5,7 +5,7 @@ use crate::paths::{file_name_from, thumbnail_name_from};
 pub struct Picture {
     file_path: String,
     thumbnail_file_path: String,
-    image_data: Option<ImageData>
+    image_data: Option<ImageData>,
 }
 
 impl Picture {
