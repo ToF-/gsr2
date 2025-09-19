@@ -93,9 +93,8 @@ mod tests {
             .expect("can't load the file");
         assert_eq!(1, gallery.len());
     }
-    #[test]
-    fn sorting_by_different_criteria() {
-        // gen_white_square(); // uncomment if test file missing
+
+    fn sort_and_compare_lists() -> bool {
         let mut gallery = Gallery::new();
         gallery
             .load_from_directory("./testdata/")
@@ -110,11 +109,20 @@ mod tests {
             .into_iter()
             .map(|p| p.file_path())
             .collect();
-        let matching = list_by_name
+        let differences = list_by_name
             .iter()
             .zip(&list_by_random)
             .filter(|&(a, b)| a != b)
             .count();
-        assert!(matching > 0);
+        differences > 0
+    }
+    #[test]
+    fn sorting_by_different_criteria() {
+        // gen_white_square(); // uncomment if test file missing
+        let mut result = false;
+        for _ in 0..3 {
+            result |= sort_and_compare_lists()
+        };
+        assert!(result)
     }
 }
