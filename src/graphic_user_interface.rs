@@ -1,4 +1,3 @@
-use crate::order::Order;
 use crate::Command::{Dir, File};
 use crate::application_state::ApplicationState;
 use crate::command_line_interface::CommandLineInterface;
@@ -12,6 +11,7 @@ use crate::display::title_display;
 use crate::gallery::Gallery;
 use crate::gen_image::NINE_COLORS;
 use crate::image_data::{Palette, get_palette_from_picture_file};
+use crate::order::Order;
 use crate::picture;
 use gtk::cairo::{Context, Format, ImageSurface};
 use gtk::gdk::Key;

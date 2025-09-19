@@ -1,5 +1,5 @@
-use crate::order::Order;
 use crate::file_system::{get_all_picture_file_paths, get_picture_file_path};
+use crate::order::Order;
 use crate::picture::Picture;
 use std::io::Result;
 
@@ -44,9 +44,8 @@ impl Gallery {
             Err(err) => Err(err),
         }
     }
-    
-    pub fn sort_by(&mut self, order: Order) {
-    }
+
+    pub fn sort_by(&mut self, order: Order) {}
 }
 
 #[cfg(test)]
@@ -81,6 +80,5 @@ mod tests {
         assert_eq!(1, gallery.len());
     }
     #[test]
-    fn sorting_by_different_criteria() {
-    }
+    fn sorting_by_different_criteria() {}
 }

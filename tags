@@ -21,6 +21,7 @@ MAX_PALETTE_COLORS	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^
 NINE_COLORS	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub const NINE_COLORS: &str = "testdata\/nine_colors.png";$/;"	c
 Navigator	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^pub struct Navigator {$/;"	s
 ONE_CELL_PER_ROW	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const ONE_CELL_PER_ROW: usize = 1;$/;"	c
+Order	/Users/christophethibaut/Coding/gsr2/src/order.rs	/^pub enum Order {$/;"	g
 PALETTE_AREA_HEIGHT	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const PALETTE_AREA_HEIGHT: i32 = 10;$/;"	c
 PALETTE_AREA_WIDTH	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const PALETTE_AREA_WIDTH: i32 = 90;$/;"	c
 Palette	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^pub type Palette = [Rgb8; 9];$/;"	T
@@ -151,6 +152,8 @@ set_picture_for_single_view	/Users/christophethibaut/Coding/gsr2/src/graphic_use
 set_picture_view	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn set_picture_view(gui: &GraphicalUserInterface) {$/;"	f
 set_pictures_per_row	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn set_pictures_per_row(&mut self, n: usize) {$/;"	f
 setting_the_gallery_and_pictures_per_row_hence_page_size	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    fn setting_the_gallery_and_pictures_per_row_hence_page_size() {$/;"	f
+sort_by	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn sort_by(&mut self, order: Order) {}$/;"	f
+sorting_by_different_criteria	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    fn sorting_by_different_criteria() {}$/;"	f
 startup_gui	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn startup_gui(_application: &gtk::Application) {$/;"	f
 thumbnail_file_path	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    pub fn thumbnail_file_path(&self) -> String {$/;"	f
 thumbnail_name_from	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^pub fn thumbnail_name_from(file_name: &str) -> String {$/;"	f

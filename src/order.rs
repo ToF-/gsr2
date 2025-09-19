@@ -1,3 +1,4 @@
 pub enum Order {
-    Name, Random,
+    Name,
+    Random,
 }

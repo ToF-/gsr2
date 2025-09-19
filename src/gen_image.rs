@@ -4,6 +4,7 @@ use image::DynamicImage;
 #[allow(dead_code)]
 pub const SINGLE_DOT: &str = "testdata/single_dot.png";
 pub const NINE_COLORS: &str = "testdata/nine_colors.png";
+pub const WHITE_SQUARE: &str = "testdata/white_square.png";
 
 use image::{Rgb, RgbImage};
 
@@ -40,6 +41,24 @@ pub fn gen_nine_colors() -> DynamicImage {
         }
     }
     DynamicImage::ImageRgb8(image)
+}
+
+#[allow(dead_code)]
+pub fn gen_white_square() {
+    let range = 10..90;
+    let mut image = RgbImage::new(100, 100);
+
+    for x in 0..900 {
+        for y in 0..900 {
+            let color = if range.contains(&x) && range.contains(&y) {
+                Rgb([255, 255, 255])
+            } else {
+                Rgb([0, 0, 0])
+            };
+            image.put_pixel(x, y, color)
+            }
+        }
+    image.save(WHITE_SQUARE).unwrap();
 }
 #[allow(dead_code)]
 pub fn save_nine_colors() {
