@@ -32,6 +32,7 @@ SCROLL_STEP	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub con
 SINGLE_DOT	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub const SINGLE_DOT: &str = "testdata\/single_dot.png";$/;"	c
 THUMB_SUFFIX	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const THUMB_SUFFIX: &str = "THUMB";$/;"	c
 VALID_EXTENSIONS	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const VALID_EXTENSIONS: [&str; 6] = ["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"];$/;"	c
+WHITE_SQUARE	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub const WHITE_SQUARE: &str = "testdata\/white_square.png";$/;"	c
 a_picture_has_a_file_name	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    fn a_picture_has_a_file_name() {$/;"	f
 a_picture_has_file_path_which_is_the_full_path_and_file_path_on_the_file_system	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    fn a_picture_has_file_path_which_is_the_full_path_and_file_path_on_the_file_system() {$/;"	f
 a_readme_file_is_not_a_picture_file	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^    fn a_readme_file_is_not_a_picture_file() {$/;"	f
@@ -86,6 +87,7 @@ full_size_on	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^   
 gallery	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn gallery(&self) -> &Gallery {$/;"	f
 gen_nine_colors	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub fn gen_nine_colors() -> DynamicImage {$/;"	f
 gen_single_dot	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub fn gen_single_dot() {$/;"	f
+gen_white_square	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub fn gen_white_square() {$/;"	f
 get_all_picture_file_paths	/Users/christophethibaut/Coding/gsr2/src/file_system.rs	/^pub fn get_all_picture_file_paths(path: &str) -> Result<Vec<String>> {$/;"	f
 get_control	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn get_control(&self, key_name: &str) -> Option<Control> {$/;"	f
 get_palette	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^pub fn get_palette(image: &DynamicImage) -> Palette {$/;"	f
@@ -152,8 +154,8 @@ set_picture_for_single_view	/Users/christophethibaut/Coding/gsr2/src/graphic_use
 set_picture_view	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn set_picture_view(gui: &GraphicalUserInterface) {$/;"	f
 set_pictures_per_row	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn set_pictures_per_row(&mut self, n: usize) {$/;"	f
 setting_the_gallery_and_pictures_per_row_hence_page_size	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    fn setting_the_gallery_and_pictures_per_row_hence_page_size() {$/;"	f
-sort_by	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn sort_by(&mut self, order: Order) {}$/;"	f
-sorting_by_different_criteria	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    fn sorting_by_different_criteria() {}$/;"	f
+sort_by	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn sort_by(&mut self, order: Order) {$/;"	f
+sorting_by_different_criteria	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    fn sorting_by_different_criteria() {$/;"	f
 startup_gui	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn startup_gui(_application: &gtk::Application) {$/;"	f
 thumbnail_file_path	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    pub fn thumbnail_file_path(&self) -> String {$/;"	f
 thumbnail_name_from	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^pub fn thumbnail_name_from(file_name: &str) -> String {$/;"	f

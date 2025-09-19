@@ -1,8 +1,8 @@
-use rand::prelude::SliceRandom;
-use rand::thread_rng;
 use crate::file_system::{get_all_picture_file_paths, get_picture_file_path};
 use crate::order::Order;
 use crate::picture::Picture;
+use rand::prelude::SliceRandom;
+use rand::thread_rng;
 use std::io::Result;
 
 #[derive(Debug)]
@@ -49,7 +49,9 @@ impl Gallery {
 
     pub fn sort_by(&mut self, order: Order) {
         match order {
-            Order::Name => self.pictures.sort_by(|a, b| { a.file_path().cmp(&b.file_path()) }),
+            Order::Name => self
+                .pictures
+                .sort_by(|a, b| a.file_path().cmp(&b.file_path())),
             Order::Random => self.pictures.shuffle(&mut thread_rng()),
         }
     }
@@ -61,7 +63,7 @@ mod tests {
     use super::*;
     use crate::gen_image::{NINE_COLORS, gen_white_square};
 
-     #[test]
+    #[test]
     fn loading_from_a_directory_collect_all_the_picture_files_from_that_directory() {
         let mut gallery = Gallery::new();
         gallery
@@ -94,5 +96,11 @@ mod tests {
     #[test]
     fn sorting_by_different_criteria() {
         // gen_white_square(); // uncomment if test file missing
+        let mut gallery = Gallery::new();
+        gallery
+            .load_from_directory("./testdata/")
+            .expect("can't load from directory");
+        gallery.sort_by(Order::Name);
+        let list_by_name: Vec<String> = Vec::from(gallery.pictures).into_iter().map(|p| p.file_path()).collect();
     }
 }

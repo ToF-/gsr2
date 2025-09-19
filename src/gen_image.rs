@@ -56,8 +56,8 @@ pub fn gen_white_square() {
                 Rgb([0, 0, 0])
             };
             image.put_pixel(x, y, color)
-            }
         }
+    }
     image.save(WHITE_SQUARE).unwrap();
 }
 #[allow(dead_code)]

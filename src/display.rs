@@ -1,6 +1,6 @@
-use crate::order::Order;
 use crate::application_state::ApplicationState;
 use crate::default_values::{EXPAND_ON_SYMBOL, FULL_SIZE_ON_SYMBOL};
+use crate::order::Order;
 
 fn expand_display(on: bool) -> String {
     match on {
