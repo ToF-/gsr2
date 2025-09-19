@@ -160,6 +160,7 @@ prev_page_start_is_page_start_minus_page_size	/Users/christophethibaut/Coding/gs
 process_arrow_key_in_fullsize	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn process_arrow_key_in_fullsize(direction: Control, gui: &GraphicalUserInterface) -> bool {$/;"	f
 process_control	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn process_control(gui: &mut GraphicalUserInterface, control: Control) -> bool {$/;"	f
 process_key	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {$/;"	f
+rusqlite_delete_picture_with_file_path	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    pub fn rusqlite_delete_picture_with_file_path(&self, file_path: &str) -> Result<usize> {$/;"	f
 rusqlite_from_connection	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    pub fn rusqlite_from_connection(connection_string: &str) -> Result<Self> {$/;"	f
 rusqlite_insert_picture	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    pub fn rusqlite_insert_picture(&self, picture: &Picture) -> Result<usize> {$/;"	f
 rusqlite_retrieve_picture	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    pub fn rusqlite_retrieve_picture(&self, file_path: &str) -> Result<Picture> {$/;"	f

@@ -35,7 +35,8 @@ impl Database {
         self.connection.execute(
             "DELETE FROM Picture        \n\
             WHERE FilePath = ?1;",
-            params![file_path.to_string()])
+            params![file_path.to_string()],
+        )
     }
 
     pub fn rusqlite_retrieve_picture(&self, file_path: &str) -> Result<Picture> {
@@ -61,15 +62,15 @@ impl Database {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::gen_image::NINE_COLORS;
     use crate::default_values::TEST_DATABASE_FILE;
+    use crate::gen_image::NINE_COLORS;
 
     #[test]
     fn insert_and_retrieve_a_picture() {
         let original: Picture = Picture::new_with_image_data(NINE_COLORS, "sample");
-        let mut database: Database = Database::rusqlite_from_connection(TEST_DATABASE_FILE).expect("test database can't be open");
+        let mut database: Database = Database::rusqlite_from_connection(TEST_DATABASE_FILE)
+            .expect("test database can't be open");
         let _ = database.rusqlite_delete_picture_with_file_path(NINE_COLORS);
         assert_eq!(Ok(1), database.rusqlite_insert_picture(&original));
-
     }
 }
