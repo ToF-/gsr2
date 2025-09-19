@@ -158,8 +158,6 @@ fn process_control(gui: &mut GraphicalUserInterface, control: Control) -> bool {
             if gui.application_state.pictures_per_row() == 1 {
                 if gui.application_state.can_move(Direction::Right) {
                     gui.application_state.move_towards(Direction::Right)
-                } else {
-                    println!("bump")
                 }
             } else {
                 let next_page_start = gui.application_state.navigator().next_page_start();
@@ -175,16 +173,12 @@ fn process_control(gui: &mut GraphicalUserInterface, control: Control) -> bool {
         Control::Right if !gui.application_state.full_size_on() => {
             if gui.application_state.can_move(Direction::Right) {
                 gui.application_state.move_towards(Direction::Right)
-            } else {
-                println!("bump")
             }
         }
         Control::MovePrev if !gui.application_state.full_size_on() => {
             if gui.application_state.pictures_per_row() == 1 {
                 if gui.application_state.can_move(Direction::Left) {
                     gui.application_state.move_towards(Direction::Left)
-                } else {
-                    println!("bump")
                 }
             } else {
                 let prev_page_start = gui.application_state.navigator().prev_page_start();
@@ -197,13 +191,18 @@ fn process_control(gui: &mut GraphicalUserInterface, control: Control) -> bool {
                 }
             }
         }
-        Control::Left if !gui.application_state.full_size_on() => {
+        Control::Left if !gui.application_state.full_size_on() =>
             if gui.application_state.can_move(Direction::Left) {
                 gui.application_state.move_towards(Direction::Left)
-            } else {
-                println!("bump")
-            }
         }
+        Control::Down if !gui.application_state.full_size_on() => 
+            if gui.application_state.can_move(Direction::Down) {
+                gui.application_state.move_towards(Direction::Down)
+            }
+        Control::Up if !gui.application_state.full_size_on() => 
+            if gui.application_state.can_move(Direction::Up) {
+                gui.application_state.move_towards(Direction::Up)
+            }
         Control::MoveLast => gui.application_state.move_towards(Direction::Last),
         Control::MoveFirst => gui.application_state.move_towards(Direction::First),
         Control::Quit => {
