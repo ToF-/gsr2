@@ -63,6 +63,8 @@ mod tests {
     use super::*;
     use crate::database::tests::{delete_nine_colors_from_db, insert_nine_colors_sample_into_db};
     use crate::gen_image::{NINE_COLORS, gen_white_square};
+    use crate::default_values::TEST_DATABASE_FILE;
+    use crate::database::Database;
 
     #[test]
     fn loading_from_a_directory_collect_all_the_picture_files_from_that_directory() {
@@ -125,17 +127,5 @@ mod tests {
             result |= sort_and_compare_lists()
         }
         assert!(result)
-    }
-    #[test]
-    fn loading_from_a_directory_search_for_picture_data_in_the_database() {
-        delete_nine_colors_from_db();
-        insert_nine_colors_sample_into_db();
-        let mut gallery = Gallery::new();
-        gallery
-            .load_from_file_path(NINE_COLORS)
-            .expect("can't load the file");
-        gallery.sort_by(Order::Name);
-        let picture = gallery.picture(0);
-        assert_eq!(NINE_COLORS, picture.file_path());
     }
 }

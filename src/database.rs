@@ -1,3 +1,4 @@
+use crate::gallery::Gallery;
 use crate::image_data::ImageData;
 use crate::picture::Picture;
 use rusqlite::{Connection, Result, Row, params};
@@ -50,6 +51,10 @@ impl Database {
         )
     }
 
+    pub fn rusqlite_load_image_data_for_directory(&self, dir: &str, gallery: &Gallery) -> Result<Gallery> {
+        let result: Gallery = Gallery::new();
+        Ok(result)
+    }
     fn rusqlite_to_picture(row: &Row) -> Result<Picture> {
         row.get(0).and_then(|file_path: String| {
             let file_path: String = file_path;
@@ -66,13 +71,13 @@ pub mod tests {
     use crate::gen_image::NINE_COLORS;
 
     pub fn delete_nine_colors_from_db() {
-        let mut database: Database = Database::rusqlite_from_connection(TEST_DATABASE_FILE)
+        let database: Database = Database::rusqlite_from_connection(TEST_DATABASE_FILE)
             .expect("test database can't be open");
         let _ = database.rusqlite_delete_picture_with_file_path(NINE_COLORS);
     }
 
     pub fn insert_nine_colors_sample_into_db() {
-        let mut database: Database = Database::rusqlite_from_connection(TEST_DATABASE_FILE)
+        let database: Database = Database::rusqlite_from_connection(TEST_DATABASE_FILE)
             .expect("test database can't be open");
         let picture: Picture = Picture::new_with_image_data(NINE_COLORS, "sample");
         let _ = database.rusqlite_insert_picture(&picture);
@@ -80,7 +85,7 @@ pub mod tests {
 
     #[test]
     fn insert_and_retrieve_a_picture() {
-        let mut database: Database = Database::rusqlite_from_connection(TEST_DATABASE_FILE)
+        let database: Database = Database::rusqlite_from_connection(TEST_DATABASE_FILE)
             .expect("test database can't be open");
         delete_nine_colors_from_db();
         insert_nine_colors_sample_into_db();

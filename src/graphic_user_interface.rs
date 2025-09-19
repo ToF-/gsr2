@@ -278,7 +278,7 @@ fn load_and_launch(gui_rc: RcRefCellGui) {
         };
         match result {
             Ok(0) => {}
-            Ok(count) => {
+            Ok(_) => {
                 let cells_per_row: usize = (&gui.command_line_interface).cells_per_row() as usize;
                 gui.application_state.set_gallery(gallery, cells_per_row);
                 set_picture_view(&gui);
@@ -405,7 +405,7 @@ fn make_cell_box() -> gtk::Box {
 }
 
 fn children_count(arg: &Widget) -> usize {
-    let mut widget: &Widget = arg;
+    let widget: &Widget = arg;
     let mut count: usize = 0;
 
     if let Some(child) = widget.first_child() {
