@@ -101,6 +101,14 @@ mod tests {
             .load_from_directory("./testdata/")
             .expect("can't load from directory");
         gallery.sort_by(Order::Name);
-        let list_by_name: Vec<String> = Vec::from(gallery.pictures).into_iter().map(|p| p.file_path()).collect();
+        let list_by_name: Vec<String> = Vec::from(gallery.pictures.clone())
+            .into_iter()
+            .map(|p| p.file_path())
+            .collect();
+        gallery.sort_by(Order::Random);
+        let list_by_random: Vec<String> = Vec::from(gallery.pictures.clone())
+            .into_iter()
+            .map(|p| p.file_path())
+            .collect();
     }
 }
