@@ -191,18 +191,21 @@ fn process_control(gui: &mut GraphicalUserInterface, control: Control) -> bool {
                 }
             }
         }
-        Control::Left if !gui.application_state.full_size_on() =>
+        Control::Left if !gui.application_state.full_size_on() => {
             if gui.application_state.can_move(Direction::Left) {
                 gui.application_state.move_towards(Direction::Left)
+            }
         }
-        Control::Down if !gui.application_state.full_size_on() => 
+        Control::Down if !gui.application_state.full_size_on() => {
             if gui.application_state.can_move(Direction::Down) {
                 gui.application_state.move_towards(Direction::Down)
             }
-        Control::Up if !gui.application_state.full_size_on() => 
+        }
+        Control::Up if !gui.application_state.full_size_on() => {
             if gui.application_state.can_move(Direction::Up) {
                 gui.application_state.move_towards(Direction::Up)
             }
+        }
         Control::MoveLast => gui.application_state.move_towards(Direction::Last),
         Control::MoveFirst => gui.application_state.move_towards(Direction::First),
         Control::Quit => {

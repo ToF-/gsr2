@@ -19,5 +19,5 @@
 - [x] option --thumbnails show the gallery in a 10x10 grid, looking for the picture's THUMB
 - [x] option --random show the gallery in random order
 - [x] in grid mode, show the picture which is the current entry
-- [ ] in grid mode, up and down arrow move the current entry
+- [x] in grid mode, up and down arrow move the current entry
 
