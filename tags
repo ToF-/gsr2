@@ -109,6 +109,7 @@ make_application_window	/Users/christophethibaut/Coding/gsr2/src/graphic_user_in
 make_cell_box	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn make_cell_box() -> gtk::Box {$/;"	f
 make_gtk_picture_from_picture	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn make_gtk_picture_from_picture($/;"	f
 make_label	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn make_label(symbol: &str) -> gtk::Label {$/;"	f
+make_label_for_picture	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn make_label_for_picture(gui: &GraphicalUserInterface, index: usize) -> gtk::Label {$/;"	f
 make_multiple_view_grid	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn make_multiple_view_grid() -> gtk::Grid {$/;"	f
 make_multiple_view_panel	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn make_multiple_view_panel() -> gtk::Grid {$/;"	f
 make_multiple_view_scrolled_window	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn make_multiple_view_scrolled_window() -> gtk::ScrolledWindow {$/;"	f

@@ -75,14 +75,16 @@ fn draw_palette(ctx: &Context, width: i32, height: i32, palette: &Palette) {
 }
 
 fn make_label_for_picture(gui: &GraphicalUserInterface, index: usize) -> gtk::Label {
-    let content = if index == gui.application_state.navigator().position()
-            { "▄" } 
-            else { "" };
+    let content = if index == gui.application_state.navigator().position() {
+        "▄"
+    } else {
+        ""
+    };
     let label = gtk::Label::new(Some(content));
-        label.set_valign(Align::Center);
-        label.set_halign(Align::Center);
-        label.set_widget_name("picture_label");
-        label
+    label.set_valign(Align::Center);
+    label.set_halign(Align::Center);
+    label.set_widget_name("picture_label");
+    label
 }
 fn set_picture_at(col: i32, row: i32, gui: &GraphicalUserInterface) {
     let coords = (row as usize, col as usize);

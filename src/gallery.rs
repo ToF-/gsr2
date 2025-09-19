@@ -120,7 +120,7 @@ mod tests {
     fn sorting_by_different_criteria() {
         // gen_white_square(); // uncomment if test file missing
         let mut result = false;
-        for _ in 0..3 {
+        for _ in 0..10 {
             result |= sort_and_compare_lists()
         }
         assert!(result)
