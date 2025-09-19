@@ -1,30 +1,30 @@
-use crate::default_values::ONE_CELL_PER_ROW;
-use std::process::exit;
-use crate::gen_image::NINE_COLORS;
 use crate::Command::{Dir, File};
 use crate::application_state::ApplicationState;
 use crate::command_line_interface::CommandLineInterface;
 use crate::control::Control;
+use crate::default_values::ONE_CELL_PER_ROW;
 use crate::default_values::{
     DEFAULT_HEIGHT, DEFAULT_WIDTH, PALETTE_AREA_HEIGHT, PALETTE_AREA_WIDTH, SCROLL_STEP,
 };
 use crate::direction::Direction;
 use crate::display::title_display;
 use crate::gallery::Gallery;
+use crate::gen_image::NINE_COLORS;
 use crate::image_data::{Palette, get_palette_from_picture_file};
 use crate::picture;
 use gtk::cairo::{Context, Format, ImageSurface};
 use gtk::gdk::Key;
 use gtk::glib::clone;
 use gtk::prelude::*;
-use gtk::{
-    Align, Application, ApplicationWindow, CssProvider, Label, Orientation, Picture,
-    ScrolledWindow, Widget, gdk
-};
-use std::cell::RefCell;
-use std::rc::Rc;
 use gtk::prelude::*;
 use gtk::{self, glib};
+use gtk::{
+    Align, Application, ApplicationWindow, CssProvider, Label, Orientation, Picture,
+    ScrolledWindow, Widget, gdk,
+};
+use std::cell::RefCell;
+use std::process::exit;
+use std::rc::Rc;
 
 struct GraphicalUserInterface {
     command_line_interface: CommandLineInterface,
@@ -74,29 +74,29 @@ fn draw_palette(ctx: &Context, width: i32, height: i32, palette: &Palette) {
 }
 fn set_picture_at(col: i32, row: i32, gui: &GraphicalUserInterface) {
     let coords = (row as usize, col as usize);
-        let widget = gui
-            .multiple_view_grid
-            .child_at(col as i32, row as i32)
-            .expect("cannot find cell box in multiple view grid");
-        let cell_box = widget
-            .downcast::<gtk::Box>()
-            .expect("cannot downcast widget to Box");
-            while let Some(child) = cell_box.first_child() {
-                cell_box.remove(&child)
-            }
-            if let Some(index) = gui
-                .application_state
-                    .navigator()
-                    .position_from_coords(coords.0, coords.1)
-            {
-                let picture = make_gtk_picture_from_picture( &gui.application_state, index);
-                cell_box.append(&picture);
-                let label = gtk::Label::new(Some("test"));
-                label.set_valign(Align::Center);
-                label.set_halign(Align::Center);
-                label.set_widget_name("picture_label");
-                cell_box.append(&label);
-            }
+    let widget = gui
+        .multiple_view_grid
+        .child_at(col as i32, row as i32)
+        .expect("cannot find cell box in multiple view grid");
+    let cell_box = widget
+        .downcast::<gtk::Box>()
+        .expect("cannot downcast widget to Box");
+    while let Some(child) = cell_box.first_child() {
+        cell_box.remove(&child)
+    }
+    if let Some(index) = gui
+        .application_state
+        .navigator()
+        .position_from_coords(coords.0, coords.1)
+    {
+        let picture = make_gtk_picture_from_picture(&gui.application_state, index);
+        cell_box.append(&picture);
+        let label = gtk::Label::new(Some("test"));
+        label.set_valign(Align::Center);
+        label.set_halign(Align::Center);
+        label.set_widget_name("picture_label");
+        cell_box.append(&label);
+    }
 }
 
 fn set_picture_for_file_view(gui: &GraphicalUserInterface, picture: &picture::Picture) {
@@ -138,7 +138,6 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
     };
     gtk::Inhibit(false)
 }
-
 
 fn process_control(gui: &mut GraphicalUserInterface, control: Control) -> bool {
     let mut refresh_view: bool = true;
@@ -197,8 +196,8 @@ fn process_control(gui: &mut GraphicalUserInterface, control: Control) -> bool {
         Control::MoveFirst => gui.application_state.move_towards(Direction::First),
         Control::Quit => {
             gui.application_window.close();
-            refresh_view = false 
-        },
+            refresh_view = false
+        }
         Control::TogglePalette => {
             gui.application_state.toggle_palette();
         }
@@ -224,7 +223,7 @@ fn process_control(gui: &mut GraphicalUserInterface, control: Control) -> bool {
 }
 
 fn set_picture_for_single_view(gui: &GraphicalUserInterface) {
-    set_picture_for_file_view(gui, &gui.application_state.gallery().picture(0));
+    set_picture_for_file_view(gui, &gui.application_state.current_picture());
 }
 
 fn set_picture_for_multiple_view(gui: &GraphicalUserInterface, pictures_per_row: i32) {
@@ -434,7 +433,7 @@ pub fn activate(application: &gtk::Application, cli_rc: &Rc<RefCell<CommandLineI
         Err(err) => {
             eprintln!("{}", err);
             exit(1);
-        },
+        }
     };
     let application_window = make_application_window(application);
     let single_view_scrolled_window = make_single_view_scrolled_window();
@@ -505,8 +504,10 @@ pub fn build_and_run_application(cli: CommandLineInterface) {
     let cli_rc = Rc::new(RefCell::new(cli));
     // clone! passes a strong reference to a variable in the closure that activates the application
     // move converts any variables captured by reference or mutable reference to variables captured by value.
-    application.connect_activate(clone!(@strong cli_rc, => move |application: &gtk::Application| {
-        activate(application, &cli_rc); }));
+    application.connect_activate(
+        clone!(@strong cli_rc, => move |application: &gtk::Application| {
+        activate(application, &cli_rc); }),
+    );
     let no_args: Vec<String> = vec![];
     application.run_with_args(&no_args);
 }
