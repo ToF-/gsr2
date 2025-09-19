@@ -60,7 +60,7 @@ impl Database {
 }
 
 #[cfg(test)]
-mod tests {
+pub mod tests {
     use super::*;
     use crate::default_values::TEST_DATABASE_FILE;
     use crate::gen_image::NINE_COLORS;
@@ -84,14 +84,14 @@ mod tests {
             .expect("test database can't be open");
         delete_nine_colors_from_db();
         insert_nine_colors_sample_into_db();
-            if let Ok(retrieved) = database.rusqlite_retrieve_picture_with_file_path(NINE_COLORS) {
-                if let Some(image_data) = retrieved.image_data() {
-                    assert_eq!(String::from("sample"), image_data.label())
-                } else {
-                    assert!(false, "there was no label")
-                }
+        if let Ok(retrieved) = database.rusqlite_retrieve_picture_with_file_path(NINE_COLORS) {
+            if let Some(image_data) = retrieved.image_data() {
+                assert_eq!(String::from("sample"), image_data.label())
             } else {
-                assert!(false, "could not retrieve the picture")
+                assert!(false, "there was no label")
             }
+        } else {
+            assert!(false, "could not retrieve the picture")
+        }
     }
 }
