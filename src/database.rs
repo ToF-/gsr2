@@ -51,7 +51,11 @@ impl Database {
         )
     }
 
-    pub fn rusqlite_load_image_data_for_directory(&self, dir: &str, gallery: &Gallery) -> Result<Gallery> {
+    pub fn rusqlite_load_image_data_for_directory(
+        &self,
+        dir: &str,
+        gallery: &Gallery,
+    ) -> Result<Gallery> {
         let result: Gallery = Gallery::new();
         Ok(result)
     }
