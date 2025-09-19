@@ -81,7 +81,7 @@ impl Navigator {
             Direction::Down => self.position += self.cells_per_row,
             Direction::Up => self.position = self.position.saturating_sub(self.cells_per_row),
             Direction::PageStart => self.position = self.page_start,
-            Direction::PageEnd => {},
+            Direction::PageEnd => {}
         };
         self.update_page_start();
     }
@@ -253,8 +253,9 @@ mod tests {
     fn moving_to_beginning_of_page() {
         let mut navigator = Navigator::new(10, 2);
         navigator.move_towards(Direction::Down);
+        navigator.move_towards(Direction::Down);
         navigator.move_towards(Direction::Right);
         navigator.move_towards(Direction::PageStart);
-        assert_eq!(0, navigator.position());
+        assert_eq!(4, navigator.position());
     }
 }
