@@ -61,8 +61,8 @@ impl Gallery {
 mod tests {
 
     use super::*;
+    use crate::database::tests::{delete_nine_colors_from_db, insert_nine_colors_sample_into_db};
     use crate::gen_image::{NINE_COLORS, gen_white_square};
-    use crate::database::tests::{delete_nine_colors_from_db,insert_nine_colors_sample_into_db};
 
     #[test]
     fn loading_from_a_directory_collect_all_the_picture_files_from_that_directory() {
@@ -136,6 +136,6 @@ mod tests {
             .expect("can't load the file");
         gallery.sort_by(Order::Name);
         let picture = gallery.picture(0);
-
+        assert_eq!(NINE_COLORS, picture.file_path());
     }
 }
