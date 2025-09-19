@@ -1,3 +1,4 @@
+use crate::order::Order;
 use crate::Command::{Dir, File};
 use crate::application_state::ApplicationState;
 use crate::command_line_interface::CommandLineInterface;
@@ -254,6 +255,11 @@ fn load_and_launch(gui_rc: RcRefCellGui) {
             Some(File { file_path }) => gallery.load_from_file_path(file_path),
             Some(Dir { directory }) => gallery.load_from_directory(directory),
             None => Ok(0),
+        };
+        if gui.command_line_interface.random {
+            gallery.sort_by(Order::Random)
+        } else {
+            gallery.sort_by(Order::Name)
         };
         match result {
             Ok(0) => {}

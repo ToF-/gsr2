@@ -30,6 +30,10 @@ pub struct CommandLineInterface {
     /// display 10 x 10 thumbnail pictures per page
     #[arg(short, long, default_value_t = false, conflicts_with("grid"))]
     pub thumbnails: bool,
+
+    /// random order display of pictures
+    #[arg(short, long, default_value_t = false)]
+    pub random: bool,
 }
 
 impl CommandLineInterface {

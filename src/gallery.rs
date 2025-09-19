@@ -1,3 +1,4 @@
+use crate::order::Order;
 use crate::file_system::{get_all_picture_file_paths, get_picture_file_path};
 use crate::picture::Picture;
 use std::io::Result;
@@ -28,7 +29,6 @@ impl Gallery {
                 for file_path in list {
                     self.pictures.push(Picture::new(&file_path))
                 }
-                self.pictures.sort();
                 Ok(self.pictures.len())
             }
             Err(err) => Err(err),
@@ -43,6 +43,9 @@ impl Gallery {
             }
             Err(err) => Err(err),
         }
+    }
+    
+    pub fn sort_by(&mut self, order: Order) {
     }
 }
 
@@ -76,5 +79,8 @@ mod tests {
             .load_from_file_path(NINE_COLORS)
             .expect("can't load the file");
         assert_eq!(1, gallery.len());
+    }
+    #[test]
+    fn sorting_by_different_criteria() {
     }
 }

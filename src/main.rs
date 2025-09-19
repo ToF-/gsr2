@@ -18,6 +18,7 @@ mod gen_image;
 mod graphic_user_interface;
 mod image_data;
 mod navigator;
+mod order;
 mod paths;
 mod picture;
 
