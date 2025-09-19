@@ -1,5 +1,4 @@
 use crate::direction::Direction;
-use std::cmp::min;
 
 #[derive(Debug, Clone)]
 pub struct Navigator {

@@ -1,0 +1,14 @@
+use std::env;
+use std::io::{Result, Error};
+use crate::default_values::{DATABASE_CONNECTION_VAR, TEST_DATABASE_FILE};
+
+pub fn database_connection() -> Result<String> {
+    match env::var(DATABASE_CONNECTION_VAR) {
+        Ok(result) => Ok(result),
+        Err(err) => if cfg!(test) {
+                Ok(TEST_DATABASE_FILE.to_string())
+            } else {
+                Err(Error::other(err))
+            },
+    }
+}

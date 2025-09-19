@@ -1,5 +1,3 @@
-use crate::gallery::Gallery;
-use crate::image_data::ImageData;
 use crate::picture::Picture;
 use rusqlite::{Connection, Result, Row, params};
 
@@ -9,7 +7,15 @@ pub struct Database {
 }
 
 impl Database {
-    pub fn rusqlite_from_connection(connection_string: &str) -> Result<Self> {
+
+    pub fn from_connection(connection_string: &str) -> std::io::Result<Self> {
+        match Self::rusqlite_from_connection(connection_string) {
+            Ok(database) => Ok(database),
+            Err(err) => Err(std::io::Error::other(err)),
+        }
+    }
+
+    fn rusqlite_from_connection(connection_string: &str) -> Result<Self> {
         match Connection::open(connection_string) {
             Ok(connection) => Ok(Database { connection }),
             Err(err) => Err(err),
@@ -47,19 +53,10 @@ impl Database {
              FROM Picture               \n\
              WHERE FilePath = ?1;",
             params![file_path],
-            |row| Self::rusqlite_to_picture(row),
+            |row| Self::rusqlite_row_to_picture(row),
         )
-    }
-
-    pub fn rusqlite_load_image_data_for_directory(
-        &self,
-        dir: &str,
-        gallery: &Gallery,
-    ) -> Result<Gallery> {
-        let result: Gallery = Gallery::new();
-        Ok(result)
-    }
-    fn rusqlite_to_picture(row: &Row) -> Result<Picture> {
+    } 
+    fn rusqlite_row_to_picture(row: &Row) -> Result<Picture> {
         row.get(0).and_then(|file_path: String| {
             let file_path: String = file_path;
             row.get(1)

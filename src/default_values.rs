@@ -10,3 +10,4 @@ pub const SCROLL_STEP: f64 = 100.0;
 pub const THUMB_SUFFIX: &str = "THUMB";
 pub const VALID_EXTENSIONS: [&str; 6] = ["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"];
 pub const TEST_DATABASE_FILE: &str = "testdata/gsr2.db";
+pub const DATABASE_CONNECTION_VAR: &str = "GSRDBC";
