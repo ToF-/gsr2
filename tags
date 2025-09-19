@@ -31,6 +31,7 @@ RcRefCellGui	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	
 Rgb8	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^pub type Rgb8 = Rgb<u8>;$/;"	T
 SCROLL_STEP	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const SCROLL_STEP: f64 = 100.0;$/;"	c
 SINGLE_DOT	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub const SINGLE_DOT: &str = "testdata\/single_dot.png";$/;"	c
+TEST_DATABASE_FILE	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const TEST_DATABASE_FILE: &str = "testdata\/gsr2.db";$/;"	c
 THUMB_SUFFIX	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const THUMB_SUFFIX: &str = "THUMB";$/;"	c
 VALID_EXTENSIONS	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const VALID_EXTENSIONS: [&str; 6] = ["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"];$/;"	c
 WHITE_SQUARE	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub const WHITE_SQUARE: &str = "testdata\/white_square.png";$/;"	c
