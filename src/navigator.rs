@@ -77,7 +77,7 @@ impl Navigator {
             Direction::First => self.position = 0,
             Direction::Index { value } => self.position = value,
             Direction::Down => self.position += self.cells_per_row,
-            Direction::Up => {},
+            Direction::Up => {}
         };
         self.update_page_start();
     }
@@ -211,5 +211,8 @@ mod tests {
         assert_eq!(0, navigator.position());
         navigator.move_towards(Direction::Down);
         assert_eq!(2, navigator.position());
+        navigator.move_towards(Direction::Right);
+        navigator.move_towards(Direction::Down);
+        assert_eq!(5, navigator.position());
     }
 }
