@@ -12,6 +12,17 @@ pub struct ImageData {
     label: String,
 }
 
+impl ImageData {
+
+    pub fn new(label: &str) -> Self {
+        ImageData { label: label.to_string() }
+    }
+
+    pub fn label(&self) -> String {
+        self.label.clone()
+    }
+}
+    
 fn compare_rgb(color: &Rgb8, other: &Rgb8) -> Ordering {
     match color[0].cmp(&other[0]) {
         Ordering::Equal => match color[1].cmp(&other[1]) {

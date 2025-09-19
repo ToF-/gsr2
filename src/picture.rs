@@ -17,6 +17,12 @@ impl Picture {
         }
     }
 
+    pub fn new_with_image_data(file_path: &str, label: &str) -> Self {
+        let mut picture: Picture = Self::new(file_path);
+        let image_data = ImageData::new(label);
+        picture.set_image_data(image_data);
+        picture
+    }
     pub fn file_path(&self) -> String {
         self.file_path.clone()
     }
@@ -25,9 +31,16 @@ impl Picture {
         file_name_from(&self.file_path)
     }
 
+    pub fn image_data(&self) -> Option<ImageData> {
+        self.image_data.clone()
+    }
     #[allow(dead_code)]
     pub fn thumbnail_file_path(&self) -> String {
         self.thumbnail_file_path.clone()
+    }
+
+    pub fn set_image_data(&mut self, image_data: ImageData) {
+        self.image_data = Some(image_data)
     }
 }
 #[cfg(test)]

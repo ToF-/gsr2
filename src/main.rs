@@ -9,6 +9,7 @@ mod application_state;
 mod command;
 mod command_line_interface;
 mod control;
+mod database;
 mod default_values;
 mod direction;
 mod display;
