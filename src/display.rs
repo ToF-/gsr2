@@ -1,3 +1,4 @@
+use crate::order::Order;
 use crate::application_state::ApplicationState;
 use crate::default_values::{EXPAND_ON_SYMBOL, FULL_SIZE_ON_SYMBOL};
 
@@ -37,6 +38,7 @@ mod tests {
         gallery
             .load_from_directory("./testdata/")
             .expect("can't load from directory");
+        gallery.sort_by(Order::Name);
         application_state.set_gallery(gallery, ONE_CELL_PER_ROW);
         application_state
     }

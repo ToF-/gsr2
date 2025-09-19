@@ -1,3 +1,5 @@
+use rand::prelude::SliceRandom;
+use rand::thread_rng;
 use crate::file_system::{get_all_picture_file_paths, get_picture_file_path};
 use crate::order::Order;
 use crate::picture::Picture;
@@ -45,21 +47,27 @@ impl Gallery {
         }
     }
 
-    pub fn sort_by(&mut self, order: Order) {}
+    pub fn sort_by(&mut self, order: Order) {
+        match order {
+            Order::Name => self.pictures.sort_by(|a, b| { a.file_path().cmp(&b.file_path()) }),
+            Order::Random => self.pictures.shuffle(&mut thread_rng()),
+        }
+    }
 }
 
 #[cfg(test)]
 mod tests {
 
     use super::*;
-    use crate::gen_image::{NINE_COLORS,gen_white_square};
+    use crate::gen_image::{NINE_COLORS, gen_white_square};
 
-    // #[test]
+     #[test]
     fn loading_from_a_directory_collect_all_the_picture_files_from_that_directory() {
         let mut gallery = Gallery::new();
         gallery
             .load_from_directory("./testdata/")
             .expect("can't load from directory");
+        gallery.sort_by(Order::Name);
         assert_eq!(3, gallery.len());
         assert_eq!(
             String::from("./testdata/nine_colors.png"),
@@ -68,6 +76,10 @@ mod tests {
         assert_eq!(
             String::from("./testdata/single_dot.png"),
             gallery.picture(1).file_path()
+        );
+        assert_eq!(
+            String::from("./testdata/white_square.png"),
+            gallery.picture(2).file_path()
         );
     }
 
@@ -81,6 +93,6 @@ mod tests {
     }
     #[test]
     fn sorting_by_different_criteria() {
-        gen_white_square();
+        // gen_white_square(); // uncomment if test file missing
     }
 }
