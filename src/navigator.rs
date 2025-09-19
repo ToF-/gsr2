@@ -64,7 +64,7 @@ impl Navigator {
             Direction::Left => self.position > 0,
             Direction::Right => self.position < self.limit - 1,
             Direction::Index { value } => value < self.limit,
-            Direction::Down => false,
+            Direction::Down => self.position + self.cells_per_row < self.limit,
             Direction::Up => false,
         }
     }
@@ -221,7 +221,8 @@ mod tests {
         navigator.move_towards(Direction::Down);
         navigator.move_towards(Direction::Down);
         navigator.move_towards(Direction::Down);
+        assert!(navigator.can_move(Direction::Down));
         navigator.move_towards(Direction::Down);
-        assert!(! navigator.can_move(Direction::Down));
+        assert!(!navigator.can_move(Direction::Down));
     }
 }
