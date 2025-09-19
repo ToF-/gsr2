@@ -77,7 +77,7 @@ impl Navigator {
             Direction::First => self.position = 0,
             Direction::Index { value } => self.position = value,
             Direction::Down => self.position += self.cells_per_row,
-            Direction::Up => {}
+            Direction::Up => self.position = self.position.saturating_sub(self.cells_per_row),
         };
         self.update_page_start();
     }
@@ -224,5 +224,14 @@ mod tests {
         assert!(navigator.can_move(Direction::Down));
         navigator.move_towards(Direction::Down);
         assert!(!navigator.can_move(Direction::Down));
+    }
+    #[test]
+    fn moving_up_moves_to_entry_one_row_above() {
+        let mut navigator = Navigator::new(10, 2);
+        navigator.move_towards(Direction::Down);
+        navigator.move_towards(Direction::Down);
+        navigator.move_towards(Direction::Right);
+        navigator.move_towards(Direction::Up);
+        assert_eq!(3, navigator.position());
     }
 }
