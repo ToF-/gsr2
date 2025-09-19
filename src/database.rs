@@ -65,21 +65,33 @@ mod tests {
     use crate::default_values::TEST_DATABASE_FILE;
     use crate::gen_image::NINE_COLORS;
 
-    #[test]
-    fn insert_and_retrieve_a_picture() {
-        let original: Picture = Picture::new_with_image_data(NINE_COLORS, "sample");
+    pub fn delete_nine_colors_from_db() {
         let mut database: Database = Database::rusqlite_from_connection(TEST_DATABASE_FILE)
             .expect("test database can't be open");
         let _ = database.rusqlite_delete_picture_with_file_path(NINE_COLORS);
-        assert_eq!(Ok(1), database.rusqlite_insert_picture(&original));
-        if let Ok(retrieved) = database.rusqlite_retrieve_picture_with_file_path(NINE_COLORS) {
-            if let Some(image_data) = retrieved.image_data() {
-                assert_eq!(String::from("sample"), image_data.label())
+    }
+
+    pub fn insert_nine_colors_sample_into_db() {
+        let mut database: Database = Database::rusqlite_from_connection(TEST_DATABASE_FILE)
+            .expect("test database can't be open");
+        let picture: Picture = Picture::new_with_image_data(NINE_COLORS, "sample");
+        let _ = database.rusqlite_insert_picture(&picture);
+    }
+
+    #[test]
+    fn insert_and_retrieve_a_picture() {
+        let mut database: Database = Database::rusqlite_from_connection(TEST_DATABASE_FILE)
+            .expect("test database can't be open");
+        delete_nine_colors_from_db();
+        insert_nine_colors_sample_into_db();
+            if let Ok(retrieved) = database.rusqlite_retrieve_picture_with_file_path(NINE_COLORS) {
+                if let Some(image_data) = retrieved.image_data() {
+                    assert_eq!(String::from("sample"), image_data.label())
+                } else {
+                    assert!(false, "there was no label")
+                }
             } else {
-                assert!(false, "there was no label")
+                assert!(false, "could not retrieve the picture")
             }
-        } else {
-            assert!(false, "could not retrieve the picture")
-        }
     }
 }

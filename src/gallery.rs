@@ -125,4 +125,7 @@ mod tests {
         }
         assert!(result)
     }
+    #[test]
+    fn loading_from_a_directory_search_for_picture_data_in_the_database() {
+    }
 }
