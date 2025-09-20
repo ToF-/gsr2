@@ -6,18 +6,22 @@ pub struct Navigator {
     cells_per_row: usize,
     position: usize,
     page_start: usize,
+    page_end: usize,
     page_changed: bool,
 }
 
 impl Navigator {
     pub fn new(limit: usize, cells_per_row: usize) -> Self {
-        Navigator {
+        let mut result = Navigator {
             limit,
             cells_per_row,
             position: 0,
             page_start: 0,
+            page_end: 0,
             page_changed: false,
-        }
+        };
+        result.update_page_limits();
+        result
     }
 
     pub fn position(&self) -> usize {
@@ -26,6 +30,10 @@ impl Navigator {
 
     pub fn page_start(&self) -> usize {
         self.page_start
+    }
+
+    pub fn page_end(&self) -> usize {
+        self.page_end
     }
 
     pub fn page_size(&self) -> usize {
@@ -57,6 +65,14 @@ impl Navigator {
         }
     }
 
+    pub fn coords_from_position(&self, position: usize) -> Option<(usize,usize)> {
+        if (self.page_start()..=self.page_end()).contains(&position) {
+            Some((0,0))
+        } else {
+        None
+        }
+    }
+
     pub fn can_move(&self, direction: Direction) -> bool {
         match direction {
             Direction::First => true,
@@ -81,17 +97,18 @@ impl Navigator {
             Direction::Down => self.position += self.cells_per_row,
             Direction::Up => self.position = self.position.saturating_sub(self.cells_per_row),
             Direction::PageStart => self.position = self.page_start,
-            Direction::PageEnd => {
-                self.position = (self.page_start + self.page_size() - 1).min(self.limit - 1)
-            }
+            Direction::PageEnd => self.position = self.page_end,
         };
-        self.update_page_start();
+        self.update_page_limits();
     }
 
-    fn update_page_start(&mut self) {
-        let old_page_start: usize = self.page_start;
-        self.page_start = (self.position / self.page_size()) * self.page_size();
-        self.page_changed = !(old_page_start == self.page_start)
+    fn update_page_limits(&mut self) {
+        if self.limit > 0 {
+            let old_page_start: usize = self.page_start;
+            self.page_start = (self.position / self.page_size()) * self.page_size();
+            self.page_end = (self.page_start + self.page_size() - 1).min(self.limit - 1);
+            self.page_changed = !(old_page_start == self.page_start)
+        }
     }
 }
 #[cfg(test)]
@@ -272,7 +289,7 @@ mod tests {
         assert_eq!(9, navigator.position());
     }
     #[test]
-    fn position_from_coords() {
+    fn position_from_coords_depnds_on_page_start() {
         let mut navigator = Navigator::new(10, 2);
         assert_eq!(Some(0), navigator.position_from_coords(0, 0));
         assert_eq!(Some(1), navigator.position_from_coords(0, 1));
@@ -281,5 +298,10 @@ mod tests {
             value: navigator.next_page_start(),
         });
         assert_eq!(Some(7), navigator.position_from_coords(1, 1));
+    }
+    #[test]
+    fn coords_from_position_depends_on_given_position() {
+        let mut navigator = Navigator::new(10, 2);
+        assert_eq!(Some((0,0)), navigator.coords_from_position(0));
     }
 }
