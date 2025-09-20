@@ -177,7 +177,7 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
     {
         let refresh_view: bool = process_control(&mut gui, control);
         if refresh_view {
-            set_picture_view(&gui);
+            set_view(&gui, false);
         }
     };
     gtk::Inhibit(false)
@@ -303,21 +303,19 @@ fn set_picture_for_multiple_view(gui: &GraphicalUserInterface, pictures_per_row:
         }
     }
 }
-fn set_initial_picture_view(gui: &GraphicalUserInterface) {
-    let cells_per_row = gui.application_state.pictures_per_row();
-    if cells_per_row == ONE_CELL_PER_ROW {
-        set_picture_for_single_view(gui);
-        gui.view_stack
-            .set_visible_child(&gui.single_view_scrolled_window);
-    } else {
-        set_picture_for_multiple_view(gui, cells_per_row as i32);
-        gui.view_stack
-            .set_visible_child(&gui.multiple_view_scrolled_window);
-    }
-}
 
-fn set_picture_view(gui: &GraphicalUserInterface) {
+fn set_view(gui: &GraphicalUserInterface, initial: bool) {
     let cells_per_row = gui.application_state.pictures_per_row();
+    if initial {
+        if cells_per_row == ONE_CELL_PER_ROW {
+            gui.view_stack
+                .set_visible_child(&gui.single_view_scrolled_window);
+            } else {
+                gui.view_stack
+                    .set_visible_child(&gui.multiple_view_scrolled_window);
+            set_picture_for_multiple_view(gui, cells_per_row as i32)
+        }
+    }
     if cells_per_row == ONE_CELL_PER_ROW {
         set_picture_for_single_view(gui)
     } else {
@@ -327,6 +325,7 @@ fn set_picture_view(gui: &GraphicalUserInterface) {
             set_label_for_picture_at_new_coords(gui)
         }
     };
+    gui.application_window.set_title(Some(&title_display(&gui.application_state)));
 }
 
 fn load_and_launch(gui_rc: RcRefCellGui) {
@@ -347,7 +346,7 @@ fn load_and_launch(gui_rc: RcRefCellGui) {
             Ok(_) => {
                 let cells_per_row: usize = (&gui.command_line_interface).cells_per_row() as usize;
                 gui.application_state.set_gallery(gallery, cells_per_row);
-                set_initial_picture_view(&gui);
+                set_view(&gui, true);
                 gui.application_window.present()
             }
             Err(err) => {
@@ -420,7 +419,7 @@ fn make_multiple_view_scrolled_window() -> gtk::ScrolledWindow {
 fn make_multiple_view_grid() -> gtk::Grid {
     let grid = gtk::Grid::builder()
         .row_homogeneous(true)
-        .column_homogeneous(false)
+        .column_homogeneous(true)
         .hexpand(true)
         .vexpand(true)
         .build();
