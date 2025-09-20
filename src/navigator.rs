@@ -306,5 +306,6 @@ mod tests {
         let mut navigator = Navigator::new(10, 2);
         assert_eq!(Some((0, 0)), navigator.coords_from_position(0));
         assert_eq!(Some((0, 1)), navigator.coords_from_position(1));
+        assert_eq!(Some((1, 0)), navigator.coords_from_position(2));
     }
 }
