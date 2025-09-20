@@ -33,7 +33,8 @@ mod tests {
     use crate::order::Order;
 
     fn an_application_state() -> ApplicationState {
-        let mut application_state = ApplicationState::new().expect("cannot create application state");
+        let mut application_state =
+            ApplicationState::new().expect("cannot create application state");
         let mut gallery = Gallery::new();
         gallery
             .load_from_directory("./testdata/")

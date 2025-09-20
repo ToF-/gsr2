@@ -7,7 +7,6 @@ pub struct Database {
 }
 
 impl Database {
-
     pub fn from_connection(connection_string: &str) -> std::io::Result<Self> {
         match Self::rusqlite_from_connection(connection_string) {
             Ok(database) => Ok(database),
@@ -55,7 +54,7 @@ impl Database {
             params![file_path],
             |row| Self::rusqlite_row_to_picture(row),
         )
-    } 
+    }
     fn rusqlite_row_to_picture(row: &Row) -> Result<Picture> {
         row.get(0).and_then(|file_path: String| {
             let file_path: String = file_path;

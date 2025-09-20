@@ -1,12 +1,12 @@
-use crate::environment::database_connection;
-use std::process::exit;
-use std::io::Result;
 use crate::control::{Control, Controls, default_controls};
+use crate::database::Database;
 use crate::direction::Direction;
+use crate::environment::database_connection;
 use crate::gallery::Gallery;
 use crate::navigator::Navigator;
 use crate::picture::Picture;
-use crate::database::Database;
+use std::io::Result;
+use std::process::exit;
 
 #[derive(Debug)]
 pub struct ApplicationState {
@@ -25,17 +25,17 @@ impl ApplicationState {
         match database_connection() {
             Err(err) => Err(err),
             Ok(connection_string) => match Database::from_connection(&connection_string) {
-                    Err(err) => Err(err),
-                    Ok(database) => Ok(ApplicationState {
-                        gallery: Gallery::new(),
-                        navigator: Navigator::new(0, 1),
-                        controls: default_controls(),
-                        database: database,
-                        pictures_per_row: 1,
-                        expand_on: false,
-                        full_size_on: false,
-                        palette_on: false,
-                    }),
+                Err(err) => Err(err),
+                Ok(database) => Ok(ApplicationState {
+                    gallery: Gallery::new(),
+                    navigator: Navigator::new(0, 1),
+                    controls: default_controls(),
+                    database: database,
+                    pictures_per_row: 1,
+                    expand_on: false,
+                    full_size_on: false,
+                    palette_on: false,
+                }),
             },
         }
     }

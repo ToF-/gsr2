@@ -485,22 +485,22 @@ pub fn activate(application: &gtk::Application, cli_rc: &Rc<RefCell<CommandLineI
     }
     application_window.set_child(Some(&view_stack));
     let gui_rc = match ApplicationState::new() {
-            Ok(application_state) => Rc::new(RefCell::new(GraphicalUserInterface {
-                    command_line_interface: command_line_interface.clone(),
-                    application_state: application_state,
-                    application_window,
-                    single_view_picture: picture,
-                    single_view_box: view_box,
-                    single_view_scrolled_window,
-                    multiple_view_scrolled_window,
-                    multiple_view_grid,
-                    view_stack,
-                })),
-                Err(err) => {
-                    eprintln!("{}", err);
-                    exit(1)
-                },
-        };
+        Ok(application_state) => Rc::new(RefCell::new(GraphicalUserInterface {
+            command_line_interface: command_line_interface.clone(),
+            application_state: application_state,
+            application_window,
+            single_view_picture: picture,
+            single_view_box: view_box,
+            single_view_scrolled_window,
+            multiple_view_scrolled_window,
+            multiple_view_grid,
+            view_stack,
+        })),
+        Err(err) => {
+            eprintln!("{}", err);
+            exit(1)
+        }
+    };
 
     let evk = gtk::EventControllerKey::new();
     evk.connect_key_pressed(clone!(@strong gui_rc => move |_, key, _, _| {
