@@ -148,5 +148,9 @@ pub mod tests {
             "foo".to_string(),
             map.get(WHITE_SQUARE).unwrap().clone().unwrap().label()
         );
+        assert_eq!(
+            "".to_string(),
+            map.get(SINGLE_DOT).unwrap().clone().unwrap().label()
+        );
     }
 }
