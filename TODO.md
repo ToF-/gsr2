@@ -24,3 +24,4 @@
 - [x] insert and retrieve Pictures in a sqlite database
 - [x] when loading pictures from a directory, check the database and load image data if found
 - [x] dot key put the current picture in single view and back
+- [ ] left click on the picture in grid view set the current position
