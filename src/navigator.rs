@@ -272,7 +272,7 @@ mod tests {
         assert_eq!(9, navigator.position());
     }
     #[test]
-    fn position_from_coords_and_coords_from_position() {
+    fn position_from_coords() {
         let mut navigator = Navigator::new(10, 2);
         assert_eq!(Some(0), navigator.position_from_coords(0, 0));
         assert_eq!(Some(1), navigator.position_from_coords(0, 1));
@@ -281,6 +281,5 @@ mod tests {
             value: navigator.next_page_start(),
         });
         assert_eq!(Some(7), navigator.position_from_coords(1, 1));
-        
     }
 }
