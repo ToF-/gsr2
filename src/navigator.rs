@@ -277,5 +277,10 @@ mod tests {
         assert_eq!(Some(0), navigator.position_from_coords(0, 0));
         assert_eq!(Some(1), navigator.position_from_coords(0, 1));
         assert_eq!(Some(3), navigator.position_from_coords(1, 1));
+        navigator.move_towards(Direction::Index {
+            value: navigator.next_page_start(),
+        });
+        assert_eq!(Some(7), navigator.position_from_coords(1, 1));
+        
     }
 }
