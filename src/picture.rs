@@ -34,6 +34,15 @@ impl Picture {
     pub fn image_data(&self) -> Option<ImageData> {
         self.image_data.clone()
     }
+
+    pub fn label(&self) -> String {
+        if let Some(image_data) = &self.image_data {
+            image_data.label()
+        } else {
+            String::from("")
+        }
+    }
+
     #[allow(dead_code)]
     pub fn thumbnail_file_path(&self) -> String {
         self.thumbnail_file_path.clone()
