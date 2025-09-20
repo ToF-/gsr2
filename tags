@@ -139,6 +139,7 @@ moving_to_beginning_of_page	/Users/christophethibaut/Coding/gsr2/src/navigator.r
 moving_to_end_of_page	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn moving_to_end_of_page() {$/;"	f
 moving_up_moves_to_entry_one_row_above	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn moving_up_moves_to_entry_one_row_above() {$/;"	f
 my_app_state	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    fn my_app_state() -> ApplicationState {$/;"	f
+my_db	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    fn my_db() -> Database {$/;"	f
 navigator	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn navigator(&self) -> &Navigator {$/;"	f
 navigator_can_move_to_first_and_last_position	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn navigator_can_move_to_first_and_last_position() {$/;"	f
 navigator_cannot_move_before_first_position	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn navigator_cannot_move_before_first_position() {$/;"	f
@@ -165,6 +166,7 @@ prev_page_start_is_page_start_minus_page_size	/Users/christophethibaut/Coding/gs
 process_arrow_key_in_fullsize	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn process_arrow_key_in_fullsize(direction: Control, gui: &GraphicalUserInterface) -> bool {$/;"	f
 process_control	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn process_control(gui: &mut GraphicalUserInterface, control: Control) -> bool {$/;"	f
 process_key	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {$/;"	f
+retrieve_all_pictures	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    fn retrieve_all_pictures() {}$/;"	f
 rusqlite_delete_picture_with_file_path	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    pub fn rusqlite_delete_picture_with_file_path(&self, file_path: &str) -> Result<usize> {$/;"	f
 rusqlite_from_connection	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    fn rusqlite_from_connection(connection_string: &str) -> Result<Self> {$/;"	f
 rusqlite_insert_picture	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    pub fn rusqlite_insert_picture(&self, picture: &Picture) -> Result<usize> {$/;"	f

@@ -55,6 +55,31 @@ impl Database {
             |row| Self::rusqlite_row_to_picture(row),
         )
     }
+
+    pub fn rusqlite_retrieve_all_pictures(&self) -> Result<Vec<Picture>> {
+        self.connection.prepare(
+            "SELECT FilePath, Label           \n\
+            FROM Picture ORDER BY FilePath;")
+            .and_then(|mut statement| {
+                let mut pictures: Vec<Picture> = vec![];
+                statement.query([])
+                    .and_then(|mut rows| {
+                        while let Some(row) = rows.next().unwrap() {
+                            match Self::rusqlite_row_to_picture(row) {
+                                Ok(picture) => {
+                                    pictures.push(picture)
+                                },
+                                Err(err) => {
+                                    eprintln!("{}", err);
+                                    return Err(err)
+                                },
+                            }
+                        };
+                        Ok(pictures)
+                    })
+            })
+    }
+
     fn rusqlite_row_to_picture(row: &Row) -> Result<Picture> {
         row.get(0).and_then(|file_path: String| {
             let file_path: String = file_path;
@@ -71,8 +96,7 @@ pub mod tests {
     use crate::gen_image::NINE_COLORS;
 
     fn my_db() -> Database {
-        Database::rusqlite_from_connection(TEST_DATABASE_FILE)
-            .expect("test database can't be open")
+        Database::rusqlite_from_connection(TEST_DATABASE_FILE).expect("test database can't be open")
     }
 
     pub fn delete_nine_colors_from_db() {
@@ -102,6 +126,13 @@ pub mod tests {
         }
     }
     #[test]
-    fn retrieve_all_pictures() {
+    fn retrieve_all_pictures_ordered_by_file_path() {
+        let database = my_db();
+        let status: Result<Vec<Picture>> = database.rusqlite_retrieve_all_pictures();
+        assert!(status.is_ok());
+        let pictures = status.unwrap();
+        assert_eq!(3, pictures.len());
+        assert_eq!(NINE_COLORS, pictures[0].file_path())
     }
+
 }
