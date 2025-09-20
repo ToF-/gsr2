@@ -72,7 +72,8 @@ impl Database {
                     while let Some(row) = rows.next().unwrap() {
                         match Self::rusqlite_row_to_picture(row) {
                             Ok(picture) => {
-                                let _ = map.insert(picture.file_path(), picture.image_data().unwrap());
+                                let _ =
+                                    map.insert(picture.file_path(), picture.image_data().unwrap());
                             }
                             Err(err) => {
                                 eprintln!("{}", err);
@@ -138,19 +139,8 @@ pub mod tests {
         assert!(status.is_ok());
         let map = status.unwrap();
         assert_eq!(3, map.len());
-        let result = map.get(NINE_COLORS);
-        assert!(result.is_some());
-        assert_eq!(
-            "sample".to_string(),
-            result.unwrap().label()
-        );
-        assert_eq!(
-            "foo".to_string(),
-            map.get(WHITE_SQUARE).unwrap().clone().label()
-        );
-        assert_eq!(
-            "".to_string(),
-            map.get(SINGLE_DOT).unwrap().clone().label()
-        );
+        assert_eq!("sample".to_string(), map.get(NINE_COLORS).unwrap().clone().label());
+        assert_eq!( "foo".to_string(), map.get(WHITE_SQUARE).unwrap().clone().label());
+        assert_eq!("".to_string(), map.get(SINGLE_DOT).unwrap().clone().label());
     }
 }

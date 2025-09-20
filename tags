@@ -20,7 +20,7 @@ FULL_SIZE_ON_SYMBOL	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/
 Gallery	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^pub struct Gallery {$/;"	s
 GraphicalUserInterface	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^struct GraphicalUserInterface {$/;"	s
 ImageData	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^pub struct ImageData {$/;"	s
-ImageDataMap	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^pub type ImageDataMap = HashMap<String, Option<ImageData>>;$/;"	T
+ImageDataMap	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^pub type ImageDataMap = HashMap<String, ImageData>;$/;"	T
 MAX_PALETTE_COLORS	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const MAX_PALETTE_COLORS: u8 = 9;$/;"	c
 NINE_COLORS	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub const NINE_COLORS: &str = "testdata\/nine_colors.png";$/;"	c
 Navigator	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^pub struct Navigator {$/;"	s
