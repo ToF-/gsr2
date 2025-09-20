@@ -108,14 +108,18 @@ impl ApplicationState {
             Ok(map) => {
                 let mut new_pictures: Vec<Picture> = vec![];
                 for picture in self.gallery.pictures().iter() {
+                    println!("searching for {:?}", picture.file_path());
                     let new_picture = match map.get(&picture.file_path()) {
                         Some(image_data) => {
+                            println!("{:?}", image_data);
                             Picture::new_with_image_data(&picture.file_path(), &image_data.label())
                         }
                         None => Picture::new(&picture.file_path()),
                     };
                     new_pictures.push(new_picture)
-                }
+                };
+                let new_gallery = Gallery::new_with_pictures(new_pictures);
+                self.gallery = new_gallery;
             }
             Err(err) => {
                 eprintln!("{}", err);
