@@ -1,3 +1,4 @@
+use std::time::SystemTime;
 use crate::Command::{Dir, File};
 use crate::application_state::ApplicationState;
 use crate::command_line_interface::CommandLineInterface;
@@ -83,7 +84,7 @@ fn make_label_for_picture(gui: &GraphicalUserInterface, index: usize) -> gtk::La
         Some(image_data) => image_data.label(),
         None => String::from(""),
     };
-    let content = format!("{}{}", focus, picture_label);
+    let content = format!("{}{}{:?}", focus, picture_label, SystemTime::now());
     let label = gtk::Label::new(Some(&content));
     label.set_valign(Align::Center);
     label.set_halign(Align::Center);
