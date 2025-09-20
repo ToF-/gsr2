@@ -1,5 +1,9 @@
 use crate::picture::Picture;
+use crate::image_data::ImageData;
+use std::collections::HashMap;
 use rusqlite::{Connection, Result, Row, params};
+
+pub type ImageDataMap = HashMap<String,Option<ImageData>>;
 
 #[derive(Debug)]
 pub struct Database {
@@ -56,27 +60,28 @@ impl Database {
         )
     }
 
-    pub fn rusqlite_retrieve_all_pictures(&self) -> Result<Vec<Picture>> {
-        self.connection.prepare(
-            "SELECT FilePath, Label           \n\
-            FROM Picture ORDER BY FilePath;")
+    pub fn rusqlite_retrieve_all_pictures(&self) -> Result<ImageDataMap> {
+        self.connection
+            .prepare(
+                "SELECT FilePath, Label           \n\
+            FROM Picture ORDER BY FilePath;",
+            )
             .and_then(|mut statement| {
-                let mut pictures: Vec<Picture> = vec![];
-                statement.query([])
-                    .and_then(|mut rows| {
-                        while let Some(row) = rows.next().unwrap() {
-                            match Self::rusqlite_row_to_picture(row) {
-                                Ok(picture) => {
-                                    pictures.push(picture)
-                                },
-                                Err(err) => {
-                                    eprintln!("{}", err);
-                                    return Err(err)
-                                },
+                let mut map: ImageDataMap = HashMap::new();
+                statement.query([]).and_then(|mut rows| {
+                    while let Some(row) = rows.next().unwrap() {
+                        match Self::rusqlite_row_to_picture(row) {
+                            Ok(picture) => {
+                                let _ = map.insert(picture.file_path(), picture.image_data());
+                            },
+                            Err(err) => {
+                                eprintln!("{}", err);
+                                return Err(err);
                             }
-                        };
-                        Ok(pictures)
-                    })
+                        }
+                    }
+                    Ok(map)
+                })
             })
     }
 
@@ -94,6 +99,7 @@ pub mod tests {
     use super::*;
     use crate::default_values::TEST_DATABASE_FILE;
     use crate::gen_image::NINE_COLORS;
+    use crate::image_data;
 
     fn my_db() -> Database {
         Database::rusqlite_from_connection(TEST_DATABASE_FILE).expect("test database can't be open")
@@ -128,11 +134,11 @@ pub mod tests {
     #[test]
     fn retrieve_all_pictures_ordered_by_file_path() {
         let database = my_db();
-        let status: Result<Vec<Picture>> = database.rusqlite_retrieve_all_pictures();
+        let status: Result<ImageDataMap> = database.rusqlite_retrieve_all_pictures();
         assert!(status.is_ok());
-        let pictures = status.unwrap();
-        assert_eq!(3, pictures.len());
-        assert_eq!(NINE_COLORS, pictures[0].file_path())
+        let map = status.unwrap();
+        assert_eq!(3, map.len());
+        let result = map.get(NINE_COLORS);
+        assert!(result.is_some());
     }
-
 }

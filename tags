@@ -166,10 +166,11 @@ prev_page_start_is_page_start_minus_page_size	/Users/christophethibaut/Coding/gs
 process_arrow_key_in_fullsize	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn process_arrow_key_in_fullsize(direction: Control, gui: &GraphicalUserInterface) -> bool {$/;"	f
 process_control	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn process_control(gui: &mut GraphicalUserInterface, control: Control) -> bool {$/;"	f
 process_key	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {$/;"	f
-retrieve_all_pictures	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    fn retrieve_all_pictures() {}$/;"	f
+retrieve_all_pictures_ordered_by_file_path	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    fn retrieve_all_pictures_ordered_by_file_path() {$/;"	f
 rusqlite_delete_picture_with_file_path	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    pub fn rusqlite_delete_picture_with_file_path(&self, file_path: &str) -> Result<usize> {$/;"	f
 rusqlite_from_connection	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    fn rusqlite_from_connection(connection_string: &str) -> Result<Self> {$/;"	f
 rusqlite_insert_picture	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    pub fn rusqlite_insert_picture(&self, picture: &Picture) -> Result<usize> {$/;"	f
+rusqlite_retrieve_all_pictures	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    pub fn rusqlite_retrieve_all_pictures(&self) -> Result<Vec<Picture>> {$/;"	f
 rusqlite_retrieve_picture_with_file_path	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    pub fn rusqlite_retrieve_picture_with_file_path(&self, file_path: &str) -> Result<Picture> {$/;"	f
 rusqlite_row_to_picture	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    fn rusqlite_row_to_picture(row: &Row) -> Result<Picture> {$/;"	f
 save_nine_colors	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub fn save_nine_colors() {$/;"	f
