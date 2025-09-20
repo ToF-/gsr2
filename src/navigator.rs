@@ -275,5 +275,6 @@ mod tests {
     fn position_from_coords_and_coords_from_position() {
         let mut navigator = Navigator::new(10, 2);
         assert_eq!(Some(0), navigator.position_from_coords(0, 0));
+        assert_eq!(Some(1), navigator.position_from_coords(0, 1));
     }
 }
