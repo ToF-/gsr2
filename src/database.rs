@@ -3,7 +3,7 @@ use crate::picture::Picture;
 use rusqlite::{Connection, Result, Row, params};
 use std::collections::HashMap;
 
-pub type ImageDataMap = HashMap<String, Option<ImageData>>;
+pub type ImageDataMap = HashMap<String, ImageData>;
 
 #[derive(Debug)]
 pub struct Database {
@@ -72,7 +72,7 @@ impl Database {
                     while let Some(row) = rows.next().unwrap() {
                         match Self::rusqlite_row_to_picture(row) {
                             Ok(picture) => {
-                                let _ = map.insert(picture.file_path(), picture.image_data());
+                                let _ = map.insert(picture.file_path(), picture.image_data().unwrap());
                             }
                             Err(err) => {
                                 eprintln!("{}", err);
@@ -98,7 +98,7 @@ impl Database {
 pub mod tests {
     use super::*;
     use crate::default_values::TEST_DATABASE_FILE;
-    use crate::gen_image::{NINE_COLORS,WHITE_SQUARE,SINGLE_DOT};
+    use crate::gen_image::{NINE_COLORS, SINGLE_DOT, WHITE_SQUARE};
     use crate::image_data;
 
     fn my_db() -> Database {
@@ -142,15 +142,15 @@ pub mod tests {
         assert!(result.is_some());
         assert_eq!(
             "sample".to_string(),
-            result.unwrap().clone().unwrap().label()
+            result.unwrap().label()
         );
         assert_eq!(
             "foo".to_string(),
-            map.get(WHITE_SQUARE).unwrap().clone().unwrap().label()
+            map.get(WHITE_SQUARE).unwrap().clone().label()
         );
         assert_eq!(
             "".to_string(),
-            map.get(SINGLE_DOT).unwrap().clone().unwrap().label()
+            map.get(SINGLE_DOT).unwrap().clone().label()
         );
     }
 }
