@@ -175,8 +175,8 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
         && let Some(key_name) = key.name()
         && let Some(control) = gui.application_state.get_control(key_name.as_str())
     {
-        let refresh_view: bool = process_control(&mut gui, control);
-        if refresh_view {
+        let refresh_view_required: bool = process_control(&mut gui, control);
+        if refresh_view_required {
             set_view(&gui, false);
         }
     };
@@ -184,7 +184,7 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
 }
 
 fn process_control(gui: &mut GraphicalUserInterface, control: Control) -> bool {
-    let mut refresh_view: bool = true;
+    let mut refresh_view_required: bool = true;
     match control {
         Control::MoveNext if !gui.application_state.full_size_on() => {
             if gui.application_state.pictures_per_row() == 1 {
@@ -244,7 +244,7 @@ fn process_control(gui: &mut GraphicalUserInterface, control: Control) -> bool {
         Control::MoveFirst => gui.application_state.move_towards(Direction::First),
         Control::Quit => {
             gui.application_window.close();
-            refresh_view = false
+            refresh_view_required = false
         }
         Control::TogglePalette => {
             gui.application_state.toggle_palette();
@@ -257,6 +257,7 @@ fn process_control(gui: &mut GraphicalUserInterface, control: Control) -> bool {
         }
         Control::ToggleSingleView => {
             gui.application_state.toggle_single_view();
+
         }
         direction @ Control::Left
         | direction @ Control::Right
@@ -265,11 +266,11 @@ fn process_control(gui: &mut GraphicalUserInterface, control: Control) -> bool {
             if gui.application_state.full_size_on() {
                 process_arrow_key_in_fullsize(direction, gui);
             }
-            refresh_view = false
+            refresh_view_required = false
         }
-        _ => refresh_view = false,
+        _ => refresh_view_required = false,
     };
-    refresh_view
+    refresh_view_required
 }
 
 fn set_picture_for_single_view(gui: &GraphicalUserInterface) {
@@ -306,9 +307,17 @@ fn set_picture_for_multiple_view(gui: &GraphicalUserInterface, pictures_per_row:
     }
 }
 
+fn single_view_mode(gui: &GraphicalUserInterface) -> bool {
+    let child = gui.view_stack.visible_child().expect("view stack has no child");
+    child == gui.single_view_scrolled_window
+}
+
 fn set_view(gui: &GraphicalUserInterface, initial: bool) {
     let cells_per_row = gui.application_state.pictures_per_row();
-    if initial {
+    let view_has_changed: bool = 
+        (cells_per_row == ONE_CELL_PER_ROW) != single_view_mode(gui);
+
+    if initial || view_has_changed {
         if cells_per_row == ONE_CELL_PER_ROW {
             gui.view_stack
                 .set_visible_child(&gui.single_view_scrolled_window);
