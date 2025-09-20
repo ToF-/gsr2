@@ -2,8 +2,8 @@ use crate::file_system::{get_all_picture_file_paths, get_picture_file_path};
 use crate::order::Order;
 use crate::picture::Picture;
 use rand::prelude::SliceRandom;
-use rand::thread_rng;
 use std::io::Result;
+use rand::rng;
 
 #[derive(Debug)]
 pub struct Gallery {
@@ -52,7 +52,7 @@ impl Gallery {
             Order::Name => self
                 .pictures
                 .sort_by(|a, b| a.file_path().cmp(&b.file_path())),
-            Order::Random => self.pictures.shuffle(&mut thread_rng()),
+            Order::Random => self.pictures.shuffle(&mut rng()),
         }
     }
 }

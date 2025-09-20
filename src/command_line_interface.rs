@@ -45,7 +45,7 @@ impl CommandLineInterface {
         if let Some(Command::File { ref file_path }) = cli.command {
             match check_picture_file(file_path) {
                 Ok(_) => {
-                    if let Some(grid) = cli.grid {
+                    if let Some(_) = cli.grid {
                         return Err(Error::new(
                             ErrorKind::Other,
                             "option --grid not allowed for File command",

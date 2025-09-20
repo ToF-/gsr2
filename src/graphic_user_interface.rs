@@ -9,7 +9,6 @@ use crate::default_values::{
 use crate::direction::Direction;
 use crate::display::title_display;
 use crate::gallery::Gallery;
-use crate::gen_image::NINE_COLORS;
 use crate::image_data::{Palette, get_palette_from_picture_file};
 use crate::order::Order;
 use crate::picture;
@@ -17,8 +16,7 @@ use gtk::cairo::{Context, Format, ImageSurface};
 use gtk::gdk::Key;
 use gtk::glib::clone;
 use gtk::prelude::*;
-use gtk::prelude::*;
-use gtk::{self, glib};
+use gtk::{self};
 use gtk::{
     Align, Application, ApplicationWindow, CssProvider, Label, Orientation, Picture,
     ScrolledWindow, Widget, gdk,
@@ -486,17 +484,23 @@ pub fn activate(application: &gtk::Application, cli_rc: &Rc<RefCell<CommandLineI
         view_stack.set_visible_child(&multiple_view_scrolled_window);
     }
     application_window.set_child(Some(&view_stack));
-    let gui_rc = Rc::new(RefCell::new(GraphicalUserInterface {
-        command_line_interface: command_line_interface.clone(),
-        application_state: ApplicationState::new(),
-        application_window,
-        single_view_picture: picture,
-        single_view_box: view_box,
-        single_view_scrolled_window,
-        multiple_view_scrolled_window,
-        multiple_view_grid,
-        view_stack,
-    }));
+    let gui_rc = match ApplicationState::new() {
+            Ok(application_state) => Rc::new(RefCell::new(GraphicalUserInterface {
+                    command_line_interface: command_line_interface.clone(),
+                    application_state: application_state,
+                    application_window,
+                    single_view_picture: picture,
+                    single_view_box: view_box,
+                    single_view_scrolled_window,
+                    multiple_view_scrolled_window,
+                    multiple_view_grid,
+                    view_stack,
+                })),
+                Err(err) => {
+                    eprintln!("{}", err);
+                    exit(1)
+                },
+        };
 
     let evk = gtk::EventControllerKey::new();
     evk.connect_key_pressed(clone!(@strong gui_rc => move |_, key, _, _| {

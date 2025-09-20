@@ -1,14 +1,19 @@
+use crate::environment::database_connection;
+use std::process::exit;
+use std::io::Result;
 use crate::control::{Control, Controls, default_controls};
 use crate::direction::Direction;
 use crate::gallery::Gallery;
 use crate::navigator::Navigator;
 use crate::picture::Picture;
+use crate::database::Database;
 
 #[derive(Debug)]
 pub struct ApplicationState {
     gallery: Gallery,
     navigator: Navigator,
     controls: Controls,
+    database: Database,
     pictures_per_row: usize,
     expand_on: bool,
     full_size_on: bool,
@@ -16,15 +21,22 @@ pub struct ApplicationState {
 }
 
 impl ApplicationState {
-    pub fn new() -> Self {
-        ApplicationState {
-            gallery: Gallery::new(),
-            navigator: Navigator::new(0, 1),
-            controls: default_controls(),
-            pictures_per_row: 1,
-            expand_on: false,
-            full_size_on: false,
-            palette_on: false,
+    pub fn new() -> Result<Self> {
+        match database_connection() {
+            Err(err) => Err(err),
+            Ok(connection_string) => match Database::from_connection(&connection_string) {
+                    Err(err) => Err(err),
+                    Ok(database) => Ok(ApplicationState {
+                        gallery: Gallery::new(),
+                        navigator: Navigator::new(0, 1),
+                        controls: default_controls(),
+                        database: database,
+                        pictures_per_row: 1,
+                        expand_on: false,
+                        full_size_on: false,
+                        palette_on: false,
+                    }),
+            },
         }
     }
 
@@ -68,18 +80,10 @@ impl ApplicationState {
         self.pictures_per_row == 10
     }
 
-    pub fn page_size(&self) -> usize {
-        self.pictures_per_row * self.pictures_per_row
-    }
-
     pub fn set_gallery(&mut self, gallery: Gallery, cells_per_row: usize) {
         self.gallery = gallery;
         self.navigator = Navigator::new(self.gallery.len(), cells_per_row);
         self.pictures_per_row = cells_per_row
-    }
-
-    pub fn set_pictures_per_row(&mut self, n: usize) {
-        self.pictures_per_row = n
     }
 
     pub fn toggle_expand(&mut self) {
@@ -103,16 +107,20 @@ impl ApplicationState {
 mod tests {
     use super::*;
 
+    fn my_app_state() -> ApplicationState {
+        ApplicationState::new().expect("cannot create application state")
+    }
+
     #[test]
     fn after_palette_toggle_palette_on_is_inverted() {
-        let mut state = ApplicationState::new();
+        let mut state = my_app_state();
         state.toggle_palette();
         assert_eq!(true, state.palette_on());
     }
 
     #[test]
     fn after_expand_toggle_expand_on_is_inverted() {
-        let mut state = ApplicationState::new();
+        let mut state = my_app_state();
         state.toggle_expand();
         assert_eq!(true, state.expand_on());
         state.toggle_expand();
@@ -120,7 +128,7 @@ mod tests {
     }
     #[test]
     fn after_full_size_toggle_full_size_on_is_inverted() {
-        let mut state = ApplicationState::new();
+        let mut state = my_app_state();
         state.toggle_full_size();
         assert_eq!(true, state.full_size_on());
         state.toggle_full_size();
@@ -129,19 +137,19 @@ mod tests {
 
     #[test]
     fn get_the_control_matching_a_keyname() {
-        let state = ApplicationState::new();
+        let mut state = my_app_state();
         assert_eq!(Some(Control::ToggleFullSize), state.get_control("f"));
     }
     #[test]
     fn setting_the_gallery_and_pictures_per_row_hence_page_size() {
-        let mut state = ApplicationState::new();
+        let mut state = my_app_state();
         state.set_gallery(Gallery::new(), 5);
         assert_eq!(5, state.pictures_per_row);
-        assert_eq!(25, state.page_size());
+        assert_eq!(25, state.navigator().page_size());
     }
     #[test]
     fn thumbnails_on_tells_if_10_pictures_per_row() {
-        let mut state = ApplicationState::new();
+        let mut state = ApplicationState::new().expect("cannot create application state");
         state.set_gallery(Gallery::new(), 10);
         assert_eq!(true, state.thumbnails_on())
     }
