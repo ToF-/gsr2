@@ -70,23 +70,25 @@ pub mod tests {
     use crate::default_values::TEST_DATABASE_FILE;
     use crate::gen_image::NINE_COLORS;
 
+    fn my_db() -> Database {
+        Database::rusqlite_from_connection(TEST_DATABASE_FILE)
+            .expect("test database can't be open")
+    }
+
     pub fn delete_nine_colors_from_db() {
-        let database: Database = Database::rusqlite_from_connection(TEST_DATABASE_FILE)
-            .expect("test database can't be open");
+        let database = my_db();
         let _ = database.rusqlite_delete_picture_with_file_path(NINE_COLORS);
     }
 
     pub fn insert_nine_colors_sample_into_db() {
-        let database: Database = Database::rusqlite_from_connection(TEST_DATABASE_FILE)
-            .expect("test database can't be open");
+        let database = my_db();
         let picture: Picture = Picture::new_with_image_data(NINE_COLORS, "sample");
         let _ = database.rusqlite_insert_picture(&picture);
     }
 
     #[test]
     fn insert_and_retrieve_a_picture() {
-        let database: Database = Database::rusqlite_from_connection(TEST_DATABASE_FILE)
-            .expect("test database can't be open");
+        let database = my_db();
         delete_nine_colors_from_db();
         insert_nine_colors_sample_into_db();
         if let Ok(retrieved) = database.rusqlite_retrieve_picture_with_file_path(NINE_COLORS) {
@@ -98,5 +100,8 @@ pub mod tests {
         } else {
             assert!(false, "could not retrieve the picture")
         }
+    }
+    #[test]
+    fn retrieve_all_pictures() {
     }
 }
