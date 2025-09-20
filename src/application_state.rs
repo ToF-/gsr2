@@ -117,7 +117,7 @@ impl ApplicationState {
                         None => Picture::new(&picture.file_path()),
                     };
                     new_pictures.push(new_picture)
-                };
+                }
                 let new_gallery = Gallery::new_with_pictures(new_pictures);
                 self.gallery = new_gallery;
             }
