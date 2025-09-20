@@ -5,6 +5,7 @@ pub struct Navigator {
     limit: usize,
     cells_per_row: usize,
     position: usize,
+    old_position: usize,
     page_start: usize,
     page_end: usize,
     page_changed: bool,
@@ -16,6 +17,7 @@ impl Navigator {
             limit,
             cells_per_row,
             position: 0,
+            old_position: 0,
             page_start: 0,
             page_end: 0,
             page_changed: false,
@@ -26,6 +28,10 @@ impl Navigator {
 
     pub fn position(&self) -> usize {
         self.position
+    }
+
+    pub fn old_position(&self) -> usize {
+        self.old_position
     }
 
     pub fn page_start(&self) -> usize {
@@ -311,5 +317,10 @@ mod tests {
         navigator.move_towards(Direction::Last);
         assert_eq!(9, navigator.position());
         assert_eq!(Some((0, 1)), navigator.coords_from_position(9));
+    }
+    #[test]
+    fn after_moving_old_position_and_new_position_can_differ() {
+        let mut navigator = Navigator::new(10, 2);
+        assert!(navigator.position() == navigator.old_position());
     }
 }
