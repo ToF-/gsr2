@@ -198,6 +198,7 @@ set_picture_for_multiple_view	/Users/christophethibaut/Coding/gsr2/src/graphic_u
 set_picture_for_single_view	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn set_picture_for_single_view(gui: &GraphicalUserInterface) {$/;"	f
 set_view	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn set_view(gui: &GraphicalUserInterface, initial: bool) {$/;"	f
 setting_the_gallery_and_pictures_per_row_hence_page_size	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    fn setting_the_gallery_and_pictures_per_row_hence_page_size() {$/;"	f
+single_view_mode	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn single_view_mode(gui: &GraphicalUserInterface) -> bool {$/;"	f
 sort_and_compare_lists	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    fn sort_and_compare_lists() -> bool {$/;"	f
 sort_by	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn sort_by(&mut self, order: Order) {$/;"	f
 sorting_by_different_criteria	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    fn sorting_by_different_criteria() {$/;"	f

@@ -257,7 +257,6 @@ fn process_control(gui: &mut GraphicalUserInterface, control: Control) -> bool {
         }
         Control::ToggleSingleView => {
             gui.application_state.toggle_single_view();
-
         }
         direction @ Control::Left
         | direction @ Control::Right
@@ -308,14 +307,16 @@ fn set_picture_for_multiple_view(gui: &GraphicalUserInterface, pictures_per_row:
 }
 
 fn single_view_mode(gui: &GraphicalUserInterface) -> bool {
-    let child = gui.view_stack.visible_child().expect("view stack has no child");
+    let child = gui
+        .view_stack
+        .visible_child()
+        .expect("view stack has no child");
     child == gui.single_view_scrolled_window
 }
 
 fn set_view(gui: &GraphicalUserInterface, initial: bool) {
     let cells_per_row = gui.application_state.pictures_per_row();
-    let view_has_changed: bool = 
-        (cells_per_row == ONE_CELL_PER_ROW) != single_view_mode(gui);
+    let view_has_changed: bool = (cells_per_row == ONE_CELL_PER_ROW) != single_view_mode(gui);
 
     if initial || view_has_changed {
         if cells_per_row == ONE_CELL_PER_ROW {
@@ -568,7 +569,7 @@ pub fn activate(application: &gtk::Application, cli_rc: &Rc<RefCell<CommandLineI
             let cell_box = make_cell_box();
             multiple_view_grid.attach(&cell_box, col, row, 1, 1);
         }
-    };
+    }
     application_window.set_child(Some(&view_stack));
     let gui_rc = match ApplicationState::new() {
         Ok(application_state) => Rc::new(RefCell::new(GraphicalUserInterface {
