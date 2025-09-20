@@ -98,7 +98,7 @@ impl Database {
 pub mod tests {
     use super::*;
     use crate::default_values::TEST_DATABASE_FILE;
-    use crate::gen_image::NINE_COLORS;
+    use crate::gen_image::{NINE_COLORS,WHITE_SQUARE,SINGLE_DOT};
     use crate::image_data;
 
     fn my_db() -> Database {
@@ -140,6 +140,13 @@ pub mod tests {
         assert_eq!(3, map.len());
         let result = map.get(NINE_COLORS);
         assert!(result.is_some());
-        assert_eq!("sample".to_string(), result.unwrap().clone().unwrap().label());
+        assert_eq!(
+            "sample".to_string(),
+            result.unwrap().clone().unwrap().label()
+        );
+        assert_eq!(
+            "foo".to_string(),
+            map.get(WHITE_SQUARE).unwrap().clone().unwrap().label()
+        );
     }
 }
