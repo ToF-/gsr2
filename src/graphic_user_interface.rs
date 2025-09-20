@@ -635,7 +635,8 @@ pub fn activate(application: &gtk::Application, cli_rc: &Rc<RefCell<CommandLineI
     if let Ok(gui) = gui_rc.try_borrow() {
         for col in 0..cells_per_row {
             for row in 0..cells_per_row {
-                let widget = gui.multiple_view_grid
+                let widget = gui
+                    .multiple_view_grid
                     .child_at(col, row)
                     .expect("can't locate cell box");
                 let cell_box = widget
@@ -643,19 +644,47 @@ pub fn activate(application: &gtk::Application, cli_rc: &Rc<RefCell<CommandLineI
                     .expect("cannot downcast widget to Box");
                 let gesture_left = gtk::GestureClick::new();
                 gesture_left.set_button(1);
-                gesture_left.connect_pressed(clone!(@strong gui_rc => move |_,_,_,_| {
+                gesture_left.connect_pressed(clone!(@strong gui_rc => move |_,n_pressed,_,_| {
                 if let Ok(mut gui) = gui_rc.try_borrow_mut() {
                     if let Some(index) = gui.application_state.navigator().position_from_coords(row as usize, col as usize) {
-                        gui.application_state.move_towards(Direction::Index {
-                            value: index,
-                        });
-                        set_view(&gui, false)
+                        match n_pressed {
+                            1 => {
+                                gui.application_state.move_towards(Direction::Index {
+                                    value: index,
+                                });
+                                set_view(&gui, false)
+                            },
+                            2 => {
+                                gui.application_state.move_towards(Direction::Index {
+                                    value: index,
+                                });
+                                gui.application_state.toggle_single_view();
+                                set_view(&gui, true)
+                            }
+                            _ => {}
+                        }
                     }
                 }
             }));
                 cell_box.add_controller(gesture_left);
             }
         }
+    };
+    if let Ok(gui) = gui_rc.try_borrow() {
+        let gesture_left = gtk::GestureClick::new();
+        gesture_left.set_button(1);
+        gesture_left.connect_pressed(clone!(@strong gui_rc => move |_,n_pressed,_,_| {
+            if let Ok(mut gui) = gui_rc.try_borrow_mut() {
+                match n_pressed {
+                    2 => {
+                        gui.application_state.toggle_single_view();
+                        set_view(&gui, true)
+                    },
+                    _ => {}
+                }
+            }
+        }));
+        gui.single_view_picture.add_controller(gesture_left);
     };
     load_and_launch(gui_rc);
 }
