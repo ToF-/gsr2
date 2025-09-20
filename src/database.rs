@@ -1,9 +1,9 @@
-use crate::picture::Picture;
 use crate::image_data::ImageData;
-use std::collections::HashMap;
+use crate::picture::Picture;
 use rusqlite::{Connection, Result, Row, params};
+use std::collections::HashMap;
 
-pub type ImageDataMap = HashMap<String,Option<ImageData>>;
+pub type ImageDataMap = HashMap<String, Option<ImageData>>;
 
 #[derive(Debug)]
 pub struct Database {
@@ -73,7 +73,7 @@ impl Database {
                         match Self::rusqlite_row_to_picture(row) {
                             Ok(picture) => {
                                 let _ = map.insert(picture.file_path(), picture.image_data());
-                            },
+                            }
                             Err(err) => {
                                 eprintln!("{}", err);
                                 return Err(err);
@@ -140,5 +140,7 @@ pub mod tests {
         assert_eq!(3, map.len());
         let result = map.get(NINE_COLORS);
         assert!(result.is_some());
+        println!("{:?}", result);
+        //assert_eq!("sample".to_string(), result.unwrap().label());
     }
 }

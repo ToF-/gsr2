@@ -20,6 +20,7 @@ FULL_SIZE_ON_SYMBOL	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/
 Gallery	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^pub struct Gallery {$/;"	s
 GraphicalUserInterface	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^struct GraphicalUserInterface {$/;"	s
 ImageData	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^pub struct ImageData {$/;"	s
+ImageDataMap	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^pub type ImageDataMap = HashMap<String, Option<ImageData>>;$/;"	T
 MAX_PALETTE_COLORS	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const MAX_PALETTE_COLORS: u8 = 9;$/;"	c
 NINE_COLORS	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub const NINE_COLORS: &str = "testdata\/nine_colors.png";$/;"	c
 Navigator	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^pub struct Navigator {$/;"	s
@@ -170,7 +171,7 @@ retrieve_all_pictures_ordered_by_file_path	/Users/christophethibaut/Coding/gsr2/
 rusqlite_delete_picture_with_file_path	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    pub fn rusqlite_delete_picture_with_file_path(&self, file_path: &str) -> Result<usize> {$/;"	f
 rusqlite_from_connection	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    fn rusqlite_from_connection(connection_string: &str) -> Result<Self> {$/;"	f
 rusqlite_insert_picture	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    pub fn rusqlite_insert_picture(&self, picture: &Picture) -> Result<usize> {$/;"	f
-rusqlite_retrieve_all_pictures	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    pub fn rusqlite_retrieve_all_pictures(&self) -> Result<Vec<Picture>> {$/;"	f
+rusqlite_retrieve_all_pictures	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    pub fn rusqlite_retrieve_all_pictures(&self) -> Result<ImageDataMap> {$/;"	f
 rusqlite_retrieve_picture_with_file_path	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    pub fn rusqlite_retrieve_picture_with_file_path(&self, file_path: &str) -> Result<Picture> {$/;"	f
 rusqlite_row_to_picture	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    fn rusqlite_row_to_picture(row: &Row) -> Result<Picture> {$/;"	f
 save_nine_colors	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub fn save_nine_colors() {$/;"	f
