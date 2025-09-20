@@ -596,6 +596,67 @@ pub fn activate(application: &gtk::Application, cli_rc: &Rc<RefCell<CommandLineI
     if let Ok(gui) = gui_rc.try_borrow() {
         gui.application_window.add_controller(evk)
     };
+    let left_gesture = gtk::GestureClick::new();
+    left_gesture.set_button(1);
+    left_gesture.connect_pressed(clone!(@strong gui_rc => move |_,_,_,_| {
+        {
+            if let Ok(mut gui) = gui_rc.try_borrow_mut() {
+                let prev_page_start = gui.application_state.navigator().prev_page_start();
+                if gui.application_state.can_move(Direction::Index {
+                    value: prev_page_start,
+                }) {
+                    gui.application_state.move_towards(Direction::Index {
+                        value: prev_page_start,
+                    });
+                };
+                set_view(&gui, false)
+            }
+        }
+    }));
+    left_button.add_controller(left_gesture);
+    let right_gesture = gtk::GestureClick::new();
+    right_gesture.set_button(1);
+    right_gesture.connect_pressed(clone!(@strong gui_rc => move |_,_,_,_| {
+        {
+            if let Ok(mut gui) = gui_rc.try_borrow_mut() {
+                let next_page_start = gui.application_state.navigator().next_page_start();
+                if gui.application_state.can_move(Direction::Index {
+                    value: next_page_start,
+                }) {
+                    gui.application_state.move_towards(Direction::Index {
+                        value: next_page_start,
+                    });
+                };
+                set_view(&gui, false)
+            }
+        }
+    }));
+    right_button.add_controller(right_gesture);
+    if let Ok(gui) = gui_rc.try_borrow() {
+        for col in 0..cells_per_row {
+            for row in 0..cells_per_row {
+                let widget = gui.multiple_view_grid
+                    .child_at(col, row)
+                    .expect("can't locate cell box");
+                let cell_box = widget
+                    .downcast::<gtk::Box>()
+                    .expect("cannot downcast widget to Box");
+                let gesture_left = gtk::GestureClick::new();
+                gesture_left.set_button(1);
+                gesture_left.connect_pressed(clone!(@strong gui_rc => move |_,_,_,_| {
+                if let Ok(mut gui) = gui_rc.try_borrow_mut() {
+                    if let Some(index) = gui.application_state.navigator().position_from_coords(row as usize, col as usize) {
+                        gui.application_state.move_towards(Direction::Index {
+                            value: index,
+                        });
+                        set_view(&gui, false)
+                    }
+                }
+            }));
+                cell_box.add_controller(gesture_left);
+            }
+        }
+    };
     load_and_launch(gui_rc);
 }
 
