@@ -100,6 +100,7 @@ impl Navigator {
     }
 
     pub fn move_towards(&mut self, direction: Direction) {
+        self.old_position = self.position;
         match direction {
             Direction::Right => self.position += 1,
             Direction::Left => self.position -= 1,
@@ -326,6 +327,11 @@ mod tests {
     fn after_moving_old_position_and_new_position_can_differ() {
         let mut navigator = Navigator::new(10, 2);
         assert!(navigator.position() == navigator.old_position());
-        assert!(! navigator.has_moved())
+        assert!(!navigator.has_moved());
+        navigator.move_towards(Direction::Right);
+        assert!(navigator.has_moved());
+
+
+
     }
 }
