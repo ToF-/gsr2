@@ -140,7 +140,6 @@ pub mod tests {
         assert_eq!(3, map.len());
         let result = map.get(NINE_COLORS);
         assert!(result.is_some());
-        eprintln!("{:?}", result);
-        //assert_eq!("sample".to_string(), result.unwrap().label());
+        assert_eq!("sample".to_string(), result.unwrap().clone().unwrap().label());
     }
 }
