@@ -304,6 +304,7 @@ mod tests {
     #[test]
     fn coords_from_position_depends_on_given_position() {
         let mut navigator = Navigator::new(10, 2);
+        assert_eq!(None, navigator.coords_from_position(27));
         assert_eq!(Some((0, 0)), navigator.coords_from_position(0));
         assert_eq!(Some((0, 1)), navigator.coords_from_position(1));
         assert_eq!(Some((1, 0)), navigator.coords_from_position(2));
