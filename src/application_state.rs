@@ -82,6 +82,7 @@ impl ApplicationState {
 
     pub fn set_gallery(&mut self, gallery: Gallery, cells_per_row: usize) {
         self.gallery = gallery;
+        self.load_image_data();
         self.navigator = Navigator::new(self.gallery.len(), cells_per_row);
         self.pictures_per_row = cells_per_row
     }
@@ -100,6 +101,25 @@ impl ApplicationState {
 
     pub fn get_control(&self, key_name: &str) -> Option<Control> {
         self.controls.get(key_name).cloned()
+    }
+
+    fn load_image_data(&mut self) {
+        match self.database.rusqlite_retrieve_all_pictures() {
+            Ok(map) => {
+                let mut new_pictures: Vec<Picture> = vec![];
+                for picture in self.gallery.pictures().iter() {
+                    let new_picture = match map.get(&picture.file_path()) {
+                        Some(image_data) => Picture::new_with_image_data(&picture.file_path(), &image_data.label()),
+                        None => Picture::new(&picture.file_path()),
+                    };
+                    new_pictures.push(new_picture)
+                };
+
+            },
+            Err(err) => {
+                eprintln!("{}", err);
+            }
+        }
     }
 }
 

@@ -11,13 +11,23 @@ pub struct Gallery {
 }
 
 impl Gallery {
-    pub fn new() -> Gallery {
+    pub fn new() -> Self {
         Gallery {
             pictures: Vec::new(),
         }
     }
+
+    pub fn new_with_pictures(pictures: Vec<Picture>) -> Self {
+        Gallery {
+            pictures: pictures,
+        }
+    }
     pub fn len(&self) -> usize {
         self.pictures.len()
+    }
+
+    pub fn pictures(&self) -> &Vec<Picture> {
+        &self.pictures
     }
 
     pub fn picture(&self, index: usize) -> Picture {
