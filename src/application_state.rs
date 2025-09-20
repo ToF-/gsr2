@@ -15,6 +15,7 @@ pub struct ApplicationState {
     controls: Controls,
     database: Database,
     pictures_per_row: usize,
+    old_pictures_per_row: usize,
     expand_on: bool,
     full_size_on: bool,
     palette_on: bool,
@@ -32,6 +33,7 @@ impl ApplicationState {
                     controls: default_controls(),
                     database: database,
                     pictures_per_row: 1,
+                    old_pictures_per_row: 1,
                     expand_on: false,
                     full_size_on: false,
                     palette_on: false,
@@ -56,7 +58,7 @@ impl ApplicationState {
         self.navigator.move_towards(direction)
     }
 
-    pub fn can_move(&mut self, direction: Direction) -> bool {
+    pub fn can_move(&self, direction: Direction) -> bool {
         self.navigator.can_move(direction)
     }
 
@@ -87,6 +89,17 @@ impl ApplicationState {
         self.pictures_per_row = cells_per_row
     }
 
+    pub fn toggle_single_view(&mut self) {
+        if self.pictures_per_row != self.old_pictures_per_row {
+            let current_position = self.navigator.position();
+            let temp = self.pictures_per_row;
+            self.pictures_per_row = self.old_pictures_per_row;
+            self.old_pictures_per_row = temp;
+            self.navigator = Navigator::new(self.gallery.len(), self.pictures_per_row);
+            self.navigator.move_towards(Direction::Index { value: current_position });
+            self.navigator.set_page_changed();
+        }
+    }
     pub fn toggle_expand(&mut self) {
         self.expand_on = !self.expand_on
     }

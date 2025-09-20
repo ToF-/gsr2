@@ -66,6 +66,10 @@ impl Navigator {
         self.page_changed
     }
 
+    pub fn set_page_changed(&mut self) {
+        self.page_changed = true
+    }
+
     pub fn position_from_coords(&self, row: usize, col: usize) -> Option<usize> {
         let position_from_coords = self.page_start + row * self.cells_per_row + col;
         if position_from_coords < self.limit {
