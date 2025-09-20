@@ -139,8 +139,14 @@ pub mod tests {
         assert!(status.is_ok());
         let map = status.unwrap();
         assert_eq!(3, map.len());
-        assert_eq!("sample".to_string(), map.get(NINE_COLORS).unwrap().clone().label());
-        assert_eq!( "foo".to_string(), map.get(WHITE_SQUARE).unwrap().clone().label());
+        assert_eq!(
+            "sample".to_string(),
+            map.get(NINE_COLORS).unwrap().clone().label()
+        );
+        assert_eq!(
+            "foo".to_string(),
+            map.get(WHITE_SQUARE).unwrap().clone().label()
+        );
         assert_eq!("".to_string(), map.get(SINGLE_DOT).unwrap().clone().label());
     }
 }
