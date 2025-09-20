@@ -23,4 +23,4 @@
 - [x] key a goes to beginning of page, key z to end of page
 - [x] insert and retrieve Pictures in a sqlite database
 - [x] when loading pictures from a directory, check the database and load image data if found
-- [ ] dot key put the current picture in single view and back
+- [x] dot key put the current picture in single view and back
