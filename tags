@@ -74,7 +74,8 @@ command_line_interface_with_command_file_with_non_existing_file	/Users/christoph
 command_line_interface_with_command_file_with_non_file	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    fn command_line_interface_with_command_file_with_non_file() {$/;"	f
 command_line_interface_with_command_file_with_non_jpg_or_png_file	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    fn command_line_interface_with_command_file_with_non_jpg_or_png_file() {$/;"	f
 compare_rgb	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^fn compare_rgb(color: &Rgb8, other: &Rgb8) -> Ordering {$/;"	f
-coords_from_position	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn coords_from_position() {$/;"	f
+coords_from_position	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn coords_from_position(&self, position: usize) -> Option<(usize, usize)> {$/;"	f
+coords_from_position_depends_on_given_position	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn coords_from_position_depends_on_given_position() {$/;"	f
 current_picture	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn current_picture(&self) -> Picture {$/;"	f
 database_connection	/Users/christophethibaut/Coding/gsr2/src/environment.rs	/^pub fn database_connection() -> Result<String> {$/;"	f
 default_controls	/Users/christophethibaut/Coding/gsr2/src/control.rs	/^pub fn default_controls() -> Controls {$/;"	f
@@ -157,6 +158,7 @@ new_with_pictures	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub 
 next_page_start	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn next_page_start(&self) -> usize {$/;"	f
 next_page_start_is_page_start_plus_page_size_modulo_limit	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn next_page_start_is_page_start_plus_page_size_modulo_limit() {$/;"	f
 page_changed	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn page_changed(&self) -> bool {$/;"	f
+page_end	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn page_end(&self) -> usize {$/;"	f
 page_size	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn page_size(&self) -> usize {$/;"	f
 page_start	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn page_start(&self) -> usize {$/;"	f
 palette_on	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn palette_on(&self) -> bool {$/;"	f
@@ -165,8 +167,8 @@ picture	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn picture
 pictures	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn pictures(&self) -> &Vec<Picture> {$/;"	f
 pictures_per_row	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn pictures_per_row(&self) -> usize {$/;"	f
 position	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn position(&self) -> usize {$/;"	f
-position_from_coords	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn position_from_coords() {$/;"	f
 position_from_coords	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn position_from_coords(&self, row: usize, col: usize) -> Option<usize> {$/;"	f
+position_from_coords_depnds_on_page_start	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn position_from_coords_depnds_on_page_start() {$/;"	f
 prev_page_start	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn prev_page_start(&self) -> usize {$/;"	f
 prev_page_start_is_page_start_minus_page_size	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn prev_page_start_is_page_start_minus_page_size() {$/;"	f
 process_arrow_key_in_fullsize	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn process_arrow_key_in_fullsize(direction: Control, gui: &GraphicalUserInterface) -> bool {$/;"	f
@@ -202,5 +204,5 @@ title_display	/Users/christophethibaut/Coding/gsr2/src/display.rs	/^pub fn title
 toggle_expand	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn toggle_expand(&mut self) {$/;"	f
 toggle_full_size	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn toggle_full_size(&mut self) {$/;"	f
 toggle_palette	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn toggle_palette(&mut self) {$/;"	f
-update_page_start	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn update_page_start(&mut self) {$/;"	f
+update_page_limits	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn update_page_limits(&mut self) {$/;"	f
 with_no_grid_or_thumbnail_option_cells_per_row_is_1	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    fn with_no_grid_or_thumbnail_option_cells_per_row_is_1() {$/;"	f

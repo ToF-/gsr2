@@ -65,11 +65,13 @@ impl Navigator {
         }
     }
 
-    pub fn coords_from_position(&self, position: usize) -> Option<(usize,usize)> {
+    pub fn coords_from_position(&self, position: usize) -> Option<(usize, usize)> {
         if (self.page_start()..=self.page_end()).contains(&position) {
-            Some((0,0))
+            let row = (position - self.page_start()) / self.cells_per_row;
+            let col = (position - self.page_start()) % self.cells_per_row;
+            Some((row, col))
         } else {
-        None
+            None
         }
     }
 
@@ -302,6 +304,7 @@ mod tests {
     #[test]
     fn coords_from_position_depends_on_given_position() {
         let mut navigator = Navigator::new(10, 2);
-        assert_eq!(Some((0,0)), navigator.coords_from_position(0));
+        assert_eq!(Some((0, 0)), navigator.coords_from_position(0));
+        assert_eq!(Some((0, 1)), navigator.coords_from_position(1));
     }
 }
