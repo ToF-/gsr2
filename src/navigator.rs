@@ -330,8 +330,7 @@ mod tests {
         assert!(!navigator.has_moved());
         navigator.move_towards(Direction::Right);
         assert!(navigator.has_moved());
-
-
-
+        navigator.move_towards(Direction::Last);
+        assert!(navigator.has_moved());
     }
 }

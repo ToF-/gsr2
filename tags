@@ -111,6 +111,7 @@ given_a_destination_index_can_move_if_within_limit	/Users/christophethibaut/Codi
 given_coords_can_tell_position_trivial_case	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn given_coords_can_tell_position_trivial_case() {$/;"	f
 given_coords_can_tell_position_with_several_cells_per_row_on_first_page	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn given_coords_can_tell_position_with_several_cells_per_row_on_first_page() {$/;"	f
 given_illegal_coors_position_is_none	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn given_illegal_coors_position_is_none() {$/;"	f
+has_moved	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn has_moved(&self) -> bool {$/;"	f
 image_data	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    pub fn image_data(&self) -> Option<ImageData> {$/;"	f
 insert_and_retrieve_a_picture	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    fn insert_and_retrieve_a_picture() {$/;"	f
 insert_nine_colors_sample_into_db	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    pub fn insert_nine_colors_sample_into_db() {$/;"	f
