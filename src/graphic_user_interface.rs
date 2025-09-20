@@ -255,7 +255,9 @@ fn process_control(gui: &mut GraphicalUserInterface, control: Control) -> bool {
         Control::ToggleFullSize => {
             gui.application_state.toggle_full_size();
         }
-
+        Control::ToggleSingleView => {
+            gui.application_state.toggle_single_view();
+        }
         direction @ Control::Left
         | direction @ Control::Right
         | direction @ Control::Up

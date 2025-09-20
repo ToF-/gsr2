@@ -96,7 +96,9 @@ impl ApplicationState {
             self.pictures_per_row = self.old_pictures_per_row;
             self.old_pictures_per_row = temp;
             self.navigator = Navigator::new(self.gallery.len(), self.pictures_per_row);
-            self.navigator.move_towards(Direction::Index { value: current_position });
+            self.navigator.move_towards(Direction::Index {
+                value: current_position,
+            });
             self.navigator.set_page_changed();
         }
     }

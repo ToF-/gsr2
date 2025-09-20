@@ -52,7 +52,7 @@ after_page_change_position_from_coords_changes	/Users/christophethibaut/Coding/g
 after_palette_toggle_palette_on_is_inverted	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    fn after_palette_toggle_palette_on_is_inverted() {$/;"	f
 an_application_state	/Users/christophethibaut/Coding/gsr2/src/display.rs	/^    fn an_application_state() -> ApplicationState {$/;"	f
 build_and_run_application	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn build_and_run_application(cli: CommandLineInterface) {$/;"	f
-can_move	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn can_move(&mut self, direction: Direction) -> bool {$/;"	f
+can_move	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn can_move(&self, direction: Direction) -> bool {$/;"	f
 can_move	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn can_move(&self, direction: Direction) -> bool {$/;"	f
 cannot_move_down_if_beyond_limit	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn cannot_move_down_if_beyond_limit() {$/;"	f
 cannot_move_up_if_before_limit	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn cannot_move_up_if_before_limit() {$/;"	f
@@ -191,6 +191,7 @@ set_gallery	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    
 set_image_data	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    pub fn set_image_data(&mut self, image_data: ImageData) {$/;"	f
 set_label_at	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn set_label_at(col: i32, row: i32, label_content: &str, gui: &GraphicalUserInterface) {$/;"	f
 set_label_for_picture_at_new_coords	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn set_label_for_picture_at_new_coords(gui: &GraphicalUserInterface) {$/;"	f
+set_page_changed	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn set_page_changed(&mut self) {$/;"	f
 set_picture_at	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn set_picture_at(col: i32, row: i32, gui: &GraphicalUserInterface) {$/;"	f
 set_picture_for_file_view	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn set_picture_for_file_view(gui: &GraphicalUserInterface, picture: &picture::Picture) {$/;"	f
 set_picture_for_multiple_view	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn set_picture_for_multiple_view(gui: &GraphicalUserInterface, pictures_per_row: i32) {$/;"	f
@@ -210,5 +211,6 @@ title_display	/Users/christophethibaut/Coding/gsr2/src/display.rs	/^pub fn title
 toggle_expand	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn toggle_expand(&mut self) {$/;"	f
 toggle_full_size	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn toggle_full_size(&mut self) {$/;"	f
 toggle_palette	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn toggle_palette(&mut self) {$/;"	f
+toggle_single_view	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn toggle_single_view(&mut self) {$/;"	f
 update_page_limits	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn update_page_limits(&mut self) {$/;"	f
 with_no_grid_or_thumbnail_option_cells_per_row_is_1	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    fn with_no_grid_or_thumbnail_option_cells_per_row_is_1() {$/;"	f
