@@ -562,6 +562,13 @@ pub fn activate(application: &gtk::Application, cli_rc: &Rc<RefCell<CommandLineI
     } else {
         view_stack.set_visible_child(&multiple_view_scrolled_window);
     }
+    let cells_per_row: i32 = command_line_interface.cells_per_row();
+    for col in 0..cells_per_row {
+        for row in 0..cells_per_row {
+            let cell_box = make_cell_box();
+            multiple_view_grid.attach(&cell_box, col, row, 1, 1);
+        }
+    };
     application_window.set_child(Some(&view_stack));
     let gui_rc = match ApplicationState::new() {
         Ok(application_state) => Rc::new(RefCell::new(GraphicalUserInterface {
@@ -586,15 +593,8 @@ pub fn activate(application: &gtk::Application, cli_rc: &Rc<RefCell<CommandLineI
         process_key(&gui_rc, key)
     }));
     if let Ok(gui) = gui_rc.try_borrow() {
-        let cells_per_row: i32 = gui.command_line_interface.cells_per_row();
-        for col in 0..cells_per_row {
-            for row in 0..cells_per_row {
-                let cell_box = make_cell_box();
-                gui.multiple_view_grid.attach(&cell_box, col, row, 1, 1);
-            }
-        }
-        gui.application_window.add_controller(evk);
-    }
+        gui.application_window.add_controller(evk)
+    };
     load_and_launch(gui_rc);
 }
 
