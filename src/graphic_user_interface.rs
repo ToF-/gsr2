@@ -320,9 +320,13 @@ fn set_view(gui: &GraphicalUserInterface, initial: bool) {
 
     if initial || view_has_changed {
         if cells_per_row == ONE_CELL_PER_ROW {
+            gui.multiple_view_scrolled_window.set_visible(false);
+            gui.single_view_scrolled_window.set_visible(true);
             gui.view_stack
                 .set_visible_child(&gui.single_view_scrolled_window);
         } else {
+            gui.single_view_scrolled_window.set_visible(false);
+            gui.multiple_view_scrolled_window.set_visible(true);
             gui.view_stack
                 .set_visible_child(&gui.multiple_view_scrolled_window);
             set_picture_for_multiple_view(gui, cells_per_row as i32)
@@ -673,15 +677,10 @@ pub fn activate(application: &gtk::Application, cli_rc: &Rc<RefCell<CommandLineI
     if let Ok(gui) = gui_rc.try_borrow() {
         let gesture_left = gtk::GestureClick::new();
         gesture_left.set_button(1);
-        gesture_left.connect_pressed(clone!(@strong gui_rc => move |_,n_pressed,_,_| {
+        gesture_left.connect_pressed(clone!(@strong gui_rc => move |_,_,_,_| {
             if let Ok(mut gui) = gui_rc.try_borrow_mut() {
-                match n_pressed {
-                    2 => {
-                        gui.application_state.toggle_single_view();
-                        set_view(&gui, true)
-                    },
-                    _ => {}
-                }
+                gui.application_state.toggle_single_view();
+                set_view(&gui, true)
             }
         }));
         gui.single_view_picture.add_controller(gesture_left);
