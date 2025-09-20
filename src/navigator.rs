@@ -307,5 +307,8 @@ mod tests {
         assert_eq!(Some((0, 0)), navigator.coords_from_position(0));
         assert_eq!(Some((0, 1)), navigator.coords_from_position(1));
         assert_eq!(Some((1, 0)), navigator.coords_from_position(2));
+        navigator.move_towards(Direction::Last);
+        assert_eq!(9, navigator.position());
+        assert_eq!(Some((0, 1)), navigator.coords_from_position(9));
     }
 }
