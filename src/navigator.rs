@@ -58,6 +58,10 @@ impl Navigator {
         }
     }
 
+    pub fn has_moved(&self) -> bool {
+        self.page_changed || (self.old_position != self.position)
+    }
+
     pub fn page_changed(&self) -> bool {
         self.page_changed
     }
@@ -322,5 +326,6 @@ mod tests {
     fn after_moving_old_position_and_new_position_can_differ() {
         let mut navigator = Navigator::new(10, 2);
         assert!(navigator.position() == navigator.old_position());
+        assert!(! navigator.has_moved())
     }
 }

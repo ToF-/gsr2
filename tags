@@ -45,6 +45,7 @@ a_thumbnail_picture_has_the_name_as_the_original_picture_with_thumb_suffix	/User
 activate	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn activate(application: &gtk::Application, cli_rc: &Rc<RefCell<CommandLineInterface>>) {$/;"	f
 after_expand_toggle_expand_on_is_inverted	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    fn after_expand_toggle_expand_on_is_inverted() {$/;"	f
 after_full_size_toggle_full_size_on_is_inverted	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    fn after_full_size_toggle_full_size_on_is_inverted() {$/;"	f
+after_moving_old_position_and_new_position_can_differ	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn after_moving_old_position_and_new_position_can_differ() {$/;"	f
 after_page_change_page_change_is_detected	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn after_page_change_page_change_is_detected() {$/;"	f
 after_page_change_position_from_coords_changes	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn after_page_change_position_from_coords_changes() {$/;"	f
 after_palette_toggle_palette_on_is_inverted	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    fn after_palette_toggle_palette_on_is_inverted() {$/;"	f
@@ -157,6 +158,7 @@ new_with_image_data	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    pu
 new_with_pictures	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn new_with_pictures(pictures: Vec<Picture>) -> Self {$/;"	f
 next_page_start	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn next_page_start(&self) -> usize {$/;"	f
 next_page_start_is_page_start_plus_page_size_modulo_limit	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn next_page_start_is_page_start_plus_page_size_modulo_limit() {$/;"	f
+old_position	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn old_position(&self) -> usize {$/;"	f
 page_changed	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn page_changed(&self) -> bool {$/;"	f
 page_end	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn page_end(&self) -> usize {$/;"	f
 page_size	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn page_size(&self) -> usize {$/;"	f
