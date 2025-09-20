@@ -4,7 +4,8 @@ use crate::command_line_interface::CommandLineInterface;
 use crate::control::Control;
 use crate::default_values::ONE_CELL_PER_ROW;
 use crate::default_values::{
-    FOCUS_SYMBOL, DEFAULT_HEIGHT, DEFAULT_WIDTH, PALETTE_AREA_HEIGHT, PALETTE_AREA_WIDTH, SCROLL_STEP,
+    DEFAULT_HEIGHT, DEFAULT_WIDTH, FOCUS_SYMBOL, PALETTE_AREA_HEIGHT, PALETTE_AREA_WIDTH,
+    SCROLL_STEP,
 };
 use crate::direction::Direction;
 use crate::display::title_display;
@@ -279,12 +280,21 @@ fn set_label_for_picture_at_new_coords(gui: &GraphicalUserInterface) {
     let new_position = navigator.position();
     let old_coords = navigator.coords_from_position(old_position).unwrap();
     let new_coords = navigator.coords_from_position(new_position).unwrap();
-    let old_label = gui.application_state.gallery().picture(old_position).label();
-    let new_label = format!("{} {}", 
+    let old_label = gui
+        .application_state
+        .gallery()
+        .picture(old_position)
+        .label();
+    let new_label = format!(
+        "{} {}",
         FOCUS_SYMBOL.to_string(),
-        gui.application_state.gallery().picture(new_position).label());
-    set_label_at(old_coords.1 as i32, old_coords.0 as i32, &old_label, gui); 
-    set_label_at(new_coords.1 as i32, new_coords.0 as i32, &new_label, gui); 
+        gui.application_state
+            .gallery()
+            .picture(new_position)
+            .label()
+    );
+    set_label_at(old_coords.1 as i32, old_coords.0 as i32, &old_label, gui);
+    set_label_at(new_coords.1 as i32, new_coords.0 as i32, &new_label, gui);
 }
 fn set_picture_for_multiple_view(gui: &GraphicalUserInterface, pictures_per_row: i32) {
     for col in 0..pictures_per_row {
@@ -299,10 +309,10 @@ fn set_initial_picture_view(gui: &GraphicalUserInterface) {
         set_picture_for_single_view(gui);
         gui.view_stack
             .set_visible_child(&gui.single_view_scrolled_window);
-        } else {
-            set_picture_for_multiple_view(gui, cells_per_row as i32);
-            gui.view_stack
-                .set_visible_child(&gui.multiple_view_scrolled_window);
+    } else {
+        set_picture_for_multiple_view(gui, cells_per_row as i32);
+        gui.view_stack
+            .set_visible_child(&gui.multiple_view_scrolled_window);
     }
 }
 
