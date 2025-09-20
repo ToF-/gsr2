@@ -18,9 +18,7 @@ impl Gallery {
     }
 
     pub fn new_with_pictures(pictures: Vec<Picture>) -> Self {
-        Gallery {
-            pictures: pictures,
-        }
+        Gallery { pictures: pictures }
     }
     pub fn len(&self) -> usize {
         self.pictures.len()

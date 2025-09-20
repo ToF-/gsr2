@@ -161,7 +161,7 @@ page_start	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn pa
 palette_on	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn palette_on(&self) -> bool {$/;"	f
 parse_and_check	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    pub fn parse_and_check(args_opt: Option<Vec<&str>>) -> Result<Self> {$/;"	f
 picture	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn picture(&self, index: usize) -> Picture {$/;"	f
-pictures	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn pictures(&self) {$/;"	f
+pictures	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn pictures(&self) -> &Vec<Picture> {$/;"	f
 pictures_per_row	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn pictures_per_row(&self) -> usize {$/;"	f
 position	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn position(&self) -> usize {$/;"	f
 position_from_coords	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn position_from_coords(&self, row: usize, col: usize) -> Option<usize> {$/;"	f

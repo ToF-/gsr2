@@ -109,13 +109,14 @@ impl ApplicationState {
                 let mut new_pictures: Vec<Picture> = vec![];
                 for picture in self.gallery.pictures().iter() {
                     let new_picture = match map.get(&picture.file_path()) {
-                        Some(image_data) => Picture::new_with_image_data(&picture.file_path(), &image_data.label()),
+                        Some(image_data) => {
+                            Picture::new_with_image_data(&picture.file_path(), &image_data.label())
+                        }
                         None => Picture::new(&picture.file_path()),
                     };
                     new_pictures.push(new_picture)
-                };
-
-            },
+                }
+            }
             Err(err) => {
                 eprintln!("{}", err);
             }

@@ -73,12 +73,18 @@ fn draw_palette(ctx: &Context, width: i32, height: i32, palette: &Palette) {
 }
 
 fn make_label_for_picture(gui: &GraphicalUserInterface, index: usize) -> gtk::Label {
-    let content = if index == gui.application_state.navigator().position() {
-        "▄"
+    let focus = if index == gui.application_state.navigator().position() {
+        "▄ "
     } else {
         ""
     };
-    let label = gtk::Label::new(Some(content));
+    let picture = gui.application_state.gallery().picture(index);
+    let picture_label = match picture.image_data() {
+        Some(image_data) => image_data.label(),
+        None => String::from(""),
+    };
+    let content = format!("{}{}", focus, picture_label);
+    let label = gtk::Label::new(Some(&content));
     label.set_valign(Align::Center);
     label.set_halign(Align::Center);
     label.set_widget_name("picture_label");
