@@ -271,4 +271,9 @@ mod tests {
         navigator.move_towards(Direction::PageEnd);
         assert_eq!(9, navigator.position());
     }
+    #[test]
+    fn position_from_coords_and_coords_from_position() {
+        let mut navigator = Navigator::new(10, 2);
+        assert_eq!(Some(0), navigator.position_from_coords(0, 0));
+    }
 }

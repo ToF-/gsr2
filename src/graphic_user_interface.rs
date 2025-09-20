@@ -260,7 +260,7 @@ fn set_initial_picture_view(gui: &GraphicalUserInterface) {
     if cells_per_row == ONE_CELL_PER_ROW {
         set_picture_for_single_view(gui)
     } else {
-        if gui.application_state.navigator().page_changed() { 
+        if gui.application_state.navigator().page_changed() {
             set_picture_for_multiple_view(gui, cells_per_row as i32);
         } else {
         }
