@@ -270,12 +270,10 @@ fn set_picture_view(gui: &GraphicalUserInterface) {
     let cells_per_row = gui.application_state.pictures_per_row();
     if cells_per_row == ONE_CELL_PER_ROW {
         set_picture_for_single_view(gui);
-        gui.view_stack
-            .set_visible_child(&gui.single_view_scrolled_window);
     } else {
-        set_picture_for_multiple_view(gui, cells_per_row as i32);
-        gui.view_stack
-            .set_visible_child(&gui.multiple_view_scrolled_window);
+        if gui.application_state.navigator().page_changed() {
+            set_picture_for_multiple_view(gui, cells_per_row as i32)
+        };
     };
 }
 
