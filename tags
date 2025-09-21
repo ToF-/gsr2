@@ -23,6 +23,7 @@ Gallery	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^pub struct Gallery
 GraphicalUserInterface	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^struct GraphicalUserInterface {$/;"	s
 ImageData	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^pub struct ImageData {$/;"	s
 ImageDataMap	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^pub type ImageDataMap = HashMap<String, ImageData>;$/;"	T
+InputKind	/Users/christophethibaut/Coding/gsr2/src/editor.rs	/^pub enum InputKind {$/;"	g
 MAX_PALETTE_COLORS	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const MAX_PALETTE_COLORS: u8 = 9;$/;"	c
 NINE_COLORS	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub const NINE_COLORS: &str = "testdata\/nine_colors.png";$/;"	c
 Navigator	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^pub struct Navigator {$/;"	s
@@ -53,7 +54,7 @@ after_page_change_page_change_is_detected	/Users/christophethibaut/Coding/gsr2/s
 after_page_change_position_from_coords_changes	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn after_page_change_position_from_coords_changes() {$/;"	f
 after_palette_toggle_palette_on_is_inverted	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    fn after_palette_toggle_palette_on_is_inverted() {$/;"	f
 an_application_state	/Users/christophethibaut/Coding/gsr2/src/display.rs	/^    fn an_application_state() -> ApplicationState {$/;"	f
-begin_input	/Users/christophethibaut/Coding/gsr2/src/editor.rs	/^    pub fn begin_input(&mut self) {$/;"	f
+begin_input	/Users/christophethibaut/Coding/gsr2/src/editor.rs	/^    pub fn begin_input(&mut self, kind: InputKind) {$/;"	f
 build_and_run_application	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn build_and_run_application(cli: CommandLineInterface) {$/;"	f
 can_move	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn can_move(&self, direction: Direction) -> bool {$/;"	f
 can_move	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn can_move(&self, direction: Direction) -> bool {$/;"	f
@@ -120,6 +121,7 @@ given_illegal_coors_position_is_none	/Users/christophethibaut/Coding/gsr2/src/na
 has_moved	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn has_moved(&self) -> bool {$/;"	f
 image_data	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    pub fn image_data(&self) -> Option<ImageData> {$/;"	f
 initially_not_editing	/Users/christophethibaut/Coding/gsr2/src/editor.rs	/^    fn initially_not_editing() {$/;"	f
+input_kind	/Users/christophethibaut/Coding/gsr2/src/editor.rs	/^    pub fn input_kind(&self) -> Option<InputKind> {$/;"	f
 insert_and_retrieve_a_picture	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    fn insert_and_retrieve_a_picture() {$/;"	f
 insert_nine_colors_sample_into_db	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    pub fn insert_nine_colors_sample_into_db() {$/;"	f
 label	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^    pub fn label(&self) -> String {$/;"	f
