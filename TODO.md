@@ -27,3 +27,4 @@
 - [x] left click on the picture in grid view set the current position
 - [x] load picture file paths and data from the database
 - [ ] fixme: test database is opened in all conditions, test or not
+- [ ] switch from grid view to single view with controls
