@@ -98,5 +98,8 @@ mod tests {
         let mut editor = Editor::new();
         editor.begin_input(InputKind::Label);
         assert!(!editor.append('"'));
+        assert!(!editor.append('@'));
+        assert!(!editor.append('^'));
+        assert_eq!(Some(String::from("")), editor.input());
     }
 }
