@@ -77,9 +77,10 @@ mod tests {
         let mut editor = Editor::new();
         editor.begin_input(InputKind::Label);
         assert!(editor.append('a'));
-        assert_eq!(Some(String::from("a")), editor.input.clone())
+        assert_eq!(Some(String::from("a")), editor.input.clone());
+        assert!(editor.append('b'));
+        assert_eq!(Some(String::from("ab")), editor.input.clone())
     }
     #[test]
-    fn cannot_append_forbidden_chars() {
-    }
+    fn cannot_append_forbidden_chars() {}
 }
