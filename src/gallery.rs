@@ -1,9 +1,10 @@
 use crate::file_system::{get_all_picture_file_paths, get_picture_file_path};
+use crate::database::Database;
 use crate::order::Order;
 use crate::picture::Picture;
 use rand::prelude::SliceRandom;
 use rand::rng;
-use std::io::Result;
+use std::io::{Error, Result};
 
 #[derive(Debug)]
 pub struct Gallery {
@@ -45,6 +46,17 @@ impl Gallery {
         }
     }
 
+    pub fn load_from_database(&mut self, database: &Database) -> Result<usize> {
+        println!("loading from database…");
+        match database.retrieve_all_pictures() {
+            Ok(pictures) => {
+                self.pictures = pictures;
+                Ok(self.len())
+            },
+            Err(err) => Err(Error::other("can't retrieve pictures from database")),
+        }
+    }
+
     pub fn load_from_file_path(&mut self, file_path: &str) -> Result<usize> {
         match get_picture_file_path(file_path) {
             Ok(path) => {
@@ -69,10 +81,10 @@ impl Gallery {
 mod tests {
 
     use super::*;
+    use crate::database::Database;
+    use crate::database::tests::{delete_nine_colors_from_db, insert_nine_colors_sample_into_db};
     use crate::default_values::TEST_DATABASE_FILE;
     use crate::gen_image::{NINE_COLORS, SINGLE_DOT, WHITE_SQUARE};
-    use crate::database::{Database};
-    use crate::database::tests::{delete_nine_colors_from_db, insert_nine_colors_sample_into_db};
 
     #[test]
     fn loading_from_a_directory_collect_all_the_picture_files_from_that_directory() {
@@ -107,8 +119,13 @@ mod tests {
 
     #[test]
     fn loading_from_database_collect_all_the_picture_file_paths_stored() {
-        let database = Database::from_connection(TEST_DATABASE_FILE).expect("test database can't be open");
+        let database: Database =
+            Database::from_connection(TEST_DATABASE_FILE).expect("test database can't be open");
         let mut gallery = Gallery::new();
+        gallery
+            .load_from_database(&database)
+            .expect("can't load from database");
+        assert_eq!(3, gallery.len());
     }
 
     fn sort_and_compare_lists() -> bool {
