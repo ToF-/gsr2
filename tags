@@ -167,7 +167,7 @@ moving_to_beginning_of_page	/Users/christophethibaut/Coding/gsr2/src/navigator.r
 moving_to_end_of_page	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn moving_to_end_of_page() {$/;"	f
 moving_up_moves_to_entry_one_row_above	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn moving_up_moves_to_entry_one_row_above() {$/;"	f
 my_app_state	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    fn my_app_state() -> ApplicationState {$/;"	f
-my_db	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    fn my_db() -> Database {$/;"	f
+my_db	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    pub fn my_db() -> Database {$/;"	f
 navigator	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn navigator(&self) -> &Navigator {$/;"	f
 navigator_can_move_to_first_and_last_position	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn navigator_can_move_to_first_and_last_position() {$/;"	f
 navigator_cannot_move_before_first_position	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn navigator_cannot_move_before_first_position() {$/;"	f
