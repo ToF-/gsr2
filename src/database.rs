@@ -88,14 +88,13 @@ impl Database {
     }
 
     pub fn retrieve_all_pictures(&self) -> Result<Vec<Picture>> {
-        let result = self.rusqlite_retrieve_all_pictures()
-            .and_then(|map| {
-                let mut pictures: Vec<Picture> = vec![];
-                for (file_path, image_data) in map.iter() {
-                    pictures.push(Picture::new_with_image_data(file_path, &image_data.label()))
-                };
-                Ok(pictures)
-            });
+        let result = self.rusqlite_retrieve_all_pictures().and_then(|map| {
+            let mut pictures: Vec<Picture> = vec![];
+            for (file_path, image_data) in map.iter() {
+                pictures.push(Picture::new_with_image_data(file_path, &image_data.label()))
+            }
+            Ok(pictures)
+        });
         match result {
             Ok(pictures) => Ok(pictures),
             Err(err) => Err(err),

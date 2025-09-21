@@ -120,11 +120,13 @@ label	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^    pub fn label(
 label	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    pub fn label(&self) -> String {$/;"	f
 len	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn len(&self) -> usize {$/;"	f
 load_and_launch	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn load_and_launch(gui_rc: RcRefCellGui) {$/;"	f
+load_from_database	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn load_from_database(&mut self, database: &Database) -> Result<usize> {$/;"	f
 load_from_directory	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn load_from_directory(&mut self, path: &str) -> Result<usize> {$/;"	f
 load_from_file_path	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn load_from_file_path(&mut self, file_path: &str) -> Result<usize> {$/;"	f
 load_image_data	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    fn load_image_data(&mut self) {$/;"	f
 loading_from_a_directory_collect_all_the_picture_files_from_that_directory	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    fn loading_from_a_directory_collect_all_the_picture_files_from_that_directory() {$/;"	f
 loading_from_a_single_file_path_collect_that_single_picture_file	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    fn loading_from_a_single_file_path_collect_that_single_picture_file() {$/;"	f
+loading_from_database_collect_all_the_picture_file_paths_stored	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    fn loading_from_database_collect_all_the_picture_file_paths_stored() {$/;"	f
 main	/Users/christophethibaut/Coding/gsr2/src/main.rs	/^fn main() {$/;"	f
 make_application_window	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn make_application_window(application: &gtk::Application) -> gtk::ApplicationWindow {$/;"	f
 make_cell_box	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn make_cell_box() -> gtk::Box {$/;"	f
@@ -179,6 +181,7 @@ prev_page_start_is_page_start_minus_page_size	/Users/christophethibaut/Coding/gs
 process_arrow_key_in_fullsize	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn process_arrow_key_in_fullsize(direction: Control, gui: &GraphicalUserInterface) -> bool {$/;"	f
 process_control	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn process_control(gui: &mut GraphicalUserInterface, control: Control) -> bool {$/;"	f
 process_key	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {$/;"	f
+retrieve_all_pictures	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    pub fn retrieve_all_pictures(&self) -> Result<Vec<Picture>> {$/;"	f
 retrieve_all_pictures_ordered_by_file_path	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    fn retrieve_all_pictures_ordered_by_file_path() {$/;"	f
 rusqlite_delete_picture_with_file_path	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    pub fn rusqlite_delete_picture_with_file_path(&self, file_path: &str) -> Result<usize> {$/;"	f
 rusqlite_from_connection	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    fn rusqlite_from_connection(connection_string: &str) -> Result<Self> {$/;"	f

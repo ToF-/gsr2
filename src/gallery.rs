@@ -1,5 +1,5 @@
-use crate::file_system::{get_all_picture_file_paths, get_picture_file_path};
 use crate::database::Database;
+use crate::file_system::{get_all_picture_file_paths, get_picture_file_path};
 use crate::order::Order;
 use crate::picture::Picture;
 use rand::prelude::SliceRandom;
@@ -52,7 +52,7 @@ impl Gallery {
             Ok(pictures) => {
                 self.pictures = pictures;
                 Ok(self.len())
-            },
+            }
             Err(err) => Err(Error::other("can't retrieve pictures from database")),
         }
     }

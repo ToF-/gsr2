@@ -351,7 +351,7 @@ fn load_and_launch(gui_rc: RcRefCellGui) {
         let result = match &gui.command_line_interface.command {
             Some(File { file_path }) => gallery.load_from_file_path(file_path),
             Some(Dir { directory }) => gallery.load_from_directory(directory),
-            None => Ok(0),
+            None => gallery.load_from_database(gui.application_state.database()),
         };
         if gui.command_line_interface.random {
             gallery.sort_by(Order::Random)

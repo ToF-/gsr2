@@ -46,6 +46,10 @@ impl ApplicationState {
         &self.gallery
     }
 
+    pub fn database(&self) -> &Database {
+        &self.database
+    }
+
     pub fn current_picture(&self) -> Picture {
         self.gallery.picture(self.navigator.position())
     }
