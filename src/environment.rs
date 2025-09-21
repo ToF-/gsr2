@@ -13,6 +13,7 @@ pub fn database_connection() -> Result<String> {
                 );
                 Ok(TEST_DATABASE_FILE.to_string())
             } else {
+                eprintln!("cannot find environment variable {DATABASE_CONNECTION_VAR}");
                 Err(Error::other(err))
             }
         }
