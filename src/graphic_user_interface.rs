@@ -1,3 +1,5 @@
+use std::borrow::Borrow;
+use crate::editor::Editor;
 use crate::Command::{Dir, File};
 use crate::application_state::ApplicationState;
 use crate::command_line_interface::CommandLineInterface;
@@ -174,9 +176,8 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
     let mut refresh_view_required: bool = false;
     if let Ok(mut gui) = gui_rc.try_borrow_mut() {
         if gui.application_state.editor().editing() {
-            refresh_view_required = process_edition(&mut gui, key);
-
-        }   else if let Some(key_name) = key.name() 
+            // nope refresh_view_required = process_edition(gui.application_state.editor(), &gui, key);
+        } else if let Some(key_name) = key.name()
             && let Some(control) = gui.application_state.get_control(key_name.as_str())
         {
             let refresh_view_required: bool = process_control(&mut gui, control);
@@ -188,7 +189,26 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
     gtk::Inhibit(false)
 }
 
-fn process_edition(gui: &mut GraphicalUserInterface, key: Key) -> bool {
+fn process_edition(mut editor: &mut Editor, gui: &GraphicalUserInterface, key: Key) -> bool {
+    let mut refresh_view_required: bool = false;
+    match key.name() {
+        None => refresh_view_required = false,
+        Some(key_name) => match key_name.as_str() {
+            "Escape" => {
+                editor.cancel_input();
+            },
+            "Return" => {
+                let content = editor.confirm_input();
+                refresh_view_required = true;
+            },
+            "BackSpace" => {
+                editor.delete();
+            },
+            _ => if let Some(ch) = key.to_unicode() {
+                editor.append(ch);
+            },
+        }
+    }
     false
 }
 

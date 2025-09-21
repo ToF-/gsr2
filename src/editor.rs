@@ -3,7 +3,7 @@ pub enum InputKind {
     Label,
 }
 
-#[derive(Debug)]
+#[derive(Clone,Debug)]
 pub struct Editor {
     editing: bool,
     input: String,

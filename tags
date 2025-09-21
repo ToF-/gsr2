@@ -101,6 +101,7 @@ display_title_for_application_state_with_expand_on	/Users/christophethibaut/Codi
 display_title_for_application_state_with_full_size_on	/Users/christophethibaut/Coding/gsr2/src/display.rs	/^    fn display_title_for_application_state_with_full_size_on() {$/;"	f
 draw_palette	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn draw_palette(ctx: &Context, width: i32, height: i32, palette: &Palette) {$/;"	f
 editing	/Users/christophethibaut/Coding/gsr2/src/editor.rs	/^    pub fn editing(&self) -> bool {$/;"	f
+editor	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn editor(&self) -> &Editor {$/;"	f
 expand_display	/Users/christophethibaut/Coding/gsr2/src/display.rs	/^fn expand_display(on: bool) -> String {$/;"	f
 expand_on	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn expand_on(&self) -> bool {$/;"	f
 extract_a_palette_from_a_picture_file	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^    fn extract_a_palette_from_a_picture_file() {$/;"	f
@@ -198,6 +199,7 @@ prev_page_start	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub 
 prev_page_start_is_page_start_minus_page_size	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn prev_page_start_is_page_start_minus_page_size() {$/;"	f
 process_arrow_key_in_fullsize	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn process_arrow_key_in_fullsize(direction: Control, gui: &GraphicalUserInterface) -> bool {$/;"	f
 process_control	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn process_control(gui: &mut GraphicalUserInterface, control: Control) -> bool {$/;"	f
+process_edition	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn process_edition(gui: &mut GraphicalUserInterface, key: Key) -> bool {$/;"	f
 process_key	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {$/;"	f
 retrieve_all_pictures	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    pub fn retrieve_all_pictures(&self) -> Result<Vec<Picture>> {$/;"	f
 retrieve_all_pictures_ordered_by_file_path	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    fn retrieve_all_pictures_ordered_by_file_path() {$/;"	f
