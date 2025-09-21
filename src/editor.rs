@@ -62,7 +62,7 @@ impl Editor {
     }
 
     pub fn delete(&mut self) -> bool {
-        if self.editing && ! self.input.clone().is_empty() {
+        if self.editing && !self.input.clone().is_empty() {
             self.input.pop();
             true
         } else {

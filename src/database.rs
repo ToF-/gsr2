@@ -57,7 +57,8 @@ impl Database {
              FROM Picture               \n\
              WHERE FilePath = ?1;",
             params![file_path],
-            Self::rusqlite_row_to_picture)
+            Self::rusqlite_row_to_picture,
+        )
     }
 
     pub fn rusqlite_retrieve_all_pictures(&self) -> Result<ImageDataMap> {

@@ -76,7 +76,6 @@ check_path_is_directory	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^pub 
 check_path_return_error_on_non_existent_path	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^    fn check_path_return_error_on_non_existent_path() {$/;"	f
 check_path_return_error_on_path_that_is_not_a_directory	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^    fn check_path_return_error_on_path_that_is_not_a_directory() {$/;"	f
 check_picture_file	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^pub fn check_picture_file(file_name: &str) -> Result<String> {$/;"	f
-children_count	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn children_count(arg: &Widget) -> usize {$/;"	f
 command_line_interface_dir_command_with_non_existing_specified_directory	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    fn command_line_interface_dir_command_with_non_existing_specified_directory() {$/;"	f
 command_line_interface_dir_command_with_object_specified_not_directory	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    fn command_line_interface_dir_command_with_object_specified_not_directory() {$/;"	f
 command_line_interface_with_command_directory_and_adequate_argument	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    fn command_line_interface_with_command_directory_and_adequate_argument() {$/;"	f

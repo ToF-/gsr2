@@ -46,11 +46,11 @@ impl CommandLineInterface {
             match check_picture_file(file_path) {
                 Ok(_) => {
                     if cli.grid.is_some() {
-                        return Err(Error::other(
-                            "option --grid not allowed for File command"));
+                        return Err(Error::other("option --grid not allowed for File command"));
                     } else if cli.thumbnails {
                         return Err(Error::other(
-                            "option --thumbnails not allowed for File command"));
+                            "option --thumbnails not allowed for File command",
+                        ));
                     } else {
                         return Ok(cli.clone());
                     }
