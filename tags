@@ -83,6 +83,8 @@ command_line_interface_with_command_file_with_non_existing_file	/Users/christoph
 command_line_interface_with_command_file_with_non_file	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    fn command_line_interface_with_command_file_with_non_file() {$/;"	f
 command_line_interface_with_command_file_with_non_jpg_or_png_file	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    fn command_line_interface_with_command_file_with_non_jpg_or_png_file() {$/;"	f
 compare_rgb	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^fn compare_rgb(color: &Rgb8, other: &Rgb8) -> Ordering {$/;"	f
+confirm_input	/Users/christophethibaut/Coding/gsr2/src/editor.rs	/^    pub fn confirm_input(&mut self) -> String {$/;"	f
+confirming_return_input_and_set_editing_to_false	/Users/christophethibaut/Coding/gsr2/src/editor.rs	/^    fn confirming_return_input_and_set_editing_to_false() {$/;"	f
 coords_from_position	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn coords_from_position(&self, position: usize) -> Option<(usize, usize)> {$/;"	f
 coords_from_position_depends_on_given_position	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn coords_from_position_depends_on_given_position() {$/;"	f
 current_picture	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn current_picture(&self) -> Picture {$/;"	f

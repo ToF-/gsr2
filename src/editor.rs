@@ -39,6 +39,7 @@ impl Editor {
 
     pub fn confirm_input(&mut self) -> String {
         if self.editing {
+            self.editing = false;
             self.input.clone().unwrap()
         } else {
             String::from("")
@@ -141,5 +142,6 @@ mod tests {
         assert!(editor.append('b'));
         assert!(editor.append('c'));
         assert_eq!(String::from("abc"), editor.confirm_input());
+        assert!(! editor.editing());
     }
 }
