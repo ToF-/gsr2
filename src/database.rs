@@ -118,8 +118,14 @@ pub mod tests {
     use crate::image_data;
 
     fn my_db() -> Database {
-        Database::rusqlite_from_connection(TEST_DATABASE_FILE).expect("test database can't be open")
+        let database = Database::rusqlite_from_connection(TEST_DATABASE_FILE).expect("test database can't be open");
+        database.connection.execute("DELETE FROM Picture;",[]);
+        database.connection.execute("INSERT INTO Picture (FilePath, Label) VALUES ('testdata/nine_colors.png', 'sample');", []);
+        database.connection.execute("INSERT INTO Picture (FilePath, Label) VALUES ('testdata/single_dot.png', '');", []);
+        database.connection.execute("INSERT INTO Picture (FilePath, Label) VALUES ('testdata/white_square.png', 'foo');", []);
+        database
     }
+
 
     pub fn delete_nine_colors_from_db() {
         let database = my_db();
