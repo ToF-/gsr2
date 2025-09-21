@@ -64,6 +64,9 @@ impl ApplicationState {
         &self.navigator
     }
 
+    pub fn set_editor(&mut self, editor: Editor) {
+        self.editor = editor
+    }
     pub fn move_towards(&mut self, direction: Direction) {
         self.navigator.move_towards(direction)
     }

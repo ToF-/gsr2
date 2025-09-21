@@ -1,5 +1,4 @@
-use std::borrow::Borrow;
-use crate::editor::Editor;
+use std::borrow::BorrowMut;
 use crate::Command::{Dir, File};
 use crate::application_state::ApplicationState;
 use crate::command_line_interface::CommandLineInterface;
@@ -11,6 +10,7 @@ use crate::default_values::{
 };
 use crate::direction::Direction;
 use crate::display::title_display;
+use crate::editor::Editor;
 use crate::gallery::Gallery;
 use crate::image_data::{Palette, get_palette_from_picture_file};
 use crate::order::Order;
@@ -24,6 +24,7 @@ use gtk::{
     Align, Application, ApplicationWindow, CssProvider, Label, Orientation, Picture,
     ScrolledWindow, gdk,
 };
+use std::borrow::Borrow;
 use std::cell::RefCell;
 use std::process::exit;
 use std::rc::Rc;
@@ -176,7 +177,7 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
     let mut refresh_view_required: bool = false;
     if let Ok(mut gui) = gui_rc.try_borrow_mut() {
         if gui.application_state.editor().editing() {
-            // nope refresh_view_required = process_edition(gui.application_state.editor(), &gui, key);
+            refresh_view_required = process_edition(gui_rc, key)
         } else if let Some(key_name) = key.name()
             && let Some(control) = gui.application_state.get_control(key_name.as_str())
         {
@@ -189,27 +190,33 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
     gtk::Inhibit(false)
 }
 
-fn process_edition(mut editor: &mut Editor, gui: &GraphicalUserInterface, key: Key) -> bool {
+fn process_edition(gui_rc: &RcRefCellGui, key: Key) -> bool {
     let mut refresh_view_required: bool = false;
-    match key.name() {
-        None => refresh_view_required = false,
-        Some(key_name) => match key_name.as_str() {
-            "Escape" => {
-                editor.cancel_input();
+    if let Ok(mut gui) = gui_rc.try_borrow_mut() {
+        let mut editor: Editor = gui.application_state.editor().clone();
+        match key.name() {
+            None => refresh_view_required = false,
+            Some(key_name) => match key_name.as_str() {
+                "Escape" => {
+                    editor.cancel_input();
+                }
+                "Return" => {
+                    let content = editor.confirm_input();
+                    refresh_view_required = true;
+                }
+                "BackSpace" => {
+                    editor.delete();
+                }
+                _ => {
+                    if let Some(ch) = key.to_unicode() {
+                        editor.append(ch);
+                    }
+                }
             },
-            "Return" => {
-                let content = editor.confirm_input();
-                refresh_view_required = true;
-            },
-            "BackSpace" => {
-                editor.delete();
-            },
-            _ => if let Some(ch) = key.to_unicode() {
-                editor.append(ch);
-            },
-        }
-    }
-    false
+        };
+        gui.application_state.set_editor(editor);
+    };
+    refresh_view_required
 }
 
 fn process_control(gui: &mut GraphicalUserInterface, control: Control) -> bool {
