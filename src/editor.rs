@@ -35,6 +35,7 @@ impl Editor {
         self.editing = true;
         self.input = String::from("");
         self.input_kind = Some(kind);
+        println!("begin input");
     }
 
     pub fn confirm_input(&mut self) -> String {
@@ -55,6 +56,7 @@ impl Editor {
     pub fn append(&mut self, ch: char) -> bool {
         if self.editing && matches!(ch, 'a'..='z' | '0'..='9' | '-' | '_') {
             self.input.push(ch);
+            println!("{}", self.input);
             true
         } else {
             false

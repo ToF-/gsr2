@@ -177,7 +177,7 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
     let mut refresh_view_required: bool = false;
     if let Ok(mut gui) = gui_rc.try_borrow_mut() {
         if gui.application_state.editor().editing() {
-            refresh_view_required = process_edition(gui_rc, key);
+            refresh_view_required = process_edition(&mut gui, key);
         } else if let Some(key_name) = key.name()
             && let Some(control) = gui.application_state.get_control(key_name.as_str())
         {
@@ -190,34 +190,32 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
     gtk::Inhibit(false)
 }
 
-fn process_edition(gui_rc: &RcRefCellGui, key: Key) -> bool {
+fn process_edition(mut gui: &mut GraphicalUserInterface, key: Key) -> bool {
     let mut refresh_view_required: bool = false;
-    if let Ok(mut gui) = gui_rc.try_borrow_mut() {
-        let mut editor: Editor = gui.application_state.editor().clone();
-        match key.name() {
-            None => refresh_view_required = false,
-            Some(key_name) => match key_name.as_str() {
-                "Escape" => {
-                    editor.cancel_input();
+    let mut editor: Editor = gui.application_state.editor().clone();
+    if let Some(key_name) = key.name() {
+        println!("{}", key_name.as_str());
+        match key_name.as_str() {
+            "Escape" => {
+                editor.cancel_input();
+            }
+            "Return" => {
+                let content = editor.confirm_input();
+                refresh_view_required = true;
+            }
+            "BackSpace" => {
+                editor.delete();
+            }
+            _ => {
+                if let Some(ch) = key.to_unicode() {
+                    editor.append(ch);
                 }
-                "Return" => {
-                    let content = editor.confirm_input();
-                    refresh_view_required = true;
-                }
-                "BackSpace" => {
-                    editor.delete();
-                }
-                _ => {
-                    if let Some(ch) = key.to_unicode() {
-                        editor.append(ch);
-                    }
-                }
-            },
-        };
-        gui.application_state.set_editor(editor.clone());
-        if editor.editing() {
-            gui.application_window.set_title(Some(&editor.input()))
-        };
+            }
+        }
+    }
+    gui.application_state.set_editor(editor.clone());
+    if editor.editing() {
+        gui.application_window.set_title(Some(&editor.input()))
     };
     refresh_view_required
 }
