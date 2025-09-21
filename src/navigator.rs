@@ -124,7 +124,7 @@ impl Navigator {
             let old_page_start: usize = self.page_start;
             self.page_start = (self.position / self.page_size()) * self.page_size();
             self.page_end = (self.page_start + self.page_size() - 1).min(self.limit - 1);
-            self.page_changed = !(old_page_start == self.page_start)
+            self.page_changed = old_page_start != self.page_start;
         }
     }
 }
