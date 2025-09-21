@@ -12,9 +12,13 @@ impl Editor {
 }
 
 #[cfg(test)]
+mod tests {
+    use super::*;
 
 #[test]
-    fn initially_not_editing() {
-        let editor = Editor::new();
-        assert!(! editor.editing())
-    }
+fn initially_not_editing() {
+    let editor = Editor::new();
+    assert!(!editor.editing())
+}
+
+}

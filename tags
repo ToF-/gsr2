@@ -16,6 +16,7 @@ DEFAULT_WIDTH	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub c
 Database	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^pub struct Database {$/;"	s
 Direction	/Users/christophethibaut/Coding/gsr2/src/direction.rs	/^pub enum Direction {$/;"	g
 EXPAND_ON_SYMBOL	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const EXPAND_ON_SYMBOL: &str = "  ⃞";$/;"	c
+Editor	/Users/christophethibaut/Coding/gsr2/src/editor.rs	/^pub struct Editor {}$/;"	s
 FOCUS_SYMBOL	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const FOCUS_SYMBOL: &str = "▄ ";$/;"	c
 FULL_SIZE_ON_SYMBOL	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const FULL_SIZE_ON_SYMBOL: &str = " 🔍";$/;"	c
 Gallery	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^pub struct Gallery {$/;"	s
@@ -88,6 +89,7 @@ display_title_for_application_state	/Users/christophethibaut/Coding/gsr2/src/dis
 display_title_for_application_state_with_expand_on	/Users/christophethibaut/Coding/gsr2/src/display.rs	/^    fn display_title_for_application_state_with_expand_on() {$/;"	f
 display_title_for_application_state_with_full_size_on	/Users/christophethibaut/Coding/gsr2/src/display.rs	/^    fn display_title_for_application_state_with_full_size_on() {$/;"	f
 draw_palette	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^fn draw_palette(ctx: &Context, width: i32, height: i32, palette: &Palette) {$/;"	f
+editing	/Users/christophethibaut/Coding/gsr2/src/editor.rs	/^    pub fn editing(&self) -> bool {$/;"	f
 expand_display	/Users/christophethibaut/Coding/gsr2/src/display.rs	/^fn expand_display(on: bool) -> String {$/;"	f
 expand_on	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn expand_on(&self) -> bool {$/;"	f
 extract_a_palette_from_a_picture_file	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^    fn extract_a_palette_from_a_picture_file() {$/;"	f
@@ -115,6 +117,7 @@ given_coords_can_tell_position_with_several_cells_per_row_on_first_page	/Users/c
 given_illegal_coors_position_is_none	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn given_illegal_coors_position_is_none() {$/;"	f
 has_moved	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn has_moved(&self) -> bool {$/;"	f
 image_data	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    pub fn image_data(&self) -> Option<ImageData> {$/;"	f
+initially_not_editing	/Users/christophethibaut/Coding/gsr2/src/editor.rs	/^fn initially_not_editing() {$/;"	f
 insert_and_retrieve_a_picture	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    fn insert_and_retrieve_a_picture() {$/;"	f
 insert_nine_colors_sample_into_db	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    pub fn insert_nine_colors_sample_into_db() {$/;"	f
 label	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^    pub fn label(&self) -> String {$/;"	f
@@ -156,6 +159,7 @@ navigator_can_move_to_first_and_last_position	/Users/christophethibaut/Coding/gs
 navigator_cannot_move_before_first_position	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn navigator_cannot_move_before_first_position() {$/;"	f
 navigator_cannot_move_past_gallery_limit	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn navigator_cannot_move_past_gallery_limit() {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn new() -> Result<Self> {$/;"	f
+new	/Users/christophethibaut/Coding/gsr2/src/editor.rs	/^    pub fn new() -> Editor {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn new() -> Self {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^    pub fn new(label: &str) -> Self {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn new(limit: usize, cells_per_row: usize) -> Self {$/;"	f
