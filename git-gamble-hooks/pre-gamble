@@ -2,8 +2,9 @@
 git todo
 nb_srce="$(git status -s|grep \.rs|wc -l)"
 if [ $nb_srce -gt 1 ] ; then
+    git diff
     git status -s
-    echo "commit reverse all these files ?"
+    echo "commit/reverse these files ?"
     read response
     if [ "$response" != "y" ] ; then
         exit 1
