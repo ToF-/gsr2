@@ -117,7 +117,7 @@ pub mod tests {
     use crate::gen_image::{NINE_COLORS, SINGLE_DOT, WHITE_SQUARE};
     use crate::image_data;
 
-    fn my_db() -> Database {
+    pub fn my_db() -> Database {
         let database = Database::rusqlite_from_connection(TEST_DATABASE_FILE)
             .expect("test database can't be open");
         database.connection.execute("DELETE FROM Picture;", []);

@@ -82,6 +82,7 @@ mod tests {
 
     use super::*;
     use crate::database::Database;
+    use crate::database::tests::my_db;
     use crate::database::tests::{delete_nine_colors_from_db, insert_nine_colors_sample_into_db};
     use crate::default_values::TEST_DATABASE_FILE;
     use crate::gen_image::{NINE_COLORS, SINGLE_DOT, WHITE_SQUARE};
@@ -119,8 +120,7 @@ mod tests {
 
     #[test]
     fn loading_from_database_collect_all_the_picture_file_paths_stored() {
-        let database: Database =
-            Database::from_connection(TEST_DATABASE_FILE).expect("test database can't be open");
+        let database: Database = my_db();
         let mut gallery = Gallery::new();
         gallery
             .load_from_database(&database)
