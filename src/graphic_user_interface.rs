@@ -1,4 +1,3 @@
-use std::borrow::BorrowMut;
 use crate::Command::{Dir, File};
 use crate::application_state::ApplicationState;
 use crate::command_line_interface::CommandLineInterface;
@@ -25,6 +24,7 @@ use gtk::{
     ScrolledWindow, gdk,
 };
 use std::borrow::Borrow;
+use std::borrow::BorrowMut;
 use std::cell::RefCell;
 use std::process::exit;
 use std::rc::Rc;
@@ -177,7 +177,7 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
     let mut refresh_view_required: bool = false;
     if let Ok(mut gui) = gui_rc.try_borrow_mut() {
         if gui.application_state.editor().editing() {
-            refresh_view_required = process_edition(gui_rc, key)
+            refresh_view_required = process_edition(gui_rc, key);
         } else if let Some(key_name) = key.name()
             && let Some(control) = gui.application_state.get_control(key_name.as_str())
         {
@@ -214,7 +214,10 @@ fn process_edition(gui_rc: &RcRefCellGui, key: Key) -> bool {
                 }
             },
         };
-        gui.application_state.set_editor(editor);
+        gui.application_state.set_editor(editor.clone());
+        if editor.editing() {
+            gui.application_window.set_title(Some(&editor.input()))
+        };
     };
     refresh_view_required
 }
