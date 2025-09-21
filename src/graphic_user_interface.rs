@@ -652,7 +652,6 @@ pub fn activate(application: &gtk::Application, cli_rc: &Rc<RefCell<CommandLineI
                             _ => {}
                         }
                     }
-                
             }));
                 cell_box.add_controller(gesture_left);
             }
