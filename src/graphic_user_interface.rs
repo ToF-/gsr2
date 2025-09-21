@@ -9,7 +9,7 @@ use crate::default_values::{
 };
 use crate::direction::Direction;
 use crate::display::title_display;
-use crate::editor::Editor;
+use crate::editor::{Editor, InputKind};
 use crate::gallery::Gallery;
 use crate::image_data::{Palette, get_palette_from_picture_file};
 use crate::order::Order;
@@ -296,6 +296,13 @@ fn process_control(gui: &mut GraphicalUserInterface, control: Control) -> bool {
         }
         Control::ToggleSingleView => {
             gui.application_state.toggle_single_view();
+        }
+        Control::Label => {
+            gui.application_state.set_editor({
+                let mut editor = gui.application_state.editor().clone();
+                editor.begin_input(InputKind::Label);
+                editor
+            });
         }
         direction @ Control::Left
         | direction @ Control::Right
