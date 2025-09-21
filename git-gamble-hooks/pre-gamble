@@ -1,3 +1,9 @@
 #!/usr/bin/env sh
 git todo
+nb_srce="$(git status -s|grep \.rs|wc -l)"
+if [ $nb_srce -gt 1 ] ; then
+    echo "too many sources to commit/revert"
+    git status -s
+    exit 1
+fi
 cargo test --no-run
