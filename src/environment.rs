@@ -7,7 +7,10 @@ pub fn database_connection() -> Result<String> {
         Ok(result) => Ok(result),
         Err(err) => {
             if cfg!(test) {
-                println!("test environment. {} is {}", DATABASE_CONNECTION_VAR, TEST_DATABASE_FILE);
+                println!(
+                    "test environment. {} is {}",
+                    DATABASE_CONNECTION_VAR, TEST_DATABASE_FILE
+                );
                 Ok(TEST_DATABASE_FILE.to_string())
             } else {
                 Err(Error::other(err))
