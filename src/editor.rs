@@ -37,6 +37,13 @@ impl Editor {
         self.input_kind = Some(kind);
     }
 
+    pub fn confirm_input(&mut self) -> String {
+        if self.editing {
+            self.input.clone().unwrap()
+        } else {
+            String::from("")
+        }
+    }
     pub fn append(&mut self, ch: char) -> bool {
         if self.editing {
             if matches!(ch, 'a'..='z' | '0'..='9' | '-' | '_') {
@@ -56,10 +63,11 @@ impl Editor {
 
     pub fn delete(&mut self) -> bool {
         if self.editing && self.input.clone().unwrap().len() > 0 {
-            self.input = self.input.clone().map (|s| {
+            self.input = self.input.clone().map(|s| {
                 let mut t = s.clone();
                 t.pop();
-                t });
+                t
+            });
             true
         } else {
             false
@@ -77,7 +85,7 @@ mod tests {
         assert!(!editor.editing());
         assert_eq!(None, editor.input_kind());
         assert_eq!(None, editor.input);
-   }
+    }
 
     #[test]
     fn after_begin_input_edting_is_true() {
@@ -123,5 +131,15 @@ mod tests {
         assert!(editor.append('c'));
         assert!(editor.delete());
         assert_eq!(Some(String::from("ab")), editor.input.clone());
+    }
+
+    #[test]
+    fn confirming_return_input_and_set_editing_to_false() {
+        let mut editor = Editor::new();
+        editor.begin_input(InputKind::Label);
+        assert!(editor.append('a'));
+        assert!(editor.append('b'));
+        assert!(editor.append('c'));
+        assert_eq!(String::from("abc"), editor.confirm_input());
     }
 }
