@@ -39,7 +39,7 @@ impl Editor {
 
     pub fn append(&mut self, ch: char) -> bool {
         if self.editing {
-            self.input = self.input.clone().map( |s| {
+            self.input = self.input.clone().map(|s| {
                 let mut t = s.clone();
                 t.push(ch);
                 t
@@ -78,5 +78,8 @@ mod tests {
         editor.begin_input(InputKind::Label);
         assert!(editor.append('a'));
         assert_eq!(Some(String::from("a")), editor.input.clone())
+    }
+    #[test]
+    fn cannot_append_forbidden_chars() {
     }
 }
