@@ -45,6 +45,13 @@ impl Editor {
             String::from("")
         }
     }
+
+    pub fn cancel_input(&mut self) {
+        if self.editing {
+            self.editing = false;
+            self.input = None;
+        }
+    }
     pub fn append(&mut self, ch: char) -> bool {
         if self.editing {
             if matches!(ch, 'a'..='z' | '0'..='9' | '-' | '_') {
@@ -142,6 +149,16 @@ mod tests {
         assert!(editor.append('b'));
         assert!(editor.append('c'));
         assert_eq!(String::from("abc"), editor.confirm_input());
-        assert!(! editor.editing());
+        assert!(!editor.editing());
+    }
+    #[test]
+    fn cancelling_set_editing_to_false() {
+        let mut editor = Editor::new();
+        editor.begin_input(InputKind::Label);
+        assert!(editor.append('a'));
+        assert!(editor.append('b'));
+        assert!(editor.append('c'));
+        editor.cancel_input();
+        assert!(!editor.editing());
     }
 }
