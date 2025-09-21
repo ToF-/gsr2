@@ -7,7 +7,6 @@ use crate::gallery::Gallery;
 use crate::navigator::Navigator;
 use crate::picture::Picture;
 use std::io::Result;
-use std::process::exit;
 
 #[derive(Debug)]
 pub struct ApplicationState {
@@ -33,7 +32,7 @@ impl ApplicationState {
                     gallery: Gallery::new(),
                     navigator: Navigator::new(0, 1),
                     controls: default_controls(),
-                    database: database,
+                    database,
                     editor: Editor::new(),
                     pictures_per_row: 1,
                     old_pictures_per_row: 1,
@@ -99,9 +98,7 @@ impl ApplicationState {
     pub fn toggle_single_view(&mut self) {
         if self.pictures_per_row != self.old_pictures_per_row {
             let current_position = self.navigator.position();
-            let temp = self.pictures_per_row;
-            self.pictures_per_row = self.old_pictures_per_row;
-            self.old_pictures_per_row = temp;
+            std::mem::swap(&mut self.pictures_per_row, &mut self.old_pictures_per_row);
             self.navigator = Navigator::new(self.gallery.len(), self.pictures_per_row);
             self.navigator.move_towards(Direction::Index {
                 value: current_position,

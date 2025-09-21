@@ -19,7 +19,7 @@ impl Gallery {
     }
 
     pub fn new_with_pictures(pictures: Vec<Picture>) -> Self {
-        Gallery { pictures: pictures }
+        Gallery { pictures }
     }
     pub fn len(&self) -> usize {
         self.pictures.len()
@@ -53,7 +53,7 @@ impl Gallery {
                 self.pictures = pictures;
                 Ok(self.len())
             }
-            Err(err) => Err(Error::other("can't retrieve pictures from database")),
+            Err(_) => Err(Error::other("can't retrieve pictures from database")),
         }
     }
 
@@ -71,7 +71,7 @@ impl Gallery {
         match order {
             Order::Name => self
                 .pictures
-                .sort_by(|a, b| a.file_path().cmp(&b.file_path())),
+                .sort_by_key(|picture| picture.file_path()),
             Order::Random => self.pictures.shuffle(&mut rng()),
         }
     }

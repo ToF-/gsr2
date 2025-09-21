@@ -20,12 +20,11 @@ use gtk::prelude::*;
 use gtk::{self};
 use gtk::{
     Align, Application, ApplicationWindow, CssProvider, Label, Orientation, Picture,
-    ScrolledWindow, Widget, gdk,
+    ScrolledWindow, gdk,
 };
 use std::cell::RefCell;
 use std::process::exit;
 use std::rc::Rc;
-use std::time::SystemTime;
 
 struct GraphicalUserInterface {
     command_line_interface: CommandLineInterface,
@@ -122,7 +121,7 @@ fn set_picture_at(col: i32, row: i32, gui: &GraphicalUserInterface) {
     let coords = (row as usize, col as usize);
     let widget = gui
         .multiple_view_grid
-        .child_at(col as i32, row as i32)
+        .child_at(col, row)
         .expect("cannot find cell box in multiple view grid");
     let cell_box = widget
         .downcast::<gtk::Box>()
@@ -137,7 +136,7 @@ fn set_picture_at(col: i32, row: i32, gui: &GraphicalUserInterface) {
     {
         let picture = make_gtk_picture_from_picture(&gui.application_state, index);
         cell_box.append(&picture);
-        let label = make_label_for_picture(&gui, index);
+        let label = make_label_for_picture(gui, index);
         label.set_widget_name("picture_label");
         cell_box.append(&label);
     }
@@ -289,7 +288,7 @@ fn set_label_for_picture_at_new_coords(gui: &GraphicalUserInterface) {
         .label();
     let new_label = format!(
         "{} {}",
-        FOCUS_SYMBOL.to_string(),
+        FOCUS_SYMBOL,
         gui.application_state
             .gallery()
             .picture(new_position)
@@ -301,7 +300,7 @@ fn set_label_for_picture_at_new_coords(gui: &GraphicalUserInterface) {
 fn set_picture_for_multiple_view(gui: &GraphicalUserInterface, pictures_per_row: i32) {
     for col in 0..pictures_per_row {
         for row in 0..pictures_per_row {
-            set_picture_at(col, row, &gui)
+            set_picture_at(col, row, gui)
         }
     }
 }
@@ -334,12 +333,10 @@ fn set_view(gui: &GraphicalUserInterface, initial: bool) {
     }
     if cells_per_row == ONE_CELL_PER_ROW {
         set_picture_for_single_view(gui)
-    } else {
-        if gui.application_state.navigator().page_changed() {
-            set_picture_for_multiple_view(gui, cells_per_row as i32)
-        } else if gui.application_state.navigator().has_moved() {
-            set_label_for_picture_at_new_coords(gui)
-        }
+    } else if gui.application_state.navigator().page_changed() {
+        set_picture_for_multiple_view(gui, cells_per_row as i32)
+    } else if gui.application_state.navigator().has_moved() {
+        set_label_for_picture_at_new_coords(gui)
     };
     gui.application_window
         .set_title(Some(&title_display(&gui.application_state)));
@@ -361,7 +358,7 @@ fn load_and_launch(gui_rc: RcRefCellGui) {
         match result {
             Ok(0) => {}
             Ok(_) => {
-                let cells_per_row: usize = (&gui.command_line_interface).cells_per_row() as usize;
+                let cells_per_row: usize = (gui.command_line_interface).cells_per_row() as usize;
                 gui.application_state.set_gallery(gallery, cells_per_row);
                 set_view(&gui, true);
                 gui.application_window.present()
@@ -486,19 +483,6 @@ fn make_cell_box() -> gtk::Box {
         .build()
 }
 
-fn children_count(arg: &Widget) -> usize {
-    let widget: &Widget = arg;
-    let mut count: usize = 0;
-
-    if let Some(child) = widget.first_child() {
-        count += children_count(&child);
-        if let Some(sibling) = widget.next_sibling() {
-            count += children_count(&sibling);
-        }
-    }
-    count
-}
-
 fn make_gtk_picture_from_picture(
     application_state: &ApplicationState,
     index: usize,
@@ -578,7 +562,7 @@ pub fn activate(application: &gtk::Application, cli_rc: &Rc<RefCell<CommandLineI
     let gui_rc = match ApplicationState::new() {
         Ok(application_state) => Rc::new(RefCell::new(GraphicalUserInterface {
             command_line_interface: command_line_interface.clone(),
-            application_state: application_state,
+            application_state,
             application_window,
             single_view_picture: picture,
             single_view_box: view_box,
@@ -649,8 +633,8 @@ pub fn activate(application: &gtk::Application, cli_rc: &Rc<RefCell<CommandLineI
                 let gesture_left = gtk::GestureClick::new();
                 gesture_left.set_button(1);
                 gesture_left.connect_pressed(clone!(@strong gui_rc => move |_,n_pressed,_,_| {
-                if let Ok(mut gui) = gui_rc.try_borrow_mut() {
-                    if let Some(index) = gui.application_state.navigator().position_from_coords(row as usize, col as usize) {
+                if let Ok(mut gui) = gui_rc.try_borrow_mut()
+                    && let Some(index) = gui.application_state.navigator().position_from_coords(row as usize, col as usize) {
                         match n_pressed {
                             1 => {
                                 gui.application_state.move_towards(Direction::Index {
@@ -668,7 +652,7 @@ pub fn activate(application: &gtk::Application, cli_rc: &Rc<RefCell<CommandLineI
                             _ => {}
                         }
                     }
-                }
+                
             }));
                 cell_box.add_controller(gesture_left);
             }

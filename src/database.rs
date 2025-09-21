@@ -57,8 +57,7 @@ impl Database {
              FROM Picture               \n\
              WHERE FilePath = ?1;",
             params![file_path],
-            |row| Self::rusqlite_row_to_picture(row),
-        )
+            Self::rusqlite_row_to_picture)
     }
 
     pub fn rusqlite_retrieve_all_pictures(&self) -> Result<ImageDataMap> {
@@ -88,12 +87,12 @@ impl Database {
     }
 
     pub fn retrieve_all_pictures(&self) -> Result<Vec<Picture>> {
-        let result = self.rusqlite_retrieve_all_pictures().and_then(|map| {
+        let result = self.rusqlite_retrieve_all_pictures().map(|map| {
             let mut pictures: Vec<Picture> = vec![];
             for (file_path, image_data) in map.iter() {
                 pictures.push(Picture::new_with_image_data(file_path, &image_data.label()))
             }
-            Ok(pictures)
+            pictures
         });
         match result {
             Ok(pictures) => Ok(pictures),
@@ -105,7 +104,7 @@ impl Database {
         row.get(0).and_then(|file_path: String| {
             let file_path: String = file_path;
             row.get(1)
-                .and_then(|label: String| Ok(Picture::new_with_image_data(&file_path, &label)))
+                .map(|label: String| Picture::new_with_image_data(&file_path, &label))
         })
     }
 }
