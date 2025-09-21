@@ -16,6 +16,7 @@ pub enum Control {
     ToggleFullSize,
     TogglePalette,
     ToggleSingleView,
+    Label,
     Quit,
 }
 
@@ -32,6 +33,7 @@ pub fn default_controls() -> Controls {
         (String::from("e"), Control::ToggleExpand),
         (String::from("f"), Control::ToggleFullSize),
         (String::from("x"), Control::TogglePalette),
+        (String::from("l"), Control::Label),
         (String::from("q"), Control::Quit),
         (String::from("Left"), Control::Left),
         (String::from("Right"), Control::Right),
