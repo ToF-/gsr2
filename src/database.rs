@@ -120,15 +120,21 @@ pub mod tests {
     pub fn my_db() -> Database {
         let database = Database::rusqlite_from_connection(TEST_DATABASE_FILE)
             .expect("test database can't be open");
-        database.connection.execute("DELETE FROM Picture;", []).expect("db error");
+        database
+            .connection
+            .execute("DELETE FROM Picture;", [])
+            .expect("db error");
         database.connection.execute(
             "INSERT INTO Picture (FilePath, Label) VALUES ('testdata/nine_colors.png', 'sample');",
             [],
         ).expect("db error");
-        database.connection.execute(
-            "INSERT INTO Picture (FilePath, Label) VALUES ('testdata/single_dot.png', '');",
-            [],
-        ).expect("db error");
+        database
+            .connection
+            .execute(
+                "INSERT INTO Picture (FilePath, Label) VALUES ('testdata/single_dot.png', '');",
+                [],
+            )
+            .expect("db error");
         database.connection.execute(
             "INSERT INTO Picture (FilePath, Label) VALUES ('testdata/white_square.png', 'foo');",
             [],

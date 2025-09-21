@@ -52,6 +52,10 @@ impl ApplicationState {
         &self.database
     }
 
+    pub fn editor(&self) -> &Editor {
+        &self.editor
+    }
+
     pub fn current_picture(&self) -> Picture {
         self.gallery.picture(self.navigator.position())
     }

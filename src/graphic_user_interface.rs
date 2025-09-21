@@ -169,17 +169,27 @@ fn set_picture_for_file_view(gui: &GraphicalUserInterface, picture: &picture::Pi
     gui.application_window
         .set_title(Some(&title_display(&gui.application_state)))
 }
+
 fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
-    if let Ok(mut gui) = gui_rc.try_borrow_mut()
-        && let Some(key_name) = key.name()
-        && let Some(control) = gui.application_state.get_control(key_name.as_str())
-    {
-        let refresh_view_required: bool = process_control(&mut gui, control);
+    let mut refresh_view_required: bool = false;
+    if let Ok(mut gui) = gui_rc.try_borrow_mut() {
+        if gui.application_state.editor().editing() {
+            refresh_view_required = process_edition(&mut gui, key);
+
+        }   else if let Some(key_name) = key.name() 
+            && let Some(control) = gui.application_state.get_control(key_name.as_str())
+        {
+            let refresh_view_required: bool = process_control(&mut gui, control);
+        }
         if refresh_view_required {
             set_view(&gui, false);
         }
-    };
+    }
     gtk::Inhibit(false)
+}
+
+fn process_edition(gui: &mut GraphicalUserInterface, key: Key) -> bool {
+    false
 }
 
 fn process_control(gui: &mut GraphicalUserInterface, control: Control) -> bool {
