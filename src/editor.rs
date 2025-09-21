@@ -53,6 +53,18 @@ impl Editor {
             false
         }
     }
+
+    pub fn delete(&mut self) -> bool {
+        if self.editing && self.input.clone().unwrap().len() > 0 {
+            self.input = self.input.clone().map (|s| {
+                let mut t = s.clone();
+                t.pop();
+                t });
+            true
+        } else {
+            false
+        }
+    }
 }
 
 #[cfg(test)]
@@ -65,7 +77,7 @@ mod tests {
         assert!(!editor.editing());
         assert_eq!(None, editor.input_kind());
         assert_eq!(None, editor.input);
-    }
+   }
 
     #[test]
     fn after_begin_input_edting_is_true() {
@@ -101,5 +113,15 @@ mod tests {
         assert!(!editor.append('@'));
         assert!(!editor.append('^'));
         assert_eq!(Some(String::from("")), editor.input());
+    }
+    #[test]
+    fn deleting_a_char_changes_the_input() {
+        let mut editor = Editor::new();
+        editor.begin_input(InputKind::Label);
+        assert!(editor.append('a'));
+        assert!(editor.append('b'));
+        assert!(editor.append('c'));
+        assert!(editor.delete());
+        assert_eq!(Some(String::from("ab")), editor.input.clone());
     }
 }
