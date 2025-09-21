@@ -1,6 +1,7 @@
 use crate::control::{Control, Controls, default_controls};
 use crate::database::Database;
 use crate::direction::Direction;
+use crate::editor::Editor;
 use crate::environment::database_connection;
 use crate::gallery::Gallery;
 use crate::navigator::Navigator;
@@ -14,6 +15,7 @@ pub struct ApplicationState {
     navigator: Navigator,
     controls: Controls,
     database: Database,
+    editor: Editor,
     pictures_per_row: usize,
     old_pictures_per_row: usize,
     expand_on: bool,
@@ -32,6 +34,7 @@ impl ApplicationState {
                     navigator: Navigator::new(0, 1),
                     controls: default_controls(),
                     database: database,
+                    editor: Editor::new(),
                     pictures_per_row: 1,
                     old_pictures_per_row: 1,
                     expand_on: false,

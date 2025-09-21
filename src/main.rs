@@ -11,6 +11,7 @@ mod database;
 mod default_values;
 mod direction;
 mod display;
+mod editor;
 mod environment;
 mod file_system;
 mod gallery;
