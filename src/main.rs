@@ -29,6 +29,8 @@ fn main() {
                 println!("viewing file {}", file_path);
             } else if let Some(Command::Dir { ref directory }) = cli.command {
                 println!("viewing files in directory {}", directory);
+            } else if cli.command.is_none() {
+                println!("viewing file from the database");
             }
             build_and_run_application(cli.clone())
         }

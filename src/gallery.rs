@@ -69,10 +69,10 @@ impl Gallery {
 mod tests {
 
     use super::*;
-    use crate::database::Database;
-    use crate::database::tests::{delete_nine_colors_from_db, insert_nine_colors_sample_into_db};
     use crate::default_values::TEST_DATABASE_FILE;
-    use crate::gen_image::{NINE_COLORS, gen_white_square};
+    use crate::gen_image::{NINE_COLORS, SINGLE_DOT, WHITE_SQUARE};
+    use crate::database::{Database};
+    use crate::database::tests::{delete_nine_colors_from_db, insert_nine_colors_sample_into_db};
 
     #[test]
     fn loading_from_a_directory_collect_all_the_picture_files_from_that_directory() {
@@ -103,6 +103,12 @@ mod tests {
             .load_from_file_path(NINE_COLORS)
             .expect("can't load the file");
         assert_eq!(1, gallery.len());
+    }
+
+    #[test]
+    fn loading_from_database_collect_all_the_picture_file_paths_stored() {
+        let database = Database::from_connection(TEST_DATABASE_FILE).expect("test database can't be open");
+        let mut gallery = Gallery::new();
     }
 
     fn sort_and_compare_lists() -> bool {

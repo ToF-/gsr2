@@ -19,6 +19,7 @@ impl Database {
     }
 
     fn rusqlite_from_connection(connection_string: &str) -> Result<Self> {
+        println!("connecting to {connection_string}…");
         match Connection::open(connection_string) {
             Ok(connection) => Ok(Database { connection }),
             Err(err) => Err(err),
