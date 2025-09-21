@@ -130,7 +130,7 @@ given_illegal_coors_position_is_none	/Users/christophethibaut/Coding/gsr2/src/na
 has_moved	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn has_moved(&self) -> bool {$/;"	f
 image_data	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    pub fn image_data(&self) -> Option<ImageData> {$/;"	f
 initially_not_editing	/Users/christophethibaut/Coding/gsr2/src/editor.rs	/^    fn initially_not_editing() {$/;"	f
-input	/Users/christophethibaut/Coding/gsr2/src/editor.rs	/^    pub fn input(&self) -> Option<String> {$/;"	f
+input	/Users/christophethibaut/Coding/gsr2/src/editor.rs	/^    pub fn input(&self) -> String {$/;"	f
 input_kind	/Users/christophethibaut/Coding/gsr2/src/editor.rs	/^    pub fn input_kind(&self) -> Option<InputKind> {$/;"	f
 insert_and_retrieve_a_picture	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    fn insert_and_retrieve_a_picture() {$/;"	f
 insert_nine_colors_sample_into_db	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    pub fn insert_nine_colors_sample_into_db() {$/;"	f
