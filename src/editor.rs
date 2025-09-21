@@ -83,12 +83,20 @@ mod tests {
         assert!(editor.append('a'));
         assert_eq!(Some(String::from("a")), editor.input.clone());
         assert!(editor.append('b'));
-        assert_eq!(Some(String::from("ab")), editor.input.clone())
+        assert_eq!(Some(String::from("ab")), editor.input.clone());
+        assert!(editor.append('0'));
+        assert_eq!(Some(String::from("ab0")), editor.input.clone());
+        assert!(editor.append('9'));
+        assert_eq!(Some(String::from("ab09")), editor.input.clone());
+        assert!(editor.append('-'));
+        assert_eq!(Some(String::from("ab09-")), editor.input.clone());
+        assert!(editor.append('_'));
+        assert_eq!(Some(String::from("ab09-_")), editor.input.clone());
     }
     #[test]
     fn cannot_append_forbidden_chars() {
         let mut editor = Editor::new();
         editor.begin_input(InputKind::Label);
-        assert!(! editor.append('"'));
+        assert!(!editor.append('"'));
     }
 }
