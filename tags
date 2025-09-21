@@ -16,7 +16,7 @@ DEFAULT_WIDTH	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub c
 Database	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^pub struct Database {$/;"	s
 Direction	/Users/christophethibaut/Coding/gsr2/src/direction.rs	/^pub enum Direction {$/;"	g
 EXPAND_ON_SYMBOL	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const EXPAND_ON_SYMBOL: &str = "  ⃞";$/;"	c
-Editor	/Users/christophethibaut/Coding/gsr2/src/editor.rs	/^pub struct Editor {}$/;"	s
+Editor	/Users/christophethibaut/Coding/gsr2/src/editor.rs	/^pub struct Editor {$/;"	s
 FOCUS_SYMBOL	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const FOCUS_SYMBOL: &str = "▄ ";$/;"	c
 FULL_SIZE_ON_SYMBOL	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const FULL_SIZE_ON_SYMBOL: &str = " 🔍";$/;"	c
 Gallery	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^pub struct Gallery {$/;"	s
@@ -45,6 +45,7 @@ a_picture_has_file_path_which_is_the_full_path_and_file_path_on_the_file_system	
 a_readme_file_is_not_a_picture_file	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^    fn a_readme_file_is_not_a_picture_file() {$/;"	f
 a_thumbnail_picture_has_the_name_as_the_original_picture_with_thumb_suffix	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    fn a_thumbnail_picture_has_the_name_as_the_original_picture_with_thumb_suffix() {$/;"	f
 activate	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn activate(application: &gtk::Application, cli_rc: &Rc<RefCell<CommandLineInterface>>) {$/;"	f
+after_begin_input_edting_is_true	/Users/christophethibaut/Coding/gsr2/src/editor.rs	/^    fn after_begin_input_edting_is_true() {$/;"	f
 after_expand_toggle_expand_on_is_inverted	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    fn after_expand_toggle_expand_on_is_inverted() {$/;"	f
 after_full_size_toggle_full_size_on_is_inverted	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    fn after_full_size_toggle_full_size_on_is_inverted() {$/;"	f
 after_moving_old_position_and_new_position_can_differ	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn after_moving_old_position_and_new_position_can_differ() {$/;"	f
@@ -52,6 +53,7 @@ after_page_change_page_change_is_detected	/Users/christophethibaut/Coding/gsr2/s
 after_page_change_position_from_coords_changes	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn after_page_change_position_from_coords_changes() {$/;"	f
 after_palette_toggle_palette_on_is_inverted	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    fn after_palette_toggle_palette_on_is_inverted() {$/;"	f
 an_application_state	/Users/christophethibaut/Coding/gsr2/src/display.rs	/^    fn an_application_state() -> ApplicationState {$/;"	f
+begin_input	/Users/christophethibaut/Coding/gsr2/src/editor.rs	/^    pub fn begin_input(&mut self) {$/;"	f
 build_and_run_application	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn build_and_run_application(cli: CommandLineInterface) {$/;"	f
 can_move	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn can_move(&self, direction: Direction) -> bool {$/;"	f
 can_move	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn can_move(&self, direction: Direction) -> bool {$/;"	f
@@ -117,7 +119,7 @@ given_coords_can_tell_position_with_several_cells_per_row_on_first_page	/Users/c
 given_illegal_coors_position_is_none	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn given_illegal_coors_position_is_none() {$/;"	f
 has_moved	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn has_moved(&self) -> bool {$/;"	f
 image_data	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    pub fn image_data(&self) -> Option<ImageData> {$/;"	f
-initially_not_editing	/Users/christophethibaut/Coding/gsr2/src/editor.rs	/^fn initially_not_editing() {$/;"	f
+initially_not_editing	/Users/christophethibaut/Coding/gsr2/src/editor.rs	/^    fn initially_not_editing() {$/;"	f
 insert_and_retrieve_a_picture	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    fn insert_and_retrieve_a_picture() {$/;"	f
 insert_nine_colors_sample_into_db	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    pub fn insert_nine_colors_sample_into_db() {$/;"	f
 label	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^    pub fn label(&self) -> String {$/;"	f
