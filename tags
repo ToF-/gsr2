@@ -60,6 +60,8 @@ begin_input	/Users/christophethibaut/Coding/gsr2/src/editor.rs	/^    pub fn begi
 build_and_run_application	/Users/christophethibaut/Coding/gsr2/src/graphic_user_interface.rs	/^pub fn build_and_run_application(cli: CommandLineInterface) {$/;"	f
 can_move	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn can_move(&self, direction: Direction) -> bool {$/;"	f
 can_move	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn can_move(&self, direction: Direction) -> bool {$/;"	f
+cancel_input	/Users/christophethibaut/Coding/gsr2/src/editor.rs	/^    pub fn cancel_input(&mut self) {$/;"	f
+cancelling_set_editing_to_false	/Users/christophethibaut/Coding/gsr2/src/editor.rs	/^    fn cancelling_set_editing_to_false() {$/;"	f
 cannot_append_forbidden_chars	/Users/christophethibaut/Coding/gsr2/src/editor.rs	/^    fn cannot_append_forbidden_chars() {$/;"	f
 cannot_move_down_if_beyond_limit	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn cannot_move_down_if_beyond_limit() {$/;"	f
 cannot_move_up_if_before_limit	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn cannot_move_up_if_before_limit() {$/;"	f
