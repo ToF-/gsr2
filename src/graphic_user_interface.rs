@@ -21,7 +21,7 @@ use gtk::prelude::*;
 use gtk::{self};
 use gtk::{
     Align, Application, ApplicationWindow, CssProvider, Label, Orientation, Picture,
-    ScrolledWindow, gdk,
+    ScrolledWindow, Text, gdk,
 };
 use std::borrow::Borrow;
 use std::borrow::BorrowMut;
@@ -559,6 +559,11 @@ fn make_application_window(application: &gtk::Application) -> gtk::ApplicationWi
         .build()
 }
 
+fn make_text() -> gtk::Text {
+    Text::builder()
+        .build()
+}
+
 pub fn activate(application: &gtk::Application, cli_rc: &Rc<RefCell<CommandLineInterface>>) {
     let command_line_interface = match cli_rc.try_borrow() {
         Ok(cli) => cli,
@@ -571,6 +576,7 @@ pub fn activate(application: &gtk::Application, cli_rc: &Rc<RefCell<CommandLineI
     let single_view_scrolled_window = make_single_view_scrolled_window();
     let view_box = make_view_box();
     let picture = make_picture();
+    let text = make_text();
     view_box.append(&picture);
     single_view_scrolled_window.set_child(Some(&view_box));
 
