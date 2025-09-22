@@ -560,8 +560,7 @@ fn make_application_window(application: &gtk::Application) -> gtk::ApplicationWi
 }
 
 fn make_text() -> gtk::Text {
-    Text::builder()
-        .build()
+    Text::builder().build()
 }
 
 pub fn activate(application: &gtk::Application, cli_rc: &Rc<RefCell<CommandLineInterface>>) {
@@ -578,6 +577,7 @@ pub fn activate(application: &gtk::Application, cli_rc: &Rc<RefCell<CommandLineI
     let picture = make_picture();
     let text = make_text();
     view_box.append(&picture);
+    view_box.append(&text);
     single_view_scrolled_window.set_child(Some(&view_box));
 
     let multiple_view_scrolled_window = make_multiple_view_scrolled_window();
