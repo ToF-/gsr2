@@ -2,7 +2,6 @@ use crate::command::Command;
 use crate::command_line_interface::CommandLineInterface;
 use std::process::exit;
 
-mod gui;
 mod application_state;
 mod command;
 mod command_line_interface;
@@ -16,6 +15,7 @@ mod environment;
 mod file_system;
 mod gallery;
 mod gen_image;
+mod gui;
 mod image_data;
 mod navigator;
 mod order;
