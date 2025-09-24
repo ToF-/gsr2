@@ -147,19 +147,19 @@ loading_from_a_single_file_path_collect_that_single_picture_file	/Users/christop
 loading_from_database_collect_all_the_picture_file_paths_stored	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    fn loading_from_database_collect_all_the_picture_file_paths_stored() {$/;"	f
 main	/Users/christophethibaut/Coding/gsr2/src/main.rs	/^fn main() {$/;"	f
 make_application_window	/Users/christophethibaut/Coding/gsr2/src/gui/application.rs	/^fn make_application_window(application: &gtk::Application) -> gtk::ApplicationWindow {$/;"	f
-make_cell_box	/Users/christophethibaut/Coding/gsr2/src/gui/application.rs	/^fn make_cell_box() -> gtk::Box {$/;"	f
+make_cell_box	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn make_cell_box() -> gtk::Box {$/;"	f
 make_gtk_picture_from_picture	/Users/christophethibaut/Coding/gsr2/src/gui/application.rs	/^fn make_gtk_picture_from_picture($/;"	f
-make_label	/Users/christophethibaut/Coding/gsr2/src/gui/application.rs	/^fn make_label(symbol: &str) -> gtk::Label {$/;"	f
+make_label	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn make_label(symbol: &str) -> gtk::Label {$/;"	f
 make_label_for_picture	/Users/christophethibaut/Coding/gsr2/src/gui/application.rs	/^fn make_label_for_picture(gui: &GraphicalUserInterface, index: usize) -> gtk::Label {$/;"	f
-make_multiple_view_grid	/Users/christophethibaut/Coding/gsr2/src/gui/application.rs	/^fn make_multiple_view_grid() -> gtk::Grid {$/;"	f
-make_multiple_view_panel	/Users/christophethibaut/Coding/gsr2/src/gui/application.rs	/^fn make_multiple_view_panel() -> gtk::Grid {$/;"	f
-make_multiple_view_scrolled_window	/Users/christophethibaut/Coding/gsr2/src/gui/application.rs	/^fn make_multiple_view_scrolled_window() -> gtk::ScrolledWindow {$/;"	f
+make_multiple_view_grid	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn make_multiple_view_grid() -> gtk::Grid {$/;"	f
+make_multiple_view_panel	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn make_multiple_view_panel() -> gtk::Grid {$/;"	f
+make_multiple_view_scrolled_window	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn make_multiple_view_scrolled_window() -> gtk::ScrolledWindow {$/;"	f
 make_palette_area	/Users/christophethibaut/Coding/gsr2/src/gui/application.rs	/^fn make_palette_area(palette: Palette) -> gtk::DrawingArea {$/;"	f
-make_picture	/Users/christophethibaut/Coding/gsr2/src/gui/application.rs	/^fn make_picture() -> gtk::Picture {$/;"	f
+make_picture	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn make_picture() -> gtk::Picture {$/;"	f
 make_single_view_scrolled_window	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn make_single_view_scrolled_window() -> gtk::ScrolledWindow {$/;"	f
 make_text	/Users/christophethibaut/Coding/gsr2/src/gui/application.rs	/^fn make_text() -> gtk::Text {$/;"	f
-make_view_box	/Users/christophethibaut/Coding/gsr2/src/gui/application.rs	/^fn make_view_box() -> gtk::Box {$/;"	f
-make_view_stack	/Users/christophethibaut/Coding/gsr2/src/gui/application.rs	/^fn make_view_stack() -> gtk::Stack {$/;"	f
+make_view_box	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn make_view_box() -> gtk::Box {$/;"	f
+make_view_stack	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn make_view_stack() -> gtk::Stack {$/;"	f
 move_towards	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn move_towards(&mut self, direction: Direction) {$/;"	f
 move_towards	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn move_towards(&mut self, direction: Direction) {$/;"	f
 moving_down_moves_to_entry_one_row_further	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn moving_down_moves_to_entry_one_row_further() {$/;"	f

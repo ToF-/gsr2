@@ -44,19 +44,6 @@ struct GraphicalUserInterface {
 
 type RcRefCellGui = Rc<RefCell<GraphicalUserInterface>>;
 
-
-fn make_palette_area(palette: Palette) -> gtk::DrawingArea {
-    let palette_area = gtk::DrawingArea::new();
-    palette_area.set_valign(Align::Center);
-    palette_area.set_halign(Align::Center);
-    palette_area.set_content_width(PALETTE_AREA_WIDTH);
-    palette_area.set_content_height(PALETTE_AREA_HEIGHT);
-    palette_area.set_draw_func(move |_, ctx, _, _| {
-        draw_palette(ctx, PALETTE_AREA_WIDTH, PALETTE_AREA_HEIGHT, &palette)
-    });
-    palette_area
-}
-
 fn draw_palette(ctx: &Context, width: i32, height: i32, palette: &Palette) {
     const COLOR_MAX: f64 = 9.0;
     let square_size: f64 = height as f64;
@@ -168,7 +155,12 @@ fn set_picture_for_file_view(gui: &GraphicalUserInterface, picture: &picture::Pi
     if gui.application_state.palette_on()
         && let Ok(colors) = get_palette_from_picture_file(&picture.file_path())
     {
-        let palette_area = make_palette_area(colors);
+        let palette_area = make_palette_area();
+        palette_area.set_content_width(PALETTE_AREA_WIDTH);
+        palette_area.set_content_height(PALETTE_AREA_HEIGHT);
+        palette_area.set_draw_func(move |_, ctx, _, _| {
+            draw_palette(ctx, PALETTE_AREA_WIDTH, PALETTE_AREA_HEIGHT, &colors)
+        });
         view_box.insert_child_after(&palette_area, Some(single_view_picture));
     }
     gui.application_window
@@ -445,11 +437,6 @@ fn make_gtk_picture_from_picture(
     application_state: &ApplicationState,
     index: usize,
 ) -> gtk::Picture {
-    let gtk_picture = gtk::Picture::new();
-    gtk_picture.set_halign(Align::Center);
-    gtk_picture.set_valign(Align::Center);
-    gtk_picture.set_opacity(1.00);
-    gtk_picture.set_can_shrink(!application_state.full_size_on());
     let file_path = if application_state.thumbnails_on() {
         application_state
             .gallery()
@@ -458,9 +445,7 @@ fn make_gtk_picture_from_picture(
     } else {
         application_state.gallery().picture(index).file_path()
     };
-    gtk_picture.set_filename(Some(file_path));
-    gtk_picture.set_visible(true);
-    gtk_picture
+    make_picture_for(&file_path, 1.00, !application_state.full_size_on())
 }
 
 fn make_application_window(application: &gtk::Application) -> gtk::ApplicationWindow {
