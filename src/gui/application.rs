@@ -1,3 +1,4 @@
+use crate::gui::components::make_single_view_scrolled_window;
 use crate::Command::{Dir, File};
 use crate::application_state::ApplicationState;
 use crate::command_line_interface::CommandLineInterface;
@@ -437,14 +438,6 @@ pub fn startup_gui(_application: &gtk::Application) {
         &css_provider,
         1000,
     );
-}
-
-fn make_single_view_scrolled_window() -> gtk::ScrolledWindow {
-    ScrolledWindow::builder()
-        .hscrollbar_policy(gtk::PolicyType::Automatic)
-        .vscrollbar_policy(gtk::PolicyType::Automatic)
-        .name("view")
-        .build()
 }
 
 fn make_view_box() -> gtk::Box {
