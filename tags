@@ -156,7 +156,7 @@ make_multiple_view_panel	/Users/christophethibaut/Coding/gsr2/src/gui/applicatio
 make_multiple_view_scrolled_window	/Users/christophethibaut/Coding/gsr2/src/gui/application.rs	/^fn make_multiple_view_scrolled_window() -> gtk::ScrolledWindow {$/;"	f
 make_palette_area	/Users/christophethibaut/Coding/gsr2/src/gui/application.rs	/^fn make_palette_area(palette: Palette) -> gtk::DrawingArea {$/;"	f
 make_picture	/Users/christophethibaut/Coding/gsr2/src/gui/application.rs	/^fn make_picture() -> gtk::Picture {$/;"	f
-make_single_view_scrolled_window	/Users/christophethibaut/Coding/gsr2/src/gui/application.rs	/^fn make_single_view_scrolled_window() -> gtk::ScrolledWindow {$/;"	f
+make_single_view_scrolled_window	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn make_single_view_scrolled_window() -> gtk::ScrolledWindow {$/;"	f
 make_text	/Users/christophethibaut/Coding/gsr2/src/gui/application.rs	/^fn make_text() -> gtk::Text {$/;"	f
 make_view_box	/Users/christophethibaut/Coding/gsr2/src/gui/application.rs	/^fn make_view_box() -> gtk::Box {$/;"	f
 make_view_stack	/Users/christophethibaut/Coding/gsr2/src/gui/application.rs	/^fn make_view_stack() -> gtk::Stack {$/;"	f

@@ -1,4 +1,3 @@
-use crate::gui::components::make_single_view_scrolled_window;
 use crate::Command::{Dir, File};
 use crate::application_state::ApplicationState;
 use crate::command_line_interface::CommandLineInterface;
@@ -12,6 +11,7 @@ use crate::direction::Direction;
 use crate::display::title_display;
 use crate::editor::{Editor, InputKind};
 use crate::gallery::Gallery;
+use crate::gui::components::*;
 use crate::image_data::{Palette, get_palette_from_picture_file};
 use crate::order::Order;
 use crate::picture;
@@ -43,6 +43,7 @@ struct GraphicalUserInterface {
 }
 
 type RcRefCellGui = Rc<RefCell<GraphicalUserInterface>>;
+
 
 fn make_palette_area(palette: Palette) -> gtk::DrawingArea {
     let palette_area = gtk::DrawingArea::new();
@@ -438,87 +439,6 @@ pub fn startup_gui(_application: &gtk::Application) {
         &css_provider,
         1000,
     );
-}
-
-fn make_view_box() -> gtk::Box {
-    gtk::Box::builder()
-        .orientation(Orientation::Vertical)
-        .spacing(0)
-        .halign(Align::Fill)
-        .valign(Align::Fill)
-        .hexpand(true)
-        .vexpand(true)
-        .homogeneous(false)
-        .build()
-}
-
-fn make_picture() -> gtk::Picture {
-    Picture::builder().hexpand(true).vexpand(true).build()
-}
-
-fn make_view_stack() -> gtk::Stack {
-    gtk::Stack::builder().hexpand(true).vexpand(true).build()
-}
-
-fn make_multiple_view_scrolled_window() -> gtk::ScrolledWindow {
-    ScrolledWindow::builder()
-        .hscrollbar_policy(gtk::PolicyType::Automatic)
-        .vscrollbar_policy(gtk::PolicyType::Automatic)
-        .name("grid")
-        .build()
-}
-
-fn make_multiple_view_grid() -> gtk::Grid {
-    let grid = gtk::Grid::builder()
-        .row_homogeneous(true)
-        .column_homogeneous(true)
-        .hexpand(true)
-        .vexpand(true)
-        .build();
-    grid.set_widget_name("multiple_view_grid");
-    grid
-}
-
-fn make_multiple_view_panel() -> gtk::Grid {
-    gtk::Grid::builder()
-        .row_homogeneous(true)
-        .column_homogeneous(false)
-        .hexpand(true)
-        .vexpand(true)
-        .build()
-}
-
-fn make_label(symbol: &str) -> gtk::Label {
-    let buttons_css_provider = CssProvider::new();
-    buttons_css_provider.load_from_data(
-        "
-            label {
-                color: gray;
-                font-size: 12px;
-                }
-            text-button {
-                background-color: black;
-                }
-        ",
-    );
-    let label = Label::new(Some(symbol));
-    label.set_width_chars(10);
-    label.style_context().add_provider(
-        &buttons_css_provider,
-        gtk::STYLE_PROVIDER_PRIORITY_APPLICATION,
-    );
-    label
-}
-
-fn make_cell_box() -> gtk::Box {
-    gtk::Box::builder()
-        .orientation(Orientation::Vertical)
-        .spacing(0)
-        .valign(Align::Center)
-        .halign(Align::Center)
-        .hexpand(true)
-        .vexpand(true)
-        .build()
 }
 
 fn make_gtk_picture_from_picture(
