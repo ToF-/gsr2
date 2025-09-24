@@ -154,8 +154,9 @@ make_label_for_picture	/Users/christophethibaut/Coding/gsr2/src/gui/application.
 make_multiple_view_grid	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn make_multiple_view_grid() -> gtk::Grid {$/;"	f
 make_multiple_view_panel	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn make_multiple_view_panel() -> gtk::Grid {$/;"	f
 make_multiple_view_scrolled_window	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn make_multiple_view_scrolled_window() -> gtk::ScrolledWindow {$/;"	f
-make_palette_area	/Users/christophethibaut/Coding/gsr2/src/gui/application.rs	/^fn make_palette_area(palette: Palette) -> gtk::DrawingArea {$/;"	f
+make_palette_area	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn make_palette_area() -> gtk::DrawingArea {$/;"	f
 make_picture	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn make_picture() -> gtk::Picture {$/;"	f
+make_picture_for	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn make_picture_for(file_path: &str, opacity: f64, can_shrink: bool) -> gtk::Picture {$/;"	f
 make_single_view_scrolled_window	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn make_single_view_scrolled_window() -> gtk::ScrolledWindow {$/;"	f
 make_text	/Users/christophethibaut/Coding/gsr2/src/gui/application.rs	/^fn make_text() -> gtk::Text {$/;"	f
 make_view_box	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn make_view_box() -> gtk::Box {$/;"	f
