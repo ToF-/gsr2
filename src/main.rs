@@ -1,8 +1,8 @@
 use crate::command::Command;
 use crate::command_line_interface::CommandLineInterface;
-use crate::graphic_user_interface::build_and_run_application;
 use std::process::exit;
 
+mod gui;
 mod application_state;
 mod command;
 mod command_line_interface;
@@ -16,7 +16,6 @@ mod environment;
 mod file_system;
 mod gallery;
 mod gen_image;
-mod graphic_user_interface;
 mod image_data;
 mod navigator;
 mod order;
@@ -33,7 +32,7 @@ fn main() {
             } else if cli.command.is_none() {
                 println!("viewing file from the database");
             }
-            build_and_run_application(cli.clone())
+            gui::application::build_and_run_application(cli.clone())
         }
         Err(err) => {
             eprintln!("{}", err);
