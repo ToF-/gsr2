@@ -1,6 +1,6 @@
 use gtk::prelude::*;
 use gtk::{self};
-use gtk::{ Align, Application, ApplicationWindow, Text, gdk };
+use gtk::{ Align, Application, ApplicationWindow, Grid, Text, gdk };
 use crate::default_values::{ DEFAULT_HEIGHT, DEFAULT_WIDTH };
 
 use gtk::{ CssProvider, Label, Orientation, Picture, ScrolledWindow };
@@ -31,7 +31,7 @@ pub fn make_single_view_scrolled_window() -> gtk::ScrolledWindow {
         .vscrollbar_policy(gtk::PolicyType::Automatic)
         .build()
 }
-pub fn make_view_box() -> gtk::Box {
+pub fn make_frame() -> gtk::Box {
     gtk::Box::builder()
         .orientation(Orientation::Vertical)
         .spacing(0)
@@ -47,7 +47,7 @@ pub fn make_picture() -> gtk::Picture {
     Picture::builder().hexpand(true).vexpand(true).build()
 }
 
-pub fn make_view_stack() -> gtk::Stack {
+pub fn make_stack() -> gtk::Stack {
     gtk::Stack::builder().hexpand(true).vexpand(true).build()
 }
 
@@ -58,7 +58,7 @@ pub fn make_multiple_view_scrolled_window() -> gtk::ScrolledWindow {
         .build()
 }
 
-pub fn make_multiple_view_grid(cells_per_row: i32) -> gtk::Grid {
+pub fn grid(cells_per_row: i32) -> gtk::Grid {
     let grid = gtk::Grid::builder()
         .row_homogeneous(true)
         .column_homogeneous(true)
@@ -74,12 +74,12 @@ pub fn make_multiple_view_grid(cells_per_row: i32) -> gtk::Grid {
     grid
 }
 
-pub fn make_multiple_view_panel() -> gtk::Grid {
-    let multiple_view_panel =Grid::new();
-    multiple_view_panel.set_hexpand(true);
-    multiple_view_panel.set_vexpand(true);
-    multiple_view_panel.set_row_homogeneous(true);
-    multiple_view_panel.set_column_homogeneous(false);
+pub fn make_panel() -> gtk::Grid {
+    let panel =Grid::new();
+    panel.set_hexpand(true);
+    panel.set_vexpand(true);
+    panel.set_row_homogeneous(true);
+    panel.set_column_homogeneous(false);
     let buttons_css_provider = CssProvider::new();
     buttons_css_provider.load_from_data(
         "
@@ -97,7 +97,7 @@ pub fn make_multiple_view_panel() -> gtk::Grid {
     right_button.set_width_chars(10);
     left_button.style_context().add_provider(&buttons_css_provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
     right_button.style_context().add_provider(&buttons_css_provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
-    multiple_view_panel
+    panel
 }
  
 pub fn make_picture_for(file_path: &str, opacity: f64, can_shrink: bool) -> gtk::Picture {
