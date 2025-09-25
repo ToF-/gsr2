@@ -1,9 +1,23 @@
+use crate::CommandLineInterface;
+use crate::application_state::ApplicationState;
+use crate::control::Controls;
+use crate::control::default_controls;
+use crate::database::Database;
+use crate::default_values::{DEFAULT_HEIGHT, DEFAULT_WIDTH};
+use crate::editor::Editor;
+use crate::environment::database_connection;
+use crate::gallery::Gallery;
+use crate::gui::state::State;
+use crate::gui::view::View;
+use crate::navigator::Navigator;
+use gtk::glib::clone;
 use gtk::prelude::*;
+use gtk::{Align, Application, ApplicationWindow, Grid, Text, gdk};
+use gtk::{CssProvider, Label, Orientation, Picture, ScrolledWindow};
 use gtk::{self};
-use gtk::{ Align, Application, ApplicationWindow, Grid, Text, gdk };
-use crate::default_values::{ DEFAULT_HEIGHT, DEFAULT_WIDTH };
-
-use gtk::{ CssProvider, Label, Orientation, Picture, ScrolledWindow };
+use std::cell::RefCell;
+use std::io::Result as IOResult;
+use std::rc::Rc;
 
 pub fn make_application(application_id: &str) -> gtk::Application {
     Application::builder()
@@ -58,7 +72,7 @@ pub fn make_multiple_view_scrolled_window() -> gtk::ScrolledWindow {
         .build()
 }
 
-pub fn grid(cells_per_row: i32) -> gtk::Grid {
+pub fn make_grid(cells_per_row: i32) -> gtk::Grid {
     let grid = gtk::Grid::builder()
         .row_homogeneous(true)
         .column_homogeneous(true)
@@ -74,7 +88,7 @@ pub fn grid(cells_per_row: i32) -> gtk::Grid {
     grid
 }
 
-pub fn make_panel() -> gtk::Grid {
+pub fn make_panel(view_grid: &gtk::Grid) -> gtk::Grid {
     let panel =Grid::new();
     panel.set_hexpand(true);
     panel.set_vexpand(true);
@@ -90,16 +104,20 @@ pub fn make_panel() -> gtk::Grid {
             text-button {
                 background-color: black;
             }
-        ");
-    let left_button = Label::new(Some("←"));
-    let right_button= Label::new(Some("→"));
-    left_button.set_width_chars(10);
-    right_button.set_width_chars(10);
-    left_button.style_context().add_provider(&buttons_css_provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
-    right_button.style_context().add_provider(&buttons_css_provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
+        ",
+    );
+    let left_pane = Label::new(Some("←"));
+    let right_pane = Label::new(Some("→"));
+    left_pane.set_width_chars(10);
+    right_pane.set_width_chars(10);
+    left_pane.style_context().add_provider(&buttons_css_provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
+    right_pane.style_context().add_provider(&buttons_css_provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
+    panel.attach(&left_pane, 0, 0, 1, 1);
+    panel.attach(view_grid, 1, 0, 1, 1);
+    panel.attach(&right_pane, 2, 0, 1, 1);
     panel
 }
- 
+
 pub fn make_picture_for(file_path: &str, opacity: f64, can_shrink: bool) -> gtk::Picture {
     let gtk_picture = gtk::Picture::new();
     gtk_picture.set_halign(Align::Center);

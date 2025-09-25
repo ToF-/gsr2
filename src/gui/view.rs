@@ -1,3 +1,4 @@
+use crate::application_state::ApplicationState;
 use crate::command_line_interface::CommandLineInterface;
 use crate::direction::Direction;
 use crate::display::title_display;
@@ -14,18 +15,18 @@ use std::process::exit;
 use std::rc::Rc;
 use std::time::Duration;
 
+#[derive(Clone)]
 pub struct View {
-    width: i32,
-    height: i32,
-    cells_per_row: i32,
-    application: gtk::Application,
-    application_window: gtk::ApplicationWindow,
+pub    width: i32,
+pub    height: i32,
+pub    cells_per_row: i32,
+pub    application: gtk::Application,
+pub    application_window: gtk::ApplicationWindow,
 }
 
 impl View {
     pub fn make_view(width: i32, height: i32, cells_per_row: i32) -> Self {
-
-        let application: gtk::Application  = make_application("example.org.gsr2");
+        let application: gtk::Application = make_application("example.org.gsr2");
         let application_window: gtk::ApplicationWindow = make_application_window(&application);
         View {
             width,
@@ -37,18 +38,14 @@ impl View {
     }
 
     pub fn setup_components(&mut self) {
-        let grid = grid(self.cells_per_row);
+        let grid = make_grid(self.cells_per_row);
 
-         let left_pane = make_pane_with_label("←");
-         let right_pane = make_pane_with_label("→");
+        let left_pane = make_pane_with_label("←");
+        let right_pane = make_pane_with_label("→");
 
-         let panel = make_panel();
-         panel.attach(&left_pane, 0, 0, 1, 1);
-         panel.attach(&grid, 1, 0, 1, 1);
-         panel.attach(&right_pane, 2, 0, 1, 1);
+         let panel = make_panel(&grid);
 
-         let multiple_view_scrolled_window = make_multiple_view_scrolled_window();
-
+        let multiple_view_scrolled_window = make_multiple_view_scrolled_window();
          multiple_view_scrolled_window.set_child(Some(&panel));
 
          let frame = make_frame();
