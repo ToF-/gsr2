@@ -23,6 +23,7 @@ use std::io::Result as IOResult;
 use std::rc::Rc;
 
 
+#[derive(Debug)]
 pub struct Controller {
     args: CommandLineInterface,
     gallery: Gallery,

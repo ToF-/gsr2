@@ -1,3 +1,4 @@
+#[derive(Debug)]
 pub struct State {
     pub pictures_per_row: usize,
     pub old_pictures_per_row: usize,
