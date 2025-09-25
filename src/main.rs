@@ -1,6 +1,7 @@
 use crate::command::Command;
 use crate::command_line_interface::CommandLineInterface;
 use std::process::exit;
+use crate::gui::controller::Controller;
 
 mod application_state;
 mod command;
@@ -32,7 +33,8 @@ fn main() {
             } else if cli.command.is_none() {
                 println!("viewing file from the database");
             }
-            gui::application::build_and_run_application(cli.clone())
+            let controller: Controller = Controller::new(cli.clone());
+            controller.build_and_run_app();
         }
         Err(err) => {
             eprintln!("{}", err);

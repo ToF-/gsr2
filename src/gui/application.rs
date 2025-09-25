@@ -2,7 +2,7 @@ use crate::Command::{Dir, File};
 use crate::application_state::ApplicationState;
 use crate::command_line_interface::CommandLineInterface;
 use crate::control::Control;
-use crate::default_values::ONE_CELL_PER_ROW;
+use crate::default_values::ONE_PICTURE_PER_ROW;
 use crate::default_values::{
     DEFAULT_HEIGHT, DEFAULT_WIDTH, FOCUS_SYMBOL, PALETTE_AREA_HEIGHT, PALETTE_AREA_WIDTH,
     SCROLL_STEP,
@@ -348,11 +348,11 @@ fn single_view_mode(gui: &GraphicalUserInterface) -> bool {
 }
 
 fn set_view(gui: &GraphicalUserInterface, initial: bool) {
-    let cells_per_row = gui.application_state.pictures_per_row();
-    let view_has_changed: bool = (cells_per_row == ONE_CELL_PER_ROW) != single_view_mode(gui);
+    let pictures_per_row = gui.application_state.pictures_per_row();
+    let view_has_changed: bool = (pictures_per_row == ONE_PICTURE_PER_ROW) != single_view_mode(gui);
 
     if initial || view_has_changed {
-        if cells_per_row == ONE_CELL_PER_ROW {
+        if pictures_per_row == ONE_PICTURE_PER_ROW {
             gui.multiple_view_scrolled_window.set_visible(false);
             gui.single_view_scrolled_window.set_visible(true);
             gui.view_stack
@@ -362,13 +362,13 @@ fn set_view(gui: &GraphicalUserInterface, initial: bool) {
             gui.multiple_view_scrolled_window.set_visible(true);
             gui.view_stack
                 .set_visible_child(&gui.multiple_view_scrolled_window);
-            set_picture_for_multiple_view(gui, cells_per_row as i32)
+            set_picture_for_multiple_view(gui, pictures_per_row as i32)
         }
     }
-    if cells_per_row == ONE_CELL_PER_ROW {
+    if pictures_per_row == ONE_PICTURE_PER_ROW {
         set_picture_for_single_view(gui)
     } else if gui.application_state.navigator().page_changed() {
-        set_picture_for_multiple_view(gui, cells_per_row as i32)
+        set_picture_for_multiple_view(gui, pictures_per_row as i32)
     } else if gui.application_state.navigator().has_moved() {
         set_label_for_picture_at_new_coords(gui)
     };
@@ -392,8 +392,8 @@ fn load_and_launch(gui_rc: RcRefCellGui) {
         match result {
             Ok(0) => {}
             Ok(_) => {
-                let cells_per_row: usize = (gui.command_line_interface).cells_per_row() as usize;
-                gui.application_state.set_gallery(gallery, cells_per_row);
+                let pictures_per_row: usize = (gui.command_line_interface).pictures_per_row() as usize;
+                gui.application_state.set_gallery(gallery, pictures_per_row);
                 set_view(&gui, true);
                 gui.application_window.present()
             }

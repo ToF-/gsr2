@@ -1,3 +1,11 @@
+use crate::gallery::Gallery;
+use crate::environment::database_connection;
+use crate::control::default_controls;
+use crate::navigator::Navigator;
+use crate::control::Controls;
+use crate::database::Database;
+use crate::editor::Editor;
+use crate::gui::state::State;
 use crate::CommandLineInterface;
 use crate::application_state::ApplicationState;
 use crate::gui::view::View;
@@ -7,14 +15,44 @@ use gtk::gdk;
 use gtk::Application;
 use std::rc::Rc;
 use std::cell::RefCell;
+use std::io::Result as IOResult;
+use crate::default_values::{ DEFAULT_HEIGHT, DEFAULT_WIDTH };
+use gtk::prelude::GtkWindowExt;
 
 pub struct Controller {
     args:  CommandLineInterface,
-    state: ApplicationState,
+    gallery: Gallery,
+    navigator: Navigator,
+    controls: Controls,
+    database: Database,
+    editor: Editor,
+    state: State,
     view:  View,
 }
 
 impl Controller {
+
+    pub fn new(cli: CommandLineInterface) -> IOResult<Self> {
+        let gallery = Gallery::new();
+        let pictures_per_row = cli.pictures_per_row();
+        let view = View::make_view(DEFAULT_HEIGHT, DEFAULT_WIDTH, pictures_per_row); 
+        database_connection()
+            .and_then(|connection_string| {
+                match Database::from_connection(&connection_string) {
+                    Err(err) => Err(err),
+                    Ok(database) => Ok(Controller {
+                        args: cli,
+                        gallery,
+                        navigator: Navigator::new(gallery.len(), pictures_per_row as usize),
+                        controls: default_controls(),
+                        database,
+                        editor: Editor::new(),
+                        state: State::new(pictures_per_row as usize),
+                    }),
+
+        }
+            })
+    }
 
 pub fn startup_gui(&self, _application: &gtk::Application) {
     let css_provider = gtk::CssProvider::new();

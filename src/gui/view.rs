@@ -12,7 +12,7 @@ pub struct View {
 }
 
 impl View {
-    pub fn make_view(width: usize, height: usize, cells_per_row: usize) -> Self {
+    pub fn make_view(width: i32, height: i32, cells_per_row: i32) -> Self {
         // make grid
         // for 0..cells_per_row, 0..cells_per_row
         //      make cell_box
@@ -101,116 +101,117 @@ pub fn activate(application: &gtk::Application, cli_rc: &Rc<RefCell<CommandLineI
         }
     }
     application_window.set_child(Some(&view_stack));
-    let gui_rc = match ApplicationState::new() {
-        Ok(application_state) => Rc::new(RefCell::new(GraphicalUserInterface {
-            command_line_interface: command_line_interface.clone(),
-            application_state,
-            application_window,
-            single_view_picture: picture,
-            single_view_box: view_box,
-            single_view_scrolled_window,
-            multiple_view_scrolled_window,
-            multiple_view_grid,
-            view_stack,
-        })),
-        Err(err) => {
-            eprintln!("{}", err);
-            exit(1)
-        }
-    };
 
-    let evk = gtk::EventControllerKey::new();
-    evk.connect_key_pressed(clone!(@strong gui_rc => move |_, key, _, _| {
-        process_key(&gui_rc, key)
-    }));
-    if let Ok(gui) = gui_rc.try_borrow() {
-        gui.application_window.add_controller(evk)
-    };
-    let left_gesture = gtk::GestureClick::new();
-    left_gesture.set_button(1);
-    left_gesture.connect_pressed(clone!(@strong gui_rc => move |_,_,_,_| {
-        {
-            if let Ok(mut gui) = gui_rc.try_borrow_mut() {
-                let prev_page_start = gui.application_state.navigator().prev_page_start();
-                if gui.application_state.can_move(Direction::Index {
-                    value: prev_page_start,
-                }) {
-                    gui.application_state.move_towards(Direction::Index {
-                        value: prev_page_start,
-                    });
-                };
-                set_view(&gui, false)
-            }
-        }
-    }));
-    left_button.add_controller(left_gesture);
-    let right_gesture = gtk::GestureClick::new();
-    right_gesture.set_button(1);
-    right_gesture.connect_pressed(clone!(@strong gui_rc => move |_,_,_,_| {
-        {
-            if let Ok(mut gui) = gui_rc.try_borrow_mut() {
-                let next_page_start = gui.application_state.navigator().next_page_start();
-                if gui.application_state.can_move(Direction::Index {
-                    value: next_page_start,
-                }) {
-                    gui.application_state.move_towards(Direction::Index {
-                        value: next_page_start,
-                    });
-                };
-                set_view(&gui, false)
-            }
-        }
-    }));
-    right_button.add_controller(right_gesture);
-    if let Ok(gui) = gui_rc.try_borrow() {
-        for col in 0..cells_per_row {
-            for row in 0..cells_per_row {
-                let widget = gui
-                    .multiple_view_grid
-                    .child_at(col, row)
-                    .expect("can't locate cell box");
-                let cell_box = widget
-                    .downcast::<gtk::Box>()
-                    .expect("cannot downcast widget to Box");
-                let gesture_left = gtk::GestureClick::new();
-                gesture_left.set_button(1);
-                gesture_left.connect_pressed(clone!(@strong gui_rc => move |_,n_pressed,_,_| {
-                if let Ok(mut gui) = gui_rc.try_borrow_mut()
-                    && let Some(index) = gui.application_state.navigator().position_from_coords(row as usize, col as usize) {
-                        match n_pressed {
-                            1 => {
-                                gui.application_state.move_towards(Direction::Index {
-                                    value: index,
-                                });
-                                set_view(&gui, false)
-                            },
-                            2 => {
-                                gui.application_state.move_towards(Direction::Index {
-                                    value: index,
-                                });
-                                gui.application_state.toggle_single_view();
-                                set_view(&gui, true)
-                            }
-                            _ => {}
-                        }
-                    }
-            }));
-                cell_box.add_controller(gesture_left);
-            }
-        }
-    };
-    if let Ok(gui) = gui_rc.try_borrow() {
-        let gesture_left = gtk::GestureClick::new();
-        gesture_left.set_button(1);
-        gesture_left.connect_pressed(clone!(@strong gui_rc => move |_,_,_,_| {
-            if let Ok(mut gui) = gui_rc.try_borrow_mut() {
-                gui.application_state.toggle_single_view();
-                set_view(&gui, true)
-            }
-        }));
-        gui.single_view_picture.add_controller(gesture_left);
-    };
-    load_and_launch(gui_rc);
+    // let gui_rc = match ApplicationState::new() {
+    //     Ok(application_state) => Rc::new(RefCell::new(GraphicalUserInterface {
+    //         command_line_interface: command_line_interface.clone(),
+    //         application_state,
+    //         application_window,
+    //         single_view_picture: picture,
+    //         single_view_box: view_box,
+    //         single_view_scrolled_window,
+    //         multiple_view_scrolled_window,
+    //         multiple_view_grid,
+    //         view_stack,
+    //     })),
+    //     Err(err) => {
+    //         eprintln!("{}", err);
+    //         exit(1)
+    //     }
+    // };
+
+    // let evk = gtk::EventControllerKey::new();
+    // evk.connect_key_pressed(clone!(@strong gui_rc => move |_, key, _, _| {
+    //     process_key(&gui_rc, key)
+    // }));
+    // if let Ok(gui) = gui_rc.try_borrow() {
+    //     gui.application_window.add_controller(evk)
+    // };
+    // let left_gesture = gtk::GestureClick::new();
+    // left_gesture.set_button(1);
+    // left_gesture.connect_pressed(clone!(@strong gui_rc => move |_,_,_,_| {
+    //     {
+    //         if let Ok(mut gui) = gui_rc.try_borrow_mut() {
+    //             let prev_page_start = gui.application_state.navigator().prev_page_start();
+    //             if gui.application_state.can_move(Direction::Index {
+    //                 value: prev_page_start,
+    //             }) {
+    //                 gui.application_state.move_towards(Direction::Index {
+    //                     value: prev_page_start,
+    //                 });
+    //             };
+    //             set_view(&gui, false)
+    //         }
+    //     }
+    // }));
+    // left_button.add_controller(left_gesture);
+    // let right_gesture = gtk::GestureClick::new();
+    // right_gesture.set_button(1);
+    // right_gesture.connect_pressed(clone!(@strong gui_rc => move |_,_,_,_| {
+    //     {
+    //         if let Ok(mut gui) = gui_rc.try_borrow_mut() {
+    //             let next_page_start = gui.application_state.navigator().next_page_start();
+    //             if gui.application_state.can_move(Direction::Index {
+    //                 value: next_page_start,
+    //             }) {
+    //                 gui.application_state.move_towards(Direction::Index {
+    //                     value: next_page_start,
+    //                 });
+    //             };
+    //             set_view(&gui, false)
+    //         }
+    //     }
+    // }));
+    // right_button.add_controller(right_gesture);
+    // if let Ok(gui) = gui_rc.try_borrow() {
+    //     for col in 0..cells_per_row {
+    //         for row in 0..cells_per_row {
+    //             let widget = gui
+    //                 .multiple_view_grid
+    //                 .child_at(col, row)
+    //                 .expect("can't locate cell box");
+    //             let cell_box = widget
+    //                 .downcast::<gtk::Box>()
+    //                 .expect("cannot downcast widget to Box");
+    //             let gesture_left = gtk::GestureClick::new();
+    //             gesture_left.set_button(1);
+    //             gesture_left.connect_pressed(clone!(@strong gui_rc => move |_,n_pressed,_,_| {
+    //             if let Ok(mut gui) = gui_rc.try_borrow_mut()
+    //                 && let Some(index) = gui.application_state.navigator().position_from_coords(row as usize, col as usize) {
+    //                     match n_pressed {
+    //                         1 => {
+    //                             gui.application_state.move_towards(Direction::Index {
+    //                                 value: index,
+    //                             });
+    //                             set_view(&gui, false)
+    //                         },
+    //                         2 => {
+    //                             gui.application_state.move_towards(Direction::Index {
+    //                                 value: index,
+    //                             });
+    //                             gui.application_state.toggle_single_view();
+    //                             set_view(&gui, true)
+    //                         }
+    //                         _ => {}
+    //                     }
+    //                 }
+    //         }));
+    //             cell_box.add_controller(gesture_left);
+    //         }
+    //     }
+    // };
+    // if let Ok(gui) = gui_rc.try_borrow() {
+    //     let gesture_left = gtk::GestureClick::new();
+    //     gesture_left.set_button(1);
+    //     gesture_left.connect_pressed(clone!(@strong gui_rc => move |_,_,_,_| {
+    //         if let Ok(mut gui) = gui_rc.try_borrow_mut() {
+    //             gui.application_state.toggle_single_view();
+    //             set_view(&gui, true)
+    //         }
+    //     }));
+    //     gui.single_view_picture.add_controller(gesture_left);
+    // };
+    // load_and_launch(gui_rc);
 }
 }
 

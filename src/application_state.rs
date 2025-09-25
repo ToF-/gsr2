@@ -95,11 +95,11 @@ impl ApplicationState {
         self.pictures_per_row == 10
     }
 
-    pub fn set_gallery(&mut self, gallery: Gallery, cells_per_row: usize) {
+    pub fn set_gallery(&mut self, gallery: Gallery, pictures_per_row: usize) {
         self.gallery = gallery;
         self.load_image_data();
-        self.navigator = Navigator::new(self.gallery.len(), cells_per_row);
-        self.pictures_per_row = cells_per_row
+        self.navigator = Navigator::new(self.gallery.len(), pictures_per_row);
+        self.pictures_per_row = pictures_per_row
     }
 
     pub fn toggle_single_view(&mut self) {
