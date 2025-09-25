@@ -1,7 +1,7 @@
 use crate::command::Command;
 use crate::command_line_interface::CommandLineInterface;
-use std::process::exit;
 use crate::gui::controller::Controller;
+use std::process::exit;
 
 mod application_state;
 mod command;

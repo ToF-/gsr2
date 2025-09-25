@@ -1,9 +1,9 @@
+use crate::default_values::{DEFAULT_HEIGHT, DEFAULT_WIDTH};
 use gtk::prelude::*;
 use gtk::{self};
-use gtk::{ Align, Application, ApplicationWindow, Text, Grid, gdk };
-use crate::default_values::{ DEFAULT_HEIGHT, DEFAULT_WIDTH };
+use gtk::{Align, Application, ApplicationWindow, Grid, Text, gdk};
 
-use gtk::{ CssProvider, Label, Orientation, Picture, ScrolledWindow };
+use gtk::{CssProvider, Label, Orientation, Picture, ScrolledWindow};
 
 pub fn make_application(application_id: &str) -> gtk::Application {
     Application::builder()
@@ -75,7 +75,7 @@ pub fn make_multiple_view_grid(cells_per_row: i32) -> gtk::Grid {
 }
 
 pub fn make_multiple_view_panel() -> gtk::Grid {
-    let multiple_view_panel =Grid::new();
+    let multiple_view_panel = Grid::new();
     multiple_view_panel.set_hexpand(true);
     multiple_view_panel.set_vexpand(true);
     multiple_view_panel.set_row_homogeneous(true);
@@ -90,16 +90,23 @@ pub fn make_multiple_view_panel() -> gtk::Grid {
             text-button {
                 background-color: black;
             }
-        ");
+        ",
+    );
     let left_button = Label::new(Some("←"));
-    let right_button= Label::new(Some("→"));
+    let right_button = Label::new(Some("→"));
     left_button.set_width_chars(10);
     right_button.set_width_chars(10);
-    left_button.style_context().add_provider(&buttons_css_provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
-    right_button.style_context().add_provider(&buttons_css_provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
+    left_button.style_context().add_provider(
+        &buttons_css_provider,
+        gtk::STYLE_PROVIDER_PRIORITY_APPLICATION,
+    );
+    right_button.style_context().add_provider(
+        &buttons_css_provider,
+        gtk::STYLE_PROVIDER_PRIORITY_APPLICATION,
+    );
     multiple_view_panel
 }
- 
+
 pub fn make_picture_for(file_path: &str, opacity: f64, can_shrink: bool) -> gtk::Picture {
     let gtk_picture = gtk::Picture::new();
     gtk_picture.set_halign(Align::Center);

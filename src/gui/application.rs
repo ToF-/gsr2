@@ -20,7 +20,7 @@ use gtk::gdk::Key;
 use gtk::glib::clone;
 use gtk::prelude::*;
 use gtk::{self};
-use gtk::{ Align, Application, ApplicationWindow, Text, gdk };
+use gtk::{Align, Application, ApplicationWindow, Text, gdk};
 use std::cell::RefCell;
 use std::process::exit;
 use std::rc::Rc;
@@ -392,7 +392,8 @@ fn load_and_launch(gui_rc: RcRefCellGui) {
         match result {
             Ok(0) => {}
             Ok(_) => {
-                let pictures_per_row: usize = (gui.command_line_interface).pictures_per_row() as usize;
+                let pictures_per_row: usize =
+                    (gui.command_line_interface).pictures_per_row() as usize;
                 gui.application_state.set_gallery(gallery, pictures_per_row);
                 set_view(&gui, true);
                 gui.application_window.present()
@@ -431,9 +432,6 @@ fn make_gtk_picture_from_picture(
     make_picture_for(&file_path, 1.00, !application_state.full_size_on())
 }
 
-
 fn make_text() -> gtk::Text {
     Text::builder().build()
 }
-
-
