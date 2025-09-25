@@ -20,12 +20,7 @@ use gtk::gdk::Key;
 use gtk::glib::clone;
 use gtk::prelude::*;
 use gtk::{self};
-use gtk::{
-    Align, Application, ApplicationWindow, CssProvider, Label, Orientation, Picture,
-    ScrolledWindow, Text, gdk,
-};
-use std::borrow::Borrow;
-use std::borrow::BorrowMut;
+use gtk::{ Align, Application, ApplicationWindow, Text, gdk };
 use std::cell::RefCell;
 use std::process::exit;
 use std::rc::Rc;
@@ -175,7 +170,7 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
         } else if let Some(key_name) = key.name()
             && let Some(control) = gui.application_state.get_control(key_name.as_str())
         {
-            let refresh_view_required: bool = process_control(&mut gui, control);
+            refresh_view_required = process_control(&mut gui, control);
         }
         if refresh_view_required {
             set_view(&gui, false);
@@ -184,7 +179,7 @@ fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {
     gtk::Inhibit(false)
 }
 
-fn process_edition(mut gui: &mut GraphicalUserInterface, key: Key) -> bool {
+fn process_edition(gui: &mut GraphicalUserInterface, key: Key) -> bool {
     let mut refresh_view_required: bool = false;
     let mut editor: Editor = gui.application_state.editor().clone();
     if let Some(key_name) = key.name() {
@@ -194,7 +189,7 @@ fn process_edition(mut gui: &mut GraphicalUserInterface, key: Key) -> bool {
                 editor.cancel_input();
             }
             "Return" => {
-                let content = editor.confirm_input();
+                let _ = editor.confirm_input();
                 refresh_view_required = true;
             }
             "BackSpace" => {
@@ -448,190 +443,9 @@ fn make_gtk_picture_from_picture(
     make_picture_for(&file_path, 1.00, !application_state.full_size_on())
 }
 
-fn make_application_window(application: &gtk::Application) -> gtk::ApplicationWindow {
-    ApplicationWindow::builder()
-        .application(application)
-        .title("gsr2")
-        .default_width(DEFAULT_WIDTH)
-        .default_height(DEFAULT_HEIGHT)
-        .build()
-}
 
 fn make_text() -> gtk::Text {
     Text::builder().build()
 }
 
-pub fn activate(application: &gtk::Application, cli_rc: &Rc<RefCell<CommandLineInterface>>) {
-    let command_line_interface = match cli_rc.try_borrow() {
-        Ok(cli) => cli,
-        Err(err) => {
-            eprintln!("{}", err);
-            exit(1);
-        }
-    };
-    let application_window = make_application_window(application);
-    let single_view_scrolled_window = make_single_view_scrolled_window();
-    let view_box = make_view_box();
-    let picture = make_picture();
-    view_box.append(&picture);
-    single_view_scrolled_window.set_child(Some(&view_box));
 
-    let multiple_view_scrolled_window = make_multiple_view_scrolled_window();
-    let multiple_view_grid = make_multiple_view_grid();
-
-    let multiple_view_panel = make_multiple_view_panel();
-
-    multiple_view_scrolled_window.set_child(Some(&multiple_view_panel));
-
-    let left_button = make_label("←");
-    let right_button = make_label("→");
-
-    multiple_view_panel.attach(&left_button, 0, 0, 1, 1);
-    multiple_view_panel.attach(&multiple_view_grid, 1, 0, 1, 1);
-    multiple_view_panel.attach(&right_button, 2, 0, 1, 1);
-
-    let view_stack = make_view_stack();
-    let _ = view_stack.add_child(&single_view_scrolled_window);
-    let _ = view_stack.add_child(&multiple_view_scrolled_window);
-    if command_line_interface.cells_per_row() == 1 {
-        view_stack.set_visible_child(&single_view_scrolled_window);
-    } else {
-        view_stack.set_visible_child(&multiple_view_scrolled_window);
-    }
-    let cells_per_row: i32 = command_line_interface.cells_per_row();
-    for col in 0..cells_per_row {
-        for row in 0..cells_per_row {
-            let cell_box = make_cell_box();
-            multiple_view_grid.attach(&cell_box, col, row, 1, 1);
-        }
-    }
-    application_window.set_child(Some(&view_stack));
-    let gui_rc = match ApplicationState::new() {
-        Ok(application_state) => Rc::new(RefCell::new(GraphicalUserInterface {
-            command_line_interface: command_line_interface.clone(),
-            application_state,
-            application_window,
-            single_view_picture: picture,
-            single_view_box: view_box,
-            single_view_scrolled_window,
-            multiple_view_scrolled_window,
-            multiple_view_grid,
-            view_stack,
-        })),
-        Err(err) => {
-            eprintln!("{}", err);
-            exit(1)
-        }
-    };
-
-    let evk = gtk::EventControllerKey::new();
-    evk.connect_key_pressed(clone!(@strong gui_rc => move |_, key, _, _| {
-        process_key(&gui_rc, key)
-    }));
-    if let Ok(gui) = gui_rc.try_borrow() {
-        gui.application_window.add_controller(evk)
-    };
-    let left_gesture = gtk::GestureClick::new();
-    left_gesture.set_button(1);
-    left_gesture.connect_pressed(clone!(@strong gui_rc => move |_,_,_,_| {
-        {
-            if let Ok(mut gui) = gui_rc.try_borrow_mut() {
-                let prev_page_start = gui.application_state.navigator().prev_page_start();
-                if gui.application_state.can_move(Direction::Index {
-                    value: prev_page_start,
-                }) {
-                    gui.application_state.move_towards(Direction::Index {
-                        value: prev_page_start,
-                    });
-                };
-                set_view(&gui, false)
-            }
-        }
-    }));
-    left_button.add_controller(left_gesture);
-    let right_gesture = gtk::GestureClick::new();
-    right_gesture.set_button(1);
-    right_gesture.connect_pressed(clone!(@strong gui_rc => move |_,_,_,_| {
-        {
-            if let Ok(mut gui) = gui_rc.try_borrow_mut() {
-                let next_page_start = gui.application_state.navigator().next_page_start();
-                if gui.application_state.can_move(Direction::Index {
-                    value: next_page_start,
-                }) {
-                    gui.application_state.move_towards(Direction::Index {
-                        value: next_page_start,
-                    });
-                };
-                set_view(&gui, false)
-            }
-        }
-    }));
-    right_button.add_controller(right_gesture);
-    if let Ok(gui) = gui_rc.try_borrow() {
-        for col in 0..cells_per_row {
-            for row in 0..cells_per_row {
-                let widget = gui
-                    .multiple_view_grid
-                    .child_at(col, row)
-                    .expect("can't locate cell box");
-                let cell_box = widget
-                    .downcast::<gtk::Box>()
-                    .expect("cannot downcast widget to Box");
-                let gesture_left = gtk::GestureClick::new();
-                gesture_left.set_button(1);
-                gesture_left.connect_pressed(clone!(@strong gui_rc => move |_,n_pressed,_,_| {
-                if let Ok(mut gui) = gui_rc.try_borrow_mut()
-                    && let Some(index) = gui.application_state.navigator().position_from_coords(row as usize, col as usize) {
-                        match n_pressed {
-                            1 => {
-                                gui.application_state.move_towards(Direction::Index {
-                                    value: index,
-                                });
-                                set_view(&gui, false)
-                            },
-                            2 => {
-                                gui.application_state.move_towards(Direction::Index {
-                                    value: index,
-                                });
-                                gui.application_state.toggle_single_view();
-                                set_view(&gui, true)
-                            }
-                            _ => {}
-                        }
-                    }
-            }));
-                cell_box.add_controller(gesture_left);
-            }
-        }
-    };
-    if let Ok(gui) = gui_rc.try_borrow() {
-        let gesture_left = gtk::GestureClick::new();
-        gesture_left.set_button(1);
-        gesture_left.connect_pressed(clone!(@strong gui_rc => move |_,_,_,_| {
-            if let Ok(mut gui) = gui_rc.try_borrow_mut() {
-                gui.application_state.toggle_single_view();
-                set_view(&gui, true)
-            }
-        }));
-        gui.single_view_picture.add_controller(gesture_left);
-    };
-    load_and_launch(gui_rc);
-}
-
-pub fn build_and_run_application(cli: CommandLineInterface) {
-    let application = Application::builder()
-        .application_id("org.example.gsr2")
-        .build();
-    application.connect_startup(|application| {
-        startup_gui(application);
-    });
-    let cli_rc = Rc::new(RefCell::new(cli));
-    // clone! passes a strong reference to a variable in the closure that activates the application
-    // move converts any variables captured by reference or mutable reference to variables captured by value.
-    application.connect_activate(
-        clone!(@strong cli_rc, => move |application: &gtk::Application| {
-        activate(application, &cli_rc); }),
-    );
-    let no_args: Vec<String> = vec![];
-    application.run_with_args(&no_args);
-}

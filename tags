@@ -9,6 +9,7 @@ COLOR_MAX	/Users/christophethibaut/Coding/gsr2/src/gui/application.rs	/^    cons
 Command	/Users/christophethibaut/Coding/gsr2/src/command.rs	/^pub enum Command {$/;"	g
 CommandLineInterface	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^pub struct CommandLineInterface {$/;"	s
 Control	/Users/christophethibaut/Coding/gsr2/src/control.rs	/^pub enum Control {$/;"	g
+Controller	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^pub struct Controller {$/;"	s
 Controls	/Users/christophethibaut/Coding/gsr2/src/control.rs	/^pub type Controls = HashMap<String, Control>;$/;"	T
 DATABASE_CONNECTION_VAR	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const DATABASE_CONNECTION_VAR: &str = "GSRDBC";$/;"	c
 DEFAULT_HEIGHT	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const DEFAULT_HEIGHT: i32 = 1000;$/;"	c
@@ -40,6 +41,7 @@ SINGLE_DOT	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub const SIN
 TEST_DATABASE_FILE	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const TEST_DATABASE_FILE: &str = "testdata\/gsr2.db";$/;"	c
 THUMB_SUFFIX	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const THUMB_SUFFIX: &str = "THUMB";$/;"	c
 VALID_EXTENSIONS	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const VALID_EXTENSIONS: [&str; 6] = ["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"];$/;"	c
+View	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^pub struct View {$/;"	s
 WHITE_SQUARE	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub const WHITE_SQUARE: &str = "testdata\/white_square.png";$/;"	c
 a_picture_has_a_file_name	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    fn a_picture_has_a_file_name() {$/;"	f
 a_picture_has_file_path_which_is_the_full_path_and_file_path_on_the_file_system	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    fn a_picture_has_file_path_which_is_the_full_path_and_file_path_on_the_file_system() {$/;"	f
@@ -159,6 +161,7 @@ make_picture	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn
 make_picture_for	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn make_picture_for(file_path: &str, opacity: f64, can_shrink: bool) -> gtk::Picture {$/;"	f
 make_single_view_scrolled_window	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn make_single_view_scrolled_window() -> gtk::ScrolledWindow {$/;"	f
 make_text	/Users/christophethibaut/Coding/gsr2/src/gui/application.rs	/^fn make_text() -> gtk::Text {$/;"	f
+make_view	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn make_view(application: &gtk::Application, width: usize, height: usize, cells_per_row: usize) -> Self {$/;"	f
 make_view_box	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn make_view_box() -> gtk::Box {$/;"	f
 make_view_stack	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn make_view_stack() -> gtk::Stack {$/;"	f
 move_towards	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn move_towards(&mut self, direction: Direction) {$/;"	f
@@ -201,7 +204,7 @@ prev_page_start	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub 
 prev_page_start_is_page_start_minus_page_size	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn prev_page_start_is_page_start_minus_page_size() {$/;"	f
 process_arrow_key_in_fullsize	/Users/christophethibaut/Coding/gsr2/src/gui/application.rs	/^fn process_arrow_key_in_fullsize(direction: Control, gui: &GraphicalUserInterface) -> bool {$/;"	f
 process_control	/Users/christophethibaut/Coding/gsr2/src/gui/application.rs	/^fn process_control(gui: &mut GraphicalUserInterface, control: Control) -> bool {$/;"	f
-process_edition	/Users/christophethibaut/Coding/gsr2/src/gui/application.rs	/^fn process_edition(mut gui: &mut GraphicalUserInterface, key: Key) -> bool {$/;"	f
+process_edition	/Users/christophethibaut/Coding/gsr2/src/gui/application.rs	/^fn process_edition(gui: &mut GraphicalUserInterface, key: Key) -> bool {$/;"	f
 process_key	/Users/christophethibaut/Coding/gsr2/src/gui/application.rs	/^fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {$/;"	f
 retrieve_all_pictures	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    pub fn retrieve_all_pictures(&self) -> Result<Vec<Picture>> {$/;"	f
 retrieve_all_pictures_ordered_by_file_path	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    fn retrieve_all_pictures_ordered_by_file_path() {$/;"	f

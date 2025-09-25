@@ -1,9 +1,21 @@
 use gtk::prelude::*;
 use gtk::{
-    Align, Application, ApplicationWindow, CssProvider, Label, Orientation, Picture,
-    ScrolledWindow, Text, gdk,
-};
+    Align, CssProvider, Label, Orientation, Picture, ScrolledWindow };
 
+fn make_application(application_id: &str) -> gtk::Application {
+    Application::builder()
+        .application_id(application_id)
+        .build()
+}
+
+fn make_application_window(application: &gtk::Application) -> gtk::ApplicationWindow {
+    ApplicationWindow::builder()
+        .application(application)
+        .title("gsr2")
+        .default_width(DEFAULT_WIDTH)
+        .default_height(DEFAULT_HEIGHT)
+        .build()
+}
 pub fn make_palette_area() -> gtk::DrawingArea {
     let palette_area = gtk::DrawingArea::new();
     palette_area.set_valign(Align::Center);
