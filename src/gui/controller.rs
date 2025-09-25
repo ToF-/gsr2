@@ -20,6 +20,7 @@ use std::cell::RefCell;
 use std::io::Result as IOResult;
 use std::rc::Rc;
 
+
 pub struct Controller {
     args: CommandLineInterface,
     gallery: Gallery,
@@ -30,6 +31,8 @@ pub struct Controller {
     state: State,
     view: View,
 }
+
+pub type RcController = Rc<RefCell<Controller>>;
 
 impl Controller {
     pub fn new(cli: CommandLineInterface) -> IOResult<Self> {
@@ -52,8 +55,17 @@ impl Controller {
             }
         })
     }
-
-    pub fn build_and_run_app(&self) {}
+    pub fn build_and_run_app(&self) {
+        let application = self.view.application;
+        application.connect_startup(|application|
+            { self.startup_gui(application) });
+        let controller_rc = Rc::new(RefCell::new(self));
+        application.connect_activate(
+            clone!(@strong controller_rc, => move | application: &gtk::Application| {
+                application.activate(&controller_rc); }));
+     let no_args: Vec<String> = vec![];
+     application.run_with_args(&no_args);
+    }
 }
 
 // pub fn startup_gui(&self, _application: &gtk::Application) {
@@ -62,7 +74,7 @@ impl Controller {
 //         "window { background-color:black;} image { margin:1em ; } label { color:white; }",
 //     );
 //     gtk::style_context_add_provider_for_display(
-//         &gdk::Display::default().unwrap(),
+//         &gdk::Display::default().unwrap()
 //         &css_provider,
 //         1000,
 //     );
