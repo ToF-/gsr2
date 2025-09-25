@@ -1,7 +1,13 @@
+use std::process::exit;
+use crate::command_line_interface::CommandLineInterface;
+use std::rc::Rc;
+use std::cell::RefCell;
 use gtk::glib::clone;
+use crate::gui::components::*;
+use crate::application_state::ApplicationState;
 
 pub struct View {
-    aaplication: gtk::Application,
+    application: gtk::Application,
     application_window: gtk::ApplicationWindow,
 }
 
@@ -42,10 +48,10 @@ impl View {
         //              .first_child
         //                  .first_child
         
-        let aplication: gtk::Application  = make_application("example.org.gsr2");
+        let application: gtk::Application  = make_application("example.org.gsr2");
         let application_window: gtk::ApplicationWindow = make_application_window(application);
         View {
-            application,
+            application: application,
             application_window,
         }
     }

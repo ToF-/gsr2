@@ -1,14 +1,17 @@
 use gtk::prelude::*;
+use gtk::{ Application, ApplicationWindow };
+use crate::default_values::{ DEFAULT_HEIGHT, DEFAULT_WIDTH };
+
 use gtk::{
     Align, CssProvider, Label, Orientation, Picture, ScrolledWindow };
 
-fn make_application(application_id: &str) -> gtk::Application {
+pub fn make_application(application_id: &str) -> gtk::Application {
     Application::builder()
         .application_id(application_id)
         .build()
 }
 
-fn make_application_window(application: &gtk::Application) -> gtk::ApplicationWindow {
+pub fn make_application_window(application: &gtk::Application) -> gtk::ApplicationWindow {
     ApplicationWindow::builder()
         .application(application)
         .title("gsr2")

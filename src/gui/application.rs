@@ -416,18 +416,6 @@ fn process_arrow_key_in_fullsize(direction: Control, gui: &GraphicalUserInterfac
     false
 }
 
-pub fn startup_gui(_application: &gtk::Application) {
-    let css_provider = gtk::CssProvider::new();
-    css_provider.load_from_data(
-        "window { background-color:black;} image { margin:1em ; } label { color:white; }",
-    );
-    gtk::style_context_add_provider_for_display(
-        &gdk::Display::default().unwrap(),
-        &css_provider,
-        1000,
-    );
-}
-
 fn make_gtk_picture_from_picture(
     application_state: &ApplicationState,
     index: usize,
