@@ -33,8 +33,13 @@ fn main() {
             } else if cli.command.is_none() {
                 println!("viewing file from the database");
             }
-            let controller: Controller = Controller::new(cli.clone());
-            controller.build_and_run_app();
+            match Controller::new(cli.clone()) {
+                Ok(controller) => controller.build_and_run_app(),
+                Err(err) => {
+                    eprintln!("{}", err);
+                    exit(1);
+                }
+            }
         }
         Err(err) => {
             eprintln!("{}", err);

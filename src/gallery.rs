@@ -6,7 +6,7 @@ use rand::prelude::SliceRandom;
 use rand::rng;
 use std::io::{Error, Result};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Gallery {
     pictures: Vec<Picture>,
 }

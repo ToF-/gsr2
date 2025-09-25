@@ -7,20 +7,59 @@ use crate::gui::components::*;
 use crate::application_state::ApplicationState;
 
 pub struct View {
+    width: i32,
+    height: i32,
+    cells_per_row: i32,
     application: gtk::Application,
     application_window: gtk::ApplicationWindow,
 }
 
 impl View {
     pub fn make_view(width: i32, height: i32, cells_per_row: i32) -> Self {
-        // make grid
-        // for 0..cells_per_row, 0..cells_per_row
-        //      make cell_box
-        //      attach cell_box to grid at col,row
 
-        // make left_button
-        // make right_button
-        // make panel
+        let application: gtk::Application  = make_application("example.org.gsr2");
+        let application_window: gtk::ApplicationWindow = make_application_window(&application);
+        View {
+            width,
+            height,
+            cells_per_row,
+            application: application,
+            application_window,
+        }
+    }
+
+    pub fn setup_components(&mut self) {
+        let grid = make_multiple_view_grid(self.cells_per_row);
+
+         let left_pane = make_pane_with_label("←");
+         let right_pane = make_pane_with_label("→");
+
+         let multiple_view_panel = make_multiple_view_panel();
+         multiple_view_panel.attach(&left_pane, 0, 0, 1, 1);
+         multiple_view_panel.attach(&multiple_view_grid, 1, 0, 1, 1);
+         multiple_view_panel.attach(&right_pane, 2, 0, 1, 1);
+
+         let multiple_view_scrolled_window = make_multiple_view_scrolled_window();
+
+         multiple_view_scrolled_window.set_child(Some(&multiple_view_panel));
+
+         let view_box = make_view_box();
+         let picture = make_picture();
+         view_box.append(&picture);
+         let single_view_scrolled_window = make_single_view_scrolled_window();
+         single_view_scrolled_window.set_child(Some(&view_box));
+
+         let view_stack = make_view_stack();
+         let _ = view_stack.add_child(&single_view_scrolled_window);
+         let _ = view_stack.add_child(&multiple_view_scrolled_window);
+         if self.cells_per_row == 1 {
+             view_stack.set_visible_child(&single_view_scrolled_window);
+         } else {
+             view_stack.set_visible_child(&multiple_view_scrolled_window);
+         }
+         self.application_window.set_child(Some(&view_stack));
+    }
+}
         // attach left_button, grid, to panel
         //
         // make multiple_view_scrolled_window
@@ -47,60 +86,54 @@ impl View {
         //          .visible_child
         //              .first_child
         //                  .first_child
-        
-        let application: gtk::Application  = make_application("example.org.gsr2");
-        let application_window: gtk::ApplicationWindow = make_application_window(application);
-        View {
-            application: application,
-            application_window,
-        }
-    }
 
-pub fn activate(application: &gtk::Application, cli_rc: &Rc<RefCell<CommandLineInterface>>) {
-    let command_line_interface = match cli_rc.try_borrow() {
-        Ok(cli) => cli,
-        Err(err) => {
-            eprintln!("{}", err);
-            exit(1);
-        }
-    };
-    let application_window = make_application_window(application);
-    let single_view_scrolled_window = make_single_view_scrolled_window();
-    let view_box = make_view_box();
-    let picture = make_picture();
-    view_box.append(&picture);
-    single_view_scrolled_window.set_child(Some(&view_box));
 
-    let multiple_view_scrolled_window = make_multiple_view_scrolled_window();
-    let multiple_view_grid = make_multiple_view_grid();
 
-    let multiple_view_panel = make_multiple_view_panel();
-
-    multiple_view_scrolled_window.set_child(Some(&multiple_view_panel));
-
-    let left_button = make_label("←");
-    let right_button = make_label("→");
-
-    multiple_view_panel.attach(&left_button, 0, 0, 1, 1);
-    multiple_view_panel.attach(&multiple_view_grid, 1, 0, 1, 1);
-    multiple_view_panel.attach(&right_button, 2, 0, 1, 1);
-
-    let view_stack = make_view_stack();
-    let _ = view_stack.add_child(&single_view_scrolled_window);
-    let _ = view_stack.add_child(&multiple_view_scrolled_window);
-    if command_line_interface.cells_per_row() == 1 {
-        view_stack.set_visible_child(&single_view_scrolled_window);
-    } else {
-        view_stack.set_visible_child(&multiple_view_scrolled_window);
-    }
-    let cells_per_row: i32 = command_line_interface.cells_per_row();
-    for col in 0..cells_per_row {
-        for row in 0..cells_per_row {
-            let cell_box = make_cell_box();
-            multiple_view_grid.attach(&cell_box, col, row, 1, 1);
-        }
-    }
-    application_window.set_child(Some(&view_stack));
+// pub fn activate(application: &gtk::Application, cli_rc: &Rc<RefCell<CommandLineInterface>>) {
+//     let command_line_interface = match cli_rc.try_borrow() {
+//         Ok(cli) => cli,
+//         Err(err) => {
+//             eprintln!("{}", err);
+//             exit(1);
+//         }
+//     };
+//     let application_window = make_application_window(application);
+//     let single_view_scrolled_window = make_single_view_scrolled_window();
+//     let view_box = make_view_box();
+//     let picture = make_picture();
+//     view_box.append(&picture);
+//     single_view_scrolled_window.set_child(Some(&view_box));
+// 
+//     let multiple_view_scrolled_window = make_multiple_view_scrolled_window();
+//     let multiple_view_grid = make_multiple_view_grid();
+// 
+//     let multiple_view_panel = make_multiple_view_panel();
+// 
+//     multiple_view_scrolled_window.set_child(Some(&multiple_view_panel));
+// 
+//     let left_button = make_label("←");
+//     let right_button = make_label("→");
+// 
+//     multiple_view_panel.attach(&left_button, 0, 0, 1, 1);
+//     multiple_view_panel.attach(&multiple_view_grid, 1, 0, 1, 1);
+//     multiple_view_panel.attach(&right_button, 2, 0, 1, 1);
+// 
+//     let view_stack = make_view_stack();
+//     let _ = view_stack.add_child(&single_view_scrolled_window);
+//     let _ = view_stack.add_child(&multiple_view_scrolled_window);
+//     if command_line_interface.cells_per_row() == 1 {
+//         view_stack.set_visible_child(&single_view_scrolled_window);
+//     } else {
+//         view_stack.set_visible_child(&multiple_view_scrolled_window);
+//     }
+//     let cells_per_row: i32 = command_line_interface.cells_per_row();
+//     for col in 0..cells_per_row {
+//         for row in 0..cells_per_row {
+//             let cell_box = make_cell_box();
+//             multiple_view_grid.attach(&cell_box, col, row, 1, 1);
+//         }
+//     }
+//     application_window.set_child(Some(&view_stack));
 
     // let gui_rc = match ApplicationState::new() {
     //     Ok(application_state) => Rc::new(RefCell::new(GraphicalUserInterface {
@@ -212,6 +245,3 @@ pub fn activate(application: &gtk::Application, cli_rc: &Rc<RefCell<CommandLineI
     //     gui.single_view_picture.add_controller(gesture_left);
     // };
     // load_and_launch(gui_rc);
-}
-}
-

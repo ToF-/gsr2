@@ -8,7 +8,7 @@ pub    palette_on: bool,
 }
 
 impl State {
-    pub fn new(pictures_per_row: usize) {
+    pub fn new(pictures_per_row: usize) -> Self {
         State{
             pictures_per_row,
             old_pictures_per_row: pictures_per_row,
