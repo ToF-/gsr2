@@ -1,6 +1,6 @@
 use gtk::prelude::*;
 use gtk::{self};
-use gtk::{ Align, Application, ApplicationWindow, Text, gdk };
+use gtk::{ Align, Application, ApplicationWindow, Text, Grid, gdk };
 use crate::default_values::{ DEFAULT_HEIGHT, DEFAULT_WIDTH };
 
 use gtk::{ CssProvider, Label, Orientation, Picture, ScrolledWindow };

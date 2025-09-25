@@ -132,11 +132,11 @@ impl Navigator {
 
 mod tests {
     use super::*;
-    use crate::default_values::ONE_CELL_PER_ROW;
+    use crate::default_values::ONE_PICTURE_PER_ROW;
 
     #[test]
     fn navigator_cannot_move_past_gallery_limit() {
-        let mut navigator = Navigator::new(3, ONE_CELL_PER_ROW);
+        let mut navigator = Navigator::new(3, ONE_PICTURE_PER_ROW);
         assert_eq!(0, navigator.position());
         assert!(navigator.can_move(Direction::Right));
         navigator.move_towards(Direction::Right);
@@ -147,7 +147,7 @@ mod tests {
 
     #[test]
     fn navigator_cannot_move_before_first_position() {
-        let mut navigator = Navigator::new(3, ONE_CELL_PER_ROW);
+        let mut navigator = Navigator::new(3, ONE_PICTURE_PER_ROW);
         assert!(!navigator.can_move(Direction::Left));
         navigator.move_towards(Direction::Right);
         assert!(navigator.can_move(Direction::Left));
@@ -157,7 +157,7 @@ mod tests {
 
     #[test]
     fn navigator_can_move_to_first_and_last_position() {
-        let mut navigator = Navigator::new(3, ONE_CELL_PER_ROW);
+        let mut navigator = Navigator::new(3, ONE_PICTURE_PER_ROW);
         navigator.move_towards(Direction::Last);
         assert_eq!(2, navigator.position());
         navigator.move_towards(Direction::First);
@@ -166,7 +166,7 @@ mod tests {
 
     #[test]
     fn given_coords_can_tell_position_trivial_case() {
-        let navigator = Navigator::new(3, ONE_CELL_PER_ROW);
+        let navigator = Navigator::new(3, ONE_PICTURE_PER_ROW);
         assert_eq!(Some(0), navigator.position_from_coords(0, 0));
     }
 

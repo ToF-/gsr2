@@ -2,6 +2,9 @@ use std::process::exit;
 use crate::command_line_interface::CommandLineInterface;
 use std::rc::Rc;
 use std::cell::RefCell;
+use gtk::{Align, ApplicationWindow, CssProvider, Grid, gdk, Label, Orientation, Picture, ScrolledWindow};
+use gtk::prelude::*;
+use gtk::cairo::{Context, Format, ImageSurface};
 use gtk::glib::clone;
 use crate::gui::components::*;
 use crate::application_state::ApplicationState;
@@ -36,7 +39,7 @@ impl View {
 
          let multiple_view_panel = make_multiple_view_panel();
          multiple_view_panel.attach(&left_pane, 0, 0, 1, 1);
-         multiple_view_panel.attach(&multiple_view_grid, 1, 0, 1, 1);
+         multiple_view_panel.attach(&grid, 1, 0, 1, 1);
          multiple_view_panel.attach(&right_pane, 2, 0, 1, 1);
 
          let multiple_view_scrolled_window = make_multiple_view_scrolled_window();

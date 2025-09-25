@@ -27,7 +27,7 @@ pub fn title_display(application_state: &ApplicationState) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::default_values::ONE_CELL_PER_ROW;
+    use crate::default_values::ONE_PICTURE_PER_ROW;
     use crate::direction::Direction;
     use crate::gallery::Gallery;
     use crate::order::Order;
@@ -40,7 +40,7 @@ mod tests {
             .load_from_directory("./testdata/")
             .expect("can't load from directory");
         gallery.sort_by(Order::Name);
-        application_state.set_gallery(gallery, ONE_CELL_PER_ROW);
+        application_state.set_gallery(gallery, ONE_PICTURE_PER_ROW);
         application_state
     }
 
