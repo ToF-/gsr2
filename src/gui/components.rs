@@ -19,6 +19,15 @@ use std::cell::RefCell;
 use std::io::Result as IOResult;
 use std::rc::Rc;
 
+pub fn startup_gui(application: &gtk::Application) {
+    let css_provider = gtk::CssProvider::new();
+    css_provider.load_from_data("window { background-color:black;} image { margin:1em ; } label { color:white; }");
+    gtk::style_context_add_provider_for_display(
+        &gdk::Display::default().unwrap(),
+        &css_provider,
+        1000,
+    );
+}
 pub fn make_application(application_id: &str) -> gtk::Application {
     Application::builder()
         .application_id(application_id)
