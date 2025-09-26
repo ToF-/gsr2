@@ -27,6 +27,14 @@ impl Picture {
         self.file_path.clone()
     }
 
+    pub fn view_file_path(&self, thumbnail_on: bool) -> String {
+        if thumbnail_on {
+            self.thumbnail_file_path()
+        } else {
+            self.file_path()
+        }
+    }
+
     pub fn file_name(&self) -> String {
         file_name_from(&self.file_path)
     }
@@ -43,7 +51,6 @@ impl Picture {
         }
     }
 
-    #[allow(dead_code)]
     pub fn thumbnail_file_path(&self) -> String {
         self.thumbnail_file_path.clone()
     }
@@ -79,5 +86,12 @@ mod tests {
     fn a_picture_has_a_file_name() {
         let picture = Picture::new("testdata/nine_colors.png");
         assert_eq!(String::from("nine_colors.png"), picture.file_name())
+    }
+
+    #[test]
+    fn a_picture_view_file_name_depends_on_thumbnail_on() {
+        let picture = Picture::new("testdata/nine_colors.png");
+        assert_eq!(String::from("testdata/nine_colors.png"), picture.view_file_path(false));
+        assert_eq!(String::from("testdata/nine_colorsTHUMB.png"), picture.view_file_path(true));
     }
 }
