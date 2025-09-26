@@ -12,16 +12,18 @@ use crate::gui::view::View;
 use crate::navigator::Navigator;
 use gtk::glib::clone;
 use gtk::prelude::*;
+use gtk::{self};
 use gtk::{Align, Application, ApplicationWindow, Grid, Text, gdk};
 use gtk::{CssProvider, Label, Orientation, Picture, ScrolledWindow};
-use gtk::{self};
 use std::cell::RefCell;
 use std::io::Result as IOResult;
 use std::rc::Rc;
 
 pub fn startup_gui(application: &gtk::Application) {
     let css_provider = gtk::CssProvider::new();
-    css_provider.load_from_data("window { background-color:black;} image { margin:1em ; } label { color:white; }");
+    css_provider.load_from_data(
+        "window { background-color:black;} image { margin:1em ; } label { color:white; }",
+    );
     gtk::style_context_add_provider_for_display(
         &gdk::Display::default().unwrap(),
         &css_provider,
@@ -67,7 +69,10 @@ pub fn make_frame() -> gtk::Box {
 }
 
 pub fn make_picture() -> gtk::Picture {
-    Picture::builder().hexpand(true).vexpand(true).name("picture").build()
+    Picture::builder()
+        .hexpand(true)
+        .vexpand(true)
+        .build()
 }
 
 pub fn make_stack() -> gtk::Stack {
@@ -99,7 +104,7 @@ pub fn make_grid(cells_per_row: i32) -> gtk::Grid {
 }
 
 pub fn make_panel(view_grid: &gtk::Grid) -> gtk::Grid {
-    let panel =Grid::new();
+    let panel = Grid::new();
     panel.set_hexpand(true);
     panel.set_vexpand(true);
     panel.set_row_homogeneous(true);
@@ -120,8 +125,14 @@ pub fn make_panel(view_grid: &gtk::Grid) -> gtk::Grid {
     let right_pane = Label::new(Some("→"));
     left_pane.set_width_chars(10);
     right_pane.set_width_chars(10);
-    left_pane.style_context().add_provider(&buttons_css_provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
-    right_pane.style_context().add_provider(&buttons_css_provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
+    left_pane.style_context().add_provider(
+        &buttons_css_provider,
+        gtk::STYLE_PROVIDER_PRIORITY_APPLICATION,
+    );
+    right_pane.style_context().add_provider(
+        &buttons_css_provider,
+        gtk::STYLE_PROVIDER_PRIORITY_APPLICATION,
+    );
     panel.attach(&left_pane, 0, 0, 1, 1);
     panel.attach(view_grid, 1, 0, 1, 1);
     panel.attach(&right_pane, 2, 0, 1, 1);
@@ -170,4 +181,32 @@ pub fn make_cell_box() -> gtk::Box {
         .hexpand(true)
         .vexpand(true)
         .build()
+}
+
+pub fn view_stack(application_window: &gtk::ApplicationWindow) -> gtk::Stack {
+    application_window.first_child().unwrap()
+        .downcast::<gtk::Stack>().unwrap()
+}
+
+pub fn visible_stack_child_scrolled_window(stack: &gtk::Stack) -> gtk::ScrolledWindow {
+    stack.visible_child().unwrap()
+        .downcast::<gtk::ScrolledWindow>().unwrap()
+}
+
+pub fn frame(window: &gtk::ScrolledWindow) -> gtk::Box {
+    let child = window.first_child().unwrap()
+        .first_child().unwrap();
+        child.downcast::<gtk::Box>().unwrap()
+}
+
+pub fn picture(cell_box: &gtk::Box) -> gtk::Picture {
+    cell_box.first_child().unwrap()
+        .downcast::<gtk::Picture>().unwrap()
+    }
+
+pub fn single_view_picture(application_window: &gtk::ApplicationWindow) -> gtk::Picture {
+    picture(
+        &frame(
+            &visible_stack_child_scrolled_window(
+                &view_stack( application_window))))
 }

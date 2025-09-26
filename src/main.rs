@@ -36,7 +36,9 @@ fn main() {
             let result = Controller::new(cli.clone())
                 .and_then(|controller| Controller::build_and_run_app(controller));
             match result {
-                Ok(_) => { exit(0); },
+                Ok(_) => {
+                    exit(0);
+                }
                 Err(err) => {
                     eprintln!("{}", err);
                     exit(1);

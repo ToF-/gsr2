@@ -1,7 +1,7 @@
 use crate::CommandLineInterface;
-use crate::control::Control;
 use crate::application_state::ApplicationState;
 use crate::command::Command;
+use crate::control::Control;
 use crate::control::Controls;
 use crate::control::default_controls;
 use crate::database::Database;
@@ -10,20 +10,19 @@ use crate::editor::Editor;
 use crate::environment::database_connection;
 use crate::gallery::Gallery;
 use crate::gui::components::{make_application, startup_gui};
+use crate::gui::controller::gdk::Key;
 use crate::gui::state::State;
 use crate::gui::view::View;
 use crate::navigator::Navigator;
-use gtk::{CssProvider, Grid, Label, Orientation, Picture, ScrolledWindow};
-use crate::gui::controller::gdk::Key;
 use crate::order::Order;
 use gtk::glib::clone;
 use gtk::prelude::*;
-use gtk::{Align, Application, ApplicationWindow, Text, gdk};
 use gtk::{self};
+use gtk::{Align, Application, ApplicationWindow, Text, gdk};
+use gtk::{CssProvider, Grid, Label, Orientation, Picture, ScrolledWindow};
 use std::cell::RefCell;
 use std::io::Result as IOResult;
 use std::rc::Rc;
-
 
 #[derive(Debug)]
 pub struct Controller {
@@ -59,7 +58,7 @@ impl Controller {
                         state: State::new(pictures_per_row as usize),
                         view,
                     })
-                },
+                }
             }
         })
     }
@@ -88,8 +87,7 @@ impl Controller {
         self.gallery = gallery
     }
 
-    fn bind_components(controller_rc: &RcController) {
-    }
+    fn bind_components(controller_rc: &RcController) {}
 
     pub fn build_and_run_app(controller: Controller) -> IOResult<()> {
         println!("we have a controller");
@@ -115,9 +113,11 @@ impl Controller {
         };
         let application: gtk::Application = make_application("org.example.gallsh");
         application.connect_startup(|application| startup_gui(application));
-        application.connect_activate(clone!(@strong controller_rc => move |application: &gtk::Application| {
-            View::build_gui(&application, &controller_rc)
-        }));
+        application.connect_activate(
+            clone!(@strong controller_rc => move |application: &gtk::Application| {
+                View::build_gui(&application, &controller_rc)
+            }),
+        );
         let no_args: Vec<String> = vec![];
         application.run_with_args(&no_args);
         Ok(())
@@ -125,14 +125,10 @@ impl Controller {
 
     pub fn process_key(&mut self, key: Key) {
         match key.name() {
-            None => {},
-            Some(key_name) => {
-                match self.controls.get(&key_name.to_string()) {
-                    Some(Control::Quit) => {
-                        self.quit()
-                    },
-                    _ => { },
-                }
+            None => {}
+            Some(key_name) => match self.controls.get(&key_name.to_string()) {
+                Some(Control::Quit) => self.quit(),
+                _ => {}
             },
         }
     }

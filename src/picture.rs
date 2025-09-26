@@ -91,7 +91,13 @@ mod tests {
     #[test]
     fn a_picture_view_file_name_depends_on_thumbnail_on() {
         let picture = Picture::new("testdata/nine_colors.png");
-        assert_eq!(String::from("testdata/nine_colors.png"), picture.view_file_path(false));
-        assert_eq!(String::from("testdata/nine_colorsTHUMB.png"), picture.view_file_path(true));
+        assert_eq!(
+            String::from("testdata/nine_colors.png"),
+            picture.view_file_path(false)
+        );
+        assert_eq!(
+            String::from("testdata/nine_colorsTHUMB.png"),
+            picture.view_file_path(true)
+        );
     }
 }
