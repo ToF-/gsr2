@@ -124,6 +124,9 @@ impl View {
         let evk = gtk::EventControllerKey::new();
         evk.connect_key_pressed(clone!(@strong controller_rc => move |_, key, _, _| {
             println!("key {:?}", key);
+            if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+                controller.process_key(key);
+            }
             gtk::Inhibit(false)
         }));
         window.add_controller(evk);

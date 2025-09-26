@@ -1,4 +1,5 @@
 use crate::CommandLineInterface;
+use crate::control::Control;
 use crate::application_state::ApplicationState;
 use crate::command::Command;
 use crate::control::Controls;
@@ -13,6 +14,7 @@ use crate::gui::state::State;
 use crate::gui::view::View;
 use crate::navigator::Navigator;
 use gtk::{CssProvider, Grid, Label, Orientation, Picture, ScrolledWindow};
+use crate::gui::controller::gdk::Key;
 use crate::order::Order;
 use gtk::glib::clone;
 use gtk::prelude::*;
@@ -107,5 +109,23 @@ impl Controller {
         let no_args: Vec<String> = vec![];
         application.run_with_args(&no_args);
         Ok(())
+    }
+
+    pub fn process_key(&mut self, key: Key) {
+        match key.name() {
+            None => {},
+            Some(key_name) => {
+                match self.controls.get(&key_name.to_string()) {
+                    Some(Control::Quit) => {
+                        println!("I quit!");
+                        if let Ok(application_window) = self.view.application_window_rc().try_borrow_mut() {
+                            application_window.close()
+                        }
+                    },
+                    _ => { },
+                }
+            },
+        }
+
     }
 }
