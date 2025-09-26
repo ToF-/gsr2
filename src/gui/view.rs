@@ -188,11 +188,9 @@ impl View {
                         let picture = gallery.picture(index);
                         gtkPicture.set_filename(Some(picture.view_file_path(true)));
                         cell.append(&gtkPicture);
-                        println!("…{}", picture.view_file_path(true));
                 }
             }
         }
-        println!("{:?}", grid);
     }
 
     pub fn set_pictures(

@@ -84,7 +84,8 @@ impl Controller {
     }
 
     pub fn set_gallery(&mut self, gallery: Gallery) {
-        self.gallery = gallery
+        self.gallery = gallery;
+        self.navigator = Navigator::new(self.gallery.len(), self.state().pictures_per_row);
     }
 
     fn bind_components(controller_rc: &RcController) {}
@@ -127,12 +128,18 @@ impl Controller {
         match key.name() {
             None => {}
             Some(key_name) => match self.controls.get(&key_name.to_string()) {
-                Some(Control::Quit) => self.quit(),
+                Some(control) => self.process(control),
                 _ => {}
             },
         }
     }
-
+    
+    pub fn process(&self, control: &Control) {
+        match control {
+            Control::Quit => self.quit(),
+            _ => {},
+        }
+    }
     pub fn quit(&self) {
         if let Ok(application_window) = self.view.application_window_rc().try_borrow_mut() {
             application_window.close()
