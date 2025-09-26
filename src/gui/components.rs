@@ -67,7 +67,7 @@ pub fn make_frame() -> gtk::Box {
 }
 
 pub fn make_picture() -> gtk::Picture {
-    Picture::builder().hexpand(true).vexpand(true).build()
+    Picture::builder().hexpand(true).vexpand(true).name("picture").build()
 }
 
 pub fn make_stack() -> gtk::Stack {
@@ -87,6 +87,7 @@ pub fn make_grid(cells_per_row: i32) -> gtk::Grid {
         .column_homogeneous(true)
         .hexpand(true)
         .vexpand(true)
+        .name("grid")
         .build();
     for col in 0..cells_per_row {
         for row in 0..cells_per_row {

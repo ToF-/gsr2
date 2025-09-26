@@ -72,6 +72,18 @@ impl Controller {
         self.view = view;
     }
 
+    pub fn state(&self) -> State {
+        self.state.clone()
+    }
+
+    pub fn navigator(&self) -> Navigator {
+        self.navigator.clone()
+    }
+
+    pub fn gallery(&self) -> &Gallery {
+        &self.gallery
+    }
+
     pub fn set_gallery(&mut self, gallery: Gallery) {
         self.gallery = gallery
     }
@@ -117,15 +129,17 @@ impl Controller {
             Some(key_name) => {
                 match self.controls.get(&key_name.to_string()) {
                     Some(Control::Quit) => {
-                        println!("I quit!");
-                        if let Ok(application_window) = self.view.application_window_rc().try_borrow_mut() {
-                            application_window.close()
-                        }
+                        self.quit()
                     },
                     _ => { },
                 }
             },
         }
+    }
 
+    pub fn quit(&self) {
+        if let Ok(application_window) = self.view.application_window_rc().try_borrow_mut() {
+            application_window.close()
+        }
     }
 }

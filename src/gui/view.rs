@@ -1,3 +1,4 @@
+use crate::Controller;
 use crate::gui::controller::RcController;
 use crate::application_state::ApplicationState;
 use crate::command_line_interface::CommandLineInterface;
@@ -10,7 +11,7 @@ use gtk::cairo::{Context, Format, ImageSurface};
 use gtk::gdk::Key;
 use gtk::glib::clone;
 use gtk::prelude::*;
-use gtk::{Align, ApplicationWindow, CssProvider, Grid, gdk, Label, Orientation, Picture, ScrolledWindow};
+use gtk::{Align, ApplicationWindow, CssProvider, Grid, gdk, Label, Orientation, Picture, ScrolledWindow, Widget};
 use std::cell::RefCell;
 use std::process::exit;
 use std::rc::Rc;
@@ -47,9 +48,6 @@ impl View {
 
     pub fn setup_components(&self, application_window: &gtk::ApplicationWindow) {
         let grid = make_grid(self.cells_per_row);
-
-        let left_pane = make_pane_with_label("←");
-        let right_pane = make_pane_with_label("→");
 
          let panel = make_panel(&grid);
 
@@ -90,6 +88,7 @@ impl View {
         if let Ok(controller) = controller_rc.try_borrow() {
             let view = controller.view();
             if let Ok(application_window) = view.application_window_rc().try_borrow() {
+                view.set_pictures(&application_window, &controller);
                 application_window.present()
             } else {
                 panic!("cannot borrow");
@@ -131,6 +130,53 @@ impl View {
         }));
         window.add_controller(evk);
 
+    }
+
+    fn set_picture_for_single_view(&self, application_window: &ApplicationWindow, controller: &Controller) {
+        let navigator = controller.navigator();
+        let gallery = controller.gallery();
+        let gtkPicture: gtk::Picture = application_window.first_child().unwrap()
+            .downcast::<gtk::Stack>().unwrap()
+            .visible_child().unwrap()
+            .first_child().unwrap()
+            .first_child().unwrap()
+            .first_child().unwrap()
+            .downcast::<gtk::Picture>().unwrap();
+        let file_path = gallery.picture(navigator.position()).file_path();
+        gtkPicture.set_filename(Some(file_path));
+    }
+
+    fn set_pictures_for_multiple_view(&self, application_window: &ApplicationWindow, controller: &Controller, pictures_per_row: usize) {
+        let cells_per_row: i32 = pictures_per_row as i32;
+        let navigator = controller.navigator();
+        let gallery = controller.gallery();
+        let grid = application_window.first_child().unwrap()
+            .downcast::<gtk::Stack>().unwrap()
+            .visible_child().unwrap()
+            .downcast::<gtk::ScrolledWindow>().unwrap()
+            .first_child().unwrap()
+            .first_child().unwrap()
+            .downcast::<gtk::Grid>().unwrap()
+            .child_at(1,0).unwrap()
+            .downcast::<gtk::Grid>().unwrap();
+        for col in 0..cells_per_row {
+            for row in 0..cells_per_row {
+                let coords = (row as usize, col as usize);
+                if let Some(index) = controller.navigator()
+                    .position_from_coords(coords.0, coords.1) {
+                }
+            }
+        }
+        println!("{:?}", grid);
+    }
+
+    pub fn set_pictures(&self, application_window: &gtk::ApplicationWindow, controller: &Controller) {
+        let pictures_per_row = controller.state().pictures_per_row();
+        if pictures_per_row == 1 {
+            self.set_picture_for_single_view(application_window, controller)
+        } else {
+            self.set_pictures_for_multiple_view(application_window, controller, pictures_per_row)
+        }
     }
 }
 

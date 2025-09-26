@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct State {
     pub pictures_per_row: usize,
     pub old_pictures_per_row: usize,
@@ -16,5 +16,9 @@ impl State {
             full_size_on: false,
             palette_on: false,
         }
+    }
+
+    pub fn pictures_per_row(&self) -> usize {
+        self.pictures_per_row
     }
 }
