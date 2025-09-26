@@ -1,3 +1,4 @@
+use crate::file_system::create_missing_thumbnails;
 use crate::CommandLineInterface;
 use crate::application_state::ApplicationState;
 use crate::command::Command;
@@ -108,6 +109,9 @@ impl Controller {
                     gallery.sort_by(Order::Name)
                 };
                 println!("{} pictures", &gallery.len());
+                if controller.args.create_missing_thumbnails {
+                    create_missing_thumbnails(&gallery.clone());
+                }
                 controller.set_gallery(gallery);
             }
             Err(err) => return Err(std::io::Error::other(err)),

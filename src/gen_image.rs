@@ -42,17 +42,20 @@ pub fn no_thumbnail_picture() -> gtk::Picture {
     gtk::Picture::for_paintable(&texture)
 }
 
+use std::ffi::OsStr;
+use std::fs::File;
+use std::io::BufReader;
 use std::io::Result as IOResult;
+use std::path::Path;
 use thumbnailer::ThumbnailSize;
 use thumbnailer::create_thumbnails;
 use thumbnailer::error::ThumbResult;
-use std::io::BufReader;
-use std::fs::File;
-use std::path::Path;
-use std::ffi::OsStr;
 
-
-fn write_thumbnail<R: std::io::Seek + std::io::Read>(reader: BufReader<R>, extension: &str, mut output_file: File) -> ThumbResult<()> {
+fn write_thumbnail<R: std::io::Seek + std::io::Read>(
+    reader: BufReader<R>,
+    extension: &str,
+    mut output_file: File,
+) -> ThumbResult<()> {
     let mime = match extension {
         "jpg" | "jpeg" | "JPG" | "JPEG" => mime::IMAGE_JPEG,
         "png" | "PNG" => mime::IMAGE_PNG,
@@ -62,12 +65,12 @@ fn write_thumbnail<R: std::io::Seek + std::io::Read>(reader: BufReader<R>, exten
         Ok(tns) => tns,
         Err(err) => {
             eprintln!("error while creating thumbnails:{:?}", err);
-            return Err(err)
-        },
+            return Err(err);
+        }
     };
     let thumbnail = thumbnails.pop().unwrap();
     let write_result = match extension {
-        "jpg" | "jpeg" | "JPG" | "JPEG" => thumbnail.write_jpeg(&mut output_file,255),
+        "jpg" | "jpeg" | "JPG" | "JPEG" => thumbnail.write_jpeg(&mut output_file, 255),
         "png" | "PNG" => thumbnail.write_png(&mut output_file),
         _ => panic!("wrong extension"),
     };
@@ -75,7 +78,7 @@ fn write_thumbnail<R: std::io::Seek + std::io::Read>(reader: BufReader<R>, exten
         Err(err) => {
             eprintln!("error while writing thunbnail:{}", err);
             Err(err)
-        },
+        }
         ok => ok,
     }
 }
@@ -84,11 +87,10 @@ pub fn create_thumbnail_file(thumbnail_file_path: &str, picture_file_path: &str)
         Err(err) => Err(err),
         Ok(picture_file) => {
             let path = Path::new(&picture_file_path);
-            let extension = match path.extension()
-                .and_then(OsStr::to_str) {
-                    None => return Err(std::io::Error::other("picture file has no extension")),
-                    Some(ext) => ext,
-                };
+            let extension = match path.extension().and_then(OsStr::to_str) {
+                None => return Err(std::io::Error::other("picture file has no extension")),
+                Some(ext) => ext,
+            };
             let reader = BufReader::new(picture_file);
             let output_file = match File::create(thumbnail_file_path) {
                 Err(err) => return Err(std::io::Error::other("cannot create output file")),

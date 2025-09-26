@@ -93,6 +93,7 @@ confirm_input	/Users/christophethibaut/Coding/gsr2/src/editor.rs	/^    pub fn co
 confirming_return_input_and_set_editing_to_false	/Users/christophethibaut/Coding/gsr2/src/editor.rs	/^    fn confirming_return_input_and_set_editing_to_false() {$/;"	f
 coords_from_position	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn coords_from_position(&self, position: usize) -> Option<(usize, usize)> {$/;"	f
 coords_from_position_depends_on_given_position	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn coords_from_position_depends_on_given_position() {$/;"	f
+create_thumbnail_file	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub fn create_thumbnail_file(thumbnail_file_path: &str, picture_file_path: &str) -> IOResult<()> {$/;"	f
 current_picture	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn current_picture(&self) -> Picture {$/;"	f
 database	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn database(&self) -> &Database {$/;"	f
 database_connection	/Users/christophethibaut/Coding/gsr2/src/environment.rs	/^pub fn database_connection() -> Result<String> {$/;"	f
@@ -277,3 +278,4 @@ view_file_path	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    pub fn 
 view_stack	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn view_stack(application_window: &gtk::ApplicationWindow) -> gtk::Stack {$/;"	f
 visible_stack_child_scrolled_window	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn visible_stack_child_scrolled_window(stack: &gtk::Stack) -> gtk::ScrolledWindow {$/;"	f
 with_no_grid_or_thumbnail_option_pictures_per_row_is_1	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    fn with_no_grid_or_thumbnail_option_pictures_per_row_is_1() {$/;"	f
+write_thumbnail	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^fn write_thumbnail<R: std::io::Seek + std::io::Read>($/;"	f
