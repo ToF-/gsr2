@@ -176,6 +176,7 @@ moving_to_a_specific_index	/Users/christophethibaut/Coding/gsr2/src/navigator.rs
 moving_to_beginning_of_page	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn moving_to_beginning_of_page() {$/;"	f
 moving_to_end_of_page	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn moving_to_end_of_page() {$/;"	f
 moving_up_moves_to_entry_one_row_above	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn moving_up_moves_to_entry_one_row_above() {$/;"	f
+multiple_view_grid	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn multiple_view_grid(application_window: &gtk::ApplicationWindow) -> gtk::Grid {$/;"	f
 my_app_state	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    fn my_app_state() -> ApplicationState {$/;"	f
 my_db	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    pub fn my_db() -> Database {$/;"	f
 navigator	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn navigator(&self) -> &Navigator {$/;"	f
@@ -196,14 +197,17 @@ new_with_image_data	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    pu
 new_with_pictures	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn new_with_pictures(pictures: Vec<Picture>) -> Self {$/;"	f
 next_page_start	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn next_page_start(&self) -> usize {$/;"	f
 next_page_start_is_page_start_plus_page_size_modulo_limit	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn next_page_start_is_page_start_plus_page_size_modulo_limit() {$/;"	f
+no_thumbnail_picture	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub fn no_thumbnail_picture() -> gtk::Picture {$/;"	f
 old_position	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn old_position(&self) -> usize {$/;"	f
 page_changed	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn page_changed(&self) -> bool {$/;"	f
 page_end	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn page_end(&self) -> usize {$/;"	f
 page_size	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn page_size(&self) -> usize {$/;"	f
 page_start	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn page_start(&self) -> usize {$/;"	f
 palette_on	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn palette_on(&self) -> bool {$/;"	f
+panel_grid	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn panel_grid(window: &gtk::ScrolledWindow) -> gtk::Grid {$/;"	f
 parse_and_check	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    pub fn parse_and_check(args_opt: Option<Vec<&str>>) -> Result<Self> {$/;"	f
 picture	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn picture(&self, index: usize) -> Picture {$/;"	f
+picture	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn picture(cell_box: &gtk::Box) -> gtk::Picture {$/;"	f
 pictures	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn pictures(&self) -> &Vec<Picture> {$/;"	f
 pictures_per_row	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    pub fn pictures_per_row(&self) -> usize {$/;"	f
 pictures_per_row	/Users/christophethibaut/Coding/gsr2/src/command_line_interface.rs	/^    pub fn pictures_per_row(&self) -> i32 {$/;"	f
@@ -215,6 +219,7 @@ position_from_coords	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^   
 position_from_coords_depnds_on_page_start	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn position_from_coords_depnds_on_page_start() {$/;"	f
 prev_page_start	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    pub fn prev_page_start(&self) -> usize {$/;"	f
 prev_page_start_is_page_start_minus_page_size	/Users/christophethibaut/Coding/gsr2/src/navigator.rs	/^    fn prev_page_start_is_page_start_minus_page_size() {$/;"	f
+process	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn process(&self, control: &Control) {$/;"	f
 process_arrow_key_in_fullsize	/Users/christophethibaut/Coding/gsr2/src/gui/application.rs	/^fn process_arrow_key_in_fullsize(direction: Control, gui: &GraphicalUserInterface) -> bool {$/;"	f
 process_control	/Users/christophethibaut/Coding/gsr2/src/gui/application.rs	/^fn process_control(gui: &mut GraphicalUserInterface, control: Control) -> bool {$/;"	f
 process_edition	/Users/christophethibaut/Coding/gsr2/src/gui/application.rs	/^fn process_edition(gui: &mut GraphicalUserInterface, key: Key) -> bool {$/;"	f
@@ -250,6 +255,7 @@ set_view	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn
 setting_the_gallery_and_pictures_per_row_hence_page_size	/Users/christophethibaut/Coding/gsr2/src/application_state.rs	/^    fn setting_the_gallery_and_pictures_per_row_hence_page_size() {$/;"	f
 setup_components	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn setup_components(&self, application_window: &gtk::ApplicationWindow) {$/;"	f
 single_view_mode	/Users/christophethibaut/Coding/gsr2/src/gui/application.rs	/^fn single_view_mode(gui: &GraphicalUserInterface) -> bool {$/;"	f
+single_view_picture	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn single_view_picture(application_window: &gtk::ApplicationWindow) -> gtk::Picture {$/;"	f
 sort_and_compare_lists	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    fn sort_and_compare_lists() -> bool {$/;"	f
 sort_by	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn sort_by(&mut self, order: Order) {$/;"	f
 sorting_by_different_criteria	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    fn sorting_by_different_criteria() {$/;"	f

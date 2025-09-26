@@ -69,10 +69,7 @@ pub fn make_frame() -> gtk::Box {
 }
 
 pub fn make_picture() -> gtk::Picture {
-    Picture::builder()
-        .hexpand(true)
-        .vexpand(true)
-        .build()
+    Picture::builder().hexpand(true).vexpand(true).build()
 }
 
 pub fn make_stack() -> gtk::Stack {
@@ -184,40 +181,50 @@ pub fn make_cell_box() -> gtk::Box {
 }
 
 pub fn view_stack(application_window: &gtk::ApplicationWindow) -> gtk::Stack {
-    application_window.first_child().unwrap()
-        .downcast::<gtk::Stack>().unwrap()
+    application_window
+        .first_child()
+        .unwrap()
+        .downcast::<gtk::Stack>()
+        .unwrap()
 }
 
 pub fn visible_stack_child_scrolled_window(stack: &gtk::Stack) -> gtk::ScrolledWindow {
-    stack.visible_child().unwrap()
-        .downcast::<gtk::ScrolledWindow>().unwrap()
+    stack
+        .visible_child()
+        .unwrap()
+        .downcast::<gtk::ScrolledWindow>()
+        .unwrap()
 }
 
 pub fn frame(window: &gtk::ScrolledWindow) -> gtk::Box {
-    let child = window.first_child().unwrap()
-        .first_child().unwrap();
-        child.downcast::<gtk::Box>().unwrap()
+    let child = window.first_child().unwrap().first_child().unwrap();
+    child.downcast::<gtk::Box>().unwrap()
 }
 
 pub fn picture(cell_box: &gtk::Box) -> gtk::Picture {
-    cell_box.first_child().unwrap()
-        .downcast::<gtk::Picture>().unwrap()
-    }
+    cell_box
+        .first_child()
+        .unwrap()
+        .downcast::<gtk::Picture>()
+        .unwrap()
+}
 
 pub fn single_view_picture(application_window: &gtk::ApplicationWindow) -> gtk::Picture {
-    picture(
-        &frame(
-            &visible_stack_child_scrolled_window(
-                &view_stack( application_window))))
+    picture(&frame(&visible_stack_child_scrolled_window(&view_stack(
+        application_window,
+    ))))
 }
 
 pub fn panel_grid(window: &gtk::ScrolledWindow) -> gtk::Grid {
-    window.first_child().unwrap()
-        .downcast::<gtk::Grid>().unwrap()
+    window
+        .first_child()
+        .unwrap()
+        .downcast::<gtk::Grid>()
+        .unwrap()
 }
 
 pub fn multiple_view_grid(application_window: &gtk::ApplicationWindow) -> gtk::Grid {
-    panel_grid(
-        &visible_stack_child_scrolled_window(
-            &view_stack(application_window)))
+    panel_grid(&visible_stack_child_scrolled_window(&view_stack(
+        application_window,
+    )))
 }

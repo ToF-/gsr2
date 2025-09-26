@@ -34,6 +34,10 @@ pub struct CommandLineInterface {
     /// random order display of pictures
     #[arg(short, long, default_value_t = false)]
     pub random: bool,
+
+    /// create missing thumbnails
+    #[arg(short, long, default_value_t = false)]
+    pub create_missing_thumbnails: bool,
 }
 
 impl CommandLineInterface {

@@ -1,15 +1,14 @@
-use crate::gen_image::no_thumbnail_picture;
-use crate::paths::check_path_exists;
 use crate::Controller;
 use crate::application_state::ApplicationState;
 use crate::command_line_interface::CommandLineInterface;
 use crate::direction::Direction;
 use crate::display::title_display;
 use crate::editor::{Editor, InputKind};
+use crate::gen_image::no_thumbnail_picture;
 use crate::gui::components::*;
 use crate::gui::controller::RcController;
-use std::path::PathBuf;
 use crate::order;
+use crate::paths::check_path_exists;
 use gtk::cairo::{Context, Format, ImageSurface};
 use gtk::gdk::Key;
 use gtk::glib::clone;
@@ -19,6 +18,7 @@ use gtk::{
     Widget, gdk,
 };
 use std::cell::RefCell;
+use std::path::PathBuf;
 use std::process::exit;
 use std::rc::Rc;
 use std::time::Duration;
@@ -181,22 +181,27 @@ impl View {
                 let coords = (row as usize, col as usize);
                 if let Some(index) = controller
                     .navigator()
-                    .position_from_coords(coords.0, coords.1) {
-                        let cell: gtk::Box = grid.child_at(col, row).unwrap()
-                            .downcast::<gtk::Box>().unwrap();
-                        while let Some(child) = cell.first_child() {
-                            cell.remove(&child);
-                        }
-                        let picture = gallery.picture(index);
-                        let gtkPicture = match check_path_exists(&PathBuf::from(picture.view_file_path(true))) {
+                    .position_from_coords(coords.0, coords.1)
+                {
+                    let cell: gtk::Box = grid
+                        .child_at(col, row)
+                        .unwrap()
+                        .downcast::<gtk::Box>()
+                        .unwrap();
+                    while let Some(child) = cell.first_child() {
+                        cell.remove(&child);
+                    }
+                    let picture = gallery.picture(index);
+                    let gtkPicture =
+                        match check_path_exists(&PathBuf::from(picture.view_file_path(true))) {
                             Ok(file_path) => {
                                 let gtkPicture = make_picture();
                                 gtkPicture.set_filename(Some(file_path));
                                 gtkPicture
-                            },
+                            }
                             Err(_) => no_thumbnail_picture(),
                         };
-                        cell.append(&gtkPicture);
+                    cell.append(&gtkPicture);
                 }
             }
         }

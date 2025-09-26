@@ -133,11 +133,11 @@ impl Controller {
             },
         }
     }
-    
+
     pub fn process(&self, control: &Control) {
         match control {
             Control::Quit => self.quit(),
-            _ => {},
+            _ => {}
         }
     }
     pub fn quit(&self) {
