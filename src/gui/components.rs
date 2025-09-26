@@ -210,3 +210,14 @@ pub fn single_view_picture(application_window: &gtk::ApplicationWindow) -> gtk::
             &visible_stack_child_scrolled_window(
                 &view_stack( application_window))))
 }
+
+pub fn panel_grid(window: &gtk::ScrolledWindow) -> gtk::Grid {
+    window.first_child().unwrap()
+        .downcast::<gtk::Grid>().unwrap()
+}
+
+pub fn multiple_view_grid(application_window: &gtk::ApplicationWindow) -> gtk::Grid {
+    panel_grid(
+        &visible_stack_child_scrolled_window(
+            &view_stack(application_window)))
+}
