@@ -1,3 +1,5 @@
+use crate::gen_image::no_thumbnail_picture;
+use crate::paths::check_path_exists;
 use crate::Controller;
 use crate::application_state::ApplicationState;
 use crate::command_line_interface::CommandLineInterface;
@@ -6,6 +8,7 @@ use crate::display::title_display;
 use crate::editor::{Editor, InputKind};
 use crate::gui::components::*;
 use crate::gui::controller::RcController;
+use std::path::PathBuf;
 use crate::order;
 use gtk::cairo::{Context, Format, ImageSurface};
 use gtk::gdk::Key;
@@ -184,9 +187,15 @@ impl View {
                         while let Some(child) = cell.first_child() {
                             cell.remove(&child);
                         }
-                        let gtkPicture = make_picture();
                         let picture = gallery.picture(index);
-                        gtkPicture.set_filename(Some(picture.view_file_path(true)));
+                        let gtkPicture = match check_path_exists(&PathBuf::from(picture.view_file_path(true))) {
+                            Ok(file_path) => {
+                                let gtkPicture = make_picture();
+                                gtkPicture.set_filename(Some(file_path));
+                                gtkPicture
+                            },
+                            Err(_) => no_thumbnail_picture(),
+                        };
                         cell.append(&gtkPicture);
                 }
             }

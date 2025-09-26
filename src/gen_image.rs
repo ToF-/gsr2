@@ -7,6 +7,40 @@ pub const NINE_COLORS: &str = "testdata/nine_colors.png";
 pub const WHITE_SQUARE: &str = "testdata/white_square.png";
 
 use image::{Rgb, RgbImage};
+use gtk::prelude::*;
+use gtk::{gdk, Picture};
+use gtk::glib;
+
+pub fn no_thumbnail_picture() -> gtk::Picture {
+       let width = 256;
+    let height = 256;
+    let stride = width * 4;
+    let mut pixels = vec![0u8; stride * height];
+
+    for y in 0..height {
+        for x in 0..width {
+            if x >= 32 && x < (width-32) {
+                if x == y || x == (width - 1 - y) {
+                    let offset = y * stride + x * 4;
+                    pixels[offset] = 127;  
+                    pixels[offset + 1] = 127;
+                    pixels[offset + 2] = 127;
+                    pixels[offset + 3] = 255;
+                }
+            }
+        }
+    }
+
+    let bytes = glib::Bytes::from_owned(pixels);
+    let texture = gdk::MemoryTexture::new(
+        width as i32,
+        height as i32,
+        gdk::MemoryFormat::R8g8b8a8,
+        &bytes,
+        stride,
+    );
+    gtk::Picture::for_paintable(&texture)
+}
 
 #[allow(dead_code)]
 pub fn gen_single_dot() {
