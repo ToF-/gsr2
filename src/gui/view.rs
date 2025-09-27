@@ -89,7 +89,7 @@ impl View {
         if let Ok(controller) = controller_rc.try_borrow() {
             let view = controller.view();
             if let Ok(application_window) = view.application_window_rc().try_borrow() {
-                view.set_pictures(&application_window, controller_rc);
+                view.set_pictures(&application_window, &controller);
                 application_window.present()
             } else {
                 panic!("cannot borrow");
@@ -113,36 +113,34 @@ impl View {
         gesture_left_click.connect_pressed(clone!(@strong controller_rc, @strong view, @strong window, => move |_,_,_,_| {
             let mut refresh = false;
             if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-                refresh = controller.process(&Control::MovePrev)
-            };
-            if refresh {
-                view.set_pictures(&window, &controller_rc)
-            };
+                controller.process(&Control::MovePrev);
+                if controller.navigator_rc().borrow().has_moved() {
+                    view.set_pictures(&window, &controller)
+                }
+            }
         }));
         left_pane.add_controller(gesture_left_click);
 
         let gesture_right_click = gtk::GestureClick::new();
         gesture_right_click.set_button(1);
         gesture_right_click.connect_pressed(clone!(@strong controller_rc, @strong view, @strong window => move |_,_,_,_| {
-            let mut refresh = false;
             if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-                refresh = controller.process(&Control::MoveNext)
-            };
-            if refresh {
-                view.set_pictures(&window, &controller_rc)
-            };
+                controller.process(&Control::MoveNext);
+                if controller.navigator_rc().borrow().has_moved() {
+                    view.set_pictures(&window, &controller)
+                }
+            }
         }));
         right_pane.add_controller(gesture_right_click);
 
         let evk = gtk::EventControllerKey::new();
         let view = self;
         evk.connect_key_pressed(clone!(@strong controller_rc, @strong view, @strong window => move |_, key, _, _| {
-            let mut refresh = false;
             if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-                refresh = controller.process_key(key);
-            }
-            if refresh {
-                view.set_pictures(&window, &controller_rc)
+                controller.process_key(key);
+                if controller.navigator_rc().borrow().has_moved() {
+                    view.set_pictures(&window, &controller)
+                }
             };
             gtk::Inhibit(false)
         }));
@@ -229,9 +227,9 @@ impl View {
     pub fn set_pictures(
         &self,
         application_window: &gtk::ApplicationWindow,
-        controller_rc: &RcController
+        controller: &Controller
     ) {
-        let controller = controller_rc.borrow();
+        println!("set_pictures");
         let pictures_per_row = controller.state().pictures_per_row();
         if pictures_per_row == 1 {
             self.set_picture_for_single_view(application_window, &controller)

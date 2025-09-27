@@ -135,96 +135,73 @@ impl Controller {
         Ok(())
     }
 
-    pub fn process_key(&mut self, key: Key) -> bool {
+    pub fn process_key(&mut self, key: Key) {
         match key.name() {
-            None => false,
+            None => {},
             Some(key_name) => match self.controls.get(&key_name.to_string()) {
                 Some(control) => self.process(control),
-                _ => false,
+                _ => {},
             },
         }
     }
 
-    pub fn process(&self, control: &Control) -> bool {
+    pub fn process(&self, control: &Control) {
         match control {
             Control::MoveNext => self.move_next(),
             Control::MovePrev => self.move_prev(),
             Control::MoveLast => self.move_last(),
             Control::MoveFirst => self.move_first(),
             Control::Quit => self.quit(),
-            _ => false
+            _ => {},
         }
     }
-    pub fn quit(&self) -> bool {
+    pub fn quit(&self) {
         if let Ok(application_window) = self.view.application_window_rc().try_borrow_mut() {
             application_window.close()
         };
-        false
     }
     
-    pub fn move_next(&self) -> bool {
+    pub fn move_next(&self) {
         let mut navigator = self.navigator_rc.borrow_mut();
         if ! self.state.full_size_on() {
             if self.state.single_view() {
                 if navigator.can_move(Direction::Right) {
                     navigator.move_towards(Direction::Right);
-                    true
-                } else {
-                    false
                 }
             } else {
                 if navigator.can_move_next_page() {
                     navigator.move_next_page();
-                    true
-                } else {
-                    false
                 }
             }
-        } else {
-        false
         }
     }
 
-    pub fn move_prev(&self) -> bool {
+    pub fn move_prev(&self) {
         let mut navigator = self.navigator_rc.borrow_mut();
         if ! self.state.full_size_on() {
             if self.state.single_view() {
                 if navigator.can_move(Direction::Left) {
                     navigator.move_towards(Direction::Left);
-                    true
-                } else {
-                    false
                 }
             } else {
                 if navigator.can_move_prev_page() {
                     navigator.move_prev_page();
-                    true
-                } else {
-                    false
                 }
             }
-        } else {
-        false
         }
     }
 
-    pub fn move_first(&self) -> bool {
+    pub fn move_first(&self) {
         let mut navigator = self.navigator_rc.borrow_mut();
         if ! self.state.full_size_on() {
             navigator.move_towards(Direction::First);
-            true
-        } else {
-            false
         }
     }
 
-    pub fn move_last(&self) -> bool {
+    pub fn move_last(&self) {
         let mut navigator = self.navigator_rc.borrow_mut();
         if ! self.state.full_size_on() {
             navigator.move_towards(Direction::Last);
-            true
-        } else {
-            false
         }
     }
 }

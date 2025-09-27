@@ -89,25 +89,31 @@ impl Navigator {
         }
     }
 
-    pub fn can_move(&self, direction: Direction) -> bool {
-        match direction {
-            Direction::First => true,
-            Direction::Last => true,
-            Direction::Left => self.position > 0,
-            Direction::Right => self.position < self.limit - 1,
-            Direction::Index { value } => value < self.limit,
-            Direction::Down => self.position + self.cells_per_row < self.limit,
-            Direction::Up => self.position >= self.cells_per_row,
-            Direction::PageStart => true,
-            Direction::PageEnd => true,
+    pub fn can_move(&mut self, direction: Direction) -> bool {
+        let can_move = 
+            match direction {
+                Direction::First => true,
+                Direction::Last => true,
+                Direction::Left => self.position > 0,
+                Direction::Right => self.position < self.limit - 1,
+                Direction::Index { value } => value < self.limit,
+                Direction::Down => self.position + self.cells_per_row < self.limit,
+                Direction::Up => self.position >= self.cells_per_row,
+                Direction::PageStart => true,
+                Direction::PageEnd => true,
+            };
+        if ! can_move {
+            self.old_position = self.position;
+            self.page_changed = false;
         }
+        can_move
     }
 
-    pub fn can_move_next_page(&self) -> bool {
+    pub fn can_move_next_page(&mut self) -> bool {
         self.can_move(Direction::Index { value: self.next_page_start() })
     }
 
-    pub fn can_move_prev_page(&self) -> bool {
+    pub fn can_move_prev_page(&mut self) -> bool {
         self.can_move(Direction::Index { value: self.prev_page_start() })
     }
 
