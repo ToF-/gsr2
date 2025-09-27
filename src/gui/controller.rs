@@ -1,7 +1,7 @@
+use crate::picture::Picture;
 use crate::direction::Direction;
 use crate::file_system::create_missing_thumbnails;
 use crate::CommandLineInterface;
-use crate::application_state::ApplicationState;
 use crate::command::Command;
 use crate::control::Control;
 use crate::control::Controls;
@@ -15,22 +15,23 @@ use crate::gui::components::{make_application, startup_gui};
 use crate::gui::controller::gdk::Key;
 use crate::gui::state::State;
 use crate::gui::view::View;
-use crate::navigator::Navigator;
+use crate::gui::navigator::Navigator;
 use crate::order::Order;
 use gtk::glib::clone;
 use gtk::prelude::*;
 use gtk::{self};
-use gtk::{Align, Application, ApplicationWindow, Text, gdk};
-use gtk::{CssProvider, Grid, Label, Orientation, Picture, ScrolledWindow};
+use gtk::gdk;
 use std::cell::RefCell;
 use std::io::Result as IOResult;
 use std::rc::Rc;
+
+pub type RcNavigator = Rc<RefCell<Navigator>>;
 
 #[derive(Debug)]
 pub struct Controller {
     args: CommandLineInterface,
     gallery: Gallery,
-    navigator: Navigator,
+    navigator_rc: RcNavigator,
     controls: Controls,
     database: Database,
     editor: Editor,
@@ -53,7 +54,7 @@ impl Controller {
                     Ok(Controller {
                         args: cli,
                         gallery,
-                        navigator: Navigator::new(0, pictures_per_row as usize),
+                        navigator_rc: Rc::new(RefCell::new(Navigator::new(0, pictures_per_row as usize))),
                         controls: default_controls(),
                         database,
                         editor: Editor::new(),
@@ -77,8 +78,8 @@ impl Controller {
         self.state.clone()
     }
 
-    pub fn navigator(&self) -> Navigator {
-        self.navigator.clone()
+    pub fn navigator_rc(&self) -> RcNavigator {
+        self.navigator_rc.clone()
     }
 
     pub fn gallery(&self) -> &Gallery {
@@ -87,7 +88,12 @@ impl Controller {
 
     pub fn set_gallery(&mut self, gallery: Gallery) {
         self.gallery = gallery;
-        self.navigator = Navigator::new(self.gallery.len(), self.state().pictures_per_row);
+        *self.navigator_rc.borrow_mut() = Navigator::new(self.gallery.len(), self.state().pictures_per_row);
+    }
+
+    pub fn current_picture(&self) -> Picture {
+        let navigator = self.navigator_rc.borrow();
+        self.gallery.picture(navigator.position())
     }
 
     fn bind_components(controller_rc: &RcController) {}
@@ -129,40 +135,74 @@ impl Controller {
         Ok(())
     }
 
-    pub fn process_key(&mut self, key: Key) {
+    pub fn process_key(&mut self, key: Key) -> bool {
         match key.name() {
-            None => {}
+            None => false,
             Some(key_name) => match self.controls.get(&key_name.to_string()) {
-                // Some(control) => self.process(control),
-                _ => {}
+                Some(control) => self.process(control),
+                _ => false,
             },
         }
     }
 
-    pub fn process(&mut self, control: &Control) {
+    pub fn process(&self, control: &Control) -> bool {
         match control {
             Control::MoveNext => self.move_next(),
+            Control::MovePrev => self.move_prev(),
             Control::Quit => self.quit(),
-            _ => {}
+            _ => false
         }
     }
-    pub fn quit(&self) {
+    pub fn quit(&self) -> bool {
         if let Ok(application_window) = self.view.application_window_rc().try_borrow_mut() {
             application_window.close()
-        }
+        };
+        false
     }
     
-    pub fn move_next(&mut self) {
+    pub fn move_next(&self) -> bool {
+        let mut navigator = self.navigator_rc.borrow_mut();
         if ! self.state.full_size_on() {
             if self.state.single_view() {
-                if self.navigator.can_move(Direction::Right) {
-                    self.navigator.move_towards(Direction::Right)
+                if navigator.can_move(Direction::Right) {
+                    navigator.move_towards(Direction::Right);
+                    true
+                } else {
+                    false
                 }
             } else {
-                if self.navigator.can_move_next_page() {
-                    self.navigator.move_next_page()
+                if navigator.can_move_next_page() {
+                    navigator.move_next_page();
+                    true
+                } else {
+                    false
                 }
             }
+        } else {
+        false
+        }
+    }
+
+    pub fn move_prev(&self) -> bool {
+        let mut navigator = self.navigator_rc.borrow_mut();
+        if ! self.state.full_size_on() {
+            if self.state.single_view() {
+                if navigator.can_move(Direction::Right) {
+                    navigator.move_towards(Direction::Right);
+                    true
+                } else {
+                    false
+                }
+            } else {
+                if navigator.can_move_prev_page() {
+                    navigator.move_prev_page();
+                    true
+                } else {
+                    false
+                }
+            }
+        } else {
+        false
         }
     }
 }

@@ -1,23 +1,8 @@
-use crate::CommandLineInterface;
-use crate::application_state::ApplicationState;
-use crate::control::Controls;
-use crate::control::default_controls;
-use crate::database::Database;
 use crate::default_values::{DEFAULT_HEIGHT, DEFAULT_WIDTH};
-use crate::editor::Editor;
-use crate::environment::database_connection;
-use crate::gallery::Gallery;
-use crate::gui::state::State;
-use crate::gui::view::View;
-use crate::navigator::Navigator;
-use gtk::glib::clone;
 use gtk::prelude::*;
 use gtk::{self};
-use gtk::{Align, Application, ApplicationWindow, Grid, Text, gdk};
+use gtk::{Align, Application, ApplicationWindow, Grid, gdk};
 use gtk::{CssProvider, Label, Orientation, Picture, ScrolledWindow};
-use std::cell::RefCell;
-use std::io::Result as IOResult;
-use std::rc::Rc;
 
 pub fn startup_gui(application: &gtk::Application) {
     let css_provider = gtk::CssProvider::new();

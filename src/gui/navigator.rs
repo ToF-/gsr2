@@ -107,6 +107,10 @@ impl Navigator {
         self.can_move(Direction::Index { value: self.next_page_start() })
     }
 
+    pub fn can_move_prev_page(&self) -> bool {
+        self.can_move(Direction::Index { value: self.prev_page_start() })
+    }
+
     pub fn move_towards(&mut self, direction: Direction) {
         self.old_position = self.position;
         match direction {
@@ -125,6 +129,10 @@ impl Navigator {
 
     pub fn move_next_page(&mut self) {
         self.move_towards(Direction::Index { value: self.next_page_start() })
+    }
+
+    pub fn move_prev_page(&mut self) {
+        self.move_towards(Direction::Index { value: self.prev_page_start() })
     }
 
     fn update_page_limits(&mut self) {
@@ -242,14 +250,13 @@ mod tests {
         navigator.move_towards(Direction::Right);
         assert_eq!(1, navigator.position());
         assert_eq!(0, navigator.prev_page_start());
-        navigator.move_towards(Direction::Index {
-            value: navigator.next_page_start(),
-        });
-        navigator.move_towards(Direction::Index {
-            value: navigator.next_page_start(),
-        });
+        navigator.move_next_page();
+        navigator.move_next_page();
         assert_eq!(8, navigator.page_start());
         assert_eq!(4, navigator.prev_page_start());
+        assert!(navigator.can_move_prev_page());
+        navigator.move_prev_page();
+        assert_eq!(4, navigator.position());
     }
     #[test]
     fn moving_down_moves_to_entry_one_row_further() {

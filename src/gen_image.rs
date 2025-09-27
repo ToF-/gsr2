@@ -8,7 +8,7 @@ pub const WHITE_SQUARE: &str = "testdata/white_square.png";
 
 use gtk::glib;
 use gtk::prelude::*;
-use gtk::{Picture, gdk};
+use gtk::gdk;
 use image::{Rgb, RgbImage};
 
 pub fn no_thumbnail_picture() -> gtk::Picture {

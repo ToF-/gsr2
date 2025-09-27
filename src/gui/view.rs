@@ -1,25 +1,15 @@
+use crate::control::Control;
 use crate::Controller;
-use crate::application_state::ApplicationState;
-use crate::command_line_interface::CommandLineInterface;
-use crate::direction::Direction;
-use crate::display::title_display;
-use crate::editor::{Editor, InputKind};
 use crate::gen_image::no_thumbnail_picture;
 use crate::gui::components::*;
 use crate::gui::controller::RcController;
-use crate::order;
 use crate::paths::check_path_exists;
-use gtk::cairo::{Context, Format, ImageSurface};
-use gtk::gdk::Key;
 use gtk::glib::clone;
 use gtk::prelude::*;
-use gtk::{
-    Align, ApplicationWindow, CssProvider, Grid, Label, Orientation, Picture, ScrolledWindow,
-    Widget, gdk,
-};
+use gtk::{ApplicationWindow};
+use gtk::gdk::Key;
 use std::cell::RefCell;
 use std::path::PathBuf;
-use std::process::exit;
 use std::rc::Rc;
 use std::time::Duration;
 
@@ -41,9 +31,9 @@ impl View {
         }
     }
 
-    pub fn application_window_rc(&self) -> &Rc<RefCell<gtk::ApplicationWindow>> {
+    pub fn application_window_rc(&self) -> Rc<RefCell<gtk::ApplicationWindow>> {
         match &self.application_window_rc {
-            Some(application_window_rc) => application_window_rc,
+            Some(application_window_rc) => application_window_rc.clone(),
             None => panic!("uninitialized Rc<RefCell<gtk::ApplicationWindow>>"),
         }
     }
@@ -97,7 +87,7 @@ impl View {
         if let Ok(controller) = controller_rc.try_borrow() {
             let view = controller.view();
             if let Ok(application_window) = view.application_window_rc().try_borrow() {
-                view.set_pictures(&application_window, &controller);
+                view.set_pictures(&application_window, controller_rc);
                 application_window.present()
             } else {
                 panic!("cannot borrow");
@@ -116,25 +106,33 @@ impl View {
         let right_pane = panel.last_child().unwrap();
 
         let gesture_left_click = gtk::GestureClick::new();
+        let view = self;
         gesture_left_click.set_button(1);
-        gesture_left_click.connect_pressed(clone!(@strong controller_rc => move |_,_,_,_| {
-            println!("left_click {:?}", controller_rc);
+        gesture_left_click.connect_pressed(clone!(@strong controller_rc, @strong view, @strong window, => move |_,_,_,_| {
+            if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+                controller.process(&Control::MovePrev);
+            }
+            view.set_pictures(&window, &controller_rc);
         }));
         left_pane.add_controller(gesture_left_click);
 
         let gesture_right_click = gtk::GestureClick::new();
         gesture_right_click.set_button(1);
-        gesture_right_click.connect_pressed(clone!(@strong controller_rc => move |_,_,_,_| {
-            println!("right_click {:?}", controller_rc);
+        gesture_right_click.connect_pressed(clone!(@strong controller_rc, @strong view, @strong window => move |_,_,_,_| {
+            if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+                controller.process(&Control::MoveNext);
+            }
+            view.set_pictures(&window, &controller_rc);
         }));
         right_pane.add_controller(gesture_right_click);
 
         let evk = gtk::EventControllerKey::new();
-        evk.connect_key_pressed(clone!(@strong controller_rc => move |_, key, _, _| {
-            println!("key {:?}", key);
+        let view = self;
+        evk.connect_key_pressed(clone!(@strong controller_rc, @strong view, @strong window => move |_, key, _, _| {
             if let Ok(mut controller) = controller_rc.try_borrow_mut() {
                 controller.process_key(key);
             }
+            view.set_pictures(&window, &controller_rc);
             gtk::Inhibit(false)
         }));
         window.add_controller(evk);
@@ -145,10 +143,9 @@ impl View {
         application_window: &ApplicationWindow,
         controller: &Controller,
     ) {
-        let navigator = controller.navigator();
         let gallery = controller.gallery();
         let gtkPicture: gtk::Picture = single_view_picture(application_window);
-        let file_path = gallery.picture(navigator.position()).file_path();
+        let file_path = controller.current_picture().file_path();
         gtkPicture.set_filename(Some(file_path));
     }
 
@@ -159,7 +156,8 @@ impl View {
         pictures_per_row: usize,
     ) {
         let cells_per_row: i32 = pictures_per_row as i32;
-        let navigator = controller.navigator();
+        let navigator_rc = controller.navigator_rc();
+        let navigator = navigator_rc.borrow();
         let gallery = controller.gallery();
         let grid = view_stack(application_window)
             .visible_child()
@@ -176,21 +174,20 @@ impl View {
             .unwrap()
             .downcast::<gtk::Grid>()
             .unwrap();
+
+        println!("set pictures from {}",navigator.page_start());
         for col in 0..cells_per_row {
             for row in 0..cells_per_row {
                 let coords = (row as usize, col as usize);
-                if let Some(index) = controller
-                    .navigator()
-                    .position_from_coords(coords.0, coords.1)
-                {
-                    let cell: gtk::Box = grid
-                        .child_at(col, row)
-                        .unwrap()
-                        .downcast::<gtk::Box>()
-                        .unwrap();
-                    while let Some(child) = cell.first_child() {
-                        cell.remove(&child);
-                    }
+                let cell: gtk::Box = grid
+                    .child_at(col, row)
+                    .unwrap()
+                    .downcast::<gtk::Box>()
+                    .unwrap();
+                while let Some(child) = cell.first_child() {
+                    cell.remove(&child)
+                };
+                if let Some(index) = navigator.position_from_coords(coords.0, coords.1) {
                     let picture = gallery.picture(index);
                     let gtkPicture =
                         match check_path_exists(&PathBuf::from(picture.view_file_path(true))) {
@@ -210,13 +207,14 @@ impl View {
     pub fn set_pictures(
         &self,
         application_window: &gtk::ApplicationWindow,
-        controller: &Controller,
+        controller_rc: &RcController
     ) {
+        let controller = controller_rc.borrow();
         let pictures_per_row = controller.state().pictures_per_row();
         if pictures_per_row == 1 {
-            self.set_picture_for_single_view(application_window, controller)
+            self.set_picture_for_single_view(application_window, &controller)
         } else {
-            self.set_pictures_for_multiple_view(application_window, controller, pictures_per_row)
+            self.set_pictures_for_multiple_view(application_window, &controller, pictures_per_row)
         }
     }
 }

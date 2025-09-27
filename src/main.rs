@@ -3,7 +3,6 @@ use crate::command_line_interface::CommandLineInterface;
 use crate::gui::controller::Controller;
 use std::process::exit;
 
-mod application_state;
 mod command;
 mod command_line_interface;
 mod control;
@@ -18,7 +17,6 @@ mod gallery;
 mod gen_image;
 mod gui;
 mod image_data;
-mod navigator;
 mod order;
 mod paths;
 mod picture;
