@@ -50,8 +50,21 @@ mod tests {
 
     #[test]
     fn from_key_name_to_a_control() {
+        assert_eq!(Some(&Control::MoveNext), default_controls().get("n"));
+        assert_eq!(Some(&Control::MovePrev), default_controls().get("p"));
+        assert_eq!(Some(&Control::MoveLast), default_controls().get("Z"));
+        assert_eq!(Some(&Control::MoveFirst), default_controls().get("A"));
+        assert_eq!(Some(&Control::MoveStartPage), default_controls().get("a"));
+        assert_eq!(Some(&Control::MoveEndPage), default_controls().get("z"));
+        assert_eq!(Some(&Control::Left), default_controls().get("Left"));
+        assert_eq!(Some(&Control::Right), default_controls().get("Right"));
+        assert_eq!(Some(&Control::Up), default_controls().get("Up"));
+        assert_eq!(Some(&Control::Down), default_controls().get("Down"));
+        assert_eq!(Some(&Control::Quit), default_controls().get("q"));
+        assert_eq!(Some(&Control::Label), default_controls().get("l"));
         assert_eq!(Some(&Control::TogglePalette), default_controls().get("x"));
         assert_eq!(Some(&Control::ToggleExpand), default_controls().get("e"));
         assert_eq!(Some(&Control::ToggleFullSize), default_controls().get("f"));
+        assert_eq!(Some(&Control::ToggleSingleView), default_controls().get("period"));
     }
 }

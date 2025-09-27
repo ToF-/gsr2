@@ -30,3 +30,9 @@ impl State {
         self.full_size_on
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+}

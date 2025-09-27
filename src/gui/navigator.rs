@@ -228,7 +228,7 @@ mod tests {
     }
     #[test]
     fn given_a_destination_index_can_move_if_within_limit() {
-        let navigator = Navigator::new(10, 2);
+        let mut navigator = Navigator::new(10, 2);
         assert!(!navigator.can_move(Direction::Index { value: 10 }));
         assert!(navigator.can_move(Direction::Index { value: 7 }));
     }
