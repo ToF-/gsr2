@@ -1,3 +1,4 @@
+use crate::default_values::FOCUS_SYMBOL;
 use crate::default_values::{EXPAND_ON_SYMBOL, FULL_SIZE_ON_SYMBOL};
 
 fn expand_display(on: bool) -> String {
@@ -12,6 +13,12 @@ fn full_size_display(on: bool) -> String {
         false => String::from(""),
         true => String::from(FULL_SIZE_ON_SYMBOL),
     }
+}
+
+pub fn picture_label_display(label: &str, with_focus: bool) -> String {
+    format!("{}{}",
+        if with_focus { FOCUS_SYMBOL } else { "" },
+        label)
 }
 
 // pub fn title_display(application_state: &ApplicationState) -> String {

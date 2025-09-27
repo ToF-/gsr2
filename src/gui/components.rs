@@ -1,8 +1,10 @@
+use crate::picture::Picture;
+use crate::display::picture_label_display;
 use crate::default_values::{DEFAULT_HEIGHT, DEFAULT_WIDTH};
 use gtk::prelude::*;
 use gtk::{self};
 use gtk::{Align, Application, ApplicationWindow, Grid, gdk};
-use gtk::{CssProvider, Label, Orientation, Picture, ScrolledWindow};
+use gtk::{CssProvider, Label, Orientation, Picture as GtkPicture , ScrolledWindow};
 
 pub fn startup_gui(application: &gtk::Application) {
     let css_provider = gtk::CssProvider::new();
@@ -54,7 +56,15 @@ pub fn make_frame() -> gtk::Box {
 }
 
 pub fn make_picture() -> gtk::Picture {
-    Picture::builder().hexpand(true).vexpand(true).build()
+    GtkPicture::builder().hexpand(true).vexpand(true).build()
+}
+
+
+pub fn make_label_for_picture(picture: &Picture, with_focus: bool) -> gtk::Label {
+    let label = gtk::Label::new(Some(&picture_label_display(&picture.label(), with_focus)));
+    label.set_valign(Align::Center);
+    label.set_halign(Align::Center);
+    label
 }
 
 pub fn make_stack() -> gtk::Stack {

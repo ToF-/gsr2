@@ -219,6 +219,8 @@ impl View {
                             Err(_) => no_thumbnail_picture(),
                         };
                     cell.append(&gtkPicture);
+                    let label = make_label_for_picture(&picture, index == navigator.position());
+                    cell.append(&label);
                 }
             }
         }
