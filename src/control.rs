@@ -18,6 +18,11 @@ pub enum Control {
     ToggleSingleView,
     Label,
     Quit,
+    GridTwo,
+    GridThree,
+    GridFour,
+    GridFive,
+    GridTen,
 }
 
 pub type Controls = HashMap<String, Control>;
@@ -45,6 +50,12 @@ pub fn default_controls() -> Controls {
         (String::from("Down"), Control::Down),
         (String::from("s"), Control::Down),
         (String::from("period"), Control::ToggleSingleView),
+        (String::from("b"), Control::GridTwo),
+        (String::from("egrave"), Control::GridTen),
+        (String::from("ccedilla"), Control::GridThree),
+        (String::from("eacute"), Control::GridFour),
+        (String::from("agrave"), Control::GridFive),
+
     ]);
     controls
 }

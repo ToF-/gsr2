@@ -92,13 +92,26 @@ pub fn make_grid(cells_per_row: i32) -> gtk::Grid {
         .vexpand(true)
         .name("grid")
         .build();
+    attach_cells(&grid, cells_per_row);
+    grid
+}
+
+pub fn attach_cells(grid: &gtk::Grid, cells_per_row: i32) {
     for col in 0..cells_per_row {
         for row in 0..cells_per_row {
             let cell_box = make_cell_box();
             grid.attach(&cell_box, col, row, 1, 1);
         }
     }
-    grid
+}
+
+pub fn remove_cells(grid: &gtk::Grid, cells_per_row: i32) {
+    for col in 0..cells_per_row {
+        for row in 0..cells_per_row {
+            let cell_box = grid.child_at(col, row).unwrap();
+            grid.remove(&cell_box);
+        }
+    }
 }
 
 pub fn make_panel(view_grid: &gtk::Grid) -> gtk::Grid {

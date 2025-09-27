@@ -153,7 +153,7 @@ impl Navigator {
         })
     }
 
-    fn update_page_limits(&mut self) {
+    pub fn update_page_limits(&mut self) {
         if self.limit > 0 {
             let old_page_start: usize = self.page_start;
             self.page_start = (self.position / self.page_size()) * self.page_size();

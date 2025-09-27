@@ -147,13 +147,23 @@ impl View {
                 if let Ok(mut controller) = controller_rc.try_borrow_mut() {
                     view.set_label_for_current_picture(&window, &controller, false);
                     controller.process_key(key);
+                    if controller.state().dimension_changed() {
+                        println!("dimension changed");
+                        let grid = multiple_view_grid(&window);
+                        remove_cells(&grid, controller.state().old_pictures_per_row() as i32);
+                        attach_cells(&grid, controller.state().pictures_per_row() as i32);
+                        controller.acknowledge_dimension();
+                    }
+
                     if controller.state().single_view() != single_view(&window) {
                         toggle_view_stack(&window);
                         view.set_pictures(&window, &controller)
                     } else if controller.navigator_rc().borrow().page_changed() {
                         view.set_pictures(&window, &controller)
                     };
-                    view.set_label_for_current_picture(&window, &controller, true)
+                    view.set_label_for_current_picture(&window, &controller, true);
+                    println!("{:?}", controller.state());
+                    println!("{:?}", controller.navigator_rc().borrow());
                 };
                 gtk::Inhibit(false)
             }),

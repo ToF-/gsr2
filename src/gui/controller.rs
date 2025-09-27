@@ -93,6 +93,7 @@ impl Controller {
         self.gallery = gallery;
         *self.navigator_rc.borrow_mut() =
             Navigator::new(self.gallery.len(), self.state().pictures_per_row);
+        self.acknowledge_dimension();
     }
 
     pub fn current_picture(&self) -> Picture {
@@ -164,6 +165,11 @@ impl Controller {
             Control::Down => self.move_down(),
             Control::Quit => self.quit(),
             Control::ToggleSingleView => self.toggle_single_view(),
+            Control::GridTwo => self.switch_grid(2),
+            Control::GridThree => self.switch_grid(3),
+            Control::GridFour => self.switch_grid(4),
+            Control::GridFive => self.switch_grid(5),
+            Control::GridTen => self.switch_grid(10),
             _ => {}
         }
     }
@@ -176,8 +182,24 @@ impl Controller {
     pub fn toggle_single_view(&mut self) {
         self.state.toggle_single_view();
         let mut navigator = self.navigator_rc.borrow_mut();
-        navigator.set_pictures_per_row(self.state.pictures_per_row);
+        if self.state.single_view() {
+            navigator.set_pictures_per_row(1);
+        } else {
+            navigator.set_pictures_per_row(self.state.pictures_per_row);
+        }
         navigator.set_page_changed();
+    }
+
+    pub fn switch_grid(&mut self, pictures_per_row: usize) {
+        self.state.switch_grid(pictures_per_row);
+        let mut navigator = self.navigator_rc.borrow_mut();
+        navigator.set_pictures_per_row(self.state.pictures_per_row);
+        navigator.update_page_limits();
+        navigator.set_page_changed();
+    }
+
+    pub fn acknowledge_dimension(&mut self) {
+        self.state.acknowledge_dimension();
     }
 
     pub fn move_start(&self) {
