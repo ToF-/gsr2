@@ -41,15 +41,14 @@ impl State {
 mod tests {
     use super::*;
 
-
     #[test]
     fn after_toggle_single_view_cells_per_row_change() {
         let mut my_state = State::new(5);
-        assert!(! my_state.single_view());
+        assert!(!my_state.single_view());
         my_state.toggle_single_view();
         assert!(my_state.single_view());
         my_state.toggle_single_view();
-        assert!(! my_state.single_view());
+        assert!(!my_state.single_view());
     }
     #[test]
     fn state_with_one_picture_per_row_cannot_toggle_single_view() {
