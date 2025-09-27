@@ -140,16 +140,17 @@ impl Controller {
     }
 
     pub fn process_key(&mut self, key: Key) {
+        let controls = self.controls.clone();
         match key.name() {
             None => {}
-            Some(key_name) => match self.controls.get(&key_name.to_string()) {
+            Some(key_name) => match controls.get(&key_name.to_string()) {
                 Some(control) => self.process(control),
                 _ => {}
             },
         }
     }
 
-    pub fn process(&self, control: &Control) {
+    pub fn process(&mut self, control: &Control) {
         match control {
             Control::MoveNext => self.move_next(),
             Control::MovePrev => self.move_prev(),
@@ -162,6 +163,7 @@ impl Controller {
             Control::Up => self.move_up(),
             Control::Down => self.move_down(),
             Control::Quit => self.quit(),
+            Control::ToggleSingleView => self.toggle_single_view(),
             _ => {}
         }
     }
@@ -169,6 +171,15 @@ impl Controller {
         if let Ok(application_window) = self.view.application_window_rc().try_borrow_mut() {
             application_window.close()
         };
+    }
+
+    pub fn toggle_single_view(&mut self) {
+        self.state.toggle_single_view();
+        let mut navigator = self.navigator_rc.borrow_mut();
+        println!("{:?}",navigator);
+        navigator.set_pictures_per_row(self.state.pictures_per_row);
+        navigator.set_page_changed();
+        println!("{:?}",navigator);
     }
 
     pub fn move_start(&self) {

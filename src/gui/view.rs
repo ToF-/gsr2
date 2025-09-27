@@ -147,7 +147,10 @@ impl View {
                 if let Ok(mut controller) = controller_rc.try_borrow_mut() {
                     view.set_label_for_current_picture(&window, &controller, false);
                     controller.process_key(key);
-                    if controller.navigator_rc().borrow().page_changed() {
+                    if controller.state().single_view() != single_view(&window) {
+                        toggle_view_stack(&window);
+                        view.set_pictures(&window, &controller)
+                    } else if controller.navigator_rc().borrow().page_changed() {
                         view.set_pictures(&window, &controller)
                     };
                     view.set_label_for_current_picture(&window, &controller, true)
@@ -246,10 +249,10 @@ impl View {
         application_window: &gtk::ApplicationWindow,
         controller: &Controller,
     ) {
-        let pictures_per_row = controller.state().pictures_per_row();
-        if pictures_per_row == 1 {
+        if controller.state().single_view() {
             self.set_picture_for_single_view(application_window, &controller)
         } else {
+            let pictures_per_row = controller.state().pictures_per_row();
             self.set_pictures_for_multiple_view(application_window, &controller, pictures_per_row)
         }
     }

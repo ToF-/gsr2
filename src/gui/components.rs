@@ -244,6 +244,20 @@ pub fn multiple_view_scrolled_window(
         .unwrap()
 }
 
+pub fn single_view(application_window: &gtk::ApplicationWindow) -> bool {
+    let child_name = view_stack(application_window).visible_child_name().unwrap();
+    child_name == "single_view"
+}
+
+pub fn toggle_view_stack(application_window: &gtk::ApplicationWindow) {
+    let view_stack = view_stack(application_window);
+    if single_view(application_window) {
+        view_stack.set_visible_child_name("multiple_view")
+    } else {
+        view_stack.set_visible_child_name("single_view")
+    }
+}
+
 pub fn single_view_scrolled_window(
     application_window: &gtk::ApplicationWindow,
 ) -> gtk::ScrolledWindow {

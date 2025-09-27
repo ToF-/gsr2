@@ -3,7 +3,7 @@ use crate::direction::Direction;
 #[derive(Debug, Clone)]
 pub struct Navigator {
     limit: usize,
-    cells_per_row: usize,
+    pictures_per_row: usize,
     position: usize,
     old_position: usize,
     page_start: usize,
@@ -12,10 +12,10 @@ pub struct Navigator {
 }
 
 impl Navigator {
-    pub fn new(limit: usize, cells_per_row: usize) -> Self {
+    pub fn new(limit: usize, pictures_per_row: usize) -> Self {
         let mut result = Navigator {
             limit,
-            cells_per_row,
+            pictures_per_row,
             position: 0,
             old_position: 0,
             page_start: 0,
@@ -43,7 +43,7 @@ impl Navigator {
     }
 
     pub fn page_size(&self) -> usize {
-        self.cells_per_row * self.cells_per_row
+        self.pictures_per_row * self.pictures_per_row
     }
 
     pub fn next_page_start(&self) -> usize {
@@ -70,8 +70,13 @@ impl Navigator {
         self.page_changed = true
     }
 
+    pub fn set_pictures_per_row(&mut self, pictures_per_row: usize) {
+        self.pictures_per_row = pictures_per_row;
+        self.update_page_limits();
+    }
+
     pub fn position_from_coords(&self, row: usize, col: usize) -> Option<usize> {
-        let position_from_coords = self.page_start + row * self.cells_per_row + col;
+        let position_from_coords = self.page_start + row * self.pictures_per_row + col;
         if position_from_coords < self.limit {
             Some(position_from_coords)
         } else {
@@ -81,8 +86,8 @@ impl Navigator {
 
     pub fn coords_from_position(&self, position: usize) -> Option<(usize, usize)> {
         if (self.page_start()..=self.page_end()).contains(&position) {
-            let row = (position - self.page_start()) / self.cells_per_row;
-            let col = (position - self.page_start()) % self.cells_per_row;
+            let row = (position - self.page_start()) / self.pictures_per_row;
+            let col = (position - self.page_start()) % self.pictures_per_row;
             Some((row, col))
         } else {
             None
@@ -96,8 +101,8 @@ impl Navigator {
             Direction::Left => self.position > 0,
             Direction::Right => self.position < self.limit - 1,
             Direction::Index { value } => value < self.limit,
-            Direction::Down => self.position + self.cells_per_row < self.limit,
-            Direction::Up => self.position >= self.cells_per_row,
+            Direction::Down => self.position + self.pictures_per_row < self.limit,
+            Direction::Up => self.position >= self.pictures_per_row,
             Direction::PageStart => true,
             Direction::PageEnd => true,
         };
@@ -128,13 +133,12 @@ impl Navigator {
             Direction::Last => self.position = self.limit - 1,
             Direction::First => self.position = 0,
             Direction::Index { value } => self.position = value,
-            Direction::Down => self.position += self.cells_per_row,
-            Direction::Up => self.position = self.position.saturating_sub(self.cells_per_row),
+            Direction::Down => self.position += self.pictures_per_row,
+            Direction::Up => self.position = self.position.saturating_sub(self.pictures_per_row),
             Direction::PageStart => self.position = self.page_start,
             Direction::PageEnd => self.position = self.page_end,
         };
         self.update_page_limits();
-        println!("{}", self.position);
     }
 
     pub fn move_next_page(&mut self) {
@@ -201,7 +205,7 @@ mod tests {
     }
 
     #[test]
-    fn given_coords_can_tell_position_with_several_cells_per_row_on_first_page() {
+    fn given_coords_can_tell_position_with_several_pictures_per_row_on_first_page() {
         assert_eq!(Some(0), Navigator::new(10, 2).position_from_coords(0, 0));
         assert_eq!(Some(1), Navigator::new(10, 2).position_from_coords(0, 1));
         assert_eq!(Some(2), Navigator::new(10, 2).position_from_coords(1, 0));

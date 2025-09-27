@@ -22,6 +22,7 @@ pub enum Control {
 
 pub type Controls = HashMap<String, Control>;
 
+// these default controls are valid on my ergodox bepo modified
 pub fn default_controls() -> Controls {
     let controls: HashMap<String, Control> = HashMap::from([
         (String::from("n"), Control::MoveNext),
@@ -36,9 +37,13 @@ pub fn default_controls() -> Controls {
         (String::from("l"), Control::Label),
         (String::from("q"), Control::Quit),
         (String::from("Left"), Control::Left),
+        (String::from("t"), Control::Left),
         (String::from("Right"), Control::Right),
+        (String::from("r"), Control::Right),
         (String::from("Up"), Control::Up),
+        (String::from("d"), Control::Up),
         (String::from("Down"), Control::Down),
+        (String::from("s"), Control::Down),
         (String::from("period"), Control::ToggleSingleView),
     ]);
     controls
