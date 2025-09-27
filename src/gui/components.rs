@@ -1,10 +1,10 @@
-use crate::picture::Picture;
-use crate::display::picture_label_display;
 use crate::default_values::{DEFAULT_HEIGHT, DEFAULT_WIDTH};
+use crate::display::picture_label_display;
+use crate::picture::Picture;
 use gtk::prelude::*;
 use gtk::{self};
 use gtk::{Align, Application, ApplicationWindow, Grid, gdk};
-use gtk::{CssProvider, Label, Orientation, Picture as GtkPicture , ScrolledWindow};
+use gtk::{CssProvider, Label, Orientation, Picture as GtkPicture, ScrolledWindow};
 
 pub fn startup_gui(application: &gtk::Application) {
     let css_provider = gtk::CssProvider::new();
@@ -220,7 +220,11 @@ pub fn single_view_picture_label(application_window: &gtk::ApplicationWindow) ->
     let picture = picture(&frame(&visible_stack_child_scrolled_window(&view_stack(
         application_window,
     ))));
-    picture.next_sibling().unwrap().downcast::<gtk::Label>().unwrap()
+    picture
+        .next_sibling()
+        .unwrap()
+        .downcast::<gtk::Label>()
+        .unwrap()
 }
 
 pub fn panel_grid(window: &gtk::ScrolledWindow) -> gtk::Grid {
@@ -229,29 +233,50 @@ pub fn panel_grid(window: &gtk::ScrolledWindow) -> gtk::Grid {
     panel
 }
 
-pub fn multiple_view_scrolled_window(application_window: &gtk::ApplicationWindow) -> gtk::ScrolledWindow {
+pub fn multiple_view_scrolled_window(
+    application_window: &gtk::ApplicationWindow,
+) -> gtk::ScrolledWindow {
     let stack = view_stack(application_window);
-    stack.child_by_name("multiple_view").unwrap().downcast::<gtk::ScrolledWindow>().unwrap()
+    stack
+        .child_by_name("multiple_view")
+        .unwrap()
+        .downcast::<gtk::ScrolledWindow>()
+        .unwrap()
 }
 
-pub fn single_view_scrolled_window(application_window: &gtk::ApplicationWindow) -> gtk::ScrolledWindow {
+pub fn single_view_scrolled_window(
+    application_window: &gtk::ApplicationWindow,
+) -> gtk::ScrolledWindow {
     let stack = view_stack(application_window);
-    stack.child_by_name("single_view").unwrap().downcast::<gtk::ScrolledWindow>().unwrap()
+    stack
+        .child_by_name("single_view")
+        .unwrap()
+        .downcast::<gtk::ScrolledWindow>()
+        .unwrap()
 }
 
 pub fn left_pane(application_window: &gtk::ApplicationWindow) -> gtk::Label {
-    let panel_grid = panel_grid(
-        &multiple_view_scrolled_window(application_window));
-    panel_grid.child_at(0,0).unwrap().downcast::<gtk::Label>().unwrap()
+    let panel_grid = panel_grid(&multiple_view_scrolled_window(application_window));
+    panel_grid
+        .child_at(0, 0)
+        .unwrap()
+        .downcast::<gtk::Label>()
+        .unwrap()
 }
 
 pub fn right_pane(application_window: &gtk::ApplicationWindow) -> gtk::Label {
-    let panel_grid = panel_grid(
-        &multiple_view_scrolled_window(application_window));
-    panel_grid.child_at(2,0).unwrap().downcast::<gtk::Label>().unwrap()
+    let panel_grid = panel_grid(&multiple_view_scrolled_window(application_window));
+    panel_grid
+        .child_at(2, 0)
+        .unwrap()
+        .downcast::<gtk::Label>()
+        .unwrap()
 }
 pub fn multiple_view_grid(application_window: &gtk::ApplicationWindow) -> gtk::Grid {
-    let panel_grid = panel_grid(
-        &multiple_view_scrolled_window(application_window));
-    panel_grid.child_at(1,0).unwrap().downcast::<gtk::Grid>().unwrap()
+    let panel_grid = panel_grid(&multiple_view_scrolled_window(application_window));
+    panel_grid
+        .child_at(1, 0)
+        .unwrap()
+        .downcast::<gtk::Grid>()
+        .unwrap()
 }

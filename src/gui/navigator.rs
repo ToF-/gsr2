@@ -90,19 +90,18 @@ impl Navigator {
     }
 
     pub fn can_move(&mut self, direction: Direction) -> bool {
-        let can_move = 
-            match direction {
-                Direction::First => true,
-                Direction::Last => true,
-                Direction::Left => self.position > 0,
-                Direction::Right => self.position < self.limit - 1,
-                Direction::Index { value } => value < self.limit,
-                Direction::Down => self.position + self.cells_per_row < self.limit,
-                Direction::Up => self.position >= self.cells_per_row,
-                Direction::PageStart => true,
-                Direction::PageEnd => true,
-            };
-        if ! can_move {
+        let can_move = match direction {
+            Direction::First => true,
+            Direction::Last => true,
+            Direction::Left => self.position > 0,
+            Direction::Right => self.position < self.limit - 1,
+            Direction::Index { value } => value < self.limit,
+            Direction::Down => self.position + self.cells_per_row < self.limit,
+            Direction::Up => self.position >= self.cells_per_row,
+            Direction::PageStart => true,
+            Direction::PageEnd => true,
+        };
+        if !can_move {
             self.old_position = self.position;
             self.page_changed = false;
         }
@@ -110,11 +109,15 @@ impl Navigator {
     }
 
     pub fn can_move_next_page(&mut self) -> bool {
-        self.can_move(Direction::Index { value: self.next_page_start() })
+        self.can_move(Direction::Index {
+            value: self.next_page_start(),
+        })
     }
 
     pub fn can_move_prev_page(&mut self) -> bool {
-        self.can_move(Direction::Index { value: self.prev_page_start() })
+        self.can_move(Direction::Index {
+            value: self.prev_page_start(),
+        })
     }
 
     pub fn move_towards(&mut self, direction: Direction) {
@@ -135,11 +138,15 @@ impl Navigator {
     }
 
     pub fn move_next_page(&mut self) {
-        self.move_towards(Direction::Index { value: self.next_page_start() })
+        self.move_towards(Direction::Index {
+            value: self.next_page_start(),
+        })
     }
 
     pub fn move_prev_page(&mut self) {
-        self.move_towards(Direction::Index { value: self.prev_page_start() })
+        self.move_towards(Direction::Index {
+            value: self.prev_page_start(),
+        })
     }
 
     fn update_page_limits(&mut self) {

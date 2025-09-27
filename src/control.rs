@@ -65,6 +65,9 @@ mod tests {
         assert_eq!(Some(&Control::TogglePalette), default_controls().get("x"));
         assert_eq!(Some(&Control::ToggleExpand), default_controls().get("e"));
         assert_eq!(Some(&Control::ToggleFullSize), default_controls().get("f"));
-        assert_eq!(Some(&Control::ToggleSingleView), default_controls().get("period"));
+        assert_eq!(
+            Some(&Control::ToggleSingleView),
+            default_controls().get("period")
+        );
     }
 }

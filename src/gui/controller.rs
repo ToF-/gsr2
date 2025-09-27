@@ -1,6 +1,3 @@
-use crate::picture::Picture;
-use crate::direction::Direction;
-use crate::file_system::create_missing_thumbnails;
 use crate::CommandLineInterface;
 use crate::command::Command;
 use crate::control::Control;
@@ -8,19 +5,22 @@ use crate::control::Controls;
 use crate::control::default_controls;
 use crate::database::Database;
 use crate::default_values::{DEFAULT_HEIGHT, DEFAULT_WIDTH};
+use crate::direction::Direction;
 use crate::editor::Editor;
 use crate::environment::database_connection;
+use crate::file_system::create_missing_thumbnails;
 use crate::gallery::Gallery;
 use crate::gui::components::{make_application, startup_gui};
 use crate::gui::controller::gdk::Key;
+use crate::gui::navigator::Navigator;
 use crate::gui::state::State;
 use crate::gui::view::View;
-use crate::gui::navigator::Navigator;
 use crate::order::Order;
+use crate::picture::Picture;
+use gtk::gdk;
 use gtk::glib::clone;
 use gtk::prelude::*;
 use gtk::{self};
-use gtk::gdk;
 use std::cell::RefCell;
 use std::io::Result as IOResult;
 use std::rc::Rc;
@@ -54,7 +54,10 @@ impl Controller {
                     Ok(Controller {
                         args: cli,
                         gallery,
-                        navigator_rc: Rc::new(RefCell::new(Navigator::new(0, pictures_per_row as usize))),
+                        navigator_rc: Rc::new(RefCell::new(Navigator::new(
+                            0,
+                            pictures_per_row as usize,
+                        ))),
                         controls: default_controls(),
                         database,
                         editor: Editor::new(),
@@ -88,7 +91,8 @@ impl Controller {
 
     pub fn set_gallery(&mut self, gallery: Gallery) {
         self.gallery = gallery;
-        *self.navigator_rc.borrow_mut() = Navigator::new(self.gallery.len(), self.state().pictures_per_row);
+        *self.navigator_rc.borrow_mut() =
+            Navigator::new(self.gallery.len(), self.state().pictures_per_row);
     }
 
     pub fn current_picture(&self) -> Picture {
@@ -137,10 +141,10 @@ impl Controller {
 
     pub fn process_key(&mut self, key: Key) {
         match key.name() {
-            None => {},
+            None => {}
             Some(key_name) => match self.controls.get(&key_name.to_string()) {
                 Some(control) => self.process(control),
-                _ => {},
+                _ => {}
             },
         }
     }
@@ -158,7 +162,7 @@ impl Controller {
             Control::Up => self.move_up(),
             Control::Down => self.move_down(),
             Control::Quit => self.quit(),
-            _ => {},
+            _ => {}
         }
     }
     pub fn quit(&self) {
@@ -166,14 +170,14 @@ impl Controller {
             application_window.close()
         };
     }
-    
+
     pub fn move_start(&self) {
         let mut navigator = self.navigator_rc.borrow_mut();
         if navigator.can_move(Direction::PageStart) {
             navigator.move_towards(Direction::PageStart);
         }
     }
-    
+
     pub fn move_end(&self) {
         let mut navigator = self.navigator_rc.borrow_mut();
         if navigator.can_move(Direction::PageEnd) {
@@ -210,7 +214,7 @@ impl Controller {
 
     pub fn move_next(&self) {
         let mut navigator = self.navigator_rc.borrow_mut();
-        if ! self.state.full_size_on() {
+        if !self.state.full_size_on() {
             if self.state.single_view() {
                 if navigator.can_move(Direction::Right) {
                     navigator.move_towards(Direction::Right);
@@ -225,7 +229,7 @@ impl Controller {
 
     pub fn move_prev(&self) {
         let mut navigator = self.navigator_rc.borrow_mut();
-        if ! self.state.full_size_on() {
+        if !self.state.full_size_on() {
             if self.state.single_view() {
                 if navigator.can_move(Direction::Left) {
                     navigator.move_towards(Direction::Left);
@@ -240,14 +244,14 @@ impl Controller {
 
     pub fn move_first(&self) {
         let mut navigator = self.navigator_rc.borrow_mut();
-        if ! self.state.full_size_on() {
+        if !self.state.full_size_on() {
             navigator.move_towards(Direction::First);
         }
     }
 
     pub fn move_last(&self) {
         let mut navigator = self.navigator_rc.borrow_mut();
-        if ! self.state.full_size_on() {
+        if !self.state.full_size_on() {
             navigator.move_towards(Direction::Last);
         }
     }

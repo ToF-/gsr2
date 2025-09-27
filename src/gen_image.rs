@@ -6,9 +6,9 @@ pub const SINGLE_DOT: &str = "testdata/single_dot.png";
 pub const NINE_COLORS: &str = "testdata/nine_colors.png";
 pub const WHITE_SQUARE: &str = "testdata/white_square.png";
 
+use gtk::gdk;
 use gtk::glib;
 use gtk::prelude::*;
-use gtk::gdk;
 use image::{Rgb, RgbImage};
 
 pub fn no_thumbnail_picture() -> gtk::Picture {

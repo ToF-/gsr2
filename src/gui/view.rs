@@ -1,15 +1,15 @@
-use crate::picture::Picture;
-use crate::display::picture_label_display;
-use crate::control::Control;
 use crate::Controller;
+use crate::control::Control;
+use crate::display::picture_label_display;
 use crate::gen_image::no_thumbnail_picture;
 use crate::gui::components::*;
 use crate::gui::controller::RcController;
 use crate::paths::check_path_exists;
+use crate::picture::Picture;
+use gtk::ApplicationWindow;
+use gtk::gdk::Key;
 use gtk::glib::clone;
 use gtk::prelude::*;
-use gtk::{ApplicationWindow};
-use gtk::gdk::Key;
 use std::cell::RefCell;
 use std::path::PathBuf;
 use std::rc::Rc;
@@ -55,7 +55,7 @@ impl View {
         let multiple_view_scrolled_window = make_multiple_view_scrolled_window();
         multiple_view_scrolled_window.set_child(Some(&panel));
 
-        assert_eq!(panel_grid(&multiple_view_scrolled_window),panel);
+        assert_eq!(panel_grid(&multiple_view_scrolled_window), panel);
 
         let frame = make_frame();
         let picture = make_picture();
@@ -65,8 +65,8 @@ impl View {
         single_view_scrolled_window.set_child(Some(&frame));
 
         let view_stack = make_stack();
-        let _ = view_stack.add_named(&single_view_scrolled_window,Some("single_view"));
-        let _ = view_stack.add_named(&multiple_view_scrolled_window,Some("multiple_view"));
+        let _ = view_stack.add_named(&single_view_scrolled_window, Some("single_view"));
+        let _ = view_stack.add_named(&multiple_view_scrolled_window, Some("multiple_view"));
         if self.cells_per_row == 1 {
             view_stack.set_visible_child(&single_view_scrolled_window);
         } else {
@@ -113,42 +113,48 @@ impl View {
         let gesture_left_click = gtk::GestureClick::new();
         let view = self;
         gesture_left_click.set_button(1);
-        gesture_left_click.connect_pressed(clone!(@strong controller_rc, @strong view, @strong window, => move |_,_,_,_| {
-            let mut refresh = false;
-            if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-                controller.process(&Control::MovePrev);
-                if controller.navigator_rc().borrow().has_moved() {
-                    view.set_pictures(&window, &controller)
+        gesture_left_click.connect_pressed(
+            clone!(@strong controller_rc, @strong view, @strong window, => move |_,_,_,_| {
+                let mut refresh = false;
+                if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+                    controller.process(&Control::MovePrev);
+                    if controller.navigator_rc().borrow().has_moved() {
+                        view.set_pictures(&window, &controller)
+                    }
                 }
-            }
-        }));
+            }),
+        );
         left_pane.add_controller(gesture_left_click);
 
         let gesture_right_click = gtk::GestureClick::new();
         gesture_right_click.set_button(1);
-        gesture_right_click.connect_pressed(clone!(@strong controller_rc, @strong view, @strong window => move |_,_,_,_| {
-            if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-                controller.process(&Control::MoveNext);
-                if controller.navigator_rc().borrow().has_moved() {
-                    view.set_pictures(&window, &controller)
+        gesture_right_click.connect_pressed(
+            clone!(@strong controller_rc, @strong view, @strong window => move |_,_,_,_| {
+                if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+                    controller.process(&Control::MoveNext);
+                    if controller.navigator_rc().borrow().has_moved() {
+                        view.set_pictures(&window, &controller)
+                    }
                 }
-            }
-        }));
+            }),
+        );
         right_pane.add_controller(gesture_right_click);
 
         let evk = gtk::EventControllerKey::new();
         let view = self;
-        evk.connect_key_pressed(clone!(@strong controller_rc, @strong view, @strong window => move |_, key, _, _| {
-            if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-                view.set_label_for_current_picture(&window, &controller, false);
-                controller.process_key(key);
-                if controller.navigator_rc().borrow().page_changed() {
-                    view.set_pictures(&window, &controller)
+        evk.connect_key_pressed(
+            clone!(@strong controller_rc, @strong view, @strong window => move |_, key, _, _| {
+                if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+                    view.set_label_for_current_picture(&window, &controller, false);
+                    controller.process_key(key);
+                    if controller.navigator_rc().borrow().page_changed() {
+                        view.set_pictures(&window, &controller)
+                    };
+                    view.set_label_for_current_picture(&window, &controller, true)
                 };
-                view.set_label_for_current_picture(&window, &controller, true)
-            };
-            gtk::Inhibit(false)
-        }));
+                gtk::Inhibit(false)
+            }),
+        );
         window.add_controller(evk);
     }
 
@@ -164,19 +170,30 @@ impl View {
         gtkPicture.set_filename(Some(file_path));
     }
 
-    fn set_label_for_current_picture(&self, application_window: &ApplicationWindow, controller: &Controller, with_focus: bool) {
+    fn set_label_for_current_picture(
+        &self,
+        application_window: &ApplicationWindow,
+        controller: &Controller,
+        with_focus: bool,
+    ) {
         let navigator_rc = controller.navigator_rc();
         let navigator = navigator_rc.borrow();
         let position = navigator.position();
         let picture = controller.current_picture();
-        if ! controller.state().single_view() {
+        if !controller.state().single_view() {
             if let Some((row, col)) = navigator.coords_from_position(position) {
                 let grid = multiple_view_grid(application_window);
                 if let Some(cell_box) = grid.child_at(col as i32, row as i32) {
-                    let gtkPicture = cell_box.first_child().unwrap()
-                        .downcast::<gtk::Picture>().unwrap();
-                    let label = gtkPicture.next_sibling().unwrap()
-                        .downcast::<gtk::Label>().unwrap();
+                    let gtkPicture = cell_box
+                        .first_child()
+                        .unwrap()
+                        .downcast::<gtk::Picture>()
+                        .unwrap();
+                    let label = gtkPicture
+                        .next_sibling()
+                        .unwrap()
+                        .downcast::<gtk::Label>()
+                        .unwrap();
                     label.set_text(&picture_label_display(&picture.label(), with_focus))
                 }
             }
@@ -204,7 +221,7 @@ impl View {
                     .unwrap();
                 while let Some(child) = cell.first_child() {
                     cell.remove(&child)
-                };
+                }
                 if let Some(index) = navigator.position_from_coords(coords.0, coords.1) {
                     let picture = gallery.picture(index);
                     let gtkPicture =
@@ -227,7 +244,7 @@ impl View {
     pub fn set_pictures(
         &self,
         application_window: &gtk::ApplicationWindow,
-        controller: &Controller
+        controller: &Controller,
     ) {
         let pictures_per_row = controller.state().pictures_per_row();
         if pictures_per_row == 1 {

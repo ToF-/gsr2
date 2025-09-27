@@ -194,7 +194,7 @@ moving_to_beginning_of_page	/Users/christophethibaut/Coding/gsr2/src/gui/navigat
 moving_to_end_of_page	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn moving_to_end_of_page() {$/;"	f
 moving_up_moves_to_entry_one_row_above	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn moving_up_moves_to_entry_one_row_above() {$/;"	f
 multiple_view_grid	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn multiple_view_grid(application_window: &gtk::ApplicationWindow) -> gtk::Grid {$/;"	f
-multiple_view_scrolled_window	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn multiple_view_scrolled_window(application_window: &gtk::ApplicationWindow) -> gtk::ScrolledWindow {$/;"	f
+multiple_view_scrolled_window	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn multiple_view_scrolled_window($/;"	f
 my_app_state	/Users/christophethibaut/Coding/gsr2/src/application_state.old.rs	/^    fn my_app_state() -> ApplicationState {$/;"	f
 my_db	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    pub fn my_db() -> Database {$/;"	f
 navigator	/Users/christophethibaut/Coding/gsr2/src/application_state.old.rs	/^    pub fn navigator(&self) -> &Navigator {$/;"	f
@@ -261,7 +261,7 @@ set_gallery	/Users/christophethibaut/Coding/gsr2/src/application_state.old.rs	/^
 set_gallery	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_gallery(&mut self, gallery: Gallery) {$/;"	f
 set_image_data	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    pub fn set_image_data(&mut self, image_data: ImageData) {$/;"	f
 set_label_at	/Users/christophethibaut/Coding/gsr2/src/gui/application.old.rs	/^fn set_label_at(col: i32, row: i32, label_content: &str, gui: &GraphicalUserInterface) {$/;"	f
-set_label_for_current_picture	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    fn set_label_for_current_picture(&self, application_window: &ApplicationWindow, controller: &Controller, with_focus: bool) {$/;"	f
+set_label_for_current_picture	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    fn set_label_for_current_picture($/;"	f
 set_label_for_picture_at_new_coords	/Users/christophethibaut/Coding/gsr2/src/gui/application.old.rs	/^fn set_label_for_picture_at_new_coords(gui: &GraphicalUserInterface) {$/;"	f
 set_page_changed	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn set_page_changed(&mut self) {$/;"	f
 set_picture_at	/Users/christophethibaut/Coding/gsr2/src/gui/application.old.rs	/^fn set_picture_at(col: i32, row: i32, gui: &GraphicalUserInterface) {$/;"	f
@@ -278,7 +278,8 @@ setup_components	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub 
 single_view	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn single_view(&self) -> bool {$/;"	f
 single_view_mode	/Users/christophethibaut/Coding/gsr2/src/gui/application.old.rs	/^fn single_view_mode(gui: &GraphicalUserInterface) -> bool {$/;"	f
 single_view_picture	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn single_view_picture(application_window: &gtk::ApplicationWindow) -> gtk::Picture {$/;"	f
-single_view_scrolled_window	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn single_view_scrolled_window(application_window: &gtk::ApplicationWindow) -> gtk::ScrolledWindow {$/;"	f
+single_view_picture_label	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn single_view_picture_label(application_window: &gtk::ApplicationWindow) -> gtk::Label {$/;"	f
+single_view_scrolled_window	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn single_view_scrolled_window($/;"	f
 sort_and_compare_lists	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    fn sort_and_compare_lists() -> bool {$/;"	f
 sort_by	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    pub fn sort_by(&mut self, order: Order) {$/;"	f
 sorting_by_different_criteria	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^    fn sorting_by_different_criteria() {$/;"	f

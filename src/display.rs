@@ -16,9 +16,7 @@ fn full_size_display(on: bool) -> String {
 }
 
 pub fn picture_label_display(label: &str, with_focus: bool) -> String {
-    format!("{}{}",
-        if with_focus { FOCUS_SYMBOL } else { "" },
-        label)
+    format!("{}{}", if with_focus { FOCUS_SYMBOL } else { "" }, label)
 }
 
 // pub fn title_display(application_state: &ApplicationState) -> String {
@@ -37,7 +35,7 @@ pub fn picture_label_display(label: &str, with_focus: bool) -> String {
 //     use crate::direction::Direction;
 //     use crate::gallery::Gallery;
 //     use crate::order::Order;
-// 
+//
 //     fn an_application_state() -> ApplicationState {
 //         let mut application_state =
 //             ApplicationState::new().expect("cannot create application state");
@@ -49,19 +47,19 @@ pub fn picture_label_display(label: &str, with_focus: bool) -> String {
 //         application_state.set_gallery(gallery, ONE_PICTURE_PER_ROW);
 //         application_state
 //     }
-// 
+//
 //     #[test]
 //     fn display_title_for_application_state() {
 //         assert_eq!("#0 nine_colors.png", title_display(&an_application_state()));
 //     }
-// 
+//
 //     #[test]
 //     fn display_position_for_application_state() {
 //         let mut application_state = an_application_state();
 //         application_state.move_towards(Direction::Right);
 //         assert_eq!("#1 single_dot.png", title_display(&application_state));
 //     }
-// 
+//
 //     #[test]
 //     fn display_title_for_application_state_with_expand_on() {
 //         let mut application_state = an_application_state();
@@ -71,7 +69,7 @@ pub fn picture_label_display(label: &str, with_focus: bool) -> String {
 //             title_display(&application_state)
 //         )
 //     }
-// 
+//
 //     #[test]
 //     fn display_title_for_application_state_with_full_size_on() {
 //         let mut application_state = an_application_state();

@@ -1,10 +1,10 @@
-use crate::gen_image::create_thumbnail_file;
-use std::path::PathBuf;
-use crate::paths::check_path_exists;
-use crate::gallery::Gallery;
 use crate::default_values::THUMB_SUFFIX;
+use crate::gallery::Gallery;
+use crate::gen_image::create_thumbnail_file;
+use crate::paths::check_path_exists;
 use crate::paths::{check_path, check_path_is_a_jpg_or_png_file, check_picture_file};
 use std::io::Result;
+use std::path::PathBuf;
 use walkdir::WalkDir;
 
 pub fn get_all_picture_file_paths(path: &str) -> Result<Vec<String>> {
@@ -35,14 +35,13 @@ pub fn create_missing_thumbnails(gallery: &Gallery) {
         let file_path = picture.file_path();
         let thumbnail_file_path = picture.thumbnail_file_path();
         match check_path_exists(&PathBuf::from(&thumbnail_file_path)) {
-            Ok(_) => {},
+            Ok(_) => {}
             Err(_) => match create_thumbnail_file(&thumbnail_file_path, &file_path) {
-                Ok(_) => println!("creating thumbnail {}", thumbnail_file_path), 
+                Ok(_) => println!("creating thumbnail {}", thumbnail_file_path),
                 Err(err) => {
                     eprintln!("{}", err);
-                },
-            }
-
+                }
+            },
         }
     }
 }
