@@ -53,6 +53,8 @@ impl View {
         let multiple_view_scrolled_window = make_multiple_view_scrolled_window();
         multiple_view_scrolled_window.set_child(Some(&panel));
 
+        assert_eq!(panel_grid(&multiple_view_scrolled_window),panel);
+
         let frame = make_frame();
         let picture = make_picture();
         frame.append(&picture);
@@ -60,8 +62,8 @@ impl View {
         single_view_scrolled_window.set_child(Some(&frame));
 
         let view_stack = make_stack();
-        let _ = view_stack.add_child(&single_view_scrolled_window);
-        let _ = view_stack.add_child(&multiple_view_scrolled_window);
+        let _ = view_stack.add_named(&single_view_scrolled_window,Some("single_view"));
+        let _ = view_stack.add_named(&multiple_view_scrolled_window,Some("multiple_view"));
         if self.cells_per_row == 1 {
             view_stack.set_visible_child(&single_view_scrolled_window);
         } else {
@@ -87,6 +89,7 @@ impl View {
         if let Ok(controller) = controller_rc.try_borrow() {
             let view = controller.view();
             if let Ok(application_window) = view.application_window_rc().try_borrow() {
+                println!("building, set_pictures");
                 view.set_pictures(&application_window, controller_rc);
                 application_window.present()
             } else {
@@ -98,12 +101,12 @@ impl View {
     }
 
     pub fn attach_events(&self, window: &gtk::ApplicationWindow, controller_rc: &RcController) {
-        let stack = window.first_child().unwrap();
-        let single_view_scrolled_window = stack.first_child().unwrap();
-        let multiple_view_scrolled_window = stack.last_child().unwrap();
+        let stack = view_stack(window);
+        let single_view_scrolled_window = single_view_scrolled_window(window);
+        let multiple_view_scrolled_window = multiple_view_scrolled_window(window);
         let panel = multiple_view_scrolled_window.first_child().unwrap();
-        let left_pane = panel.first_child().unwrap();
-        let right_pane = panel.last_child().unwrap();
+        let left_pane = left_pane(window);
+        let right_pane = right_pane(window);
 
         let gesture_left_click = gtk::GestureClick::new();
         let view = self;
@@ -112,6 +115,7 @@ impl View {
             if let Ok(mut controller) = controller_rc.try_borrow_mut() {
                 controller.process(&Control::MovePrev);
             }
+            println!("gesture_left_click, set_pictures");
             view.set_pictures(&window, &controller_rc);
         }));
         left_pane.add_controller(gesture_left_click);
@@ -122,6 +126,7 @@ impl View {
             if let Ok(mut controller) = controller_rc.try_borrow_mut() {
                 controller.process(&Control::MoveNext);
             }
+            println!("gesture_right_click, set_pictures");
             view.set_pictures(&window, &controller_rc);
         }));
         right_pane.add_controller(gesture_right_click);
@@ -132,6 +137,7 @@ impl View {
             if let Ok(mut controller) = controller_rc.try_borrow_mut() {
                 controller.process_key(key);
             }
+            println!("key_pressed, set_pictures");
             view.set_pictures(&window, &controller_rc);
             gtk::Inhibit(false)
         }));
