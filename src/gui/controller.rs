@@ -151,6 +151,7 @@ impl Controller {
             Control::MovePrev => self.move_prev(),
             Control::MoveLast => self.move_last(),
             Control::MoveFirst => self.move_first(),
+            Control::Right => self.move_right(),
             Control::Quit => self.quit(),
             _ => {},
         }
@@ -161,6 +162,13 @@ impl Controller {
         };
     }
     
+    pub fn move_right(&self) {
+        let mut navigator = self.navigator_rc.borrow_mut();
+        if navigator.can_move(Direction::Right) {
+            navigator.move_towards(Direction::Right);
+        }
+    }
+
     pub fn move_next(&self) {
         let mut navigator = self.navigator_rc.borrow_mut();
         if ! self.state.full_size_on() {
