@@ -176,10 +176,8 @@ impl Controller {
     pub fn toggle_single_view(&mut self) {
         self.state.toggle_single_view();
         let mut navigator = self.navigator_rc.borrow_mut();
-        println!("{:?}",navigator);
         navigator.set_pictures_per_row(self.state.pictures_per_row);
         navigator.set_page_changed();
-        println!("{:?}",navigator);
     }
 
     pub fn move_start(&self) {

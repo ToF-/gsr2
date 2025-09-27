@@ -228,7 +228,7 @@ impl View {
                 if let Some(index) = navigator.position_from_coords(coords.0, coords.1) {
                     let picture = gallery.picture(index);
                     let gtkPicture =
-                        match check_path_exists(&PathBuf::from(picture.view_file_path(true))) {
+                        match check_path_exists(&PathBuf::from(picture.view_file_path(cells_per_row == 10))) {
                             Ok(file_path) => {
                                 let gtkPicture = make_picture();
                                 gtkPicture.set_filename(Some(file_path));
