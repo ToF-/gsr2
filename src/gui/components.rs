@@ -228,7 +228,7 @@ pub fn right_pane(application_window: &gtk::ApplicationWindow) -> gtk::Label {
     panel_grid.child_at(2,0).unwrap().downcast::<gtk::Label>().unwrap()
 }
 pub fn multiple_view_grid(application_window: &gtk::ApplicationWindow) -> gtk::Grid {
-    panel_grid(&visible_stack_child_scrolled_window(&view_stack(
-        application_window,
-    )))
+    let panel_grid = panel_grid(
+        &multiple_view_scrolled_window(application_window));
+    panel_grid.child_at(1,0).unwrap().downcast::<gtk::Grid>().unwrap()
 }

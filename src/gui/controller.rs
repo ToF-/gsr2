@@ -189,8 +189,8 @@ impl Controller {
         let mut navigator = self.navigator_rc.borrow_mut();
         if ! self.state.full_size_on() {
             if self.state.single_view() {
-                if navigator.can_move(Direction::Right) {
-                    navigator.move_towards(Direction::Right);
+                if navigator.can_move(Direction::Left) {
+                    navigator.move_towards(Direction::Left);
                     true
                 } else {
                     false

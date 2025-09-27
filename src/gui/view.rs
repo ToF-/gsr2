@@ -160,6 +160,31 @@ impl View {
         gtkPicture.set_filename(Some(file_path));
     }
 
+    // fn set_picture_for_cell_at(&self,
+    //     application_window: &ApplicationWindow,
+    //     controller: &Controller,
+    //     col: usize, row: usize) {
+    //     let navigator_rc = controller.navigator_rc();
+    //     let navigator = navigator_rc.borrow();
+    //     let gallery = controller.gallery();
+
+    //     ddlet widget = gui.multiple_view_grid.child_at(col as i32, row as i32).expect("cannot find cell box in multiple view grid");
+    //     let cell_box = widget.downcast::<gtk::Box>().expect("cannot downcast widget to Box");
+
+    //     while let Some(child) = cell_box.first_child() {
+    //         cell_box.remove(&child)
+    //     };
+    //     if let Some(index) = catalog.index_from_position((col,row)) {
+    //         if !catalog.discarded().contains(&index) {
+    //             let entry = catalog.entry_at_index(index).unwrap();
+    //             let picture = picture_for_entry(entry, catalog);
+    //             let label = label_for_entry(entry, index == catalog.index().unwrap());
+    //             cell_box.append(&picture);
+    //             cell_box.append(&label);
+    //         }
+    //     }
+    // }
+
     fn set_pictures_for_multiple_view(
         &self,
         application_window: &ApplicationWindow,
@@ -170,22 +195,7 @@ impl View {
         let navigator_rc = controller.navigator_rc();
         let navigator = navigator_rc.borrow();
         let gallery = controller.gallery();
-        let grid = view_stack(application_window)
-            .visible_child()
-            .unwrap()
-            .downcast::<gtk::ScrolledWindow>()
-            .unwrap()
-            .first_child()
-            .unwrap()
-            .first_child()
-            .unwrap()
-            .downcast::<gtk::Grid>()
-            .unwrap()
-            .child_at(1, 0)
-            .unwrap()
-            .downcast::<gtk::Grid>()
-            .unwrap();
-
+        let grid = multiple_view_grid(application_window);
         for col in 0..cells_per_row {
             for row in 0..cells_per_row {
                 let coords = (row as usize, col as usize);
