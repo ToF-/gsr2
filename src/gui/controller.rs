@@ -1,3 +1,4 @@
+use crate::direction::Direction;
 use crate::file_system::create_missing_thumbnails;
 use crate::CommandLineInterface;
 use crate::application_state::ApplicationState;
@@ -132,14 +133,15 @@ impl Controller {
         match key.name() {
             None => {}
             Some(key_name) => match self.controls.get(&key_name.to_string()) {
-                Some(control) => self.process(control),
+                // Some(control) => self.process(control),
                 _ => {}
             },
         }
     }
 
-    pub fn process(&self, control: &Control) {
+    pub fn process(&mut self, control: &Control) {
         match control {
+            Control::MoveNext => self.move_next(),
             Control::Quit => self.quit(),
             _ => {}
         }
@@ -147,6 +149,20 @@ impl Controller {
     pub fn quit(&self) {
         if let Ok(application_window) = self.view.application_window_rc().try_borrow_mut() {
             application_window.close()
+        }
+    }
+    
+    pub fn move_next(&mut self) {
+        if ! self.state.full_size_on() {
+            if self.state.single_view() {
+                if self.navigator.can_move(Direction::Right) {
+                    self.navigator.move_towards(Direction::Right)
+                }
+            } else {
+                if self.navigator.can_move_next_page() {
+                    self.navigator.move_next_page()
+                }
+            }
         }
     }
 }

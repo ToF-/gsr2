@@ -21,4 +21,12 @@ impl State {
     pub fn pictures_per_row(&self) -> usize {
         self.pictures_per_row
     }
+
+    pub fn single_view(&self) -> bool {
+        self.pictures_per_row == 1
+    }
+
+    pub fn full_size_on(&self) -> bool {
+        self.full_size_on
+    }
 }
