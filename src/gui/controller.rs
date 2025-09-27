@@ -151,7 +151,12 @@ impl Controller {
             Control::MovePrev => self.move_prev(),
             Control::MoveLast => self.move_last(),
             Control::MoveFirst => self.move_first(),
+            Control::MoveStartPage => self.move_start(),
+            Control::MoveEndPage => self.move_end(),
+            Control::Left => self.move_left(),
             Control::Right => self.move_right(),
+            Control::Up => self.move_up(),
+            Control::Down => self.move_down(),
             Control::Quit => self.quit(),
             _ => {},
         }
@@ -162,10 +167,44 @@ impl Controller {
         };
     }
     
+    pub fn move_start(&self) {
+        let mut navigator = self.navigator_rc.borrow_mut();
+        if navigator.can_move(Direction::PageStart) {
+            navigator.move_towards(Direction::PageStart);
+        }
+    }
+    
+    pub fn move_end(&self) {
+        let mut navigator = self.navigator_rc.borrow_mut();
+        if navigator.can_move(Direction::PageEnd) {
+            navigator.move_towards(Direction::PageEnd);
+        }
+    }
     pub fn move_right(&self) {
         let mut navigator = self.navigator_rc.borrow_mut();
         if navigator.can_move(Direction::Right) {
             navigator.move_towards(Direction::Right);
+        }
+    }
+
+    pub fn move_left(&self) {
+        let mut navigator = self.navigator_rc.borrow_mut();
+        if navigator.can_move(Direction::Left) {
+            navigator.move_towards(Direction::Left);
+        }
+    }
+
+    pub fn move_up(&self) {
+        let mut navigator = self.navigator_rc.borrow_mut();
+        if navigator.can_move(Direction::Up) {
+            navigator.move_towards(Direction::Up);
+        }
+    }
+
+    pub fn move_down(&self) {
+        let mut navigator = self.navigator_rc.borrow_mut();
+        if navigator.can_move(Direction::Down) {
+            navigator.move_towards(Direction::Down);
         }
     }
 

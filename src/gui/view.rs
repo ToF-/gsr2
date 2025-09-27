@@ -1,3 +1,4 @@
+use crate::display::picture_label_display;
 use crate::control::Control;
 use crate::Controller;
 use crate::gen_image::no_thumbnail_picture;
@@ -137,10 +138,12 @@ impl View {
         let view = self;
         evk.connect_key_pressed(clone!(@strong controller_rc, @strong view, @strong window => move |_, key, _, _| {
             if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+                view.set_label_for_current_picture(&window, &controller, false);
                 controller.process_key(key);
-                if controller.navigator_rc().borrow().has_moved() {
+                if controller.navigator_rc().borrow().page_changed() {
                     view.set_pictures(&window, &controller)
-                }
+                };
+                view.set_label_for_current_picture(&window, &controller, true)
             };
             gtk::Inhibit(false)
         }));
@@ -158,30 +161,22 @@ impl View {
         gtkPicture.set_filename(Some(file_path));
     }
 
-    // fn set_picture_for_cell_at(&self,
-    //     application_window: &ApplicationWindow,
-    //     controller: &Controller,
-    //     col: usize, row: usize) {
-    //     let navigator_rc = controller.navigator_rc();
-    //     let navigator = navigator_rc.borrow();
-    //     let gallery = controller.gallery();
-
-    //     ddlet widget = gui.multiple_view_grid.child_at(col as i32, row as i32).expect("cannot find cell box in multiple view grid");
-    //     let cell_box = widget.downcast::<gtk::Box>().expect("cannot downcast widget to Box");
-
-    //     while let Some(child) = cell_box.first_child() {
-    //         cell_box.remove(&child)
-    //     };
-    //     if let Some(index) = catalog.index_from_position((col,row)) {
-    //         if !catalog.discarded().contains(&index) {
-    //             let entry = catalog.entry_at_index(index).unwrap();
-    //             let picture = picture_for_entry(entry, catalog);
-    //             let label = label_for_entry(entry, index == catalog.index().unwrap());
-    //             cell_box.append(&picture);
-    //             cell_box.append(&label);
-    //         }
-    //     }
-    // }
+    fn set_label_for_current_picture(&self, application_window: &ApplicationWindow, controller: &Controller, with_focus: bool) {
+        let navigator_rc = controller.navigator_rc();
+        let navigator = navigator_rc.borrow();
+        let position = navigator.position();
+        let picture = controller.current_picture();
+        if let Some((row, col)) = navigator.coords_from_position(position) {
+            let grid = multiple_view_grid(application_window);
+            if let Some(cell_box) = grid.child_at(col as i32, row as i32) {
+                let gtkPicture = cell_box.first_child().unwrap()
+                    .downcast::<gtk::Picture>().unwrap();
+                let label = gtkPicture.next_sibling().unwrap()
+                    .downcast::<gtk::Label>().unwrap();
+                label.set_text(&picture_label_display(&picture.label(), with_focus))
+            }
+        }
+    }
 
     fn set_pictures_for_multiple_view(
         &self,
@@ -229,7 +224,6 @@ impl View {
         application_window: &gtk::ApplicationWindow,
         controller: &Controller
     ) {
-        println!("set_pictures");
         let pictures_per_row = controller.state().pictures_per_row();
         if pictures_per_row == 1 {
             self.set_picture_for_single_view(application_window, &controller)
