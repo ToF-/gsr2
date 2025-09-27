@@ -89,7 +89,6 @@ impl View {
         if let Ok(controller) = controller_rc.try_borrow() {
             let view = controller.view();
             if let Ok(application_window) = view.application_window_rc().try_borrow() {
-                println!("building, set_pictures");
                 view.set_pictures(&application_window, controller_rc);
                 application_window.present()
             } else {
@@ -112,33 +111,39 @@ impl View {
         let view = self;
         gesture_left_click.set_button(1);
         gesture_left_click.connect_pressed(clone!(@strong controller_rc, @strong view, @strong window, => move |_,_,_,_| {
+            let mut refresh = false;
             if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-                controller.process(&Control::MovePrev);
-            }
-            println!("gesture_left_click, set_pictures");
-            view.set_pictures(&window, &controller_rc);
+                refresh = controller.process(&Control::MovePrev)
+            };
+            if refresh {
+                view.set_pictures(&window, &controller_rc)
+            };
         }));
         left_pane.add_controller(gesture_left_click);
 
         let gesture_right_click = gtk::GestureClick::new();
         gesture_right_click.set_button(1);
         gesture_right_click.connect_pressed(clone!(@strong controller_rc, @strong view, @strong window => move |_,_,_,_| {
+            let mut refresh = false;
             if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-                controller.process(&Control::MoveNext);
-            }
-            println!("gesture_right_click, set_pictures");
-            view.set_pictures(&window, &controller_rc);
+                refresh = controller.process(&Control::MoveNext)
+            };
+            if refresh {
+                view.set_pictures(&window, &controller_rc)
+            };
         }));
         right_pane.add_controller(gesture_right_click);
 
         let evk = gtk::EventControllerKey::new();
         let view = self;
         evk.connect_key_pressed(clone!(@strong controller_rc, @strong view, @strong window => move |_, key, _, _| {
+            let mut refresh = false;
             if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-                controller.process_key(key);
+                refresh = controller.process_key(key);
             }
-            println!("key_pressed, set_pictures");
-            view.set_pictures(&window, &controller_rc);
+            if refresh {
+                view.set_pictures(&window, &controller_rc)
+            };
             gtk::Inhibit(false)
         }));
         window.add_controller(evk);
@@ -181,7 +186,6 @@ impl View {
             .downcast::<gtk::Grid>()
             .unwrap();
 
-        println!("set pictures from {}",navigator.page_start());
         for col in 0..cells_per_row {
             for row in 0..cells_per_row {
                 let coords = (row as usize, col as usize);

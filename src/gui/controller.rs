@@ -149,6 +149,8 @@ impl Controller {
         match control {
             Control::MoveNext => self.move_next(),
             Control::MovePrev => self.move_prev(),
+            Control::MoveLast => self.move_last(),
+            Control::MoveFirst => self.move_first(),
             Control::Quit => self.quit(),
             _ => false
         }
@@ -203,6 +205,26 @@ impl Controller {
             }
         } else {
         false
+        }
+    }
+
+    pub fn move_first(&self) -> bool {
+        let mut navigator = self.navigator_rc.borrow_mut();
+        if ! self.state.full_size_on() {
+            navigator.move_towards(Direction::First);
+            true
+        } else {
+            false
+        }
+    }
+
+    pub fn move_last(&self) -> bool {
+        let mut navigator = self.navigator_rc.borrow_mut();
+        if ! self.state.full_size_on() {
+            navigator.move_towards(Direction::Last);
+            true
+        } else {
+            false
         }
     }
 }
