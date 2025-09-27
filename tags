@@ -67,9 +67,9 @@ bind_components	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^   
 build_and_run_app	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn build_and_run_app(controller: Controller) -> IOResult<()> {$/;"	f
 build_gui	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn build_gui(application: &gtk::Application, controller_rc: &RcController) {$/;"	f
 can_move	/Users/christophethibaut/Coding/gsr2/src/application_state.old.rs	/^    pub fn can_move(&self, direction: Direction) -> bool {$/;"	f
-can_move	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn can_move(&self, direction: Direction) -> bool {$/;"	f
-can_move_next_page	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn can_move_next_page(&self) -> bool {$/;"	f
-can_move_prev_page	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn can_move_prev_page(&self) -> bool {$/;"	f
+can_move	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn can_move(&mut self, direction: Direction) -> bool {$/;"	f
+can_move_next_page	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn can_move_next_page(&mut self) -> bool {$/;"	f
+can_move_prev_page	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn can_move_prev_page(&mut self) -> bool {$/;"	f
 cancel_input	/Users/christophethibaut/Coding/gsr2/src/editor.rs	/^    pub fn cancel_input(&mut self) {$/;"	f
 cancelling_set_editing_to_false	/Users/christophethibaut/Coding/gsr2/src/editor.rs	/^    fn cancelling_set_editing_to_false() {$/;"	f
 cannot_append_forbidden_chars	/Users/christophethibaut/Coding/gsr2/src/editor.rs	/^    fn cannot_append_forbidden_chars() {$/;"	f
@@ -162,6 +162,7 @@ make_cell_box	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub f
 make_frame	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn make_frame() -> gtk::Box {$/;"	f
 make_grid	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn make_grid(cells_per_row: i32) -> gtk::Grid {$/;"	f
 make_gtk_picture_from_picture	/Users/christophethibaut/Coding/gsr2/src/gui/application.old.rs	/^fn make_gtk_picture_from_picture($/;"	f
+make_label	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn make_label() -> gtk::Label {$/;"	f
 make_label_for_picture	/Users/christophethibaut/Coding/gsr2/src/gui/application.old.rs	/^fn make_label_for_picture(gui: &GraphicalUserInterface, index: usize) -> gtk::Label {$/;"	f
 make_label_for_picture	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn make_label_for_picture(picture: &Picture, with_focus: bool) -> gtk::Label {$/;"	f
 make_multiple_view_scrolled_window	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn make_multiple_view_scrolled_window() -> gtk::ScrolledWindow {$/;"	f
@@ -173,14 +174,20 @@ make_picture_for	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pu
 make_single_view_scrolled_window	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn make_single_view_scrolled_window() -> gtk::ScrolledWindow {$/;"	f
 make_stack	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn make_stack() -> gtk::Stack {$/;"	f
 make_text	/Users/christophethibaut/Coding/gsr2/src/gui/application.old.rs	/^fn make_text() -> gtk::Text {$/;"	f
+move_down	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn move_down(&self) {$/;"	f
+move_end	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn move_end(&self) {$/;"	f
 move_first	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn move_first(&self) {$/;"	f
 move_last	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn move_last(&self) {$/;"	f
+move_left	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn move_left(&self) {$/;"	f
 move_next	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn move_next(&self) {$/;"	f
 move_next_page	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn move_next_page(&mut self) {$/;"	f
 move_prev	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn move_prev(&self) {$/;"	f
 move_prev_page	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn move_prev_page(&mut self) {$/;"	f
+move_right	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn move_right(&self) {$/;"	f
+move_start	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn move_start(&self) {$/;"	f
 move_towards	/Users/christophethibaut/Coding/gsr2/src/application_state.old.rs	/^    pub fn move_towards(&mut self, direction: Direction) {$/;"	f
 move_towards	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn move_towards(&mut self, direction: Direction) {$/;"	f
+move_up	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn move_up(&self) {$/;"	f
 moving_down_moves_to_entry_one_row_further	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn moving_down_moves_to_entry_one_row_further() {$/;"	f
 moving_to_a_specific_index	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn moving_to_a_specific_index() {$/;"	f
 moving_to_beginning_of_page	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn moving_to_beginning_of_page() {$/;"	f
@@ -254,6 +261,7 @@ set_gallery	/Users/christophethibaut/Coding/gsr2/src/application_state.old.rs	/^
 set_gallery	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_gallery(&mut self, gallery: Gallery) {$/;"	f
 set_image_data	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    pub fn set_image_data(&mut self, image_data: ImageData) {$/;"	f
 set_label_at	/Users/christophethibaut/Coding/gsr2/src/gui/application.old.rs	/^fn set_label_at(col: i32, row: i32, label_content: &str, gui: &GraphicalUserInterface) {$/;"	f
+set_label_for_current_picture	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    fn set_label_for_current_picture(&self, application_window: &ApplicationWindow, controller: &Controller, with_focus: bool) {$/;"	f
 set_label_for_picture_at_new_coords	/Users/christophethibaut/Coding/gsr2/src/gui/application.old.rs	/^fn set_label_for_picture_at_new_coords(gui: &GraphicalUserInterface) {$/;"	f
 set_page_changed	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn set_page_changed(&mut self) {$/;"	f
 set_picture_at	/Users/christophethibaut/Coding/gsr2/src/gui/application.old.rs	/^fn set_picture_at(col: i32, row: i32, gui: &GraphicalUserInterface) {$/;"	f

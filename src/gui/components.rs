@@ -59,6 +59,12 @@ pub fn make_picture() -> gtk::Picture {
     GtkPicture::builder().hexpand(true).vexpand(true).build()
 }
 
+pub fn make_label() -> gtk::Label {
+    let label = gtk::Label::new(None);
+    label.set_valign(Align::Center);
+    label.set_halign(Align::Center);
+    label
+}
 
 pub fn make_label_for_picture(picture: &Picture, with_focus: bool) -> gtk::Label {
     let label = gtk::Label::new(Some(&picture_label_display(&picture.label(), with_focus)));
@@ -208,6 +214,13 @@ pub fn single_view_picture(application_window: &gtk::ApplicationWindow) -> gtk::
     picture(&frame(&visible_stack_child_scrolled_window(&view_stack(
         application_window,
     ))))
+}
+
+pub fn single_view_picture_label(application_window: &gtk::ApplicationWindow) -> gtk::Label {
+    let picture = picture(&frame(&visible_stack_child_scrolled_window(&view_stack(
+        application_window,
+    ))));
+    picture.next_sibling().unwrap().downcast::<gtk::Label>().unwrap()
 }
 
 pub fn panel_grid(window: &gtk::ScrolledWindow) -> gtk::Grid {

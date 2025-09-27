@@ -1,3 +1,4 @@
+use crate::picture::Picture;
 use crate::display::picture_label_display;
 use crate::control::Control;
 use crate::Controller;
@@ -59,6 +60,7 @@ impl View {
         let frame = make_frame();
         let picture = make_picture();
         frame.append(&picture);
+        frame.append(&make_label());
         let single_view_scrolled_window = make_single_view_scrolled_window();
         single_view_scrolled_window.set_child(Some(&frame));
 
@@ -156,8 +158,9 @@ impl View {
         controller: &Controller,
     ) {
         let gallery = controller.gallery();
+        let picture: Picture = controller.current_picture();
         let gtkPicture: gtk::Picture = single_view_picture(application_window);
-        let file_path = controller.current_picture().file_path();
+        let file_path = picture.file_path();
         gtkPicture.set_filename(Some(file_path));
     }
 
@@ -166,14 +169,16 @@ impl View {
         let navigator = navigator_rc.borrow();
         let position = navigator.position();
         let picture = controller.current_picture();
-        if let Some((row, col)) = navigator.coords_from_position(position) {
-            let grid = multiple_view_grid(application_window);
-            if let Some(cell_box) = grid.child_at(col as i32, row as i32) {
-                let gtkPicture = cell_box.first_child().unwrap()
-                    .downcast::<gtk::Picture>().unwrap();
-                let label = gtkPicture.next_sibling().unwrap()
-                    .downcast::<gtk::Label>().unwrap();
-                label.set_text(&picture_label_display(&picture.label(), with_focus))
+        if ! controller.state().single_view() {
+            if let Some((row, col)) = navigator.coords_from_position(position) {
+                let grid = multiple_view_grid(application_window);
+                if let Some(cell_box) = grid.child_at(col as i32, row as i32) {
+                    let gtkPicture = cell_box.first_child().unwrap()
+                        .downcast::<gtk::Picture>().unwrap();
+                    let label = gtkPicture.next_sibling().unwrap()
+                        .downcast::<gtk::Label>().unwrap();
+                    label.set_text(&picture_label_display(&picture.label(), with_focus))
+                }
             }
         }
     }

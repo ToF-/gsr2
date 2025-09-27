@@ -131,6 +131,7 @@ impl Navigator {
             Direction::PageEnd => self.position = self.page_end,
         };
         self.update_page_limits();
+        println!("{}", self.position);
     }
 
     pub fn move_next_page(&mut self) {
