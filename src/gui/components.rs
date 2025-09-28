@@ -1,12 +1,12 @@
-use gtk::gio::File;
-use std::path::Path;
 use crate::default_values::{DEFAULT_HEIGHT, DEFAULT_WIDTH};
 use crate::display::picture_label_display;
 use crate::picture::Picture;
+use gtk::gio::File;
 use gtk::prelude::*;
 use gtk::{self};
 use gtk::{Align, Application, ApplicationWindow, Grid, gdk};
 use gtk::{CssProvider, Label, Orientation, Picture as GtkPicture, ScrolledWindow};
+use std::path::Path;
 
 pub fn startup_gui(_application: &gtk::Application) {
     let css_provider = gtk::CssProvider::new();
@@ -242,11 +242,21 @@ pub fn single_view_picture(application_window: &gtk::ApplicationWindow) -> gtk::
     ))))
 }
 
-pub fn set_single_view_picture(application_window: &gtk::ApplicationWindow, picture: &gtk::Picture) {
-    let frame = &frame(&visible_stack_child_scrolled_window(&view_stack(application_window)));
+pub fn remove_children_from_box(cell_box: &gtk::Box) {
+    while let Some(child) = cell_box.first_child() {
+        cell_box.remove(&child)
+    }
+}
+pub fn set_single_view_picture(
+    application_window: &gtk::ApplicationWindow,
+    picture: &gtk::Picture,
+) {
+    let frame = &frame(&visible_stack_child_scrolled_window(&view_stack(
+        application_window,
+    )));
     while let Some(child) = frame.first_child() {
         frame.remove(&child)
-    };
+    }
     frame.append(picture);
 }
 

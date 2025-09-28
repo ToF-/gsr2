@@ -260,6 +260,7 @@ process_pane_clicked	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	
 process_picture_cliked	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn process_picture_cliked($/;"	f
 quit	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn quit(&self) {$/;"	f
 remove_cells	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn remove_cells(grid: &gtk::Grid, cells_per_row: i32) {$/;"	f
+remove_children_from_box	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn remove_children_from_box(cell_box: &gtk::Box) {$/;"	f
 retrieve_all_pictures	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    pub fn retrieve_all_pictures(&self) -> Result<Vec<Picture>> {$/;"	f
 retrieve_all_pictures_ordered_by_file_path	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    fn retrieve_all_pictures_ordered_by_file_path() {$/;"	f
 right_pane	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn right_pane(application_window: &gtk::ApplicationWindow) -> gtk::Label {$/;"	f
@@ -287,7 +288,7 @@ set_picture_for_single_view	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs
 set_pictures	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn set_pictures($/;"	f
 set_pictures_for_multiple_view	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    fn set_pictures_for_multiple_view($/;"	f
 set_pictures_per_row	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn set_pictures_per_row(&mut self, pictures_per_row: usize) {$/;"	f
-set_single_view_picture	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn set_single_view_picture(application_window: &gtk::ApplicationWindow, picture: &gtk::Picture) {$/;"	f
+set_single_view_picture	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn set_single_view_picture($/;"	f
 set_view	/Users/christophethibaut/Coding/gsr2/src/gui/application.old.rs	/^fn set_view(gui: &GraphicalUserInterface, initial: bool) {$/;"	f
 set_view	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_view(&mut self, view: View) {$/;"	f
 setting_the_gallery_and_pictures_per_row_hence_page_size	/Users/christophethibaut/Coding/gsr2/src/application_state.old.rs	/^    fn setting_the_gallery_and_pictures_per_row_hence_page_size() {$/;"	f

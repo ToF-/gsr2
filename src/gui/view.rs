@@ -1,4 +1,3 @@
-use std::path::Path;
 use crate::Controller;
 use crate::display::picture_label_display;
 use crate::gen_image::no_thumbnail_picture;
@@ -11,6 +10,7 @@ use gtk::ApplicationWindow;
 use gtk::glib::clone;
 use gtk::prelude::*;
 use std::cell::RefCell;
+use std::path::Path;
 use std::path::PathBuf;
 use std::rc::Rc;
 
@@ -213,7 +213,8 @@ impl View {
     ) {
         let picture: Picture = controller.current_picture();
         let picture_file_path = picture.file_path();
-        let gtkPicture = if let Ok(file_path) = check_path_exists(&PathBuf::from(picture_file_path)) {
+        let gtkPicture = if let Ok(file_path) = check_path_exists(&PathBuf::from(picture_file_path))
+        {
             picture_from_file_path(file_path)
         } else {
             no_thumbnail_picture()
@@ -268,20 +269,19 @@ impl View {
                     .unwrap()
                     .downcast::<gtk::Box>()
                     .unwrap();
-                while let Some(child) = cell.first_child() {
-                    cell.remove(&child)
-                }
+                remove_children_from_box(&cell);
                 if let Some(index) = navigator.position_from_coords(coords.0, coords.1) {
                     let picture = gallery.picture(index);
                     let is_thumbnail = cells_per_row == 10;
                     let is_focus = index == navigator.position();
                     let picture_file_path = picture.view_file_path(is_thumbnail);
-                    let gtkPicture =
-                        if let Ok(file_path) = check_path_exists(&PathBuf::from(picture_file_path)) {
-                            picture_from_file_path(file_path)
-                        } else {
-                            no_thumbnail_picture()
-                        };
+                    let gtkPicture = if let Ok(file_path) =
+                        check_path_exists(&PathBuf::from(picture_file_path))
+                    {
+                        picture_from_file_path(file_path)
+                    } else {
+                        no_thumbnail_picture()
+                    };
                     cell.append(&gtkPicture);
                     let label = make_label_for_picture(&picture, index == navigator.position());
                     cell.append(&label);

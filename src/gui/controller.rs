@@ -118,7 +118,7 @@ impl Controller {
                 };
                 println!("{} pictures", &gallery.len());
                 if gallery.is_empty() {
-                    return Ok(())
+                    return Ok(());
                 }
                 if controller.args.create_missing_thumbnails {
                     create_missing_thumbnails(&gallery.clone());
