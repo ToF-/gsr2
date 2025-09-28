@@ -26,5 +26,5 @@
 - [x] dot key put the current picture in single view and back
 - [x] left click on the picture in grid view set the current position
 - [x] load picture file paths and data from the database
-- [ ] switch from grid view to single view with controls
+- [x] switch from grid view to single view with controls
 - [ ] edit and add a label, save it in the database and retrieve it
