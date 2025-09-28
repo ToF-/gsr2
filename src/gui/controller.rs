@@ -1,14 +1,3 @@
-use crate::gui::event::Event::PictureClicked;
-use crate::gui::view::LEFT_PANE;
-use crate::gui::event::Event::PaneClicked;
-use crate::gui::components::toggle_view_stack;
-use crate::gui::components::single_view;
-use crate::gui::components::attach_cells;
-use crate::gui::components::remove_cells;
-use crate::gui::components::multiple_view_grid;
-use crate::gui::controller::gdk::ModifierType;
-use crate::gui::event::Event::KeyPressed;
-use crate::gui::event::Event;
 use crate::CommandLineInterface;
 use crate::command::Command;
 use crate::control::Control;
@@ -20,10 +9,21 @@ use crate::direction::Direction;
 use crate::environment::database_connection;
 use crate::file_system::create_missing_thumbnails;
 use crate::gallery::Gallery;
+use crate::gui::components::attach_cells;
+use crate::gui::components::multiple_view_grid;
+use crate::gui::components::remove_cells;
+use crate::gui::components::single_view;
+use crate::gui::components::toggle_view_stack;
 use crate::gui::components::{make_application, startup_gui};
 use crate::gui::controller::gdk::Key;
+use crate::gui::controller::gdk::ModifierType;
+use crate::gui::event::Event;
+use crate::gui::event::Event::KeyPressed;
+use crate::gui::event::Event::PaneClicked;
+use crate::gui::event::Event::PictureClicked;
 use crate::gui::navigator::Navigator;
 use crate::gui::state::State;
+use crate::gui::view::LEFT_PANE;
 use crate::gui::view::View;
 use crate::order::Order;
 use crate::picture::Picture;
@@ -56,17 +56,15 @@ impl Controller {
         database_connection().and_then(|connection_string| {
             match Database::from_connection(&connection_string) {
                 Err(err) => Err(err),
-                Ok(database) => {
-                    Ok(Controller {
-                        args: cli,
-                        gallery,
-                        navigator: Navigator::new(0, pictures_per_row as usize),
-                        controls: default_controls(),
-                        database,
-                        state: State::new(pictures_per_row as usize),
-                        view,
-                    })
-                }
+                Ok(database) => Ok(Controller {
+                    args: cli,
+                    gallery,
+                    navigator: Navigator::new(0, pictures_per_row as usize),
+                    controls: default_controls(),
+                    database,
+                    state: State::new(pictures_per_row as usize),
+                    view,
+                }),
             }
         })
     }
@@ -86,7 +84,6 @@ impl Controller {
     pub fn navigator(&self) -> Navigator {
         self.navigator.clone()
     }
-
 
     pub fn gallery(&self) -> &Gallery {
         &self.gallery
@@ -120,6 +117,9 @@ impl Controller {
                     gallery.sort_by(Order::Name)
                 };
                 println!("{} pictures", &gallery.len());
+                if gallery.is_empty() {
+                    return Ok(())
+                }
                 if controller.args.create_missing_thumbnails {
                     create_missing_thumbnails(&gallery.clone());
                 }
@@ -139,40 +139,95 @@ impl Controller {
         Ok(())
     }
 
-    pub fn process_event(&mut self, event: Event, view: &View, application_window: &gtk::ApplicationWindow, controller_rc: &RcController) {
+    pub fn process_event(
+        &mut self,
+        event: Event,
+        view: &View,
+        application_window: &gtk::ApplicationWindow,
+        controller_rc: &RcController,
+    ) {
         match event {
-            KeyPressed { key, key_code, modifier_type } => self.process_key_event(key, key_code, modifier_type, view, application_window, controller_rc),
-            PaneClicked { button, pane_number } => self.process_pane_clicked(button, pane_number, view, application_window),
-            PictureClicked { button , col, row } if button == 1 => self.process_picture_cliked(button, col, row, view, application_window),
+            KeyPressed {
+                key,
+                key_code,
+                modifier_type,
+            } => self.process_key_event(
+                key,
+                key_code,
+                modifier_type,
+                view,
+                application_window,
+                controller_rc,
+            ),
+            PaneClicked {
+                button,
+                pane_number,
+            } => self.process_pane_clicked(button, pane_number, view, application_window),
+            PictureClicked { button, col, row } if button == 1 => {
+                self.process_picture_cliked(button, col, row, view, application_window)
+            }
             _ => println!("{:?}", event),
         }
     }
 
-    pub fn process_picture_cliked(&mut self, _button: u32, col: i32, row: i32, view: &View, window: &gtk::ApplicationWindow) {
+    pub fn process_picture_cliked(
+        &mut self,
+        _button: u32,
+        col: i32,
+        row: i32,
+        view: &View,
+        window: &gtk::ApplicationWindow,
+    ) {
         view.set_label_for_current_picture(&window, self, false);
-        if let Some(index) = self.navigator.position_from_coords(row as usize, col as usize) {
-                if self.navigator.can_move(Direction::Index { value: index }) {
-                    self.navigator.move_towards(Direction::Index { value: index } );
-                }
+        if let Some(index) = self
+            .navigator
+            .position_from_coords(row as usize, col as usize)
+        {
+            if self.navigator.can_move(Direction::Index { value: index }) {
+                self.navigator
+                    .move_towards(Direction::Index { value: index });
             }
+        }
         view.set_label_for_current_picture(&window, self, true);
     }
 
-    pub fn process_pane_clicked(&mut self, _button: usize, pane_number: usize, view: &View, window: &gtk::ApplicationWindow) {
-        self.process( if pane_number == LEFT_PANE { &Control::MovePrev } else { &Control::MoveNext } );
+    pub fn process_pane_clicked(
+        &mut self,
+        _button: usize,
+        pane_number: usize,
+        view: &View,
+        window: &gtk::ApplicationWindow,
+    ) {
+        self.process(if pane_number == LEFT_PANE {
+            &Control::MovePrev
+        } else {
+            &Control::MoveNext
+        });
         if self.navigator.has_moved() {
             view.set_pictures(window, self)
         }
     }
 
-    pub fn process_key_event(&mut self, key: Key, _key_code: u32, _modifier_type: ModifierType, view: &View, window: &gtk::ApplicationWindow, controller_rc: &RcController) {
+    pub fn process_key_event(
+        &mut self,
+        key: Key,
+        _key_code: u32,
+        _modifier_type: ModifierType,
+        view: &View,
+        window: &gtk::ApplicationWindow,
+        controller_rc: &RcController,
+    ) {
         view.set_label_for_current_picture(&window, self, false);
         self.process_key(key);
         if self.state().dimension_changed() {
             let grid = multiple_view_grid(&window);
             remove_cells(&grid, self.state().old_pictures_per_row() as i32);
             attach_cells(&grid, self.state().pictures_per_row() as i32);
-            view.attach_grid_picture_events(self.state().pictures_per_row() as i32, window, controller_rc);
+            view.attach_grid_picture_events(
+                self.state().pictures_per_row() as i32,
+                window,
+                controller_rc,
+            );
             self.acknowledge_dimension();
         }
         if self.state().single_view() != single_view(&window) {

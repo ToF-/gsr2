@@ -1,9 +1,10 @@
+use std::path::Path;
 use crate::Controller;
-use crate::gui::event::Event::*;
 use crate::display::picture_label_display;
 use crate::gen_image::no_thumbnail_picture;
 use crate::gui::components::*;
 use crate::gui::controller::RcController;
+use crate::gui::event::Event::*;
 use crate::paths::check_path_exists;
 use crate::picture::Picture;
 use gtk::ApplicationWindow;
@@ -105,13 +106,21 @@ impl View {
         }
     }
 
-    pub fn attach_grid_picture_events(&self, cells_per_row: i32, window: &gtk::ApplicationWindow, controller_rc: &RcController) {
+    pub fn attach_grid_picture_events(
+        &self,
+        cells_per_row: i32,
+        window: &gtk::ApplicationWindow,
+        controller_rc: &RcController,
+    ) {
         let grid = multiple_view_grid(window);
         let view = self;
         for col in 0..cells_per_row {
             for row in 0..cells_per_row {
-                let cell_box: gtk::Box = grid .child_at(col, row).unwrap()
-                    .downcast::<gtk::Box>().unwrap();
+                let cell_box: gtk::Box = grid
+                    .child_at(col, row)
+                    .unwrap()
+                    .downcast::<gtk::Box>()
+                    .unwrap();
                 let gesture_left_click = gtk::GestureClick::new();
                 gesture_left_click.set_button(1);
                 gesture_left_click.connect_pressed(clone!(@strong col, @strong row, @strong controller_rc, @strong view, @strong window => move |_,_,_,_| {
@@ -203,9 +212,13 @@ impl View {
         controller: &Controller,
     ) {
         let picture: Picture = controller.current_picture();
-        let gtkPicture: gtk::Picture = single_view_picture(application_window);
-        let file_path = picture.file_path();
-        gtkPicture.set_filename(Some(file_path));
+        let picture_file_path = picture.file_path();
+        let gtkPicture = if let Ok(file_path) = check_path_exists(&PathBuf::from(picture_file_path)) {
+            picture_from_file_path(file_path)
+        } else {
+            no_thumbnail_picture()
+        };
+        set_single_view_picture(application_window, &gtkPicture);
     }
 
     pub fn set_label_for_current_picture(
@@ -260,14 +273,14 @@ impl View {
                 }
                 if let Some(index) = navigator.position_from_coords(coords.0, coords.1) {
                     let picture = gallery.picture(index);
+                    let is_thumbnail = cells_per_row == 10;
+                    let is_focus = index == navigator.position();
+                    let picture_file_path = picture.view_file_path(is_thumbnail);
                     let gtkPicture =
-                        match check_path_exists(&PathBuf::from(picture.view_file_path(cells_per_row == 10))) {
-                            Ok(file_path) => {
-                                let gtkPicture = make_picture();
-                                gtkPicture.set_filename(Some(file_path));
-                                gtkPicture
-                            }
-                            Err(_) => no_thumbnail_picture(),
+                        if let Ok(file_path) = check_path_exists(&PathBuf::from(picture_file_path)) {
+                            picture_from_file_path(file_path)
+                        } else {
+                            no_thumbnail_picture()
                         };
                     cell.append(&gtkPicture);
                     let label = make_label_for_picture(&picture, index == navigator.position());

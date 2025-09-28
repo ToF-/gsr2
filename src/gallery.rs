@@ -26,6 +26,10 @@ impl Gallery {
         self.pictures.len()
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.pictures.is_empty()
+    }
+
     pub fn pictures(&self) -> &Vec<Picture> {
         &self.pictures
     }

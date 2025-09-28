@@ -55,7 +55,6 @@ pub fn default_controls() -> Controls {
         (String::from("ccedilla"), Control::GridThree),
         (String::from("eacute"), Control::GridFour),
         (String::from("agrave"), Control::GridFive),
-
     ]);
     controls
 }

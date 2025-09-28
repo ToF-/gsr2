@@ -1,3 +1,5 @@
+use gtk::gio::File;
+use std::path::Path;
 use crate::default_values::{DEFAULT_HEIGHT, DEFAULT_WIDTH};
 use crate::display::picture_label_display;
 use crate::picture::Picture;
@@ -31,7 +33,7 @@ pub fn make_application_window(application: &gtk::Application) -> gtk::Applicati
         .default_height(DEFAULT_HEIGHT)
         .build()
 }
-    #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn make_palette_area() -> gtk::DrawingArea {
     let palette_area = gtk::DrawingArea::new();
     palette_area.set_valign(Align::Center);
@@ -58,6 +60,14 @@ pub fn make_frame() -> gtk::Box {
 
 pub fn make_picture() -> gtk::Picture {
     GtkPicture::builder().hexpand(true).vexpand(true).build()
+}
+
+pub fn picture_from_file_path(file_path: &Path) -> gtk::Picture {
+    GtkPicture::builder()
+        .file(&File::for_path(file_path))
+        .hexpand(true)
+        .vexpand(true)
+        .build()
 }
 
 pub fn make_label() -> gtk::Label {
@@ -151,7 +161,7 @@ pub fn make_panel(view_grid: &gtk::Grid) -> gtk::Grid {
     panel
 }
 
-    #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn make_picture_for(file_path: &str, opacity: f64, can_shrink: bool) -> gtk::Picture {
     let gtk_picture = gtk::Picture::new();
     gtk_picture.set_halign(Align::Center);
@@ -163,8 +173,7 @@ pub fn make_picture_for(file_path: &str, opacity: f64, can_shrink: bool) -> gtk:
     gtk_picture
 }
 
-
-    #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn make_pane_with_label(symbol: &str) -> gtk::Label {
     let buttons_css_provider = CssProvider::new();
     buttons_css_provider.load_from_data(
@@ -233,6 +242,14 @@ pub fn single_view_picture(application_window: &gtk::ApplicationWindow) -> gtk::
     ))))
 }
 
+pub fn set_single_view_picture(application_window: &gtk::ApplicationWindow, picture: &gtk::Picture) {
+    let frame = &frame(&visible_stack_child_scrolled_window(&view_stack(application_window)));
+    while let Some(child) = frame.first_child() {
+        frame.remove(&child)
+    };
+    frame.append(picture);
+}
+
 #[allow(dead_code)]
 pub fn single_view_picture_label(application_window: &gtk::ApplicationWindow) -> gtk::Label {
     let picture = picture(&frame(&visible_stack_child_scrolled_window(&view_stack(
@@ -276,7 +293,7 @@ pub fn toggle_view_stack(application_window: &gtk::ApplicationWindow) {
     }
 }
 
-    #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn single_view_scrolled_window(
     application_window: &gtk::ApplicationWindow,
 ) -> gtk::ScrolledWindow {

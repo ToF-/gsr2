@@ -1,10 +1,10 @@
 #[derive(Clone, Debug, PartialEq)]
-    #[allow(dead_code)]
+#[allow(dead_code)]
 pub enum InputKind {
     Label,
 }
 
-    #[allow(dead_code)]
+#[allow(dead_code)]
 #[derive(Clone, Debug)]
 pub struct Editor {
     editing: bool,
@@ -12,7 +12,7 @@ pub struct Editor {
     input_kind: Option<InputKind>,
 }
 
-    #[allow(dead_code)]
+#[allow(dead_code)]
 impl Editor {
     pub fn new() -> Editor {
         Editor {
