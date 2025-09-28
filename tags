@@ -18,6 +18,7 @@ Database	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^pub struct Datab
 Direction	/Users/christophethibaut/Coding/gsr2/src/direction.rs	/^pub enum Direction {$/;"	g
 EXPAND_ON_SYMBOL	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const EXPAND_ON_SYMBOL: &str = "  ⃞";$/;"	c
 Editor	/Users/christophethibaut/Coding/gsr2/src/editor.rs	/^pub struct Editor {$/;"	s
+Event	/Users/christophethibaut/Coding/gsr2/src/gui/event.rs	/^pub enum Event {$/;"	g
 FOCUS_SYMBOL	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const FOCUS_SYMBOL: &str = "▄ ";$/;"	c
 FULL_SIZE_ON_SYMBOL	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const FULL_SIZE_ON_SYMBOL: &str = " 🔍";$/;"	c
 Gallery	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^pub struct Gallery {$/;"	s
@@ -25,6 +26,7 @@ GraphicalUserInterface	/Users/christophethibaut/Coding/gsr2/src/gui/application.
 ImageData	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^pub struct ImageData {$/;"	s
 ImageDataMap	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^pub type ImageDataMap = HashMap<String, ImageData>;$/;"	T
 InputKind	/Users/christophethibaut/Coding/gsr2/src/editor.rs	/^pub enum InputKind {$/;"	g
+LEFT_PANE	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^pub const LEFT_PANE: usize = 0;$/;"	c
 MAX_PALETTE_COLORS	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const MAX_PALETTE_COLORS: u8 = 9;$/;"	c
 NINE_COLORS	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub const NINE_COLORS: &str = "testdata\/nine_colors.png";$/;"	c
 Navigator	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^pub struct Navigator {$/;"	s
@@ -34,6 +36,7 @@ PALETTE_AREA_HEIGHT	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/
 PALETTE_AREA_WIDTH	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const PALETTE_AREA_WIDTH: i32 = 90;$/;"	c
 Palette	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^pub type Palette = [Rgb8; 9];$/;"	T
 Picture	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^pub struct Picture {$/;"	s
+RIGHT_PANE	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^pub const RIGHT_PANE: usize = 1;$/;"	c
 RcController	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^pub type RcController = Rc<RefCell<Controller>>;$/;"	T
 RcNavigator	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^pub type RcNavigator = Rc<RefCell<Navigator>>;$/;"	T
 RcRefCellGui	/Users/christophethibaut/Coding/gsr2/src/gui/application.old.rs	/^type RcRefCellGui = Rc<RefCell<GraphicalUserInterface>>;$/;"	T
@@ -66,6 +69,7 @@ appending_a_char_changes_the_input	/Users/christophethibaut/Coding/gsr2/src/edit
 application_window_rc	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn application_window_rc(&self) -> Rc<RefCell<gtk::ApplicationWindow>> {$/;"	f
 attach_cells	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn attach_cells(grid: &gtk::Grid, cells_per_row: i32) {$/;"	f
 attach_events	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn attach_events(&self, window: &gtk::ApplicationWindow, controller_rc: &RcController) {$/;"	f
+attach_grid_picture_events	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn attach_grid_picture_events(&self, cells_per_row: i32, window: &gtk::ApplicationWindow, controller_rc: &RcController) {$/;"	f
 begin_input	/Users/christophethibaut/Coding/gsr2/src/editor.rs	/^    pub fn begin_input(&mut self, kind: InputKind) {$/;"	f
 bind_components	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    fn bind_components(controller_rc: &RcController) {}$/;"	f
 build_and_run_app	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn build_and_run_app(controller: Controller) -> IOResult<()> {$/;"	f
@@ -248,8 +252,11 @@ process	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn 
 process_arrow_key_in_fullsize	/Users/christophethibaut/Coding/gsr2/src/gui/application.old.rs	/^fn process_arrow_key_in_fullsize(direction: Control, gui: &GraphicalUserInterface) -> bool {$/;"	f
 process_control	/Users/christophethibaut/Coding/gsr2/src/gui/application.old.rs	/^fn process_control(gui: &mut GraphicalUserInterface, control: Control) -> bool {$/;"	f
 process_edition	/Users/christophethibaut/Coding/gsr2/src/gui/application.old.rs	/^fn process_edition(gui: &mut GraphicalUserInterface, key: Key) -> bool {$/;"	f
+process_event	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn process_event(&mut self, event: Event, view: &View, application_window: &gtk::ApplicationWindow) {$/;"	f
 process_key	/Users/christophethibaut/Coding/gsr2/src/gui/application.old.rs	/^fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {$/;"	f
 process_key	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn process_key(&mut self, key: Key) {$/;"	f
+process_key_event	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn process_key_event(&mut self, key: Key, key_code: u32, modifier_type: ModifierType, view: &View, window: &gtk::ApplicationWindow) {$/;"	f
+process_pane_clicked	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn process_pane_clicked(&mut self, button: usize, pane_number: usize, view: &View, window: &gtk::ApplicationWindow) {$/;"	f
 quit	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn quit(&self) {$/;"	f
 remove_cells	/Users/christophethibaut/Coding/gsr2/src/gui/components.rs	/^pub fn remove_cells(grid: &gtk::Grid, cells_per_row: i32) {$/;"	f
 retrieve_all_pictures	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    pub fn retrieve_all_pictures(&self) -> Result<Vec<Picture>> {$/;"	f
@@ -268,14 +275,14 @@ set_gallery	/Users/christophethibaut/Coding/gsr2/src/application_state.old.rs	/^
 set_gallery	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_gallery(&mut self, gallery: Gallery) {$/;"	f
 set_image_data	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    pub fn set_image_data(&mut self, image_data: ImageData) {$/;"	f
 set_label_at	/Users/christophethibaut/Coding/gsr2/src/gui/application.old.rs	/^fn set_label_at(col: i32, row: i32, label_content: &str, gui: &GraphicalUserInterface) {$/;"	f
-set_label_for_current_picture	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    fn set_label_for_current_picture($/;"	f
+set_label_for_current_picture	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn set_label_for_current_picture($/;"	f
 set_label_for_picture_at_new_coords	/Users/christophethibaut/Coding/gsr2/src/gui/application.old.rs	/^fn set_label_for_picture_at_new_coords(gui: &GraphicalUserInterface) {$/;"	f
 set_page_changed	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn set_page_changed(&mut self) {$/;"	f
 set_picture_at	/Users/christophethibaut/Coding/gsr2/src/gui/application.old.rs	/^fn set_picture_at(col: i32, row: i32, gui: &GraphicalUserInterface) {$/;"	f
 set_picture_for_file_view	/Users/christophethibaut/Coding/gsr2/src/gui/application.old.rs	/^fn set_picture_for_file_view(gui: &GraphicalUserInterface, picture: &picture::Picture) {$/;"	f
 set_picture_for_multiple_view	/Users/christophethibaut/Coding/gsr2/src/gui/application.old.rs	/^fn set_picture_for_multiple_view(gui: &GraphicalUserInterface, pictures_per_row: i32) {$/;"	f
 set_picture_for_single_view	/Users/christophethibaut/Coding/gsr2/src/gui/application.old.rs	/^fn set_picture_for_single_view(gui: &GraphicalUserInterface) {$/;"	f
-set_picture_for_single_view	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    fn set_picture_for_single_view($/;"	f
+set_picture_for_single_view	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn set_picture_for_single_view($/;"	f
 set_pictures	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn set_pictures($/;"	f
 set_pictures_for_multiple_view	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    fn set_pictures_for_multiple_view($/;"	f
 set_pictures_per_row	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn set_pictures_per_row(&mut self, pictures_per_row: usize) {$/;"	f

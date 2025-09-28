@@ -148,9 +148,9 @@ impl Controller {
         Ok(())
     }
 
-    pub fn process_event(&mut self, event: Event, view: &View, application_window: &gtk::ApplicationWindow) {
+    pub fn process_event(&mut self, event: Event, view: &View, application_window: &gtk::ApplicationWindow, controller_rc: &RcController) {
         match event {
-            KeyPressed { key, key_code, modifier_type } => self.process_key_event(key, key_code, modifier_type, view, application_window),
+            KeyPressed { key, key_code, modifier_type } => self.process_key_event(key, key_code, modifier_type, view, application_window, controller_rc),
             PaneClicked { button, pane_number } => self.process_pane_clicked(button, pane_number, view, application_window),
             _ => println!("{:?}", event),
         }
@@ -163,13 +163,14 @@ impl Controller {
         }
     }
 
-    pub fn process_key_event(&mut self, key: Key, key_code: u32, modifier_type: ModifierType, view: &View, window: &gtk::ApplicationWindow) {
+    pub fn process_key_event(&mut self, key: Key, key_code: u32, modifier_type: ModifierType, view: &View, window: &gtk::ApplicationWindow, controller_rc: &RcController) {
         view.set_label_for_current_picture(&window, self, false);
         self.process_key(key);
         if self.state().dimension_changed() {
             let grid = multiple_view_grid(&window);
             remove_cells(&grid, self.state().old_pictures_per_row() as i32);
             attach_cells(&grid, self.state().pictures_per_row() as i32);
+            view.attach_grid_picture_events(self.state().pictures_per_row() as i32, window, controller_rc);
             self.acknowledge_dimension();
         }
         if self.state().single_view() != single_view(&window) {

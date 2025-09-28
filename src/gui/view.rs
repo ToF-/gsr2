@@ -85,8 +85,10 @@ impl View {
         // keep a reference to application window for manipulations through Controller::View via events
         if let Ok(mut controller) = controller_rc.try_borrow_mut() {
             let mut view = controller.view();
+            let pictures_per_row: i32 = controller.state().pictures_per_row().try_into().unwrap();
             view.setup_components(&window);
             view.attach_events(&window, controller_rc);
+            view.attach_grid_picture_events(pictures_per_row, &window, controller_rc);
             let application_window_rc = Rc::new(RefCell::new(window));
             view.set_application_window_rc(application_window_rc);
             controller.set_view(view.clone());
@@ -103,6 +105,42 @@ impl View {
             }
         } else {
             panic!("cannot borrow");
+        }
+    }
+
+    pub fn attach_grid_picture_events(&self, cells_per_row: i32, window: &gtk::ApplicationWindow, controller_rc: &RcController) {
+        let grid = multiple_view_grid(window);
+        let view = self;
+        for col in 0..cells_per_row {
+            for row in 0..cells_per_row {
+                let coords = (row as usize, col as usize);
+                let cell_box: gtk::Box = grid .child_at(col, row).unwrap()
+                    .downcast::<gtk::Box>().unwrap();
+                let gesture_left_click = gtk::GestureClick::new();
+                gesture_left_click.set_button(1);
+                gesture_left_click.connect_pressed(clone!(@strong col, @strong row, @strong controller_rc, @strong view, @strong window => move |_,_,_,_| {
+                if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+                    controller.process_event(
+                        PictureClicked { button: 1, col: col, row: row },
+                        &view,
+                        &window,
+                        &controller_rc);
+                        }
+                }));
+                cell_box.add_controller(gesture_left_click);
+                let gesture_right_click = gtk::GestureClick::new();
+                gesture_right_click.set_button(3);
+                gesture_right_click.connect_pressed(clone!(@strong col, @strong row, @strong controller_rc, @strong view, @strong window => move |_,_,_,_| {
+                if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+                    controller.process_event(
+                        PictureClicked { button: 3, col: col, row: row },
+                        &view,
+                        &window,
+                        &controller_rc);
+                        }
+                }));
+                cell_box.add_controller(gesture_right_click);
+            }
         }
     }
 
@@ -124,7 +162,8 @@ impl View {
                     controller.process_event(
                         PaneClicked { button: 1, pane_number: LEFT_PANE },
                         &view,
-                        &window);
+                        &window,
+                        &controller_rc);
                 } else {
                     panic!("can't borrow mut controller");
                 }
@@ -140,7 +179,8 @@ impl View {
                     controller.process_event(
                         PaneClicked { button: 1, pane_number: RIGHT_PANE },
                         &view,
-                        &window);
+                        &window,
+                        &controller_rc);
                 } else {
                     panic!("can't borrow mut controller");
                 }
@@ -157,7 +197,8 @@ impl View {
                     controller.process_event(
                         KeyPressed { key: key, key_code: key_code, modifier_type: modifier_type },
                         &view,
-                        &window);
+                        &window,
+                        &controller_rc);
                 };
                 gtk::Inhibit(false)
             }),
