@@ -1,3 +1,13 @@
+use crate::gui::view::LEFT_PANE;
+use crate::gui::event::Event::PaneClicked;
+use crate::gui::components::toggle_view_stack;
+use crate::gui::components::single_view;
+use crate::gui::components::attach_cells;
+use crate::gui::components::remove_cells;
+use crate::gui::components::multiple_view_grid;
+use crate::gui::controller::gdk::ModifierType;
+use crate::gui::event::Event::KeyPressed;
+use crate::gui::event::Event;
 use crate::CommandLineInterface;
 use crate::command::Command;
 use crate::control::Control;
@@ -136,6 +146,39 @@ impl Controller {
         let no_args: Vec<String> = vec![];
         application.run_with_args(&no_args);
         Ok(())
+    }
+
+    pub fn process_event(&mut self, event: Event, view: &View, application_window: &gtk::ApplicationWindow) {
+        match event {
+            KeyPressed { key, key_code, modifier_type } => self.process_key_event(key, key_code, modifier_type, view, application_window),
+            PaneClicked { button, pane_number } => self.process_pane_clicked(button, pane_number, view, application_window),
+            _ => println!("{:?}", event),
+        }
+    }
+
+    pub fn process_pane_clicked(&mut self, button: usize, pane_number: usize, view: &View, window: &gtk::ApplicationWindow) {
+        self.process( if pane_number == LEFT_PANE { &Control::MovePrev } else { &Control::MoveNext } );
+        if self.navigator_rc().borrow().has_moved() {
+            view.set_pictures(window, self)
+        }
+    }
+
+    pub fn process_key_event(&mut self, key: Key, key_code: u32, modifier_type: ModifierType, view: &View, window: &gtk::ApplicationWindow) {
+        view.set_label_for_current_picture(&window, self, false);
+        self.process_key(key);
+        if self.state().dimension_changed() {
+            let grid = multiple_view_grid(&window);
+            remove_cells(&grid, self.state().old_pictures_per_row() as i32);
+            attach_cells(&grid, self.state().pictures_per_row() as i32);
+            self.acknowledge_dimension();
+        }
+        if self.state().single_view() != single_view(&window) {
+            toggle_view_stack(&window);
+            view.set_pictures(&window, self)
+        } else if self.navigator_rc().borrow().page_changed() {
+            view.set_pictures(&window, self)
+        };
+        view.set_label_for_current_picture(&window, self, true);
     }
 
     pub fn process_key(&mut self, key: Key) {

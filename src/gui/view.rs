@@ -1,4 +1,5 @@
 use crate::Controller;
+use crate::gui::event::Event::*;
 use crate::control::Control;
 use crate::display::picture_label_display;
 use crate::gen_image::no_thumbnail_picture;
@@ -14,6 +15,9 @@ use std::cell::RefCell;
 use std::path::PathBuf;
 use std::rc::Rc;
 use std::time::Duration;
+
+pub const LEFT_PANE: usize = 0;
+pub const RIGHT_PANE: usize = 1;
 
 #[derive(Clone, Debug)]
 pub struct View {
@@ -117,10 +121,12 @@ impl View {
             clone!(@strong controller_rc, @strong view, @strong window, => move |_,_,_,_| {
                 let mut refresh = false;
                 if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-                    controller.process(&Control::MovePrev);
-                    if controller.navigator_rc().borrow().has_moved() {
-                        view.set_pictures(&window, &controller)
-                    }
+                    controller.process_event(
+                        PaneClicked { button: 1, pane_number: LEFT_PANE },
+                        &view,
+                        &window);
+                } else {
+                    panic!("can't borrow mut controller");
                 }
             }),
         );
@@ -131,11 +137,14 @@ impl View {
         gesture_right_click.connect_pressed(
             clone!(@strong controller_rc, @strong view, @strong window => move |_,_,_,_| {
                 if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-                    controller.process(&Control::MoveNext);
-                    if controller.navigator_rc().borrow().has_moved() {
-                        view.set_pictures(&window, &controller)
-                    }
+                    controller.process_event(
+                        PaneClicked { button: 1, pane_number: RIGHT_PANE },
+                        &view,
+                        &window);
+                } else {
+                    panic!("can't borrow mut controller");
                 }
+
             }),
         );
         right_pane.add_controller(gesture_right_click);
@@ -143,24 +152,12 @@ impl View {
         let evk = gtk::EventControllerKey::new();
         let view = self;
         evk.connect_key_pressed(
-            clone!(@strong controller_rc, @strong view, @strong window => move |_, key, _, _| {
+            clone!(@strong controller_rc, @strong view, @strong window => move |_, key, key_code, modifier_type| {
                 if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-                    view.set_label_for_current_picture(&window, &controller, false);
-                    controller.process_key(key);
-                    if controller.state().dimension_changed() {
-                        let grid = multiple_view_grid(&window);
-                        remove_cells(&grid, controller.state().old_pictures_per_row() as i32);
-                        attach_cells(&grid, controller.state().pictures_per_row() as i32);
-                        controller.acknowledge_dimension();
-                    }
-
-                    if controller.state().single_view() != single_view(&window) {
-                        toggle_view_stack(&window);
-                        view.set_pictures(&window, &controller)
-                    } else if controller.navigator_rc().borrow().page_changed() {
-                        view.set_pictures(&window, &controller)
-                    };
-                    view.set_label_for_current_picture(&window, &controller, true);
+                    controller.process_event(
+                        KeyPressed { key: key, key_code: key_code, modifier_type: modifier_type },
+                        &view,
+                        &window);
                 };
                 gtk::Inhibit(false)
             }),
@@ -168,7 +165,7 @@ impl View {
         window.add_controller(evk);
     }
 
-    fn set_picture_for_single_view(
+    pub fn set_picture_for_single_view(
         &self,
         application_window: &ApplicationWindow,
         controller: &Controller,
@@ -180,7 +177,7 @@ impl View {
         gtkPicture.set_filename(Some(file_path));
     }
 
-    fn set_label_for_current_picture(
+    pub fn set_label_for_current_picture(
         &self,
         application_window: &ApplicationWindow,
         controller: &Controller,
