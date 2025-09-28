@@ -153,12 +153,21 @@ impl Controller {
         match event {
             KeyPressed { key, key_code, modifier_type } => self.process_key_event(key, key_code, modifier_type, view, application_window, controller_rc),
             PaneClicked { button, pane_number } => self.process_pane_clicked(button, pane_number, view, application_window),
-            PictureClicked { button, col, row } => self.process_picture_cliked(button, col, row, view, application_window),
+            PictureClicked { button , col, row } if button == 1 => self.process_picture_cliked(button, col, row, view, application_window),
             _ => println!("{:?}", event),
         }
     }
 
     pub fn process_picture_cliked(&mut self, button: u32, col: i32, row: i32, view: &View, window: &gtk::ApplicationWindow) {
+        view.set_label_for_current_picture(&window, self, false);
+        { let mut navigator = self.navigator_rc.borrow_mut();
+            if let Some(index) = navigator.position_from_coords(row as usize, col as usize) {
+                if navigator.can_move(Direction::Index { value: index }) {
+                    navigator.move_towards(Direction::Index { value: index } );
+                }
+            }
+        }
+        view.set_label_for_current_picture(&window, self, true);
     }
 
     pub fn process_pane_clicked(&mut self, button: usize, pane_number: usize, view: &View, window: &gtk::ApplicationWindow) {
