@@ -1,13 +1,24 @@
 use crate::default_values::{DEFAULT_HEIGHT, DEFAULT_WIDTH};
 use crate::display::picture_label_display;
+use crate::gui::controller::RcController;
+use crate::gui::event::Event::KeyPressed;
+use crate::gui::event::Event::PaneClicked;
+use crate::gui::event::Event::PictureClicked;
+use crate::gui::view::LEFT_PANE;
+use crate::gui::view::RIGHT_PANE;
+use crate::gui::view::View;
 use crate::picture::Picture;
 use gtk::gio::File;
+use gtk::glib::clone;
 use gtk::prelude::*;
 use gtk::{self};
 use gtk::{Align, Application, ApplicationWindow, Grid, gdk};
 use gtk::{CssProvider, Label, Orientation, Picture as GtkPicture, ScrolledWindow};
+use std::cell::RefCell;
 use std::path::Path;
+use std::rc::Rc;
 
+// basic settings when starting up gtk application
 pub fn startup_gui(_application: &gtk::Application) {
     let css_provider = gtk::CssProvider::new();
     css_provider.load_from_data(
@@ -19,12 +30,185 @@ pub fn startup_gui(_application: &gtk::Application) {
         1000,
     );
 }
-pub fn make_application(application_id: &str) -> gtk::Application {
-    Application::builder()
+
+// make the application, defining its start up method and its activate method
+// on activation, it will build the components, which will all use a RefCell on the controller
+// to pass control of events
+pub fn make_application(application_id: &str, controller_rc: RcController) -> gtk::Application {
+    let application = Application::builder()
         .application_id(application_id)
-        .build()
+        .build();
+    application.connect_startup(|application| startup_gui(application));
+    application.connect_activate(clone!(@strong controller_rc
+    => move |application: &gtk::Application| {
+        make_application_components(&application, &controller_rc)
+    }));
+    application
 }
 
+// create all the components, attach event managers to them, then setup the view part of the
+// controller so that we have these references available.
+// Controller → View → ApplicationWindow → components → Controller
+// Controller has a counted reference on the View, it can manipulate and change some components
+// visibility, eg. switching frow single to multiple view
+// View has a reference to the ApplicationWindow
+// ApplicationWindow has components
+// components have event managers attached to them
+// event manager have a counted reference on the controller and send it an event message
+//
+pub fn make_application_components(application: &gtk::Application, controller_rc: &RcController) {
+    let pictures_per_row: i32;
+    let application_window = make_application_window(application);
+    {
+        let controller = controller_rc.try_borrow().expect("can't borrow");
+        pictures_per_row = controller.state().pictures_per_row() as i32;
+        setup_components(&application_window, pictures_per_row);
+    }
+    if let Ok(controller) = controller_rc.try_borrow_mut() {
+        let view = controller.view();
+        attach_events(&application_window, &view, controller_rc);
+        attach_grid_picture_events(pictures_per_row, &application_window, controller_rc);
+    } else {
+        panic!("can't borrow mut");
+    };
+    if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+        let application_window_rc = Rc::new(RefCell::new(application_window.clone()));
+        let mut view = controller.view();
+        view.set_application_window_rc(application_window_rc);
+        controller.set_view(view.clone());
+    } else {
+        panic!("can't borrow mut");
+    };
+    {
+        let controller = controller_rc.try_borrow().expect("can't borrow");
+        let view = controller.view();
+        View::set_pictures(&application_window, &controller);
+        application_window.present();
+    }
+}
+
+// attach event mananger to some components
+pub fn attach_events(
+    application_window: &gtk::ApplicationWindow,
+    view: &View,
+    controller_rc: &RcController,
+) {
+    let left_pane = left_pane(application_window);
+    let right_pane = right_pane(application_window);
+
+    let gesture_left_click = gtk::GestureClick::new();
+    gesture_left_click.set_button(1);
+    gesture_left_click.connect_pressed(
+        clone!(@strong controller_rc, @strong application_window, => move |_,_,_,_| {
+            if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+                controller.process_event(
+                    PaneClicked { button: 1, pane_number: LEFT_PANE },
+                    &application_window,
+                    &controller_rc);
+            } else {
+                panic!("can't borrow mut controller");
+            }
+        }),
+    );
+    left_pane.add_controller(gesture_left_click);
+
+    let gesture_right_click = gtk::GestureClick::new();
+    gesture_right_click.set_button(1);
+    gesture_right_click.connect_pressed(
+        clone!(@strong controller_rc, @strong application_window => move |_,_,_,_| {
+            if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+                controller.process_event(
+                    PaneClicked { button: 1, pane_number: RIGHT_PANE },
+                    &application_window,
+                    &controller_rc);
+            } else {
+                panic!("can't borrow mut controller");
+            }
+
+        }),
+    );
+    right_pane.add_controller(gesture_right_click);
+
+    let evk = gtk::EventControllerKey::new();
+    evk.connect_key_pressed(
+        clone!(@strong controller_rc, @strong application_window => move |_, key, key_code, modifier_type| {
+            if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+                controller.process_event(
+                    KeyPressed { key: key, key_code: key_code, modifier_type: modifier_type },
+                    &application_window,
+                    &controller_rc);
+            };
+            gtk::Inhibit(false)
+        }),
+    );
+    application_window.add_controller(evk);
+}
+pub fn attach_grid_picture_events(
+    cells_per_row: i32,
+    window: &gtk::ApplicationWindow,
+    controller_rc: &RcController,
+) {
+    let grid = multiple_view_grid(window);
+    for col in 0..cells_per_row {
+        for row in 0..cells_per_row {
+            let cell_box: gtk::Box = grid
+                .child_at(col, row)
+                .unwrap()
+                .downcast::<gtk::Box>()
+                .unwrap();
+            let gesture_left_click = gtk::GestureClick::new();
+            gesture_left_click.set_button(1);
+            gesture_left_click.connect_pressed(clone!(@strong col, @strong row, @strong controller_rc, @strong window => move |_,_,_,_| {
+                if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+                    controller.process_event(
+                        PictureClicked { button: 1, col: col, row: row },
+                        &window,
+                        &controller_rc);
+                }
+            }));
+            cell_box.add_controller(gesture_left_click);
+            let gesture_right_click = gtk::GestureClick::new();
+            gesture_right_click.set_button(3);
+            gesture_right_click.connect_pressed(clone!(@strong col, @strong row, @strong controller_rc, @strong window => move |_,_,_,_| {
+                if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+                    controller.process_event(
+                        PictureClicked { button: 3, col: col, row: row },
+                        &window,
+                        &controller_rc);
+                }
+            }));
+            cell_box.add_controller(gesture_right_click);
+        }
+    }
+}
+
+pub fn setup_components(application_window: &gtk::ApplicationWindow, pictures_per_row: i32) {
+    let grid = make_grid(pictures_per_row);
+
+    let panel = make_panel(&grid);
+
+    let multiple_view_scrolled_window = make_multiple_view_scrolled_window();
+    multiple_view_scrolled_window.set_child(Some(&panel));
+
+    assert_eq!(panel_grid(&multiple_view_scrolled_window), panel);
+
+    let frame = make_frame();
+    let picture = make_picture();
+    frame.append(&picture);
+    frame.append(&make_label());
+    let single_view_scrolled_window = make_single_view_scrolled_window();
+    single_view_scrolled_window.set_child(Some(&frame));
+
+    let view_stack = make_stack();
+    let _ = view_stack.add_named(&single_view_scrolled_window, Some("single_view"));
+    let _ = view_stack.add_named(&multiple_view_scrolled_window, Some("multiple_view"));
+    if pictures_per_row == 1 {
+        view_stack.set_visible_child(&single_view_scrolled_window);
+    } else {
+        view_stack.set_visible_child(&multiple_view_scrolled_window);
+    }
+    application_window.set_child(Some(&view_stack));
+}
 pub fn make_application_window(application: &gtk::Application) -> gtk::ApplicationWindow {
     ApplicationWindow::builder()
         .application(application)
