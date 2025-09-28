@@ -148,7 +148,6 @@ impl View {
                     view.set_label_for_current_picture(&window, &controller, false);
                     controller.process_key(key);
                     if controller.state().dimension_changed() {
-                        println!("dimension changed");
                         let grid = multiple_view_grid(&window);
                         remove_cells(&grid, controller.state().old_pictures_per_row() as i32);
                         attach_cells(&grid, controller.state().pictures_per_row() as i32);
@@ -162,8 +161,6 @@ impl View {
                         view.set_pictures(&window, &controller)
                     };
                     view.set_label_for_current_picture(&window, &controller, true);
-                    println!("{:?}", controller.state());
-                    println!("{:?}", controller.navigator_rc().borrow());
                 };
                 gtk::Inhibit(false)
             }),

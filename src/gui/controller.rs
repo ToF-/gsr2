@@ -50,7 +50,6 @@ impl Controller {
             match Database::from_connection(&connection_string) {
                 Err(err) => Err(err),
                 Ok(database) => {
-                    println!("we have a database connection");
                     Ok(Controller {
                         args: cli,
                         gallery,
@@ -104,7 +103,6 @@ impl Controller {
     fn bind_components(controller_rc: &RcController) {}
 
     pub fn build_and_run_app(controller: Controller) -> IOResult<()> {
-        println!("we have a controller");
         let controller_rc = Rc::new(RefCell::new(controller));
         match controller_rc.try_borrow_mut() {
             Ok(mut controller) => {

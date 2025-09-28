@@ -49,12 +49,10 @@ impl State {
     }
 
     pub fn switch_grid(&mut self, pictures_per_row: usize) {
-        println!("switch {:?}", self);
         if pictures_per_row != self.pictures_per_row {
             self.old_pictures_per_row = self.pictures_per_row;
             self.pictures_per_row = pictures_per_row
         }
-        println!("switched {:?}", self);
     }
 }
 
