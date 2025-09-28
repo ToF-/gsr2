@@ -17,7 +17,6 @@ use crate::control::default_controls;
 use crate::database::Database;
 use crate::default_values::{DEFAULT_HEIGHT, DEFAULT_WIDTH};
 use crate::direction::Direction;
-use crate::editor::Editor;
 use crate::environment::database_connection;
 use crate::file_system::create_missing_thumbnails;
 use crate::gallery::Gallery;
@@ -36,16 +35,13 @@ use std::cell::RefCell;
 use std::io::Result as IOResult;
 use std::rc::Rc;
 
-pub type RcNavigator = Rc<RefCell<Navigator>>;
-
 #[derive(Debug)]
 pub struct Controller {
     args: CommandLineInterface,
     gallery: Gallery,
-    navigator_rc: RcNavigator,
+    navigator: Navigator,
     controls: Controls,
     database: Database,
-    editor: Editor,
     state: State,
     view: View,
 }
@@ -64,13 +60,9 @@ impl Controller {
                     Ok(Controller {
                         args: cli,
                         gallery,
-                        navigator_rc: Rc::new(RefCell::new(Navigator::new(
-                            0,
-                            pictures_per_row as usize,
-                        ))),
+                        navigator: Navigator::new(0, pictures_per_row as usize),
                         controls: default_controls(),
                         database,
-                        editor: Editor::new(),
                         state: State::new(pictures_per_row as usize),
                         view,
                     })
@@ -91,9 +83,10 @@ impl Controller {
         self.state.clone()
     }
 
-    pub fn navigator_rc(&self) -> RcNavigator {
-        self.navigator_rc.clone()
+    pub fn navigator(&self) -> Navigator {
+        self.navigator.clone()
     }
+
 
     pub fn gallery(&self) -> &Gallery {
         &self.gallery
@@ -101,17 +94,14 @@ impl Controller {
 
     pub fn set_gallery(&mut self, gallery: Gallery) {
         self.gallery = gallery;
-        *self.navigator_rc.borrow_mut() =
-            Navigator::new(self.gallery.len(), self.state().pictures_per_row);
+        self.navigator = Navigator::new(self.gallery.len(), self.state().pictures_per_row);
         self.acknowledge_dimension();
     }
 
     pub fn current_picture(&self) -> Picture {
-        let navigator = self.navigator_rc.borrow();
+        let navigator = &self.navigator;
         self.gallery.picture(navigator.position())
     }
-
-    fn bind_components(controller_rc: &RcController) {}
 
     pub fn build_and_run_app(controller: Controller) -> IOResult<()> {
         let controller_rc = Rc::new(RefCell::new(controller));
@@ -119,7 +109,7 @@ impl Controller {
             Ok(mut controller) => {
                 let mut gallery = Gallery::new();
                 let args = controller.args.clone();
-                let result = match args.command {
+                let _ = match args.command {
                     Some(Command::File { file_path }) => gallery.load_from_file_path(&file_path),
                     Some(Command::Dir { directory }) => gallery.load_from_directory(&directory),
                     None => gallery.load_from_database(&controller.database),
@@ -158,26 +148,24 @@ impl Controller {
         }
     }
 
-    pub fn process_picture_cliked(&mut self, button: u32, col: i32, row: i32, view: &View, window: &gtk::ApplicationWindow) {
+    pub fn process_picture_cliked(&mut self, _button: u32, col: i32, row: i32, view: &View, window: &gtk::ApplicationWindow) {
         view.set_label_for_current_picture(&window, self, false);
-        { let mut navigator = self.navigator_rc.borrow_mut();
-            if let Some(index) = navigator.position_from_coords(row as usize, col as usize) {
-                if navigator.can_move(Direction::Index { value: index }) {
-                    navigator.move_towards(Direction::Index { value: index } );
+        if let Some(index) = self.navigator.position_from_coords(row as usize, col as usize) {
+                if self.navigator.can_move(Direction::Index { value: index }) {
+                    self.navigator.move_towards(Direction::Index { value: index } );
                 }
             }
-        }
         view.set_label_for_current_picture(&window, self, true);
     }
 
-    pub fn process_pane_clicked(&mut self, button: usize, pane_number: usize, view: &View, window: &gtk::ApplicationWindow) {
+    pub fn process_pane_clicked(&mut self, _button: usize, pane_number: usize, view: &View, window: &gtk::ApplicationWindow) {
         self.process( if pane_number == LEFT_PANE { &Control::MovePrev } else { &Control::MoveNext } );
-        if self.navigator_rc().borrow().has_moved() {
+        if self.navigator.has_moved() {
             view.set_pictures(window, self)
         }
     }
 
-    pub fn process_key_event(&mut self, key: Key, key_code: u32, modifier_type: ModifierType, view: &View, window: &gtk::ApplicationWindow, controller_rc: &RcController) {
+    pub fn process_key_event(&mut self, key: Key, _key_code: u32, _modifier_type: ModifierType, view: &View, window: &gtk::ApplicationWindow, controller_rc: &RcController) {
         view.set_label_for_current_picture(&window, self, false);
         self.process_key(key);
         if self.state().dimension_changed() {
@@ -190,7 +178,7 @@ impl Controller {
         if self.state().single_view() != single_view(&window) {
             toggle_view_stack(&window);
             view.set_pictures(&window, self)
-        } else if self.navigator_rc().borrow().page_changed() {
+        } else if self.navigator.page_changed() {
             view.set_pictures(&window, self)
         };
         view.set_label_for_current_picture(&window, self, true);
@@ -237,7 +225,7 @@ impl Controller {
 
     pub fn toggle_single_view(&mut self) {
         self.state.toggle_single_view();
-        let mut navigator = self.navigator_rc.borrow_mut();
+        let navigator = &mut self.navigator;
         if self.state.single_view() {
             navigator.set_pictures_per_row(1);
         } else {
@@ -248,7 +236,7 @@ impl Controller {
 
     pub fn switch_grid(&mut self, pictures_per_row: usize) {
         self.state.switch_grid(pictures_per_row);
-        let mut navigator = self.navigator_rc.borrow_mut();
+        let navigator = &mut self.navigator;
         navigator.set_pictures_per_row(self.state.pictures_per_row);
         navigator.update_page_limits();
         navigator.set_page_changed();
@@ -258,49 +246,49 @@ impl Controller {
         self.state.acknowledge_dimension();
     }
 
-    pub fn move_start(&self) {
-        let mut navigator = self.navigator_rc.borrow_mut();
+    pub fn move_start(&mut self) {
+        let navigator = &mut self.navigator;
         if navigator.can_move(Direction::PageStart) {
             navigator.move_towards(Direction::PageStart);
         }
     }
 
-    pub fn move_end(&self) {
-        let mut navigator = self.navigator_rc.borrow_mut();
+    pub fn move_end(&mut self) {
+        let navigator = &mut self.navigator;
         if navigator.can_move(Direction::PageEnd) {
             navigator.move_towards(Direction::PageEnd);
         }
     }
-    pub fn move_right(&self) {
-        let mut navigator = self.navigator_rc.borrow_mut();
+    pub fn move_right(&mut self) {
+        let navigator = &mut self.navigator;
         if navigator.can_move(Direction::Right) {
             navigator.move_towards(Direction::Right);
         }
     }
 
-    pub fn move_left(&self) {
-        let mut navigator = self.navigator_rc.borrow_mut();
+    pub fn move_left(&mut self) {
+        let navigator = &mut self.navigator;
         if navigator.can_move(Direction::Left) {
             navigator.move_towards(Direction::Left);
         }
     }
 
-    pub fn move_up(&self) {
-        let mut navigator = self.navigator_rc.borrow_mut();
+    pub fn move_up(&mut self) {
+        let navigator = &mut self.navigator;
         if navigator.can_move(Direction::Up) {
             navigator.move_towards(Direction::Up);
         }
     }
 
-    pub fn move_down(&self) {
-        let mut navigator = self.navigator_rc.borrow_mut();
+    pub fn move_down(&mut self) {
+        let navigator = &mut self.navigator;
         if navigator.can_move(Direction::Down) {
             navigator.move_towards(Direction::Down);
         }
     }
 
-    pub fn move_next(&self) {
-        let mut navigator = self.navigator_rc.borrow_mut();
+    pub fn move_next(&mut self) {
+        let navigator = &mut self.navigator;
         if !self.state.full_size_on() {
             if self.state.single_view() {
                 if navigator.can_move(Direction::Right) {
@@ -314,8 +302,8 @@ impl Controller {
         }
     }
 
-    pub fn move_prev(&self) {
-        let mut navigator = self.navigator_rc.borrow_mut();
+    pub fn move_prev(&mut self) {
+        let navigator = &mut self.navigator;
         if !self.state.full_size_on() {
             if self.state.single_view() {
                 if navigator.can_move(Direction::Left) {
@@ -329,15 +317,15 @@ impl Controller {
         }
     }
 
-    pub fn move_first(&self) {
-        let mut navigator = self.navigator_rc.borrow_mut();
+    pub fn move_first(&mut self) {
+        let navigator = &mut self.navigator;
         if !self.state.full_size_on() {
             navigator.move_towards(Direction::First);
         }
     }
 
-    pub fn move_last(&self) {
-        let mut navigator = self.navigator_rc.borrow_mut();
+    pub fn move_last(&mut self) {
+        let navigator = &mut self.navigator;
         if !self.state.full_size_on() {
             navigator.move_towards(Direction::Last);
         }

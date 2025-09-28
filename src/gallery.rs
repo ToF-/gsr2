@@ -18,6 +18,7 @@ impl Gallery {
         }
     }
 
+    #[allow(dead_code)]
     pub fn new_with_pictures(pictures: Vec<Picture>) -> Self {
         Gallery { pictures }
     }

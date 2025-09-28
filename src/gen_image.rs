@@ -8,7 +8,6 @@ pub const WHITE_SQUARE: &str = "testdata/white_square.png";
 
 use gtk::gdk;
 use gtk::glib;
-use gtk::prelude::*;
 use image::{Rgb, RgbImage};
 
 pub fn no_thumbnail_picture() -> gtk::Picture {
@@ -93,7 +92,7 @@ pub fn create_thumbnail_file(thumbnail_file_path: &str, picture_file_path: &str)
             };
             let reader = BufReader::new(picture_file);
             let output_file = match File::create(thumbnail_file_path) {
-                Err(err) => return Err(std::io::Error::other("cannot create output file")),
+                Err(err) => return Err(err),
                 Ok(file) => file,
             };
             match write_thumbnail(reader, extension, output_file) {

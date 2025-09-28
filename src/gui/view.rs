@@ -1,6 +1,5 @@
 use crate::Controller;
 use crate::gui::event::Event::*;
-use crate::control::Control;
 use crate::display::picture_label_display;
 use crate::gen_image::no_thumbnail_picture;
 use crate::gui::components::*;
@@ -8,13 +7,11 @@ use crate::gui::controller::RcController;
 use crate::paths::check_path_exists;
 use crate::picture::Picture;
 use gtk::ApplicationWindow;
-use gtk::gdk::Key;
 use gtk::glib::clone;
 use gtk::prelude::*;
 use std::cell::RefCell;
 use std::path::PathBuf;
 use std::rc::Rc;
-use std::time::Duration;
 
 pub const LEFT_PANE: usize = 0;
 pub const RIGHT_PANE: usize = 1;
@@ -113,7 +110,6 @@ impl View {
         let view = self;
         for col in 0..cells_per_row {
             for row in 0..cells_per_row {
-                let coords = (row as usize, col as usize);
                 let cell_box: gtk::Box = grid .child_at(col, row).unwrap()
                     .downcast::<gtk::Box>().unwrap();
                 let gesture_left_click = gtk::GestureClick::new();
@@ -145,10 +141,6 @@ impl View {
     }
 
     pub fn attach_events(&self, window: &gtk::ApplicationWindow, controller_rc: &RcController) {
-        let stack = view_stack(window);
-        let single_view_scrolled_window = single_view_scrolled_window(window);
-        let multiple_view_scrolled_window = multiple_view_scrolled_window(window);
-        let panel = multiple_view_scrolled_window.first_child().unwrap();
         let left_pane = left_pane(window);
         let right_pane = right_pane(window);
 
@@ -157,7 +149,6 @@ impl View {
         gesture_left_click.set_button(1);
         gesture_left_click.connect_pressed(
             clone!(@strong controller_rc, @strong view, @strong window, => move |_,_,_,_| {
-                let mut refresh = false;
                 if let Ok(mut controller) = controller_rc.try_borrow_mut() {
                     controller.process_event(
                         PaneClicked { button: 1, pane_number: LEFT_PANE },
@@ -211,7 +202,6 @@ impl View {
         application_window: &ApplicationWindow,
         controller: &Controller,
     ) {
-        let gallery = controller.gallery();
         let picture: Picture = controller.current_picture();
         let gtkPicture: gtk::Picture = single_view_picture(application_window);
         let file_path = picture.file_path();
@@ -224,8 +214,7 @@ impl View {
         controller: &Controller,
         with_focus: bool,
     ) {
-        let navigator_rc = controller.navigator_rc();
-        let navigator = navigator_rc.borrow();
+        let navigator = controller.navigator();
         let position = navigator.position();
         let picture = controller.current_picture();
         if !controller.state().single_view() {
@@ -255,8 +244,7 @@ impl View {
         pictures_per_row: usize,
     ) {
         let cells_per_row: i32 = pictures_per_row as i32;
-        let navigator_rc = controller.navigator_rc();
-        let navigator = navigator_rc.borrow();
+        let navigator = controller.navigator();
         let gallery = controller.gallery();
         let grid = multiple_view_grid(application_window);
         for col in 0..cells_per_row {

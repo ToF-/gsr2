@@ -1,6 +1,7 @@
 use crate::default_values::FOCUS_SYMBOL;
 use crate::default_values::{EXPAND_ON_SYMBOL, FULL_SIZE_ON_SYMBOL};
 
+    #[allow(dead_code)]
 fn expand_display(on: bool) -> String {
     match on {
         false => String::from(""),
@@ -8,6 +9,7 @@ fn expand_display(on: bool) -> String {
     }
 }
 
+    #[allow(dead_code)]
 fn full_size_display(on: bool) -> String {
     match on {
         false => String::from(""),

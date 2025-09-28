@@ -1,11 +1,19 @@
 pub const DEFAULT_HEIGHT: i32 = 1000;
 pub const DEFAULT_WIDTH: i32 = 1000;
+
+#[allow(dead_code)]
 pub const EXPAND_ON_SYMBOL: &str = "  ⃞";
+#[allow(dead_code)]
 pub const FULL_SIZE_ON_SYMBOL: &str = " 🔍";
+#[allow(dead_code)]
 pub const MAX_PALETTE_COLORS: u8 = 9;
+#[allow(dead_code)]
 pub const ONE_PICTURE_PER_ROW: usize = 1;
+#[allow(dead_code)]
 pub const PALETTE_AREA_HEIGHT: i32 = 10;
+#[allow(dead_code)]
 pub const PALETTE_AREA_WIDTH: i32 = 90;
+#[allow(dead_code)]
 pub const SCROLL_STEP: f64 = 100.0;
 pub const THUMB_SUFFIX: &str = "THUMB";
 pub const VALID_EXTENSIONS: [&str; 6] = ["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"];

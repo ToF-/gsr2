@@ -30,6 +30,7 @@ impl Navigator {
         self.position
     }
 
+    #[allow(dead_code)]
     pub fn old_position(&self) -> usize {
         self.old_position
     }

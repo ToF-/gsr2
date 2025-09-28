@@ -26,6 +26,7 @@ impl Database {
         }
     }
 
+    #[allow(dead_code)]
     pub fn rusqlite_insert_picture(&self, picture: &Picture) -> Result<usize> {
         self.connection.execute(
             "INSERT INTO Picture          \n\
@@ -42,6 +43,7 @@ impl Database {
         )
     }
 
+    #[allow(dead_code)]
     pub fn rusqlite_delete_picture_with_file_path(&self, file_path: &str) -> Result<usize> {
         self.connection.execute(
             "DELETE FROM Picture        \n\
@@ -50,6 +52,7 @@ impl Database {
         )
     }
 
+    #[allow(dead_code)]
     pub fn rusqlite_retrieve_picture_with_file_path(&self, file_path: &str) -> Result<Picture> {
         self.connection.query_row(
             "SELECT FilePath,           \n\
