@@ -1,21 +1,12 @@
 use crate::CommandLineInterface;
 use crate::command::Command;
-use crate::control::Control;
-use crate::control::Controls;
-use crate::control::default_controls;
+use crate::control::{Control, Controls, default_controls};
 use crate::database::Database;
 use crate::default_values::{DEFAULT_HEIGHT, DEFAULT_WIDTH};
 use crate::direction::Direction;
 use crate::environment::database_connection;
 use crate::file_system::create_missing_thumbnails;
 use crate::gallery::Gallery;
-use crate::gui::components::attach_cells;
-use crate::gui::components::attach_grid_picture_events;
-use crate::gui::components::multiple_view_grid;
-use crate::gui::components::remove_cells;
-use crate::gui::components::single_view;
-use crate::gui::components::toggle_view_stack;
-use crate::gui::components::{make_application, startup_gui};
 use crate::gui::controller::gdk::Key;
 use crate::gui::controller::gdk::ModifierType;
 use crate::gui::event::Event;
@@ -29,9 +20,8 @@ use crate::gui::view::View;
 use crate::order::Order;
 use crate::picture::Picture;
 use gtk::gdk;
-use gtk::glib::clone;
 use gtk::prelude::*;
-use gtk::{self};
+use gtk::{self, ApplicationWindow};
 use std::cell::RefCell;
 use std::io::Result as IOResult;
 use std::rc::Rc;
@@ -128,7 +118,8 @@ impl Controller {
             }
             Err(err) => return Err(std::io::Error::other(err)),
         };
-        let application: gtk::Application = make_application("org.example.gallsh", controller_rc);
+        let application: gtk::Application =
+            View::make_application("org.example.gallsh", controller_rc);
         let no_args: Vec<String> = vec![];
         application.run_with_args(&no_args);
         Ok(())
@@ -155,7 +146,7 @@ impl Controller {
             PaneClicked {
                 button,
                 pane_number,
-            } => self.process_pane_clicked(button, pane_number, application_window),
+            } => self.process_pane_clicked(button, pane_number),
             PictureClicked { button, col, row } if button == 1 => {
                 self.process_picture_cliked(button, col, row, application_window)
             }
@@ -170,7 +161,7 @@ impl Controller {
         row: i32,
         window: &gtk::ApplicationWindow,
     ) {
-        View::set_label_for_current_picture(&window, self, false);
+        View::set_label_for_current_picture(self, false);
         if let Some(index) = self
             .navigator
             .position_from_coords(row as usize, col as usize)
@@ -180,22 +171,21 @@ impl Controller {
                     .move_towards(Direction::Index { value: index });
             }
         }
-        View::set_label_for_current_picture(&window, self, true);
+        View::set_label_for_current_picture(self, true);
     }
 
-    pub fn process_pane_clicked(
-        &mut self,
-        _button: usize,
-        pane_number: usize,
-        window: &gtk::ApplicationWindow,
-    ) {
+    pub fn process_pane_clicked(&mut self, _button: usize, pane_number: usize) {
         self.process(if pane_number == LEFT_PANE {
             &Control::MovePrev
         } else {
             &Control::MoveNext
         });
         if self.navigator.has_moved() {
-            View::set_pictures(window, self)
+            if let Ok(application_window) = self.view().application_window_rc().try_borrow() {
+                View::set_pictures(&application_window, self)
+            } else {
+                panic!("can't borrow")
+            }
         }
     }
 
@@ -207,26 +197,26 @@ impl Controller {
         window: &gtk::ApplicationWindow,
         controller_rc: &RcController,
     ) {
-        View::set_label_for_current_picture(&window, self, false);
+        View::set_label_for_current_picture(self, false);
         self.process_key(key);
         if self.state().dimension_changed() {
-            let grid = multiple_view_grid(&window);
-            remove_cells(&grid, self.state().old_pictures_per_row() as i32);
-            attach_cells(&grid, self.state().pictures_per_row() as i32);
-            attach_grid_picture_events(
+            let grid = View::multiple_view_grid(&window);
+            View::remove_cells(&grid, self.state().old_pictures_per_row() as i32);
+            View::attach_cells(&grid, self.state().pictures_per_row() as i32);
+            View::attach_grid_picture_events(
                 self.state().pictures_per_row() as i32,
                 window,
                 controller_rc,
             );
             self.acknowledge_dimension();
         }
-        if self.state().single_view() != single_view(&window) {
-            toggle_view_stack(&window);
+        if self.state().single_view() != View::single_view(&window) {
+            View::toggle_view_stack(&window);
             View::set_pictures(&window, self)
         } else if self.navigator.page_changed() {
             View::set_pictures(&window, self)
         };
-        View::set_label_for_current_picture(&window, self, true);
+        View::set_label_for_current_picture(self, true);
     }
 
     pub fn process_key(&mut self, key: Key) {
