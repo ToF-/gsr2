@@ -3,6 +3,7 @@ pub struct State {
     pub pictures_per_row: usize,
     pub old_pictures_per_row: usize,
     pub single_view: bool,
+    pub expand_on: bool,
     pub full_size_on: bool,
 }
 
@@ -12,6 +13,7 @@ impl State {
             pictures_per_row,
             old_pictures_per_row: 1,
             single_view: pictures_per_row == 1,
+            expand_on: false,
             full_size_on: false,
         }
     }
@@ -28,12 +30,20 @@ impl State {
         self.single_view
     }
 
+    pub fn expand_on(&self) -> bool {
+        self.expand_on
+    }
+
     pub fn full_size_on(&self) -> bool {
         self.full_size_on
     }
 
     pub fn toggle_single_view(&mut self) {
         self.single_view = !self.single_view
+    }
+
+    pub fn toggle_expand(&mut self) {
+        self.expand_on = !self.expand_on
     }
 
     pub fn dimension_changed(&self) -> bool {

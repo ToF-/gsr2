@@ -175,7 +175,7 @@ impl Controller {
     }
 
     pub fn process_pane_clicked(&mut self, _button: usize, pane_number: usize) {
-        self.process(if pane_number == LEFT_PANE {
+        self.process_control(if pane_number == LEFT_PANE {
             &Control::MovePrev
         } else {
             &Control::MoveNext
@@ -224,13 +224,13 @@ impl Controller {
         match key.name() {
             None => {}
             Some(key_name) => match controls.get(&key_name.to_string()) {
-                Some(control) => self.process(control),
+                Some(control) => self.process_control(control),
                 _ => {}
             },
         }
     }
 
-    pub fn process(&mut self, control: &Control) {
+    pub fn process_control(&mut self, control: &Control) {
         match control {
             Control::MoveNext => self.move_next(),
             Control::MovePrev => self.move_prev(),
@@ -244,6 +244,7 @@ impl Controller {
             Control::Down => self.move_down(),
             Control::Quit => self.quit(),
             Control::ToggleSingleView => self.toggle_single_view(),
+            Control::ToggleExpand => self.toggle_expand(),
             Control::GridTwo => self.switch_grid(2),
             Control::GridThree => self.switch_grid(3),
             Control::GridFour => self.switch_grid(4),
@@ -269,12 +270,22 @@ impl Controller {
         navigator.set_page_changed();
     }
 
+    pub fn toggle_expand(&mut self) {
+        if self.state.single_view() {
+            self.state.toggle_expand();
+            let navigator = &mut self.navigator;
+            navigator.set_page_changed();
+        }
+    }
+
     pub fn switch_grid(&mut self, pictures_per_row: usize) {
-        self.state.switch_grid(pictures_per_row);
-        let navigator = &mut self.navigator;
-        navigator.set_pictures_per_row(self.state.pictures_per_row);
-        navigator.update_page_limits();
-        navigator.set_page_changed();
+        if !self.state.single_view() {
+            self.state.switch_grid(pictures_per_row);
+            let navigator = &mut self.navigator;
+            navigator.set_pictures_per_row(self.state.pictures_per_row);
+            navigator.update_page_limits();
+            navigator.set_page_changed();
+        }
     }
 
     pub fn acknowledge_dimension(&mut self) {

@@ -64,7 +64,7 @@ impl View {
         } else {
             no_thumbnail_picture()
         };
-        Self::set_single_view_picture(&application_window, &gtkPicture);
+        Self::set_single_view_picture(&application_window, &controller, &gtkPicture);
     }
 
     pub fn set_label_for_current_picture(controller: &Controller, with_focus: bool) {
@@ -555,6 +555,7 @@ impl View {
     }
     pub fn set_single_view_picture(
         application_window: &gtk::ApplicationWindow,
+        controller: &Controller,
         picture: &gtk::Picture,
     ) {
         let frame = &Self::frame(&Self::visible_stack_child_scrolled_window(
@@ -563,6 +564,15 @@ impl View {
         while let Some(child) = frame.first_child() {
             frame.remove(&child)
         }
+        let state = controller.state();
+        if state.expand_on() {
+            picture.set_valign(Align::Fill);
+            picture.set_halign(Align::Fill);
+        } else {
+            picture.set_valign(Align::Center);
+            picture.set_halign(Align::Center);
+        };
+        picture.set_can_shrink(!state.full_size_on());
         frame.append(picture);
     }
 

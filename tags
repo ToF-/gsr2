@@ -116,6 +116,7 @@ editing	/Users/christophethibaut/Coding/gsr2/src/editor.rs	/^    pub fn editing(
 editor	/Users/christophethibaut/Coding/gsr2/src/application_state.old.rs	/^    pub fn editor(&self) -> &Editor {$/;"	f
 expand_display	/Users/christophethibaut/Coding/gsr2/src/display.rs	/^fn expand_display(on: bool) -> String {$/;"	f
 expand_on	/Users/christophethibaut/Coding/gsr2/src/application_state.old.rs	/^    pub fn expand_on(&self) -> bool {$/;"	f
+expand_on	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn expand_on(&self) -> bool {$/;"	f
 extract_a_palette_from_a_picture_file	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^    fn extract_a_palette_from_a_picture_file() {$/;"	f
 extract_a_palette_of_9_most_used_colors	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^    fn extract_a_palette_of_9_most_used_colors() {$/;"	f
 file_name	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    pub fn file_name(&self) -> String {$/;"	f
@@ -248,9 +249,9 @@ position_from_coords	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/
 position_from_coords_depnds_on_page_start	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn position_from_coords_depnds_on_page_start() {$/;"	f
 prev_page_start	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn prev_page_start(&self) -> usize {$/;"	f
 prev_page_start_is_page_start_minus_page_size	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn prev_page_start_is_page_start_minus_page_size() {$/;"	f
-process	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn process(&mut self, control: &Control) {$/;"	f
 process_arrow_key_in_fullsize	/Users/christophethibaut/Coding/gsr2/src/gui/application.old.rs	/^fn process_arrow_key_in_fullsize(direction: Control, gui: &GraphicalUserInterface) -> bool {$/;"	f
 process_control	/Users/christophethibaut/Coding/gsr2/src/gui/application.old.rs	/^fn process_control(gui: &mut GraphicalUserInterface, control: Control) -> bool {$/;"	f
+process_control	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn process_control(&mut self, control: &Control) {$/;"	f
 process_edition	/Users/christophethibaut/Coding/gsr2/src/gui/application.old.rs	/^fn process_edition(gui: &mut GraphicalUserInterface, key: Key) -> bool {$/;"	f
 process_event	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn process_event($/;"	f
 process_key	/Users/christophethibaut/Coding/gsr2/src/gui/application.old.rs	/^fn process_key(gui_rc: &RcRefCellGui, key: Key) -> gtk::Inhibit {$/;"	f
@@ -312,6 +313,8 @@ thumbnail_name_from_normal_file_has_thumb_suffix	/Users/christophethibaut/Coding
 thumbnails_on	/Users/christophethibaut/Coding/gsr2/src/application_state.old.rs	/^    pub fn thumbnails_on(&self) -> bool {$/;"	f
 thumbnails_on_tells_if_10_pictures_per_row	/Users/christophethibaut/Coding/gsr2/src/application_state.old.rs	/^    fn thumbnails_on_tells_if_10_pictures_per_row() {$/;"	f
 toggle_expand	/Users/christophethibaut/Coding/gsr2/src/application_state.old.rs	/^    pub fn toggle_expand(&mut self) {$/;"	f
+toggle_expand	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn toggle_expand(&mut self) {$/;"	f
+toggle_expand	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn toggle_expand(&mut self) {$/;"	f
 toggle_full_size	/Users/christophethibaut/Coding/gsr2/src/application_state.old.rs	/^    pub fn toggle_full_size(&mut self) {$/;"	f
 toggle_palette	/Users/christophethibaut/Coding/gsr2/src/application_state.old.rs	/^    pub fn toggle_palette(&mut self) {$/;"	f
 toggle_single_view	/Users/christophethibaut/Coding/gsr2/src/application_state.old.rs	/^    pub fn toggle_single_view(&mut self) {$/;"	f
