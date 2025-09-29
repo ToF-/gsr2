@@ -238,13 +238,14 @@ impl Controller {
             Control::MoveFirst => self.move_first(),
             Control::MoveStartPage => self.move_start(),
             Control::MoveEndPage => self.move_end(),
-            Control::Left => self.move_left(),
-            Control::Right => self.move_right(),
-            Control::Up => self.move_up(),
-            Control::Down => self.move_down(),
+            Control::Left => self.arrow_move(Direction::Left),
+            Control::Right => self.arrow_move(Direction::Right),
+            Control::Up => self.arrow_move(Direction::Up),
+            Control::Down => self.arrow_move(Direction::Down),
             Control::Quit => self.quit(),
             Control::ToggleSingleView => self.toggle_single_view(),
             Control::ToggleExpand => self.toggle_expand(),
+            Control::ToggleFullSize => self.toggle_full_size(),
             Control::GridTwo => self.switch_grid(2),
             Control::GridThree => self.switch_grid(3),
             Control::GridFour => self.switch_grid(4),
@@ -261,6 +262,9 @@ impl Controller {
 
     pub fn toggle_single_view(&mut self) {
         self.state.toggle_single_view();
+        if self.state.full_size_on() {
+            self.state.toggle_full_size()
+        }
         let navigator = &mut self.navigator;
         if self.state.single_view() {
             navigator.set_pictures_per_row(1);
@@ -278,6 +282,13 @@ impl Controller {
         }
     }
 
+    pub fn toggle_full_size(&mut self) {
+        if self.state.single_view() {
+            self.state.toggle_full_size();
+            let navigator = &mut self.navigator;
+            navigator.set_page_changed();
+        }
+    }
     pub fn switch_grid(&mut self, pictures_per_row: usize) {
         if !self.state.single_view() {
             self.state.switch_grid(pictures_per_row);
@@ -305,31 +316,29 @@ impl Controller {
             navigator.move_towards(Direction::PageEnd);
         }
     }
-    pub fn move_right(&mut self) {
-        let navigator = &mut self.navigator;
-        if navigator.can_move(Direction::Right) {
-            navigator.move_towards(Direction::Right);
+
+    pub fn arrow_move(&mut self, direction: Direction) {
+        if self.state().single_view() && self.state().full_size_on() {
+            self.full_size_arrow_move(direction)
+        } else {
+            let navigator = &mut(self.navigator);
+            if navigator.can_move(direction.clone()) {
+                navigator.move_towards(direction)
+            }
         }
+
     }
 
-    pub fn move_left(&mut self) {
-        let navigator = &mut self.navigator;
-        if navigator.can_move(Direction::Left) {
-            navigator.move_towards(Direction::Left);
-        }
-    }
-
-    pub fn move_up(&mut self) {
-        let navigator = &mut self.navigator;
-        if navigator.can_move(Direction::Up) {
-            navigator.move_towards(Direction::Up);
-        }
+    pub fn full_size_arrow_move(&self, direction: Direction) {
+        self.view().full_size_arrow_move(direction.clone())
     }
 
     pub fn move_down(&mut self) {
-        let navigator = &mut self.navigator;
-        if navigator.can_move(Direction::Down) {
-            navigator.move_towards(Direction::Down);
+        if ! self.state().full_size_on() {
+            let navigator = &mut self.navigator;
+            if navigator.can_move(Direction::Down) {
+                navigator.move_towards(Direction::Down);
+            }
         }
     }
 

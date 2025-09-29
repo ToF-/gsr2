@@ -46,6 +46,10 @@ impl State {
         self.expand_on = !self.expand_on
     }
 
+    pub fn toggle_full_size(&mut self) {
+        self.full_size_on = !self.full_size_on
+    }
+
     pub fn dimension_changed(&self) -> bool {
         self.pictures_per_row != self.old_pictures_per_row
     }

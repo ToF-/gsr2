@@ -1,3 +1,4 @@
+use crate::direction::Direction;
 use crate::Controller;
 use crate::default_values::{DEFAULT_HEIGHT, DEFAULT_WIDTH};
 use crate::display::picture_label_display;
@@ -331,6 +332,24 @@ impl View {
         }
         application_window.set_child(Some(&view_stack));
     }
+
+
+    pub fn full_size_arrow_move(&self, direction: Direction) {
+        let step: f64 = 100.0;
+        let application_window_rc = self.application_window_rc();
+        let application_window = application_window_rc.borrow();
+        let w = Self::single_view_scrolled_window(&application_window);
+        let wh_adj = w.hadjustment();
+        let wv_adj = w.vadjustment();
+        match direction {
+            Direction::Right => wh_adj.set_value(wh_adj.value() + step),
+            Direction::Left =>  wh_adj.set_value(wh_adj.value() - step),
+            Direction::Down =>  wv_adj.set_value(wv_adj.value() + step),
+            Direction::Up =>    wv_adj.set_value(wv_adj.value() - step), 
+            _ => {},
+        }
+    }
+
     pub fn make_application_window(application: &gtk::Application) -> gtk::ApplicationWindow {
         ApplicationWindow::builder()
             .application(application)
