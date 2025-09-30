@@ -1,12 +1,14 @@
-use crate::direction::Direction;
 use crate::Controller;
 use crate::default_values::{DEFAULT_HEIGHT, DEFAULT_WIDTH};
+use crate::direction::Direction;
 use crate::display::picture_label_display;
 use crate::gen_image::no_thumbnail_picture;
 use crate::gui::controller::RcController;
 use crate::gui::event::Event::{KeyPressed, PaneClicked, PictureClicked};
 use crate::paths::check_path_exists;
 use crate::picture::Picture;
+use gtk::Entry;
+use gtk::Window;
 use gtk::gio::File;
 use gtk::glib::clone;
 use gtk::prelude::*;
@@ -123,7 +125,8 @@ impl View {
                         no_thumbnail_picture()
                     };
                     cell.append(&gtkPicture);
-                    let label = Self::make_label_for_picture(&picture, index == navigator.position());
+                    let label =
+                        Self::make_label_for_picture(&picture, index == navigator.position());
                     cell.append(&label);
                 }
             }
@@ -333,7 +336,6 @@ impl View {
         application_window.set_child(Some(&view_stack));
     }
 
-
     pub fn full_size_arrow_move(&self, direction: Direction) {
         let step: f64 = 100.0;
         let application_window_rc = self.application_window_rc();
@@ -343,11 +345,38 @@ impl View {
         let wv_adj = w.vadjustment();
         match direction {
             Direction::Right => wh_adj.set_value(wh_adj.value() + step),
-            Direction::Left =>  wh_adj.set_value(wh_adj.value() - step),
-            Direction::Down =>  wv_adj.set_value(wv_adj.value() + step),
-            Direction::Up =>    wv_adj.set_value(wv_adj.value() - step), 
-            _ => {},
+            Direction::Left => wh_adj.set_value(wh_adj.value() - step),
+            Direction::Down => wv_adj.set_value(wv_adj.value() + step),
+            Direction::Up => wv_adj.set_value(wv_adj.value() - step),
+            _ => {}
         }
+    }
+
+    pub fn make_entry_window(
+        application_window: &gtk::ApplicationWindow,
+        prompt: &str,
+    ) -> gtk::Window {
+        let window: gtk::Window = Window::builder()
+            .title(prompt)
+            .default_width(300)
+            .default_height(30)
+            .deletable(false)
+            .decorated(true)
+            .modal(true)
+            .build();
+        let entry_label: gtk::Label = Label::new(None);
+        window.set_resizable(false);
+        window.set_hide_on_close(false);
+        window.set_child(Some(&entry_label));
+        window.set_modal(true);
+        println!("{:?}", application_window.first_child());
+        println!("{:?}", application_window.first_child().map(|w| w.next_sibling()));
+        window.set_transient_for(Some(application_window));
+        println!("{:?}", window);
+        println!("{:?}", application_window.first_child());
+        println!("{:?}", application_window.first_child().map(|w| w.next_sibling()));
+        window.present();
+        window
     }
 
     pub fn make_application_window(application: &gtk::Application) -> gtk::ApplicationWindow {
@@ -597,9 +626,9 @@ impl View {
 
     #[allow(dead_code)]
     pub fn single_view_picture_label(application_window: &gtk::ApplicationWindow) -> gtk::Label {
-        let picture = Self::picture(&Self::frame(&Self::visible_stack_child_scrolled_window(&Self::view_stack(
-            application_window,
-        ))));
+        let picture = Self::picture(&Self::frame(&Self::visible_stack_child_scrolled_window(
+            &Self::view_stack(application_window),
+        )));
         picture
             .next_sibling()
             .unwrap()

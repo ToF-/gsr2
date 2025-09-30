@@ -111,7 +111,7 @@ pub fn gen_single_dot() {
     image.save(SINGLE_DOT).unwrap();
 }
 
-pub fn large_picture() ->DynamicImage {
+pub fn large_picture() -> DynamicImage {
     let mut image = RgbImage::new(2250, 2250);
     for cx in 0..2250 {
         for cy in 0..2250 {
@@ -119,8 +119,8 @@ pub fn large_picture() ->DynamicImage {
                 (cx % 256) as u8,
                 (255 - (cy % 256)) as u8,
                 ((cx * 7 + cy * 13) % 256) as u8,
-                ]);
-        image.put_pixel(cx, cy, color)
+            ]);
+            image.put_pixel(cx, cy, color)
         }
     }
     DynamicImage::ImageRgb8(image)

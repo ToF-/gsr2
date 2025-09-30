@@ -1,3 +1,4 @@
+use gtk::Window;
 use crate::CommandLineInterface;
 use crate::command::Command;
 use crate::control::{Control, Controls, default_controls};
@@ -246,12 +247,23 @@ impl Controller {
             Control::ToggleSingleView => self.toggle_single_view(),
             Control::ToggleExpand => self.toggle_expand(),
             Control::ToggleFullSize => self.toggle_full_size(),
+            Control::Label => self.label(),
             Control::GridTwo => self.switch_grid(2),
             Control::GridThree => self.switch_grid(3),
             Control::GridFour => self.switch_grid(4),
             Control::GridFive => self.switch_grid(5),
             Control::GridTen => self.switch_grid(10),
             _ => {}
+        }
+    }
+
+    pub fn process_input_key(&mut self, key: Key, window: &Window) {
+        println!("{:?}", key);
+    }
+
+    pub fn label(&self) {
+        if let Ok(application_window) = self.view.application_window_rc().try_borrow_mut() {
+            View::make_entry_window(&application_window, "Enter a label");
         }
     }
     pub fn quit(&self) {
@@ -321,12 +333,11 @@ impl Controller {
         if self.state().single_view() && self.state().full_size_on() {
             self.full_size_arrow_move(direction)
         } else {
-            let navigator = &mut(self.navigator);
+            let navigator = &mut (self.navigator);
             if navigator.can_move(direction.clone()) {
                 navigator.move_towards(direction)
             }
         }
-
     }
 
     pub fn full_size_arrow_move(&self, direction: Direction) {
@@ -334,7 +345,7 @@ impl Controller {
     }
 
     pub fn move_down(&mut self) {
-        if ! self.state().full_size_on() {
+        if !self.state().full_size_on() {
             let navigator = &mut self.navigator;
             if navigator.can_move(Direction::Down) {
                 navigator.move_towards(Direction::Down);
