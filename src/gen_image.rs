@@ -5,6 +5,7 @@ use image::DynamicImage;
 pub const SINGLE_DOT: &str = "testdata/single_dot.png";
 pub const NINE_COLORS: &str = "testdata/nine_colors.png";
 pub const WHITE_SQUARE: &str = "testdata/white_square.png";
+pub const LARGE_PICTURE: &str = "testdata/large_picture.png";
 
 use gtk::gdk;
 use gtk::glib;
@@ -110,6 +111,20 @@ pub fn gen_single_dot() {
     image.save(SINGLE_DOT).unwrap();
 }
 
+pub fn large_picture() ->DynamicImage {
+    let mut image = RgbImage::new(2250, 2250);
+    for cx in 0..2250 {
+        for cy in 0..2250 {
+            let color = Rgb([
+                (cx % 256) as u8,
+                (255 - (cy % 256)) as u8,
+                ((cx * 7 + cy * 13) % 256) as u8,
+                ]);
+        image.put_pixel(cx, cy, color)
+        }
+    }
+    DynamicImage::ImageRgb8(image)
+}
 #[allow(dead_code)]
 pub fn gen_nine_colors() -> DynamicImage {
     let mut image = RgbImage::new(900, 900);
@@ -159,4 +174,18 @@ pub fn gen_white_square() {
 pub fn save_nine_colors() {
     let image = gen_nine_colors();
     image.save(NINE_COLORS).unwrap();
+}
+#[allow(dead_code)]
+pub fn save_large_picture() {
+    let image = large_picture();
+    image.save(LARGE_PICTURE).unwrap();
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    // #[test]
+    fn gen_large_picture() {
+        save_large_picture()
+    }
 }

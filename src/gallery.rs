@@ -97,18 +97,22 @@ mod tests {
             .load_from_directory("./testdata/")
             .expect("can't load from directory");
         gallery.sort_by(Order::Name);
-        assert_eq!(3, gallery.len());
+        assert_eq!(4, gallery.len());
         assert_eq!(
-            String::from("./testdata/nine_colors.png"),
+            String::from("./testdata/large_picture.png"),
             gallery.picture(0).file_path()
         );
         assert_eq!(
-            String::from("./testdata/single_dot.png"),
+            String::from("./testdata/nine_colors.png"),
             gallery.picture(1).file_path()
         );
         assert_eq!(
-            String::from("./testdata/white_square.png"),
+            String::from("./testdata/single_dot.png"),
             gallery.picture(2).file_path()
+        );
+        assert_eq!(
+            String::from("./testdata/white_square.png"),
+            gallery.picture(3).file_path()
         );
     }
 
@@ -156,6 +160,7 @@ mod tests {
     #[test]
     fn sorting_by_different_criteria() {
         // gen_white_square(); // uncomment if test file missing
+        // gen_large_picture(); // ditto
         let mut result = false;
         for _ in 0..10 {
             result |= sort_and_compare_lists()
