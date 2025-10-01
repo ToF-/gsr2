@@ -1,4 +1,4 @@
-use crate::CommandLineInterface;
+use crate::Args;
 use crate::command::Command;
 use crate::control::{Control, Controls, default_controls};
 use crate::database::Database;
@@ -26,7 +26,7 @@ use std::rc::Rc;
 
 #[derive(Debug)]
 pub struct Controller {
-    args: CommandLineInterface,
+    args: Args,
     gallery: Gallery,
     navigator: Navigator,
     controls: Controls,
@@ -38,7 +38,7 @@ pub struct Controller {
 pub type RcController = Rc<RefCell<Controller>>;
 
 impl Controller {
-    pub fn new(cli: CommandLineInterface) -> IOResult<Self> {
+    pub fn new(cli: Args) -> IOResult<Self> {
         let gallery = Gallery::new();
         let pictures_per_row = cli.pictures_per_row();
         let view = View::new(DEFAULT_HEIGHT, DEFAULT_WIDTH, pictures_per_row);
@@ -58,7 +58,7 @@ impl Controller {
         })
     }
 
-    pub fn args(&self) -> CommandLineInterface {
+    pub fn args(&self) -> Args {
         self.args.clone()
     }
 

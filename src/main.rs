@@ -1,10 +1,10 @@
 use crate::command::Command;
-use crate::command_line_interface::CommandLineInterface;
+use crate::cli::args::Args;
 use crate::gui::controller::Controller;
 use std::process::exit;
 
 mod command;
-mod command_line_interface;
+mod cli;
 mod control;
 mod database;
 mod default_values;
@@ -21,7 +21,7 @@ mod order;
 mod paths;
 
 fn main() {
-    match CommandLineInterface::parse_and_check(None) {
+    match Args::parse_and_check(None) {
         Ok(cli) => {
             if let Some(Command::File { ref file_path }) = cli.command {
                 println!("viewing file {}", file_path);

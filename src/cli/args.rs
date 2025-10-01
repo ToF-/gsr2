@@ -21,7 +21,7 @@ use std::io::{Error, Result};
 "
     )
 )]
-pub struct CommandLineInterface {
+pub struct Args {
     #[command(subcommand)]
     pub command: Option<Command>,
 
@@ -54,41 +54,41 @@ pub struct CommandLineInterface {
     pub slideshow: Option<i32>,
 }
 
-impl CommandLineInterface {
+impl Args {
     pub fn parse_and_check(args_opt: Option<Vec<&str>>) -> Result<Self> {
-        let mut cli: Self = match args_opt {
+        let mut args: Self = match args_opt {
             Some(args) => Self::parse_from(args),
             None => Self::parse(),
         };
 
-        cli.width = dimension(cli.width, "GSR_WIDTH", "width", DEFAULT_WIDTH);
-        cli.height = dimension(cli.height, "GSR_HEIGHT", "height", DEFAULT_HEIGHT);
-        cli.slideshow = slideshow_delay(cli.slideshow, "slideshow delay", DEFAULT_SLIDESHOW_DELAY);
-        if let Some(Command::File { ref file_path }) = cli.command {
+        args.width = dimension(args.width, "GSR_WIDTH", "width", DEFAULT_WIDTH);
+        args.height = dimension(args.height, "GSR_HEIGHT", "height", DEFAULT_HEIGHT);
+        args.slideshow = slideshow_delay(args.slideshow, "slideshow delay", DEFAULT_SLIDESHOW_DELAY);
+        if let Some(Command::File { ref file_path }) = args.command {
             match check_picture_file(file_path) {
                 Ok(_) => {
-                    if cli.grid.is_some() {
+                    if args.grid.is_some() {
                         return Err(Error::other("option --grid not allowed for File command"));
-                    } else if cli.thumbnails {
+                    } else if args.thumbnails {
                         return Err(Error::other(
                             "option --thumbnails not allowed for File command",
                         ));
                     } else {
-                        return Ok(cli.clone());
+                        return Ok(args.clone());
                     }
                 }
 
                 Err(e) => return Err(e),
             }
         }
-        if let Some(Command::Dir { ref directory }) = cli.command {
+        if let Some(Command::Dir { ref directory }) = args.command {
             match check_path(directory) {
-                Ok(_) => return Ok(cli.clone()),
+                Ok(_) => return Ok(args.clone()),
                 Err(e) => return Err(e),
             }
         }
-        println!("{:?}", cli.clone());
-        Ok(cli.clone())
+        println!("{:?}", args.clone());
+        Ok(args.clone())
     }
 
     pub fn slideshow(&self) -> Option<i32> {
@@ -117,8 +117,8 @@ mod tests {
     fn command_line_interface_with_command_file_with_adequate_argument() {
         gen_single_dot();
         let args = vec!["gsr", "file", SINGLE_DOT];
-        let cli = CommandLineInterface::parse_and_check(Some(args)).unwrap();
-        if let Some(File { file_path }) = cli.command {
+        let args = Args::parse_and_check(Some(args)).unwrap();
+        if let Some(File { file_path }) = args.command {
             assert_eq!(String::from(SINGLE_DOT), file_path);
         } else {
             assert!(false)
@@ -128,9 +128,9 @@ mod tests {
     #[test]
     fn command_line_interface_with_command_file_with_non_existing_file() {
         let args = vec!["gsr", "file", "not_existing.png"];
-        let cli = CommandLineInterface::parse_and_check(Some(args));
-        assert!(cli.is_err());
-        let err = cli.expect_err("can't extract error");
+        let args = Args::parse_and_check(Some(args));
+        assert!(args.is_err());
+        let err = args.expect_err("can't extract error");
         assert_eq!(ErrorKind::NotFound, err.kind());
         assert_eq!("not found: not_existing.png", &err.to_string())
     }
@@ -138,18 +138,18 @@ mod tests {
     #[test]
     fn command_line_interface_with_command_file_with_non_file() {
         let args = vec!["gsr", "file", "testdata"];
-        let cli = CommandLineInterface::parse_and_check(Some(args));
-        assert!(cli.is_err());
-        let err = cli.expect_err("can't extract error");
+        let args = Args::parse_and_check(Some(args));
+        assert!(args.is_err());
+        let err = args.expect_err("can't extract error");
         assert_eq!(ErrorKind::Other, err.kind());
         assert_eq!("testdata is not a file", &err.to_string())
     }
     #[test]
     fn command_line_interface_with_command_file_with_non_jpg_or_png_file() {
         let args = vec!["gsr", "file", "src/paths.rs"];
-        let cli = CommandLineInterface::parse_and_check(Some(args));
-        assert!(cli.is_err());
-        let err = cli.expect_err("can't extract error");
+        let args = Args::parse_and_check(Some(args));
+        assert!(args.is_err());
+        let err = args.expect_err("can't extract error");
         assert_eq!(ErrorKind::Other, err.kind());
         assert_eq!("src/paths.rs is not a jpg or png file", &err.to_string())
     }
@@ -157,8 +157,8 @@ mod tests {
     #[test]
     fn command_line_interface_with_command_directory_and_adequate_argument() {
         let args = vec!["gsr", "dir", "."];
-        let cli = CommandLineInterface::parse_and_check(Some(args)).unwrap();
-        if let Some(Dir { directory }) = cli.command {
+        let args = Args::parse_and_check(Some(args)).unwrap();
+        if let Some(Dir { directory }) = args.command {
             assert_eq!(String::from("."), directory);
         } else {
             assert!(false)
@@ -167,37 +167,37 @@ mod tests {
     #[test]
     fn command_line_interface_dir_command_with_non_existing_specified_directory() {
         let args = vec!["gsr", "dir", "not_existing_dir"];
-        let cli = CommandLineInterface::parse_and_check(Some(args));
-        assert!(cli.is_err());
-        let err = cli.expect_err("can't extract error");
+        let args = Args::parse_and_check(Some(args));
+        assert!(args.is_err());
+        let err = args.expect_err("can't extract error");
         assert_eq!(ErrorKind::NotFound, err.kind());
         assert_eq!("not found: not_existing_dir", &err.to_string())
     }
     #[test]
     fn command_line_interface_dir_command_with_object_specified_not_directory() {
         let args = vec!["gsr", "dir", "README.md"];
-        let cli = CommandLineInterface::parse_and_check(Some(args));
-        assert!(cli.is_err());
-        let err = cli.expect_err("can't extract error");
+        let args = Args::parse_and_check(Some(args));
+        assert!(args.is_err());
+        let err = args.expect_err("can't extract error");
         assert_eq!(ErrorKind::NotADirectory, err.kind());
         assert_eq!("README.md is not a directory", &err.to_string())
     }
     #[test]
     fn with_no_grid_or_thumbnail_option_pictures_per_row_is_1() {
         let args = vec!["gsr", "dir", "testdata"];
-        let cli = CommandLineInterface::parse_and_check(Some(args)).unwrap();
-        assert_eq!(1, cli.pictures_per_row())
+        let args = Args::parse_and_check(Some(args)).unwrap();
+        assert_eq!(1, args.pictures_per_row())
     }
     #[test]
     fn pictures_per_row_is_determined_by_grid_option() {
         let args = vec!["gsr", "--grid", "5", "dir", "testdata"];
-        let cli = CommandLineInterface::parse_and_check(Some(args)).unwrap();
-        assert_eq!(5, cli.pictures_per_row())
+        let args = Args::parse_and_check(Some(args)).unwrap();
+        assert_eq!(5, args.pictures_per_row())
     }
     #[test]
     fn pictures_per_row_is_determined_by_thumbnails_option() {
         let args = vec!["gsr", "--thumbnails", "dir", "testdata"];
-        let cli = CommandLineInterface::parse_and_check(Some(args)).unwrap();
-        assert_eq!(10, cli.pictures_per_row())
+        let args = Args::parse_and_check(Some(args)).unwrap();
+        assert_eq!(10, args.pictures_per_row())
     }
 }
