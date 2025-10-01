@@ -1,5 +1,5 @@
 use crate::Command;
-use crate::default_values::{DEFAULT_HEIGHT, DEFAULT_SLIDESHOW_DELAY, DEFAULT_WIDTH};
+use crate::env::default_values::{DEFAULT_HEIGHT, DEFAULT_SLIDESHOW_DELAY, DEFAULT_WIDTH};
 use crate::dimension::{dimension, slideshow_delay};
 use crate::paths::{check_path, check_picture_file};
 use clap::Parser;

@@ -116,7 +116,7 @@ impl Database {
 #[cfg(test)]
 pub mod tests {
     use super::*;
-    use crate::default_values::TEST_DATABASE_FILE;
+    use crate::env::default_values::TEST_DATABASE_FILE;
     use crate::gen_image::{NINE_COLORS, SINGLE_DOT, WHITE_SQUARE};
 
     pub fn my_db() -> Database {

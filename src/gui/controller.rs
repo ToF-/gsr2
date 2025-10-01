@@ -1,9 +1,9 @@
+use crate::file::database::Database;
 use crate::cli::command::Command;
 use crate::Args;
 use crate::gui::control::{Control, Controls, default_controls};
-use crate::database::Database;
-use crate::default_values::{DEFAULT_HEIGHT, DEFAULT_WIDTH};
-use crate::environment::database_connection;
+use crate::env::default_values::{DEFAULT_HEIGHT, DEFAULT_WIDTH};
+use crate::env::environment::database_connection;
 use crate::model::gallery::Gallery;
 use crate::file::picture_file::create_missing_thumbnails;
 use crate::gui::controller::gdk::Key;

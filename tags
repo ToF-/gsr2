@@ -10,48 +10,48 @@ Command	/Users/christophethibaut/Coding/gsr2/src/cli/command.rs	/^pub enum Comma
 Control	/Users/christophethibaut/Coding/gsr2/src/gui/control.rs	/^pub enum Control {$/;"	g
 Controller	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^pub struct Controller {$/;"	s
 Controls	/Users/christophethibaut/Coding/gsr2/src/gui/control.rs	/^pub type Controls = HashMap<String, Control>;$/;"	T
-DATABASE_CONNECTION_VAR	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const DATABASE_CONNECTION_VAR: &str = "GSRDBC";$/;"	c
-DEFAULT_HEIGHT	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const DEFAULT_HEIGHT: i32 = 1000;$/;"	c
-DEFAULT_SLIDESHOW_DELAY	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const DEFAULT_SLIDESHOW_DELAY: i32 = 60;$/;"	c
-DEFAULT_WIDTH	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const DEFAULT_WIDTH: i32 = 1000;$/;"	c
-DIMENSION_MAX	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const DIMENSION_MAX: i32 = 5000;$/;"	c
-DIMENSION_MIN	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const DIMENSION_MIN: i32 = 100;$/;"	c
-Database	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^pub struct Database {$/;"	s
+DATABASE_CONNECTION_VAR	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const DATABASE_CONNECTION_VAR: &str = "GSRDBC";$/;"	c
+DEFAULT_HEIGHT	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const DEFAULT_HEIGHT: i32 = 1000;$/;"	c
+DEFAULT_SLIDESHOW_DELAY	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const DEFAULT_SLIDESHOW_DELAY: i32 = 60;$/;"	c
+DEFAULT_WIDTH	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const DEFAULT_WIDTH: i32 = 1000;$/;"	c
+DIMENSION_MAX	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const DIMENSION_MAX: i32 = 5000;$/;"	c
+DIMENSION_MIN	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const DIMENSION_MIN: i32 = 100;$/;"	c
+Database	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^pub struct Database {$/;"	s
 Direction	/Users/christophethibaut/Coding/gsr2/src/gui/direction.rs	/^pub enum Direction {$/;"	g
-EXPAND_ON_SYMBOL	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const EXPAND_ON_SYMBOL: &str = "  ⃞";$/;"	c
+EXPAND_ON_SYMBOL	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const EXPAND_ON_SYMBOL: &str = "  ⃞";$/;"	c
 Editor	/Users/christophethibaut/Coding/gsr2/src/editor.rs	/^pub struct Editor {$/;"	s
 Event	/Users/christophethibaut/Coding/gsr2/src/gui/event.rs	/^pub enum Event {$/;"	g
-FOCUS_SYMBOL	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const FOCUS_SYMBOL: &str = "▄ ";$/;"	c
-FULL_SIZE_ON_SYMBOL	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const FULL_SIZE_ON_SYMBOL: &str = " 🔍";$/;"	c
+FOCUS_SYMBOL	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const FOCUS_SYMBOL: &str = "▄ ";$/;"	c
+FULL_SIZE_ON_SYMBOL	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const FULL_SIZE_ON_SYMBOL: &str = " 🔍";$/;"	c
 FileSize	/Users/christophethibaut/Coding/gsr2/src/model/image_data.rs	/^pub type FileSize = u64;$/;"	T
 Gallery	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^pub struct Gallery {$/;"	s
 ImageData	/Users/christophethibaut/Coding/gsr2/src/model/image_data.rs	/^pub struct ImageData {$/;"	s
-ImageDataMap	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^pub type ImageDataMap = HashMap<String, ImageData>;$/;"	T
+ImageDataMap	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^pub type ImageDataMap = HashMap<String, ImageData>;$/;"	T
 InputKind	/Users/christophethibaut/Coding/gsr2/src/editor.rs	/^pub enum InputKind {$/;"	g
 LARGE_PICTURE	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub const LARGE_PICTURE: &str = "testdata\/large_picture.png";$/;"	c
 LEFT_PANE	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^pub const LEFT_PANE: usize = 0;$/;"	c
-MAX_PALETTE_COLORS	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const MAX_PALETTE_COLORS: u8 = 9;$/;"	c
+MAX_PALETTE_COLORS	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const MAX_PALETTE_COLORS: u8 = 9;$/;"	c
 NINE_COLORS	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub const NINE_COLORS: &str = "testdata\/nine_colors.png";$/;"	c
 Navigator	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^pub struct Navigator {$/;"	s
-ONE_PICTURE_PER_ROW	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const ONE_PICTURE_PER_ROW: usize = 1;$/;"	c
+ONE_PICTURE_PER_ROW	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const ONE_PICTURE_PER_ROW: usize = 1;$/;"	c
 Order	/Users/christophethibaut/Coding/gsr2/src/model/order.rs	/^pub enum Order {$/;"	g
-PALETTE_AREA_HEIGHT	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const PALETTE_AREA_HEIGHT: i32 = 10;$/;"	c
-PALETTE_AREA_WIDTH	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const PALETTE_AREA_WIDTH: i32 = 90;$/;"	c
+PALETTE_AREA_HEIGHT	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const PALETTE_AREA_HEIGHT: i32 = 10;$/;"	c
+PALETTE_AREA_WIDTH	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const PALETTE_AREA_WIDTH: i32 = 90;$/;"	c
 Palette	/Users/christophethibaut/Coding/gsr2/src/model/image_data.rs	/^pub type Palette = [Rgb8; 9];$/;"	T
 Picture	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^pub struct Picture {$/;"	s
 PictureFileData	/Users/christophethibaut/Coding/gsr2/src/model/image_data.rs	/^pub struct PictureFileData(FileSize, SystemTime);$/;"	s
 RIGHT_PANE	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^pub const RIGHT_PANE: usize = 1;$/;"	c
 RcController	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^pub type RcController = Rc<RefCell<Controller>>;$/;"	T
 Rgb8	/Users/christophethibaut/Coding/gsr2/src/model/image_data.rs	/^pub type Rgb8 = Rgb<u8>;$/;"	T
-SCROLL_STEP	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const SCROLL_STEP: f64 = 100.0;$/;"	c
+SCROLL_STEP	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const SCROLL_STEP: f64 = 100.0;$/;"	c
 SINGLE_DOT	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub const SINGLE_DOT: &str = "testdata\/single_dot.png";$/;"	c
-SLIDESHOW_DELAY_MAX	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const SLIDESHOW_DELAY_MAX: i32 = 900;$/;"	c
-SLIDESHOW_DELAY_MIN	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const SLIDESHOW_DELAY_MIN: i32 = 1;$/;"	c
+SLIDESHOW_DELAY_MAX	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const SLIDESHOW_DELAY_MAX: i32 = 900;$/;"	c
+SLIDESHOW_DELAY_MIN	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const SLIDESHOW_DELAY_MIN: i32 = 1;$/;"	c
 State	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^pub struct State {$/;"	s
-TEST_DATABASE_FILE	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const TEST_DATABASE_FILE: &str = "testdata\/gsr2.db";$/;"	c
-THUMB_SUFFIX	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const THUMB_SUFFIX: &str = "THUMB";$/;"	c
+TEST_DATABASE_FILE	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const TEST_DATABASE_FILE: &str = "testdata\/gsr2.db";$/;"	c
+THUMB_SUFFIX	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const THUMB_SUFFIX: &str = "THUMB";$/;"	c
 Tags	/Users/christophethibaut/Coding/gsr2/src/model/image_data.rs	/^pub type Tags = HashSet<String>;$/;"	T
-VALID_EXTENSIONS	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const VALID_EXTENSIONS: [&str; 6] = ["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"];$/;"	c
+VALID_EXTENSIONS	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const VALID_EXTENSIONS: [&str; 6] = ["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"];$/;"	c
 View	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^pub struct View {$/;"	s
 WHITE_SQUARE	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub const WHITE_SQUARE: &str = "testdata\/white_square.png";$/;"	c
 a_picture_has_a_file_name	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    fn a_picture_has_a_file_name() {$/;"	f
@@ -115,10 +115,10 @@ create_thumbnail_file	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pu
 current_picture	/Users/christophethibaut/Coding/gsr2/src/application_state.old.rs	/^    pub fn current_picture(&self) -> Picture {$/;"	f
 current_picture	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn current_picture(&self) -> Picture {$/;"	f
 database	/Users/christophethibaut/Coding/gsr2/src/application_state.old.rs	/^    pub fn database(&self) -> &Database {$/;"	f
-database_connection	/Users/christophethibaut/Coding/gsr2/src/environment.rs	/^pub fn database_connection() -> Result<String> {$/;"	f
+database_connection	/Users/christophethibaut/Coding/gsr2/src/env/environment.rs	/^pub fn database_connection() -> Result<String> {$/;"	f
 default_controls	/Users/christophethibaut/Coding/gsr2/src/gui/control.rs	/^pub fn default_controls() -> Controls {$/;"	f
 delete	/Users/christophethibaut/Coding/gsr2/src/editor.rs	/^    pub fn delete(&mut self) -> bool {$/;"	f
-delete_nine_colors_from_db	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    pub fn delete_nine_colors_from_db() {$/;"	f
+delete_nine_colors_from_db	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    pub fn delete_nine_colors_from_db() {$/;"	f
 deleting_a_char_changes_the_input	/Users/christophethibaut/Coding/gsr2/src/editor.rs	/^    fn deleting_a_char_changes_the_input() {$/;"	f
 dimension	/Users/christophethibaut/Coding/gsr2/src/dimension.rs	/^pub fn dimension($/;"	f
 dimension_changed	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn dimension_changed(&self) -> bool {$/;"	f
@@ -134,7 +134,7 @@ file_name	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    pub fn
 file_name_from	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^pub fn file_name_from(file_path: &str) -> String {$/;"	f
 file_path	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    pub fn file_path(&self) -> String {$/;"	f
 frame	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn frame(window: &gtk::ScrolledWindow) -> gtk::Box {$/;"	f
-from_connection	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    pub fn from_connection(connection_string: &str) -> std::io::Result<Self> {$/;"	f
+from_connection	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    pub fn from_connection(connection_string: &str) -> std::io::Result<Self> {$/;"	f
 from_file	/Users/christophethibaut/Coding/gsr2/src/model/image_data.rs	/^    pub fn from_file(file_path: &str) -> Result<Self> {$/;"	f
 from_key_name_to_a_control	/Users/christophethibaut/Coding/gsr2/src/gui/control.rs	/^    fn from_key_name_to_a_control() {$/;"	f
 full_size_arrow_move	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn full_size_arrow_move(&self, direction: Direction) {$/;"	f
@@ -164,8 +164,8 @@ image_data	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    pub f
 initially_not_editing	/Users/christophethibaut/Coding/gsr2/src/editor.rs	/^    fn initially_not_editing() {$/;"	f
 input	/Users/christophethibaut/Coding/gsr2/src/editor.rs	/^    pub fn input(&self) -> String {$/;"	f
 input_kind	/Users/christophethibaut/Coding/gsr2/src/editor.rs	/^    pub fn input_kind(&self) -> Option<InputKind> {$/;"	f
-insert_and_retrieve_a_picture	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    fn insert_and_retrieve_a_picture() {$/;"	f
-insert_nine_colors_sample_into_db	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    pub fn insert_nine_colors_sample_into_db() {$/;"	f
+insert_and_retrieve_a_picture	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    fn insert_and_retrieve_a_picture() {$/;"	f
+insert_nine_colors_sample_into_db	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    pub fn insert_nine_colors_sample_into_db() {$/;"	f
 is_empty	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^    pub fn is_empty(&self) -> bool {$/;"	f
 label	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn label(&self) {$/;"	f
 label	/Users/christophethibaut/Coding/gsr2/src/model/image_data.rs	/^    pub fn label(&self) -> String {$/;"	f
@@ -217,7 +217,7 @@ moving_up_moves_to_entry_one_row_above	/Users/christophethibaut/Coding/gsr2/src/
 multiple_view_grid	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn multiple_view_grid(application_window: &gtk::ApplicationWindow) -> gtk::Grid {$/;"	f
 multiple_view_scrolled_window	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn multiple_view_scrolled_window($/;"	f
 my_app_state	/Users/christophethibaut/Coding/gsr2/src/application_state.old.rs	/^    fn my_app_state() -> ApplicationState {$/;"	f
-my_db	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    pub fn my_db() -> Database {$/;"	f
+my_db	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    pub fn my_db() -> Database {$/;"	f
 navigator	/Users/christophethibaut/Coding/gsr2/src/application_state.old.rs	/^    pub fn navigator(&self) -> &Navigator {$/;"	f
 navigator	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn navigator(&self) -> Navigator {$/;"	f
 navigator_can_move_to_first_and_last_position	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn navigator_can_move_to_first_and_last_position() {$/;"	f
@@ -273,15 +273,15 @@ process_picture_cliked	/Users/christophethibaut/Coding/gsr2/src/gui/controller.r
 quit	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn quit(&self) {$/;"	f
 remove_cells	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn remove_cells(grid: &gtk::Grid, cells_per_row: i32) {$/;"	f
 remove_children_from_box	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn remove_children_from_box(cell_box: &gtk::Box) {$/;"	f
-retrieve_all_pictures	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    pub fn retrieve_all_pictures(&self) -> Result<Vec<Picture>> {$/;"	f
-retrieve_all_pictures_ordered_by_file_path	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    fn retrieve_all_pictures_ordered_by_file_path() {$/;"	f
+retrieve_all_pictures	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    pub fn retrieve_all_pictures(&self) -> Result<Vec<Picture>> {$/;"	f
+retrieve_all_pictures_ordered_by_file_path	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    fn retrieve_all_pictures_ordered_by_file_path() {$/;"	f
 right_pane	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn right_pane(application_window: &gtk::ApplicationWindow) -> gtk::Label {$/;"	f
-rusqlite_delete_picture_with_file_path	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    pub fn rusqlite_delete_picture_with_file_path(&self, file_path: &str) -> Result<usize> {$/;"	f
-rusqlite_from_connection	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    fn rusqlite_from_connection(connection_string: &str) -> Result<Self> {$/;"	f
-rusqlite_insert_picture	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    pub fn rusqlite_insert_picture(&self, picture: &Picture) -> Result<usize> {$/;"	f
-rusqlite_retrieve_all_pictures	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    pub fn rusqlite_retrieve_all_pictures(&self) -> Result<ImageDataMap> {$/;"	f
-rusqlite_retrieve_picture_with_file_path	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    pub fn rusqlite_retrieve_picture_with_file_path(&self, file_path: &str) -> Result<Picture> {$/;"	f
-rusqlite_row_to_picture	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    fn rusqlite_row_to_picture(row: &Row) -> Result<Picture> {$/;"	f
+rusqlite_delete_picture_with_file_path	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    pub fn rusqlite_delete_picture_with_file_path(&self, file_path: &str) -> Result<usize> {$/;"	f
+rusqlite_from_connection	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    fn rusqlite_from_connection(connection_string: &str) -> Result<Self> {$/;"	f
+rusqlite_insert_picture	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    pub fn rusqlite_insert_picture(&self, picture: &Picture) -> Result<usize> {$/;"	f
+rusqlite_retrieve_all_pictures	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    pub fn rusqlite_retrieve_all_pictures(&self) -> Result<ImageDataMap> {$/;"	f
+rusqlite_retrieve_picture_with_file_path	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    pub fn rusqlite_retrieve_picture_with_file_path(&self, file_path: &str) -> Result<Picture> {$/;"	f
+rusqlite_row_to_picture	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    fn rusqlite_row_to_picture(row: &Row) -> Result<Picture> {$/;"	f
 save_large_picture	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub fn save_large_picture() {$/;"	f
 save_nine_colors	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub fn save_nine_colors() {$/;"	f
 set_application_window_rc	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn set_application_window_rc($/;"	f

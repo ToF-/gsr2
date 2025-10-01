@@ -1,5 +1,5 @@
 use std::collections::HashSet;
-use crate::default_values::MAX_PALETTE_COLORS;
+use crate::env::default_values::MAX_PALETTE_COLORS;
 use image::{DynamicImage, Rgb};
 use palette_extract::{MaxColors, PixelEncoding, PixelFilter, Quality, get_palette_with_options};
 use std::cmp::Ordering;

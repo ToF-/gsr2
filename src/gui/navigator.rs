@@ -167,7 +167,7 @@ impl Navigator {
 
 mod tests {
     use super::*;
-    use crate::default_values::ONE_PICTURE_PER_ROW;
+    use crate::env::default_values::ONE_PICTURE_PER_ROW;
 
     #[test]
     fn navigator_cannot_move_past_gallery_limit() {

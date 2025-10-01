@@ -1,5 +1,5 @@
-use crate::default_values::THUMB_SUFFIX;
-use crate::default_values::VALID_EXTENSIONS;
+use crate::env::default_values::THUMB_SUFFIX;
+use crate::env::default_values::VALID_EXTENSIONS;
 use std::io::{Error, ErrorKind, Result};
 use std::path::PathBuf;
 

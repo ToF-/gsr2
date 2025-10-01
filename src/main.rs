@@ -4,12 +4,10 @@ use crate::gui::controller::Controller;
 use std::process::exit;
 
 mod cli;
-mod database;
-mod default_values;
+mod env;
 mod dimension;
 mod display;
 mod editor;
-mod environment;
 mod file;
 mod gen_image;
 mod gui;

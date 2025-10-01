@@ -1,4 +1,4 @@
-use crate::default_values::THUMB_SUFFIX;
+use crate::env::default_values::THUMB_SUFFIX;
 use crate::model::gallery::Gallery;
 use crate::gen_image::create_thumbnail_file;
 use crate::paths::check_path_exists;

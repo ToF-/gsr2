@@ -1,4 +1,4 @@
-use crate::database::Database;
+use crate::file::database::Database;
 use crate::file::picture_file::{get_all_picture_file_paths, get_picture_file_path};
 use crate::model::order::Order;
 use crate::model::picture::Picture;
@@ -84,10 +84,10 @@ impl Gallery {
 mod tests {
 
     use super::*;
-    use crate::database::Database;
-    use crate::database::tests::my_db;
-    use crate::database::tests::{delete_nine_colors_from_db, insert_nine_colors_sample_into_db};
-    use crate::default_values::TEST_DATABASE_FILE;
+    use crate::file::database::Database;
+    use crate::file::database::tests::my_db;
+    use crate::file::database::tests::{delete_nine_colors_from_db, insert_nine_colors_sample_into_db};
+    use crate::env::default_values::TEST_DATABASE_FILE;
     use crate::gen_image::{NINE_COLORS, SINGLE_DOT, WHITE_SQUARE};
 
     #[test]
