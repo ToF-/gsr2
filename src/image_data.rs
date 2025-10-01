@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use crate::default_values::MAX_PALETTE_COLORS;
 use image::{DynamicImage, Rgb};
 use palette_extract::{MaxColors, PixelEncoding, PixelFilter, Quality, get_palette_with_options};
@@ -9,22 +10,57 @@ use std::time::SystemTime;
 
 pub type Rgb8 = Rgb<u8>;
 pub type Palette = [Rgb8; 9];
+pub type FileSize = u64;
+pub struct PictureFileData(FileSize, SystemTime);
+pub type Tags = HashSet<String>;
 
-#[derive(Debug, Clone, Ord, PartialOrd, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ImageData {
     label: String,
+    size: FileSize,
+    modified_time: SystemTime,
+    palette: Palette,
+    tags: Tags,
 }
 
 impl ImageData {
     pub fn new(label: &str) -> Self {
         ImageData {
             label: label.to_string(),
+            size: 0,
+            modified_time: SystemTime::now(),
+            palette: [Rgb::from([0,0,0]); 9],
+            tags: HashSet::new(),
         }
+    }
+
+    pub fn from_file(file_path: &str) -> Result<Self> {
+        get_data_from_picture_file(file_path)
+            .and_then(|file_data| {
+                get_palette_from_picture_file(file_path)
+                    .and_then(|palette| {
+                        Ok(ImageData {
+                            label: String::from(""),
+                            size: file_data.0,
+                            modified_time: file_data.1,
+                            palette,
+                            tags: HashSet::new(),
+                        })
+                    })
+            })
     }
 
     pub fn label(&self) -> String {
         self.label.clone()
     }
+}
+
+impl Ord for ImageData {
+    fn cmp(&self, _: &Self) -> std::cmp::Ordering { todo!() }
+}
+
+impl PartialOrd for ImageData {
+    fn partial_cmp(&self, _: &ImageData) -> std::option::Option<std::cmp::Ordering> { todo!() }
 }
 
 fn compare_rgb(color: &Rgb8, other: &Rgb8) -> Ordering {
@@ -37,7 +73,7 @@ fn compare_rgb(color: &Rgb8, other: &Rgb8) -> Ordering {
     }
 }
 
-pub fn get_palette(image: &DynamicImage) -> Palette {
+fn get_palette(image: &DynamicImage) -> Palette {
     let mut palette: Palette = [Rgb([0, 0, 0]); 9];
     let pixels: &[u8] = image.as_bytes();
     let colors = get_palette_with_options(
@@ -66,10 +102,6 @@ pub fn get_palette_from_picture_file(file_path: &str) -> Result<Palette> {
         ))),
     }
 }
-
-pub type FileSize = u64;
-
-pub struct PictureFileData(FileSize, SystemTime);
 
 pub fn get_data_from_picture_file(file_path: &str) -> Result<PictureFileData> {
     let path = PathBuf::from(file_path);
