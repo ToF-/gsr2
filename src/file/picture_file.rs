@@ -3,6 +3,11 @@ use crate::model::gallery::Gallery;
 use crate::model::gen_image::create_thumbnail_file;
 use crate::file::paths::check_path_exists;
 use crate::file::paths::{check_path, check_path_is_a_jpg_or_png_file, check_picture_file};
+use crate::model::image_data::get_palette;
+use crate::model::image_data::Palette;
+use std::fs;
+use crate::model::image_data::PictureFileData;
+use std::io::Error;
 use std::io::Result;
 use std::path::PathBuf;
 use walkdir::WalkDir;
@@ -45,3 +50,29 @@ pub fn create_missing_thumbnails(gallery: &Gallery) {
         }
     }
 }
+
+pub fn get_data_from_picture_file(file_path: &str) -> Result<PictureFileData> {
+    let path = PathBuf::from(file_path);
+    match fs::metadata(path.clone()) {
+        Ok(metadata) => {
+            let file_size = metadata.len();
+            let modified_time = metadata.modified().unwrap();
+            Ok(PictureFileData(file_size, modified_time))
+        }
+        Err(err) => Err(err),
+    }
+}
+
+pub fn get_palette_from_picture_file(file_path: &str) -> Result<Palette> {
+    match image::open(file_path) {
+        Ok(image) => {
+            let palette = get_palette(&image);
+            Ok(palette)
+        }
+        Err(_) => Err(Error::other(format!(
+            "can't open image file {} for palette extraction",
+            file_path
+        ))),
+    }
+}
+

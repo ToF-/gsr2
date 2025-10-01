@@ -1,3 +1,5 @@
+use crate::file::picture_file::get_data_from_picture_file;
+use crate::file::picture_file::get_palette_from_picture_file;
 use std::collections::HashSet;
 use crate::env::default_values::MAX_PALETTE_COLORS;
 use image::{DynamicImage, Rgb};
@@ -11,7 +13,7 @@ use std::time::SystemTime;
 pub type Rgb8 = Rgb<u8>;
 pub type Palette = [Rgb8; 9];
 pub type FileSize = u64;
-pub struct PictureFileData(FileSize, SystemTime);
+pub struct PictureFileData(pub FileSize, pub SystemTime);
 pub type Tags = HashSet<String>;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -73,7 +75,7 @@ fn compare_rgb(color: &Rgb8, other: &Rgb8) -> Ordering {
     }
 }
 
-fn get_palette(image: &DynamicImage) -> Palette {
+pub fn get_palette(image: &DynamicImage) -> Palette {
     let mut palette: Palette = [Rgb([0, 0, 0]); 9];
     let pixels: &[u8] = image.as_bytes();
     let colors = get_palette_with_options(
@@ -90,30 +92,6 @@ fn get_palette(image: &DynamicImage) -> Palette {
     palette
 }
 
-pub fn get_palette_from_picture_file(file_path: &str) -> Result<Palette> {
-    match image::open(file_path) {
-        Ok(image) => {
-            let palette = get_palette(&image);
-            Ok(palette)
-        }
-        Err(_) => Err(Error::other(format!(
-            "can't open image file {} for palette extraction",
-            file_path
-        ))),
-    }
-}
-
-pub fn get_data_from_picture_file(file_path: &str) -> Result<PictureFileData> {
-    let path = PathBuf::from(file_path);
-    match fs::metadata(path.clone()) {
-        Ok(metadata) => {
-            let file_size = metadata.len();
-            let modified_time = metadata.modified().unwrap();
-            Ok(PictureFileData(file_size, modified_time))
-        }
-        Err(err) => Err(err),
-    }
-}
 
 #[cfg(test)]
 mod tests {
