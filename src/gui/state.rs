@@ -25,6 +25,10 @@ impl State {
         self.slideshow_on
     }
 
+    pub fn set_slideshow_off(&mut self) {
+        self.slideshow_on = false;
+    }
+
     pub fn pictures_per_row(&self) -> usize {
         self.pictures_per_row
     }
@@ -49,6 +53,9 @@ impl State {
         self.single_view = !self.single_view
     }
 
+    pub fn toggle_slideshow(&mut self) {
+        self.slideshow_on = !self.slideshow_on
+    }
     pub fn toggle_expand(&mut self) {
         self.expand_on = !self.expand_on
     }
@@ -69,7 +76,8 @@ impl State {
         if pictures_per_row != self.pictures_per_row {
             self.old_pictures_per_row = self.pictures_per_row;
             self.pictures_per_row = pictures_per_row
-        }
+        };
+        self.single_view = false
     }
 }
 

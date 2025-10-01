@@ -272,21 +272,27 @@ impl View {
         );
         application_window.add_controller(evk);
         if let Some(seconds) = slideshow_opt {
-            let delay: u64 = seconds.try_into().unwrap();
-            println!("setting slideshow delay to {} seconds", delay);
-            timeout_add_local(Duration::new(delay, 0),
-            clone!(@strong controller_rc, @strong application_window => move | | {
-                if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+            Self::attach_slideshow_event(seconds, application_window, controller_rc)
+        }
+    }
+
+    pub fn attach_slideshow_event(seconds: i32, application_window: &gtk::ApplicationWindow, controller_rc: &RcController) {
+        let delay: u64 = seconds.try_into().unwrap();
+        println!("setting slideshow delay to {} seconds", delay);
+        timeout_add_local(Duration::new(delay, 0),
+        clone!(@strong controller_rc, @strong application_window => move | | {
+            if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+                if controller.state().slideshow_on() {
                     controller.process_event(
                         NextSlideDelay,
                         &application_window,
                         &controller_rc)
-                } else {
-                    panic!("can't borrow mut controller");
                 };
-                Continue(true)
-            }));
-        }
+                Continue(controller.state().slideshow_on())
+            } else {
+                panic!("can't borrow mut controller")
+            }
+        }));
     }
 
     pub fn attach_grid_picture_events(

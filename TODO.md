@@ -30,4 +30,6 @@
 - [x] view in full size with key movements
 - [x] width and heigth arguments
 - [x] slideshow mode
+- [x] any other event stops the slide show
+- [x] S command put the slide show back
 - [ ] edit and add a label, save it in the database and retrieve it

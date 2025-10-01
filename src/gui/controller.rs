@@ -138,13 +138,15 @@ impl Controller {
                 key,
                 key_code,
                 modifier_type,
-            } => self.process_key_event(
-                key,
-                key_code,
-                modifier_type,
-                application_window,
-                controller_rc,
-            ),
+            } => { 
+                self.process_key_event(
+                    key,
+                    key_code,
+                    modifier_type,
+                    application_window,
+                    controller_rc,
+                );
+            },
             Event::NextSlideDelay => self.next_slide_delay(
                 application_window,
                 controller_rc,
@@ -152,14 +154,24 @@ impl Controller {
             Event::PaneClicked {
                 button,
                 pane_number,
-            } => self.process_pane_clicked(button, pane_number),
+            } => {
+                self.process_pane_clicked(button, pane_number);
+                self.set_slideshow_off()
+            },
             Event::PictureClicked { button, col, row } if button == 1 => {
-                self.process_picture_cliked(button, col, row, application_window)
-            }
+                self.process_picture_cliked(button, col, row, application_window);
+                self.set_slideshow_off()
+            },
             _ => println!("{:?}", event),
         }
     }
 
+    pub fn set_slideshow_off(&mut self) {
+        if self.state().slideshow_on() {
+        println!("setting slideshow off…");
+        self.state.set_slideshow_off();
+        }
+    }
     pub fn process_picture_cliked(
         &mut self,
         _button: u32,
@@ -204,25 +216,33 @@ impl Controller {
         controller_rc: &RcController,
     ) {
         View::set_label_for_current_picture(self, false);
+        let old_slideshow_on = self.state().slideshow_on();
         self.process_key(key);
-        if self.state().dimension_changed() {
-            let grid = View::multiple_view_grid(&window);
-            View::remove_cells(&grid, self.state().old_pictures_per_row() as i32);
-            View::attach_cells(&grid, self.state().pictures_per_row() as i32);
-            View::attach_grid_picture_events(
-                self.state().pictures_per_row() as i32,
-                window,
-                controller_rc,
-            );
-            self.acknowledge_dimension();
+        if self.state.slideshow_on() != old_slideshow_on {
+            if let Some(seconds) = self.args().slideshow() {
+                View::attach_slideshow_event(seconds, window, controller_rc);
+            }
+        } else {
+            self.set_slideshow_off();
+            if self.state().dimension_changed() {
+                let grid = View::multiple_view_grid(&window);
+                View::remove_cells(&grid, self.state().old_pictures_per_row() as i32);
+                View::attach_cells(&grid, self.state().pictures_per_row() as i32);
+                View::attach_grid_picture_events(
+                    self.state().pictures_per_row() as i32,
+                    window,
+                    controller_rc,
+                );
+                self.acknowledge_dimension();
+            }
+            if self.state().single_view() != View::single_view(&window) {
+                View::toggle_view_stack(&window);
+                View::set_pictures(&window, self)
+            } else if self.navigator.page_changed() {
+                View::set_pictures(&window, self)
+            };
+            View::set_label_for_current_picture(self, true);
         }
-        if self.state().single_view() != View::single_view(&window) {
-            View::toggle_view_stack(&window);
-            View::set_pictures(&window, self)
-        } else if self.navigator.page_changed() {
-            View::set_pictures(&window, self)
-        };
-        View::set_label_for_current_picture(self, true);
     }
 
     pub fn process_key(&mut self, key: Key) {
@@ -257,6 +277,7 @@ impl Controller {
             Control::ToggleSingleView => self.toggle_single_view(),
             Control::ToggleExpand => self.toggle_expand(),
             Control::ToggleFullSize => self.toggle_full_size(),
+            Control::ToggleSlideShow => self.toggle_slideshow(),
             Control::Label => self.label(),
             Control::GridTwo => self.switch_grid(2),
             Control::GridThree => self.switch_grid(3),
@@ -311,14 +332,24 @@ impl Controller {
             navigator.set_page_changed();
         }
     }
+
+    pub fn toggle_slideshow(&mut self) {
+       if self.args().slideshow().is_some() {
+           self.state.toggle_slideshow();
+           if self.state.slideshow_on() {
+               let navigator = &mut self.navigator;
+               navigator.set_page_changed();
+           }
+
+       }
+    }
+
     pub fn switch_grid(&mut self, pictures_per_row: usize) {
-        if !self.state.single_view() {
             self.state.switch_grid(pictures_per_row);
             let navigator = &mut self.navigator;
             navigator.set_pictures_per_row(self.state.pictures_per_row);
             navigator.update_page_limits();
             navigator.set_page_changed();
-        }
     }
 
     pub fn acknowledge_dimension(&mut self) {
