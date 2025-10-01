@@ -22,7 +22,7 @@ use crate::order::Order;
 use crate::picture::Picture;
 use gtk::gdk;
 use gtk::prelude::*;
-use gtk::{self, ApplicationWindow};
+use gtk::{self};
 use std::cell::RefCell;
 use std::io::Result as IOResult;
 use std::rc::Rc;
@@ -61,6 +61,10 @@ impl Controller {
         })
     }
 
+    pub fn args(&self) -> CommandLineInterface {
+        self.args.clone()
+    }
+    
     pub fn view(&self) -> View {
         self.view.clone()
     }
@@ -160,7 +164,7 @@ impl Controller {
         _button: u32,
         col: i32,
         row: i32,
-        window: &gtk::ApplicationWindow,
+        _window: &gtk::ApplicationWindow,
     ) {
         View::set_label_for_current_picture(self, false);
         if let Some(index) = self
@@ -257,7 +261,7 @@ impl Controller {
         }
     }
 
-    pub fn process_input_key(&mut self, key: Key, window: &Window) {
+    pub fn process_input_key(&mut self, key: Key, _window: &Window) {
         println!("{:?}", key);
     }
 

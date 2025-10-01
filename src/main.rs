@@ -8,6 +8,7 @@ mod command_line_interface;
 mod control;
 mod database;
 mod default_values;
+mod dimension;
 mod direction;
 mod display;
 mod editor;

@@ -5,6 +5,7 @@ pub struct State {
     pub single_view: bool,
     pub expand_on: bool,
     pub full_size_on: bool,
+
 }
 
 impl State {

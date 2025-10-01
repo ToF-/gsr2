@@ -7,11 +7,9 @@ use crate::gui::controller::RcController;
 use crate::gui::event::Event::{KeyPressed, PaneClicked, PictureClicked};
 use crate::paths::check_path_exists;
 use crate::picture::Picture;
-use gtk::Entry;
 use gtk::Window;
 use gtk::gio::File;
 use gtk::glib::clone;
-use gtk::prelude::*;
 use gtk::prelude::*;
 use gtk::{self};
 use gtk::{Align, Application, ApplicationWindow, Grid, gdk};
@@ -126,14 +124,14 @@ impl View {
                     };
                     cell.append(&gtkPicture);
                     let label =
-                        Self::make_label_for_picture(&picture, index == navigator.position());
+                        Self::make_label_for_picture(&picture, is_focus);
                     cell.append(&label);
                 }
             }
         }
     }
 
-    pub fn set_pictures(application_window: &gtk::ApplicationWindow, controller: &Controller) {
+    pub fn set_pictures(_application_window: &gtk::ApplicationWindow, controller: &Controller) {
         if controller.state().single_view() {
             Self::set_picture_for_single_view(&controller)
         } else {
@@ -184,7 +182,7 @@ impl View {
         controller_rc: &RcController,
     ) {
         let pictures_per_row: i32;
-        let application_window = Self::make_application_window(application);
+        let application_window = Self::make_application_window(application, controller_rc);
         {
             let controller = controller_rc.try_borrow().expect("can't borrow");
             pictures_per_row = controller.state().pictures_per_row() as i32;
@@ -207,7 +205,7 @@ impl View {
         };
         {
             let controller = controller_rc.try_borrow().expect("can't borrow");
-            let view = controller.view();
+            let _view = controller.view();
             View::set_pictures(&application_window, &controller);
             application_window.present();
         }
@@ -216,7 +214,7 @@ impl View {
     // attach event mananger to some components
     pub fn attach_events(
         application_window: &gtk::ApplicationWindow,
-        view: &View,
+        _view: &View,
         controller_rc: &RcController,
     ) {
         let left_pane = Self::left_pane(application_window);
@@ -260,7 +258,7 @@ impl View {
             clone!(@strong controller_rc, @strong application_window => move |_, key, key_code, modifier_type| {
                 if let Ok(mut controller) = controller_rc.try_borrow_mut() {
                     controller.process_event(
-                        KeyPressed { key: key, key_code: key_code, modifier_type: modifier_type },
+                        KeyPressed { key, key_code, modifier_type },
                         &application_window,
                         &controller_rc);
                 };
@@ -287,7 +285,7 @@ impl View {
                 gesture_left_click.connect_pressed(clone!(@strong col, @strong row, @strong controller_rc, @strong window => move |_,_,_,_| {
                     if let Ok(mut controller) = controller_rc.try_borrow_mut() {
                         controller.process_event(
-                            PictureClicked { button: 1, col: col, row: row },
+                            PictureClicked { button: 1, col, row },
                             &window,
                             &controller_rc);
                     }
@@ -298,7 +296,7 @@ impl View {
                 gesture_right_click.connect_pressed(clone!(@strong col, @strong row, @strong controller_rc, @strong window => move |_,_,_,_| {
                     if let Ok(mut controller) = controller_rc.try_borrow_mut() {
                         controller.process_event(
-                            PictureClicked { button: 3, col: col, row: row },
+                            PictureClicked { button: 3, col, row },
                             &window,
                             &controller_rc);
                     }
@@ -379,12 +377,14 @@ impl View {
         window
     }
 
-    pub fn make_application_window(application: &gtk::Application) -> gtk::ApplicationWindow {
+    pub fn make_application_window(application: &gtk::Application, controller_rc: &RcController) -> gtk::ApplicationWindow {
+        let controller = controller_rc.borrow();
+        let args = controller.args();
         ApplicationWindow::builder()
             .application(application)
             .title("gsr2")
-            .default_width(DEFAULT_WIDTH)
-            .default_height(DEFAULT_HEIGHT)
+            .default_width(args.width.unwrap())
+            .default_height(args.height.unwrap())
             .build()
     }
     #[allow(dead_code)]

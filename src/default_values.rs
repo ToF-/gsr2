@@ -1,5 +1,7 @@
 pub const DEFAULT_HEIGHT: i32 = 1000;
 pub const DEFAULT_WIDTH: i32 = 1000;
+pub const DIMENSION_MIN: i32 = 100;
+pub const DIMENSION_MAX: i32 = 5000;
 
 #[allow(dead_code)]
 pub const EXPAND_ON_SYMBOL: &str = "  ⃞";

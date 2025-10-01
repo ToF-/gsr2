@@ -1,3 +1,5 @@
+use crate::default_values::{DEFAULT_HEIGHT, DEFAULT_WIDTH};
+use crate::dimension::dimension;
 use crate::command::Command;
 use crate::paths::{check_path, check_picture_file};
 use clap::Parser;
@@ -38,14 +40,27 @@ pub struct CommandLineInterface {
     /// create missing thumbnails
     #[arg(short, long, default_value_t = false)]
     pub create_missing_thumbnails: bool,
+
+    /// window height
+    #[arg(long, value_name="N")]
+    pub height: Option<i32>,
+
+    /// window width
+    #[arg(long, value_name="N")]
+    pub width: Option<i32>,
+
+
 }
 
 impl CommandLineInterface {
     pub fn parse_and_check(args_opt: Option<Vec<&str>>) -> Result<Self> {
-        let cli: Self = match args_opt {
+        let mut cli: Self = match args_opt {
             Some(args) => Self::parse_from(args),
             None => Self::parse(),
         };
+
+        cli.width = Some(dimension(cli.width,"GSR_WIDTH","width", DEFAULT_WIDTH));
+        cli.height = Some(dimension(cli.height,"GSR_HEIGHT","height", DEFAULT_HEIGHT));
         if let Some(Command::File { ref file_path }) = cli.command {
             match check_picture_file(file_path) {
                 Ok(_) => {
@@ -69,6 +84,7 @@ impl CommandLineInterface {
                 Err(e) => return Err(e),
             }
         }
+        println!("{:?}", cli.clone());
         Ok(cli.clone())
     }
 
