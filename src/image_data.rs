@@ -1,11 +1,11 @@
-use std::time::SystemTime;
-use std::fs;
-use std::path::PathBuf;
 use crate::default_values::MAX_PALETTE_COLORS;
 use image::{DynamicImage, Rgb};
 use palette_extract::{MaxColors, PixelEncoding, PixelFilter, Quality, get_palette_with_options};
 use std::cmp::Ordering;
+use std::fs;
 use std::io::{Error, Result};
+use std::path::PathBuf;
+use std::time::SystemTime;
 
 pub type Rgb8 = Rgb<u8>;
 pub type Palette = [Rgb8; 9];
@@ -78,8 +78,8 @@ pub fn get_data_from_picture_file(file_path: &str) -> Result<PictureFileData> {
             let file_size = metadata.len();
             let modified_time = metadata.modified().unwrap();
             Ok(PictureFileData(file_size, modified_time))
-        },
-        Err(err) => Err(err)
+        }
+        Err(err) => Err(err),
     }
 }
 

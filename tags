@@ -24,6 +24,7 @@ Editor	/Users/christophethibaut/Coding/gsr2/src/editor.rs	/^pub struct Editor {$
 Event	/Users/christophethibaut/Coding/gsr2/src/gui/event.rs	/^pub enum Event {$/;"	g
 FOCUS_SYMBOL	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const FOCUS_SYMBOL: &str = "▄ ";$/;"	c
 FULL_SIZE_ON_SYMBOL	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const FULL_SIZE_ON_SYMBOL: &str = " 🔍";$/;"	c
+FileSize	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^pub type FileSize = u64;$/;"	T
 Gallery	/Users/christophethibaut/Coding/gsr2/src/gallery.rs	/^pub struct Gallery {$/;"	s
 GraphicalUserInterface	/Users/christophethibaut/Coding/gsr2/src/gui/application.old.rs	/^struct GraphicalUserInterface {$/;"	s
 ImageData	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^pub struct ImageData {$/;"	s
@@ -40,6 +41,7 @@ PALETTE_AREA_HEIGHT	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/
 PALETTE_AREA_WIDTH	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const PALETTE_AREA_WIDTH: i32 = 90;$/;"	c
 Palette	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^pub type Palette = [Rgb8; 9];$/;"	T
 Picture	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^pub struct Picture {$/;"	s
+PictureFileData	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^pub struct PictureFileData(FileSize, SystemTime);$/;"	s
 RIGHT_PANE	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^pub const RIGHT_PANE: usize = 1;$/;"	c
 RcController	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^pub type RcController = Rc<RefCell<Controller>>;$/;"	T
 RcRefCellGui	/Users/christophethibaut/Coding/gsr2/src/gui/application.old.rs	/^type RcRefCellGui = Rc<RefCell<GraphicalUserInterface>>;$/;"	T
@@ -129,6 +131,7 @@ expand_on	/Users/christophethibaut/Coding/gsr2/src/application_state.old.rs	/^  
 expand_on	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn expand_on(&self) -> bool {$/;"	f
 extract_a_palette_from_a_picture_file	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^    fn extract_a_palette_from_a_picture_file() {$/;"	f
 extract_a_palette_of_9_most_used_colors	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^    fn extract_a_palette_of_9_most_used_colors() {$/;"	f
+extract_size_from_a_picture_file	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^    fn extract_size_from_a_picture_file() {$/;"	f
 file_name	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    pub fn file_name(&self) -> String {$/;"	f
 file_name_from	/Users/christophethibaut/Coding/gsr2/src/paths.rs	/^pub fn file_name_from(file_path: &str) -> String {$/;"	f
 file_path	/Users/christophethibaut/Coding/gsr2/src/picture.rs	/^    pub fn file_path(&self) -> String {$/;"	f
@@ -148,6 +151,7 @@ gen_single_dot	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub fn ge
 gen_white_square	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub fn gen_white_square() {$/;"	f
 get_all_picture_file_paths	/Users/christophethibaut/Coding/gsr2/src/file_system.rs	/^pub fn get_all_picture_file_paths(path: &str) -> Result<Vec<String>> {$/;"	f
 get_control	/Users/christophethibaut/Coding/gsr2/src/application_state.old.rs	/^    pub fn get_control(&self, key_name: &str) -> Option<Control> {$/;"	f
+get_data_from_picture_file	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^pub fn get_data_from_picture_file(file_path: &str) -> Result<PictureFileData> {$/;"	f
 get_palette	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^pub fn get_palette(image: &DynamicImage) -> Palette {$/;"	f
 get_palette_from_picture_file	/Users/christophethibaut/Coding/gsr2/src/image_data.rs	/^pub fn get_palette_from_picture_file(file_path: &str) -> Result<Palette> {$/;"	f
 get_picture_file_path	/Users/christophethibaut/Coding/gsr2/src/file_system.rs	/^pub fn get_picture_file_path(file_path: &str) -> Result<String> {$/;"	f
