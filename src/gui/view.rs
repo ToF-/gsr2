@@ -1,7 +1,7 @@
 use crate::Controller;
-use crate::control::Control;
+use crate::gui::control::Control;
 use crate::default_values::{DEFAULT_HEIGHT, DEFAULT_WIDTH};
-use crate::direction::Direction;
+use crate::gui::direction::Direction;
 use crate::display::picture_label_display;
 use crate::gen_image::no_thumbnail_picture;
 use crate::gui::controller::RcController;

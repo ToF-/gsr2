@@ -1,4 +1,4 @@
-use crate::direction::Direction;
+use crate::gui::direction::Direction;
 
 #[derive(Debug, Clone)]
 pub struct Navigator {

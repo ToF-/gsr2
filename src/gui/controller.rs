@@ -1,13 +1,13 @@
 use crate::cli::command::Command;
 use crate::Args;
-use crate::control::{Control, Controls, default_controls};
+use crate::gui::control::{Control, Controls, default_controls};
 use crate::database::Database;
 use crate::default_values::{DEFAULT_HEIGHT, DEFAULT_WIDTH};
-use crate::direction::Direction;
 use crate::environment::database_connection;
 use crate::file_system::create_missing_thumbnails;
 use crate::model::gallery::Gallery;
 use crate::gui::controller::gdk::Key;
+use crate::gui::direction::Direction;
 use crate::gui::controller::gdk::ModifierType;
 use crate::gui::event::Event;
 use crate::gui::navigator::Navigator;

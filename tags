@@ -7,9 +7,9 @@
 ApplicationState	/Users/christophethibaut/Coding/gsr2/src/application_state.old.rs	/^pub struct ApplicationState {$/;"	s
 Args	/Users/christophethibaut/Coding/gsr2/src/cli/args.rs	/^pub struct Args {$/;"	s
 Command	/Users/christophethibaut/Coding/gsr2/src/cli/command.rs	/^pub enum Command {$/;"	g
-Control	/Users/christophethibaut/Coding/gsr2/src/control.rs	/^pub enum Control {$/;"	g
+Control	/Users/christophethibaut/Coding/gsr2/src/gui/control.rs	/^pub enum Control {$/;"	g
 Controller	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^pub struct Controller {$/;"	s
-Controls	/Users/christophethibaut/Coding/gsr2/src/control.rs	/^pub type Controls = HashMap<String, Control>;$/;"	T
+Controls	/Users/christophethibaut/Coding/gsr2/src/gui/control.rs	/^pub type Controls = HashMap<String, Control>;$/;"	T
 DATABASE_CONNECTION_VAR	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const DATABASE_CONNECTION_VAR: &str = "GSRDBC";$/;"	c
 DEFAULT_HEIGHT	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const DEFAULT_HEIGHT: i32 = 1000;$/;"	c
 DEFAULT_SLIDESHOW_DELAY	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const DEFAULT_SLIDESHOW_DELAY: i32 = 60;$/;"	c
@@ -17,7 +17,7 @@ DEFAULT_WIDTH	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub c
 DIMENSION_MAX	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const DIMENSION_MAX: i32 = 5000;$/;"	c
 DIMENSION_MIN	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const DIMENSION_MIN: i32 = 100;$/;"	c
 Database	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^pub struct Database {$/;"	s
-Direction	/Users/christophethibaut/Coding/gsr2/src/direction.rs	/^pub enum Direction {$/;"	g
+Direction	/Users/christophethibaut/Coding/gsr2/src/gui/direction.rs	/^pub enum Direction {$/;"	g
 EXPAND_ON_SYMBOL	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const EXPAND_ON_SYMBOL: &str = "  ⃞";$/;"	c
 Editor	/Users/christophethibaut/Coding/gsr2/src/editor.rs	/^pub struct Editor {$/;"	s
 Event	/Users/christophethibaut/Coding/gsr2/src/gui/event.rs	/^pub enum Event {$/;"	g
@@ -116,7 +116,7 @@ current_picture	/Users/christophethibaut/Coding/gsr2/src/application_state.old.r
 current_picture	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn current_picture(&self) -> Picture {$/;"	f
 database	/Users/christophethibaut/Coding/gsr2/src/application_state.old.rs	/^    pub fn database(&self) -> &Database {$/;"	f
 database_connection	/Users/christophethibaut/Coding/gsr2/src/environment.rs	/^pub fn database_connection() -> Result<String> {$/;"	f
-default_controls	/Users/christophethibaut/Coding/gsr2/src/control.rs	/^pub fn default_controls() -> Controls {$/;"	f
+default_controls	/Users/christophethibaut/Coding/gsr2/src/gui/control.rs	/^pub fn default_controls() -> Controls {$/;"	f
 delete	/Users/christophethibaut/Coding/gsr2/src/editor.rs	/^    pub fn delete(&mut self) -> bool {$/;"	f
 delete_nine_colors_from_db	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    pub fn delete_nine_colors_from_db() {$/;"	f
 deleting_a_char_changes_the_input	/Users/christophethibaut/Coding/gsr2/src/editor.rs	/^    fn deleting_a_char_changes_the_input() {$/;"	f
@@ -136,7 +136,7 @@ file_path	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    pub fn
 frame	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn frame(window: &gtk::ScrolledWindow) -> gtk::Box {$/;"	f
 from_connection	/Users/christophethibaut/Coding/gsr2/src/database.rs	/^    pub fn from_connection(connection_string: &str) -> std::io::Result<Self> {$/;"	f
 from_file	/Users/christophethibaut/Coding/gsr2/src/model/image_data.rs	/^    pub fn from_file(file_path: &str) -> Result<Self> {$/;"	f
-from_key_name_to_a_control	/Users/christophethibaut/Coding/gsr2/src/control.rs	/^    fn from_key_name_to_a_control() {$/;"	f
+from_key_name_to_a_control	/Users/christophethibaut/Coding/gsr2/src/gui/control.rs	/^    fn from_key_name_to_a_control() {$/;"	f
 full_size_arrow_move	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn full_size_arrow_move(&self, direction: Direction) {$/;"	f
 full_size_arrow_move	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn full_size_arrow_move(&self, direction: Direction) {$/;"	f
 full_size_display	/Users/christophethibaut/Coding/gsr2/src/display.rs	/^fn full_size_display(on: bool) -> String {$/;"	f
