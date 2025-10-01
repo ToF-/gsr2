@@ -1,7 +1,7 @@
 use crate::Command;
 use crate::env::default_values::{DEFAULT_HEIGHT, DEFAULT_SLIDESHOW_DELAY, DEFAULT_WIDTH};
-use crate::dimension::{dimension, slideshow_delay};
-use crate::paths::{check_path, check_picture_file};
+use crate::env::dimension::{dimension, slideshow_delay};
+use crate::file::paths::{check_path, check_picture_file};
 use clap::Parser;
 use std::io::{Error, Result};
 
@@ -112,7 +112,7 @@ mod tests {
     use crate::cli::command::Command;
     use crate::Command::File;
     use crate::Command::Dir;
-    use crate::gen_image::{SINGLE_DOT, gen_single_dot};
+    use crate::model::gen_image::{SINGLE_DOT, gen_single_dot};
     use std::io::ErrorKind;
 
     #[test]
@@ -148,12 +148,12 @@ mod tests {
     }
     #[test]
     fn command_line_interface_with_command_file_with_non_jpg_or_png_file() {
-        let args = vec!["gsr", "file", "src/paths.rs"];
+        let args = vec!["gsr", "file", "src/file/paths.rs"];
         let args = Args::parse_and_check(Some(args));
         assert!(args.is_err());
         let err = args.expect_err("can't extract error");
         assert_eq!(ErrorKind::Other, err.kind());
-        assert_eq!("src/paths.rs is not a jpg or png file", &err.to_string())
+        assert_eq!("src/file/paths.rs is not a jpg or png file", &err.to_string())
     }
 
     #[test]

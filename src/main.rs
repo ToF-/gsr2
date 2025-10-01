@@ -5,14 +5,9 @@ use std::process::exit;
 
 mod cli;
 mod env;
-mod dimension;
-mod display;
-mod editor;
 mod file;
-mod gen_image;
 mod gui;
 mod model;
-mod paths;
 
 fn main() {
     match Args::parse_and_check(None) {

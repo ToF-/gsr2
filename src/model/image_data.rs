@@ -118,7 +118,7 @@ pub fn get_data_from_picture_file(file_path: &str) -> Result<PictureFileData> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::gen_image::{NINE_COLORS, gen_nine_colors};
+    use crate::model::gen_image::{NINE_COLORS, gen_nine_colors};
 
     #[test]
     fn extract_a_palette_of_9_most_used_colors() {

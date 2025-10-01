@@ -1,8 +1,8 @@
 use crate::env::default_values::THUMB_SUFFIX;
 use crate::model::gallery::Gallery;
-use crate::gen_image::create_thumbnail_file;
-use crate::paths::check_path_exists;
-use crate::paths::{check_path, check_path_is_a_jpg_or_png_file, check_picture_file};
+use crate::model::gen_image::create_thumbnail_file;
+use crate::file::paths::check_path_exists;
+use crate::file::paths::{check_path, check_path_is_a_jpg_or_png_file, check_picture_file};
 use std::io::Result;
 use std::path::PathBuf;
 use walkdir::WalkDir;
