@@ -1,3 +1,6 @@
+use std::time::SystemTime;
+use std::fs;
+use std::path::PathBuf;
 use crate::default_values::MAX_PALETTE_COLORS;
 use image::{DynamicImage, Rgb};
 use palette_extract::{MaxColors, PixelEncoding, PixelFilter, Quality, get_palette_with_options};
@@ -64,6 +67,22 @@ pub fn get_palette_from_picture_file(file_path: &str) -> Result<Palette> {
     }
 }
 
+pub type FileSize = u64;
+
+pub struct PictureFileData(FileSize, SystemTime);
+
+pub fn get_data_from_picture_file(file_path: &str) -> Result<PictureFileData> {
+    let path = PathBuf::from(file_path);
+    match fs::metadata(path.clone()) {
+        Ok(metadata) => {
+            let file_size = metadata.len();
+            let modified_time = metadata.modified().unwrap();
+            Ok(PictureFileData(file_size, modified_time))
+        },
+        Err(err) => Err(err)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -96,5 +115,11 @@ mod tests {
         assert_eq!(Rgb([252, 4, 4]), palette[6]);
         assert_eq!(Rgb([252, 140, 4]), palette[7]);
         assert_eq!(Rgb([252, 252, 4]), palette[8]);
+    }
+
+    #[test]
+    fn extract_size_from_a_picture_file() {
+        let file_data = get_data_from_picture_file(NINE_COLORS).unwrap();
+        assert_eq!(49746, file_data.0);
     }
 }
