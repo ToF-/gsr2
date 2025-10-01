@@ -1,4 +1,4 @@
-use crate::command::Command;
+use crate::Command;
 use crate::default_values::{DEFAULT_HEIGHT, DEFAULT_SLIDESHOW_DELAY, DEFAULT_WIDTH};
 use crate::dimension::{dimension, slideshow_delay};
 use crate::paths::{check_path, check_picture_file};
@@ -109,7 +109,9 @@ impl Args {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::command_line_interface::Command::{Dir, File};
+    use crate::cli::command::Command;
+    use crate::Command::File;
+    use crate::Command::Dir;
     use crate::gen_image::{SINGLE_DOT, gen_single_dot};
     use std::io::ErrorKind;
 
@@ -118,7 +120,7 @@ mod tests {
         gen_single_dot();
         let args = vec!["gsr", "file", SINGLE_DOT];
         let args = Args::parse_and_check(Some(args)).unwrap();
-        if let Some(File { file_path }) = args.command {
+        if let Some(Command::File { file_path }) = args.command {
             assert_eq!(String::from(SINGLE_DOT), file_path);
         } else {
             assert!(false)
@@ -158,7 +160,7 @@ mod tests {
     fn command_line_interface_with_command_directory_and_adequate_argument() {
         let args = vec!["gsr", "dir", "."];
         let args = Args::parse_and_check(Some(args)).unwrap();
-        if let Some(Dir { directory }) = args.command {
+        if let Some(Command::Dir { directory }) = args.command {
             assert_eq!(String::from("."), directory);
         } else {
             assert!(false)

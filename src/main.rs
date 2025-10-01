@@ -1,9 +1,8 @@
-use crate::command::Command;
+use crate::cli::command::Command;
 use crate::cli::args::Args;
 use crate::gui::controller::Controller;
 use std::process::exit;
 
-mod command;
 mod cli;
 mod control;
 mod database;
@@ -17,7 +16,6 @@ mod file_system;
 mod gen_image;
 mod gui;
 mod model;
-mod order;
 mod paths;
 
 fn main() {

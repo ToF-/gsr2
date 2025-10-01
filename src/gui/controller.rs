@@ -1,5 +1,5 @@
+use crate::cli::command::Command;
 use crate::Args;
-use crate::command::Command;
 use crate::control::{Control, Controls, default_controls};
 use crate::database::Database;
 use crate::default_values::{DEFAULT_HEIGHT, DEFAULT_WIDTH};
@@ -14,8 +14,8 @@ use crate::gui::navigator::Navigator;
 use crate::gui::state::State;
 use crate::gui::view::LEFT_PANE;
 use crate::gui::view::View;
-use crate::order::Order;
 use crate::model::picture::Picture;
+use crate::model::order::Order;
 use gtk::Window;
 use gtk::gdk;
 use gtk::prelude::*;

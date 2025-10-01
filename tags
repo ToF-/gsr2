@@ -6,7 +6,7 @@
 !_TAG_PROGRAM_VERSION	5.8	//
 ApplicationState	/Users/christophethibaut/Coding/gsr2/src/application_state.old.rs	/^pub struct ApplicationState {$/;"	s
 Args	/Users/christophethibaut/Coding/gsr2/src/cli/args.rs	/^pub struct Args {$/;"	s
-Command	/Users/christophethibaut/Coding/gsr2/src/command.rs	/^pub enum Command {$/;"	g
+Command	/Users/christophethibaut/Coding/gsr2/src/cli/command.rs	/^pub enum Command {$/;"	g
 Control	/Users/christophethibaut/Coding/gsr2/src/control.rs	/^pub enum Control {$/;"	g
 Controller	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^pub struct Controller {$/;"	s
 Controls	/Users/christophethibaut/Coding/gsr2/src/control.rs	/^pub type Controls = HashMap<String, Control>;$/;"	T
@@ -34,7 +34,7 @@ MAX_PALETTE_COLORS	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^
 NINE_COLORS	/Users/christophethibaut/Coding/gsr2/src/gen_image.rs	/^pub const NINE_COLORS: &str = "testdata\/nine_colors.png";$/;"	c
 Navigator	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^pub struct Navigator {$/;"	s
 ONE_PICTURE_PER_ROW	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const ONE_PICTURE_PER_ROW: usize = 1;$/;"	c
-Order	/Users/christophethibaut/Coding/gsr2/src/order.rs	/^pub enum Order {$/;"	g
+Order	/Users/christophethibaut/Coding/gsr2/src/model/order.rs	/^pub enum Order {$/;"	g
 PALETTE_AREA_HEIGHT	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const PALETTE_AREA_HEIGHT: i32 = 10;$/;"	c
 PALETTE_AREA_WIDTH	/Users/christophethibaut/Coding/gsr2/src/default_values.rs	/^pub const PALETTE_AREA_WIDTH: i32 = 90;$/;"	c
 Palette	/Users/christophethibaut/Coding/gsr2/src/model/image_data.rs	/^pub type Palette = [Rgb8; 9];$/;"	T
