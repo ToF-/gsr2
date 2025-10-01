@@ -1,4 +1,3 @@
-use gtk::Window;
 use crate::CommandLineInterface;
 use crate::command::Command;
 use crate::control::{Control, Controls, default_controls};
@@ -17,6 +16,7 @@ use crate::gui::view::LEFT_PANE;
 use crate::gui::view::View;
 use crate::order::Order;
 use crate::picture::Picture;
+use gtk::Window;
 use gtk::gdk;
 use gtk::prelude::*;
 use gtk::{self};
@@ -61,7 +61,7 @@ impl Controller {
     pub fn args(&self) -> CommandLineInterface {
         self.args.clone()
     }
-    
+
     pub fn view(&self) -> View {
         self.view.clone()
     }
@@ -138,7 +138,7 @@ impl Controller {
                 key,
                 key_code,
                 modifier_type,
-            } => { 
+            } => {
                 self.process_key_event(
                     key,
                     key_code,
@@ -146,30 +146,27 @@ impl Controller {
                     application_window,
                     controller_rc,
                 );
-            },
-            Event::NextSlideDelay => self.next_slide_delay(
-                application_window,
-                controller_rc,
-            ),
+            }
+            Event::NextSlideDelay => self.next_slide_delay(application_window, controller_rc),
             Event::PaneClicked {
                 button,
                 pane_number,
             } => {
                 self.process_pane_clicked(button, pane_number);
                 self.set_slideshow_off()
-            },
+            }
             Event::PictureClicked { button, col, row } if button == 1 => {
                 self.process_picture_cliked(button, col, row, application_window);
                 self.set_slideshow_off()
-            },
+            }
             _ => println!("{:?}", event),
         }
     }
 
     pub fn set_slideshow_off(&mut self) {
         if self.state().slideshow_on() {
-        println!("setting slideshow off…");
-        self.state.set_slideshow_off();
+            println!("setting slideshow off…");
+            self.state.set_slideshow_off();
         }
     }
     pub fn process_picture_cliked(
@@ -256,7 +253,11 @@ impl Controller {
         }
     }
 
-    pub fn next_slide_delay(&mut self, window: &gtk::ApplicationWindow, controller_rc: &RcController) {
+    pub fn next_slide_delay(
+        &mut self,
+        window: &gtk::ApplicationWindow,
+        controller_rc: &RcController,
+    ) {
         self.move_next();
         View::set_pictures(&window, self)
     }
@@ -334,22 +335,21 @@ impl Controller {
     }
 
     pub fn toggle_slideshow(&mut self) {
-       if self.args().slideshow().is_some() {
-           self.state.toggle_slideshow();
-           if self.state.slideshow_on() {
-               let navigator = &mut self.navigator;
-               navigator.set_page_changed();
-           }
-
-       }
+        if self.args().slideshow().is_some() {
+            self.state.toggle_slideshow();
+            if self.state.slideshow_on() {
+                let navigator = &mut self.navigator;
+                navigator.set_page_changed();
+            }
+        }
     }
 
     pub fn switch_grid(&mut self, pictures_per_row: usize) {
-            self.state.switch_grid(pictures_per_row);
-            let navigator = &mut self.navigator;
-            navigator.set_pictures_per_row(self.state.pictures_per_row);
-            navigator.update_page_limits();
-            navigator.set_page_changed();
+        self.state.switch_grid(pictures_per_row);
+        let navigator = &mut self.navigator;
+        navigator.set_pictures_per_row(self.state.pictures_per_row);
+        navigator.update_page_limits();
+        navigator.set_page_changed();
     }
 
     pub fn acknowledge_dimension(&mut self) {

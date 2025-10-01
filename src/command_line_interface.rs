@@ -1,6 +1,6 @@
-use crate::default_values::{DEFAULT_HEIGHT, DEFAULT_WIDTH, DEFAULT_SLIDESHOW_DELAY};
-use crate::dimension::{dimension, slideshow_delay};
 use crate::command::Command;
+use crate::default_values::{DEFAULT_HEIGHT, DEFAULT_SLIDESHOW_DELAY, DEFAULT_WIDTH};
+use crate::dimension::{dimension, slideshow_delay};
 use crate::paths::{check_path, check_picture_file};
 use clap::Parser;
 use std::io::{Error, Result};
@@ -42,17 +42,16 @@ pub struct CommandLineInterface {
     pub create_missing_thumbnails: bool,
 
     /// window height
-    #[arg(long, value_name="N")]
+    #[arg(long, value_name = "N")]
     pub height: Option<i32>,
 
     /// window width
-    #[arg(long, value_name="N")]
+    #[arg(long, value_name = "N")]
     pub width: Option<i32>,
 
     /// slideshow mode, displaying next picture every N seconds
-    #[arg(short, long, value_name="N")]
+    #[arg(short, long, value_name = "N")]
     pub slideshow: Option<i32>,
-
 }
 
 impl CommandLineInterface {
@@ -62,8 +61,8 @@ impl CommandLineInterface {
             None => Self::parse(),
         };
 
-        cli.width = dimension(cli.width,"GSR_WIDTH","width", DEFAULT_WIDTH);
-        cli.height = dimension(cli.height,"GSR_HEIGHT","height", DEFAULT_HEIGHT);
+        cli.width = dimension(cli.width, "GSR_WIDTH", "width", DEFAULT_WIDTH);
+        cli.height = dimension(cli.height, "GSR_HEIGHT", "height", DEFAULT_HEIGHT);
         cli.slideshow = slideshow_delay(cli.slideshow, "slideshow delay", DEFAULT_SLIDESHOW_DELAY);
         if let Some(Command::File { ref file_path }) = cli.command {
             match check_picture_file(file_path) {
@@ -105,7 +104,6 @@ impl CommandLineInterface {
             1
         }
     }
-
 }
 
 #[cfg(test)]

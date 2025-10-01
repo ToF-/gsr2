@@ -1,7 +1,5 @@
-use gtk::glib::timeout_add_local;
-use crate::control::Control;
-use std::time::Duration;
 use crate::Controller;
+use crate::control::Control;
 use crate::default_values::{DEFAULT_HEIGHT, DEFAULT_WIDTH};
 use crate::direction::Direction;
 use crate::display::picture_label_display;
@@ -13,6 +11,7 @@ use crate::picture::Picture;
 use gtk::Window;
 use gtk::gio::File;
 use gtk::glib::clone;
+use gtk::glib::timeout_add_local;
 use gtk::prelude::*;
 use gtk::{self};
 use gtk::{Align, Application, ApplicationWindow, Grid, gdk};
@@ -21,6 +20,7 @@ use std::cell::RefCell;
 use std::path::Path;
 use std::path::PathBuf;
 use std::rc::Rc;
+use std::time::Duration;
 
 pub const LEFT_PANE: usize = 0;
 pub const RIGHT_PANE: usize = 1;
@@ -126,8 +126,7 @@ impl View {
                         no_thumbnail_picture()
                     };
                     cell.append(&gtkPicture);
-                    let label =
-                        Self::make_label_for_picture(&picture, is_focus);
+                    let label = Self::make_label_for_picture(&picture, is_focus);
                     cell.append(&label);
                 }
             }
@@ -276,23 +275,29 @@ impl View {
         }
     }
 
-    pub fn attach_slideshow_event(seconds: i32, application_window: &gtk::ApplicationWindow, controller_rc: &RcController) {
+    pub fn attach_slideshow_event(
+        seconds: i32,
+        application_window: &gtk::ApplicationWindow,
+        controller_rc: &RcController,
+    ) {
         let delay: u64 = seconds.try_into().unwrap();
         println!("setting slideshow delay to {} seconds", delay);
-        timeout_add_local(Duration::new(delay, 0),
-        clone!(@strong controller_rc, @strong application_window => move | | {
-            if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-                if controller.state().slideshow_on() {
-                    controller.process_event(
-                        NextSlideDelay,
-                        &application_window,
-                        &controller_rc)
-                };
-                Continue(controller.state().slideshow_on())
-            } else {
-                panic!("can't borrow mut controller")
-            }
-        }));
+        timeout_add_local(
+            Duration::new(delay, 0),
+            clone!(@strong controller_rc, @strong application_window => move | | {
+                if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+                    if controller.state().slideshow_on() {
+                        controller.process_event(
+                            NextSlideDelay,
+                            &application_window,
+                            &controller_rc)
+                    };
+                    Continue(controller.state().slideshow_on())
+                } else {
+                    panic!("can't borrow mut controller")
+                }
+            }),
+        );
     }
 
     pub fn attach_grid_picture_events(
@@ -396,16 +401,25 @@ impl View {
         window.set_child(Some(&entry_label));
         window.set_modal(true);
         println!("{:?}", application_window.first_child());
-        println!("{:?}", application_window.first_child().map(|w| w.next_sibling()));
+        println!(
+            "{:?}",
+            application_window.first_child().map(|w| w.next_sibling())
+        );
         window.set_transient_for(Some(application_window));
         println!("{:?}", window);
         println!("{:?}", application_window.first_child());
-        println!("{:?}", application_window.first_child().map(|w| w.next_sibling()));
+        println!(
+            "{:?}",
+            application_window.first_child().map(|w| w.next_sibling())
+        );
         window.present();
         window
     }
 
-    pub fn make_application_window(application: &gtk::Application, controller_rc: &RcController) -> gtk::ApplicationWindow {
+    pub fn make_application_window(
+        application: &gtk::Application,
+        controller_rc: &RcController,
+    ) -> gtk::ApplicationWindow {
         let controller = controller_rc.borrow();
         let args = controller.args();
         ApplicationWindow::builder()
