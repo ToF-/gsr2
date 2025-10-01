@@ -10,7 +10,7 @@ mod dimension;
 mod display;
 mod editor;
 mod environment;
-mod file_system;
+mod file;
 mod gen_image;
 mod gui;
 mod model;
