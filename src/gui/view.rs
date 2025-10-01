@@ -7,7 +7,7 @@ use crate::gen_image::no_thumbnail_picture;
 use crate::gui::controller::RcController;
 use crate::gui::event::Event::{KeyPressed, NextSlideDelay, PaneClicked, PictureClicked};
 use crate::paths::check_path_exists;
-use crate::picture::Picture;
+use crate::model::picture::Picture;
 use gtk::Window;
 use gtk::gio::File;
 use gtk::glib::clone;

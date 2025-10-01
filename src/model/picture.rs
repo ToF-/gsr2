@@ -1,4 +1,4 @@
-use crate::image_data::ImageData;
+use crate::model::image_data::ImageData;
 use crate::paths::{file_name_from, thumbnail_name_from};
 
 #[derive(Debug, Clone, Ord, PartialOrd, PartialEq, Eq)]

@@ -1,5 +1,5 @@
-use crate::image_data::ImageData;
-use crate::picture::Picture;
+use crate::model::image_data::ImageData;
+use crate::model::picture::Picture;
 use rusqlite::{Connection, Result, Row, params};
 use std::collections::HashMap;
 
@@ -118,7 +118,6 @@ pub mod tests {
     use super::*;
     use crate::default_values::TEST_DATABASE_FILE;
     use crate::gen_image::{NINE_COLORS, SINGLE_DOT, WHITE_SQUARE};
-    use crate::image_data;
 
     pub fn my_db() -> Database {
         let database = Database::rusqlite_from_connection(TEST_DATABASE_FILE)

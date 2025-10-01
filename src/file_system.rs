@@ -1,5 +1,5 @@
 use crate::default_values::THUMB_SUFFIX;
-use crate::gallery::Gallery;
+use crate::model::gallery::Gallery;
 use crate::gen_image::create_thumbnail_file;
 use crate::paths::check_path_exists;
 use crate::paths::{check_path, check_path_is_a_jpg_or_png_file, check_picture_file};

@@ -14,13 +14,11 @@ mod display;
 mod editor;
 mod environment;
 mod file_system;
-mod gallery;
 mod gen_image;
 mod gui;
-mod image_data;
+mod model;
 mod order;
 mod paths;
-mod picture;
 
 fn main() {
     match CommandLineInterface::parse_and_check(None) {
