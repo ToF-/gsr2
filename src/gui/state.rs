@@ -87,7 +87,7 @@ mod tests {
 
     #[test]
     fn after_toggle_single_view_cells_per_row_change() {
-        let mut my_state = State::new(5);
+        let mut my_state = State::new(5, false);
         assert!(!my_state.single_view());
         my_state.toggle_single_view();
         assert!(my_state.single_view());
