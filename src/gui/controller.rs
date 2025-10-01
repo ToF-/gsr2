@@ -11,9 +11,6 @@ use crate::gallery::Gallery;
 use crate::gui::controller::gdk::Key;
 use crate::gui::controller::gdk::ModifierType;
 use crate::gui::event::Event;
-use crate::gui::event::Event::KeyPressed;
-use crate::gui::event::Event::PaneClicked;
-use crate::gui::event::Event::PictureClicked;
 use crate::gui::navigator::Navigator;
 use crate::gui::state::State;
 use crate::gui::view::LEFT_PANE;
@@ -49,12 +46,12 @@ impl Controller {
             match Database::from_connection(&connection_string) {
                 Err(err) => Err(err),
                 Ok(database) => Ok(Controller {
-                    args: cli,
+                    args: cli.clone(),
                     gallery,
                     navigator: Navigator::new(0, pictures_per_row as usize),
                     controls: default_controls(),
                     database,
-                    state: State::new(pictures_per_row as usize),
+                    state: State::new(pictures_per_row as usize, cli.slideshow().is_some()),
                     view,
                 }),
             }
@@ -137,7 +134,7 @@ impl Controller {
         controller_rc: &RcController,
     ) {
         match event {
-            KeyPressed {
+            Event::KeyPressed {
                 key,
                 key_code,
                 modifier_type,
@@ -148,11 +145,15 @@ impl Controller {
                 application_window,
                 controller_rc,
             ),
-            PaneClicked {
+            Event::NextSlideDelay => self.next_slide_delay(
+                application_window,
+                controller_rc,
+            ),
+            Event::PaneClicked {
                 button,
                 pane_number,
             } => self.process_pane_clicked(button, pane_number),
-            PictureClicked { button, col, row } if button == 1 => {
+            Event::PictureClicked { button, col, row } if button == 1 => {
                 self.process_picture_cliked(button, col, row, application_window)
             }
             _ => println!("{:?}", event),
@@ -233,6 +234,11 @@ impl Controller {
                 _ => {}
             },
         }
+    }
+
+    pub fn next_slide_delay(&mut self, window: &gtk::ApplicationWindow, controller_rc: &RcController) {
+        self.move_next();
+        View::set_pictures(&window, self)
     }
 
     pub fn process_control(&mut self, control: &Control) {

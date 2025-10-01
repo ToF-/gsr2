@@ -1,5 +1,5 @@
-use crate::default_values::{DEFAULT_HEIGHT, DEFAULT_WIDTH};
-use crate::dimension::dimension;
+use crate::default_values::{DEFAULT_HEIGHT, DEFAULT_WIDTH, DEFAULT_SLIDESHOW_DELAY};
+use crate::dimension::{dimension, slideshow_delay};
 use crate::command::Command;
 use crate::paths::{check_path, check_picture_file};
 use clap::Parser;
@@ -49,6 +49,9 @@ pub struct CommandLineInterface {
     #[arg(long, value_name="N")]
     pub width: Option<i32>,
 
+    /// slideshow mode, displaying next picture every N seconds
+    #[arg(short, long, value_name="N")]
+    pub slideshow: Option<i32>,
 
 }
 
@@ -59,8 +62,9 @@ impl CommandLineInterface {
             None => Self::parse(),
         };
 
-        cli.width = Some(dimension(cli.width,"GSR_WIDTH","width", DEFAULT_WIDTH));
-        cli.height = Some(dimension(cli.height,"GSR_HEIGHT","height", DEFAULT_HEIGHT));
+        cli.width = dimension(cli.width,"GSR_WIDTH","width", DEFAULT_WIDTH);
+        cli.height = dimension(cli.height,"GSR_HEIGHT","height", DEFAULT_HEIGHT);
+        cli.slideshow = slideshow_delay(cli.slideshow, "slideshow delay", DEFAULT_SLIDESHOW_DELAY);
         if let Some(Command::File { ref file_path }) = cli.command {
             match check_picture_file(file_path) {
                 Ok(_) => {
@@ -88,6 +92,10 @@ impl CommandLineInterface {
         Ok(cli.clone())
     }
 
+    pub fn slideshow(&self) -> Option<i32> {
+        self.slideshow
+    }
+
     pub fn pictures_per_row(&self) -> i32 {
         if let Some(grid) = self.grid {
             grid.into()
@@ -97,6 +105,7 @@ impl CommandLineInterface {
             1
         }
     }
+
 }
 
 #[cfg(test)]

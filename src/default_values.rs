@@ -2,6 +2,9 @@ pub const DEFAULT_HEIGHT: i32 = 1000;
 pub const DEFAULT_WIDTH: i32 = 1000;
 pub const DIMENSION_MIN: i32 = 100;
 pub const DIMENSION_MAX: i32 = 5000;
+pub const SLIDESHOW_DELAY_MIN: i32 = 1;
+pub const SLIDESHOW_DELAY_MAX: i32 = 900;
+pub const DEFAULT_SLIDESHOW_DELAY: i32 = 60;
 
 #[allow(dead_code)]
 pub const EXPAND_ON_SYMBOL: &str = "  ⃞";

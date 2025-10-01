@@ -1,10 +1,13 @@
+use gtk::glib::timeout_add_local;
+use crate::control::Control;
+use std::time::Duration;
 use crate::Controller;
 use crate::default_values::{DEFAULT_HEIGHT, DEFAULT_WIDTH};
 use crate::direction::Direction;
 use crate::display::picture_label_display;
 use crate::gen_image::no_thumbnail_picture;
 use crate::gui::controller::RcController;
-use crate::gui::event::Event::{KeyPressed, PaneClicked, PictureClicked};
+use crate::gui::event::Event::{KeyPressed, NextSlideDelay, PaneClicked, PictureClicked};
 use crate::paths::check_path_exists;
 use crate::picture::Picture;
 use gtk::Window;
@@ -190,7 +193,8 @@ impl View {
         }
         if let Ok(controller) = controller_rc.try_borrow_mut() {
             let view = controller.view();
-            Self::attach_events(&application_window, &view, controller_rc);
+            let slideshow = controller.args().slideshow();
+            Self::attach_events(&application_window, &view, slideshow, controller_rc);
             Self::attach_grid_picture_events(pictures_per_row, &application_window, controller_rc);
         } else {
             panic!("can't borrow mut");
@@ -207,14 +211,15 @@ impl View {
             let controller = controller_rc.try_borrow().expect("can't borrow");
             let _view = controller.view();
             View::set_pictures(&application_window, &controller);
-            application_window.present();
         }
+        application_window.present();
     }
 
     // attach event mananger to some components
     pub fn attach_events(
         application_window: &gtk::ApplicationWindow,
         _view: &View,
+        slideshow_opt: Option<i32>,
         controller_rc: &RcController,
     ) {
         let left_pane = Self::left_pane(application_window);
@@ -266,7 +271,24 @@ impl View {
             }),
         );
         application_window.add_controller(evk);
+        if let Some(seconds) = slideshow_opt {
+            let delay: u64 = seconds.try_into().unwrap();
+            println!("setting slideshow delay to {} seconds", delay);
+            timeout_add_local(Duration::new(delay, 0),
+            clone!(@strong controller_rc, @strong application_window => move | | {
+                if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+                    controller.process_event(
+                        NextSlideDelay,
+                        &application_window,
+                        &controller_rc)
+                } else {
+                    panic!("can't borrow mut controller");
+                };
+                Continue(true)
+            }));
+        }
     }
+
     pub fn attach_grid_picture_events(
         cells_per_row: i32,
         window: &gtk::ApplicationWindow,

@@ -5,18 +5,24 @@ pub struct State {
     pub single_view: bool,
     pub expand_on: bool,
     pub full_size_on: bool,
+        slideshow_on: bool,
 
 }
 
 impl State {
-    pub fn new(pictures_per_row: usize) -> Self {
+    pub fn new(pictures_per_row: usize, slideshow_on: bool) -> Self {
         State {
             pictures_per_row,
             old_pictures_per_row: 1,
             single_view: pictures_per_row == 1,
             expand_on: false,
             full_size_on: false,
+            slideshow_on,
         }
+    }
+
+    pub fn slideshow_on(&self) -> bool {
+        self.slideshow_on
     }
 
     pub fn pictures_per_row(&self) -> usize {

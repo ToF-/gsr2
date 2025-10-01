@@ -27,4 +27,7 @@
 - [x] left click on the picture in grid view set the current position
 - [x] load picture file paths and data from the database
 - [x] switch from grid view to single view with controls
+- [x] view in full size with key movements
+- [x] width and heigth arguments
+- [x] slideshow mode
 - [ ] edit and add a label, save it in the database and retrieve it

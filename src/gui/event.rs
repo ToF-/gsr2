@@ -7,6 +7,7 @@ pub enum Event {
         key_code: u32,
         modifier_type: ModifierType,
     },
+    NextSlideDelay,
     PaneClicked {
         button: usize,
         pane_number: usize,
