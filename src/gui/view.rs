@@ -1,3 +1,4 @@
+use gtk::glib::Propagation;
 use crate::Controller;
 use crate::gui::control::Control;
 use crate::env::default_values::{DEFAULT_HEIGHT, DEFAULT_WIDTH};
@@ -12,6 +13,7 @@ use gtk::Window;
 use gtk::gio::File;
 use gtk::glib::clone;
 use gtk::glib::timeout_add_local;
+use gtk::glib::ControlFlow;
 use gtk::prelude::*;
 use gtk::{self};
 use gtk::{Align, Application, ApplicationWindow, Grid, gdk};
@@ -162,8 +164,8 @@ impl View {
             .application_id(application_id)
             .build();
         application.connect_startup(|application| Self::startup_gui(application));
-        application.connect_activate(clone!(@strong controller_rc
-        => move |application: &gtk::Application| {
+        application.connect_activate(clone!(#[strong] controller_rc
+       , move |application: &gtk::Application| {
             Self::make_application_components(&application, &controller_rc)
         }));
         application
@@ -227,7 +229,7 @@ impl View {
         let gesture_left_click = gtk::GestureClick::new();
         gesture_left_click.set_button(1);
         gesture_left_click.connect_pressed(
-            clone!(@strong controller_rc, @strong application_window, => move |_,_,_,_| {
+            clone!(#[strong] controller_rc, #[strong] application_window, move |_,_,_,_| {
                 if let Ok(mut controller) = controller_rc.try_borrow_mut() {
                     controller.process_event(
                         PaneClicked { button: 1, pane_number: LEFT_PANE },
@@ -243,7 +245,7 @@ impl View {
         let gesture_right_click = gtk::GestureClick::new();
         gesture_right_click.set_button(1);
         gesture_right_click.connect_pressed(
-            clone!(@strong controller_rc, @strong application_window => move |_,_,_,_| {
+            clone!(#[strong] controller_rc, #[strong] application_window, move |_,_,_,_| {
                 if let Ok(mut controller) = controller_rc.try_borrow_mut() {
                     controller.process_event(
                         PaneClicked { button: 1, pane_number: RIGHT_PANE },
@@ -259,14 +261,14 @@ impl View {
 
         let evk = gtk::EventControllerKey::new();
         evk.connect_key_pressed(
-            clone!(@strong controller_rc, @strong application_window => move |_, key, key_code, modifier_type| {
+            clone!(#[strong] controller_rc, #[strong] application_window, move |_, key, key_code, modifier_type| {
                 if let Ok(mut controller) = controller_rc.try_borrow_mut() {
                     controller.process_event(
                         KeyPressed { key, key_code, modifier_type },
                         &application_window,
                         &controller_rc);
                 };
-                gtk::Inhibit(false)
+                Propagation::Proceed
             }),
         );
         application_window.add_controller(evk);
@@ -284,7 +286,7 @@ impl View {
         println!("setting slideshow delay to {} seconds", delay);
         timeout_add_local(
             Duration::new(delay, 0),
-            clone!(@strong controller_rc, @strong application_window => move | | {
+            clone!(#[strong] controller_rc, #[strong] application_window, move | | {
                 if let Ok(mut controller) = controller_rc.try_borrow_mut() {
                     if controller.state().slideshow_on() {
                         controller.process_event(
@@ -292,7 +294,11 @@ impl View {
                             &application_window,
                             &controller_rc)
                     };
-                    Continue(controller.state().slideshow_on())
+                    if controller.state().slideshow_on() {
+                        ControlFlow::Continue
+                    } else {
+                        ControlFlow::Break
+                    }
                 } else {
                     panic!("can't borrow mut controller")
                 }
@@ -315,7 +321,7 @@ impl View {
                     .unwrap();
                 let gesture_left_click = gtk::GestureClick::new();
                 gesture_left_click.set_button(1);
-                gesture_left_click.connect_pressed(clone!(@strong col, @strong row, @strong controller_rc, @strong window => move |_,_,_,_| {
+                gesture_left_click.connect_pressed(clone!(#[strong] col, #[strong] row, #[strong] controller_rc, #[strong] window, move |_,_,_,_| {
                     if let Ok(mut controller) = controller_rc.try_borrow_mut() {
                         controller.process_event(
                             PictureClicked { button: 1, col, row },
@@ -326,7 +332,7 @@ impl View {
                 cell_box.add_controller(gesture_left_click);
                 let gesture_right_click = gtk::GestureClick::new();
                 gesture_right_click.set_button(3);
-                gesture_right_click.connect_pressed(clone!(@strong col, @strong row, @strong controller_rc, @strong window => move |_,_,_,_| {
+                gesture_right_click.connect_pressed(clone!(#[strong] col, #[strong] row, #[strong] controller_rc, #[strong] window, move |_,_,_,_| {
                     if let Ok(mut controller) = controller_rc.try_borrow_mut() {
                         controller.process_event(
                             PictureClicked { button: 3, col, row },

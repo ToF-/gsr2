@@ -6,7 +6,8 @@ authors = ["ToF-"]
 
 [dependencies]
 clap = { version = "4.5.4", features = ["derive"] }
-gtk = { version = "0.6.*", package = "gtk4", features = ["v4_6"] }
+gtk = { version = "0.10.1", package = "gtk4", features = ["v4_20"] }
+
 image = "0.25.8"
 mime = "0.3.17"
 palette_extract = "0.1.0"
