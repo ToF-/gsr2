@@ -1,3 +1,5 @@
+use crate::gui::view::components::picture_frame::PictureFrame;
+use crate::gui::view::components::picture_grid::PictureGrid;
 use gtk::glib::object::Cast;
 use crate::gui::view::components::picture_cell_box::make_picture_cell_box;
 use crate::Controller;
@@ -32,12 +34,16 @@ mod components;
 #[derive(Clone, Debug)]
 pub struct View {
     application_window_rc: Option<Rc<RefCell<gtk::ApplicationWindow>>>,
+    picture_grid: Option<PictureGrid>,
+    picture_frame: Option<PictureFrame>,
 }
 
 impl View {
     pub fn new() -> Self {
         View {
             application_window_rc: None,
+            picture_grid: None,
+            picture_frame: None,
         }
     }
 
@@ -48,6 +54,15 @@ impl View {
         }
     }
 
+    pub fn application(&self) -> gtk::Application {
+        let application_window_rc = self.application_window_rc();
+        let application_window = application_window_rc.try_borrow().expect("can't borrow");
+        application_window.application().unwrap()
+    }
+
+    pub fn build_components(&mut self, pictures_per_row: i32, controller_rc: &RcController) {
+
+    }
     pub fn set_application_window_rc(
         &mut self,
         application_window_rc: Rc<RefCell<gtk::ApplicationWindow>>,
@@ -155,19 +170,21 @@ impl View {
     // make the application, defining its start up method and its activate method
     // on activation, it will build the components, which will all use a RefCell on the controller
     // to pass control of events
-    pub fn make_application(application_id: &str, controller_rc: RcController) -> gtk::Application {
+    pub fn make_application(&mut self, application_id: &str, controller_rc: RcController) {
         let application = Application::builder()
             .application_id(application_id)
             .build();
         application.connect_startup(|application| Self::startup_gui(application));
+        let view = self;
         application.connect_activate(clone!(
-            #[strong]
-            controller_rc,
-            move |application: &gtk::Application| {
-                Self::make_application_components(&application, &controller_rc)
-            }
+                #[strong]
+                view,
+                #[strong]
+                controller_rc,
+                move |application: &gtk::Application| {
+                    view.make_application_components(&application, &controller_rc)
+                }
         ));
-        application
     }
 
     // create all the components, attach event managers to them, then setup the view part of the
@@ -181,6 +198,7 @@ impl View {
     // event manager have a counted reference on the controller and send it an event message
     //
     pub fn make_application_components(
+        &mut self,
         application: &gtk::Application,
         controller_rc: &RcController,
     ) {
@@ -189,7 +207,7 @@ impl View {
         {
             let controller = controller_rc.try_borrow().expect("can't borrow");
             pictures_per_row = controller.state().pictures_per_row() as i32;
-            Self::setup_components(&application_window, pictures_per_row, controller_rc);
+            self.setup_components(&application_window, pictures_per_row, controller_rc);
         }
         if let Ok(controller) = controller_rc.try_borrow_mut() {
             let view = controller.view();
@@ -296,7 +314,7 @@ impl View {
         let application_window = application_window_rc.try_borrow().expect("can't borrow");
         let grid = Self::multiple_view_grid(&application_window);
         Self::remove_cells(&grid, old_pictures_per_row as i32);
-        Self::attach_cells(&grid, new_pictures_per_row as i32, controller_rc);
+        self.picture_grid.unwrap().attach_cells();
         Self::attach_grid_picture_events(
             new_pictures_per_row as i32,
             &application_window,
@@ -400,6 +418,7 @@ impl View {
     }
 
     pub fn setup_components(
+        &self,
         application_window: &gtk::ApplicationWindow,
         pictures_per_row: i32,
         controller_rc: &RcController,
@@ -555,35 +574,7 @@ impl View {
             .build()
     }
 
-    pub fn make_grid(cells_per_row: i32, controller_rc: &RcController) -> gtk::Grid {
-        let grid = gtk::Grid::builder()
-            .row_homogeneous(true)
-            .column_homogeneous(true)
-            .hexpand(true)
-            .vexpand(true)
-            .name("grid")
-            .build();
-        Self::attach_cells(&grid, cells_per_row, controller_rc);
-        grid
-    }
 
-    pub fn attach_cells(grid: &gtk::Grid, cells_per_row: i32, controller_rc: &RcController) {
-        for col in 0..cells_per_row {
-            for row in 0..cells_per_row {
-                let cell_box = make_picture_cell_box(col, row, controller_rc);
-                grid.attach(&cell_box, col, row, 1, 1);
-            }
-        }
-    }
-
-    pub fn remove_cells(grid: &gtk::Grid, cells_per_row: i32) {
-        for col in 0..cells_per_row {
-            for row in 0..cells_per_row {
-                let cell_box = grid.child_at(col, row).unwrap();
-                grid.remove(&cell_box);
-            }
-        }
-    }
 
     #[allow(deprecated)]
     pub fn make_panel(view_grid: &gtk::Grid) -> gtk::Grid {

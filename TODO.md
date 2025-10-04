@@ -33,3 +33,14 @@
 - [x] any other event stops the slide show
 - [x] S command put the slide show back
 - [ ] edit and add a label, save it in the database and retrieve it
+- [ ] solve the dilemna:
+    
+    Controller has a View
+    View holds the graphic Components
+    Components respond to signal, transmitting information to Controller
+
+    thus creating the components requires a reference to the controller
+    creating the view requires the components
+    creating the controller requires the view
+
+    

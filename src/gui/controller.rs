@@ -30,7 +30,7 @@ pub struct Controller {
     controls: Controls,
     database: Database,
     state: State,
-    view: View,
+    view_opt: Option<View>
 }
 
 pub type RcController = Rc<RefCell<Controller>>;
@@ -50,7 +50,7 @@ impl Controller {
                     controls: default_controls(),
                     database,
                     state: State::new(pictures_per_row as usize, cli.slideshow().is_some()),
-                    view,
+                    view_opt: None,
                 }),
             }
         })
@@ -61,11 +61,12 @@ impl Controller {
     }
 
     pub fn view(&self) -> View {
-        self.view.clone()
+        let view = self.view_opt.unwrap();
+        view.clone()
     }
 
     pub fn set_view(&mut self, view: View) {
-        self.view = view;
+        self.view_opt = Some(view)
     }
 
     pub fn state(&self) -> State {
@@ -91,39 +92,37 @@ impl Controller {
         self.gallery.picture(navigator.position())
     }
 
-    pub fn build_and_run_app(controller: Controller) -> IOResult<()> {
-        let controller_rc = Rc::new(RefCell::new(controller));
-        match controller_rc.try_borrow_mut() {
-            Ok(mut controller) => {
-                let mut gallery = Gallery::new();
-                let args = controller.args.clone();
-                let _ = match args.command {
-                    Some(Command::File { file_path }) => gallery.load_from_file_path(&file_path),
-                    Some(Command::Dir { directory }) => gallery.load_from_directory(&directory),
-                    None => gallery.load_from_database(&controller.database),
-                };
-                if args.random {
-                    gallery.sort_by(Order::Random)
-                } else {
-                    gallery.sort_by(Order::Name)
-                };
-                println!("{} pictures", &gallery.len());
-                if gallery.is_empty() {
-                    return Ok(());
-                }
-                if controller.args.create_missing_thumbnails {
-                    create_missing_thumbnails(&gallery.clone());
-                }
-                controller.set_gallery(gallery);
-            }
-            Err(err) => return Err(std::io::Error::other(err)),
+    pub fn load_picture_data(&mut self) -> IOResult<usize> {
+        let mut gallery = Gallery::new();
+        let args = self.args.clone();
+        let load_result = match args.command {
+            Some(Command::File { file_path }) => gallery.load_from_file_path(&file_path),
+            Some(Command::Dir { directory }) => gallery.load_from_directory(&directory),
+            None => gallery.load_from_database(&self.database),
         };
-        let application: gtk::Application =
-            View::make_application("org.example.gallsh", controller_rc);
+        match load_result { 
+            Ok(_) => {
+                let len = gallery.len();
+                println!("{} pictures", len);
+                Ok(len)
+            },
+            Err(err) => Err(err),
+        }
+    }
+
+    pub fn create_view(&mut self, controller_rc: &RcController) {
+        let pictures_per_row: i32 = self.navigator().pictures_per_row() as i32;
+        let view = View::new();
+        view.build_components(pictures_per_row, controller_rc);
+        self.set_view(view)
+    }
+
+    pub fn run_application(self) {
+        let application = self.view().application();
         let no_args: Vec<String> = vec![];
         application.run_with_args(&no_args);
-        Ok(())
     }
+
 
     pub fn process_event(
         &mut self,
@@ -269,12 +268,12 @@ impl Controller {
     }
 
     pub fn label(&self) {
-        if let Ok(application_window) = self.view.application_window_rc().try_borrow_mut() {
+        if let Ok(application_window) = self.view().application_window_rc().try_borrow_mut() {
             View::make_entry_window(&application_window, "Enter a label");
         }
     }
     pub fn quit(&self) {
-        if let Ok(application_window) = self.view.application_window_rc().try_borrow_mut() {
+        if let Ok(application_window) = self.view().application_window_rc().try_borrow_mut() {
             application_window.close()
         };
     }
