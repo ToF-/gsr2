@@ -1,8 +1,8 @@
 use crate::Args;
 use crate::cli::command::Command;
+use crate::env::default_values::APPLICATION_ID;
 use crate::env::environment::database_connection;
 use crate::file::database::Database;
-use crate::file::picture_file::create_missing_thumbnails;
 use crate::gui::control::{Control, Controls, default_controls};
 use crate::gui::controller::gdk::Key;
 use crate::gui::controller::gdk::ModifierType;
@@ -12,8 +12,8 @@ use crate::gui::navigator::Navigator;
 use crate::gui::state::State;
 use crate::gui::view::LEFT_PANE;
 use crate::gui::view::View;
+use crate::gui::view::components::application::make_application;
 use crate::model::gallery::Gallery;
-use crate::model::order::Order;
 use crate::model::picture::Picture;
 use gtk::gdk;
 use gtk::prelude::*;
@@ -30,7 +30,7 @@ pub struct Controller {
     controls: Controls,
     database: Database,
     state: State,
-    view_opt: Option<View>
+    view_opt: Option<View>,
 }
 
 pub type RcController = Rc<RefCell<Controller>>;
@@ -39,7 +39,6 @@ impl Controller {
     pub fn new(cli: Args) -> IOResult<Self> {
         let gallery = Gallery::new();
         let pictures_per_row = cli.pictures_per_row();
-        let view = View::new();
         database_connection().and_then(|connection_string| {
             match Database::from_connection(&connection_string) {
                 Err(err) => Err(err),
@@ -100,20 +99,20 @@ impl Controller {
             Some(Command::Dir { directory }) => gallery.load_from_directory(&directory),
             None => gallery.load_from_database(&self.database),
         };
-        match load_result { 
+        match load_result {
             Ok(_) => {
                 let len = gallery.len();
                 println!("{} pictures", len);
                 Ok(len)
-            },
+            }
             Err(err) => Err(err),
         }
     }
 
     pub fn create_view(&mut self, controller_rc: &RcController) {
         let pictures_per_row: i32 = self.navigator().pictures_per_row() as i32;
-        let view = View::new();
-        view.build_components(pictures_per_row, controller_rc);
+        let application = make_application(APPLICATION_ID, controller_rc);
+        let view = View::new(&application, controller_rc);
         self.set_view(view)
     }
 
@@ -123,24 +122,14 @@ impl Controller {
         application.run_with_args(&no_args);
     }
 
-
-    pub fn process_event(
-        &mut self,
-        event: Event,
-        controller_rc: &RcController,
-    ) {
+    pub fn process_event(&mut self, event: Event, controller_rc: &RcController) {
         match event {
             Event::KeyPressed {
                 key,
                 key_code,
                 modifier_type,
             } => {
-                self.process_key_event(
-                    key,
-                    key_code,
-                    modifier_type,
-                    controller_rc,
-                );
+                self.process_key_event(key, key_code, modifier_type, controller_rc);
             }
             Event::NextSlideDelay => self.next_slide_delay(),
             Event::PaneClicked {
@@ -164,13 +153,9 @@ impl Controller {
             self.state.set_slideshow_off();
         }
     }
-    pub fn process_picture_clicked(
-        &mut self,
-        _button: u32,
-        col: i32,
-        row: i32,
-    ) {
-        View::set_label_for_current_picture(self, false);
+    pub fn process_picture_clicked(&mut self, _button: u32, col: i32, row: i32) {
+        let view = self.view();
+        view.set_label_for_current_picture(self, false);
         if let Some(index) = self
             .navigator
             .position_from_coords(row as usize, col as usize)
@@ -180,7 +165,7 @@ impl Controller {
                     .move_towards(Direction::Index { value: index });
             }
         }
-        View::set_label_for_current_picture(self, true);
+        view.set_label_for_current_picture(self, true);
     }
 
     pub fn process_pane_clicked(&mut self, _button: usize, pane_number: usize) {
@@ -201,7 +186,8 @@ impl Controller {
         _modifier_type: ModifierType,
         controller_rc: &RcController,
     ) {
-        View::set_label_for_current_picture(self, false);
+        let view = self.view();
+        view.set_label_for_current_picture(self, false);
         let old_slideshow_on = self.state().slideshow_on();
         self.process_key(key);
         if self.state.slideshow_on() != old_slideshow_on {
@@ -211,11 +197,12 @@ impl Controller {
         } else {
             self.set_slideshow_off();
             if self.state().dimension_changed() {
-                self.view().reattach_grid_picture_events(controller_rc,self.state().old_pictures_per_row(), self.state().pictures_per_row);
+                self.view()
+                    .change_dimension(controller_rc, self.state().pictures_per_row());
                 self.acknowledge_dimension();
             }
             if self.state().single_view() != self.view().single_view() {
-                View::toggle_view_stack(self);
+                view.toggle_view_stack(self);
                 View::set_pictures(self)
             } else if self.navigator.page_changed() {
                 View::set_pictures(self)
@@ -268,14 +255,13 @@ impl Controller {
     }
 
     pub fn label(&self) {
-        if let Ok(application_window) = self.view().application_window_rc().try_borrow_mut() {
-            View::make_entry_window(&application_window, "Enter a label");
-        }
+        // if let Ok(application_window) = self.view().application_window_rc().try_borrow_mut() {
+        //     View::make_entry_window(&application_window, "Enter a label");
+        // }
     }
     pub fn quit(&self) {
-        if let Ok(application_window) = self.view().application_window_rc().try_borrow_mut() {
-            application_window.close()
-        };
+        let application_window = self.view().application_window();
+        application_window.close()
     }
 
     pub fn toggle_single_view(&mut self) {

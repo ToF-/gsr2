@@ -4,6 +4,7 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.8	//
+APPLICATION_ID	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const APPLICATION_ID: &str = "org.example.gsr";$/;"	c
 Args	/Users/christophethibaut/Coding/gsr2/src/cli/args.rs	/^pub struct Args {$/;"	s
 Command	/Users/christophethibaut/Coding/gsr2/src/cli/command.rs	/^pub enum Command {$/;"	g
 Control	/Users/christophethibaut/Coding/gsr2/src/gui/control.rs	/^pub enum Control {$/;"	g
@@ -30,6 +31,7 @@ InputKind	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^pub enum Inpu
 LARGE_PICTURE	/Users/christophethibaut/Coding/gsr2/src/model/gen_image.rs	/^pub const LARGE_PICTURE: &str = "testdata\/large_picture.png";$/;"	c
 LEFT_PANE	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^pub const LEFT_PANE: usize = 0;$/;"	c
 MAX_PALETTE_COLORS	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const MAX_PALETTE_COLORS: u8 = 9;$/;"	c
+MainWindow	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/main_window.rs	/^pub struct MainWindow {$/;"	s
 NINE_COLORS	/Users/christophethibaut/Coding/gsr2/src/model/gen_image.rs	/^pub const NINE_COLORS: &str = "testdata\/nine_colors.png";$/;"	c
 Navigator	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^pub struct Navigator {$/;"	s
 ONE_PICTURE_PER_ROW	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const ONE_PICTURE_PER_ROW: usize = 1;$/;"	c
@@ -39,6 +41,7 @@ PALETTE_AREA_WIDTH	/Users/christophethibaut/Coding/gsr2/src/env/default_values.r
 Palette	/Users/christophethibaut/Coding/gsr2/src/model/image_data.rs	/^pub type Palette = [Rgb8; 9];$/;"	T
 Picture	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^pub struct Picture {$/;"	s
 PictureFileData	/Users/christophethibaut/Coding/gsr2/src/model/image_data.rs	/^pub struct PictureFileData(pub FileSize, pub SystemTime);$/;"	s
+PictureFrame	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/picture_frame.rs	/^pub struct PictureFrame {$/;"	s
 PictureGrid	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/picture_grid.rs	/^pub struct PictureGrid {$/;"	s
 RIGHT_PANE	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^pub const RIGHT_PANE: usize = 1;$/;"	c
 RcController	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^pub type RcController = Rc<RefCell<Controller>>;$/;"	T
@@ -68,15 +71,16 @@ after_page_change_position_from_coords_changes	/Users/christophethibaut/Coding/g
 after_toggle_single_view_cells_per_row_change	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    fn after_toggle_single_view_cells_per_row_change() {$/;"	f
 append	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    pub fn append(&mut self, ch: char) -> bool {$/;"	f
 appending_a_char_changes_the_input	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    fn appending_a_char_changes_the_input() {$/;"	f
-application_window_rc	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn application_window_rc(&self) -> Rc<RefCell<gtk::ApplicationWindow>> {$/;"	f
+application	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn application(&self) -> gtk::Application {$/;"	f
+application_window	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn application_window(&self) -> gtk::ApplicationWindow {$/;"	f
+application_window	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/main_window.rs	/^    pub fn application_window(&self) -> gtk::ApplicationWindow {$/;"	f
 args	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn args(&self) -> Args {$/;"	f
 arrow_move	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn arrow_move(&mut self, direction: Direction) {$/;"	f
-attach_cells	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn attach_cells(grid: &gtk::Grid, cells_per_row: i32, controller_rc: &RcController) {$/;"	f
+attach_cells	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/picture_grid.rs	/^    pub fn attach_cells(&self) {$/;"	f
 attach_events	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn attach_events($/;"	f
 attach_grid_picture_events	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn attach_grid_picture_events($/;"	f
-attach_slideshow_event	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn attach_slideshow_event($/;"	f
+attach_slideshow_event	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn attach_slideshow_event(seconds: i32, controller_rc: &RcController) {$/;"	f
 begin_input	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    pub fn begin_input(&mut self, kind: InputKind) {$/;"	f
-build_and_run_app	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn build_and_run_app(controller: Controller) -> IOResult<()> {$/;"	f
 can_move	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn can_move(&mut self, direction: Direction) -> bool {$/;"	f
 can_move_next_page	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn can_move_next_page(&mut self) -> bool {$/;"	f
 can_move_prev_page	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn can_move_prev_page(&mut self) -> bool {$/;"	f
@@ -85,6 +89,7 @@ cancelling_set_editing_to_false	/Users/christophethibaut/Coding/gsr2/src/gui/edi
 cannot_append_forbidden_chars	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    fn cannot_append_forbidden_chars() {$/;"	f
 cannot_move_down_if_beyond_limit	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn cannot_move_down_if_beyond_limit() {$/;"	f
 cannot_move_up_if_before_limit	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn cannot_move_up_if_before_limit() {$/;"	f
+change_dimension	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn change_dimension(&self, controller_rc: &RcController, pictures_per_row: usize) {$/;"	f
 check_path	/Users/christophethibaut/Coding/gsr2/src/file/paths.rs	/^pub fn check_path(source: &str) -> Result<String> {$/;"	f
 check_path_exists	/Users/christophethibaut/Coding/gsr2/src/file/paths.rs	/^pub fn check_path_exists(path: &PathBuf) -> Result<&PathBuf> {$/;"	f
 check_path_is_a_file	/Users/christophethibaut/Coding/gsr2/src/file/paths.rs	/^pub fn check_path_is_a_file(path: &PathBuf) -> Result<&PathBuf> {$/;"	f
@@ -108,6 +113,7 @@ coords_from_position	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/
 coords_from_position_depends_on_given_position	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn coords_from_position_depends_on_given_position() {$/;"	f
 create_missing_thumbnails	/Users/christophethibaut/Coding/gsr2/src/file/picture_file.rs	/^pub fn create_missing_thumbnails(gallery: &Gallery) {$/;"	f
 create_thumbnail_file	/Users/christophethibaut/Coding/gsr2/src/model/gen_image.rs	/^pub fn create_thumbnail_file(thumbnail_file_path: &str, picture_file_path: &str) -> IOResult<()> {$/;"	f
+create_view	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn create_view(&mut self, controller_rc: &RcController) {$/;"	f
 current_picture	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn current_picture(&self) -> Picture {$/;"	f
 database_connection	/Users/christophethibaut/Coding/gsr2/src/env/environment.rs	/^pub fn database_connection() -> Result<String> {$/;"	f
 default_controls	/Users/christophethibaut/Coding/gsr2/src/gui/control.rs	/^pub fn default_controls() -> Controls {$/;"	f
@@ -126,6 +132,7 @@ file_name	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    pub fn
 file_name_from	/Users/christophethibaut/Coding/gsr2/src/file/paths.rs	/^pub fn file_name_from(file_path: &str) -> String {$/;"	f
 file_path	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    pub fn file_path(&self) -> String {$/;"	f
 frame	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn frame(window: &gtk::ScrolledWindow) -> gtk::Box {$/;"	f
+frame_ref	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/picture_frame.rs	/^    pub fn frame_ref(&self) -> RefCell<gtk::Box> {$/;"	f
 from_connection	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    pub fn from_connection(connection_string: &str) -> std::io::Result<Self> {$/;"	f
 from_file	/Users/christophethibaut/Coding/gsr2/src/model/image_data.rs	/^    pub fn from_file(file_path: &str) -> Result<Self> {$/;"	f
 from_key_name_to_a_control	/Users/christophethibaut/Coding/gsr2/src/gui/control.rs	/^    fn from_key_name_to_a_control() {$/;"	f
@@ -147,6 +154,7 @@ given_a_destination_index_can_move_if_within_limit	/Users/christophethibaut/Codi
 given_coords_can_tell_position_trivial_case	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn given_coords_can_tell_position_trivial_case() {$/;"	f
 given_coords_can_tell_position_with_several_pictures_per_row_on_first_page	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn given_coords_can_tell_position_with_several_pictures_per_row_on_first_page() {$/;"	f
 given_illegal_coors_position_is_none	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn given_illegal_coors_position_is_none() {$/;"	f
+grid_ref	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/picture_grid.rs	/^    pub fn grid_ref(&self) -> RefCell<gtk::Grid> {$/;"	f
 has_moved	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn has_moved(&self) -> bool {$/;"	f
 image_data	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    pub fn image_data(&self) -> Option<ImageData> {$/;"	f
 initially_not_editing	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    fn initially_not_editing() {$/;"	f
@@ -164,28 +172,27 @@ len	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^    pub fn len(&
 load_from_database	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^    pub fn load_from_database(&mut self, database: &Database) -> Result<usize> {$/;"	f
 load_from_directory	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^    pub fn load_from_directory(&mut self, path: &str) -> Result<usize> {$/;"	f
 load_from_file_path	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^    pub fn load_from_file_path(&mut self, file_path: &str) -> Result<usize> {$/;"	f
+load_picture_data	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn load_picture_data(&mut self) -> IOResult<usize> {$/;"	f
 loading_from_a_directory_collect_all_the_picture_files_from_that_directory	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^    fn loading_from_a_directory_collect_all_the_picture_files_from_that_directory() {$/;"	f
 loading_from_a_single_file_path_collect_that_single_picture_file	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^    fn loading_from_a_single_file_path_collect_that_single_picture_file() {$/;"	f
 loading_from_database_collect_all_the_picture_file_paths_stored	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^    fn loading_from_database_collect_all_the_picture_file_paths_stored() {$/;"	f
 main	/Users/christophethibaut/Coding/gsr2/src/main.rs	/^fn main() {$/;"	f
-make_application	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn make_application(application_id: &str, controller_rc: RcController) -> gtk::Application {$/;"	f
+make_application	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/application.rs	/^pub fn make_application(application_id: &str, controller_rc: &RcController) -> gtk::Application {$/;"	f
 make_application_components	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn make_application_components($/;"	f
-make_application_window	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn make_application_window($/;"	f
+make_application_window	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/main_window.rs	/^fn make_application_window($/;"	f
 make_entry_window	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn make_entry_window($/;"	f
-make_frame	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn make_frame() -> gtk::Box {$/;"	f
-make_gesture_click	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/picture_cell_box.rs	/^fn make_gesture_click(button: u32, col: i32, row: i32, controller_rc: &RcController) -> gtk::GestureClick {$/;"	f
-make_grid	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn make_grid(cells_per_row: i32, controller_rc: &RcController) -> gtk::Grid {$/;"	f
-make_label	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn make_label() -> gtk::Label {$/;"	f
+make_frame	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/picture_frame.rs	/^fn make_frame() -> gtk::Box {$/;"	f
+make_gesture_click	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/picture_cell_box.rs	/^fn make_gesture_click($/;"	f
+make_label	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/picture_frame.rs	/^fn make_label() -> gtk::Label {$/;"	f
 make_label_for_picture	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn make_label_for_picture(picture: &Picture, with_focus: bool) -> gtk::Label {$/;"	f
-make_multiple_view_scrolled_window	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn make_multiple_view_scrolled_window() -> gtk::ScrolledWindow {$/;"	f
 make_palette_area	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn make_palette_area() -> gtk::DrawingArea {$/;"	f
 make_pane_with_label	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn make_pane_with_label(symbol: &str) -> gtk::Label {$/;"	f
-make_panel	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn make_panel(view_grid: &gtk::Grid) -> gtk::Grid {$/;"	f
-make_picture	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn make_picture() -> gtk::Picture {$/;"	f
+make_panel	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/main_window.rs	/^fn make_panel(view_grid: &gtk::Grid) -> gtk::Grid {$/;"	f
+make_picture	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/picture_frame.rs	/^fn make_picture() -> gtk::Picture {$/;"	f
 make_picture_cell_box	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/picture_cell_box.rs	/^pub fn make_picture_cell_box(col: i32, row: i32, controller_rc: &RcController) -> gtk::Box {$/;"	f
 make_picture_for	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn make_picture_for(file_path: &str, opacity: f64, can_shrink: bool) -> gtk::Picture {$/;"	f
-make_single_view_scrolled_window	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn make_single_view_scrolled_window() -> gtk::ScrolledWindow {$/;"	f
-make_stack	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn make_stack() -> gtk::Stack {$/;"	f
+make_scrolled_window	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/main_window.rs	/^fn make_scrolled_window() -> gtk::ScrolledWindow {$/;"	f
+make_stack	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/main_window.rs	/^fn make_stack() -> gtk::Stack {$/;"	f
 move_end	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn move_end(&mut self) {$/;"	f
 move_first	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn move_first(&mut self) {$/;"	f
 move_last	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn move_last(&mut self) {$/;"	f
@@ -211,7 +218,10 @@ new	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn new(
 new	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    pub fn new() -> Editor {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn new(limit: usize, pictures_per_row: usize) -> Self {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn new(pictures_per_row: usize, slideshow_on: bool) -> Self {$/;"	f
-new	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn new() -> Self {$/;"	f
+new	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn new(application: &gtk::Application, controller_rc: &RcController) -> Self {$/;"	f
+new	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/main_window.rs	/^    pub fn new(application: &gtk::Application, controller_rc: &RcController) -> Self {$/;"	f
+new	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/picture_frame.rs	/^    pub fn new(controller_rc: &RcController) -> Self {$/;"	f
+new	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/picture_grid.rs	/^    pub fn new(pictures_per_row: i32, controller_rc: &RcController) -> Self {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^    pub fn new() -> Self {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/model/image_data.rs	/^    pub fn new(label: &str) -> Self {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    pub fn new(file_path: &str) -> Self {$/;"	f
@@ -233,9 +243,11 @@ partial_cmp	/Users/christophethibaut/Coding/gsr2/src/model/image_data.rs	/^    f
 picture	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn picture(cell_box: &gtk::Box) -> gtk::Picture {$/;"	f
 picture	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^    pub fn picture(&self, index: usize) -> Picture {$/;"	f
 picture_from_file_path	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn picture_from_file_path(file_path: &Path) -> gtk::Picture {$/;"	f
+picture_grid	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn picture_grid(&self) -> PictureGrid {$/;"	f
 picture_label_display	/Users/christophethibaut/Coding/gsr2/src/gui/display.rs	/^pub fn picture_label_display(label: &str, with_focus: bool) -> String {$/;"	f
 pictures	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^    pub fn pictures(&self) -> &Vec<Picture> {$/;"	f
 pictures_per_row	/Users/christophethibaut/Coding/gsr2/src/cli/args.rs	/^    pub fn pictures_per_row(&self) -> i32 {$/;"	f
+pictures_per_row	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn pictures_per_row(&self) -> usize {$/;"	f
 pictures_per_row	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn pictures_per_row(&self) -> usize {$/;"	f
 pictures_per_row_is_determined_by_grid_option	/Users/christophethibaut/Coding/gsr2/src/cli/args.rs	/^    fn pictures_per_row_is_determined_by_grid_option() {$/;"	f
 pictures_per_row_is_determined_by_thumbnails_option	/Users/christophethibaut/Coding/gsr2/src/cli/args.rs	/^    fn pictures_per_row_is_determined_by_thumbnails_option() {$/;"	f
@@ -245,18 +257,18 @@ position_from_coords_depnds_on_page_start	/Users/christophethibaut/Coding/gsr2/s
 prev_page_start	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn prev_page_start(&self) -> usize {$/;"	f
 prev_page_start_is_page_start_minus_page_size	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn prev_page_start_is_page_start_minus_page_size() {$/;"	f
 process_control	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn process_control(&mut self, control: &Control) {$/;"	f
-process_event	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn process_event($/;"	f
+process_event	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn process_event(&mut self, event: Event, controller_rc: &RcController) {$/;"	f
 process_key	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn process_key(&mut self, key: Key) {$/;"	f
 process_key_event	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn process_key_event($/;"	f
 process_pane_clicked	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn process_pane_clicked(&mut self, _button: usize, pane_number: usize) {$/;"	f
-process_picture_clicked	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn process_picture_clicked($/;"	f
+process_picture_clicked	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn process_picture_clicked(&mut self, _button: u32, col: i32, row: i32) {$/;"	f
 quit	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn quit(&self) {$/;"	f
-reattach_grid_picture_events	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn reattach_grid_picture_events(&mut self, controller_rc: &RcController, old_pictures_per_row: usize, new_pictures_per_row: usize) {$/;"	f
-remove_cells	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn remove_cells(grid: &gtk::Grid, cells_per_row: i32) {$/;"	f
+remove_cells	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/picture_grid.rs	/^    pub fn remove_cells(&self) {$/;"	f
 remove_children_from_box	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn remove_children_from_box(cell_box: &gtk::Box) {$/;"	f
 retrieve_all_pictures	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    pub fn retrieve_all_pictures(&self) -> Result<Vec<Picture>> {$/;"	f
 retrieve_all_pictures_ordered_by_file_path	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    fn retrieve_all_pictures_ordered_by_file_path() {$/;"	f
 right_pane	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn right_pane(application_window: &gtk::ApplicationWindow) -> gtk::Label {$/;"	f
+run_application	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn run_application(self) {$/;"	f
 rusqlite_delete_picture_with_file_path	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    pub fn rusqlite_delete_picture_with_file_path(&self, file_path: &str) -> Result<usize> {$/;"	f
 rusqlite_from_connection	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    fn rusqlite_from_connection(connection_string: &str) -> Result<Self> {$/;"	f
 rusqlite_insert_picture	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    pub fn rusqlite_insert_picture(&self, picture: &Picture) -> Result<usize> {$/;"	f
@@ -274,11 +286,12 @@ set_picture_for_single_view	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs
 set_pictures	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn set_pictures(controller: &Controller) {$/;"	f
 set_pictures_for_multiple_view	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    fn set_pictures_for_multiple_view(controller: &Controller, pictures_per_row: usize) {$/;"	f
 set_pictures_per_row	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn set_pictures_per_row(&mut self, pictures_per_row: usize) {$/;"	f
+set_pictures_per_row	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/picture_grid.rs	/^    pub fn set_pictures_per_row(&mut self, pictures_per_row: i32) {$/;"	f
 set_single_view_picture	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn set_single_view_picture($/;"	f
 set_slideshow_off	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_slideshow_off(&mut self) {$/;"	f
 set_slideshow_off	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn set_slideshow_off(&mut self) {$/;"	f
 set_view	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_view(&mut self, view: View) {$/;"	f
-setup_components	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn setup_components($/;"	f
+setup_components	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn setup_components(&mut self, pictures_per_row: i32, controller_rc: &RcController) {}$/;"	f
 single_view	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn single_view(&self) -> bool {$/;"	f
 single_view	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn single_view(&self) -> bool {$/;"	f
 single_view_picture_label	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn single_view_picture_label(application_window: &gtk::ApplicationWindow) -> gtk::Label {$/;"	f
@@ -289,7 +302,7 @@ slideshow_on	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn 
 sort_and_compare_lists	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^    fn sort_and_compare_lists() -> bool {$/;"	f
 sort_by	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^    pub fn sort_by(&mut self, order: Order) {$/;"	f
 sorting_by_different_criteria	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^    fn sorting_by_different_criteria() {$/;"	f
-startup_gui	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn startup_gui(_application: &gtk::Application) {$/;"	f
+startup_gui	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/application.rs	/^pub fn startup_gui() {$/;"	f
 state	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn state(&self) -> State {$/;"	f
 switch_grid	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn switch_grid(&mut self, pictures_per_row: usize) {$/;"	f
 switch_grid	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn switch_grid(&mut self, pictures_per_row: usize) {$/;"	f

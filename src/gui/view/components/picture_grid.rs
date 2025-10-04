@@ -1,18 +1,18 @@
-use gtk::prelude::GridExt;
-use crate::gui::view::make_picture_cell_box;
+use crate::gui::view::picture_label_display;
+use crate::model::picture::Picture;
 use crate::gui::view::RcController;
-use std::rc::Rc;
+use crate::gui::view::make_picture_cell_box;
+use gtk::prelude::GridExt;
 use std::cell::RefCell;
 
 #[derive(Clone, Debug)]
 pub struct PictureGrid {
     pictures_per_row: i32,
-    grid_rc: Rc<RefCell<gtk::Grid>>,
+    grid_ref: RefCell<gtk::Grid>,
     controller_rc: RcController,
 }
 
 impl PictureGrid {
-
     pub fn new(pictures_per_row: i32, controller_rc: &RcController) -> Self {
         let grid = gtk::Grid::builder()
             .row_homogeneous(true)
@@ -23,15 +23,40 @@ impl PictureGrid {
             .build();
         let picture_grid = PictureGrid {
             pictures_per_row,
-            grid_rc: Rc::new(RefCell::new(grid)),
+            grid_ref: RefCell::new(grid),
             controller_rc: controller_rc.clone(),
         };
         picture_grid.attach_cells();
         picture_grid
     }
 
+    pub fn grid_ref(&self) -> RefCell<gtk::Grid> {
+        self.grid_ref
+    }
+
+    pub fn grid(&self) -> gtk::Grid {
+        *self.grid_ref.borrow()
+    }
+
+    pub fn set_label_for(&self, picture: &Picture, col: i32, row: i32, with_focus: bool) {
+        let grid = self.grid();
+        if let Some(cell_box) = grid.child_at(col as i32, row as i32) {
+            let gtkPicture = cell_box
+                .first_child()
+                .unwrap()
+                .downcast::<gtk::Picture>()
+                .unwrap();
+            let label = gtkPicture
+                .next_sibling()
+                .unwrap()
+                .downcast::<gtk::Label>()
+                .unwrap();
+            label.set_text(&picture_label_display(&picture.label(), with_focus))
+        }
+    }
+
     pub fn attach_cells(&self) {
-        let grid = self.grid_rc.try_borrow().expect("can't borrow");
+        let grid = self.grid_ref.try_borrow().expect("can't borrow");
         for col in 0..self.pictures_per_row {
             for row in 0..self.pictures_per_row {
                 let cell_box = make_picture_cell_box(col, row, &self.controller_rc);
@@ -41,7 +66,7 @@ impl PictureGrid {
     }
 
     pub fn remove_cells(&self) {
-        let grid = self.grid_rc.try_borrow().expect("can't borrow");
+        let grid = self.grid_ref.try_borrow().expect("can't borrow");
         for col in 0..self.pictures_per_row {
             for row in 0..self.pictures_per_row {
                 let cell_box = grid.child_at(col, row).unwrap();
@@ -54,7 +79,5 @@ impl PictureGrid {
         self.remove_cells();
         self.pictures_per_row = pictures_per_row;
         self.attach_cells();
-
     }
 }
-

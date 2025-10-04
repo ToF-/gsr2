@@ -25,3 +25,4 @@ pub const VALID_EXTENSIONS: [&str; 6] = ["jpg", "jpeg", "png", "JPG", "JPEG", "P
 pub const TEST_DATABASE_FILE: &str = "testdata/gsr2.db";
 pub const DATABASE_CONNECTION_VAR: &str = "GSRDBC";
 pub const FOCUS_SYMBOL: &str = "▄ ";
+pub const APPLICATION_ID: &str = "org.example.gsr";
