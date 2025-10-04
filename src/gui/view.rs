@@ -1,8 +1,7 @@
+use gtk::glib::object::Cast;
 use crate::gui::view::components::picture_cell_box::make_picture_cell_box;
 use crate::Controller;
-use crate::env::default_values::{DEFAULT_HEIGHT, DEFAULT_WIDTH};
 use crate::file::paths::check_path_exists;
-use crate::gui::control::Control;
 use crate::gui::controller::RcController;
 use crate::gui::direction::Direction;
 use crate::gui::display::picture_label_display;
@@ -32,18 +31,12 @@ mod components;
 
 #[derive(Clone, Debug)]
 pub struct View {
-    width: i32,
-    height: i32,
-    cells_per_row: i32,
     application_window_rc: Option<Rc<RefCell<gtk::ApplicationWindow>>>,
 }
 
 impl View {
-    pub fn new(width: i32, height: i32, cells_per_row: i32) -> Self {
+    pub fn new() -> Self {
         View {
-            width,
-            height,
-            cells_per_row,
             application_window_rc: None,
         }
     }
@@ -149,7 +142,7 @@ impl View {
     // basic settings when starting up gtk application
     pub fn startup_gui(_application: &gtk::Application) {
         let css_provider = gtk::CssProvider::new();
-        css_provider.load_from_data(
+        css_provider.load_from_string(
             "window { background-color:black;} image { margin:1em ; } label { color:white; }",
         );
         gtk::style_context_add_provider_for_display(
@@ -237,8 +230,6 @@ impl View {
         gesture_left_click.connect_pressed(clone!(
             #[strong]
             controller_rc,
-            #[strong]
-            application_window,
             move |_, _, _, _| {
                 if let Ok(mut controller) = controller_rc.try_borrow_mut() {
                     controller.process_event(
@@ -260,8 +251,6 @@ impl View {
         gesture_right_click.connect_pressed(clone!(
             #[strong]
             controller_rc,
-            #[strong]
-            application_window,
             move |_, _, _, _| {
                 if let Ok(mut controller) = controller_rc.try_borrow_mut() {
                     controller.process_event(
@@ -282,8 +271,6 @@ impl View {
         evk.connect_key_pressed(clone!(
             #[strong]
             controller_rc,
-            #[strong]
-            application_window,
             move |_, key, key_code, modifier_type| {
                 if let Ok(mut controller) = controller_rc.try_borrow_mut() {
                     controller.process_event(
@@ -371,8 +358,6 @@ impl View {
                     row,
                     #[strong]
                     controller_rc,
-                    #[strong]
-                    window,
                     move |_, _, _, _| {
                         if let Ok(mut controller) = controller_rc.try_borrow_mut() {
                             controller.process_event(
@@ -396,8 +381,6 @@ impl View {
                     row,
                     #[strong]
                     controller_rc,
-                    #[strong]
-                    window,
                     move |_, _, _, _| {
                         if let Ok(mut controller) = controller_rc.try_borrow_mut() {
                             controller.process_event(
@@ -602,6 +585,7 @@ impl View {
         }
     }
 
+    #[allow(deprecated)]
     pub fn make_panel(view_grid: &gtk::Grid) -> gtk::Grid {
         let panel = Grid::new();
         panel.set_hexpand(true);
@@ -609,7 +593,7 @@ impl View {
         panel.set_row_homogeneous(true);
         panel.set_column_homogeneous(false);
         let buttons_css_provider = CssProvider::new();
-        buttons_css_provider.load_from_data(
+        buttons_css_provider.load_from_string(
             "
             label {
                 color: gray;
@@ -651,9 +635,10 @@ impl View {
     }
 
     #[allow(dead_code)]
+    #[allow(deprecated)]
     pub fn make_pane_with_label(symbol: &str) -> gtk::Label {
         let buttons_css_provider = CssProvider::new();
-        buttons_css_provider.load_from_data(
+        buttons_css_provider.load_from_string(
             "
             label {
                 color: gray;
@@ -701,12 +686,6 @@ impl View {
             .unwrap()
             .downcast::<gtk::Picture>()
             .unwrap()
-    }
-
-    pub fn single_view_picture(application_window: &gtk::ApplicationWindow) -> gtk::Picture {
-        Self::picture(&Self::frame(&Self::visible_stack_child_scrolled_window(
-            &Self::view_stack(application_window),
-        )))
     }
 
     pub fn remove_children_from_box(cell_box: &gtk::Box) {

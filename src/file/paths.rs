@@ -62,6 +62,7 @@ pub fn check_path(source: &str) -> Result<String> {
     }
 }
 
+#[allow(dead_code)]
 pub fn file_name_from(file_path: &str) -> String {
     let path: PathBuf = PathBuf::from(file_path);
     path.file_name()

@@ -51,6 +51,7 @@ pub fn create_missing_thumbnails(gallery: &Gallery) {
     }
 }
 
+#[allow(dead_code)]
 pub fn get_data_from_picture_file(file_path: &str) -> Result<PictureFileData> {
     let path = PathBuf::from(file_path);
     match fs::metadata(path.clone()) {
@@ -63,6 +64,7 @@ pub fn get_data_from_picture_file(file_path: &str) -> Result<PictureFileData> {
     }
 }
 
+#[allow(dead_code)]
 pub fn get_palette_from_picture_file(file_path: &str) -> Result<Palette> {
     match image::open(file_path) {
         Ok(image) => {

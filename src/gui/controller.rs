@@ -1,6 +1,5 @@
 use crate::Args;
 use crate::cli::command::Command;
-use crate::env::default_values::{DEFAULT_HEIGHT, DEFAULT_WIDTH};
 use crate::env::environment::database_connection;
 use crate::file::database::Database;
 use crate::file::picture_file::create_missing_thumbnails;
@@ -16,7 +15,6 @@ use crate::gui::view::View;
 use crate::model::gallery::Gallery;
 use crate::model::order::Order;
 use crate::model::picture::Picture;
-use gtk::Window;
 use gtk::gdk;
 use gtk::prelude::*;
 use gtk::{self};
@@ -41,7 +39,7 @@ impl Controller {
     pub fn new(cli: Args) -> IOResult<Self> {
         let gallery = Gallery::new();
         let pictures_per_row = cli.pictures_per_row();
-        let view = View::new(DEFAULT_HEIGHT, DEFAULT_WIDTH, pictures_per_row);
+        let view = View::new();
         database_connection().and_then(|connection_string| {
             match Database::from_connection(&connection_string) {
                 Err(err) => Err(err),
@@ -145,7 +143,7 @@ impl Controller {
                     controller_rc,
                 );
             }
-            Event::NextSlideDelay => self.next_slide_delay(controller_rc),
+            Event::NextSlideDelay => self.next_slide_delay(),
             Event::PaneClicked {
                 button,
                 pane_number,
@@ -193,11 +191,7 @@ impl Controller {
             &Control::MoveNext
         });
         if self.navigator.has_moved() {
-            if let Ok(application_window) = self.view().application_window_rc().try_borrow() {
-                View::set_pictures(self)
-            } else {
-                panic!("can't borrow")
-            }
+            View::set_pictures(self)
         }
     }
 
@@ -218,7 +212,7 @@ impl Controller {
         } else {
             self.set_slideshow_off();
             if self.state().dimension_changed() {
-                self.view().reattach_grid_picture_events(controller_rc,self.state().old_pictures_per_row, self.state().pictures_per_row);
+                self.view().reattach_grid_picture_events(controller_rc,self.state().old_pictures_per_row(), self.state().pictures_per_row);
                 self.acknowledge_dimension();
             }
             if self.state().single_view() != self.view().single_view() {
@@ -242,10 +236,7 @@ impl Controller {
         }
     }
 
-    pub fn next_slide_delay(
-        &mut self,
-        controller_rc: &RcController,
-    ) {
+    pub fn next_slide_delay(&mut self) {
         self.move_next();
         View::set_pictures(self)
     }
@@ -275,10 +266,6 @@ impl Controller {
             Control::GridTen => self.switch_grid(10),
             _ => {}
         }
-    }
-
-    pub fn process_input_key(&mut self, key: Key, _window: &Window) {
-        println!("{:?}", key);
     }
 
     pub fn label(&self) {
@@ -371,15 +358,6 @@ impl Controller {
 
     pub fn full_size_arrow_move(&self, direction: Direction) {
         self.view().full_size_arrow_move(direction.clone())
-    }
-
-    pub fn move_down(&mut self) {
-        if !self.state().full_size_on() {
-            let navigator = &mut self.navigator;
-            if navigator.can_move(Direction::Down) {
-                navigator.move_towards(Direction::Down);
-            }
-        }
     }
 
     pub fn move_next(&mut self) {

@@ -1,7 +1,7 @@
 #[derive(Clone, Debug)]
 pub struct State {
     pub pictures_per_row: usize,
-    pub old_pictures_per_row: usize,
+    old_pictures_per_row: usize,
     pub single_view: bool,
     pub expand_on: bool,
     pub full_size_on: bool,

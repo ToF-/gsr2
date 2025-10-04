@@ -5,9 +5,7 @@ use image::{DynamicImage, Rgb};
 use palette_extract::{MaxColors, PixelEncoding, PixelFilter, Quality, get_palette_with_options};
 use std::cmp::Ordering;
 use std::collections::HashSet;
-use std::fs;
-use std::io::{Error, Result};
-use std::path::PathBuf;
+use std::io::Result;
 use std::time::SystemTime;
 
 pub type Rgb8 = Rgb<u8>;
