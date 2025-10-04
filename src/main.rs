@@ -1,5 +1,5 @@
-use crate::cli::command::Command;
 use crate::cli::args::Args;
+use crate::cli::command::Command;
 use crate::gui::controller::Controller;
 use std::process::exit;
 

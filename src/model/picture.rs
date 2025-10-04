@@ -1,5 +1,5 @@
-use crate::model::image_data::ImageData;
 use crate::file::paths::{file_name_from, thumbnail_name_from};
+use crate::model::image_data::ImageData;
 
 #[derive(Debug, Clone, Ord, PartialOrd, PartialEq, Eq)]
 pub struct Picture {

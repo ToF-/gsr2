@@ -84,10 +84,12 @@ impl Gallery {
 mod tests {
 
     use super::*;
+    use crate::env::default_values::TEST_DATABASE_FILE;
     use crate::file::database::Database;
     use crate::file::database::tests::my_db;
-    use crate::file::database::tests::{delete_nine_colors_from_db, insert_nine_colors_sample_into_db};
-    use crate::env::default_values::TEST_DATABASE_FILE;
+    use crate::file::database::tests::{
+        delete_nine_colors_from_db, insert_nine_colors_sample_into_db,
+    };
     use crate::model::gen_image::{NINE_COLORS, SINGLE_DOT, WHITE_SQUARE};
 
     #[test]

@@ -63,7 +63,8 @@ impl Args {
 
         args.width = dimension(args.width, "GSR_WIDTH", "width", DEFAULT_WIDTH);
         args.height = dimension(args.height, "GSR_HEIGHT", "height", DEFAULT_HEIGHT);
-        args.slideshow = slideshow_delay(args.slideshow, "slideshow delay", DEFAULT_SLIDESHOW_DELAY);
+        args.slideshow =
+            slideshow_delay(args.slideshow, "slideshow delay", DEFAULT_SLIDESHOW_DELAY);
         if let Some(Command::File { ref file_path }) = args.command {
             match check_picture_file(file_path) {
                 Ok(_) => {
@@ -109,9 +110,9 @@ impl Args {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::cli::command::Command;
-    use crate::Command::File;
     use crate::Command::Dir;
+    use crate::Command::File;
+    use crate::cli::command::Command;
     use crate::model::gen_image::{SINGLE_DOT, gen_single_dot};
     use std::io::ErrorKind;
 
@@ -153,7 +154,10 @@ mod tests {
         assert!(args.is_err());
         let err = args.expect_err("can't extract error");
         assert_eq!(ErrorKind::Other, err.kind());
-        assert_eq!("src/file/paths.rs is not a jpg or png file", &err.to_string())
+        assert_eq!(
+            "src/file/paths.rs is not a jpg or png file",
+            &err.to_string()
+        )
     }
 
     #[test]

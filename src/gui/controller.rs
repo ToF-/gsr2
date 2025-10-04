@@ -1,21 +1,21 @@
-use crate::file::database::Database;
-use crate::cli::command::Command;
 use crate::Args;
-use crate::gui::control::{Control, Controls, default_controls};
+use crate::cli::command::Command;
 use crate::env::default_values::{DEFAULT_HEIGHT, DEFAULT_WIDTH};
 use crate::env::environment::database_connection;
-use crate::model::gallery::Gallery;
+use crate::file::database::Database;
 use crate::file::picture_file::create_missing_thumbnails;
+use crate::gui::control::{Control, Controls, default_controls};
 use crate::gui::controller::gdk::Key;
-use crate::gui::direction::Direction;
 use crate::gui::controller::gdk::ModifierType;
+use crate::gui::direction::Direction;
 use crate::gui::event::Event;
 use crate::gui::navigator::Navigator;
 use crate::gui::state::State;
 use crate::gui::view::LEFT_PANE;
 use crate::gui::view::View;
-use crate::model::picture::Picture;
+use crate::model::gallery::Gallery;
 use crate::model::order::Order;
+use crate::model::picture::Picture;
 use gtk::Window;
 use gtk::gdk;
 use gtk::prelude::*;
@@ -130,7 +130,6 @@ impl Controller {
     pub fn process_event(
         &mut self,
         event: Event,
-        application_window: &gtk::ApplicationWindow,
         controller_rc: &RcController,
     ) {
         match event {
@@ -143,11 +142,10 @@ impl Controller {
                     key,
                     key_code,
                     modifier_type,
-                    application_window,
                     controller_rc,
                 );
             }
-            Event::NextSlideDelay => self.next_slide_delay(application_window, controller_rc),
+            Event::NextSlideDelay => self.next_slide_delay(controller_rc),
             Event::PaneClicked {
                 button,
                 pane_number,
@@ -156,7 +154,7 @@ impl Controller {
                 self.set_slideshow_off()
             }
             Event::PictureClicked { button, col, row } if button == 1 => {
-                self.process_picture_cliked(button, col, row, application_window);
+                self.process_picture_clicked(button, col, row);
                 self.set_slideshow_off()
             }
             _ => println!("{:?}", event),
@@ -169,12 +167,11 @@ impl Controller {
             self.state.set_slideshow_off();
         }
     }
-    pub fn process_picture_cliked(
+    pub fn process_picture_clicked(
         &mut self,
         _button: u32,
         col: i32,
         row: i32,
-        _window: &gtk::ApplicationWindow,
     ) {
         View::set_label_for_current_picture(self, false);
         if let Some(index) = self
@@ -197,7 +194,7 @@ impl Controller {
         });
         if self.navigator.has_moved() {
             if let Ok(application_window) = self.view().application_window_rc().try_borrow() {
-                View::set_pictures(&application_window, self)
+                View::set_pictures(self)
             } else {
                 panic!("can't borrow")
             }
@@ -209,7 +206,6 @@ impl Controller {
         key: Key,
         _key_code: u32,
         _modifier_type: ModifierType,
-        window: &gtk::ApplicationWindow,
         controller_rc: &RcController,
     ) {
         View::set_label_for_current_picture(self, false);
@@ -217,26 +213,19 @@ impl Controller {
         self.process_key(key);
         if self.state.slideshow_on() != old_slideshow_on {
             if let Some(seconds) = self.args().slideshow() {
-                View::attach_slideshow_event(seconds, window, controller_rc);
+                View::attach_slideshow_event(seconds, controller_rc);
             }
         } else {
             self.set_slideshow_off();
             if self.state().dimension_changed() {
-                let grid = View::multiple_view_grid(&window);
-                View::remove_cells(&grid, self.state().old_pictures_per_row() as i32);
-                View::attach_cells(&grid, self.state().pictures_per_row() as i32);
-                View::attach_grid_picture_events(
-                    self.state().pictures_per_row() as i32,
-                    window,
-                    controller_rc,
-                );
+                self.view().reattach_grid_picture_events(controller_rc,self.state().old_pictures_per_row, self.state().pictures_per_row);
                 self.acknowledge_dimension();
             }
-            if self.state().single_view() != View::single_view(&window) {
-                View::toggle_view_stack(&window);
-                View::set_pictures(&window, self)
+            if self.state().single_view() != self.view().single_view() {
+                View::toggle_view_stack(self);
+                View::set_pictures(self)
             } else if self.navigator.page_changed() {
-                View::set_pictures(&window, self)
+                View::set_pictures(self)
             };
             View::set_label_for_current_picture(self, true);
         }
@@ -248,18 +237,17 @@ impl Controller {
             None => {}
             Some(key_name) => match controls.get(&key_name.to_string()) {
                 Some(control) => self.process_control(control),
-                _ => {}
+                _ => println!("?"),
             },
         }
     }
 
     pub fn next_slide_delay(
         &mut self,
-        window: &gtk::ApplicationWindow,
         controller_rc: &RcController,
     ) {
         self.move_next();
-        View::set_pictures(&window, self)
+        View::set_pictures(self)
     }
 
     pub fn process_control(&mut self, control: &Control) {

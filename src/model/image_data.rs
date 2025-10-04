@@ -1,10 +1,10 @@
+use crate::env::default_values::MAX_PALETTE_COLORS;
 use crate::file::picture_file::get_data_from_picture_file;
 use crate::file::picture_file::get_palette_from_picture_file;
-use std::collections::HashSet;
-use crate::env::default_values::MAX_PALETTE_COLORS;
 use image::{DynamicImage, Rgb};
 use palette_extract::{MaxColors, PixelEncoding, PixelFilter, Quality, get_palette_with_options};
 use std::cmp::Ordering;
+use std::collections::HashSet;
 use std::fs;
 use std::io::{Error, Result};
 use std::path::PathBuf;
@@ -31,25 +31,23 @@ impl ImageData {
             label: label.to_string(),
             size: 0,
             modified_time: SystemTime::now(),
-            palette: [Rgb::from([0,0,0]); 9],
+            palette: [Rgb::from([0, 0, 0]); 9],
             tags: HashSet::new(),
         }
     }
 
     pub fn from_file(file_path: &str) -> Result<Self> {
-        get_data_from_picture_file(file_path)
-            .and_then(|file_data| {
-                get_palette_from_picture_file(file_path)
-                    .and_then(|palette| {
-                        Ok(ImageData {
-                            label: String::from(""),
-                            size: file_data.0,
-                            modified_time: file_data.1,
-                            palette,
-                            tags: HashSet::new(),
-                        })
-                    })
+        get_data_from_picture_file(file_path).and_then(|file_data| {
+            get_palette_from_picture_file(file_path).and_then(|palette| {
+                Ok(ImageData {
+                    label: String::from(""),
+                    size: file_data.0,
+                    modified_time: file_data.1,
+                    palette,
+                    tags: HashSet::new(),
+                })
             })
+        })
     }
 
     pub fn label(&self) -> String {
@@ -58,11 +56,15 @@ impl ImageData {
 }
 
 impl Ord for ImageData {
-    fn cmp(&self, _: &Self) -> std::cmp::Ordering { todo!() }
+    fn cmp(&self, _: &Self) -> std::cmp::Ordering {
+        todo!()
+    }
 }
 
 impl PartialOrd for ImageData {
-    fn partial_cmp(&self, _: &ImageData) -> std::option::Option<std::cmp::Ordering> { todo!() }
+    fn partial_cmp(&self, _: &ImageData) -> std::option::Option<std::cmp::Ordering> {
+        todo!()
+    }
 }
 
 fn compare_rgb(color: &Rgb8, other: &Rgb8) -> Ordering {
@@ -91,7 +93,6 @@ pub fn get_palette(image: &DynamicImage) -> Palette {
     palette.sort_by(compare_rgb);
     palette
 }
-
 
 #[cfg(test)]
 mod tests {
