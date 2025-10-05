@@ -1,3 +1,5 @@
+use gtk::prelude::Cast;
+use gtk::prelude::WidgetExt;
 use crate::gui::view::picture_label_display;
 use crate::model::picture::Picture;
 use crate::gui::view::RcController;

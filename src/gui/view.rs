@@ -86,6 +86,7 @@ impl View {
         let navigator = controller.navigator();
         let gallery = controller.gallery();
         let picture_grid = self.main_window.picture_grid();
+        let grid = picture_grid.grid();
         for col in 0..cells_per_row {
             for row in 0..cells_per_row {
                 let coords = (row as usize, col as usize);
@@ -120,7 +121,7 @@ impl View {
             self.set_picture_for_single_view(&controller)
         } else {
             let pictures_per_row = controller.state().pictures_per_row();
-            Self::set_pictures_for_multiple_view(&controller, pictures_per_row)
+            self.set_pictures_for_multiple_view(&controller, pictures_per_row)
         }
     }
 
@@ -138,117 +139,117 @@ impl View {
     // components have event managers attached to them
     // event manager have a counted reference on the controller and send it an event message
     //
-    pub fn make_application_components(
-        &mut self,
-        application: &gtk::Application,
-        controller_rc: &RcController,
-    ) {
-        let pictures_per_row: i32;
-        let application_window = Self::make_application_window(application, controller_rc);
-        {
-            let controller = controller_rc.try_borrow().expect("can't borrow");
-            pictures_per_row = controller.state().pictures_per_row() as i32;
-            self.setup_components(&application_window, pictures_per_row, controller_rc);
-        }
-        if let Ok(controller) = controller_rc.try_borrow_mut() {
-            let view = controller.view();
-            let slideshow = controller.args().slideshow();
-            Self::attach_events(&application_window, &view, slideshow, controller_rc);
-            Self::attach_grid_picture_events(pictures_per_row, &application_window, controller_rc);
-        } else {
-            panic!("can't borrow mut");
-        };
-        if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-            let application_window_rc = Rc::new(RefCell::new(application_window.clone()));
-            let mut view = controller.view();
-            view.set_application_window_rc(application_window_rc);
-            controller.set_view(view.clone());
-        } else {
-            panic!("can't borrow mut");
-        };
-        {
-            let controller = controller_rc.try_borrow().expect("can't borrow");
-            let _view = controller.view();
-            View::set_pictures(&controller);
-        }
-        application_window.present();
-    }
+    // pub fn make_application_components(
+    //     &mut self,
+    //     application: &gtk::Application,
+    //     controller_rc: &RcController,
+    // ) {
+    //     let pictures_per_row: i32;
+    //     let application_window = Self::make_application_window(application, controller_rc);
+    //     {
+    //         let controller = controller_rc.try_borrow().expect("can't borrow");
+    //         pictures_per_row = controller.state().pictures_per_row() as i32;
+    //         self.setup_components(&application_window, pictures_per_row, controller_rc);
+    //     }
+    //     if let Ok(controller) = controller_rc.try_borrow_mut() {
+    //         let view = controller.view();
+    //         let slideshow = controller.args().slideshow();
+    //         Self::attach_events(&application_window, &view, slideshow, controller_rc);
+    //         Self::attach_grid_picture_events(pictures_per_row, &application_window, controller_rc);
+    //     } else {
+    //         panic!("can't borrow mut");
+    //     };
+    //     if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+    //         let application_window_rc = Rc::new(RefCell::new(application_window.clone()));
+    //         let mut view = controller.view();
+    //         view.set_application_window_rc(application_window_rc);
+    //         controller.set_view(view.clone());
+    //     } else {
+    //         panic!("can't borrow mut");
+    //     };
+    //     {
+    //         let controller = controller_rc.try_borrow().expect("can't borrow");
+    //         let _view = controller.view();
+    //         View::set_pictures(&controller);
+    //     }
+    //     application_window.present();
+    // }
 
     // attach event mananger to some components
-    pub fn attach_events(
-        application_window: &gtk::ApplicationWindow,
-        _view: &View,
-        slideshow_opt: Option<i32>,
-        controller_rc: &RcController,
-    ) {
-        let left_pane = Self::left_pane(application_window);
-        let right_pane = Self::right_pane(application_window);
+   //  pub fn attach_events(
+   //      application_window: &gtk::ApplicationWindow,
+   //      _view: &View,
+   //      slideshow_opt: Option<i32>,
+   //      controller_rc: &RcController,
+   //  ) {
+   //      let left_pane = Self::left_pane(application_window);
+   //      let right_pane = Self::right_pane(application_window);
 
-        let gesture_left_click = gtk::GestureClick::new();
-        gesture_left_click.set_button(1);
-        gesture_left_click.connect_pressed(clone!(
-            #[strong]
-            controller_rc,
-            move |_, _, _, _| {
-                if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-                    controller.process_event(
-                        PaneClicked {
-                            button: 1,
-                            pane_number: LEFT_PANE,
-                        },
-                        &controller_rc,
-                    );
-                } else {
-                    panic!("can't borrow mut controller");
-                }
-            }
-        ));
-        left_pane.add_controller(gesture_left_click);
+   //      let gesture_left_click = gtk::GestureClick::new();
+   //      gesture_left_click.set_button(1);
+   //      gesture_left_click.connect_pressed(clone!(
+   //          #[strong]
+   //          controller_rc,
+   //          move |_, _, _, _| {
+   //              if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+   //                  controller.process_event(
+   //                      PaneClicked {
+   //                          button: 1,
+   //                          pane_number: LEFT_PANE,
+   //                      },
+   //                      &controller_rc,
+   //                  );
+   //              } else {
+   //                  panic!("can't borrow mut controller");
+   //              }
+   //          }
+   //      ));
+   //      left_pane.add_controller(gesture_left_click);
 
-        let gesture_right_click = gtk::GestureClick::new();
-        gesture_right_click.set_button(1);
-        gesture_right_click.connect_pressed(clone!(
-            #[strong]
-            controller_rc,
-            move |_, _, _, _| {
-                if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-                    controller.process_event(
-                        PaneClicked {
-                            button: 1,
-                            pane_number: RIGHT_PANE,
-                        },
-                        &controller_rc,
-                    );
-                } else {
-                    panic!("can't borrow mut controller");
-                }
-            }
-        ));
-        right_pane.add_controller(gesture_right_click);
+   //      let gesture_right_click = gtk::GestureClick::new();
+   //      gesture_right_click.set_button(1);
+   //      gesture_right_click.connect_pressed(clone!(
+   //          #[strong]
+   //          controller_rc,
+   //          move |_, _, _, _| {
+   //              if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+   //                  controller.process_event(
+   //                      PaneClicked {
+   //                          button: 1,
+   //                          pane_number: RIGHT_PANE,
+   //                      },
+   //                      &controller_rc,
+   //                  );
+   //              } else {
+   //                  panic!("can't borrow mut controller");
+   //              }
+   //          }
+   //      ));
+   //      right_pane.add_controller(gesture_right_click);
 
-        let evk = gtk::EventControllerKey::new();
-        evk.connect_key_pressed(clone!(
-            #[strong]
-            controller_rc,
-            move |_, key, key_code, modifier_type| {
-                if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-                    controller.process_event(
-                        KeyPressed {
-                            key,
-                            key_code,
-                            modifier_type,
-                        },
-                        &controller_rc,
-                    );
-                };
-                Propagation::Proceed
-            }
-        ));
-        application_window.add_controller(evk);
-        if let Some(seconds) = slideshow_opt {
-            Self::attach_slideshow_event(seconds, controller_rc)
-        }
-    }
+   //      let evk = gtk::EventControllerKey::new();
+   //      evk.connect_key_pressed(clone!(
+   //          #[strong]
+   //          controller_rc,
+   //          move |_, key, key_code, modifier_type| {
+   //              if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+   //                  controller.process_event(
+   //                      KeyPressed {
+   //                          key,
+   //                          key_code,
+   //                          modifier_type,
+   //                      },
+   //                      &controller_rc,
+   //                  );
+   //              };
+   //              Propagation::Proceed
+   //          }
+   //      ));
+   //      application_window.add_controller(evk);
+   //      if let Some(seconds) = slideshow_opt {
+   //          Self::attach_slideshow_event(seconds, controller_rc)
+   //      }
+   //  }
 
     pub fn change_dimension(&self, controller_rc: &RcController, pictures_per_row: usize) {
         let mut picture_grid = self.picture_grid();
@@ -380,9 +381,7 @@ impl View {
 
     pub fn full_size_arrow_move(&self, direction: Direction) {
         let step: f64 = 100.0;
-        let application_window_rc = self.application_window_rc();
-        let application_window = application_window_rc.borrow();
-        let w = Self::single_view_scrolled_window(&application_window);
+        let w = self.main_window.frame_window();
         let wh_adj = w.hadjustment();
         let wv_adj = w.vadjustment();
         match direction {
@@ -573,23 +572,19 @@ impl View {
     }
 
     pub fn single_view(&self) -> bool {
-        let application_window_rc = self.application_window_rc();
-        let application_window = application_window_rc.try_borrow().expect("can't borrow");
-        let child_name = Self::view_stack(&application_window)
+        let stack = self.main_window.stack();
+        let child_name = stack
             .visible_child_name()
             .unwrap();
         child_name == "single_view"
     }
 
     pub fn toggle_view_stack(&self, controller: &Controller) {
-        let view = controller.view();
-        let application_window_rc = controller.view().application_window_rc();
-        let application_window = application_window_rc.try_borrow().expect("can't borrow");
-        let view_stack = Self::view_stack(&application_window);
-        if view.single_view() {
-            view_stack.set_visible_child_name("multiple_view")
+        let stack = self.main_window.stack();
+        if controller.state().single_view() {
+            stack.set_visible_child_name("multiple_view")
         } else {
-            view_stack.set_visible_child_name("single_view")
+            stack.set_visible_child_name("single_view")
         }
     }
 

@@ -68,6 +68,14 @@ impl MainWindow {
         *self.picture_frame_ref.borrow()
     }
 
+    pub fn frame_window(&self) -> gtk::ScrolledWindow {
+        *self.frame_window_ref.borrow()
+    }
+
+    pub fn stack(&self) -> gtk::Stack {
+        *self.stack_ref.borrow()
+    }
+
 }
 
 fn make_application_window(

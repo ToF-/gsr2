@@ -175,7 +175,7 @@ impl Controller {
             &Control::MoveNext
         });
         if self.navigator.has_moved() {
-            View::set_pictures(self)
+            self.view().set_pictures(self)
         }
     }
 
@@ -203,11 +203,11 @@ impl Controller {
             }
             if self.state().single_view() != self.view().single_view() {
                 view.toggle_view_stack(self);
-                View::set_pictures(self)
+                self.view().set_pictures(self)
             } else if self.navigator.page_changed() {
-                View::set_pictures(self)
+                self.view().set_pictures(self)
             };
-            View::set_label_for_current_picture(self, true);
+            self.view().set_label_for_current_picture(self, true);
         }
     }
 
@@ -224,7 +224,7 @@ impl Controller {
 
     pub fn next_slide_delay(&mut self) {
         self.move_next();
-        View::set_pictures(self)
+        self.view().set_pictures(self)
     }
 
     pub fn process_control(&mut self, control: &Control) {
@@ -256,7 +256,7 @@ impl Controller {
 
     pub fn label(&self) {
         // if let Ok(application_window) = self.view().application_window_rc().try_borrow_mut() {
-        //     View::make_entry_window(&application_window, "Enter a label");
+        //     self.view().make_entry_window(&application_window, "Enter a label");
         // }
     }
     pub fn quit(&self) {
