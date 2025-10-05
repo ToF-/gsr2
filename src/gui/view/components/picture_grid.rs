@@ -17,7 +17,11 @@ pub struct PictureGrid {
 }
 
 impl PictureGrid {
-    pub fn new_from_grid(grid: &gtk::Grid, pictures_per_row: i32, controller_rc: &RcController) -> Self {
+    pub fn new_from_grid(
+        grid: &gtk::Grid,
+        pictures_per_row: i32,
+        controller_rc: &RcController,
+    ) -> Self {
         PictureGrid {
             pictures_per_row,
             controller_rc: controller_rc.clone(),

@@ -1,7 +1,3 @@
-use gtk::prelude::ApplicationExtManual;
-use gtk::prelude::GtkApplicationExt;
-use std::rc::Rc;
-use gtk::prelude::ApplicationExt;
 use crate::Args;
 use crate::gui::event::Event::PaneClicked;
 use crate::gui::view::PictureFrame;
@@ -13,14 +9,18 @@ use gtk::Grid;
 use gtk::Label;
 use gtk::ScrolledWindow;
 use gtk::glib::clone;
+use gtk::prelude::ApplicationExt;
+use gtk::prelude::ApplicationExtManual;
 use gtk::prelude::Cast;
 use gtk::prelude::GestureSingleExt;
 use gtk::prelude::GridExt;
+use gtk::prelude::GtkApplicationExt;
 use gtk::prelude::GtkWindowExt;
 #[allow(deprecated)]
 use gtk::prelude::StyleContextExt;
 use gtk::prelude::WidgetExt;
 use std::cell::RefCell;
+use std::rc::Rc;
 
 pub const LEFT_PANE: usize = 0;
 pub const RIGHT_PANE: usize = 1;
@@ -40,37 +40,63 @@ impl MainWindow {
     //     // main_window_opt_rc.borrow().clone().unwrap()
     // }
 
-    pub fn new_from_application(application: &gtk::Application, args: &Args, controller_rc: &RcController) -> Self {
-        let no_args: Vec<String> = vec![];
-        application.run_with_args(&no_args);
-
+    pub fn new_from_application(
+        application: &gtk::Application,
+        args: &Args,
+        controller_rc: &RcController,
+    ) -> Self {
         let pictures_per_row: i32 = args.pictures_per_row() as i32;
-        let application_window = application.active_window()
+        let application_window = application
+            .active_window()
             .expect("can't get application active window")
-            .downcast::<gtk::ApplicationWindow>().expect("can't downcast application window");
+            .downcast::<gtk::ApplicationWindow>()
+            .expect("can't downcast application window");
 
-        println!("{:p}", &application_window);
-        let stack = application_window.first_child()
+        let stack = application_window
+            .first_child()
             .expect("can't get stack")
-            .downcast::<gtk::Stack>().expect("can't downcast stack");
+            .downcast::<gtk::Stack>()
+            .expect("can't downcast stack");
 
-        let single_view_scrolled_window = stack.child_by_name("single_view")
+        let single_view_scrolled_window = stack
+            .child_by_name("single_view")
             .expect("can't get single view scrolled window")
-            .downcast::<gtk::ScrolledWindow>().expect("can't downcast single view scrolled window");
+            .downcast::<gtk::ScrolledWindow>()
+            .expect("can't downcast single view scrolled window");
 
-        let multiple_view_scrolled_window = stack.child_by_name("multiple_view")
+        let multiple_view_scrolled_window = stack
+            .child_by_name("multiple_view")
             .expect("can't get multiple view scrolled window")
-            .downcast::<gtk::ScrolledWindow>().expect("can't downcast multiple view scrolled window");
+            .downcast::<gtk::ScrolledWindow>()
+            .expect("can't downcast multiple view scrolled window");
 
-        let frame = single_view_scrolled_window.first_child()
+        let single_view_port = single_view_scrolled_window
+            .first_child()
             .expect("can't get single view frame")
-            .downcast::<gtk::Box>().expect("can't downcast frame as box");
+            .downcast::<gtk::Viewport>()
+            .expect("can't donwcast view port");
 
-        let grid = multiple_view_scrolled_window
-            .first_child().expect("can't get multiple view panel")
-            .downcast::<gtk::Grid>().expect("can't downcast panel to grid")
-            .child_at(1, 0).expect("can't find panel central child")
-            .downcast::<gtk::Grid>().expect("can't dowcast panel central child to grid");
+        let frame = single_view_port
+            .first_child()
+            .expect("can't get view port first child")
+            .downcast::<gtk::Box>()
+            .expect("can't downcast frame as box");
+
+        let multiple_view_port = multiple_view_scrolled_window
+            .first_child()
+            .expect("can't get multiple view frame")
+            .downcast::<gtk::Viewport>()
+            .expect("can't donwcast view port");
+
+        let grid = multiple_view_port
+            .first_child()
+            .expect("can't get multiple view panel")
+            .downcast::<gtk::Grid>()
+            .expect("can't downcast panel to grid")
+            .child_at(1, 0)
+            .expect("can't find panel central child")
+            .downcast::<gtk::Grid>()
+            .expect("can't dowcast panel central child to grid");
 
         let picture_grid = PictureGrid::new_from_grid(&grid, pictures_per_row, controller_rc);
         let picture_frame = PictureFrame::new_from_frame(&frame, controller_rc);
@@ -86,7 +112,6 @@ impl MainWindow {
     }
 
     pub fn activate(application: &gtk::Application, args: &Args, controller_rc: &RcController) {
-        println!("activate…");
         let pictures_per_row = args.pictures_per_row();
         let picture_grid = PictureGrid::new(pictures_per_row, controller_rc);
         let picture_frame = PictureFrame::new(controller_rc);
@@ -106,6 +131,11 @@ impl MainWindow {
         }
         let application_window = make_application_window(application, args);
         application_window.set_child(Some(&view_stack));
+        {
+            if let Ok(controller) = controller_rc.try_borrow_mut() {
+                let main_window = MainWindow::new_from_application(application, args, controller_rc);
+            }
+        }
         attach_panel_event_handlers(&panel, controller_rc);
         application_window.present();
     }
@@ -136,10 +166,7 @@ impl MainWindow {
     }
 }
 
-fn make_application_window(
-    application: &gtk::Application,
-    args: &Args,
-) -> gtk::ApplicationWindow {
+fn make_application_window(application: &gtk::Application, args: &Args) -> gtk::ApplicationWindow {
     ApplicationWindow::builder()
         .application(application)
         .title("gsr2")

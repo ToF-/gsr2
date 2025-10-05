@@ -14,7 +14,6 @@ pub struct PictureFrame {
 }
 
 impl PictureFrame {
-
     pub fn new_from_frame(frame: &gtk::Box, controller_rc: &RcController) -> Self {
         PictureFrame {
             controller_rc: controller_rc.clone(),

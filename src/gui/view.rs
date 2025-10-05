@@ -1,3 +1,4 @@
+use crate::Args;
 use crate::Controller;
 use crate::env::default_values::APPLICATION_ID;
 use crate::file::paths::check_path_exists;
@@ -12,6 +13,7 @@ use crate::gui::view::components::picture_frame::PictureFrame;
 use crate::gui::view::components::picture_grid::PictureGrid;
 use crate::model::gen_image::no_thumbnail_picture;
 use crate::model::picture::Picture;
+use gtk::ApplicationWindow;
 use gtk::Window;
 use gtk::gio::File;
 use gtk::glib::ControlFlow;
@@ -22,30 +24,28 @@ use gtk::prelude::*;
 use gtk::{self};
 use gtk::{Align, gdk};
 use gtk::{CssProvider, Label, Orientation, Picture as GtkPicture};
+use std::cell::RefCell;
 use std::path::Path;
 use std::path::PathBuf;
-use std::time::Duration;
-use crate::Args;
 use std::rc::Rc;
-use std::cell::RefCell;
-use gtk::ApplicationWindow;
+use std::time::Duration;
 
 pub mod components;
 
 #[derive(Clone, Debug)]
 pub struct View {
-    main_window_rc: Rc<RefCell<MainWindow>>, 
+    main_window_rc: Rc<RefCell<MainWindow>>,
 }
 
 impl View {
     pub fn new(main_window: &MainWindow) -> Self {
         View {
-            main_window_rc: Rc::new(RefCell::new(main_window.clone()))
+            main_window_rc: Rc::new(RefCell::new(main_window.clone())),
         }
     }
 
     pub fn main_window(&self) -> MainWindow {
-       self.main_window_rc.borrow().clone()
+        self.main_window_rc.borrow().clone()
     }
 
     pub fn application_window(&self) -> gtk::ApplicationWindow {
@@ -53,7 +53,10 @@ impl View {
     }
 
     pub fn application(&self) -> gtk::Application {
-        self.main_window().application_window().application().unwrap()
+        self.main_window()
+            .application_window()
+            .application()
+            .unwrap()
     }
 
     pub fn picture_grid(&self) -> PictureGrid {
@@ -261,47 +264,47 @@ impl View {
                 let gesture_left_click = gtk::GestureClick::new();
                 gesture_left_click.set_button(1);
                 gesture_left_click.connect_pressed(clone!(
-                        #[strong]
-                        col,
-                        #[strong]
-                        row,
-                        #[strong]
-                        controller_rc,
-                        move |_, _, _, _| {
-                            if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-                                controller.process_event(
-                                    PictureClicked {
-                                        button: 1,
-                                        col,
-                                        row,
-                                    },
-                                    &controller_rc,
-                                );
-                            }
+                    #[strong]
+                    col,
+                    #[strong]
+                    row,
+                    #[strong]
+                    controller_rc,
+                    move |_, _, _, _| {
+                        if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+                            controller.process_event(
+                                PictureClicked {
+                                    button: 1,
+                                    col,
+                                    row,
+                                },
+                                &controller_rc,
+                            );
                         }
+                    }
                 ));
                 cell_box.add_controller(gesture_left_click);
                 let gesture_right_click = gtk::GestureClick::new();
                 gesture_right_click.set_button(3);
                 gesture_right_click.connect_pressed(clone!(
-                        #[strong]
-                        col,
-                        #[strong]
-                        row,
-                        #[strong]
-                        controller_rc,
-                        move |_, _, _, _| {
-                            if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-                                controller.process_event(
-                                    PictureClicked {
-                                        button: 3,
-                                        col,
-                                        row,
-                                    },
-                                    &controller_rc,
-                                );
-                            }
+                    #[strong]
+                    col,
+                    #[strong]
+                    row,
+                    #[strong]
+                    controller_rc,
+                    move |_, _, _, _| {
+                        if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+                            controller.process_event(
+                                PictureClicked {
+                                    button: 3,
+                                    col,
+                                    row,
+                                },
+                                &controller_rc,
+                            );
                         }
+                    }
                 ));
                 cell_box.add_controller(gesture_right_click);
             }
@@ -487,7 +490,7 @@ impl View {
         picture: &gtk::Picture,
     ) {
         let frame = &Self::frame(&Self::visible_stack_child_scrolled_window(
-                &Self::view_stack(application_window),
+            &Self::view_stack(application_window),
         ));
         while let Some(child) = frame.first_child() {
             frame.remove(&child)
@@ -507,7 +510,7 @@ impl View {
     #[allow(dead_code)]
     pub fn single_view_picture_label(application_window: &gtk::ApplicationWindow) -> gtk::Label {
         let picture = Self::picture(&Self::frame(&Self::visible_stack_child_scrolled_window(
-                    &Self::view_stack(application_window),
+            &Self::view_stack(application_window),
         )));
         picture
             .next_sibling()
