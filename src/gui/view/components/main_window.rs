@@ -1,3 +1,5 @@
+use gtk::glib::Propagation;
+use crate::gui::event::Event::KeyPressed;
 use crate::View;
 use crate::Args;
 use crate::gui::event::Event::PaneClicked;
@@ -141,6 +143,7 @@ impl MainWindow {
             }
         }
         attach_panel_event_handlers(&panel, controller_rc);
+        attach_key_pressed_event_handlers(&application_window, controller_rc);
 
         application_window.present();
     }
@@ -273,4 +276,23 @@ fn pane_gesture_click(
 fn attach_panel_event_handlers(panel: &gtk::Grid, controller_rc: &RcController) {
     left_pane(panel).add_controller(pane_gesture_click(1, LEFT_PANE, controller_rc));
     right_pane(panel).add_controller(pane_gesture_click(1, RIGHT_PANE, controller_rc));
+}
+
+fn attach_key_pressed_event_handlers(application_window: &gtk::ApplicationWindow, controller_rc: &RcController) {
+    let event_controller_key = gtk::EventControllerKey::new();
+    event_controller_key.connect_key_pressed(clone!(
+        #[strong] controller_rc,
+        move |_, key, key_code, modifier_type| {
+            if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+                controller.process_event(
+                    KeyPressed {
+                        key,
+                        key_code,
+                        modifier_type,
+                    },
+                    &controller_rc);
+            };
+            Propagation::Proceed
+        }));
+    application_window.add_controller(event_controller_key);
 }

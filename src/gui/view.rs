@@ -117,8 +117,7 @@ impl View {
                     };
                     let picture_grid = self.main_window().picture_grid();
                     picture_grid.set_picture_for(col, row, &gtkPicture);
-                    let label = Self::make_label_for_picture(&picture, is_focus);
-                    cell.append(&label);
+                    picture_grid.set_label_for(&picture, col, row, is_focus);
                 }
             }
         }
@@ -218,6 +217,7 @@ impl View {
     //  }
 
     pub fn change_dimension(&self, pictures_per_row: usize) {
+        println!("change_dimension");
         let mut picture_grid = self.picture_grid();
         picture_grid.set_pictures_per_row(pictures_per_row as i32);
     }
@@ -375,18 +375,7 @@ impl View {
         window.set_hide_on_close(false);
         window.set_child(Some(&entry_label));
         window.set_modal(true);
-        println!("{:?}", application_window.first_child());
-        println!(
-            "{:?}",
-            application_window.first_child().map(|w| w.next_sibling())
-        );
         window.set_transient_for(Some(application_window));
-        println!("{:?}", window);
-        println!("{:?}", application_window.first_child());
-        println!(
-            "{:?}",
-            application_window.first_child().map(|w| w.next_sibling())
-        );
         window.present();
         window
     }
@@ -545,9 +534,9 @@ impl View {
     pub fn toggle_view_stack(&self, controller: &Controller) {
         let stack = self.main_window().stack();
         if controller.state().single_view() {
-            stack.set_visible_child_name("multiple_view")
-        } else {
             stack.set_visible_child_name("single_view")
+        } else {
+            stack.set_visible_child_name("multiple_view")
         }
     }
 

@@ -217,7 +217,7 @@ impl Controller {
             None => {}
             Some(key_name) => match controls.get(&key_name.to_string()) {
                 Some(control) => self.process_control(control),
-                _ => println!("?"),
+                _ => {},
             },
         }
     }
