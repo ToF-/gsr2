@@ -53,11 +53,6 @@ impl Controller {
         })
     }
 
-    pub fn build_view_components(&mut self, args: &Args, controller_rc: &RcController) {
-        let view = View::new(args, controller_rc);
-        self.view_opt = Some(view)
-    }
-
     pub fn args(&self) -> Args {
         self.args.clone()
     }
@@ -110,17 +105,6 @@ impl Controller {
             }
             Err(err) => Err(err),
         }
-    }
-
-    pub fn create_view(&mut self, args: &Args, controller_rc: &RcController) {
-        let view = View::new(args, controller_rc);
-        self.set_view(view)
-    }
-
-    pub fn run_application(&self) {
-        let application = self.view().application();
-        let no_args: Vec<String> = vec![];
-        application.run_with_args(&no_args);
     }
 
     pub fn process_event(&mut self, event: Event, controller_rc: &RcController) {

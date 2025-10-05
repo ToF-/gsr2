@@ -26,40 +26,26 @@ use std::path::Path;
 use std::path::PathBuf;
 use std::time::Duration;
 use crate::Args;
+use std::rc::Rc;
+use std::cell::RefCell;
+use gtk::ApplicationWindow;
 
 pub mod components;
 
 #[derive(Clone, Debug)]
 pub struct View {
-    main_window_opt: Option<MainWindow>,
+    main_window_rc: Rc<RefCell<MainWindow>>, 
 }
 
 impl View {
-    pub fn new(args: &Args, controller_rc: &RcController) -> Self {
-        let application = make_application(APPLICATION_ID);
-        let mut main_window: MainWindow;
-        application.connect_activate(clone!(
-                #[strong]
-                  main_window,
-                #[strong]
-                args,
-                #[strong]
-                controller_rc,
-                move |application: &gtk::Application| {
-                    MainWindow::activate(application, &args, &controller_rc);
-                    main_window = MainWindow::new_from_application(application, &args, &controller_rc);
-                }));
+    pub fn new(main_window: &MainWindow) -> Self {
         View {
-            main_window_opt: Some(main_window)
+            main_window_rc: Rc::new(RefCell::new(main_window.clone()))
         }
     }
 
-    pub fn set_main_window(&mut self, main_window: &MainWindow) {
-        self.main_window_opt = Some(main_window.clone())
-    }
-
     pub fn main_window(&self) -> MainWindow {
-        self.main_window_opt.clone().unwrap().clone()
+       self.main_window_rc.borrow().clone()
     }
 
     pub fn application_window(&self) -> gtk::ApplicationWindow {

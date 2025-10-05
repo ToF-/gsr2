@@ -27,12 +27,12 @@ pub const RIGHT_PANE: usize = 1;
 
 #[derive(Clone, Debug)]
 pub struct MainWindow {
-    picture_grid_ref: RefCell<PictureGrid>,
-    picture_frame_ref: RefCell<PictureFrame>,
-    application_window_ref: RefCell<gtk::ApplicationWindow>,
-    stack_ref: RefCell<gtk::Stack>,
-    frame_window_ref: RefCell<gtk::ScrolledWindow>,
-    grid_window_ref: RefCell<gtk::ScrolledWindow>,
+    picture_grid_ref: Rc<RefCell<PictureGrid>>,
+    picture_frame_ref: Rc<RefCell<PictureFrame>>,
+    application_window_ref: Rc<RefCell<gtk::ApplicationWindow>>,
+    stack_ref: Rc<RefCell<gtk::Stack>>,
+    frame_window_ref: Rc<RefCell<gtk::ScrolledWindow>>,
+    grid_window_ref: Rc<RefCell<gtk::ScrolledWindow>>,
 }
 
 impl MainWindow {
@@ -76,12 +76,12 @@ impl MainWindow {
         let picture_frame = PictureFrame::new_from_frame(&frame, controller_rc);
 
         MainWindow {
-            picture_grid_ref: RefCell::new(picture_grid.clone()),
-            picture_frame_ref: RefCell::new(picture_frame.clone()),
-            application_window_ref: RefCell::new(application_window.clone()),
-            stack_ref: RefCell::new(stack.clone()),
-            frame_window_ref: RefCell::new(single_view_scrolled_window.clone()),
-            grid_window_ref: RefCell::new(multiple_view_scrolled_window.clone()),
+            picture_grid_ref: Rc::new(RefCell::new(picture_grid.clone())),
+            picture_frame_ref: Rc::new(RefCell::new(picture_frame.clone())),
+            application_window_ref: Rc::new(RefCell::new(application_window.clone())),
+            stack_ref: Rc::new(RefCell::new(stack.clone())),
+            frame_window_ref: Rc::new(RefCell::new(single_view_scrolled_window.clone())),
+            grid_window_ref: Rc::new(RefCell::new(multiple_view_scrolled_window.clone())),
         }
     }
 
@@ -105,10 +105,14 @@ impl MainWindow {
             view_stack.set_visible_child(&multiple_view_scrolled_window);
         }
         let application_window = make_application_window(application, args);
-        println!("{:p}", &application_window);
         application_window.set_child(Some(&view_stack));
         attach_panel_event_handlers(&panel, controller_rc);
         application_window.present();
+    }
+
+    pub fn run_application(application: gtk::Application) {
+        let no_args: Vec<String> = vec![];
+        application.run_with_args(&no_args);
     }
 
     pub fn application_window(&self) -> gtk::ApplicationWindow {
