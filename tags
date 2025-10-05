@@ -86,7 +86,7 @@ attach_cells	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/pictur
 attach_grid_picture_events	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn attach_grid_picture_events($/;"	f
 attach_key_pressed_event_handlers	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/main_window.rs	/^fn attach_key_pressed_event_handlers(application_window: &gtk::ApplicationWindow, controller_rc: &RcController) {$/;"	f
 attach_panel_event_handlers	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/main_window.rs	/^fn attach_panel_event_handlers(panel: &gtk::Grid, controller_rc: &RcController) {$/;"	f
-attach_slideshow_event	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn attach_slideshow_event(seconds: i32, controller_rc: &RcController) {$/;"	f
+attach_slideshow_event	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/main_window.rs	/^pub fn attach_slideshow_event(seconds: i32, controller_rc: &RcController) {$/;"	f
 begin_input	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    pub fn begin_input(&mut self, kind: InputKind) {$/;"	f
 can_move	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn can_move(&mut self, direction: Direction) -> bool {$/;"	f
 can_move_next_page	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn can_move_next_page(&mut self) -> bool {$/;"	f

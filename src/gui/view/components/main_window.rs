@@ -1,3 +1,7 @@
+use crate::gui::event::Event::{NextSlideDelay, PictureClicked};
+use gtk::glib::ControlFlow;
+use std::time::Duration;
+ use crate::gui::view::timeout_add_local;
 use gtk::glib::Propagation;
 use crate::gui::event::Event::KeyPressed;
 use crate::View;
@@ -144,6 +148,9 @@ impl MainWindow {
         }
         attach_panel_event_handlers(&panel, controller_rc);
         attach_key_pressed_event_handlers(&application_window, controller_rc);
+        if let Some(seconds) = args.slideshow {
+            attach_slideshow_event(seconds, controller_rc);
+        }
 
         application_window.present();
     }
@@ -296,7 +303,33 @@ fn attach_key_pressed_event_handlers(application_window: &gtk::ApplicationWindow
                     },
                     &controller_rc);
             };
-            Propagation::Proceed
+            Propagation::Stop
         }));
     application_window.add_controller(event_controller_key);
+}
+
+pub fn attach_slideshow_event(seconds: i32, controller_rc: &RcController) {
+    let delay: u64 = seconds.try_into().unwrap();
+    println!("setting slideshow delay to {} seconds", delay);
+    timeout_add_local(
+        Duration::new(delay, 0),
+        clone!(
+            #[strong]
+            controller_rc,
+            move || {
+                if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+                    if controller.state().slideshow_on() {
+                        controller.process_event(NextSlideDelay, &controller_rc)
+                    };
+                    if controller.state().slideshow_on() {
+                        ControlFlow::Continue
+                    } else {
+                        ControlFlow::Break
+                    }
+                } else {
+                    panic!("can't borrow mut controller")
+                }
+            }
+        ),
+    );
 }

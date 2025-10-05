@@ -1,3 +1,4 @@
+use crate::MainWindow;
 use crate::model::order::Order;
 use crate::file::picture_file::create_missing_thumbnails;
 use crate::Args;
@@ -12,7 +13,7 @@ use crate::gui::event::Event;
 use crate::gui::navigator::Navigator;
 use crate::gui::state::State;
 use crate::gui::view::View;
-use crate::gui::view::components::main_window::LEFT_PANE;
+use crate::gui::view::components::main_window::{LEFT_PANE, attach_slideshow_event};
 use crate::model::gallery::Gallery;
 use crate::model::picture::Picture;
 use gtk::gdk;
@@ -192,7 +193,7 @@ impl Controller {
         self.process_key(key);
         if self.state.slideshow_on() != old_slideshow_on {
             if let Some(seconds) = self.args().slideshow() {
-                View::attach_slideshow_event(seconds, controller_rc);
+                attach_slideshow_event(seconds, controller_rc);
             }
         } else {
             self.set_slideshow_off();
@@ -295,6 +296,7 @@ impl Controller {
     }
 
     pub fn toggle_slideshow(&mut self) {
+        println!("state.slideshow_on: {}", self.state().slideshow_on());
         if self.args().slideshow().is_some() {
             self.state.toggle_slideshow();
             if self.state.slideshow_on() {

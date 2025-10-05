@@ -138,31 +138,6 @@ impl View {
         }
     }
 
-    pub fn attach_slideshow_event(seconds: i32, controller_rc: &RcController) {
-        let delay: u64 = seconds.try_into().unwrap();
-        println!("setting slideshow delay to {} seconds", delay);
-        timeout_add_local(
-            Duration::new(delay, 0),
-            clone!(
-                #[strong]
-                controller_rc,
-                move || {
-                    if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-                        if controller.state().slideshow_on() {
-                            controller.process_event(NextSlideDelay, &controller_rc)
-                        };
-                        if controller.state().slideshow_on() {
-                            ControlFlow::Continue
-                        } else {
-                            ControlFlow::Break
-                        }
-                    } else {
-                        panic!("can't borrow mut controller")
-                    }
-                }
-            ),
-        );
-    }
 
     pub fn attach_grid_picture_events(
         cells_per_row: i32,
