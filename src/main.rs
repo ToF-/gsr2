@@ -1,7 +1,10 @@
 use crate::cli::args::Args;
 use crate::cli::command::Command;
 use crate::gui::controller::Controller;
+use crate::gui::controller::RcController;
+use std::cell::RefCell;
 use std::process::exit;
+use std::rc::Rc;
 
 mod cli;
 mod env;
@@ -19,12 +22,28 @@ fn main() {
             } else if cli.command.is_none() {
                 println!("viewing file from the database");
             }
-            let result = Controller::new(cli.clone())
-                .and_then(|controller| Controller::build_and_run_app(controller));
-            match result {
-                Ok(_) => {
-                    exit(0);
+            let controller_result = Controller::new(cli.clone());
+            let controller_rc: RcController;
+            match controller_result {
+                Ok(controller) => {
+                    controller_rc = Rc::new(RefCell::new(controller));
                 }
+                Err(err) => {
+                    eprintln!("{}", err);
+                    exit(1);
+                }
+            }
+            { 
+                match controller_rc.try_borrow_mut() {
+                    Ok(mut controller) => controller.create_view(&controller_rc),
+                    Err(err) => {
+                        eprintln!("{}", err);
+                        exit(1);
+                    }
+                }
+            }
+            match controller_rc.try_borrow() {
+                Ok(controller) => controller.run_application(),
                 Err(err) => {
                     eprintln!("{}", err);
                     exit(1);
@@ -35,5 +54,5 @@ fn main() {
             eprintln!("{}", err);
             exit(1);
         }
-    };
+    }
 }

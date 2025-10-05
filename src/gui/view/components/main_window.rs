@@ -1,8 +1,4 @@
-#[allow(deprecated)]
-use gtk::prelude::StyleContextExt;
-use gtk::prelude::GridExt;
-use gtk::prelude::WidgetExt;
-use gtk::prelude::GtkWindowExt;
+use crate::gui::event::Event::PaneClicked;
 use crate::gui::view::PictureFrame;
 use crate::gui::view::PictureGrid;
 use crate::gui::view::RcController;
@@ -11,7 +7,18 @@ use gtk::CssProvider;
 use gtk::Grid;
 use gtk::Label;
 use gtk::ScrolledWindow;
+use gtk::glib::clone;
+use gtk::prelude::Cast;
+use gtk::prelude::GestureSingleExt;
+use gtk::prelude::GridExt;
+use gtk::prelude::GtkWindowExt;
+#[allow(deprecated)]
+use gtk::prelude::StyleContextExt;
+use gtk::prelude::WidgetExt;
 use std::cell::RefCell;
+
+pub const LEFT_PANE: usize = 0;
+pub const RIGHT_PANE: usize = 1;
 
 #[derive(Clone, Debug)]
 pub struct MainWindow {
@@ -33,7 +40,7 @@ impl MainWindow {
         let single_view_scrolled_window = make_scrolled_window();
         let multiple_view_scrolled_window = make_scrolled_window();
         let panel = make_panel(&picture_grid.grid_ref().borrow());
-        let frame: gtk::Box = *picture_frame.frame_ref().borrow();
+        let frame: gtk::Box = picture_frame.frame();
         single_view_scrolled_window.set_child(Some(&frame));
         multiple_view_scrolled_window.set_child(Some(&panel));
         let view_stack = make_stack();
@@ -46,36 +53,37 @@ impl MainWindow {
         }
         let application_window = make_application_window(application, controller_rc);
         application_window.set_child(Some(&view_stack));
+        attach_panel_event_handlers(&panel, controller_rc);
+
         MainWindow {
             picture_grid_ref: RefCell::new(picture_grid),
             picture_frame_ref: RefCell::new(picture_frame),
             application_window_ref: RefCell::new(application_window),
             stack_ref: RefCell::new(view_stack),
-            frame_window_ref: RefCell::new(single_view_scrolled_window),
-            grid_window_ref: RefCell::new(single_view_scrolled_window),
+            frame_window_ref: RefCell::new(single_view_scrolled_window.clone()),
+            grid_window_ref: RefCell::new(single_view_scrolled_window.clone()),
         }
     }
 
     pub fn application_window(&self) -> gtk::ApplicationWindow {
-        *self.application_window_ref.borrow()
+        self.application_window_ref.borrow().clone()
     }
 
     pub fn picture_grid(&self) -> PictureGrid {
-        *self.picture_grid_ref.borrow()
+        self.picture_grid_ref.borrow().clone()
     }
 
     pub fn picture_frame(&self) -> PictureFrame {
-        *self.picture_frame_ref.borrow()
+        self.picture_frame_ref.borrow().clone()
     }
 
     pub fn frame_window(&self) -> gtk::ScrolledWindow {
-        *self.frame_window_ref.borrow()
+        self.frame_window_ref.borrow().clone()
     }
 
     pub fn stack(&self) -> gtk::Stack {
-        *self.stack_ref.borrow()
+        self.stack_ref.borrow().clone()
     }
-
 }
 
 fn make_application_window(
@@ -137,4 +145,52 @@ fn make_scrolled_window() -> gtk::ScrolledWindow {
 
 fn make_stack() -> gtk::Stack {
     gtk::Stack::builder().hexpand(true).vexpand(true).build()
+}
+
+pub fn left_pane(panel_grid: &gtk::Grid) -> gtk::Label {
+    panel_grid
+        .child_at(0, 0)
+        .unwrap()
+        .downcast::<gtk::Label>()
+        .unwrap()
+}
+
+pub fn right_pane(panel_grid: &gtk::Grid) -> gtk::Label {
+    panel_grid
+        .child_at(2, 0)
+        .unwrap()
+        .downcast::<gtk::Label>()
+        .unwrap()
+}
+
+fn pane_gesture_click(
+    button: usize,
+    pane_number: usize,
+    controller_rc: &RcController,
+) -> gtk::GestureClick {
+    let gesture_click = gtk::GestureClick::new();
+    gesture_click.set_button(1);
+    gesture_click.connect_pressed(clone!(
+        #[strong]
+        controller_rc,
+        move |_, _, _, _| {
+            if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+                controller.process_event(
+                    PaneClicked {
+                        button: button,
+                        pane_number: pane_number,
+                    },
+                    &controller_rc,
+                );
+            } else {
+                panic!("can't borrow mut controller");
+            }
+        }
+    ));
+    gesture_click
+}
+
+fn attach_panel_event_handlers(panel: &gtk::Grid, controller_rc: &RcController) {
+    left_pane(panel).add_controller(pane_gesture_click(1, LEFT_PANE, controller_rc));
+    right_pane(panel).add_controller(pane_gesture_click(1, RIGHT_PANE, controller_rc));
 }

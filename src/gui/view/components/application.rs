@@ -1,9 +1,8 @@
-use crate::gui::view::RcController;
 use crate::gui::view::gdk::Display;
 use gtk::Application;
 use gtk::prelude::ApplicationExt;
 
-pub fn make_application(application_id: &str, controller_rc: &RcController) -> gtk::Application {
+pub fn make_application(application_id: &str) -> gtk::Application {
     let application = Application::builder()
         .application_id(application_id)
         .build();

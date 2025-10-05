@@ -1,6 +1,5 @@
 use crate::Args;
 use crate::cli::command::Command;
-use crate::env::default_values::APPLICATION_ID;
 use crate::env::environment::database_connection;
 use crate::file::database::Database;
 use crate::gui::control::{Control, Controls, default_controls};
@@ -10,9 +9,8 @@ use crate::gui::direction::Direction;
 use crate::gui::event::Event;
 use crate::gui::navigator::Navigator;
 use crate::gui::state::State;
-use crate::gui::view::LEFT_PANE;
 use crate::gui::view::View;
-use crate::gui::view::components::application::make_application;
+use crate::gui::view::components::main_window::LEFT_PANE;
 use crate::model::gallery::Gallery;
 use crate::model::picture::Picture;
 use gtk::gdk;
@@ -55,12 +53,17 @@ impl Controller {
         })
     }
 
+    pub fn build_view_components(&mut self, controller_rc: &RcController) {
+        let view = View::new(controller_rc);
+        self.view_opt = Some(view)
+    }
+
     pub fn args(&self) -> Args {
         self.args.clone()
     }
 
     pub fn view(&self) -> View {
-        let view = self.view_opt.unwrap();
+        let view = self.view_opt.clone().unwrap();
         view.clone()
     }
 
@@ -110,13 +113,11 @@ impl Controller {
     }
 
     pub fn create_view(&mut self, controller_rc: &RcController) {
-        let pictures_per_row: i32 = self.navigator().pictures_per_row() as i32;
-        let application = make_application(APPLICATION_ID, controller_rc);
-        let view = View::new(&application, controller_rc);
+        let view = View::new(controller_rc);
         self.set_view(view)
     }
 
-    pub fn run_application(self) {
+    pub fn run_application(&self) {
         let application = self.view().application();
         let no_args: Vec<String> = vec![];
         application.run_with_args(&no_args);
@@ -198,7 +199,7 @@ impl Controller {
             self.set_slideshow_off();
             if self.state().dimension_changed() {
                 self.view()
-                    .change_dimension(controller_rc, self.state().pictures_per_row());
+                    .change_dimension(self.state().pictures_per_row());
                 self.acknowledge_dimension();
             }
             if self.state().single_view() != self.view().single_view() {
@@ -245,11 +246,11 @@ impl Controller {
             Control::ToggleFullSize => self.toggle_full_size(),
             Control::ToggleSlideShow => self.toggle_slideshow(),
             Control::Label => self.label(),
-            Control::GridTwo => self.switch_grid(2),
-            Control::GridThree => self.switch_grid(3),
-            Control::GridFour => self.switch_grid(4),
-            Control::GridFive => self.switch_grid(5),
-            Control::GridTen => self.switch_grid(10),
+            Control::GridTwo => self.change_grid_size(2),
+            Control::GridThree => self.change_grid_size(3),
+            Control::GridFour => self.change_grid_size(4),
+            Control::GridFive => self.change_grid_size(5),
+            Control::GridTen => self.change_grid_size(10),
             _ => {}
         }
     }
@@ -304,8 +305,8 @@ impl Controller {
         }
     }
 
-    pub fn switch_grid(&mut self, pictures_per_row: usize) {
-        self.state.switch_grid(pictures_per_row);
+    pub fn change_grid_size(&mut self, pictures_per_row: usize) {
+        self.state.change_grid_size(pictures_per_row);
         let navigator = &mut self.navigator;
         navigator.set_pictures_per_row(self.state.pictures_per_row);
         navigator.update_page_limits();

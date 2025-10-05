@@ -71,7 +71,7 @@ impl State {
         self.old_pictures_per_row = self.pictures_per_row
     }
 
-    pub fn switch_grid(&mut self, pictures_per_row: usize) {
+    pub fn change_grid_size(&mut self, pictures_per_row: usize) {
         if pictures_per_row != self.pictures_per_row {
             self.old_pictures_per_row = self.pictures_per_row;
             self.pictures_per_row = pictures_per_row

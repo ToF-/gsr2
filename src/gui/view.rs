@@ -1,9 +1,11 @@
 use crate::Controller;
+use crate::env::default_values::APPLICATION_ID;
 use crate::file::paths::check_path_exists;
 use crate::gui::controller::RcController;
 use crate::gui::direction::Direction;
 use crate::gui::display::picture_label_display;
-use crate::gui::event::Event::{KeyPressed, NextSlideDelay, PaneClicked, PictureClicked};
+use crate::gui::event::Event::{NextSlideDelay, PictureClicked};
+use crate::gui::view::components::application::make_application;
 use crate::gui::view::components::main_window::MainWindow;
 use crate::gui::view::components::picture_cell_box::make_picture_cell_box;
 use crate::gui::view::components::picture_frame::PictureFrame;
@@ -13,7 +15,6 @@ use crate::model::picture::Picture;
 use gtk::Window;
 use gtk::gio::File;
 use gtk::glib::ControlFlow;
-use gtk::glib::Propagation;
 use gtk::glib::clone;
 use gtk::glib::object::Cast;
 use gtk::glib::timeout_add_local;
@@ -21,14 +22,9 @@ use gtk::prelude::*;
 use gtk::{self};
 use gtk::{Align, gdk};
 use gtk::{CssProvider, Label, Orientation, Picture as GtkPicture};
-use std::cell::RefCell;
 use std::path::Path;
 use std::path::PathBuf;
-use std::rc::Rc;
 use std::time::Duration;
-
-pub const LEFT_PANE: usize = 0;
-pub const RIGHT_PANE: usize = 1;
 
 pub mod components;
 
@@ -38,8 +34,9 @@ pub struct View {
 }
 
 impl View {
-    pub fn new(application: &gtk::Application, controller_rc: &RcController) -> Self {
-        let main_window = MainWindow::new(application, controller_rc);
+    pub fn new(controller_rc: &RcController) -> Self {
+        let application = make_application(APPLICATION_ID);
+        let main_window = MainWindow::new(&application, controller_rc);
         View { main_window }
     }
 
@@ -76,7 +73,6 @@ impl View {
             if let Some((row, col)) = navigator.coords_from_position(position) {
                 let picture_grid = self.main_window.picture_grid();
                 picture_grid.set_label_for(&picture, col as i32, row as i32, with_focus);
-
             }
         }
     }
@@ -108,7 +104,8 @@ impl View {
                     } else {
                         no_thumbnail_picture()
                     };
-                    let picture_grid= self.main_window.picture_grid();
+                    let picture_grid = self.main_window.picture_grid();
+                    picture_grid.set_picture_for(col, row, &gtkPicture);
                     let label = Self::make_label_for_picture(&picture, is_focus);
                     cell.append(&label);
                 }
@@ -176,82 +173,40 @@ impl View {
     // }
 
     // attach event mananger to some components
-   //  pub fn attach_events(
-   //      application_window: &gtk::ApplicationWindow,
-   //      _view: &View,
-   //      slideshow_opt: Option<i32>,
-   //      controller_rc: &RcController,
-   //  ) {
-   //      let left_pane = Self::left_pane(application_window);
-   //      let right_pane = Self::right_pane(application_window);
+    //  pub fn attach_events(
+    //      application_window: &gtk::ApplicationWindow,
+    //      _view: &View,
+    //      slideshow_opt: Option<i32>,
+    //      controller_rc: &RcController,
+    //  ) {
+    //      let left_pane = Self::left_pane(application_window);
+    //      let right_pane = Self::right_pane(application_window);
 
-   //      let gesture_left_click = gtk::GestureClick::new();
-   //      gesture_left_click.set_button(1);
-   //      gesture_left_click.connect_pressed(clone!(
-   //          #[strong]
-   //          controller_rc,
-   //          move |_, _, _, _| {
-   //              if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-   //                  controller.process_event(
-   //                      PaneClicked {
-   //                          button: 1,
-   //                          pane_number: LEFT_PANE,
-   //                      },
-   //                      &controller_rc,
-   //                  );
-   //              } else {
-   //                  panic!("can't borrow mut controller");
-   //              }
-   //          }
-   //      ));
-   //      left_pane.add_controller(gesture_left_click);
+    //      let evk = gtk::EventControllerKey::new();
+    //      evk.connect_key_pressed(clone!(
+    //          #[strong]
+    //          controller_rc,
+    //          move |_, key, key_code, modifier_type| {
+    //              if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+    //                  controller.process_event(
+    //                      KeyPressed {
+    //                          key,
+    //                          key_code,
+    //                          modifier_type,
+    //                      },
+    //                      &controller_rc,
+    //                  );
+    //              };
+    //              Propagation::Proceed
+    //          }
+    //      ));
+    //      application_window.add_controller(evk);
+    //      if let Some(seconds) = slideshow_opt {
+    //          Self::attach_slideshow_event(seconds, controller_rc)
+    //      }
+    //  }
 
-   //      let gesture_right_click = gtk::GestureClick::new();
-   //      gesture_right_click.set_button(1);
-   //      gesture_right_click.connect_pressed(clone!(
-   //          #[strong]
-   //          controller_rc,
-   //          move |_, _, _, _| {
-   //              if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-   //                  controller.process_event(
-   //                      PaneClicked {
-   //                          button: 1,
-   //                          pane_number: RIGHT_PANE,
-   //                      },
-   //                      &controller_rc,
-   //                  );
-   //              } else {
-   //                  panic!("can't borrow mut controller");
-   //              }
-   //          }
-   //      ));
-   //      right_pane.add_controller(gesture_right_click);
-
-   //      let evk = gtk::EventControllerKey::new();
-   //      evk.connect_key_pressed(clone!(
-   //          #[strong]
-   //          controller_rc,
-   //          move |_, key, key_code, modifier_type| {
-   //              if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-   //                  controller.process_event(
-   //                      KeyPressed {
-   //                          key,
-   //                          key_code,
-   //                          modifier_type,
-   //                      },
-   //                      &controller_rc,
-   //                  );
-   //              };
-   //              Propagation::Proceed
-   //          }
-   //      ));
-   //      application_window.add_controller(evk);
-   //      if let Some(seconds) = slideshow_opt {
-   //          Self::attach_slideshow_event(seconds, controller_rc)
-   //      }
-   //  }
-
-    pub fn change_dimension(&self, controller_rc: &RcController, pictures_per_row: usize) {
+    pub fn change_dimension(&self, pictures_per_row: usize) {
         let mut picture_grid = self.picture_grid();
         picture_grid.set_pictures_per_row(pictures_per_row as i32);
     }
@@ -345,7 +300,6 @@ impl View {
         }
     }
 
-    pub fn setup_components(&mut self, pictures_per_row: i32, controller_rc: &RcController) {}
     // pub fn setup_components(
     //     &self,
     //     application_window: &gtk::ApplicationWindow,
@@ -573,9 +527,7 @@ impl View {
 
     pub fn single_view(&self) -> bool {
         let stack = self.main_window.stack();
-        let child_name = stack
-            .visible_child_name()
-            .unwrap();
+        let child_name = stack.visible_child_name().unwrap();
         child_name == "single_view"
     }
 
@@ -600,23 +552,6 @@ impl View {
             .unwrap()
     }
 
-    pub fn left_pane(application_window: &gtk::ApplicationWindow) -> gtk::Label {
-        let panel_grid = Self::panel_grid(&Self::multiple_view_scrolled_window(application_window));
-        panel_grid
-            .child_at(0, 0)
-            .unwrap()
-            .downcast::<gtk::Label>()
-            .unwrap()
-    }
-
-    pub fn right_pane(application_window: &gtk::ApplicationWindow) -> gtk::Label {
-        let panel_grid = Self::panel_grid(&Self::multiple_view_scrolled_window(application_window));
-        panel_grid
-            .child_at(2, 0)
-            .unwrap()
-            .downcast::<gtk::Label>()
-            .unwrap()
-    }
     pub fn multiple_view_grid(application_window: &gtk::ApplicationWindow) -> gtk::Grid {
         let panel_grid = Self::panel_grid(&Self::multiple_view_scrolled_window(application_window));
         panel_grid

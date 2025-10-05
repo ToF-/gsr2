@@ -1,10 +1,12 @@
-use gtk::prelude::Cast;
-use gtk::prelude::WidgetExt;
+use crate::gui::view::RcController;
+use crate::gui::view::components::picture_frame::make_label;
+use crate::gui::view::make_picture_cell_box;
 use crate::gui::view::picture_label_display;
 use crate::model::picture::Picture;
-use crate::gui::view::RcController;
-use crate::gui::view::make_picture_cell_box;
+use gtk::prelude::BoxExt;
+use gtk::prelude::Cast;
 use gtk::prelude::GridExt;
+use gtk::prelude::WidgetExt;
 use std::cell::RefCell;
 
 #[derive(Clone, Debug)]
@@ -33,11 +35,11 @@ impl PictureGrid {
     }
 
     pub fn grid_ref(&self) -> RefCell<gtk::Grid> {
-        self.grid_ref
+        self.grid_ref.clone()
     }
 
     pub fn grid(&self) -> gtk::Grid {
-        *self.grid_ref.borrow()
+        self.grid_ref.borrow().clone()
     }
 
     pub fn set_label_for(&self, picture: &Picture, col: i32, row: i32, with_focus: bool) {
@@ -75,6 +77,18 @@ impl PictureGrid {
                 grid.remove(&cell_box);
             }
         }
+    }
+
+    pub fn set_picture_for(&self, col: i32, row: i32, picture: &gtk::Picture) {
+        let grid = self.grid();
+        if let Some(widget) = grid.child_at(col as i32, row as i32) {
+            let cell_box: gtk::Box = widget.downcast::<gtk::Box>().unwrap();
+            while let Some(child) = cell_box.first_child() {
+                cell_box.remove(&child)
+            }
+            cell_box.append(picture);
+            cell_box.append(&make_label());
+        };
     }
 
     pub fn set_pictures_per_row(&mut self, pictures_per_row: i32) {
