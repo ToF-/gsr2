@@ -39,16 +39,6 @@ fn main() {
                     exit(1);
                 }
             }
-            let application: gtk::Application = make_application(APPLICATION_ID);
-            application.connect_activate(clone!(
-                #[strong]
-                cli,
-                #[strong]
-                controller_rc,
-                move |application: &gtk::Application| {
-                    MainWindow::activate(application, &cli, &controller_rc)
-                }
-            ));
             if let Ok(mut controller) = controller_rc.try_borrow_mut() {
                 match controller.load_picture_data() {
                     Ok(0) => exit(0),
@@ -59,6 +49,17 @@ fn main() {
                     Ok(_) => {},
                 }
             }
+
+            let application: gtk::Application = make_application(APPLICATION_ID);
+            application.connect_activate(clone!(
+                #[strong]
+                cli,
+                #[strong]
+                controller_rc,
+                move |application: &gtk::Application| {
+                    MainWindow::activate(application, &cli, &controller_rc)
+                }
+            ));
             MainWindow::run_application(application);
         }
         Err(err) => {

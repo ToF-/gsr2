@@ -1,3 +1,4 @@
+use crate::View;
 use crate::Args;
 use crate::gui::event::Event::PaneClicked;
 use crate::gui::view::PictureFrame;
@@ -132,11 +133,15 @@ impl MainWindow {
         let application_window = make_application_window(application, args);
         application_window.set_child(Some(&view_stack));
         {
-            if let Ok(controller) = controller_rc.try_borrow_mut() {
+            if let Ok(mut controller) = controller_rc.try_borrow_mut() {
                 let main_window = MainWindow::new_from_application(application, args, controller_rc);
+                let view = View::new(&main_window);
+                controller.set_view(view);
+                controller.view().set_pictures(&controller);
             }
         }
         attach_panel_event_handlers(&panel, controller_rc);
+
         application_window.present();
     }
 
