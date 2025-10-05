@@ -49,8 +49,15 @@ fn main() {
                     MainWindow::activate(application, &cli, &controller_rc)
                 }
             ));
-            if let Ok(controller) = controller_rc.try_borrow() {
-                println!("controller: {:?}", controller);
+            if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+                match controller.load_picture_data() {
+                    Ok(0) => exit(0),
+                    Err(err) => {
+                        eprintln!("{}", err);
+                        exit(1);
+                    }
+                    Ok(_) => {},
+                }
             }
             MainWindow::run_application(application);
         }

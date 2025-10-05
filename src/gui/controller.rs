@@ -1,3 +1,5 @@
+use crate::model::order::Order;
+use crate::file::picture_file::create_missing_thumbnails;
 use crate::Args;
 use crate::cli::command::Command;
 use crate::env::environment::database_connection;
@@ -92,18 +94,31 @@ impl Controller {
     pub fn load_picture_data(&mut self) -> IOResult<usize> {
         let mut gallery = Gallery::new();
         let args = self.args.clone();
-        let load_result = match args.command {
+        let result = match args.command {
             Some(Command::File { file_path }) => gallery.load_from_file_path(&file_path),
             Some(Command::Dir { directory }) => gallery.load_from_directory(&directory),
             None => gallery.load_from_database(&self.database),
         };
-        match load_result {
-            Ok(_) => {
-                let len = gallery.len();
-                println!("{} pictures", len);
-                Ok(len)
-            }
-            Err(err) => Err(err),
+        match result {
+            Ok(0) => {
+                println!("no pictures for this selection");
+                Ok(0)
+            },
+            Ok(size) => {
+                if args.random {
+                    gallery.sort_by(Order::Random)
+                } else {
+                    gallery.sort_by(Order::Name)
+                };
+                println!("{} pictures", &gallery.len());
+                if self.args.create_missing_thumbnails {
+                    create_missing_thumbnails(&gallery.clone());
+                }
+                self.set_gallery(gallery);
+                self.navigator().set_page_changed();
+                Ok(size)
+            },
+            Err(err) => Err(std::io::Error::other(err)),
         }
     }
 
