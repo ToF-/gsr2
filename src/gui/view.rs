@@ -132,94 +132,10 @@ impl View {
         }
     }
 
-    // make the application, defining its start up method and its activate method
-    // on activation, it will build the components, which will all use a RefCell on the controller
-    // to pass control of events
-
-    // create all the components, attach event managers to them, then setup the view part of the
-    // controller so that we have these references available.
-    // Controller → View → ApplicationWindow → components → Controller
-    // Controller has a counted reference on the View, it can manipulate and change some components
-    // visibility, eg. switching frow single to multiple view
-    // View has a reference to the ApplicationWindow
-    // ApplicationWindow has components
-    // components have event managers attached to them
-    // event manager have a counted reference on the controller and send it an event message
-    //
-    // pub fn make_application_components(
-    //     &mut self,
-    //     application: &gtk::Application,
-    //     controller_rc: &RcController,
-    // ) {
-    //     let pictures_per_row: i32;
-    //     let application_window = Self::make_application_window(application, controller_rc);
-    //     {
-    //         let controller = controller_rc.try_borrow().expect("can't borrow");
-    //         pictures_per_row = controller.state().pictures_per_row() as i32;
-    //         self.setup_components(&application_window, pictures_per_row, controller_rc);
-    //     }
-    //     if let Ok(controller) = controller_rc.try_borrow_mut() {
-    //         let view = controller.view();
-    //         let slideshow = controller.args().slideshow();
-    //         Self::attach_events(&application_window, &view, slideshow, controller_rc);
-    //         Self::attach_grid_picture_events(pictures_per_row, &application_window, controller_rc);
-    //     } else {
-    //         panic!("can't borrow mut");
-    //     };
-    //     if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-    //         let application_window_rc = Rc::new(RefCell::new(application_window.clone()));
-    //         let mut view = controller.view();
-    //         view.set_application_window_rc(application_window_rc);
-    //         controller.set_view(view.clone());
-    //     } else {
-    //         panic!("can't borrow mut");
-    //     };
-    //     {
-    //         let controller = controller_rc.try_borrow().expect("can't borrow");
-    //         let _view = controller.view();
-    //         View::set_pictures(&controller);
-    //     }
-    //     application_window.present();
-    // }
-
-    // attach event mananger to some components
-    //  pub fn attach_events(
-    //      application_window: &gtk::ApplicationWindow,
-    //      _view: &View,
-    //      slideshow_opt: Option<i32>,
-    //      controller_rc: &RcController,
-    //  ) {
-    //      let left_pane = Self::left_pane(application_window);
-    //      let right_pane = Self::right_pane(application_window);
-
-    //      let evk = gtk::EventControllerKey::new();
-    //      evk.connect_key_pressed(clone!(
-    //          #[strong]
-    //          controller_rc,
-    //          move |_, key, key_code, modifier_type| {
-    //              if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-    //                  controller.process_event(
-    //                      KeyPressed {
-    //                          key,
-    //                          key_code,
-    //                          modifier_type,
-    //                      },
-    //                      &controller_rc,
-    //                  );
-    //              };
-    //              Propagation::Proceed
-    //          }
-    //      ));
-    //      application_window.add_controller(evk);
-    //      if let Some(seconds) = slideshow_opt {
-    //          Self::attach_slideshow_event(seconds, controller_rc)
-    //      }
-    //  }
-
-    pub fn change_dimension(&self, pictures_per_row: usize) {
-        println!("change_dimension");
-        let mut picture_grid = self.picture_grid();
-        picture_grid.set_pictures_per_row(pictures_per_row as i32);
+    pub fn change_dimension(&mut self, pictures_per_row: usize) {
+        if let Ok(mut picture_grid) = self.main_window().picture_grid_ref().try_borrow_mut() {
+            picture_grid.set_pictures_per_row(pictures_per_row as i32);
+        }
     }
 
     pub fn attach_slideshow_event(seconds: i32, controller_rc: &RcController) {

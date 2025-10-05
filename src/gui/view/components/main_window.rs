@@ -161,6 +161,10 @@ impl MainWindow {
         self.picture_grid_ref.borrow().clone()
     }
 
+    pub fn picture_grid_ref(&self) -> Rc<RefCell<PictureGrid>> {
+        self.picture_grid_ref.clone()
+    }
+
     pub fn picture_frame(&self) -> PictureFrame {
         self.picture_frame_ref.borrow().clone()
     }

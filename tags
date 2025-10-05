@@ -84,6 +84,7 @@ args	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn arg
 arrow_move	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn arrow_move(&mut self, direction: Direction) {$/;"	f
 attach_cells	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/picture_grid.rs	/^    pub fn attach_cells(&self) {$/;"	f
 attach_grid_picture_events	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn attach_grid_picture_events($/;"	f
+attach_key_pressed_event_handlers	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/main_window.rs	/^fn attach_key_pressed_event_handlers(application_window: &gtk::ApplicationWindow, controller_rc: &RcController) {$/;"	f
 attach_panel_event_handlers	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/main_window.rs	/^fn attach_panel_event_handlers(panel: &gtk::Grid, controller_rc: &RcController) {$/;"	f
 attach_slideshow_event	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn attach_slideshow_event(seconds: i32, controller_rc: &RcController) {$/;"	f
 begin_input	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    pub fn begin_input(&mut self, kind: InputKind) {$/;"	f
@@ -95,7 +96,7 @@ cancelling_set_editing_to_false	/Users/christophethibaut/Coding/gsr2/src/gui/edi
 cannot_append_forbidden_chars	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    fn cannot_append_forbidden_chars() {$/;"	f
 cannot_move_down_if_beyond_limit	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn cannot_move_down_if_beyond_limit() {$/;"	f
 cannot_move_up_if_before_limit	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn cannot_move_up_if_before_limit() {$/;"	f
-change_dimension	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn change_dimension(&self, pictures_per_row: usize) {$/;"	f
+change_dimension	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn change_dimension(&mut self, pictures_per_row: usize) {$/;"	f
 change_grid_size	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn change_grid_size(&mut self, pictures_per_row: usize) {$/;"	f
 change_grid_size	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn change_grid_size(&mut self, pictures_per_row: usize) {$/;"	f
 check_path	/Users/christophethibaut/Coding/gsr2/src/file/paths.rs	/^pub fn check_path(source: &str) -> Result<String> {$/;"	f
@@ -260,11 +261,13 @@ picture_frame	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/main_
 picture_from_file_path	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn picture_from_file_path(file_path: &Path) -> gtk::Picture {$/;"	f
 picture_grid	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn picture_grid(&self) -> PictureGrid {$/;"	f
 picture_grid	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/main_window.rs	/^    pub fn picture_grid(&self) -> PictureGrid {$/;"	f
+picture_grid_ref	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/main_window.rs	/^    pub fn picture_grid_ref(&self) -> Rc<RefCell<PictureGrid>> {$/;"	f
 picture_label_display	/Users/christophethibaut/Coding/gsr2/src/gui/display.rs	/^pub fn picture_label_display(label: &str, with_focus: bool) -> String {$/;"	f
 pictures	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^    pub fn pictures(&self) -> &Vec<Picture> {$/;"	f
 pictures_per_row	/Users/christophethibaut/Coding/gsr2/src/cli/args.rs	/^    pub fn pictures_per_row(&self) -> i32 {$/;"	f
 pictures_per_row	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn pictures_per_row(&self) -> usize {$/;"	f
 pictures_per_row	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn pictures_per_row(&self) -> usize {$/;"	f
+pictures_per_row	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/picture_grid.rs	/^    pub fn pictures_per_row(&self) -> i32 {$/;"	f
 pictures_per_row_is_determined_by_grid_option	/Users/christophethibaut/Coding/gsr2/src/cli/args.rs	/^    fn pictures_per_row_is_determined_by_grid_option() {$/;"	f
 pictures_per_row_is_determined_by_thumbnails_option	/Users/christophethibaut/Coding/gsr2/src/cli/args.rs	/^    fn pictures_per_row_is_determined_by_thumbnails_option() {$/;"	f
 position	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn position(&self) -> usize {$/;"	f
