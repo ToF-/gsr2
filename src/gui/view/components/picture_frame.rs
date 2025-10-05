@@ -14,6 +14,14 @@ pub struct PictureFrame {
 }
 
 impl PictureFrame {
+
+    pub fn new_from_frame(frame: &gtk::Box, controller_rc: &RcController) -> Self {
+        PictureFrame {
+            controller_rc: controller_rc.clone(),
+            frame_ref: RefCell::new(frame.clone()),
+        }
+    }
+
     pub fn new(controller_rc: &RcController) -> Self {
         let picture = make_picture();
         let frame = make_frame();

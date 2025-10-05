@@ -43,4 +43,11 @@
     creating the view requires the components
     creating the controller requires the view
 
+    complete mess
+    the application must be the main process, prior to anything
+    the activate closure should
+        build the components and attach them
+        encapsulate references to these components into a MainWindow value
+        initialize a Controller with this MainWindow as a refcell
+        attach all event handlers with a Controller refcell
     

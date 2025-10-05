@@ -31,26 +31,47 @@ pub mod components;
 
 #[derive(Clone, Debug)]
 pub struct View {
-    main_window: MainWindow,
+    main_window_opt: Option<MainWindow>,
 }
 
 impl View {
     pub fn new(args: &Args, controller_rc: &RcController) -> Self {
         let application = make_application(APPLICATION_ID);
-        let main_window = MainWindow::new(&application, args, controller_rc);
-        View { main_window }
+        let mut main_window: MainWindow;
+        application.connect_activate(clone!(
+                #[strong]
+                  main_window,
+                #[strong]
+                args,
+                #[strong]
+                controller_rc,
+                move |application: &gtk::Application| {
+                    MainWindow::activate(application, &args, &controller_rc);
+                    main_window = MainWindow::new_from_application(application, &args, &controller_rc);
+                }));
+        View {
+            main_window_opt: Some(main_window)
+        }
+    }
+
+    pub fn set_main_window(&mut self, main_window: &MainWindow) {
+        self.main_window_opt = Some(main_window.clone())
+    }
+
+    pub fn main_window(&self) -> MainWindow {
+        self.main_window_opt.clone().unwrap().clone()
     }
 
     pub fn application_window(&self) -> gtk::ApplicationWindow {
-        self.main_window.application_window()
+        self.main_window().application_window()
     }
 
     pub fn application(&self) -> gtk::Application {
-        self.main_window.application_window().application().unwrap()
+        self.main_window().application_window().application().unwrap()
     }
 
     pub fn picture_grid(&self) -> PictureGrid {
-        self.main_window.picture_grid()
+        self.main_window().picture_grid()
     }
 
     pub fn set_picture_for_single_view(&self, controller: &Controller) {
@@ -62,7 +83,7 @@ impl View {
         } else {
             no_thumbnail_picture()
         };
-        let picture_frame = self.main_window.picture_frame();
+        let picture_frame = self.main_window().picture_frame();
         picture_frame.set_picture(controller, &gtkPicture);
     }
 
@@ -72,7 +93,7 @@ impl View {
         let picture = controller.current_picture();
         if !controller.state().single_view() {
             if let Some((row, col)) = navigator.coords_from_position(position) {
-                let picture_grid = self.main_window.picture_grid();
+                let picture_grid = self.main_window().picture_grid();
                 picture_grid.set_label_for(&picture, col as i32, row as i32, with_focus);
             }
         }
@@ -82,7 +103,7 @@ impl View {
         let cells_per_row: i32 = pictures_per_row as i32;
         let navigator = controller.navigator();
         let gallery = controller.gallery();
-        let picture_grid = self.main_window.picture_grid();
+        let picture_grid = self.main_window().picture_grid();
         let grid = picture_grid.grid();
         for col in 0..cells_per_row {
             for row in 0..cells_per_row {
@@ -105,7 +126,7 @@ impl View {
                     } else {
                         no_thumbnail_picture()
                     };
-                    let picture_grid = self.main_window.picture_grid();
+                    let picture_grid = self.main_window().picture_grid();
                     picture_grid.set_picture_for(col, row, &gtkPicture);
                     let label = Self::make_label_for_picture(&picture, is_focus);
                     cell.append(&label);
@@ -254,47 +275,47 @@ impl View {
                 let gesture_left_click = gtk::GestureClick::new();
                 gesture_left_click.set_button(1);
                 gesture_left_click.connect_pressed(clone!(
-                    #[strong]
-                    col,
-                    #[strong]
-                    row,
-                    #[strong]
-                    controller_rc,
-                    move |_, _, _, _| {
-                        if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-                            controller.process_event(
-                                PictureClicked {
-                                    button: 1,
-                                    col,
-                                    row,
-                                },
-                                &controller_rc,
-                            );
+                        #[strong]
+                        col,
+                        #[strong]
+                        row,
+                        #[strong]
+                        controller_rc,
+                        move |_, _, _, _| {
+                            if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+                                controller.process_event(
+                                    PictureClicked {
+                                        button: 1,
+                                        col,
+                                        row,
+                                    },
+                                    &controller_rc,
+                                );
+                            }
                         }
-                    }
                 ));
                 cell_box.add_controller(gesture_left_click);
                 let gesture_right_click = gtk::GestureClick::new();
                 gesture_right_click.set_button(3);
                 gesture_right_click.connect_pressed(clone!(
-                    #[strong]
-                    col,
-                    #[strong]
-                    row,
-                    #[strong]
-                    controller_rc,
-                    move |_, _, _, _| {
-                        if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-                            controller.process_event(
-                                PictureClicked {
-                                    button: 3,
-                                    col,
-                                    row,
-                                },
-                                &controller_rc,
-                            );
+                        #[strong]
+                        col,
+                        #[strong]
+                        row,
+                        #[strong]
+                        controller_rc,
+                        move |_, _, _, _| {
+                            if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+                                controller.process_event(
+                                    PictureClicked {
+                                        button: 3,
+                                        col,
+                                        row,
+                                    },
+                                    &controller_rc,
+                                );
+                            }
                         }
-                    }
                 ));
                 cell_box.add_controller(gesture_right_click);
             }
@@ -336,7 +357,7 @@ impl View {
 
     pub fn full_size_arrow_move(&self, direction: Direction) {
         let step: f64 = 100.0;
-        let w = self.main_window.frame_window();
+        let w = self.main_window().frame_window();
         let wh_adj = w.hadjustment();
         let wv_adj = w.vadjustment();
         match direction {
@@ -480,7 +501,7 @@ impl View {
         picture: &gtk::Picture,
     ) {
         let frame = &Self::frame(&Self::visible_stack_child_scrolled_window(
-            &Self::view_stack(application_window),
+                &Self::view_stack(application_window),
         ));
         while let Some(child) = frame.first_child() {
             frame.remove(&child)
@@ -500,7 +521,7 @@ impl View {
     #[allow(dead_code)]
     pub fn single_view_picture_label(application_window: &gtk::ApplicationWindow) -> gtk::Label {
         let picture = Self::picture(&Self::frame(&Self::visible_stack_child_scrolled_window(
-            &Self::view_stack(application_window),
+                    &Self::view_stack(application_window),
         )));
         picture
             .next_sibling()
@@ -527,13 +548,13 @@ impl View {
     }
 
     pub fn single_view(&self) -> bool {
-        let stack = self.main_window.stack();
+        let stack = self.main_window().stack();
         let child_name = stack.visible_child_name().unwrap();
         child_name == "single_view"
     }
 
     pub fn toggle_view_stack(&self, controller: &Controller) {
-        let stack = self.main_window.stack();
+        let stack = self.main_window().stack();
         if controller.state().single_view() {
             stack.set_visible_child_name("multiple_view")
         } else {

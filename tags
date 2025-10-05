@@ -69,6 +69,7 @@ a_readme_file_is_not_a_picture_file	/Users/christophethibaut/Coding/gsr2/src/fil
 a_thumbnail_picture_has_the_name_as_the_original_picture_with_thumb_suffix	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    fn a_thumbnail_picture_has_the_name_as_the_original_picture_with_thumb_suffix() {$/;"	f
 acknowledge_dimension	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn acknowledge_dimension(&mut self) {$/;"	f
 acknowledge_dimension	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn acknowledge_dimension(&mut self) {$/;"	f
+activate	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/main_window.rs	/^    pub fn activate(application: &gtk::Application, args: &Args, controller_rc: &RcController) {$/;"	f
 after_begin_input_edting_is_true	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    fn after_begin_input_edting_is_true() {$/;"	f
 after_moving_old_position_and_new_position_can_differ	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn after_moving_old_position_and_new_position_can_differ() {$/;"	f
 after_page_change_page_change_is_detected	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn after_page_change_page_change_is_detected() {$/;"	f
@@ -86,7 +87,7 @@ attach_grid_picture_events	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	
 attach_panel_event_handlers	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/main_window.rs	/^fn attach_panel_event_handlers(panel: &gtk::Grid, controller_rc: &RcController) {$/;"	f
 attach_slideshow_event	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn attach_slideshow_event(seconds: i32, controller_rc: &RcController) {$/;"	f
 begin_input	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    pub fn begin_input(&mut self, kind: InputKind) {$/;"	f
-build_view_components	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn build_view_components(&mut self, controller_rc: &RcController) {$/;"	f
+build_view_components	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn build_view_components(&mut self, args: &Args, controller_rc: &RcController) {$/;"	f
 can_move	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn can_move(&mut self, direction: Direction) -> bool {$/;"	f
 can_move_next_page	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn can_move_next_page(&mut self) -> bool {$/;"	f
 can_move_prev_page	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn can_move_prev_page(&mut self) -> bool {$/;"	f
@@ -121,7 +122,7 @@ coords_from_position	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/
 coords_from_position_depends_on_given_position	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn coords_from_position_depends_on_given_position() {$/;"	f
 create_missing_thumbnails	/Users/christophethibaut/Coding/gsr2/src/file/picture_file.rs	/^pub fn create_missing_thumbnails(gallery: &Gallery) {$/;"	f
 create_thumbnail_file	/Users/christophethibaut/Coding/gsr2/src/model/gen_image.rs	/^pub fn create_thumbnail_file(thumbnail_file_path: &str, picture_file_path: &str) -> IOResult<()> {$/;"	f
-create_view	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn create_view(&mut self, controller_rc: &RcController) {$/;"	f
+create_view	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn create_view(&mut self, args: &Args, controller_rc: &RcController) {$/;"	f
 current_picture	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn current_picture(&self) -> Picture {$/;"	f
 database_connection	/Users/christophethibaut/Coding/gsr2/src/env/environment.rs	/^pub fn database_connection() -> Result<String> {$/;"	f
 default_controls	/Users/christophethibaut/Coding/gsr2/src/gui/control.rs	/^pub fn default_controls() -> Controls {$/;"	f
@@ -229,13 +230,15 @@ new	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    pub fn new() ->
 new	/Users/christophethibaut/Coding/gsr2/src/gui/gsr_application/mod.rs	/^    pub fn new() -> Self {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn new(limit: usize, pictures_per_row: usize) -> Self {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn new(pictures_per_row: usize, slideshow_on: bool) -> Self {$/;"	f
-new	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn new(controller_rc: &RcController) -> Self {$/;"	f
-new	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/main_window.rs	/^    pub fn new(application: &gtk::Application, controller_rc: &RcController) -> Self {$/;"	f
+new	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn new(args: &Args, controller_rc: &RcController) -> Self {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/picture_frame.rs	/^    pub fn new(controller_rc: &RcController) -> Self {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/picture_grid.rs	/^    pub fn new(pictures_per_row: i32, controller_rc: &RcController) -> Self {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^    pub fn new() -> Self {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/model/image_data.rs	/^    pub fn new(label: &str) -> Self {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    pub fn new(file_path: &str) -> Self {$/;"	f
+new_from_application	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/main_window.rs	/^    pub fn new_from_application(application: &gtk::Application, args: &Args, controller_rc: &RcController) -> Self {$/;"	f
+new_from_frame	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/picture_frame.rs	/^    pub fn new_from_frame(frame: &gtk::Box, controller_rc: &RcController) -> Self {$/;"	f
+new_from_grid	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/picture_grid.rs	/^    pub fn new_from_grid(grid: &gtk::Grid, pictures_per_row: i32, controller_rc: &RcController) -> Self {$/;"	f
 new_with_image_data	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    pub fn new_with_image_data(file_path: &str, label: &str) -> Self {$/;"	f
 new_with_pictures	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^    pub fn new_with_pictures(pictures: Vec<Picture>) -> Self {$/;"	f
 next_page_start	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn next_page_start(&self) -> usize {$/;"	f

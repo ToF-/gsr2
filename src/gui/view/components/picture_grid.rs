@@ -17,6 +17,13 @@ pub struct PictureGrid {
 }
 
 impl PictureGrid {
+    pub fn new_from_grid(grid: &gtk::Grid, pictures_per_row: i32, controller_rc: &RcController) -> Self {
+        PictureGrid {
+            pictures_per_row,
+            controller_rc: controller_rc.clone(),
+            grid_ref: RefCell::new(grid.clone()),
+        }
+    }
     pub fn new(pictures_per_row: i32, controller_rc: &RcController) -> Self {
         let grid = gtk::Grid::builder()
             .row_homogeneous(true)

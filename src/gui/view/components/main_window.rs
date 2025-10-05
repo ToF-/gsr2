@@ -1,3 +1,5 @@
+use gtk::prelude::ApplicationExtManual;
+use gtk::prelude::GtkApplicationExt;
 use std::rc::Rc;
 use gtk::prelude::ApplicationExt;
 use crate::Args;
@@ -34,22 +36,57 @@ pub struct MainWindow {
 }
 
 impl MainWindow {
-    pub fn new(application: &gtk::Application, args: &Args, controller_rc: &RcController) -> Self {
-        let main_window_opt_rc: Rc<RefCell<Option<MainWindow>>> = Rc::new(RefCell::new(None));
-        application.connect_activate(clone!(
-                #[strong]
-                main_window_opt_rc,
-                #[strong]
-                args,
-                #[strong]
-                controller_rc,
-                move |application: &gtk::Application| {
-                    Self::activate(application, &main_window_opt_rc, &args, &controller_rc)
-                }));
-        main_window_opt_rc.borrow().clone().unwrap()
+    // pub fn new(application: &gtk::Application, args: &Args, controller_rc: &RcController) -> Self {
+    //     // main_window_opt_rc.borrow().clone().unwrap()
+    // }
+
+    pub fn new_from_application(application: &gtk::Application, args: &Args, controller_rc: &RcController) -> Self {
+        let no_args: Vec<String> = vec![];
+        application.run_with_args(&no_args);
+
+        let pictures_per_row: i32 = args.pictures_per_row() as i32;
+        let application_window = application.active_window()
+            .expect("can't get application active window")
+            .downcast::<gtk::ApplicationWindow>().expect("can't downcast application window");
+
+        println!("{:p}", &application_window);
+        let stack = application_window.first_child()
+            .expect("can't get stack")
+            .downcast::<gtk::Stack>().expect("can't downcast stack");
+
+        let single_view_scrolled_window = stack.child_by_name("single_view")
+            .expect("can't get single view scrolled window")
+            .downcast::<gtk::ScrolledWindow>().expect("can't downcast single view scrolled window");
+
+        let multiple_view_scrolled_window = stack.child_by_name("multiple_view")
+            .expect("can't get multiple view scrolled window")
+            .downcast::<gtk::ScrolledWindow>().expect("can't downcast multiple view scrolled window");
+
+        let frame = single_view_scrolled_window.first_child()
+            .expect("can't get single view frame")
+            .downcast::<gtk::Box>().expect("can't downcast frame as box");
+
+        let grid = multiple_view_scrolled_window
+            .first_child().expect("can't get multiple view panel")
+            .downcast::<gtk::Grid>().expect("can't downcast panel to grid")
+            .child_at(1, 0).expect("can't find panel central child")
+            .downcast::<gtk::Grid>().expect("can't dowcast panel central child to grid");
+
+        let picture_grid = PictureGrid::new_from_grid(&grid, pictures_per_row, controller_rc);
+        let picture_frame = PictureFrame::new_from_frame(&frame, controller_rc);
+
+        MainWindow {
+            picture_grid_ref: RefCell::new(picture_grid.clone()),
+            picture_frame_ref: RefCell::new(picture_frame.clone()),
+            application_window_ref: RefCell::new(application_window.clone()),
+            stack_ref: RefCell::new(stack.clone()),
+            frame_window_ref: RefCell::new(single_view_scrolled_window.clone()),
+            grid_window_ref: RefCell::new(multiple_view_scrolled_window.clone()),
+        }
     }
 
-    pub fn activate(application: &gtk::Application, main_window_rc: &Rc<RefCell<Option<MainWindow>>>, args: &Args, controller_rc: &RcController) {
+    pub fn activate(application: &gtk::Application, args: &Args, controller_rc: &RcController) {
+        println!("activate…");
         let pictures_per_row = args.pictures_per_row();
         let picture_grid = PictureGrid::new(pictures_per_row, controller_rc);
         let picture_frame = PictureFrame::new(controller_rc);
@@ -67,21 +104,11 @@ impl MainWindow {
         } else {
             view_stack.set_visible_child(&multiple_view_scrolled_window);
         }
-        let application_window = make_application_window(application, controller_rc);
+        let application_window = make_application_window(application, args);
+        println!("{:p}", &application_window);
         application_window.set_child(Some(&view_stack));
         attach_panel_event_handlers(&panel, controller_rc);
-        if let Ok(mut main_window) = main_window_rc.try_borrow_mut() {
-            *main_window =  Some( MainWindow {
-                picture_grid_ref: RefCell::new(picture_grid),
-                picture_frame_ref: RefCell::new(picture_frame),
-                application_window_ref: RefCell::new(application_window),
-                stack_ref: RefCell::new(view_stack),
-                frame_window_ref: RefCell::new(single_view_scrolled_window.clone()),
-                grid_window_ref: RefCell::new(single_view_scrolled_window.clone()),
-            })
-        } else {
-            panic!("can't mutably borrw main_window");
-        }
+        application_window.present();
     }
 
     pub fn application_window(&self) -> gtk::ApplicationWindow {
@@ -107,10 +134,8 @@ impl MainWindow {
 
 fn make_application_window(
     application: &gtk::Application,
-    controller_rc: &RcController,
+    args: &Args,
 ) -> gtk::ApplicationWindow {
-    let controller = controller_rc.borrow();
-    let args = controller.args();
     ApplicationWindow::builder()
         .application(application)
         .title("gsr2")
