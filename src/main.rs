@@ -35,7 +35,7 @@ fn main() {
             }
             { 
                 match controller_rc.try_borrow_mut() {
-                    Ok(mut controller) => controller.create_view(&controller_rc),
+                    Ok(mut controller) => controller.create_view(&cli, &controller_rc),
                     Err(err) => {
                         eprintln!("{}", err);
                         exit(1);

@@ -95,7 +95,7 @@ cancelling_set_editing_to_false	/Users/christophethibaut/Coding/gsr2/src/gui/edi
 cannot_append_forbidden_chars	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    fn cannot_append_forbidden_chars() {$/;"	f
 cannot_move_down_if_beyond_limit	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn cannot_move_down_if_beyond_limit() {$/;"	f
 cannot_move_up_if_before_limit	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn cannot_move_up_if_before_limit() {$/;"	f
-change_dimension	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn change_dimension(&self, controller_rc: &RcController, pictures_per_row: usize) {$/;"	f
+change_dimension	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn change_dimension(&self, pictures_per_row: usize) {$/;"	f
 change_grid_size	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn change_grid_size(&mut self, pictures_per_row: usize) {$/;"	f
 change_grid_size	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn change_grid_size(&mut self, pictures_per_row: usize) {$/;"	f
 check_path	/Users/christophethibaut/Coding/gsr2/src/file/paths.rs	/^pub fn check_path(source: &str) -> Result<String> {$/;"	f
@@ -193,7 +193,7 @@ make_application_window	/Users/christophethibaut/Coding/gsr2/src/gui/view/compon
 make_entry_window	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn make_entry_window($/;"	f
 make_frame	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/picture_frame.rs	/^fn make_frame() -> gtk::Box {$/;"	f
 make_gesture_click	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/picture_cell_box.rs	/^fn make_gesture_click($/;"	f
-make_label	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/picture_frame.rs	/^fn make_label() -> gtk::Label {$/;"	f
+make_label	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/picture_frame.rs	/^pub fn make_label() -> gtk::Label {$/;"	f
 make_label_for_picture	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn make_label_for_picture(picture: &Picture, with_focus: bool) -> gtk::Label {$/;"	f
 make_palette_area	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn make_palette_area() -> gtk::DrawingArea {$/;"	f
 make_pane_with_label	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn make_pane_with_label(symbol: &str) -> gtk::Label {$/;"	f
@@ -248,7 +248,7 @@ page_changed	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub
 page_end	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn page_end(&self) -> usize {$/;"	f
 page_size	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn page_size(&self) -> usize {$/;"	f
 page_start	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn page_start(&self) -> usize {$/;"	f
-pane_gesture_click	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/main_window.rs	/^fn pane_gesture_click(button: usize, pane_number: usize, controller_rc: &RcController) -> gtk::GestureClick {$/;"	f
+pane_gesture_click	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/main_window.rs	/^fn pane_gesture_click($/;"	f
 panel_grid	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn panel_grid(window: &gtk::ScrolledWindow) -> gtk::Grid {$/;"	f
 parse_and_check	/Users/christophethibaut/Coding/gsr2/src/cli/args.rs	/^    pub fn parse_and_check(args_opt: Option<Vec<&str>>) -> Result<Self> {$/;"	f
 partial_cmp	/Users/christophethibaut/Coding/gsr2/src/model/image_data.rs	/^    fn partial_cmp(&self, _: &ImageData) -> std::option::Option<std::cmp::Ordering> {$/;"	f
@@ -282,7 +282,7 @@ remove_children_from_box	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^
 retrieve_all_pictures	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    pub fn retrieve_all_pictures(&self) -> Result<Vec<Picture>> {$/;"	f
 retrieve_all_pictures_ordered_by_file_path	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    fn retrieve_all_pictures_ordered_by_file_path() {$/;"	f
 right_pane	/Users/christophethibaut/Coding/gsr2/src/gui/view/components/main_window.rs	/^pub fn right_pane(panel_grid: &gtk::Grid) -> gtk::Label {$/;"	f
-run_application	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn run_application(self) {$/;"	f
+run_application	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn run_application(&self) {$/;"	f
 rusqlite_delete_picture_with_file_path	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    pub fn rusqlite_delete_picture_with_file_path(&self, file_path: &str) -> Result<usize> {$/;"	f
 rusqlite_from_connection	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    fn rusqlite_from_connection(connection_string: &str) -> Result<Self> {$/;"	f
 rusqlite_insert_picture	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    pub fn rusqlite_insert_picture(&self, picture: &Picture) -> Result<usize> {$/;"	f
@@ -307,7 +307,6 @@ set_single_view_picture	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^ 
 set_slideshow_off	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_slideshow_off(&mut self) {$/;"	f
 set_slideshow_off	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn set_slideshow_off(&mut self) {$/;"	f
 set_view	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_view(&mut self, view: View) {$/;"	f
-setup_components	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn setup_components(&mut self, pictures_per_row: i32, controller_rc: &RcController) {}$/;"	f
 single_view	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn single_view(&self) -> bool {$/;"	f
 single_view	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn single_view(&self) -> bool {$/;"	f
 single_view_picture_label	/Users/christophethibaut/Coding/gsr2/src/gui/view.rs	/^    pub fn single_view_picture_label(application_window: &gtk::ApplicationWindow) -> gtk::Label {$/;"	f

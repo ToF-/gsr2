@@ -53,8 +53,8 @@ impl Controller {
         })
     }
 
-    pub fn build_view_components(&mut self, controller_rc: &RcController) {
-        let view = View::new(controller_rc);
+    pub fn build_view_components(&mut self, args: &Args, controller_rc: &RcController) {
+        let view = View::new(args, controller_rc);
         self.view_opt = Some(view)
     }
 
@@ -112,8 +112,8 @@ impl Controller {
         }
     }
 
-    pub fn create_view(&mut self, controller_rc: &RcController) {
-        let view = View::new(controller_rc);
+    pub fn create_view(&mut self, args: &Args, controller_rc: &RcController) {
+        let view = View::new(args, controller_rc);
         self.set_view(view)
     }
 

@@ -1,3 +1,6 @@
+use std::rc::Rc;
+use gtk::prelude::ApplicationExt;
+use crate::Args;
 use crate::gui::event::Event::PaneClicked;
 use crate::gui::view::PictureFrame;
 use crate::gui::view::PictureGrid;
@@ -31,9 +34,22 @@ pub struct MainWindow {
 }
 
 impl MainWindow {
-    pub fn new(application: &gtk::Application, controller_rc: &RcController) -> Self {
-        let controller = controller_rc.borrow();
-        let args = controller.args();
+    pub fn new(application: &gtk::Application, args: &Args, controller_rc: &RcController) -> Self {
+        let main_window_opt_rc: Rc<RefCell<Option<MainWindow>>> = Rc::new(RefCell::new(None));
+        application.connect_activate(clone!(
+                #[strong]
+                main_window_opt_rc,
+                #[strong]
+                args,
+                #[strong]
+                controller_rc,
+                move |application: &gtk::Application| {
+                    Self::activate(application, &main_window_opt_rc, &args, &controller_rc)
+                }));
+        main_window_opt_rc.borrow().clone().unwrap()
+    }
+
+    pub fn activate(application: &gtk::Application, main_window_rc: &Rc<RefCell<Option<MainWindow>>>, args: &Args, controller_rc: &RcController) {
         let pictures_per_row = args.pictures_per_row();
         let picture_grid = PictureGrid::new(pictures_per_row, controller_rc);
         let picture_frame = PictureFrame::new(controller_rc);
@@ -54,14 +70,17 @@ impl MainWindow {
         let application_window = make_application_window(application, controller_rc);
         application_window.set_child(Some(&view_stack));
         attach_panel_event_handlers(&panel, controller_rc);
-
-        MainWindow {
-            picture_grid_ref: RefCell::new(picture_grid),
-            picture_frame_ref: RefCell::new(picture_frame),
-            application_window_ref: RefCell::new(application_window),
-            stack_ref: RefCell::new(view_stack),
-            frame_window_ref: RefCell::new(single_view_scrolled_window.clone()),
-            grid_window_ref: RefCell::new(single_view_scrolled_window.clone()),
+        if let Ok(mut main_window) = main_window_rc.try_borrow_mut() {
+            *main_window =  Some( MainWindow {
+                picture_grid_ref: RefCell::new(picture_grid),
+                picture_frame_ref: RefCell::new(picture_frame),
+                application_window_ref: RefCell::new(application_window),
+                stack_ref: RefCell::new(view_stack),
+                frame_window_ref: RefCell::new(single_view_scrolled_window.clone()),
+                grid_window_ref: RefCell::new(single_view_scrolled_window.clone()),
+            })
+        } else {
+            panic!("can't mutably borrw main_window");
         }
     }
 

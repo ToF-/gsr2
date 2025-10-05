@@ -25,6 +25,7 @@ use gtk::{CssProvider, Label, Orientation, Picture as GtkPicture};
 use std::path::Path;
 use std::path::PathBuf;
 use std::time::Duration;
+use crate::Args;
 
 pub mod components;
 
@@ -34,9 +35,9 @@ pub struct View {
 }
 
 impl View {
-    pub fn new(controller_rc: &RcController) -> Self {
+    pub fn new(args: &Args, controller_rc: &RcController) -> Self {
         let application = make_application(APPLICATION_ID);
-        let main_window = MainWindow::new(&application, controller_rc);
+        let main_window = MainWindow::new(&application, args, controller_rc);
         View { main_window }
     }
 
