@@ -19,14 +19,12 @@ pub fn no_thumbnail_picture() -> gtk::Picture {
 
     for y in 0..height {
         for x in 0..width {
-            if x >= 32 && x < (width - 32) {
-                if x == y || x == (width - 1 - y) {
-                    let offset = y * stride + x * 4;
-                    pixels[offset] = 127;
-                    pixels[offset + 1] = 127;
-                    pixels[offset + 2] = 127;
-                    pixels[offset + 3] = 255;
-                }
+            if x >= 32 && x < (width - 32) && x == y || x == (width - 1 - y) {
+                let offset = y * stride + x * 4;
+                pixels[offset] = 127;
+                pixels[offset + 1] = 127;
+                pixels[offset + 2] = 127;
+                pixels[offset + 3] = 255;
             }
         }
     }
@@ -92,12 +90,10 @@ pub fn create_thumbnail_file(thumbnail_file_path: &str, picture_file_path: &str)
                 Some(ext) => ext,
             };
             let reader = BufReader::new(picture_file);
-            let output_file = match File::create(thumbnail_file_path) {
-                Err(err) => return Err(err),
-                Ok(file) => file,
-            };
+
+            let output_file = File::create(thumbnail_file_path)?;
             match write_thumbnail(reader, extension, output_file) {
-                Err(err) => return Err(std::io::Error::other(err)),
+                Err(err) => Err(std::io::Error::other(err)),
                 Ok(_) => Ok(()),
             }
         }

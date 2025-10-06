@@ -38,14 +38,12 @@ impl ImageData {
     #[allow(dead_code)]
     pub fn from_file(file_path: &str) -> Result<Self> {
         get_data_from_picture_file(file_path).and_then(|file_data| {
-            get_palette_from_picture_file(file_path).and_then(|palette| {
-                Ok(ImageData {
-                    label: String::from(""),
-                    size: file_data.0,
-                    modified_time: file_data.1,
-                    palette,
-                    tags: HashSet::new(),
-                })
+            get_palette_from_picture_file(file_path).map(|palette| ImageData {
+                label: String::from(""),
+                size: file_data.0,
+                modified_time: file_data.1,
+                palette,
+                tags: HashSet::new(),
             })
         })
     }
@@ -62,8 +60,8 @@ impl Ord for ImageData {
 }
 
 impl PartialOrd for ImageData {
-    fn partial_cmp(&self, _: &ImageData) -> std::option::Option<std::cmp::Ordering> {
-        todo!()
+    fn partial_cmp(&self, other: &ImageData) -> std::option::Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
     }
 }
 

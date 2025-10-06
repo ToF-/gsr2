@@ -3,8 +3,8 @@ use crate::cli::command::Command;
 use crate::env::default_values::APPLICATION_ID;
 use crate::gui::controller::Controller;
 use crate::gui::controller::RcController;
-use crate::gui::view::components::application::make_application;
-use crate::gui::view::components::main_window::MainWindow;
+use crate::gui::view::application::make_application;
+use crate::gui::view::main_window::MainWindow;
 use gtk::glib::clone;
 use gtk::prelude::ApplicationExt;
 use std::cell::RefCell;
@@ -28,16 +28,15 @@ fn main() {
                 println!("viewing file from the database");
             }
             let controller_result = Controller::new(cli.clone());
-            let controller_rc: RcController;
-            match controller_result {
+            let controller_rc: RcController = match controller_result {
                 Ok(controller) => {
-                    controller_rc = Rc::new(RefCell::new(controller));
+                    Rc::new(RefCell::new(controller))
                 }
                 Err(err) => {
                     eprintln!("{}", err);
                     exit(1);
                 }
-            }
+            };
             if let Ok(mut controller) = controller_rc.try_borrow_mut() {
                 match controller.load_picture_data() {
                     Ok(0) => exit(0),

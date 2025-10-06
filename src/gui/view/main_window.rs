@@ -1,14 +1,16 @@
 use crate::Args;
-use crate::Controller;
+use crate::file::paths::check_path_exists;
+use crate::gui::direction::Direction;
+use crate::gui::display::title_display;
 use crate::gui::event::Event::{KeyPressed, NextSlideDelay, PaneClicked};
-use crate::gui::view::Direction;
-use crate::gui::view::timeout_add_local;
-use crate::gui::view::title_display;
-use crate::gui::view::{PictureFrame, PictureGrid, RcController, check_path_exists};
+use crate::gui::view::picture_frame::PictureFrame;
+use crate::gui::view::picture_grid::PictureGrid;
 use crate::model::gen_image::no_thumbnail_picture;
 use crate::model::picture::Picture;
+use crate::{Controller, RcController};
 use gtk::gio::File as GtkFile;
 use gtk::glib::clone;
+use gtk::glib::timeout_add_local;
 use gtk::glib::{ControlFlow, Propagation};
 use gtk::prelude::AdjustmentExt;
 use gtk::prelude::BoxExt;
@@ -17,7 +19,9 @@ use gtk::prelude::{
     ApplicationExtManual, Cast, GestureSingleExt, GridExt, GtkApplicationExt, GtkWindowExt,
     StyleContextExt, WidgetExt,
 };
-use gtk::{ApplicationWindow, CssProvider, Grid, Label, Picture as GtkPicture, ScrolledWindow, Window};
+use gtk::{
+    ApplicationWindow, CssProvider, Grid, Label, Picture as GtkPicture, ScrolledWindow, Window,
+};
 use std::cell::RefCell;
 use std::path::Path;
 use std::path::PathBuf;
@@ -46,7 +50,7 @@ impl MainWindow {
         args: &Args,
         controller_rc: &RcController,
     ) -> Self {
-        let pictures_per_row: i32 = args.pictures_per_row() as i32;
+        let pictures_per_row: i32 = args.pictures_per_row();
         let application_window = application
             .active_window()
             .expect("can't get application active window")
@@ -231,21 +235,21 @@ impl MainWindow {
 
     pub fn set_pictures(&self, controller: &Controller) {
         if controller.state().single_view() {
-            self.set_picture_for_single_view(&controller)
+            self.set_picture_for_single_view(controller)
         } else {
             let pictures_per_row = controller.state().pictures_per_row();
-            self.set_pictures_for_multiple_view(&controller, pictures_per_row)
+            self.set_pictures_for_multiple_view(controller, pictures_per_row)
         }
     }
     pub fn set_label_for_current_picture(&self, controller: &Controller, with_focus: bool) {
         let navigator = controller.navigator();
         let position = navigator.position();
         let picture = controller.current_picture();
-        if !controller.state().single_view() {
-            if let Some((row, col)) = navigator.coords_from_position(position) {
-                let picture_grid = self.picture_grid();
-                picture_grid.set_label_for(&picture, col as i32, row as i32, with_focus);
-            }
+        if !controller.state().single_view()
+            && let Some((row, col)) = navigator.coords_from_position(position)
+        {
+            let picture_grid = self.picture_grid();
+            picture_grid.set_label_for(&picture, col as i32, row as i32, with_focus);
         }
     }
 

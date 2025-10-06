@@ -1,5 +1,5 @@
-use crate::gui::view::gdk::Display;
 use gtk::Application;
+use gtk::gdk::Display;
 use gtk::prelude::ApplicationExt;
 
 pub fn make_application(application_id: &str) -> gtk::Application {

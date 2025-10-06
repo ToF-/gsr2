@@ -1,7 +1,7 @@
-use crate::gui::view::RcController;
-use crate::gui::view::components::picture_frame::make_label;
-use crate::gui::view::make_picture_cell_box;
-use crate::gui::view::picture_label_display;
+use crate::gui::controller::RcController;
+use crate::gui::display::picture_label_display;
+use crate::gui::view::picture_cell_box::make_picture_cell_box;
+use crate::gui::view::picture_frame::make_label;
 use crate::model::picture::Picture;
 use gtk::prelude::BoxExt;
 use gtk::prelude::Cast;
@@ -55,7 +55,7 @@ impl PictureGrid {
 
     pub fn set_label_for(&self, picture: &Picture, col: i32, row: i32, with_focus: bool) {
         let grid = self.grid();
-        if let Some(cell_box) = grid.child_at(col as i32, row as i32) {
+        if let Some(cell_box) = grid.child_at(col, row) {
             let gtk_picture = cell_box
                 .first_child()
                 .unwrap()
@@ -92,7 +92,7 @@ impl PictureGrid {
 
     pub fn set_picture_for(&self, col: i32, row: i32, picture: &gtk::Picture) {
         let grid = self.grid();
-        if let Some(widget) = grid.child_at(col as i32, row as i32) {
+        if let Some(widget) = grid.child_at(col, row) {
             let cell_box: gtk::Box = widget.downcast::<gtk::Box>().unwrap();
             while let Some(child) = cell_box.first_child() {
                 cell_box.remove(&child)

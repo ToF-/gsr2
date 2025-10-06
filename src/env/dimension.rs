@@ -23,7 +23,7 @@ pub fn dimension(
             _ => default,
         },
     };
-    if (value >= default_values::DIMENSION_MIN) && (value <= default_values::DIMENSION_MAX) {
+    if (default_values::DIMENSION_MIN..=default_values::DIMENSION_MAX).contains(&value) {
         Some(value)
     } else {
         println!(
@@ -35,11 +35,8 @@ pub fn dimension(
 }
 
 pub fn slideshow_delay(source: Option<i32>, dimension_name: &str, default: i32) -> Option<i32> {
-    let value = match source {
-        Some(n) => n,
-        None => return None,
-    };
-    if (value >= default_values::SLIDESHOW_DELAY_MIN)
+    let value = source?;
+    if (default_values::SLIDESHOW_DELAY_MIN..=default_values::SLIDESHOW_DELAY_MAX).contains(&value)
         && (value <= default_values::SLIDESHOW_DELAY_MAX)
     {
         Some(value)

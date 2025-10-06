@@ -9,7 +9,7 @@ use crate::gui::direction::Direction;
 use crate::gui::event::Event;
 use crate::gui::navigator::Navigator;
 use crate::gui::state::State;
-use crate::gui::view::components::main_window::{LEFT_PANE, attach_slideshow_event};
+use crate::gui::view::main_window::{LEFT_PANE, attach_slideshow_event};
 use crate::model::gallery::Gallery;
 use crate::model::order::Order;
 use crate::model::picture::Picture;
@@ -155,11 +155,10 @@ impl Controller {
         if let Some(index) = self
             .navigator
             .position_from_coords(row as usize, col as usize)
+            && self.navigator.can_move(Direction::Index { value: index })
         {
-            if self.navigator.can_move(Direction::Index { value: index }) {
-                self.navigator
-                    .move_towards(Direction::Index { value: index });
-            }
+            self.navigator
+                .move_towards(Direction::Index { value: index });
         }
         self.main_window().set_label_for_current_picture(self, true);
     }
@@ -203,8 +202,7 @@ impl Controller {
             } else if self.navigator.page_changed() {
                 self.main_window().set_pictures(self)
             };
-            self.main_window()
-                .set_label_for_current_picture(self, true);
+            self.main_window().set_label_for_current_picture(self, true);
             self.main_window().set_title(self);
         }
     }
@@ -213,10 +211,11 @@ impl Controller {
         let controls = self.controls.clone();
         match key.name() {
             None => {}
-            Some(key_name) => match controls.get(&key_name.to_string()) {
-                Some(control) => self.process_control(control),
-                _ => {}
-            },
+            Some(key_name) => {
+                if let Some(control) = controls.get(&key_name.to_string()) {
+                    self.process_control(control)
+                }
+            }
         }
     }
 
@@ -341,8 +340,7 @@ impl Controller {
     }
 
     pub fn full_size_arrow_move(&self, direction: Direction) {
-        self.main_window()
-            .full_size_arrow_move(direction.clone())
+        self.main_window().full_size_arrow_move(direction.clone())
     }
 
     pub fn move_next(&mut self) {
@@ -352,10 +350,8 @@ impl Controller {
                 if navigator.can_move(Direction::Right) {
                     navigator.move_towards(Direction::Right);
                 }
-            } else {
-                if navigator.can_move_next_page() {
-                    navigator.move_next_page();
-                }
+            } else if navigator.can_move_next_page() {
+                navigator.move_next_page();
             }
         }
     }
@@ -367,10 +363,8 @@ impl Controller {
                 if navigator.can_move(Direction::Left) {
                     navigator.move_towards(Direction::Left);
                 }
-            } else {
-                if navigator.can_move_prev_page() {
-                    navigator.move_prev_page();
-                }
+            } else if navigator.can_move_prev_page() {
+                navigator.move_prev_page();
             }
         }
     }

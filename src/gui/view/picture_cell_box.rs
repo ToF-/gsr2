@@ -1,7 +1,7 @@
+use crate::gui::controller::RcController;
 use crate::gui::event::Event::PictureClicked;
-use crate::gui::view::Orientation;
-use crate::gui::view::RcController;
 use gtk::Align;
+use gtk::Orientation;
 use gtk::glib::clone;
 use gtk::prelude::{GestureSingleExt, WidgetExt};
 
