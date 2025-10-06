@@ -56,26 +56,19 @@ impl View {
     pub fn set_picture_for_single_view(&self, controller: &Controller) {
         let picture: Picture = controller.current_picture();
         let picture_file_path = picture.file_path();
-        let gtkPicture = if let Ok(file_path) = check_path_exists(&PathBuf::from(picture_file_path))
+        let gtk_picture = if let Ok(file_path) = check_path_exists(&PathBuf::from(picture_file_path))
         {
             Self::picture_from_file_path(file_path)
         } else {
             no_thumbnail_picture()
         };
         let picture_frame = self.main_window().picture_frame();
-        picture_frame.set_picture(controller, &gtkPicture);
+        picture_frame.set_picture(controller, &gtk_picture);
     }
 
     pub fn set_label_for_current_picture(&self, controller: &Controller, with_focus: bool) {
-        let navigator = controller.navigator();
-        let position = navigator.position();
-        let picture = controller.current_picture();
-        if !controller.state().single_view() {
-            if let Some((row, col)) = navigator.coords_from_position(position) {
-                let picture_grid = self.picture_grid();
-                picture_grid.set_label_for(&picture, col as i32, row as i32, with_focus);
-            }
-        }
+        let main_window = self.main_window();
+        main_window.set_label_for_current_picture(controller, with_focus);
     }
 
     fn set_pictures_for_multiple_view(&self, controller: &Controller, pictures_per_row: usize) {
@@ -98,7 +91,7 @@ impl View {
                     let is_thumbnail = cells_per_row == 10;
                     let is_focus = index == navigator.position();
                     let picture_file_path = picture.view_file_path(is_thumbnail);
-                    let gtkPicture = if let Ok(file_path) =
+                    let gtk_picture = if let Ok(file_path) =
                         check_path_exists(&PathBuf::from(picture_file_path))
                     {
                         Self::picture_from_file_path(file_path)
@@ -106,7 +99,7 @@ impl View {
                         no_thumbnail_picture()
                     };
                     let picture_grid = self.picture_grid();
-                    picture_grid.set_picture_for(col, row, &gtkPicture);
+                    picture_grid.set_picture_for(col, row, &gtk_picture);
                     picture_grid.set_label_for(&picture, col, row, is_focus);
                 }
             }

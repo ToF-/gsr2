@@ -1,3 +1,4 @@
+use crate::Controller;
 use crate::gui::event::Event::NextSlideDelay;
 use gtk::glib::ControlFlow;
 use std::time::Duration;
@@ -140,6 +141,7 @@ impl MainWindow {
                 let main_window = MainWindow::new_from_application(application, args, controller_rc);
                 let view = View::new(&main_window);
                 controller.set_view(view);
+                controller.set_main_window(main_window);
                 controller.view().set_pictures(&controller);
                 controller.view().set_title(&controller);
             }
@@ -179,6 +181,17 @@ impl MainWindow {
 
     pub fn stack(&self) -> gtk::Stack {
         self.stack_ref.borrow().clone()
+    }
+    pub fn set_label_for_current_picture(&self, controller: &Controller, with_focus: bool) {
+        let navigator = controller.navigator();
+        let position = navigator.position();
+        let picture = controller.current_picture();
+        if !controller.state().single_view() {
+            if let Some((row, col)) = navigator.coords_from_position(position) {
+                let picture_grid = self.picture_grid();
+                picture_grid.set_label_for(&picture, col as i32, row as i32, with_focus);
+            }
+        }
     }
 }
 

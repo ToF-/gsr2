@@ -1,12 +1,10 @@
-use crate::model::order::Order;
-use crate::file::picture_file::create_missing_thumbnails;
 use crate::Args;
+use crate::MainWindow;
 use crate::cli::command::Command;
 use crate::env::environment::database_connection;
 use crate::file::database::Database;
+use crate::file::picture_file::create_missing_thumbnails;
 use crate::gui::control::{Control, Controls, default_controls};
-use crate::gui::controller::gdk::Key;
-use crate::gui::controller::gdk::ModifierType;
 use crate::gui::direction::Direction;
 use crate::gui::event::Event;
 use crate::gui::navigator::Navigator;
@@ -14,10 +12,11 @@ use crate::gui::state::State;
 use crate::gui::view::View;
 use crate::gui::view::components::main_window::{LEFT_PANE, attach_slideshow_event};
 use crate::model::gallery::Gallery;
+use crate::model::order::Order;
 use crate::model::picture::Picture;
-use gtk::gdk;
+use gdk::{Key, ModifierType};
+use gtk::{gdk, self};
 use gtk::prelude::*;
-use gtk::{self};
 use std::cell::RefCell;
 use std::io::Result as IOResult;
 use std::rc::Rc;
@@ -31,6 +30,7 @@ pub struct Controller {
     database: Database,
     state: State,
     view_opt: Option<View>,
+    main_window_opt: Option<MainWindow>,
 }
 
 pub type RcController = Rc<RefCell<Controller>>;
@@ -50,6 +50,7 @@ impl Controller {
                     database,
                     state: State::new(pictures_per_row as usize, cli.slideshow().is_some()),
                     view_opt: None,
+                    main_window_opt: None,
                 }),
             }
         })
@@ -66,6 +67,10 @@ impl Controller {
 
     pub fn set_view(&mut self, view: View) {
         self.view_opt = Some(view)
+    }
+
+    pub fn set_main_window(&mut self, main_window: MainWindow) {
+        self.main_window_opt = Some(main_window)
     }
 
     pub fn state(&self) -> State {

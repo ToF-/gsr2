@@ -56,12 +56,12 @@ impl PictureGrid {
     pub fn set_label_for(&self, picture: &Picture, col: i32, row: i32, with_focus: bool) {
         let grid = self.grid();
         if let Some(cell_box) = grid.child_at(col as i32, row as i32) {
-            let gtkPicture = cell_box
+            let gtk_picture = cell_box
                 .first_child()
                 .unwrap()
                 .downcast::<gtk::Picture>()
                 .unwrap();
-            let label = gtkPicture
+            let label = gtk_picture
                 .next_sibling()
                 .unwrap()
                 .downcast::<gtk::Label>()
