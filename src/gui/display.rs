@@ -41,4 +41,3 @@ pub fn title_display(controller: &Controller) -> String {
         full_size_display(controller.state().full_size_on()),
     )
 }
-

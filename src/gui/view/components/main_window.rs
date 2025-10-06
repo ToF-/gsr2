@@ -1,33 +1,28 @@
-use crate::Controller;
-use crate::gui::event::Event::NextSlideDelay;
-use gtk::glib::ControlFlow;
-use std::time::Duration;
- use crate::gui::view::timeout_add_local;
-use gtk::glib::Propagation;
-use crate::gui::event::Event::KeyPressed;
-use crate::View;
 use crate::Args;
-use crate::gui::event::Event::PaneClicked;
-use crate::gui::view::PictureFrame;
-use crate::gui::view::PictureGrid;
-use crate::gui::view::RcController;
-use gtk::ApplicationWindow;
-use gtk::CssProvider;
-use gtk::Grid;
-use gtk::Label;
-use gtk::ScrolledWindow;
+use crate::Controller;
+use crate::gui::event::Event::{KeyPressed, NextSlideDelay, PaneClicked};
+use crate::gui::view::Direction;
+use crate::gui::view::timeout_add_local;
+use crate::gui::view::title_display;
+use crate::gui::view::{PictureFrame, PictureGrid, RcController, check_path_exists};
+use crate::model::gen_image::no_thumbnail_picture;
+use crate::model::picture::Picture;
+use gtk::gio::File as GtkFile;
 use gtk::glib::clone;
-use gtk::prelude::ApplicationExtManual;
-use gtk::prelude::Cast;
-use gtk::prelude::GestureSingleExt;
-use gtk::prelude::GridExt;
-use gtk::prelude::GtkApplicationExt;
-use gtk::prelude::GtkWindowExt;
+use gtk::glib::{ControlFlow, Propagation};
+use gtk::prelude::AdjustmentExt;
+use gtk::prelude::BoxExt;
 #[allow(deprecated)]
-use gtk::prelude::StyleContextExt;
-use gtk::prelude::WidgetExt;
+use gtk::prelude::{
+    ApplicationExtManual, Cast, GestureSingleExt, GridExt, GtkApplicationExt, GtkWindowExt,
+    StyleContextExt, WidgetExt,
+};
+use gtk::{ApplicationWindow, CssProvider, Grid, Label, Picture as GtkPicture, ScrolledWindow, Window};
 use std::cell::RefCell;
+use std::path::Path;
+use std::path::PathBuf;
 use std::rc::Rc;
+use std::time::Duration;
 
 pub const LEFT_PANE: usize = 0;
 pub const RIGHT_PANE: usize = 1;
@@ -138,12 +133,11 @@ impl MainWindow {
         application_window.set_child(Some(&view_stack));
         {
             if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-                let main_window = MainWindow::new_from_application(application, args, controller_rc);
-                let view = View::new(&main_window);
-                controller.set_view(view);
+                let main_window =
+                    MainWindow::new_from_application(application, args, controller_rc);
                 controller.set_main_window(main_window);
-                controller.view().set_pictures(&controller);
-                controller.view().set_title(&controller);
+                controller.main_window().set_pictures(&controller);
+                controller.main_window().set_title(&controller);
             }
         }
         attach_panel_event_handlers(&panel, controller_rc);
@@ -182,6 +176,67 @@ impl MainWindow {
     pub fn stack(&self) -> gtk::Stack {
         self.stack_ref.borrow().clone()
     }
+
+    pub fn set_title(&self, controller: &Controller) {
+        let title = title_display(controller);
+        self.application_window().set_title(Some(&title))
+    }
+
+    pub fn set_pictures_for_multiple_view(&self, controller: &Controller, pictures_per_row: usize) {
+        let cells_per_row: i32 = pictures_per_row as i32;
+        let navigator = controller.navigator();
+        let gallery = controller.gallery();
+        let picture_grid = self.picture_grid();
+        let grid = picture_grid.grid();
+        for col in 0..cells_per_row {
+            for row in 0..cells_per_row {
+                let coords = (row as usize, col as usize);
+                let cell: gtk::Box = grid
+                    .child_at(col, row)
+                    .unwrap()
+                    .downcast::<gtk::Box>()
+                    .unwrap();
+                remove_children_from_box(&cell);
+                if let Some(index) = navigator.position_from_coords(coords.0, coords.1) {
+                    let picture = gallery.picture(index);
+                    let is_thumbnail = cells_per_row == 10;
+                    let is_focus = index == navigator.position();
+                    let picture_file_path = picture.view_file_path(is_thumbnail);
+                    let gtk_picture = if let Ok(file_path) =
+                        check_path_exists(&PathBuf::from(picture_file_path))
+                    {
+                        gtk_picture_from_file_path(file_path)
+                    } else {
+                        no_thumbnail_picture()
+                    };
+                    let picture_grid = self.picture_grid();
+                    picture_grid.set_picture_for(col, row, &gtk_picture);
+                    picture_grid.set_label_for(&picture, col, row, is_focus);
+                }
+            }
+        }
+    }
+    pub fn set_picture_for_single_view(&self, controller: &Controller) {
+        let picture: Picture = controller.current_picture();
+        let picture_file_path = picture.file_path();
+        let gtk_picture =
+            if let Ok(file_path) = check_path_exists(&PathBuf::from(picture_file_path)) {
+                gtk_picture_from_file_path(file_path)
+            } else {
+                no_thumbnail_picture()
+            };
+        let picture_frame = self.picture_frame();
+        picture_frame.set_picture(controller, &gtk_picture);
+    }
+
+    pub fn set_pictures(&self, controller: &Controller) {
+        if controller.state().single_view() {
+            self.set_picture_for_single_view(&controller)
+        } else {
+            let pictures_per_row = controller.state().pictures_per_row();
+            self.set_pictures_for_multiple_view(&controller, pictures_per_row)
+        }
+    }
     pub fn set_label_for_current_picture(&self, controller: &Controller, with_focus: bool) {
         let navigator = controller.navigator();
         let position = navigator.position();
@@ -191,6 +246,40 @@ impl MainWindow {
                 let picture_grid = self.picture_grid();
                 picture_grid.set_label_for(&picture, col as i32, row as i32, with_focus);
             }
+        }
+    }
+
+    pub fn single_view(&self) -> bool {
+        let stack = self.stack();
+        let child_name = stack.visible_child_name().unwrap();
+        child_name == "single_view"
+    }
+
+    pub fn change_dimension(&mut self, pictures_per_row: usize) {
+        if let Ok(mut picture_grid) = self.picture_grid_ref().try_borrow_mut() {
+            picture_grid.set_pictures_per_row(pictures_per_row as i32);
+        }
+    }
+
+    pub fn toggle_view_stack(&self, controller: &Controller) {
+        let stack = self.stack();
+        if controller.state().single_view() {
+            stack.set_visible_child_name("single_view")
+        } else {
+            stack.set_visible_child_name("multiple_view")
+        }
+    }
+    pub fn full_size_arrow_move(&self, direction: Direction) {
+        let step: f64 = 100.0;
+        let window = self.frame_window();
+        let h = window.hadjustment();
+        let v = window.vadjustment();
+        match direction {
+            Direction::Right => h.set_value(h.value() + step),
+            Direction::Left => h.set_value(h.value() - step),
+            Direction::Down => v.set_value(v.value() + step),
+            Direction::Up => v.set_value(v.value() - step),
+            _ => {}
         }
     }
 }
@@ -299,10 +388,14 @@ fn attach_panel_event_handlers(panel: &gtk::Grid, controller_rc: &RcController) 
     right_pane(panel).add_controller(pane_gesture_click(1, RIGHT_PANE, controller_rc));
 }
 
-fn attach_key_pressed_event_handlers(application_window: &gtk::ApplicationWindow, controller_rc: &RcController) {
+fn attach_key_pressed_event_handlers(
+    application_window: &gtk::ApplicationWindow,
+    controller_rc: &RcController,
+) {
     let event_controller_key = gtk::EventControllerKey::new();
     event_controller_key.connect_key_pressed(clone!(
-        #[strong] controller_rc,
+        #[strong]
+        controller_rc,
         move |_, key, key_code, modifier_type| {
             if let Ok(mut controller) = controller_rc.try_borrow_mut() {
                 controller.process_event(
@@ -311,10 +404,12 @@ fn attach_key_pressed_event_handlers(application_window: &gtk::ApplicationWindow
                         key_code,
                         modifier_type,
                     },
-                    &controller_rc);
+                    &controller_rc,
+                );
             };
             Propagation::Stop
-        }));
+        }
+    ));
     application_window.add_controller(event_controller_key);
 }
 
@@ -342,4 +437,38 @@ pub fn attach_slideshow_event(seconds: i32, controller_rc: &RcController) {
             }
         ),
     );
+}
+
+pub fn gtk_picture_from_file_path(file_path: &Path) -> gtk::Picture {
+    GtkPicture::builder()
+        .file(&GtkFile::for_path(file_path))
+        .hexpand(true)
+        .vexpand(true)
+        .build()
+}
+
+pub fn remove_children_from_box(cell_box: &gtk::Box) {
+    while let Some(child) = cell_box.first_child() {
+        cell_box.remove(&child)
+    }
+}
+
+#[allow(dead_code)]
+pub fn make_entry_window(application_window: &gtk::ApplicationWindow, prompt: &str) -> gtk::Window {
+    let window: gtk::Window = Window::builder()
+        .title(prompt)
+        .default_width(300)
+        .default_height(30)
+        .deletable(false)
+        .decorated(true)
+        .modal(true)
+        .build();
+    let entry_label: gtk::Label = Label::new(None);
+    window.set_resizable(false);
+    window.set_hide_on_close(false);
+    window.set_child(Some(&entry_label));
+    window.set_modal(true);
+    window.set_transient_for(Some(application_window));
+    window.present();
+    window
 }

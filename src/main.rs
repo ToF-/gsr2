@@ -3,7 +3,6 @@ use crate::cli::command::Command;
 use crate::env::default_values::APPLICATION_ID;
 use crate::gui::controller::Controller;
 use crate::gui::controller::RcController;
-use crate::gui::view::View;
 use crate::gui::view::components::application::make_application;
 use crate::gui::view::components::main_window::MainWindow;
 use gtk::glib::clone;
@@ -46,7 +45,7 @@ fn main() {
                         eprintln!("{}", err);
                         exit(1);
                     }
-                    Ok(_) => {},
+                    Ok(_) => {}
                 }
             }
 

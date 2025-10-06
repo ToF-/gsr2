@@ -9,14 +9,13 @@ use crate::gui::direction::Direction;
 use crate::gui::event::Event;
 use crate::gui::navigator::Navigator;
 use crate::gui::state::State;
-use crate::gui::view::View;
 use crate::gui::view::components::main_window::{LEFT_PANE, attach_slideshow_event};
 use crate::model::gallery::Gallery;
 use crate::model::order::Order;
 use crate::model::picture::Picture;
 use gdk::{Key, ModifierType};
-use gtk::{gdk, self};
 use gtk::prelude::*;
+use gtk::{self, gdk};
 use std::cell::RefCell;
 use std::io::Result as IOResult;
 use std::rc::Rc;
@@ -29,7 +28,6 @@ pub struct Controller {
     controls: Controls,
     database: Database,
     state: State,
-    view_opt: Option<View>,
     main_window_opt: Option<MainWindow>,
 }
 
@@ -49,7 +47,6 @@ impl Controller {
                     controls: default_controls(),
                     database,
                     state: State::new(pictures_per_row as usize, cli.slideshow().is_some()),
-                    view_opt: None,
                     main_window_opt: None,
                 }),
             }
@@ -60,15 +57,9 @@ impl Controller {
         self.args.clone()
     }
 
-    pub fn view(&self) -> View {
-        let view = self.view_opt.clone().unwrap();
-        view.clone()
+    pub fn main_window(&self) -> MainWindow {
+        self.main_window_opt.clone().unwrap().clone()
     }
-
-    pub fn set_view(&mut self, view: View) {
-        self.view_opt = Some(view)
-    }
-
     pub fn set_main_window(&mut self, main_window: MainWindow) {
         self.main_window_opt = Some(main_window)
     }
@@ -108,7 +99,7 @@ impl Controller {
             Ok(0) => {
                 println!("no pictures for this selection");
                 Ok(0)
-            },
+            }
             Ok(size) => {
                 if args.random {
                     gallery.sort_by(Order::Random)
@@ -122,7 +113,7 @@ impl Controller {
                 self.set_gallery(gallery);
                 self.navigator().set_page_changed();
                 Ok(size)
-            },
+            }
             Err(err) => Err(std::io::Error::other(err)),
         }
     }
@@ -159,8 +150,8 @@ impl Controller {
         }
     }
     pub fn process_picture_clicked(&mut self, _button: u32, col: i32, row: i32) {
-        let view = self.view();
-        view.set_label_for_current_picture(self, false);
+        self.main_window()
+            .set_label_for_current_picture(self, false);
         if let Some(index) = self
             .navigator
             .position_from_coords(row as usize, col as usize)
@@ -170,7 +161,7 @@ impl Controller {
                     .move_towards(Direction::Index { value: index });
             }
         }
-        view.set_label_for_current_picture(self, true);
+        self.main_window().set_label_for_current_picture(self, true);
     }
 
     pub fn process_pane_clicked(&mut self, _button: usize, pane_number: usize) {
@@ -180,7 +171,7 @@ impl Controller {
             &Control::MoveNext
         });
         if self.navigator.has_moved() {
-            self.view().set_pictures(self)
+            self.main_window().set_pictures(self)
         }
     }
 
@@ -191,8 +182,8 @@ impl Controller {
         _modifier_type: ModifierType,
         controller_rc: &RcController,
     ) {
-        let view = self.view();
-        view.set_label_for_current_picture(self, false);
+        let main_window = self.main_window();
+        main_window.set_label_for_current_picture(self, false);
         let old_slideshow_on = self.state().slideshow_on();
         self.process_key(key);
         if self.state.slideshow_on() != old_slideshow_on {
@@ -202,18 +193,19 @@ impl Controller {
         } else {
             self.set_slideshow_off();
             if self.state().dimension_changed() {
-                self.view()
+                self.main_window()
                     .change_dimension(self.state().pictures_per_row());
                 self.acknowledge_dimension();
             }
-            if self.state().single_view() != self.view().single_view() {
-                view.toggle_view_stack(self);
-                self.view().set_pictures(self)
+            if self.state().single_view() != self.main_window().single_view() {
+                main_window.toggle_view_stack(self);
+                self.main_window().set_pictures(self)
             } else if self.navigator.page_changed() {
-                self.view().set_pictures(self)
+                self.main_window().set_pictures(self)
             };
-            self.view().set_label_for_current_picture(self, true);
-            self.view().set_title(self);
+            self.main_window()
+                .set_label_for_current_picture(self, true);
+            self.main_window().set_title(self);
         }
     }
 
@@ -223,14 +215,14 @@ impl Controller {
             None => {}
             Some(key_name) => match controls.get(&key_name.to_string()) {
                 Some(control) => self.process_control(control),
-                _ => {},
+                _ => {}
             },
         }
     }
 
     pub fn next_slide_delay(&mut self) {
         self.move_next();
-        self.view().set_pictures(self)
+        self.main_window().set_pictures(self)
     }
 
     pub fn process_control(&mut self, control: &Control) {
@@ -266,7 +258,7 @@ impl Controller {
         // }
     }
     pub fn quit(&self) {
-        let application_window = self.view().application_window();
+        let application_window = self.main_window().application_window();
         application_window.close()
     }
 
@@ -349,7 +341,8 @@ impl Controller {
     }
 
     pub fn full_size_arrow_move(&self, direction: Direction) {
-        self.view().full_size_arrow_move(direction.clone())
+        self.main_window()
+            .full_size_arrow_move(direction.clone())
     }
 
     pub fn move_next(&mut self) {
