@@ -1,5 +1,4 @@
 use crate::Controller;
-use crate::gui::view::RcController;
 use gtk::Align;
 use gtk::Orientation;
 use gtk::Picture as GtkPicture;
@@ -9,32 +8,25 @@ use std::cell::RefCell;
 
 #[derive(Clone, Debug)]
 pub struct PictureFrame {
-    controller_rc: RcController,
     frame_ref: RefCell<gtk::Box>,
 }
 
 impl PictureFrame {
-    pub fn new_from_frame(frame: &gtk::Box, controller_rc: &RcController) -> Self {
+    pub fn new_from_frame(frame: &gtk::Box) -> Self {
         PictureFrame {
-            controller_rc: controller_rc.clone(),
             frame_ref: RefCell::new(frame.clone()),
         }
     }
 
-    pub fn new(controller_rc: &RcController) -> Self {
+    pub fn new() -> Self {
         let picture = make_picture();
         let frame = make_frame();
         let label = make_label();
         frame.append(&picture);
         frame.append(&label);
         PictureFrame {
-            controller_rc: controller_rc.clone(),
             frame_ref: RefCell::new(frame),
         }
-    }
-
-    pub fn frame_ref(&self) -> RefCell<gtk::Box> {
-        self.frame_ref.clone()
     }
 
     pub fn frame(&self) -> gtk::Box {

@@ -1,4 +1,4 @@
-use crate::gui::event::Event::{NextSlideDelay, PictureClicked};
+use crate::gui::event::Event::NextSlideDelay;
 use gtk::glib::ControlFlow;
 use std::time::Duration;
  use crate::gui::view::timeout_add_local;
@@ -16,7 +16,6 @@ use gtk::Grid;
 use gtk::Label;
 use gtk::ScrolledWindow;
 use gtk::glib::clone;
-use gtk::prelude::ApplicationExt;
 use gtk::prelude::ApplicationExtManual;
 use gtk::prelude::Cast;
 use gtk::prelude::GestureSingleExt;
@@ -39,7 +38,6 @@ pub struct MainWindow {
     application_window_ref: Rc<RefCell<gtk::ApplicationWindow>>,
     stack_ref: Rc<RefCell<gtk::Stack>>,
     frame_window_ref: Rc<RefCell<gtk::ScrolledWindow>>,
-    grid_window_ref: Rc<RefCell<gtk::ScrolledWindow>>,
 }
 
 impl MainWindow {
@@ -106,7 +104,7 @@ impl MainWindow {
             .expect("can't dowcast panel central child to grid");
 
         let picture_grid = PictureGrid::new_from_grid(&grid, pictures_per_row, controller_rc);
-        let picture_frame = PictureFrame::new_from_frame(&frame, controller_rc);
+        let picture_frame = PictureFrame::new_from_frame(&frame);
 
         MainWindow {
             picture_grid_ref: Rc::new(RefCell::new(picture_grid.clone())),
@@ -114,14 +112,13 @@ impl MainWindow {
             application_window_ref: Rc::new(RefCell::new(application_window.clone())),
             stack_ref: Rc::new(RefCell::new(stack.clone())),
             frame_window_ref: Rc::new(RefCell::new(single_view_scrolled_window.clone())),
-            grid_window_ref: Rc::new(RefCell::new(multiple_view_scrolled_window.clone())),
         }
     }
 
     pub fn activate(application: &gtk::Application, args: &Args, controller_rc: &RcController) {
         let pictures_per_row = args.pictures_per_row();
         let picture_grid = PictureGrid::new(pictures_per_row, controller_rc);
-        let picture_frame = PictureFrame::new(controller_rc);
+        let picture_frame = PictureFrame::new();
         let single_view_scrolled_window = make_scrolled_window();
         let multiple_view_scrolled_window = make_scrolled_window();
         let panel = make_panel(&picture_grid.grid_ref().borrow());
@@ -144,6 +141,7 @@ impl MainWindow {
                 let view = View::new(&main_window);
                 controller.set_view(view);
                 controller.view().set_pictures(&controller);
+                controller.view().set_title(&controller);
             }
         }
         attach_panel_event_handlers(&panel, controller_rc);
@@ -151,7 +149,6 @@ impl MainWindow {
         if let Some(seconds) = args.slideshow {
             attach_slideshow_event(seconds, controller_rc);
         }
-
         application_window.present();
     }
 
@@ -271,8 +268,8 @@ fn pane_gesture_click(
             if let Ok(mut controller) = controller_rc.try_borrow_mut() {
                 controller.process_event(
                     PaneClicked {
-                        button: button,
-                        pane_number: pane_number,
+                        button,
+                        pane_number,
                     },
                     &controller_rc,
                 );

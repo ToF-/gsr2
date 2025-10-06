@@ -1,10 +1,10 @@
 #[derive(Clone, Debug)]
 pub struct State {
-    pub pictures_per_row: usize,
+    pictures_per_row: usize,
     old_pictures_per_row: usize,
-    pub single_view: bool,
-    pub expand_on: bool,
-    pub full_size_on: bool,
+    single_view: bool,
+    expand_on: bool,
+    full_size_on: bool,
     slideshow_on: bool,
 }
 
@@ -30,10 +30,6 @@ impl State {
 
     pub fn pictures_per_row(&self) -> usize {
         self.pictures_per_row
-    }
-
-    pub fn old_pictures_per_row(&self) -> usize {
-        self.old_pictures_per_row
     }
 
     pub fn single_view(&self) -> bool {

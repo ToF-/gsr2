@@ -47,6 +47,14 @@ impl Navigator {
         self.pictures_per_row * self.pictures_per_row
     }
 
+    pub fn current_page(&self) -> usize {
+        self.position() / self.page_size() + 1
+    }
+
+    pub fn total_pages(&self) -> usize {
+        self.limit / self.page_size() + 1
+    }
+
     pub fn next_page_start(&self) -> usize {
         self.page_start + self.page_size()
     }
@@ -69,10 +77,6 @@ impl Navigator {
 
     pub fn set_page_changed(&mut self) {
         self.page_changed = true
-    }
-
-    pub fn pictures_per_row(&self) -> usize {
-        self.pictures_per_row
     }
 
     pub fn set_pictures_per_row(&mut self, pictures_per_row: usize) {
@@ -374,5 +378,24 @@ mod tests {
         assert!(navigator.has_moved());
         navigator.move_towards(Direction::Last);
         assert!(!navigator.has_moved());
+    }
+    #[test]
+    fn current_page_according_to_position_pictures_per_row() {
+        let mut navigator = Navigator::new(10, 2);
+        assert_eq!(navigator.current_page(), 1);
+        navigator.move_towards(Direction::Index {
+            value: navigator.next_page_start(),
+        });
+        assert_eq!(navigator.current_page(), 2);
+        navigator.move_towards(Direction::Right);
+        navigator.move_towards(Direction::Right);
+        navigator.move_towards(Direction::Right);
+        navigator.move_towards(Direction::Right);
+        assert_eq!(navigator.current_page(), 3);
+    }
+    #[test]
+    fn total_pages_according_to_len_and_page_size() {
+        let mut navigator = Navigator::new(10, 2);
+        assert_eq!(navigator.total_pages(), 3);
     }
 }

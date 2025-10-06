@@ -45,9 +45,6 @@ impl PictureGrid {
         picture_grid
     }
 
-    pub fn pictures_per_row(&self) -> i32 {
-        self.pictures_per_row
-    }
     pub fn grid_ref(&self) -> RefCell<gtk::Grid> {
         self.grid_ref.clone()
     }

@@ -1,34 +1,26 @@
-use crate::Args;
+use crate::gui::display::title_display;
 use crate::Controller;
-use crate::env::default_values::APPLICATION_ID;
 use crate::file::paths::check_path_exists;
 use crate::gui::controller::RcController;
 use crate::gui::direction::Direction;
 use crate::gui::display::picture_label_display;
-use crate::gui::event::Event::{NextSlideDelay, PictureClicked};
-use crate::gui::view::components::application::make_application;
 use crate::gui::view::components::main_window::MainWindow;
 use crate::gui::view::components::picture_cell_box::make_picture_cell_box;
 use crate::gui::view::components::picture_frame::PictureFrame;
 use crate::gui::view::components::picture_grid::PictureGrid;
 use crate::model::gen_image::no_thumbnail_picture;
 use crate::model::picture::Picture;
-use gtk::ApplicationWindow;
 use gtk::Window;
 use gtk::gio::File;
-use gtk::glib::ControlFlow;
-use gtk::glib::clone;
 use gtk::glib::object::Cast;
 use gtk::glib::timeout_add_local;
 use gtk::prelude::*;
 use gtk::{self};
-use gtk::{Align, gdk};
-use gtk::{CssProvider, Label, Orientation, Picture as GtkPicture};
+use gtk::{gdk, Label, Orientation, Picture as GtkPicture};
 use std::cell::RefCell;
 use std::path::Path;
 use std::path::PathBuf;
 use std::rc::Rc;
-use std::time::Duration;
 
 pub mod components;
 
@@ -52,15 +44,13 @@ impl View {
         self.main_window().application_window()
     }
 
-    pub fn application(&self) -> gtk::Application {
-        self.main_window()
-            .application_window()
-            .application()
-            .unwrap()
-    }
-
     pub fn picture_grid(&self) -> PictureGrid {
         self.main_window().picture_grid()
+    }
+
+    pub fn set_title(&self, controller: &Controller) {
+        let title = title_display(controller);
+        self.main_window().application_window().set_title(Some(&title))
     }
 
     pub fn set_picture_for_single_view(&self, controller: &Controller) {
@@ -82,7 +72,7 @@ impl View {
         let picture = controller.current_picture();
         if !controller.state().single_view() {
             if let Some((row, col)) = navigator.coords_from_position(position) {
-                let picture_grid = self.main_window().picture_grid();
+                let picture_grid = self.picture_grid();
                 picture_grid.set_label_for(&picture, col as i32, row as i32, with_focus);
             }
         }
@@ -92,7 +82,7 @@ impl View {
         let cells_per_row: i32 = pictures_per_row as i32;
         let navigator = controller.navigator();
         let gallery = controller.gallery();
-        let picture_grid = self.main_window().picture_grid();
+        let picture_grid = self.picture_grid();
         let grid = picture_grid.grid();
         for col in 0..cells_per_row {
             for row in 0..cells_per_row {
@@ -115,7 +105,7 @@ impl View {
                     } else {
                         no_thumbnail_picture()
                     };
-                    let picture_grid = self.main_window().picture_grid();
+                    let picture_grid = self.picture_grid();
                     picture_grid.set_picture_for(col, row, &gtkPicture);
                     picture_grid.set_label_for(&picture, col, row, is_focus);
                 }
@@ -139,116 +129,21 @@ impl View {
     }
 
 
-    pub fn attach_grid_picture_events(
-        cells_per_row: i32,
-        window: &gtk::ApplicationWindow,
-        controller_rc: &RcController,
-    ) {
-        let grid = Self::multiple_view_grid(window);
-        for col in 0..cells_per_row {
-            for row in 0..cells_per_row {
-                let cell_box: gtk::Box = grid
-                    .child_at(col, row)
-                    .unwrap()
-                    .downcast::<gtk::Box>()
-                    .unwrap();
-                let gesture_left_click = gtk::GestureClick::new();
-                gesture_left_click.set_button(1);
-                gesture_left_click.connect_pressed(clone!(
-                    #[strong]
-                    col,
-                    #[strong]
-                    row,
-                    #[strong]
-                    controller_rc,
-                    move |_, _, _, _| {
-                        if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-                            controller.process_event(
-                                PictureClicked {
-                                    button: 1,
-                                    col,
-                                    row,
-                                },
-                                &controller_rc,
-                            );
-                        }
-                    }
-                ));
-                cell_box.add_controller(gesture_left_click);
-                let gesture_right_click = gtk::GestureClick::new();
-                gesture_right_click.set_button(3);
-                gesture_right_click.connect_pressed(clone!(
-                    #[strong]
-                    col,
-                    #[strong]
-                    row,
-                    #[strong]
-                    controller_rc,
-                    move |_, _, _, _| {
-                        if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-                            controller.process_event(
-                                PictureClicked {
-                                    button: 3,
-                                    col,
-                                    row,
-                                },
-                                &controller_rc,
-                            );
-                        }
-                    }
-                ));
-                cell_box.add_controller(gesture_right_click);
-            }
-        }
-    }
-
-    // pub fn setup_components(
-    //     &self,
-    //     application_window: &gtk::ApplicationWindow,
-    //     pictures_per_row: i32,
-    //     controller_rc: &RcController,
-    // ) {
-    //     let grid = Self::make_grid(pictures_per_row, controller_rc);
-
-    //     let panel = Self::make_panel(&grid);
-
-    //     let multiple_view_scrolled_window = Self::make_multiple_view_scrolled_window();
-    //     multiple_view_scrolled_window.set_child(Some(&panel));
-
-    //     assert_eq!(Self::panel_grid(&multiple_view_scrolled_window), panel);
-
-    //     let frame = Self::make_frame();
-    //     let picture = Self::make_picture();
-    //     frame.append(&picture);
-    //     frame.append(&Self::make_label());
-    //     let single_view_scrolled_window = Self::make_single_view_scrolled_window();
-    //     single_view_scrolled_window.set_child(Some(&frame));
-
-    //     let view_stack = Self::make_stack();
-    //     let _ = view_stack.add_named(&single_view_scrolled_window, Some("single_view"));
-    //     let _ = view_stack.add_named(&multiple_view_scrolled_window, Some("multiple_view"));
-    //     if pictures_per_row == 1 {
-    //         view_stack.set_visible_child(&single_view_scrolled_window);
-    //     } else {
-    //         view_stack.set_visible_child(&multiple_view_scrolled_window);
-    //     }
-    //     application_window.set_child(Some(&view_stack));
-    // }
-
     pub fn full_size_arrow_move(&self, direction: Direction) {
         let step: f64 = 100.0;
-        let w = self.main_window().frame_window();
-        let wh_adj = w.hadjustment();
-        let wv_adj = w.vadjustment();
+        let window = self.main_window().frame_window();
+        let h = window.hadjustment();
+        let v = window.vadjustment();
         match direction {
-            Direction::Right => wh_adj.set_value(wh_adj.value() + step),
-            Direction::Left => wh_adj.set_value(wh_adj.value() - step),
-            Direction::Down => wv_adj.set_value(wv_adj.value() + step),
-            Direction::Up => wv_adj.set_value(wv_adj.value() - step),
+            Direction::Right => h.set_value(h.value() + step),
+            Direction::Left => h.set_value(h.value() - step),
+            Direction::Down => v.set_value(v.value() + step),
+            Direction::Up => v.set_value(v.value() - step),
             _ => {}
         }
     }
 
+    #[allow(dead_code)]
     pub fn make_entry_window(
         application_window: &gtk::ApplicationWindow,
         prompt: &str,
@@ -271,14 +166,6 @@ impl View {
         window
     }
 
-    #[allow(dead_code)]
-    pub fn make_palette_area() -> gtk::DrawingArea {
-        let palette_area = gtk::DrawingArea::new();
-        palette_area.set_valign(Align::Center);
-        palette_area.set_halign(Align::Center);
-        palette_area
-    }
-
     pub fn picture_from_file_path(file_path: &Path) -> gtk::Picture {
         GtkPicture::builder()
             .file(&File::for_path(file_path))
@@ -287,134 +174,12 @@ impl View {
             .build()
     }
 
-    pub fn make_label_for_picture(picture: &Picture, with_focus: bool) -> gtk::Label {
-        let label = gtk::Label::new(Some(&picture_label_display(&picture.label(), with_focus)));
-        label.set_valign(Align::Center);
-        label.set_halign(Align::Center);
-        label
-    }
-
-    #[allow(dead_code)]
-    pub fn make_picture_for(file_path: &str, opacity: f64, can_shrink: bool) -> gtk::Picture {
-        let gtk_picture = gtk::Picture::new();
-        gtk_picture.set_halign(Align::Center);
-        gtk_picture.set_valign(Align::Center);
-        gtk_picture.set_opacity(opacity);
-        gtk_picture.set_can_shrink(can_shrink);
-        gtk_picture.set_filename(Some(file_path));
-        gtk_picture.set_visible(true);
-        gtk_picture
-    }
-
-    #[allow(dead_code)]
-    #[allow(deprecated)]
-    pub fn make_pane_with_label(symbol: &str) -> gtk::Label {
-        let buttons_css_provider = CssProvider::new();
-        buttons_css_provider.load_from_string(
-            "
-            label {
-                color: gray;
-                font-size: 12px;
-                }
-            text-button {
-                background-color: black;
-                }
-        ",
-        );
-        let label = Label::new(Some(symbol));
-        label.set_width_chars(10);
-        label.style_context().add_provider(
-            &buttons_css_provider,
-            gtk::STYLE_PROVIDER_PRIORITY_APPLICATION,
-        );
-        label
-    }
-
-    pub fn view_stack(application_window: &gtk::ApplicationWindow) -> gtk::Stack {
-        application_window
-            .first_child()
-            .unwrap()
-            .downcast::<gtk::Stack>()
-            .unwrap()
-    }
-
-    pub fn visible_stack_child_scrolled_window(stack: &gtk::Stack) -> gtk::ScrolledWindow {
-        stack
-            .visible_child()
-            .unwrap()
-            .downcast::<gtk::ScrolledWindow>()
-            .unwrap()
-    }
-
-    pub fn frame(window: &gtk::ScrolledWindow) -> gtk::Box {
-        let child = window.first_child().unwrap().first_child().unwrap();
-        child.downcast::<gtk::Box>().unwrap()
-    }
-
-    pub fn picture(cell_box: &gtk::Box) -> gtk::Picture {
-        cell_box
-            .first_child()
-            .unwrap()
-            .downcast::<gtk::Picture>()
-            .unwrap()
-    }
-
     pub fn remove_children_from_box(cell_box: &gtk::Box) {
         while let Some(child) = cell_box.first_child() {
             cell_box.remove(&child)
         }
     }
-    pub fn set_single_view_picture(
-        application_window: &gtk::ApplicationWindow,
-        controller: &Controller,
-        picture: &gtk::Picture,
-    ) {
-        let frame = &Self::frame(&Self::visible_stack_child_scrolled_window(
-            &Self::view_stack(application_window),
-        ));
-        while let Some(child) = frame.first_child() {
-            frame.remove(&child)
-        }
-        let state = controller.state();
-        if state.expand_on() {
-            picture.set_valign(Align::Fill);
-            picture.set_halign(Align::Fill);
-        } else {
-            picture.set_valign(Align::Center);
-            picture.set_halign(Align::Center);
-        };
-        picture.set_can_shrink(!state.full_size_on());
-        frame.append(picture);
-    }
 
-    #[allow(dead_code)]
-    pub fn single_view_picture_label(application_window: &gtk::ApplicationWindow) -> gtk::Label {
-        let picture = Self::picture(&Self::frame(&Self::visible_stack_child_scrolled_window(
-            &Self::view_stack(application_window),
-        )));
-        picture
-            .next_sibling()
-            .unwrap()
-            .downcast::<gtk::Label>()
-            .unwrap()
-    }
-
-    pub fn panel_grid(window: &gtk::ScrolledWindow) -> gtk::Grid {
-        let viewport: gtk::Viewport = window.child().unwrap().downcast::<gtk::Viewport>().unwrap();
-        let panel = viewport.child().unwrap().downcast::<gtk::Grid>().unwrap();
-        panel
-    }
-
-    pub fn multiple_view_scrolled_window(
-        application_window: &gtk::ApplicationWindow,
-    ) -> gtk::ScrolledWindow {
-        let stack = Self::view_stack(application_window);
-        stack
-            .child_by_name("multiple_view")
-            .unwrap()
-            .downcast::<gtk::ScrolledWindow>()
-            .unwrap()
-    }
 
     pub fn single_view(&self) -> bool {
         let stack = self.main_window().stack();
@@ -431,24 +196,4 @@ impl View {
         }
     }
 
-    #[allow(dead_code)]
-    pub fn single_view_scrolled_window(
-        application_window: &gtk::ApplicationWindow,
-    ) -> gtk::ScrolledWindow {
-        let stack = Self::view_stack(application_window);
-        stack
-            .child_by_name("single_view")
-            .unwrap()
-            .downcast::<gtk::ScrolledWindow>()
-            .unwrap()
-    }
-
-    pub fn multiple_view_grid(application_window: &gtk::ApplicationWindow) -> gtk::Grid {
-        let panel_grid = Self::panel_grid(&Self::multiple_view_scrolled_window(application_window));
-        panel_grid
-            .child_at(1, 0)
-            .unwrap()
-            .downcast::<gtk::Grid>()
-            .unwrap()
-    }
 }

@@ -6,9 +6,7 @@ pub const SLIDESHOW_DELAY_MIN: i32 = 1;
 pub const SLIDESHOW_DELAY_MAX: i32 = 900;
 pub const DEFAULT_SLIDESHOW_DELAY: i32 = 60;
 
-#[allow(dead_code)]
 pub const EXPAND_ON_SYMBOL: &str = "  ⃞";
-#[allow(dead_code)]
 pub const FULL_SIZE_ON_SYMBOL: &str = " 🔍";
 #[allow(dead_code)]
 pub const MAX_PALETTE_COLORS: u8 = 9;

@@ -1,4 +1,3 @@
-use crate::MainWindow;
 use crate::model::order::Order;
 use crate::file::picture_file::create_missing_thumbnails;
 use crate::Args;
@@ -83,7 +82,7 @@ impl Controller {
 
     pub fn set_gallery(&mut self, gallery: Gallery) {
         self.gallery = gallery;
-        self.navigator = Navigator::new(self.gallery.len(), self.state().pictures_per_row);
+        self.navigator = Navigator::new(self.gallery.len(), self.state().pictures_per_row());
         self.acknowledge_dimension();
     }
 
@@ -209,6 +208,7 @@ impl Controller {
                 self.view().set_pictures(self)
             };
             self.view().set_label_for_current_picture(self, true);
+            self.view().set_title(self);
         }
     }
 
@@ -274,7 +274,7 @@ impl Controller {
         if self.state.single_view() {
             navigator.set_pictures_per_row(1);
         } else {
-            navigator.set_pictures_per_row(self.state.pictures_per_row);
+            navigator.set_pictures_per_row(self.state.pictures_per_row());
         }
         navigator.set_page_changed();
     }
@@ -309,7 +309,7 @@ impl Controller {
     pub fn change_grid_size(&mut self, pictures_per_row: usize) {
         self.state.change_grid_size(pictures_per_row);
         let navigator = &mut self.navigator;
-        navigator.set_pictures_per_row(self.state.pictures_per_row);
+        navigator.set_pictures_per_row(self.state.pictures_per_row());
         navigator.update_page_limits();
         navigator.set_page_changed();
     }
