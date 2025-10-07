@@ -1,3 +1,4 @@
+use crate::gui::view::picture_cell_box::make_picture_cell_box;
 use crate::Args;
 use crate::file::paths::check_path_exists;
 use crate::gui::direction::Direction;
@@ -36,6 +37,7 @@ pub struct MainWindow {
     application_window: gtk::ApplicationWindow,
     stack: gtk::Stack,
     frame_window: gtk::ScrolledWindow,
+    controller_rc: RcController,
 }
 
 impl MainWindow {
@@ -110,6 +112,7 @@ impl MainWindow {
             application_window: application_window.clone(),
             stack: stack.clone(),
             frame_window: single_view_scrolled_window.clone(),
+            controller_rc: controller_rc.clone(),
         }
     }
 
@@ -180,26 +183,25 @@ impl MainWindow {
         self.application_window().set_title(Some(&title))
     }
 
-    pub fn set_pictures_for_multiple_view(&self, controller: &Controller, pictures_per_row: usize) {
-        let cells_per_row: i32 = pictures_per_row as i32;
+    pub fn set_pictures_for_multiple_view(&self, controller: &Controller, pict_per_row: usize) {
         let navigator = controller.navigator();
         let gallery = controller.gallery();
-        let picture_grid = self.picture_grid();
+        let picture_grid = self.picture_grid.clone();
+        let cells_per_row = &picture_grid.pictures_per_row();
+        let pictures_per_row = *cells_per_row;
         let grid = picture_grid.grid();
-        for col in 0..cells_per_row {
-            for row in 0..cells_per_row {
+        for col in 0..pictures_per_row {
+            for row in 0..pictures_per_row {
                 let coords = (row as usize, col as usize);
-                let cell: gtk::Box = grid
-                    .child_at(col, row)
-                    .unwrap()
-                    .downcast::<gtk::Box>()
-                    .unwrap();
+                let cell = match grid.child_at(col, row) {
+                    Some(widget) => widget.downcast::<gtk::Box>().unwrap(),
+                    None => make_picture_cell_box(col, row, &self.controller_rc),
+                };
                 remove_children_from_box(&cell);
                 if let Some(index) = navigator.position_from_coords(coords.0, coords.1) {
                     let picture = gallery.picture(index);
-                    let is_thumbnail = cells_per_row == 10;
                     let is_focus = index == navigator.position();
-                    let picture_file_path = picture.view_file_path(is_thumbnail);
+                    let picture_file_path = picture.view_file_path(pictures_per_row as usize);
                     let gtk_picture = if let Ok(file_path) =
                         check_path_exists(&PathBuf::from(picture_file_path))
                     {
@@ -207,9 +209,8 @@ impl MainWindow {
                     } else {
                         no_thumbnail_picture()
                     };
-                    let picture_grid = self.picture_grid();
-                    picture_grid.set_picture_for(col, row, &gtk_picture);
-                    picture_grid.set_label_for(&picture, col, row, is_focus);
+                    self.picture_grid.set_picture_for(col, row, &gtk_picture);
+                    self.picture_grid.set_label_for(&picture, col, row, is_focus);
                 }
             }
         }
@@ -254,8 +255,10 @@ impl MainWindow {
     }
 
     pub fn change_dimension(&mut self, pictures_per_row: usize) {
-        self.picture_grid()
+        println!("change dimension from {} to {}", self.picture_grid.pictures_per_row(), pictures_per_row);
+        self.picture_grid
             .set_pictures_per_row(pictures_per_row as i32);
+        println!("dimension changed for {}", self.picture_grid.pictures_per_row());
     }
 
     pub fn toggle_view_stack(&self, controller: &Controller) {

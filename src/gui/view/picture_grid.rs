@@ -28,13 +28,7 @@ impl PictureGrid {
         }
     }
     pub fn new(pictures_per_row: i32, controller_rc: &RcController) -> Self {
-        let grid = gtk::Grid::builder()
-            .row_homogeneous(true)
-            .column_homogeneous(true)
-            .hexpand(true)
-            .vexpand(true)
-            .name("grid")
-            .build();
+        let grid = make_picture_grid();
         let picture_grid = PictureGrid {
             pictures_per_row,
             grid,
@@ -47,8 +41,14 @@ impl PictureGrid {
     pub fn grid(&self) -> gtk::Grid {
         self.grid.clone()
     }
+ 
+    pub fn pictures_per_row(&self) -> i32 {
+        self.pictures_per_row
+    }
 
     pub fn set_label_for(&self, picture: &Picture, col: i32, row: i32, with_focus: bool) {
+        assert!(col < self.pictures_per_row);
+        assert!(row < self.pictures_per_row);
         let grid = self.grid();
         if let Some(cell_box) = grid.child_at(col, row) {
             let gtk_picture = cell_box
@@ -99,8 +99,19 @@ impl PictureGrid {
     }
 
     pub fn set_pictures_per_row(&mut self, pictures_per_row: i32) {
+        println!("changing picture grid pictures per row from {} to {}", self.pictures_per_row, pictures_per_row);
         self.remove_cells();
         self.pictures_per_row = pictures_per_row;
         self.attach_cells();
+        println!("changed to {}", self.pictures_per_row);
     }
 }
+        pub fn make_picture_grid() -> gtk::Grid {
+            gtk::Grid::builder()
+            .row_homogeneous(true)
+            .column_homogeneous(true)
+            .hexpand(true)
+            .vexpand(true)
+            .name("grid")
+            .build()
+        }

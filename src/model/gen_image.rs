@@ -59,17 +59,34 @@ pub fn thumbnail_size_display(size: ThumbnailSize) -> String {
     ThumbnailSize::Custom((w,h)) => format!("Custom({},{})", w, h),
     }
 }
+
+pub fn thumbnail_size_for(pictures_per_row: usize) -> ThumbnailSize {
+    match pictures_per_row {
+        10 => ThumbnailSize::Small,
+        9 =>  ThumbnailSize::Small,
+        8 =>  ThumbnailSize::Small,
+        7 =>  ThumbnailSize::Medium,
+        6 =>  ThumbnailSize::Medium,
+        5 =>  ThumbnailSize::Medium,
+        4 =>  ThumbnailSize::Large,
+        3 =>  ThumbnailSize::Large,
+        2 =>  ThumbnailSize::Larger,
+        _ => ThumbnailSize::Small,
+    }
+}
 fn write_thumbnail<R: std::io::Seek + std::io::Read>(
     reader: BufReader<R>,
     extension: &str,
     mut output_file: File,
+    pictures_per_row: usize
 ) -> ThumbResult<()> {
     let mime = match extension {
         "jpg" | "jpeg" | "JPG" | "JPEG" => mime::IMAGE_JPEG,
         "png" | "PNG" => mime::IMAGE_PNG,
         _ => panic!("wrong extension"),
     };
-    let mut thumbnails = match create_thumbnails(reader, mime, [ThumbnailSize::Small]) {
+    let size: ThumbnailSize = thumbnail_size_for(pictures_per_row);
+    let mut thumbnails = match create_thumbnails(reader, mime, [size]) {
         Ok(tns) => tns,
         Err(err) => {
             eprintln!("error while creating thumbnails:{:?}", err);
@@ -90,7 +107,7 @@ fn write_thumbnail<R: std::io::Seek + std::io::Read>(
         ok => ok,
     }
 }
-pub fn create_thumbnail_file(thumbnail_file_path: &str, picture_file_path: &str) -> IOResult<()> {
+pub fn create_thumbnail_file(thumbnail_file_path: &str, picture_file_path: &str, pictures_per_row: usize) -> IOResult<()> {
     match File::open(picture_file_path) {
         Err(err) => Err(err),
         Ok(picture_file) => {
@@ -102,7 +119,7 @@ pub fn create_thumbnail_file(thumbnail_file_path: &str, picture_file_path: &str)
             let reader = BufReader::new(picture_file);
 
             let output_file = File::create(thumbnail_file_path)?;
-            match write_thumbnail(reader, extension, output_file) {
+            match write_thumbnail(reader, extension, output_file, pictures_per_row) {
                 Err(err) => Err(std::io::Error::other(err)),
                 Ok(_) => Ok(()),
             }
@@ -202,5 +219,19 @@ mod tests {
     assert_eq!("Large", &thumbnail_size_display(ThumbnailSize::Large));
     assert_eq!("Larger", &thumbnail_size_display(ThumbnailSize::Larger));
     assert_eq!("Custom(23,17)", &thumbnail_size_display(ThumbnailSize::Custom((23,17))));
+    }
+
+    #[test]
+    fn thumbnail_size_for_different_number_of_pictures_per_row() {
+        assert_eq!("Small", &thumbnail_size_display(thumbnail_size_for(10)));
+        assert_eq!("Small", &thumbnail_size_display(thumbnail_size_for(9)));
+        assert_eq!("Small", &thumbnail_size_display(thumbnail_size_for(8)));
+        assert_eq!("Medium", &thumbnail_size_display(thumbnail_size_for(7)));
+        assert_eq!("Medium", &thumbnail_size_display(thumbnail_size_for(6)));
+        assert_eq!("Medium", &thumbnail_size_display(thumbnail_size_for(5)));
+        assert_eq!("Large", &thumbnail_size_display(thumbnail_size_for(4)));
+        assert_eq!("Large", &thumbnail_size_display(thumbnail_size_for(3)));
+        assert_eq!("Larger", &thumbnail_size_display(thumbnail_size_for(2)));
+
     }
 }

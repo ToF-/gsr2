@@ -1,3 +1,4 @@
+use crate::model::gen_image::{thumbnail_size_display, thumbnail_size_for};
 use crate::env::default_values::THUMB_SUFFIX;
 use crate::env::default_values::VALID_EXTENSIONS;
 use std::io::{Error, ErrorKind, Result};
@@ -72,11 +73,14 @@ pub fn file_name_from(file_path: &str) -> String {
         .to_string()
 }
 
-pub fn thumbnail_name_from(file_name: &str) -> String {
+pub fn thumbnail_name_from(file_name: &str, pictures_per_row: usize) -> String {
     let path: PathBuf = PathBuf::from(file_name);
     let extension = path.extension().expect("can't compute path extension");
     let file_stem = path.file_stem().expect("can't compute path file stem");
-    let thumb_file_name = PathBuf::from(file_stem.to_str().unwrap().to_owned() + THUMB_SUFFIX)
+    let thumb_file_name = PathBuf::from(file_stem.to_str().unwrap().to_owned() 
+        + THUMB_SUFFIX 
+        + &thumbnail_size_display(
+            thumbnail_size_for(pictures_per_row)))
         .with_extension(extension);
     path.with_file_name(thumb_file_name)
         .to_str()
@@ -111,13 +115,14 @@ mod tests {
 
     #[test]
     fn thumbnail_name_from_normal_file_has_thumb_suffix() {
+        const pictures_per_row: usize = 10;
         assert_eq!(
-            "testdata/my_fileTHUMB.jpg",
-            thumbnail_name_from("testdata/my_file.jpg")
+            "testdata/my_fileTHUMBSmall.jpg",
+            thumbnail_name_from("testdata/my_file.jpg", pictures_per_row)
         );
         assert_eq!(
-            "testdata/my_other_fileTHUMB.PNG",
-            thumbnail_name_from("testdata/my_other_file.PNG")
+            "testdata/my_other_fileTHUMBSmall.PNG",
+            thumbnail_name_from("testdata/my_other_file.PNG", pictures_per_row)
         )
     }
 }

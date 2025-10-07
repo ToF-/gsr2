@@ -1,10 +1,11 @@
+use thumbnailer::ThumbnailSize;
 use crate::file::paths::{file_name_from, thumbnail_name_from};
 use crate::model::image_data::ImageData;
 
 #[derive(Debug, Clone, Ord, PartialOrd, PartialEq, Eq)]
 pub struct Picture {
     file_path: String,
-    thumbnail_file_path: String,
+    thumbnail_small_file_path: String,
     image_data: Option<ImageData>,
 }
 
@@ -12,7 +13,7 @@ impl Picture {
     pub fn new(file_path: &str) -> Self {
         Picture {
             file_path: file_path.to_string(),
-            thumbnail_file_path: thumbnail_name_from(file_path),
+            thumbnail_small_file_path: thumbnail_name_from(file_path, 10),
             image_data: None,
         }
     }
@@ -27,9 +28,9 @@ impl Picture {
         self.file_path.clone()
     }
 
-    pub fn view_file_path(&self, thumbnail_on: bool) -> String {
-        if thumbnail_on {
-            self.thumbnail_file_path()
+    pub fn view_file_path(&self, pictures_per_row: usize) -> String {
+        if pictures_per_row > 1 {
+            self.thumbnail_file_path_for_size(pictures_per_row)
         } else {
             self.file_path()
         }
@@ -51,10 +52,14 @@ impl Picture {
         }
     }
 
-    pub fn thumbnail_file_path(&self) -> String {
-        self.thumbnail_file_path.clone()
+    pub fn thumbnail_small_file_path(&self) -> String {
+        self.thumbnail_small_file_path.clone()
     }
 
+   pub fn thumbnail_file_path_for_size(&self, pictures_per_row: usize) -> String {
+       thumbnail_name_from(&self.file_path, pictures_per_row)
+    }
+    
     pub fn set_image_data(&mut self, image_data: ImageData) {
         self.image_data = Some(image_data)
     }
@@ -74,12 +79,28 @@ mod tests {
     }
 
     #[test]
-    fn a_thumbnail_picture_has_the_name_as_the_original_picture_with_thumb_suffix() {
+    fn a_thumbnail_picture_has_the_name_of_the_original_picture_with_thumb_suffix() {
         let picture = Picture::new("testdata/nine_colors.png");
         assert_eq!(
-            String::from("testdata/nine_colorsTHUMB.png"),
-            picture.thumbnail_file_path()
+            String::from("testdata/nine_colorsTHUMBSmall.png"),
+            picture.thumbnail_small_file_path()
         )
+    }
+    #[test]
+    fn a_thumbnail_picture_has_the_name_of_the_original_picture_with_thumb_and_size_suffix() {
+        let picture = Picture::new("testdata/nine_colors.png");
+        assert_eq!(
+            String::from("testdata/nine_colorsTHUMBSmall.png"),
+            picture.thumbnail_file_path_for_size(10));
+        assert_eq!(
+            String::from("testdata/nine_colorsTHUMBMedium.png"),
+            picture.thumbnail_file_path_for_size(5));
+        assert_eq!(
+            String::from("testdata/nine_colorsTHUMBLarge.png"),
+            picture.thumbnail_file_path_for_size(4));
+        assert_eq!(
+            String::from("testdata/nine_colorsTHUMBLarger.png"),
+            picture.thumbnail_file_path_for_size(2));
     }
 
     #[test]
@@ -89,15 +110,19 @@ mod tests {
     }
 
     #[test]
-    fn a_picture_view_file_name_depends_on_thumbnail_on() {
+    fn a_picture_view_file_name_depends_on_pictures_per_row() {
         let picture = Picture::new("testdata/nine_colors.png");
         assert_eq!(
             String::from("testdata/nine_colors.png"),
-            picture.view_file_path(false)
+            picture.view_file_path(0)
         );
         assert_eq!(
-            String::from("testdata/nine_colorsTHUMB.png"),
-            picture.view_file_path(true)
+            String::from("testdata/nine_colorsTHUMBSmall.png"),
+            picture.view_file_path(10)
+        );
+        assert_eq!(
+            String::from("testdata/nine_colorsTHUMBLarger.png"),
+            picture.view_file_path(2)
         );
     }
 }
