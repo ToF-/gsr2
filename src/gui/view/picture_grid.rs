@@ -7,12 +7,11 @@ use gtk::prelude::BoxExt;
 use gtk::prelude::Cast;
 use gtk::prelude::GridExt;
 use gtk::prelude::WidgetExt;
-use std::cell::RefCell;
 
 #[derive(Clone, Debug)]
 pub struct PictureGrid {
     pictures_per_row: i32,
-    grid_ref: RefCell<gtk::Grid>,
+    grid: gtk::Grid,
     controller_rc: RcController,
 }
 
@@ -25,7 +24,7 @@ impl PictureGrid {
         PictureGrid {
             pictures_per_row,
             controller_rc: controller_rc.clone(),
-            grid_ref: RefCell::new(grid.clone()),
+            grid: grid.clone(),
         }
     }
     pub fn new(pictures_per_row: i32, controller_rc: &RcController) -> Self {
@@ -38,19 +37,15 @@ impl PictureGrid {
             .build();
         let picture_grid = PictureGrid {
             pictures_per_row,
-            grid_ref: RefCell::new(grid),
+            grid: grid,
             controller_rc: controller_rc.clone(),
         };
         picture_grid.attach_cells();
         picture_grid
     }
 
-    pub fn grid_ref(&self) -> RefCell<gtk::Grid> {
-        self.grid_ref.clone()
-    }
-
     pub fn grid(&self) -> gtk::Grid {
-        self.grid_ref.borrow().clone()
+        self.grid.clone()
     }
 
     pub fn set_label_for(&self, picture: &Picture, col: i32, row: i32, with_focus: bool) {
@@ -71,7 +66,7 @@ impl PictureGrid {
     }
 
     pub fn attach_cells(&self) {
-        let grid = self.grid_ref.try_borrow().expect("can't borrow");
+        let grid = &self.grid;
         for col in 0..self.pictures_per_row {
             for row in 0..self.pictures_per_row {
                 let cell_box = make_picture_cell_box(col, row, &self.controller_rc);
@@ -81,11 +76,12 @@ impl PictureGrid {
     }
 
     pub fn remove_cells(&self) {
-        let grid = self.grid_ref.try_borrow().expect("can't borrow");
+        let grid = &self.grid;
         for col in 0..self.pictures_per_row {
             for row in 0..self.pictures_per_row {
-                let cell_box = grid.child_at(col, row).unwrap();
-                grid.remove(&cell_box);
+                if let Some(cell_box) = grid.child_at(col, row) {
+                    grid.remove(&cell_box)
+                }
             }
         }
     }

@@ -29,9 +29,7 @@ fn main() {
             }
             let controller_result = Controller::new(cli.clone());
             let controller_rc: RcController = match controller_result {
-                Ok(controller) => {
-                    Rc::new(RefCell::new(controller))
-                }
+                Ok(controller) => Rc::new(RefCell::new(controller)),
                 Err(err) => {
                     eprintln!("{}", err);
                     exit(1);

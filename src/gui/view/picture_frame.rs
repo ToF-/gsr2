@@ -4,17 +4,16 @@ use gtk::Orientation;
 use gtk::Picture as GtkPicture;
 use gtk::prelude::BoxExt;
 use gtk::prelude::WidgetExt;
-use std::cell::RefCell;
 
 #[derive(Clone, Debug)]
 pub struct PictureFrame {
-    frame_ref: RefCell<gtk::Box>,
+    frame: gtk::Box,
 }
 
 impl PictureFrame {
     pub fn new_from_frame(frame: &gtk::Box) -> Self {
         PictureFrame {
-            frame_ref: RefCell::new(frame.clone()),
+            frame: frame.clone(),
         }
     }
 
@@ -24,13 +23,11 @@ impl PictureFrame {
         let label = make_label();
         frame.append(&picture);
         frame.append(&label);
-        PictureFrame {
-            frame_ref: RefCell::new(frame),
-        }
+        PictureFrame { frame: frame }
     }
 
     pub fn frame(&self) -> gtk::Box {
-        self.frame_ref.borrow().clone()
+        self.frame.clone()
     }
 
     pub fn set_picture(&self, controller: &Controller, picture: &gtk::Picture) {

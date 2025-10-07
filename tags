@@ -161,7 +161,6 @@ given_coords_can_tell_position_trivial_case	/Users/christophethibaut/Coding/gsr2
 given_coords_can_tell_position_with_several_pictures_per_row_on_first_page	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn given_coords_can_tell_position_with_several_pictures_per_row_on_first_page() {$/;"	f
 given_illegal_coors_position_is_none	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn given_illegal_coors_position_is_none() {$/;"	f
 grid	/Users/christophethibaut/Coding/gsr2/src/gui/view/picture_grid.rs	/^    pub fn grid(&self) -> gtk::Grid {$/;"	f
-grid_ref	/Users/christophethibaut/Coding/gsr2/src/gui/view/picture_grid.rs	/^    pub fn grid_ref(&self) -> RefCell<gtk::Grid> {$/;"	f
 gtk_picture_from_file_path	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^pub fn gtk_picture_from_file_path(file_path: &Path) -> gtk::Picture {$/;"	f
 has_moved	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn has_moved(&self) -> bool {$/;"	f
 image_data	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    pub fn image_data(&self) -> Option<ImageData> {$/;"	f
@@ -246,7 +245,6 @@ partial_cmp	/Users/christophethibaut/Coding/gsr2/src/model/image_data.rs	/^    f
 picture	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^    pub fn picture(&self, index: usize) -> Picture {$/;"	f
 picture_frame	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn picture_frame(&self) -> PictureFrame {$/;"	f
 picture_grid	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn picture_grid(&self) -> PictureGrid {$/;"	f
-picture_grid_ref	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn picture_grid_ref(&self) -> Rc<RefCell<PictureGrid>> {$/;"	f
 picture_label_display	/Users/christophethibaut/Coding/gsr2/src/gui/display.rs	/^pub fn picture_label_display(label: &str, with_focus: bool) -> String {$/;"	f
 pictures	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^    pub fn pictures(&self) -> &Vec<Picture> {$/;"	f
 pictures_per_row	/Users/christophethibaut/Coding/gsr2/src/cli/args.rs	/^    pub fn pictures_per_row(&self) -> i32 {$/;"	f

@@ -22,10 +22,8 @@ use gtk::prelude::{
 use gtk::{
     ApplicationWindow, CssProvider, Grid, Label, Picture as GtkPicture, ScrolledWindow, Window,
 };
-use std::cell::RefCell;
 use std::path::Path;
 use std::path::PathBuf;
-use std::rc::Rc;
 use std::time::Duration;
 
 pub const LEFT_PANE: usize = 0;
@@ -33,11 +31,11 @@ pub const RIGHT_PANE: usize = 1;
 
 #[derive(Clone, Debug)]
 pub struct MainWindow {
-    picture_grid_ref: Rc<RefCell<PictureGrid>>,
-    picture_frame_ref: Rc<RefCell<PictureFrame>>,
-    application_window_ref: Rc<RefCell<gtk::ApplicationWindow>>,
-    stack_ref: Rc<RefCell<gtk::Stack>>,
-    frame_window_ref: Rc<RefCell<gtk::ScrolledWindow>>,
+    picture_grid: PictureGrid,
+    picture_frame: PictureFrame,
+    application_window: gtk::ApplicationWindow,
+    stack: gtk::Stack,
+    frame_window: gtk::ScrolledWindow,
 }
 
 impl MainWindow {
@@ -107,11 +105,11 @@ impl MainWindow {
         let picture_frame = PictureFrame::new_from_frame(&frame);
 
         MainWindow {
-            picture_grid_ref: Rc::new(RefCell::new(picture_grid.clone())),
-            picture_frame_ref: Rc::new(RefCell::new(picture_frame.clone())),
-            application_window_ref: Rc::new(RefCell::new(application_window.clone())),
-            stack_ref: Rc::new(RefCell::new(stack.clone())),
-            frame_window_ref: Rc::new(RefCell::new(single_view_scrolled_window.clone())),
+            picture_grid: picture_grid.clone(),
+            picture_frame: picture_frame.clone(),
+            application_window: application_window.clone(),
+            stack: stack.clone(),
+            frame_window: single_view_scrolled_window.clone(),
         }
     }
 
@@ -121,7 +119,7 @@ impl MainWindow {
         let picture_frame = PictureFrame::new();
         let single_view_scrolled_window = make_scrolled_window();
         let multiple_view_scrolled_window = make_scrolled_window();
-        let panel = make_panel(&picture_grid.grid_ref().borrow());
+        let panel = make_panel(&picture_grid.grid());
         let frame: gtk::Box = picture_frame.frame();
         single_view_scrolled_window.set_child(Some(&frame));
         multiple_view_scrolled_window.set_child(Some(&panel));
@@ -158,27 +156,23 @@ impl MainWindow {
     }
 
     pub fn application_window(&self) -> gtk::ApplicationWindow {
-        self.application_window_ref.borrow().clone()
+        self.application_window.clone()
     }
 
     pub fn picture_grid(&self) -> PictureGrid {
-        self.picture_grid_ref.borrow().clone()
-    }
-
-    pub fn picture_grid_ref(&self) -> Rc<RefCell<PictureGrid>> {
-        self.picture_grid_ref.clone()
+        self.picture_grid.clone()
     }
 
     pub fn picture_frame(&self) -> PictureFrame {
-        self.picture_frame_ref.borrow().clone()
+        self.picture_frame.clone()
     }
 
     pub fn frame_window(&self) -> gtk::ScrolledWindow {
-        self.frame_window_ref.borrow().clone()
+        self.frame_window.clone()
     }
 
     pub fn stack(&self) -> gtk::Stack {
-        self.stack_ref.borrow().clone()
+        self.stack.clone()
     }
 
     pub fn set_title(&self, controller: &Controller) {
@@ -260,9 +254,8 @@ impl MainWindow {
     }
 
     pub fn change_dimension(&mut self, pictures_per_row: usize) {
-        if let Ok(mut picture_grid) = self.picture_grid_ref().try_borrow_mut() {
-            picture_grid.set_pictures_per_row(pictures_per_row as i32);
-        }
+        self.picture_grid()
+            .set_pictures_per_row(pictures_per_row as i32);
     }
 
     pub fn toggle_view_stack(&self, controller: &Controller) {
