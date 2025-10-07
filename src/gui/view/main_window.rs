@@ -229,6 +229,8 @@ impl MainWindow {
     }
 
     pub fn set_pictures(&self, controller: &Controller) {
+        println!("{:?}", self.picture_grid);
+        println!("set pictures for {} cells, {} cells per row", self.picture_grid.size(), self.picture_grid.pictures_per_row());
         if controller.state().single_view() {
             self.set_picture_for_single_view(controller)
         } else {
@@ -255,6 +257,7 @@ impl MainWindow {
     }
 
     pub fn change_dimension(&mut self, pictures_per_row: usize) {
+        println!("{:?}", self);
         println!("change dimension from {} to {}", self.picture_grid.pictures_per_row(), pictures_per_row);
         self.picture_grid
             .set_pictures_per_row(pictures_per_row as i32);

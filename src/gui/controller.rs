@@ -192,8 +192,7 @@ impl Controller {
         } else {
             self.set_slideshow_off();
             if self.state().dimension_changed() {
-                self.main_window()
-                    .change_dimension(self.state().pictures_per_row());
+                self.main_window().change_dimension(self.state().pictures_per_row());
                 self.acknowledge_dimension();
             }
             if self.state().single_view() != self.main_window().single_view() {
