@@ -1,4 +1,3 @@
-use thumbnailer::ThumbnailSize;
 use crate::file::paths::{file_name_from, thumbnail_name_from};
 use crate::model::image_data::ImageData;
 
@@ -52,10 +51,6 @@ impl Picture {
         }
     }
 
-    pub fn thumbnail_small_file_path(&self) -> String {
-        self.thumbnail_small_file_path.clone()
-    }
-
    pub fn thumbnail_file_path_for_size(&self, pictures_per_row: usize) -> String {
        thumbnail_name_from(&self.file_path, pictures_per_row)
     }
@@ -78,14 +73,6 @@ mod tests {
         )
     }
 
-    #[test]
-    fn a_thumbnail_picture_has_the_name_of_the_original_picture_with_thumb_suffix() {
-        let picture = Picture::new("testdata/nine_colors.png");
-        assert_eq!(
-            String::from("testdata/nine_colorsTHUMBSmall.png"),
-            picture.thumbnail_small_file_path()
-        )
-    }
     #[test]
     fn a_thumbnail_picture_has_the_name_of_the_original_picture_with_thumb_and_size_suffix() {
         let picture = Picture::new("testdata/nine_colors.png");

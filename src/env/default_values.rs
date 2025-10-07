@@ -5,6 +5,7 @@ pub const DIMENSION_MAX: i32 = 5000;
 pub const SLIDESHOW_DELAY_MIN: i32 = 1;
 pub const SLIDESHOW_DELAY_MAX: i32 = 900;
 pub const DEFAULT_SLIDESHOW_DELAY: i32 = 60;
+pub const MAX_PICTURES_PER_ROW: i32 = 10;
 
 pub const EXPAND_ON_SYMBOL: &str = "  ⃞";
 pub const FULL_SIZE_ON_SYMBOL: &str = " 🔍";

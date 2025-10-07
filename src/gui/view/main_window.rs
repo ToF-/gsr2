@@ -47,10 +47,8 @@ impl MainWindow {
 
     pub fn new_from_application(
         application: &gtk::Application,
-        args: &Args,
         controller_rc: &RcController,
     ) -> Self {
-        let pictures_per_row: i32 = args.pictures_per_row();
         let application_window = application
             .active_window()
             .expect("can't get application active window")
@@ -103,7 +101,7 @@ impl MainWindow {
             .downcast::<gtk::Grid>()
             .expect("can't dowcast panel central child to grid");
 
-        let picture_grid = PictureGrid::new_from_grid(&grid, pictures_per_row, controller_rc);
+        let picture_grid = PictureGrid::new_from_grid(&grid, controller_rc);
         let picture_frame = PictureFrame::new_from_frame(&frame);
 
         MainWindow {
@@ -139,7 +137,7 @@ impl MainWindow {
         {
             if let Ok(mut controller) = controller_rc.try_borrow_mut() {
                 let main_window =
-                    MainWindow::new_from_application(application, args, controller_rc);
+                    MainWindow::new_from_application(application, controller_rc);
                 controller.set_main_window(main_window);
                 controller.main_window().set_pictures(&controller);
                 controller.main_window().set_title(&controller);
@@ -183,12 +181,11 @@ impl MainWindow {
         self.application_window().set_title(Some(&title))
     }
 
-    pub fn set_pictures_for_multiple_view(&self, controller: &Controller, pict_per_row: usize) {
+    pub fn set_pictures_for_multiple_view(&self, controller: &Controller, pictures_per_row: i32) {
+
         let navigator = controller.navigator();
         let gallery = controller.gallery();
         let picture_grid = self.picture_grid.clone();
-        let cells_per_row = &picture_grid.pictures_per_row();
-        let pictures_per_row = *cells_per_row;
         let grid = picture_grid.grid();
         for col in 0..pictures_per_row {
             for row in 0..pictures_per_row {
@@ -229,13 +226,11 @@ impl MainWindow {
     }
 
     pub fn set_pictures(&self, controller: &Controller) {
-        println!("{:?}", self.picture_grid);
-        println!("set pictures for {} cells, {} cells per row", self.picture_grid.size(), self.picture_grid.pictures_per_row());
         if controller.state().single_view() {
             self.set_picture_for_single_view(controller)
         } else {
             let pictures_per_row = controller.state().pictures_per_row();
-            self.set_pictures_for_multiple_view(controller, pictures_per_row)
+            self.set_pictures_for_multiple_view(controller, pictures_per_row as i32)
         }
     }
     pub fn set_label_for_current_picture(&self, controller: &Controller, with_focus: bool) {
@@ -257,11 +252,7 @@ impl MainWindow {
     }
 
     pub fn change_dimension(&mut self, pictures_per_row: usize) {
-        println!("{:?}", self);
-        println!("change dimension from {} to {}", self.picture_grid.pictures_per_row(), pictures_per_row);
-        self.picture_grid
-            .set_pictures_per_row(pictures_per_row as i32);
-        println!("dimension changed for {}", self.picture_grid.pictures_per_row());
+        self.picture_grid.change_dimension(pictures_per_row as i32)
     }
 
     pub fn toggle_view_stack(&self, controller: &Controller) {
