@@ -23,7 +23,7 @@ impl PictureFrame {
         let label = make_label();
         frame.append(&picture);
         frame.append(&label);
-        PictureFrame { frame: frame }
+        PictureFrame { frame }
     }
 
     pub fn frame(&self) -> gtk::Box {

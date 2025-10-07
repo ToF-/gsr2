@@ -103,6 +103,7 @@ check_path_is_directory	/Users/christophethibaut/Coding/gsr2/src/file/paths.rs	/
 check_path_return_error_on_non_existent_path	/Users/christophethibaut/Coding/gsr2/src/file/paths.rs	/^    fn check_path_return_error_on_non_existent_path() {$/;"	f
 check_path_return_error_on_path_that_is_not_a_directory	/Users/christophethibaut/Coding/gsr2/src/file/paths.rs	/^    fn check_path_return_error_on_path_that_is_not_a_directory() {$/;"	f
 check_picture_file	/Users/christophethibaut/Coding/gsr2/src/file/paths.rs	/^pub fn check_picture_file(file_name: &str) -> Result<String> {$/;"	f
+check_thumbnail_size_display	/Users/christophethibaut/Coding/gsr2/src/model/gen_image.rs	/^    fn check_thumbnail_size_display() {$/;"	f
 cmp	/Users/christophethibaut/Coding/gsr2/src/model/image_data.rs	/^    fn cmp(&self, _: &Self) -> std::cmp::Ordering {$/;"	f
 command_line_interface_dir_command_with_non_existing_specified_directory	/Users/christophethibaut/Coding/gsr2/src/cli/args.rs	/^    fn command_line_interface_dir_command_with_non_existing_specified_directory() {$/;"	f
 command_line_interface_dir_command_with_object_specified_not_directory	/Users/christophethibaut/Coding/gsr2/src/cli/args.rs	/^    fn command_line_interface_dir_command_with_object_specified_not_directory() {$/;"	f
@@ -307,6 +308,7 @@ state	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn st
 thumbnail_file_path	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    pub fn thumbnail_file_path(&self) -> String {$/;"	f
 thumbnail_name_from	/Users/christophethibaut/Coding/gsr2/src/file/paths.rs	/^pub fn thumbnail_name_from(file_name: &str) -> String {$/;"	f
 thumbnail_name_from_normal_file_has_thumb_suffix	/Users/christophethibaut/Coding/gsr2/src/file/paths.rs	/^    fn thumbnail_name_from_normal_file_has_thumb_suffix() {$/;"	f
+thumbnail_size_display	/Users/christophethibaut/Coding/gsr2/src/model/gen_image.rs	/^pub fn thumbnail_size_display(size: ThumbnailSize) -> String {$/;"	f
 title_display	/Users/christophethibaut/Coding/gsr2/src/gui/display.rs	/^pub fn title_display(controller: &Controller) -> String {$/;"	f
 toggle_expand	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn toggle_expand(&mut self) {$/;"	f
 toggle_expand	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn toggle_expand(&mut self) {$/;"	f

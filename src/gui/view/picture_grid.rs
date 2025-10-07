@@ -37,7 +37,7 @@ impl PictureGrid {
             .build();
         let picture_grid = PictureGrid {
             pictures_per_row,
-            grid: grid,
+            grid,
             controller_rc: controller_rc.clone(),
         };
         picture_grid.attach_cells();

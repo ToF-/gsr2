@@ -49,6 +49,16 @@ use thumbnailer::ThumbnailSize;
 use thumbnailer::create_thumbnails;
 use thumbnailer::error::ThumbResult;
 
+pub fn thumbnail_size_display(size: ThumbnailSize) -> String {
+    match size {
+    ThumbnailSize::Icon => String::from("Icon"),
+    ThumbnailSize::Small => String::from("Small"),
+    ThumbnailSize::Medium => String::from("Medium"),
+    ThumbnailSize::Large => String::from("Large"),
+    ThumbnailSize::Larger => String::from("Larger"),
+    ThumbnailSize::Custom((w,h)) => format!("Custom({},{})", w, h),
+    }
+}
 fn write_thumbnail<R: std::io::Seek + std::io::Read>(
     reader: BufReader<R>,
     extension: &str,
@@ -183,5 +193,14 @@ mod tests {
     // #[test]
     fn gen_large_picture() {
         save_large_picture()
+    }
+    #[test]
+    fn check_thumbnail_size_display() {
+    assert_eq!("Icon", &thumbnail_size_display(ThumbnailSize::Icon));
+    assert_eq!("Small", &thumbnail_size_display(ThumbnailSize::Small));
+    assert_eq!("Medium", &thumbnail_size_display(ThumbnailSize::Medium));
+    assert_eq!("Large", &thumbnail_size_display(ThumbnailSize::Large));
+    assert_eq!("Larger", &thumbnail_size_display(ThumbnailSize::Larger));
+    assert_eq!("Custom(23,17)", &thumbnail_size_display(ThumbnailSize::Custom((23,17))));
     }
 }
