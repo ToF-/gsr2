@@ -1,5 +1,6 @@
 use crate::file::paths::{file_name_from, thumbnail_name_from};
 use crate::model::image_data::ImageData;
+use std::io::Result;
 
 #[derive(Debug, Clone, Ord, PartialOrd, PartialEq, Eq)]
 pub struct Picture {
@@ -16,13 +17,24 @@ impl Picture {
             image_data: None,
         }
     }
-
-    pub fn new_with_image_data(file_path: &str, label: &str) -> Self {
+    pub fn new_with_label(file_path: &str, label: &str) -> Self {
         let mut picture: Picture = Self::new(file_path);
-        let image_data = ImageData::new(label);
-        picture.set_image_data(image_data);
+        picture.set_image_data(ImageData::new(label));
         picture
     }
+
+    pub fn new_with_file_image_data(file_path: &str, label: &str) -> Result<Self> {
+        ImageData::from_file(file_path).and_then(|image_data| {
+            let new_image_data = ImageData {
+                label: label.to_string(),
+                ..image_data
+            };
+            let mut picture: Picture = Self::new(file_path);
+            picture.set_image_data(new_image_data);
+            Ok(picture)
+        })
+    }
+
     pub fn file_path(&self) -> String {
         self.file_path.clone()
     }

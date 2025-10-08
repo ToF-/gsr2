@@ -1,7 +1,8 @@
 use crate::model::image_data::ImageData;
 use crate::model::picture::Picture;
-use rusqlite::{Connection, Result, Row, params};
+use rusqlite::{Connection, Result as SqlResult, Row, params};
 use std::collections::HashMap;
+use std::io::Result as IOResult;
 
 pub type ImageDataMap = HashMap<String, ImageData>;
 
@@ -18,7 +19,7 @@ impl Database {
         }
     }
 
-    fn rusqlite_from_connection(connection_string: &str) -> Result<Self> {
+    fn rusqlite_from_connection(connection_string: &str) -> SqlResult<Self> {
         println!("connecting to {connection_string}…");
         match Connection::open(connection_string) {
             Ok(connection) => Ok(Database { connection }),
@@ -27,7 +28,7 @@ impl Database {
     }
 
     #[allow(dead_code)]
-    pub fn rusqlite_insert_picture(&self, picture: &Picture) -> Result<usize> {
+    pub fn rusqlite_insert_picture(&self, picture: &Picture) -> SqlResult<usize> {
         self.connection.execute(
             "INSERT INTO Picture          \n\
            (FilePath,                    \n\
@@ -44,7 +45,7 @@ impl Database {
     }
 
     #[allow(dead_code)]
-    pub fn rusqlite_delete_picture_with_file_path(&self, file_path: &str) -> Result<usize> {
+    pub fn rusqlite_delete_picture_with_file_path(&self, file_path: &str) -> SqlResult<usize> {
         self.connection.execute(
             "DELETE FROM Picture        \n\
             WHERE FilePath = ?1;",
@@ -53,7 +54,7 @@ impl Database {
     }
 
     #[allow(dead_code)]
-    pub fn rusqlite_retrieve_picture_with_file_path(&self, file_path: &str) -> Result<Picture> {
+    pub fn rusqlite_retrieve_picture_with_file_path(&self, file_path: &str) -> SqlResult<Picture> {
         self.connection.query_row(
             "SELECT FilePath,           \n\
              Label                      \n\
@@ -64,7 +65,7 @@ impl Database {
         )
     }
 
-    pub fn rusqlite_retrieve_all_pictures(&self) -> Result<ImageDataMap> {
+    pub fn rusqlite_retrieve_all_pictures(&self) -> SqlResult<ImageDataMap> {
         self.connection
             .prepare(
                 "SELECT FilePath, Label           \n\
@@ -90,25 +91,26 @@ impl Database {
             })
     }
 
-    pub fn retrieve_all_pictures(&self) -> Result<Vec<Picture>> {
-        let result = self.rusqlite_retrieve_all_pictures().map(|map| {
-            let mut pictures: Vec<Picture> = vec![];
-            for (file_path, image_data) in map.iter() {
-                pictures.push(Picture::new_with_image_data(file_path, &image_data.label()))
+    pub fn retrieve_all_pictures(&self) -> IOResult<Vec<Picture>> {
+        match self.rusqlite_retrieve_all_pictures() {
+            Ok(map) => {
+                let mut pictures: Vec<Picture> = vec![];
+                for (file_path, image_data) in map.iter() {
+                    match Picture::new_with_file_image_data(file_path, &image_data.label()) {
+                        Ok(picture) => pictures.push(picture),
+                        Err(err) => return Err(err),
+                    }
+                }
+                Ok(pictures)
             }
-            pictures
-        });
-        match result {
-            Ok(pictures) => Ok(pictures),
-            Err(err) => Err(err),
+            Err(err) => Err(std::io::Error::other(err)),
         }
     }
 
-    fn rusqlite_row_to_picture(row: &Row) -> Result<Picture> {
+    fn rusqlite_row_to_picture(row: &Row) -> SqlResult<Picture, rusqlite::Error> {
         row.get(0).and_then(|file_path: String| {
-            let file_path: String = file_path;
             row.get(1)
-                .map(|label: String| Picture::new_with_image_data(&file_path, &label))
+                .and_then(|label: String| Ok(Picture::new_with_label(&file_path, &label)))
         })
     }
 }

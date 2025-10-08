@@ -1,6 +1,5 @@
 use crate::env::default_values::MAX_PALETTE_COLORS;
 use crate::file::picture_file::get_data_from_picture_file;
-use crate::file::picture_file::get_palette_from_picture_file;
 use image::{DynamicImage, Rgb};
 use palette_extract::{MaxColors, PixelEncoding, PixelFilter, Quality, get_palette_with_options};
 use std::cmp::Ordering;
@@ -17,11 +16,11 @@ pub type Tags = HashSet<String>;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ImageData {
-    label: String,
-    size: FileSize,
-    modified_time: SystemTime,
-    palette: Palette,
-    tags: Tags,
+    pub label: String,
+    pub size: FileSize,
+    pub modified_time: SystemTime,
+    pub palette: Palette,
+    pub tags: Tags,
 }
 
 impl ImageData {
@@ -35,14 +34,13 @@ impl ImageData {
         }
     }
 
-    #[allow(dead_code)]
     pub fn from_file(file_path: &str) -> Result<Self> {
         get_data_from_picture_file(file_path).and_then(|file_data| {
-            get_palette_from_picture_file(file_path).map(|palette| ImageData {
+            Ok(ImageData {
                 label: String::from(""),
                 size: file_data.0,
                 modified_time: file_data.1,
-                palette,
+                palette: [Rgb::from([0, 0, 0]); 9],
                 tags: HashSet::new(),
             })
         })
