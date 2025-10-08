@@ -779,6 +779,7 @@ dependencies = [
  "rusqlite",
  "thumbnailer",
  "time-elapsed",
+ "time-format",
  "walkdir",
 ]
 
@@ -1757,6 +1758,12 @@ name = "time-elapsed"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "389a558fb3fd8b7f55302d008fa4a829894bd1d9dc87d0dad019fa1170811de1"
+
+[[package]]
+name = "time-format"
+version = "1.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0a70bbfd9d497fe1c46d9a5051f03c73d253b14a9abf6645d32781592b719f9f"
 
 [[package]]
 name = "toml"

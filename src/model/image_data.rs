@@ -49,6 +49,10 @@ impl ImageData {
     pub fn label(&self) -> String {
         self.label.clone()
     }
+
+    pub fn modified_time(&self) -> SystemTime {
+        self.modified_time
+    }
 }
 
 impl Ord for ImageData {

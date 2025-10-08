@@ -1,3 +1,4 @@
+use time_format;
 use crate::file::paths::{file_name_from, thumbnail_name_from};
 use crate::model::image_data::ImageData;
 use std::io::Result;
@@ -37,6 +38,19 @@ impl Picture {
 
     pub fn file_path(&self) -> String {
         self.file_path.clone()
+    }
+
+    pub fn modified_time_display(&self) -> String {
+        if let Some(image_data) = &self.image_data {
+            let timestamp = time_format::from_system_time(image_data.modified_time())
+                .expect("can't unwrap modified time");
+            let sql_format = time_format::format_common_utc(
+                timestamp,
+                time_format::DateFormat::SQL).unwrap();
+            sql_format
+        } else {
+            String::from("…/…")
+        }
     }
 
     pub fn view_file_path(&self, pictures_per_row: usize) -> String {

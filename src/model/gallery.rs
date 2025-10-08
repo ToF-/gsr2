@@ -39,7 +39,10 @@ impl Gallery {
         match get_all_picture_file_paths(path) {
             Ok(list) => {
                 for file_path in list {
-                    self.pictures.push(Picture::new(&file_path))
+                    match Picture::new_with_file_image_data(&file_path,"") {
+                        Ok(picture) => self.pictures.push(picture),
+                        Err(err) => return Err(err),
+                    }
                 }
                 Ok(self.pictures.len())
             }

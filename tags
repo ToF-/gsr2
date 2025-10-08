@@ -199,6 +199,8 @@ make_picture	/Users/christophethibaut/Coding/gsr2/src/gui/view/picture_frame.rs	
 make_picture_cell_box	/Users/christophethibaut/Coding/gsr2/src/gui/view/picture_cell_box.rs	/^pub fn make_picture_cell_box(col: i32, row: i32, controller_rc: &RcController) -> gtk::Box {$/;"	f
 make_scrolled_window	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^fn make_scrolled_window() -> gtk::ScrolledWindow {$/;"	f
 make_stack	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^fn make_stack() -> gtk::Stack {$/;"	f
+modified_time	/Users/christophethibaut/Coding/gsr2/src/model/image_data.rs	/^    pub fn modified_time(&self) -> SystemTime {$/;"	f
+modified_time_display	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    pub fn modified_time_display(&self) -> String {$/;"	f
 move_end	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn move_end(&mut self) {$/;"	f
 move_first	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn move_first(&mut self) {$/;"	f
 move_last	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn move_last(&mut self) {$/;"	f
