@@ -1,3 +1,4 @@
+use crate::model::order::Order;
 use crate::Command;
 use crate::env::default_values::{DEFAULT_HEIGHT, DEFAULT_SLIDESHOW_DELAY, DEFAULT_WIDTH};
 use crate::env::dimension::{dimension, slideshow_delay};
@@ -33,9 +34,9 @@ pub struct Args {
     #[arg(short, long, default_value_t = false, conflicts_with("grid"))]
     pub thumbnails: bool,
 
-    /// random order display of pictures
-    #[arg(short, long, default_value_t = false)]
-    pub random: bool,
+    /// display pictures in order
+    #[arg(short, long, value_name="ORDER", ignore_case(true), default_value_t = Order::Name)]
+    pub order: Order,
 
     /// create missing thumbnails for grid with N x N pictures per page (N in range [2..10])
     #[arg(short, long, value_name = "N", value_parser(clap::value_parser!(u8).range(2..=10)))]

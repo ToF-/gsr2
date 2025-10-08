@@ -11,7 +11,6 @@ use crate::gui::navigator::Navigator;
 use crate::gui::state::State;
 use crate::gui::view::main_window::LEFT_PANE;
 use crate::model::gallery::Gallery;
-use crate::model::order::Order;
 use crate::model::picture::Picture;
 use gdk::{Key, ModifierType};
 use gtk::prelude::*;
@@ -103,11 +102,7 @@ impl Controller {
                 Ok(0)
             }
             Ok(size) => {
-                if args.random {
-                    gallery.sort_by(Order::Random)
-                } else {
-                    gallery.sort_by(Order::Name)
-                };
+                gallery.sort_by(args.order);
                 println!("{} pictures", &gallery.len());
                 if let Some(pictures_per_row) = self.args.create_missing_thumbnails {
                     create_missing_thumbnails(&gallery.clone(), pictures_per_row as usize);

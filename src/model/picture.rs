@@ -40,6 +40,15 @@ impl Picture {
         self.file_path.clone()
     }
 
+    pub fn file_size_display(&self) -> String {
+        if let Some(image_data) = &self.image_data {
+            format!("{}", image_data.size())
+        } else {
+            String::from("﹖")
+        }
+    }
+
+    #[allow(dead_code)]
     pub fn modified_time_display(&self) -> String {
         if let Some(image_data) = &self.image_data {
             let timestamp = time_format::from_system_time(image_data.modified_time())

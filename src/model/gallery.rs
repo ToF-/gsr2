@@ -74,7 +74,11 @@ impl Gallery {
     pub fn sort_by(&mut self, order: Order) {
         match order {
             Order::Name => self.pictures.sort_by_key(|picture| picture.file_path()),
-            Order::Random => self.pictures.shuffle(&mut rng()),
+            Order::Size => self.pictures.sort_by_key(|picture| 
+                picture.image_data().map(|image_data|
+                    image_data.size()
+                    )),
+            _ => self.pictures.shuffle(&mut rng()),
         }
     }
 }

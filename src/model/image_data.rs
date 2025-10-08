@@ -50,8 +50,13 @@ impl ImageData {
         self.label.clone()
     }
 
+    #[allow(dead_code)]
     pub fn modified_time(&self) -> SystemTime {
         self.modified_time
+    }
+
+    pub fn size(&self) -> u64 {
+        self.size
     }
 }
 

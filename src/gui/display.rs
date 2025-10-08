@@ -37,7 +37,7 @@ pub fn title_display(controller: &Controller) -> String {
         controller.navigator().position(),
         page_display(controller),
         controller.current_picture().file_name(),
-        controller.current_picture().modified_time_display(),
+        controller.current_picture().file_size_display(),
         expand_display(controller.state().expand_on()),
         full_size_display(controller.state().full_size_on()),
     )
