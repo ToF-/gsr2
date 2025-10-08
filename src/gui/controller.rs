@@ -107,8 +107,8 @@ impl Controller {
                     gallery.sort_by(Order::Name)
                 };
                 println!("{} pictures", &gallery.len());
-                if self.args.create_missing_thumbnails {
-                    create_missing_thumbnails(&gallery.clone());
+                if let Some(pictures_per_row) = self.args.create_missing_thumbnails {
+                    create_missing_thumbnails(&gallery.clone(), pictures_per_row as usize);
                 }
                 self.set_gallery(gallery);
                 self.navigator().set_page_changed();

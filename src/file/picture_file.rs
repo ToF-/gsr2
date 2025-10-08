@@ -35,20 +35,18 @@ pub fn get_picture_file_path(file_path: &str) -> Result<String> {
     check_picture_file(file_path)
 }
 
-pub fn create_missing_thumbnails(gallery: &Gallery) {
+pub fn create_missing_thumbnails(gallery: &Gallery, pictures_per_row: usize) {
     for picture in gallery.pictures() {
         let file_path = picture.file_path();
-        for pictures_per_row in 2..=10 {
-            let thumbnail_file_path = picture.thumbnail_file_path_for_size(pictures_per_row);
-            match check_path_exists(&PathBuf::from(&thumbnail_file_path)) {
-                Ok(_) => {}
-                Err(_) => match create_thumbnail_file(&thumbnail_file_path, &file_path, pictures_per_row) {
-                    Ok(_) => println!("creating thumbnail {}", thumbnail_file_path),
-                    Err(err) => {
-                        eprintln!("{}", err);
-                    }
-                },
-            }
+        let thumbnail_file_path = picture.thumbnail_file_path_for_size(pictures_per_row);
+        match check_path_exists(&PathBuf::from(&thumbnail_file_path)) {
+            Ok(_) => {}
+            Err(_) => match create_thumbnail_file(&thumbnail_file_path, &file_path, pictures_per_row) {
+                Ok(_) => println!("creating thumbnail {}", thumbnail_file_path),
+                Err(err) => {
+                    eprintln!("{}", err);
+                }
+            },
         }
     }
 }

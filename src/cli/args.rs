@@ -37,9 +37,9 @@ pub struct Args {
     #[arg(short, long, default_value_t = false)]
     pub random: bool,
 
-    /// create missing thumbnails
-    #[arg(short, long, default_value_t = false)]
-    pub create_missing_thumbnails: bool,
+    /// create missing thumbnails for grid with N x N pictures per page (N in range [2..10])
+    #[arg(short, long, value_name = "N", value_parser(clap::value_parser!(u8).range(2..=10)))]
+    pub create_missing_thumbnails: Option<u8>,
 
     /// window height
     #[arg(long, value_name = "N")]
