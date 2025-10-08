@@ -82,6 +82,10 @@ impl Navigator {
         self.page_changed = true
     }
 
+    pub fn set_page_unchanged(&mut self) {
+        self.page_changed = false
+    }
+
     pub fn set_pictures_per_row(&mut self, pictures_per_row: usize) {
         self.pictures_per_row = pictures_per_row;
         self.update_page_limits();

@@ -296,6 +296,7 @@ set_label_for	/Users/christophethibaut/Coding/gsr2/src/gui/view/picture_grid.rs	
 set_label_for_current_picture	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn set_label_for_current_picture(&self, controller: &Controller, with_focus: bool) {$/;"	f
 set_main_window	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_main_window(&mut self, main_window: MainWindow) {$/;"	f
 set_page_changed	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn set_page_changed(&mut self) {$/;"	f
+set_page_unchanged	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn set_page_unchanged(&mut self) {$/;"	f
 set_picture	/Users/christophethibaut/Coding/gsr2/src/gui/view/picture_frame.rs	/^    pub fn set_picture(&self, controller: &Controller, picture: &gtk::Picture) {$/;"	f
 set_picture_for	/Users/christophethibaut/Coding/gsr2/src/gui/view/picture_grid.rs	/^    pub fn set_picture_for(&self, col: i32, row: i32, picture: &gtk::Picture) {$/;"	f
 set_picture_for_single_view	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn set_picture_for_single_view(&self, controller: &Controller) {$/;"	f

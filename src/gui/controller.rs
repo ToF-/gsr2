@@ -182,13 +182,15 @@ impl Controller {
         main_window.set_label_for_current_picture(self, false);
         let old_slideshow_on = self.state().slideshow_on();
         self.process_key(key);
+
         if self.state.slideshow_on() == old_slideshow_on {
             self.set_slideshow_off();
             if self.state().single_view() != self.main_window().single_view() {
                 main_window.toggle_view_stack(self);
             };
             if self.navigator.page_changed() {
-                self.main_window().set_pictures(self)
+                self.main_window().set_pictures(self);
+                self.navigator.set_page_unchanged();
             };
             self.main_window().set_label_for_current_picture(self, true);
             self.main_window().set_title(self);
@@ -331,6 +333,7 @@ impl Controller {
     }
 
     pub fn full_size_arrow_move(&self, direction: Direction) {
+        println!("fsam");
         self.main_window().full_size_arrow_move(direction.clone())
     }
 
