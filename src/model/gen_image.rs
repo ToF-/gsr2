@@ -51,26 +51,26 @@ use thumbnailer::error::ThumbResult;
 
 pub fn thumbnail_size_display(size: ThumbnailSize) -> String {
     match size {
-    ThumbnailSize::Icon => String::from("Icon"),
-    ThumbnailSize::Small => String::from("Small"),
-    ThumbnailSize::Medium => String::from("Medium"),
-    ThumbnailSize::Large => String::from("Large"),
-    ThumbnailSize::Larger => String::from("Larger"),
-    ThumbnailSize::Custom((w,h)) => format!("Custom({},{})", w, h),
+        ThumbnailSize::Icon => String::from("Icon"),
+        ThumbnailSize::Small => String::from("Small"),
+        ThumbnailSize::Medium => String::from("Medium"),
+        ThumbnailSize::Large => String::from("Large"),
+        ThumbnailSize::Larger => String::from("Larger"),
+        ThumbnailSize::Custom((w, h)) => format!("Custom({},{})", w, h),
     }
 }
 
 pub fn thumbnail_size_for(pictures_per_row: usize) -> ThumbnailSize {
     match pictures_per_row {
         10 => ThumbnailSize::Small,
-        9 =>  ThumbnailSize::Small,
-        8 =>  ThumbnailSize::Small,
-        7 =>  ThumbnailSize::Medium,
-        6 =>  ThumbnailSize::Medium,
-        5 =>  ThumbnailSize::Medium,
-        4 =>  ThumbnailSize::Large,
-        3 =>  ThumbnailSize::Large,
-        2 =>  ThumbnailSize::Larger,
+        9 => ThumbnailSize::Small,
+        8 => ThumbnailSize::Small,
+        7 => ThumbnailSize::Medium,
+        6 => ThumbnailSize::Medium,
+        5 => ThumbnailSize::Medium,
+        4 => ThumbnailSize::Large,
+        3 => ThumbnailSize::Large,
+        2 => ThumbnailSize::Larger,
         _ => ThumbnailSize::Small,
     }
 }
@@ -78,7 +78,7 @@ fn write_thumbnail<R: std::io::Seek + std::io::Read>(
     reader: BufReader<R>,
     extension: &str,
     mut output_file: File,
-    pictures_per_row: usize
+    pictures_per_row: usize,
 ) -> ThumbResult<()> {
     let mime = match extension {
         "jpg" | "jpeg" | "JPG" | "JPEG" => mime::IMAGE_JPEG,
@@ -107,7 +107,11 @@ fn write_thumbnail<R: std::io::Seek + std::io::Read>(
         ok => ok,
     }
 }
-pub fn create_thumbnail_file(thumbnail_file_path: &str, picture_file_path: &str, pictures_per_row: usize) -> IOResult<()> {
+pub fn create_thumbnail_file(
+    thumbnail_file_path: &str,
+    picture_file_path: &str,
+    pictures_per_row: usize,
+) -> IOResult<()> {
     match File::open(picture_file_path) {
         Err(err) => Err(err),
         Ok(picture_file) => {
@@ -213,12 +217,15 @@ mod tests {
     }
     #[test]
     fn check_thumbnail_size_display() {
-    assert_eq!("Icon", &thumbnail_size_display(ThumbnailSize::Icon));
-    assert_eq!("Small", &thumbnail_size_display(ThumbnailSize::Small));
-    assert_eq!("Medium", &thumbnail_size_display(ThumbnailSize::Medium));
-    assert_eq!("Large", &thumbnail_size_display(ThumbnailSize::Large));
-    assert_eq!("Larger", &thumbnail_size_display(ThumbnailSize::Larger));
-    assert_eq!("Custom(23,17)", &thumbnail_size_display(ThumbnailSize::Custom((23,17))));
+        assert_eq!("Icon", &thumbnail_size_display(ThumbnailSize::Icon));
+        assert_eq!("Small", &thumbnail_size_display(ThumbnailSize::Small));
+        assert_eq!("Medium", &thumbnail_size_display(ThumbnailSize::Medium));
+        assert_eq!("Large", &thumbnail_size_display(ThumbnailSize::Large));
+        assert_eq!("Larger", &thumbnail_size_display(ThumbnailSize::Larger));
+        assert_eq!(
+            "Custom(23,17)",
+            &thumbnail_size_display(ThumbnailSize::Custom((23, 17)))
+        );
     }
 
     #[test]
@@ -232,6 +239,5 @@ mod tests {
         assert_eq!("Large", &thumbnail_size_display(thumbnail_size_for(4)));
         assert_eq!("Large", &thumbnail_size_display(thumbnail_size_for(3)));
         assert_eq!("Larger", &thumbnail_size_display(thumbnail_size_for(2)));
-
     }
 }

@@ -1,6 +1,6 @@
-use crate::model::gen_image::{thumbnail_size_display, thumbnail_size_for};
 use crate::env::default_values::THUMB_SUFFIX;
 use crate::env::default_values::VALID_EXTENSIONS;
+use crate::model::gen_image::{thumbnail_size_display, thumbnail_size_for};
 use std::io::{Error, ErrorKind, Result};
 use std::path::PathBuf;
 
@@ -77,11 +77,12 @@ pub fn thumbnail_name_from(file_name: &str, pictures_per_row: usize) -> String {
     let path: PathBuf = PathBuf::from(file_name);
     let extension = path.extension().expect("can't compute path extension");
     let file_stem = path.file_stem().expect("can't compute path file stem");
-    let thumb_file_name = PathBuf::from(file_stem.to_str().unwrap().to_owned() 
-        + THUMB_SUFFIX 
-        + &thumbnail_size_display(
-            thumbnail_size_for(pictures_per_row)))
-        .with_extension(extension);
+    let thumb_file_name = PathBuf::from(
+        file_stem.to_str().unwrap().to_owned()
+            + THUMB_SUFFIX
+            + &thumbnail_size_display(thumbnail_size_for(pictures_per_row)),
+    )
+    .with_extension(extension);
     path.with_file_name(thumb_file_name)
         .to_str()
         .unwrap()

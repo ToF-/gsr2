@@ -16,10 +16,7 @@ pub struct PictureGrid {
 }
 
 impl PictureGrid {
-    pub fn new_from_grid(
-        grid: &gtk::Grid,
-        controller_rc: &RcController,
-    ) -> Self {
+    pub fn new_from_grid(grid: &gtk::Grid, controller_rc: &RcController) -> Self {
         PictureGrid {
             controller_rc: controller_rc.clone(),
             grid: grid.clone(),
@@ -56,7 +53,7 @@ impl PictureGrid {
         }
     }
 
-    #[allow(dead_code)] 
+    #[allow(dead_code)]
     pub fn size(&self) -> usize {
         let mut count: usize = 0;
         for col in 0..MAX_PICTURES_PER_ROW {
@@ -65,7 +62,7 @@ impl PictureGrid {
                     count += 1
                 }
             }
-        };
+        }
         count
     }
 

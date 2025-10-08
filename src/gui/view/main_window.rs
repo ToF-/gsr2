@@ -1,9 +1,9 @@
-use crate::gui::view::picture_cell_box::make_picture_cell_box;
 use crate::Args;
 use crate::file::paths::check_path_exists;
 use crate::gui::direction::Direction;
 use crate::gui::display::title_display;
 use crate::gui::event::Event::{KeyPressed, NextSlideDelay, PaneClicked};
+use crate::gui::view::picture_cell_box::make_picture_cell_box;
 use crate::gui::view::picture_frame::PictureFrame;
 use crate::gui::view::picture_grid::PictureGrid;
 use crate::model::gen_image::no_thumbnail_picture;
@@ -136,8 +136,7 @@ impl MainWindow {
         application_window.set_child(Some(&view_stack));
         {
             if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-                let main_window =
-                    MainWindow::new_from_application(application, controller_rc);
+                let main_window = MainWindow::new_from_application(application, controller_rc);
                 controller.set_main_window(main_window);
                 controller.main_window().set_pictures(&controller);
                 controller.main_window().set_title(&controller);
@@ -146,7 +145,7 @@ impl MainWindow {
         attach_panel_event_handlers(&panel, controller_rc);
         attach_key_pressed_event_handlers(&application_window, controller_rc);
         if let Some(seconds) = args.slideshow {
-            attach_slideshow_event(seconds, controller_rc);
+            Self::attach_slideshow_event(seconds, controller_rc);
         }
         application_window.present();
     }
@@ -182,7 +181,6 @@ impl MainWindow {
     }
 
     pub fn set_pictures_for_multiple_view(&self, controller: &Controller, pictures_per_row: i32) {
-
         let navigator = controller.navigator();
         let gallery = controller.gallery();
         let picture_grid = self.picture_grid.clone();
@@ -207,7 +205,8 @@ impl MainWindow {
                         no_thumbnail_picture()
                     };
                     self.picture_grid.set_picture_for(col, row, &gtk_picture);
-                    self.picture_grid.set_label_for(&picture, col, row, is_focus);
+                    self.picture_grid
+                        .set_label_for(&picture, col, row, is_focus);
                 }
             }
         }
@@ -251,7 +250,7 @@ impl MainWindow {
         child_name == "single_view"
     }
 
-    pub fn change_dimension(&mut self, pictures_per_row: usize) {
+    pub fn change_grid_size(&mut self, pictures_per_row: usize) {
         self.picture_grid.change_dimension(pictures_per_row as i32)
     }
 
@@ -275,6 +274,34 @@ impl MainWindow {
             Direction::Up => v.set_value(v.value() - step),
             _ => {}
         }
+    }
+
+    pub fn reattach_slideshow_event(&self, seconds: i32) {
+        Self::attach_slideshow_event(seconds, &self.controller_rc);
+    }
+
+    pub fn attach_slideshow_event(seconds: i32, controller_rc: &RcController) {
+        let delay: u64 = seconds.try_into().unwrap();
+        println!("setting slideshow delay to {} seconds", delay);
+        timeout_add_local(
+            Duration::new(delay, 0),
+            clone!(
+                #[strong]
+                controller_rc,
+                move || {
+                    if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+                        if controller.state().slideshow_on() {
+                            controller.process_event(NextSlideDelay, &controller_rc);
+                            ControlFlow::Continue
+                        } else {
+                            ControlFlow::Break
+                        }
+                    } else {
+                        panic!("can't borrow mut controller")
+                    }
+                }
+            ),
+        );
     }
 }
 
@@ -405,32 +432,6 @@ fn attach_key_pressed_event_handlers(
         }
     ));
     application_window.add_controller(event_controller_key);
-}
-
-pub fn attach_slideshow_event(seconds: i32, controller_rc: &RcController) {
-    let delay: u64 = seconds.try_into().unwrap();
-    println!("setting slideshow delay to {} seconds", delay);
-    timeout_add_local(
-        Duration::new(delay, 0),
-        clone!(
-            #[strong]
-            controller_rc,
-            move || {
-                if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-                    if controller.state().slideshow_on() {
-                        controller.process_event(NextSlideDelay, &controller_rc)
-                    };
-                    if controller.state().slideshow_on() {
-                        ControlFlow::Continue
-                    } else {
-                        ControlFlow::Break
-                    }
-                } else {
-                    panic!("can't borrow mut controller")
-                }
-            }
-        ),
-    );
 }
 
 pub fn gtk_picture_from_file_path(file_path: &Path) -> gtk::Picture {

@@ -9,7 +9,7 @@ use crate::gui::direction::Direction;
 use crate::gui::event::Event;
 use crate::gui::navigator::Navigator;
 use crate::gui::state::State;
-use crate::gui::view::main_window::{LEFT_PANE, attach_slideshow_event};
+use crate::gui::view::main_window::LEFT_PANE;
 use crate::model::gallery::Gallery;
 use crate::model::order::Order;
 use crate::model::picture::Picture;
@@ -79,7 +79,7 @@ impl Controller {
     pub fn set_gallery(&mut self, gallery: Gallery) {
         self.gallery = gallery;
         self.navigator = Navigator::new(self.gallery.len(), self.state().pictures_per_row());
-        self.acknowledge_dimension();
+        self.acknowledge_grid_size_change();
     }
 
     pub fn current_picture(&self) -> Picture {
@@ -179,26 +179,18 @@ impl Controller {
         key: Key,
         _key_code: u32,
         _modifier_type: ModifierType,
-        controller_rc: &RcController,
+        _controller_rc: &RcController,
     ) {
         let main_window = self.main_window();
         main_window.set_label_for_current_picture(self, false);
         let old_slideshow_on = self.state().slideshow_on();
         self.process_key(key);
-        if self.state.slideshow_on() != old_slideshow_on {
-            if let Some(seconds) = self.args().slideshow() {
-                attach_slideshow_event(seconds, controller_rc);
-            }
-        } else {
+        if self.state.slideshow_on() == old_slideshow_on {
             self.set_slideshow_off();
-            if self.state().dimension_changed() {
-                self.main_window().change_dimension(self.state().pictures_per_row());
-                self.acknowledge_dimension();
-            }
             if self.state().single_view() != self.main_window().single_view() {
                 main_window.toggle_view_stack(self);
-                self.main_window().set_pictures(self)
-            } else if self.navigator.page_changed() {
+            };
+            if self.navigator.page_changed() {
                 self.main_window().set_pictures(self)
             };
             self.main_window().set_label_for_current_picture(self, true);
@@ -291,10 +283,10 @@ impl Controller {
     }
 
     pub fn toggle_slideshow(&mut self) {
-        println!("state.slideshow_on: {}", self.state().slideshow_on());
-        if self.args().slideshow().is_some() {
+        if let Some(seconds) = self.args().slideshow() {
             self.state.toggle_slideshow();
             if self.state.slideshow_on() {
+                self.main_window().reattach_slideshow_event(seconds);
                 let navigator = &mut self.navigator;
                 navigator.set_page_changed();
             }
@@ -303,14 +295,16 @@ impl Controller {
 
     pub fn change_grid_size(&mut self, pictures_per_row: usize) {
         self.state.change_grid_size(pictures_per_row);
+        self.main_window().change_grid_size(pictures_per_row);
         let navigator = &mut self.navigator;
         navigator.set_pictures_per_row(self.state.pictures_per_row());
         navigator.update_page_limits();
         navigator.set_page_changed();
+        self.acknowledge_grid_size_change();
     }
 
-    pub fn acknowledge_dimension(&mut self) {
-        self.state.acknowledge_dimension();
+    pub fn acknowledge_grid_size_change(&mut self) {
+        self.state.acknowledge_grid_size_change();
     }
 
     pub fn move_start(&mut self) {

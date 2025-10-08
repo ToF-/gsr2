@@ -59,11 +59,7 @@ impl State {
         self.full_size_on = !self.full_size_on
     }
 
-    pub fn dimension_changed(&self) -> bool {
-        self.pictures_per_row != self.old_pictures_per_row
-    }
-
-    pub fn acknowledge_dimension(&mut self) {
+    pub fn acknowledge_grid_size_change(&mut self) {
         self.old_pictures_per_row = self.pictures_per_row
     }
 

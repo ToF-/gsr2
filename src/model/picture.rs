@@ -51,10 +51,10 @@ impl Picture {
         }
     }
 
-   pub fn thumbnail_file_path_for_size(&self, pictures_per_row: usize) -> String {
-       thumbnail_name_from(&self.file_path, pictures_per_row)
+    pub fn thumbnail_file_path_for_size(&self, pictures_per_row: usize) -> String {
+        thumbnail_name_from(&self.file_path, pictures_per_row)
     }
-    
+
     pub fn set_image_data(&mut self, image_data: ImageData) {
         self.image_data = Some(image_data)
     }
@@ -78,16 +78,20 @@ mod tests {
         let picture = Picture::new("testdata/nine_colors.png");
         assert_eq!(
             String::from("testdata/nine_colorsTHUMBSmall.png"),
-            picture.thumbnail_file_path_for_size(10));
+            picture.thumbnail_file_path_for_size(10)
+        );
         assert_eq!(
             String::from("testdata/nine_colorsTHUMBMedium.png"),
-            picture.thumbnail_file_path_for_size(5));
+            picture.thumbnail_file_path_for_size(5)
+        );
         assert_eq!(
             String::from("testdata/nine_colorsTHUMBLarge.png"),
-            picture.thumbnail_file_path_for_size(4));
+            picture.thumbnail_file_path_for_size(4)
+        );
         assert_eq!(
             String::from("testdata/nine_colorsTHUMBLarger.png"),
-            picture.thumbnail_file_path_for_size(2));
+            picture.thumbnail_file_path_for_size(2)
+        );
     }
 
     #[test]
