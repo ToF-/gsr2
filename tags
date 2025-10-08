@@ -120,7 +120,7 @@ confirming_return_input_and_set_editing_to_false	/Users/christophethibaut/Coding
 coords_from_position	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn coords_from_position(&self, position: usize) -> Option<(usize, usize)> {$/;"	f
 coords_from_position_depends_on_given_position	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn coords_from_position_depends_on_given_position() {$/;"	f
 create_missing_thumbnails	/Users/christophethibaut/Coding/gsr2/src/file/picture_file.rs	/^pub fn create_missing_thumbnails(gallery: &Gallery, pictures_per_row: usize) {$/;"	f
-create_thumbnail_file	/Users/christophethibaut/Coding/gsr2/src/model/gen_image.rs	/^pub fn create_thumbnail_file(thumbnail_file_path: &str, picture_file_path: &str, pictures_per_row: usize) -> IOResult<()> {$/;"	f
+create_thumbnail_file	/Users/christophethibaut/Coding/gsr2/src/model/gen_image.rs	/^pub fn create_thumbnail_file($/;"	f
 current_page	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn current_page(&self) -> usize {$/;"	f
 current_page_according_to_position_pictures_per_row	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn current_page_according_to_position_pictures_per_row() {$/;"	f
 current_picture	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn current_picture(&self) -> Picture {$/;"	f
@@ -177,6 +177,7 @@ label	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    pub fn lab
 large_picture	/Users/christophethibaut/Coding/gsr2/src/model/gen_image.rs	/^pub fn large_picture() -> DynamicImage {$/;"	f
 left_pane	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^pub fn left_pane(panel_grid: &gtk::Grid) -> gtk::Label {$/;"	f
 len	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^    pub fn len(&self) -> usize {$/;"	f
+limit	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn limit(&self) -> usize {$/;"	f
 load_from_database	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^    pub fn load_from_database(&mut self, database: &Database) -> Result<usize> {$/;"	f
 load_from_directory	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^    pub fn load_from_directory(&mut self, path: &str) -> Result<usize> {$/;"	f
 load_from_file_path	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^    pub fn load_from_file_path(&mut self, file_path: &str) -> Result<usize> {$/;"	f
@@ -205,6 +206,7 @@ move_next	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub f
 move_next_page	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn move_next_page(&mut self) {$/;"	f
 move_prev	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn move_prev(&mut self) {$/;"	f
 move_prev_page	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn move_prev_page(&mut self) {$/;"	f
+move_random	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn move_random(&mut self) {$/;"	f
 move_start	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn move_start(&mut self) {$/;"	f
 move_towards	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn move_towards(&mut self, direction: Direction) {$/;"	f
 moving_down_moves_to_entry_one_row_further	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn moving_down_moves_to_entry_one_row_further() {$/;"	f
@@ -229,7 +231,7 @@ new	/Users/christophethibaut/Coding/gsr2/src/model/image_data.rs	/^    pub fn ne
 new	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    pub fn new(file_path: &str) -> Self {$/;"	f
 new_from_application	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn new_from_application($/;"	f
 new_from_frame	/Users/christophethibaut/Coding/gsr2/src/gui/view/picture_frame.rs	/^    pub fn new_from_frame(frame: &gtk::Box) -> Self {$/;"	f
-new_from_grid	/Users/christophethibaut/Coding/gsr2/src/gui/view/picture_grid.rs	/^    pub fn new_from_grid($/;"	f
+new_from_grid	/Users/christophethibaut/Coding/gsr2/src/gui/view/picture_grid.rs	/^    pub fn new_from_grid(grid: &gtk::Grid, controller_rc: &RcController) -> Self {$/;"	f
 new_with_image_data	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    pub fn new_with_image_data(file_path: &str, label: &str) -> Self {$/;"	f
 new_with_pictures	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^    pub fn new_with_pictures(pictures: Vec<Picture>) -> Self {$/;"	f
 next_page_start	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn next_page_start(&self) -> usize {$/;"	f
@@ -309,7 +311,7 @@ sorting_by_different_criteria	/Users/christophethibaut/Coding/gsr2/src/model/gal
 stack	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn stack(&self) -> gtk::Stack {$/;"	f
 startup_gui	/Users/christophethibaut/Coding/gsr2/src/gui/view/application.rs	/^pub fn startup_gui() {$/;"	f
 state	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn state(&self) -> State {$/;"	f
-thumbnail_file_path_for_size	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^   pub fn thumbnail_file_path_for_size(&self, pictures_per_row: usize) -> String {$/;"	f
+thumbnail_file_path_for_size	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    pub fn thumbnail_file_path_for_size(&self, pictures_per_row: usize) -> String {$/;"	f
 thumbnail_name_from	/Users/christophethibaut/Coding/gsr2/src/file/paths.rs	/^pub fn thumbnail_name_from(file_name: &str, pictures_per_row: usize) -> String {$/;"	f
 thumbnail_name_from_normal_file_has_thumb_suffix	/Users/christophethibaut/Coding/gsr2/src/file/paths.rs	/^    fn thumbnail_name_from_normal_file_has_thumb_suffix() {$/;"	f
 thumbnail_size_display	/Users/christophethibaut/Coding/gsr2/src/model/gen_image.rs	/^pub fn thumbnail_size_display(size: ThumbnailSize) -> String {$/;"	f

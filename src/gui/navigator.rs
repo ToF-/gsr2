@@ -26,6 +26,9 @@ impl Navigator {
         result
     }
 
+    pub fn limit(&self) -> usize {
+        self.limit
+    }
     pub fn position(&self) -> usize {
         self.position
     }

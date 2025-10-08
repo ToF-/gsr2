@@ -16,6 +16,8 @@ use crate::model::picture::Picture;
 use gdk::{Key, ModifierType};
 use gtk::prelude::*;
 use gtk::{self, gdk};
+use rand::Rng;
+use rand::rng;
 use std::cell::RefCell;
 use std::io::Result as IOResult;
 use std::rc::Rc;
@@ -222,6 +224,7 @@ impl Controller {
             Control::MoveLast => self.move_last(),
             Control::MoveFirst => self.move_first(),
             Control::MoveStartPage => self.move_start(),
+            Control::MoveRandom => self.move_random(),
             Control::MoveEndPage => self.move_end(),
             Control::Left => self.arrow_move(Direction::Left),
             Control::Right => self.arrow_move(Direction::Right),
@@ -373,6 +376,14 @@ impl Controller {
         let navigator = &mut self.navigator;
         if !self.state.full_size_on() {
             navigator.move_towards(Direction::Last);
+        }
+    }
+
+    pub fn move_random(&mut self) {
+        let navigator = &mut self.navigator;
+        let value: usize = rng().random_range(0..navigator.limit());
+        if navigator.can_move(Direction::Index { value }) {
+            navigator.move_towards(Direction::Index { value });
         }
     }
 }
