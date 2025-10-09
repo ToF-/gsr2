@@ -86,6 +86,10 @@ impl Gallery {
             _ => self.pictures.shuffle(&mut rng()),
         }
     }
+
+    pub fn find_file_path(&self, file_path: &str) -> Option<usize> {
+        self.pictures.clone().into_iter().position(|picture| picture.file_path() == file_path)
+    }
 }
 
 #[cfg(test)]
@@ -176,5 +180,14 @@ mod tests {
             result |= sort_and_compare_lists()
         }
         assert!(result)
+    }
+    #[test]
+    fn finding_a_picture_by_file_path() {
+        let database: Database = my_db();
+        let mut gallery = Gallery::new();
+        gallery
+            .load_from_database(&database)
+            .expect("can't load from database");
+        assert_eq!(Some(0), gallery.find_file_path(NINE_COLORS))
     }
 }

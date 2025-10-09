@@ -50,7 +50,7 @@
         encapsulate references to these components into a MainWindow value
         initialize a Controller with this MainWindow as a refcell
         attach all event handlers with a Controller refcell
-- [ ] commands with two letters: 
+- [X] commands with two letters: 
        DD display date
        DS display size
        OD order by date

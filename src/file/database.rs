@@ -153,7 +153,7 @@ pub mod tests {
 
     pub fn insert_nine_colors_sample_into_db() {
         let database = my_db();
-        let picture: Picture = Picture::new_with_image_data(NINE_COLORS, "sample");
+        let picture: Picture = Picture::new_with_file_image_data(NINE_COLORS, "sample").expect("can't create picture");
         let _ = database.rusqlite_insert_picture(&picture);
     }
 
@@ -175,7 +175,7 @@ pub mod tests {
     #[test]
     fn retrieve_all_pictures_ordered_by_file_path() {
         let database = my_db();
-        let status: Result<ImageDataMap> = database.rusqlite_retrieve_all_pictures();
+        let status: SqlResult<ImageDataMap> = database.rusqlite_retrieve_all_pictures();
         assert!(status.is_ok());
         let map = status.unwrap();
         assert_eq!(3, map.len());

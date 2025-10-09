@@ -144,6 +144,8 @@ file_name	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    pub fn
 file_name_from	/Users/christophethibaut/Coding/gsr2/src/file/paths.rs	/^pub fn file_name_from(file_path: &str) -> String {$/;"	f
 file_path	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    pub fn file_path(&self) -> String {$/;"	f
 file_size_display	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    pub fn file_size_display(&self) -> String {$/;"	f
+find_file_path	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^    pub fn find_file_path(&self, file_path: &str) -> Option<usize> {$/;"	f
+finding_a_picture_by_file_path	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^    fn finding_a_picture_by_file_path() {$/;"	f
 fmt	/Users/christophethibaut/Coding/gsr2/src/model/order.rs	/^    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {$/;"	f
 frame	/Users/christophethibaut/Coding/gsr2/src/gui/view/picture_frame.rs	/^    pub fn frame(&self) -> gtk::Box {$/;"	f
 frame_window	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn frame_window(&self) -> gtk::ScrolledWindow {$/;"	f

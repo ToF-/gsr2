@@ -372,9 +372,13 @@ impl Controller {
     }
 
     pub fn order_by(&mut self, order: Order) {
-        let index = self.navigator.position();
+        let current_file_path = self.current_picture().file_path();
         self.gallery.sort_by(order);
-        self.navigator.move_towards(Direction::Index{ value: index });
+        if let Some(index) = self.gallery().find_file_path(&current_file_path) {
+            self.navigator.move_towards(Direction::Index{ value: index })
+        } else {
+            self.navigator.move_towards(Direction::First)
+        };
         self.navigator.set_page_changed()
     }
     pub fn change_grid_size(&mut self, pictures_per_row: usize) {
