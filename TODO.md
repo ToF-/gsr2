@@ -33,7 +33,7 @@
 - [x] any other event stops the slide show
 - [x] S command put the slide show back
 - [ ] edit and add a label, save it in the database and retrieve it
-- [ ] solve the dilemna:
+- [X] solve the dilemna:
     
     Controller has a View
     View holds the graphic Components
@@ -50,4 +50,10 @@
         encapsulate references to these components into a MainWindow value
         initialize a Controller with this MainWindow as a refcell
         attach all event handlers with a Controller refcell
-    
+- [ ] commands with two letters: 
+       DD display date
+       DS display size
+       OD order by date
+       OS order by size
+       ON order by name
+       OR randomize
