@@ -1,3 +1,5 @@
+use crate::gui::control::Control;
+use crate::gui::mode::Mode;
 use crate::Args;
 use crate::file::paths::check_path_exists;
 use crate::gui::direction::Direction;
@@ -176,8 +178,15 @@ impl MainWindow {
     }
 
     pub fn set_title(&self, controller: &Controller) {
-        let title = title_display(controller);
-        self.application_window().set_title(Some(&title))
+        let title = match controller.state().mode() {
+            Mode::View => title_display(controller),
+            Mode::Setting(choice) => match choice {
+                Control::SetDisplay => String::from("Display… (d|s)"),
+                Control::SetOrder => String::from("Order… (d|n|r|s)"),
+                _ => panic!("incorrect choice for setting: {:?}", choice),
+            },
+        };
+        self.application_window().set_title(Some(&title));
     }
 
     pub fn set_pictures_for_multiple_view(&self, controller: &Controller, pictures_per_row: i32) {
@@ -211,6 +220,7 @@ impl MainWindow {
             }
         }
     }
+
     pub fn set_picture_for_single_view(&self, controller: &Controller) {
         let picture: Picture = controller.current_picture();
         let picture_file_path = picture.file_path();

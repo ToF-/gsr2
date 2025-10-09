@@ -42,7 +42,11 @@ pub fn title_display(controller: &Controller) -> String {
         } else {
             String::from("")
         },
-        controller.current_picture().file_size_display(),
+        if controller.state().display_size_on() {
+            controller.current_picture().file_size_display()
+        } else {
+            String::from("")
+        },
         expand_display(controller.state().expand_on()),
         full_size_display(controller.state().full_size_on()),
     )

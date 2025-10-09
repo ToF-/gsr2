@@ -314,8 +314,8 @@ set_setting	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub
 set_slideshow_off	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_slideshow_off(&mut self) {$/;"	f
 set_slideshow_off	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn set_slideshow_off(&mut self) {$/;"	f
 set_title	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn set_title(&self, controller: &Controller) {$/;"	f
-setting_display	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn setting_display(&self) {$/;"	f
-setting_order	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn setting_order(&self) {$/;"	f
+setting_display	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn setting_display(&mut self) {$/;"	f
+setting_order	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn setting_order(&mut self) {$/;"	f
 single_view	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn single_view(&self) -> bool {$/;"	f
 single_view	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn single_view(&self) -> bool {$/;"	f
 size	/Users/christophethibaut/Coding/gsr2/src/gui/view/picture_grid.rs	/^    pub fn size(&self) -> usize {$/;"	f

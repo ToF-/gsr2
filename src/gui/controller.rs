@@ -214,7 +214,13 @@ impl Controller {
                 match key.name() {
                     None => {},
                     Some(key_name) => {
-                        if let Some(control) = controls.get(&key_name.to_string()) {
+                        let key_prefix: &str = match setting {
+                            Control::SetDisplay => "D",
+                            Control::SetOrder => "O",
+                            _ => "no_control",
+                        };
+                        let key_sequence: String = key_prefix.to_owned() + &key_name.to_string();
+                        if let Some(control) = controls.get(&key_sequence) {
                             self.set_setting(&setting, control);
                         }
                     },
@@ -244,7 +250,8 @@ impl Controller {
     }
 
     pub fn setting_display(&mut self) {
-        self.state.set_mode(Mode::Setting(Control::SetDisplay))
+        println!("Setting display…");
+        self.state.set_mode(Mode::Setting(Control::SetDisplay));
     }
 
     pub fn setting_order(&mut self) {
@@ -365,7 +372,10 @@ impl Controller {
     }
 
     pub fn order_by(&mut self, order: Order) {
-        println!("now reorder_by {:?}", order)
+        let index = self.navigator.position();
+        self.gallery.sort_by(order);
+        self.navigator.move_towards(Direction::Index{ value: index });
+        self.navigator.set_page_changed()
     }
     pub fn change_grid_size(&mut self, pictures_per_row: usize) {
         self.state.change_grid_size(pictures_per_row);
