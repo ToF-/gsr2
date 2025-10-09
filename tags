@@ -35,6 +35,7 @@ LEFT_PANE	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^pub
 MAX_PALETTE_COLORS	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const MAX_PALETTE_COLORS: u8 = 9;$/;"	c
 MAX_PICTURES_PER_ROW	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const MAX_PICTURES_PER_ROW: i32 = 10;$/;"	c
 MainWindow	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^pub struct MainWindow {$/;"	s
+Mode	/Users/christophethibaut/Coding/gsr2/src/gui/mode.rs	/^pub enum Mode {$/;"	g
 NAME	/Users/christophethibaut/Coding/gsr2/src/gui/gsr_application/imp.rs	/^    const NAME: &'static str = "GsrApplication";$/;"	c
 NINE_COLORS	/Users/christophethibaut/Coding/gsr2/src/model/gen_image.rs	/^pub const NINE_COLORS: &str = "testdata\/nine_colors.png";$/;"	c
 Navigator	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^pub struct Navigator {$/;"	s
@@ -55,6 +56,7 @@ SCROLL_STEP	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub
 SINGLE_DOT	/Users/christophethibaut/Coding/gsr2/src/model/gen_image.rs	/^pub const SINGLE_DOT: &str = "testdata\/single_dot.png";$/;"	c
 SLIDESHOW_DELAY_MAX	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const SLIDESHOW_DELAY_MAX: i32 = 900;$/;"	c
 SLIDESHOW_DELAY_MIN	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const SLIDESHOW_DELAY_MIN: i32 = 1;$/;"	c
+Setting	/Users/christophethibaut/Coding/gsr2/src/gui/setting.rs	/^pub enum Setting {$/;"	g
 State	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^pub struct State {$/;"	s
 TEST_DATABASE_FILE	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const TEST_DATABASE_FILE: &str = "testdata\/gsr2.db";$/;"	c
 THUMB_SUFFIX	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const THUMB_SUFFIX: &str = "THUMB";$/;"	c
@@ -131,6 +133,7 @@ delete_nine_colors_from_db	/Users/christophethibaut/Coding/gsr2/src/file/databas
 deleting_a_char_changes_the_input	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    fn deleting_a_char_changes_the_input() {$/;"	f
 dimension	/Users/christophethibaut/Coding/gsr2/src/env/dimension.rs	/^pub fn dimension($/;"	f
 display_date_on	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn display_date_on(&self) -> bool {$/;"	f
+display_size_on	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn display_size_on(&self) -> bool {$/;"	f
 editing	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    pub fn editing(&self) -> bool {$/;"	f
 expand_display	/Users/christophethibaut/Coding/gsr2/src/gui/display.rs	/^fn expand_display(on: bool) -> String {$/;"	f
 expand_on	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn expand_on(&self) -> bool {$/;"	f
@@ -203,6 +206,7 @@ make_picture	/Users/christophethibaut/Coding/gsr2/src/gui/view/picture_frame.rs	
 make_picture_cell_box	/Users/christophethibaut/Coding/gsr2/src/gui/view/picture_cell_box.rs	/^pub fn make_picture_cell_box(col: i32, row: i32, controller_rc: &RcController) -> gtk::Box {$/;"	f
 make_scrolled_window	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^fn make_scrolled_window() -> gtk::ScrolledWindow {$/;"	f
 make_stack	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^fn make_stack() -> gtk::Stack {$/;"	f
+mode	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn mode(&self) -> Mode {$/;"	f
 modified_time	/Users/christophethibaut/Coding/gsr2/src/model/image_data.rs	/^    pub fn modified_time(&self) -> SystemTime {$/;"	f
 modified_time_display	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    pub fn modified_time_display(&self) -> String {$/;"	f
 move_end	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn move_end(&mut self) {$/;"	f
@@ -246,6 +250,7 @@ next_page_start_is_page_start_plus_page_size_modulo_limit	/Users/christophethiba
 next_slide_delay	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn next_slide_delay(&mut self) {$/;"	f
 no_thumbnail_picture	/Users/christophethibaut/Coding/gsr2/src/model/gen_image.rs	/^pub fn no_thumbnail_picture() -> gtk::Picture {$/;"	f
 old_position	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn old_position(&self) -> usize {$/;"	f
+order_by	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn order_by(&mut self, order: Order) {$/;"	f
 page_changed	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn page_changed(&self) -> bool {$/;"	f
 page_display	/Users/christophethibaut/Coding/gsr2/src/gui/display.rs	/^fn page_display(controller: &Controller) -> String {$/;"	f
 page_end	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn page_end(&self) -> usize {$/;"	f
@@ -296,6 +301,7 @@ set_image_data	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    p
 set_label_for	/Users/christophethibaut/Coding/gsr2/src/gui/view/picture_grid.rs	/^    pub fn set_label_for(&self, picture: &Picture, col: i32, row: i32, with_focus: bool) {$/;"	f
 set_label_for_current_picture	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn set_label_for_current_picture(&self, controller: &Controller, with_focus: bool) {$/;"	f
 set_main_window	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_main_window(&mut self, main_window: MainWindow) {$/;"	f
+set_mode	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn set_mode(&mut self, mode: Mode) {$/;"	f
 set_page_changed	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn set_page_changed(&mut self) {$/;"	f
 set_page_unchanged	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn set_page_unchanged(&mut self) {$/;"	f
 set_picture	/Users/christophethibaut/Coding/gsr2/src/gui/view/picture_frame.rs	/^    pub fn set_picture(&self, controller: &Controller, picture: &gtk::Picture) {$/;"	f
@@ -304,9 +310,12 @@ set_picture_for_single_view	/Users/christophethibaut/Coding/gsr2/src/gui/view/ma
 set_pictures	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn set_pictures(&self, controller: &Controller) {$/;"	f
 set_pictures_for_multiple_view	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn set_pictures_for_multiple_view(&self, controller: &Controller, pictures_per_row: i32) {$/;"	f
 set_pictures_per_row	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn set_pictures_per_row(&mut self, pictures_per_row: usize) {$/;"	f
+set_setting	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_setting(&mut self, setting: &Control, choice: &Control) {$/;"	f
 set_slideshow_off	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_slideshow_off(&mut self) {$/;"	f
 set_slideshow_off	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn set_slideshow_off(&mut self) {$/;"	f
 set_title	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn set_title(&self, controller: &Controller) {$/;"	f
+setting_display	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn setting_display(&self) {$/;"	f
+setting_order	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn setting_order(&self) {$/;"	f
 single_view	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn single_view(&self) -> bool {$/;"	f
 single_view	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn single_view(&self) -> bool {$/;"	f
 size	/Users/christophethibaut/Coding/gsr2/src/gui/view/picture_grid.rs	/^    pub fn size(&self) -> usize {$/;"	f
@@ -330,6 +339,8 @@ title_display	/Users/christophethibaut/Coding/gsr2/src/gui/display.rs	/^pub fn t
 to_possible_value	/Users/christophethibaut/Coding/gsr2/src/model/order.rs	/^    fn to_possible_value(&self) -> Option<PossibleValue> {$/;"	f
 toggle_display_date	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn toggle_display_date(&mut self) {$/;"	f
 toggle_display_date	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn toggle_display_date(&mut self) {$/;"	f
+toggle_display_size	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn toggle_display_size(&mut self) {$/;"	f
+toggle_display_size	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn toggle_display_size(&mut self) {$/;"	f
 toggle_expand	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn toggle_expand(&mut self) {$/;"	f
 toggle_expand	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn toggle_expand(&mut self) {$/;"	f
 toggle_full_size	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn toggle_full_size(&mut self) {$/;"	f

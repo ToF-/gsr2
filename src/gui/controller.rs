@@ -1,3 +1,5 @@
+use crate::model::order::Order;
+use crate::gui::mode::Mode;
 use crate::Args;
 use crate::MainWindow;
 use crate::cli::command::Command;
@@ -199,16 +201,55 @@ impl Controller {
 
     pub fn process_key(&mut self, key: Key) {
         let controls = self.controls.clone();
-        match key.name() {
-            None => {}
-            Some(key_name) => {
-                if let Some(control) = controls.get(&key_name.to_string()) {
-                    self.process_control(control)
+        match self.state().mode() {
+            Mode::View => match key.name() {
+                None => {}
+                Some(key_name) => {
+                    if let Some(control) = controls.get(&key_name.to_string()) {
+                        self.process_control(control)
+                    }
                 }
+            },
+            Mode::Setting(setting) => { 
+                match key.name() {
+                    None => {},
+                    Some(key_name) => {
+                        if let Some(control) = controls.get(&key_name.to_string()) {
+                            self.set_setting(&setting, control);
+                        }
+                    },
+                };
+                self.state.set_mode(Mode::View)
             }
+        }
+
+    }
+
+    pub fn set_setting(&mut self, setting: &Control, choice: &Control) {
+        match setting {
+            Control::SetDisplay => match choice {
+                    Control::DisplayDate |
+                    Control::DisplaySize => self.process_control(choice),
+                    _ => println!("?"),
+                },
+            Control::SetOrder => match choice {
+                    Control::OrderByName |
+                        Control::OrderByDate |
+                        Control::OrderBySize |
+                        Control::Randomize => self.process_control(choice),
+                    _ => println!("?"),
+            },
+            _ => {},
         }
     }
 
+    pub fn setting_display(&mut self) {
+        self.state.set_mode(Mode::Setting(Control::SetDisplay))
+    }
+
+    pub fn setting_order(&mut self) {
+        self.state.set_mode(Mode::Setting(Control::SetOrder))
+    }
     pub fn next_slide_delay(&mut self) {
         self.move_next();
         self.main_window().set_pictures(self)
@@ -238,7 +279,14 @@ impl Controller {
             Control::GridFour => self.change_grid_size(4),
             Control::GridFive => self.change_grid_size(5),
             Control::GridTen => self.change_grid_size(10),
-            Control::ToggleDisplayDate => self.toggle_display_date(),
+            Control::SetDisplay => self.setting_display(),
+            Control::SetOrder => self.setting_order(),
+            Control::DisplayDate => self.toggle_display_date(),
+            Control::DisplaySize => self.toggle_display_size(),
+            Control::OrderByName => self.order_by(Order::Name),
+            Control::OrderByDate => self.order_by(Order::Date),
+            Control::OrderBySize => self.order_by(Order::Size),
+            Control::Randomize => self.order_by(Order::Random),
             _ => {}
         }
     }
@@ -286,6 +334,17 @@ impl Controller {
             });
     }
 
+    pub fn toggle_display_size(&mut self) {
+        self.state.toggle_display_size();
+        self.main_window().set_title(self);
+        println!("display size {}",
+            if self.state().display_size_on() {
+                String::from("on") 
+            } else {
+                String::from("off")
+            });
+    }
+
     pub fn toggle_full_size(&mut self) {
         if self.state.single_view() {
             self.state.toggle_full_size();
@@ -305,6 +364,9 @@ impl Controller {
         }
     }
 
+    pub fn order_by(&mut self, order: Order) {
+        println!("now reorder_by {:?}", order)
+    }
     pub fn change_grid_size(&mut self, pictures_per_row: usize) {
         self.state.change_grid_size(pictures_per_row);
         self.main_window().change_grid_size(pictures_per_row);

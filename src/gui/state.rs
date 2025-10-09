@@ -1,3 +1,5 @@
+use crate::gui::mode::Mode;
+
 #[derive(Clone, Debug)]
 pub struct State {
     pictures_per_row: usize,
@@ -7,6 +9,8 @@ pub struct State {
     full_size_on: bool,
     slideshow_on: bool,
     display_date_on: bool,
+    display_size_on: bool,
+    mode: Mode,
 }
 
 impl State {
@@ -19,9 +23,18 @@ impl State {
             full_size_on: false,
             slideshow_on,
             display_date_on: false,
+            display_size_on: false,
+            mode : Mode::View,
         }
     }
 
+    pub fn mode(&self) -> Mode {
+        self.mode.clone()
+    }
+    
+    pub fn set_mode(&mut self, mode: Mode) {
+        self.mode = mode
+    }
     pub fn slideshow_on(&self) -> bool {
         self.slideshow_on
     }
@@ -79,6 +92,14 @@ impl State {
 
     pub fn toggle_display_date(&mut self) {
         self.display_date_on = ! self.display_date_on
+    }
+
+    pub fn display_size_on(&self) -> bool {
+        self.display_size_on
+    }
+
+    pub fn toggle_display_size(&mut self) {
+        self.display_size_on = ! self.display_size_on
     }
 }
 

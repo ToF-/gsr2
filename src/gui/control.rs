@@ -18,7 +18,8 @@ pub enum Control {
     TogglePalette,
     ToggleSingleView,
     ToggleSlideShow,
-    ToggleDisplayDate,
+    SetDisplay,
+    SetOrder,
     Label,
     Quit,
     GridTwo,
@@ -26,6 +27,12 @@ pub enum Control {
     GridFour,
     GridFive,
     GridTen,
+    DisplayDate,
+    DisplaySize,
+    OrderByName,
+    OrderByDate,
+    OrderBySize,
+    Randomize,
 }
 
 pub type Controls = HashMap<String, Control>;
@@ -60,7 +67,14 @@ pub fn default_controls() -> Controls {
         (String::from("ccedilla"), Control::GridThree),
         (String::from("eacute"), Control::GridFour),
         (String::from("agrave"), Control::GridFive),
-        (String::from("D"), Control::ToggleDisplayDate),
+        (String::from("D"), Control::SetDisplay),
+        (String::from("O"), Control::SetOrder),
+        (String::from("Dd"), Control::DisplayDate),
+        (String::from("Ds"), Control::DisplaySize),
+        (String::from("On"), Control::OrderByName),
+        (String::from("Od"), Control::OrderByDate),
+        (String::from("Os"), Control::OrderBySize),
+        (String::from("Or"), Control::Randomize),
     ]);
     controls
 }
