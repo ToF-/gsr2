@@ -1,3 +1,4 @@
+use std::cmp::Reverse;
 use crate::file::database::Database;
 use crate::file::picture_file::{get_all_picture_file_paths, get_picture_file_path};
 use crate::model::order::Order;
@@ -77,7 +78,11 @@ impl Gallery {
             Order::Size => self.pictures.sort_by_key(|picture| 
                 picture.image_data().map(|image_data|
                     image_data.size()
-                    )),
+                )),
+            Order::Date => self.pictures.sort_by_key(|picture|
+                picture.image_data().map(|image_data|
+                    (true, Reverse(image_data.modified_time()))
+                )),
             _ => self.pictures.shuffle(&mut rng()),
         }
     }

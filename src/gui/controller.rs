@@ -238,6 +238,7 @@ impl Controller {
             Control::GridFour => self.change_grid_size(4),
             Control::GridFive => self.change_grid_size(5),
             Control::GridTen => self.change_grid_size(10),
+            Control::ToggleDisplayDate => self.toggle_display_date(),
             _ => {}
         }
     }
@@ -272,6 +273,17 @@ impl Controller {
             let navigator = &mut self.navigator;
             navigator.set_page_changed();
         }
+    }
+
+    pub fn toggle_display_date(&mut self) {
+        self.state.toggle_display_date();
+        self.main_window().set_title(self);
+        println!("display date {}",
+            if self.state().display_date_on() {
+                String::from("on") 
+            } else {
+                String::from("off")
+            });
     }
 
     pub fn toggle_full_size(&mut self) {
@@ -333,7 +345,6 @@ impl Controller {
     }
 
     pub fn full_size_arrow_move(&self, direction: Direction) {
-        println!("fsam");
         self.main_window().full_size_arrow_move(direction.clone())
     }
 

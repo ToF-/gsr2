@@ -130,6 +130,7 @@ delete	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    pub fn delet
 delete_nine_colors_from_db	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    pub fn delete_nine_colors_from_db() {$/;"	f
 deleting_a_char_changes_the_input	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    fn deleting_a_char_changes_the_input() {$/;"	f
 dimension	/Users/christophethibaut/Coding/gsr2/src/env/dimension.rs	/^pub fn dimension($/;"	f
+display_date_on	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn display_date_on(&self) -> bool {$/;"	f
 editing	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    pub fn editing(&self) -> bool {$/;"	f
 expand_display	/Users/christophethibaut/Coding/gsr2/src/gui/display.rs	/^fn expand_display(on: bool) -> String {$/;"	f
 expand_on	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn expand_on(&self) -> bool {$/;"	f
@@ -327,6 +328,8 @@ thumbnail_size_for	/Users/christophethibaut/Coding/gsr2/src/model/gen_image.rs	/
 thumbnail_size_for_different_number_of_pictures_per_row	/Users/christophethibaut/Coding/gsr2/src/model/gen_image.rs	/^    fn thumbnail_size_for_different_number_of_pictures_per_row() {$/;"	f
 title_display	/Users/christophethibaut/Coding/gsr2/src/gui/display.rs	/^pub fn title_display(controller: &Controller) -> String {$/;"	f
 to_possible_value	/Users/christophethibaut/Coding/gsr2/src/model/order.rs	/^    fn to_possible_value(&self) -> Option<PossibleValue> {$/;"	f
+toggle_display_date	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn toggle_display_date(&mut self) {$/;"	f
+toggle_display_date	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn toggle_display_date(&mut self) {$/;"	f
 toggle_expand	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn toggle_expand(&mut self) {$/;"	f
 toggle_expand	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn toggle_expand(&mut self) {$/;"	f
 toggle_full_size	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn toggle_full_size(&mut self) {$/;"	f

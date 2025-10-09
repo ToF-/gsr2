@@ -6,6 +6,7 @@ pub struct State {
     expand_on: bool,
     full_size_on: bool,
     slideshow_on: bool,
+    display_date_on: bool,
 }
 
 impl State {
@@ -17,6 +18,7 @@ impl State {
             expand_on: false,
             full_size_on: false,
             slideshow_on,
+            display_date_on: false,
         }
     }
 
@@ -69,6 +71,14 @@ impl State {
             self.pictures_per_row = pictures_per_row
         };
         self.single_view = false
+    }
+
+    pub fn display_date_on(&self) -> bool {
+        self.display_date_on
+    }
+
+    pub fn toggle_display_date(&mut self) {
+        self.display_date_on = ! self.display_date_on
     }
 }
 
