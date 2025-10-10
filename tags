@@ -18,8 +18,11 @@ DIMENSION_MAX	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^p
 DIMENSION_MIN	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const DIMENSION_MIN: i32 = 100;$/;"	c
 Database	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^pub struct Database {$/;"	s
 Direction	/Users/christophethibaut/Coding/gsr2/src/gui/direction.rs	/^pub enum Direction {$/;"	g
+ENTRY_WINDOW_HEIGHT	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const ENTRY_WINDOW_HEIGHT: i32 =250;$/;"	c
+ENTRY_WINDOW_WIDTH	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const ENTRY_WINDOW_WIDTH: i32 = 500;$/;"	c
 EXPAND_ON_SYMBOL	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const EXPAND_ON_SYMBOL: &str = "  ⃞";$/;"	c
 Editor	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^pub struct Editor {$/;"	s
+EntryWindow	/Users/christophethibaut/Coding/gsr2/src/gui/view/entry_window.rs	/^pub struct EntryWindow {$/;"	s
 Event	/Users/christophethibaut/Coding/gsr2/src/gui/event.rs	/^pub enum Event {$/;"	g
 FOCUS_SYMBOL	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const FOCUS_SYMBOL: &str = "▄ ";$/;"	c
 FULL_SIZE_ON_SYMBOL	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const FULL_SIZE_ON_SYMBOL: &str = " 🔍";$/;"	c
@@ -135,6 +138,7 @@ dimension	/Users/christophethibaut/Coding/gsr2/src/env/dimension.rs	/^pub fn dim
 display_date_on	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn display_date_on(&self) -> bool {$/;"	f
 display_size_on	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn display_size_on(&self) -> bool {$/;"	f
 editing	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    pub fn editing(&self) -> bool {$/;"	f
+entry_text	/Users/christophethibaut/Coding/gsr2/src/gui/view/entry_window.rs	/^    pub fn entry_text(&self) -> String {$/;"	f
 expand_display	/Users/christophethibaut/Coding/gsr2/src/gui/display.rs	/^fn expand_display(on: bool) -> String {$/;"	f
 expand_on	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn expand_on(&self) -> bool {$/;"	f
 extract_a_palette_from_a_picture_file	/Users/christophethibaut/Coding/gsr2/src/model/image_data.rs	/^    fn extract_a_palette_from_a_picture_file() {$/;"	f
@@ -236,6 +240,7 @@ new	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    pub fn new() ->
 new	/Users/christophethibaut/Coding/gsr2/src/gui/gsr_application/mod.rs	/^    pub fn new() -> Self {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn new(limit: usize, pictures_per_row: usize) -> Self {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn new(pictures_per_row: usize, slideshow_on: bool) -> Self {$/;"	f
+new	/Users/christophethibaut/Coding/gsr2/src/gui/view/entry_window.rs	/^    pub fn new(application_window: &gtk::ApplicationWindow, prompt: &str, text: &str, digits_only: bool) -> Self {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/gui/view/picture_frame.rs	/^    pub fn new() -> Self {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/gui/view/picture_grid.rs	/^    pub fn new(pictures_per_row: i32, controller_rc: &RcController) -> Self {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^    pub fn new() -> Self {$/;"	f
@@ -271,6 +276,7 @@ pictures_per_row	/Users/christophethibaut/Coding/gsr2/src/file/paths.rs	/^      
 pictures_per_row	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn pictures_per_row(&self) -> usize {$/;"	f
 pictures_per_row_is_determined_by_grid_option	/Users/christophethibaut/Coding/gsr2/src/cli/args.rs	/^    fn pictures_per_row_is_determined_by_grid_option() {$/;"	f
 pictures_per_row_is_determined_by_thumbnails_option	/Users/christophethibaut/Coding/gsr2/src/cli/args.rs	/^    fn pictures_per_row_is_determined_by_thumbnails_option() {$/;"	f
+popup_entry_window	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn popup_entry_window(&mut self, prompt: &str, text: &str, digits_only: bool) {$/;"	f
 position	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn position(&self) -> usize {$/;"	f
 position_from_coords	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn position_from_coords(&self, row: usize, col: usize) -> Option<usize> {$/;"	f
 position_from_coords_depnds_on_page_start	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn position_from_coords_depnds_on_page_start() {$/;"	f

@@ -299,9 +299,9 @@ impl Controller {
     }
 
     pub fn label(&self) {
-        // if let Ok(application_window) = self.view().application_window_rc().try_borrow_mut() {
-        //     self.view().make_entry_window(&application_window, "Enter a label");
-        // }
+        println!("entering a label…");
+        let mut main_window = self.main_window();
+        main_window.popup_entry_window("Enter a label:", "");
     }
     pub fn quit(&self) {
         let application_window = self.main_window().application_window();

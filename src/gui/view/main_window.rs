@@ -1,3 +1,4 @@
+use crate::gui::view::entry_window::EntryWindow;
 use crate::gui::control::Control;
 use crate::gui::mode::Mode;
 use crate::Args;
@@ -36,10 +37,12 @@ pub const RIGHT_PANE: usize = 1;
 pub struct MainWindow {
     picture_grid: PictureGrid,
     picture_frame: PictureFrame,
+    entry_window: Option<EntryWindow>,
     application_window: gtk::ApplicationWindow,
     stack: gtk::Stack,
     frame_window: gtk::ScrolledWindow,
     controller_rc: RcController,
+
 }
 
 impl MainWindow {
@@ -109,6 +112,7 @@ impl MainWindow {
         MainWindow {
             picture_grid: picture_grid.clone(),
             picture_frame: picture_frame.clone(),
+            entry_window: None,
             application_window: application_window.clone(),
             stack: stack.clone(),
             frame_window: single_view_scrolled_window.clone(),
@@ -258,6 +262,16 @@ impl MainWindow {
         let stack = self.stack();
         let child_name = stack.visible_child_name().unwrap();
         child_name == "single_view"
+    }
+
+    pub fn popup_entry_window(&mut self, prompt: &str, text: &str) {
+        let entry_window = EntryWindow::new(
+                &self.application_window(),
+                prompt,
+                text,
+            );
+        self.entry_window = Some(entry_window.clone());
+        entry_window.popup()
     }
 
     pub fn change_grid_size(&mut self, pictures_per_row: usize) {
