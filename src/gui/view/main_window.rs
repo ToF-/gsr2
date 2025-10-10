@@ -1,3 +1,4 @@
+use crate::env::default_values::FOCUS_SYMBOL;
 use crate::gui::view::entry_window::EntryWindow;
 use crate::gui::control::Control;
 use crate::gui::mode::Mode;
@@ -209,7 +210,11 @@ impl MainWindow {
                 remove_children_from_box(&cell);
                 if let Some(index) = navigator.position_from_coords(coords.0, coords.1) {
                     let picture = gallery.picture(index);
-                    let is_focus = index == navigator.position();
+                    let with_focus = if index == navigator.position() {
+                        Some(FOCUS_SYMBOL)
+                    } else {
+                        None
+                    };
                     let picture_file_path = picture.view_file_path(pictures_per_row as usize);
                     let gtk_picture = if let Ok(file_path) =
                         check_path_exists(&PathBuf::from(picture_file_path))
@@ -220,7 +225,7 @@ impl MainWindow {
                     };
                     self.picture_grid.set_picture_for(col, row, &gtk_picture);
                     self.picture_grid
-                        .set_label_for(&picture, col, row, is_focus);
+                        .set_label_for(&picture, col, row, with_focus);
                 }
             }
         }
@@ -247,7 +252,7 @@ impl MainWindow {
             self.set_pictures_for_multiple_view(controller, pictures_per_row as i32)
         }
     }
-    pub fn set_label_for_current_picture(&self, controller: &Controller, with_focus: bool) {
+    pub fn set_label_for_current_picture(&self, controller: &Controller, with_focus: Option<&str>) {
         let navigator = controller.navigator();
         let position = navigator.position();
         let picture = controller.current_picture();

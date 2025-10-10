@@ -36,7 +36,7 @@ impl PictureGrid {
         self.grid.clone()
     }
 
-    pub fn set_label_for(&self, picture: &Picture, col: i32, row: i32, with_focus: bool) {
+    pub fn set_label_for(&self, picture: &Picture, col: i32, row: i32, with_focus: Option<&str>) {
         let grid = self.grid();
         if let Some(cell_box) = grid.child_at(col, row) {
             let gtk_picture = cell_box

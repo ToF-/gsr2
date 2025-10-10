@@ -1,3 +1,4 @@
+use crate::env::default_values::FOCUS_SYMBOL;
 use crate::gui::mode::EntryKind;
 use crate::model::order::Order;
 use crate::gui::mode::Mode;
@@ -23,6 +24,7 @@ use rand::rng;
 use std::cell::RefCell;
 use std::io::Result as IOResult;
 use std::rc::Rc;
+use std::cell::Cell;
 
 #[derive(Debug)]
 pub struct Controller {
@@ -33,6 +35,7 @@ pub struct Controller {
     database: Database,
     state: State,
     main_window_opt: Option<MainWindow>,
+    focus_symbol_rc: Rc<Cell<char>>,
 }
 
 pub type RcController = Rc<RefCell<Controller>>;
@@ -52,6 +55,7 @@ impl Controller {
                     database,
                     state: State::new(pictures_per_row as usize, cli.slideshow().is_some()),
                     main_window_opt: None,
+                    focus_symbol_rc: Rc::new(Cell::new(FOCUS_SYMBOL_1)),
                 }),
             }
         })
@@ -151,7 +155,7 @@ impl Controller {
     }
     pub fn process_picture_clicked(&mut self, _button: u32, col: i32, row: i32) {
         self.main_window()
-            .set_label_for_current_picture(self, false);
+            .set_label_for_current_picture(self, None);
         if let Some(index) = self
             .navigator
             .position_from_coords(row as usize, col as usize)
@@ -160,7 +164,7 @@ impl Controller {
             self.navigator
                 .move_towards(Direction::Index { value: index });
         }
-        self.main_window().set_label_for_current_picture(self, true);
+        self.main_window().set_label_for_current_picture(self, Some(FOCUS_SYMBOL));
     }
 
     pub fn process_pane_clicked(&mut self, _button: usize, pane_number: usize) {
@@ -182,7 +186,7 @@ impl Controller {
         _controller_rc: &RcController,
     ) {
         let main_window = self.main_window();
-        main_window.set_label_for_current_picture(self, false);
+        main_window.set_label_for_current_picture(self, None);
         let old_slideshow_on = self.state().slideshow_on();
         self.process_key(key);
 
@@ -195,7 +199,7 @@ impl Controller {
                 self.main_window().set_pictures(self);
                 self.navigator.set_page_unchanged();
             };
-            self.main_window().set_label_for_current_picture(self, true);
+            self.main_window().set_label_for_current_picture(self, Some(FOCUS_SYMBOL));
             self.main_window().set_title(self);
         }
     }
