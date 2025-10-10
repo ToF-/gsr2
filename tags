@@ -138,6 +138,8 @@ current_picture	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^   
 database_connection	/Users/christophethibaut/Coding/gsr2/src/env/environment.rs	/^pub fn database_connection() -> Result<String> {$/;"	f
 default_controls	/Users/christophethibaut/Coding/gsr2/src/gui/control.rs	/^pub fn default_controls() -> Controls {$/;"	f
 delete	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    pub fn delete(&mut self) -> bool {$/;"	f
+delete_char	/Users/christophethibaut/Coding/gsr2/src/gui/view/entry_window.rs	/^    pub fn delete_char(&self) {$/;"	f
+delete_editor_char	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn delete_editor_char(&self) {$/;"	f
 delete_nine_colors_from_db	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    pub fn delete_nine_colors_from_db() {$/;"	f
 deleting_a_char_changes_the_input	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    fn deleting_a_char_changes_the_input() {$/;"	f
 dimension	/Users/christophethibaut/Coding/gsr2/src/env/dimension.rs	/^pub fn dimension($/;"	f
@@ -292,7 +294,7 @@ position_from_coords_depnds_on_page_start	/Users/christophethibaut/Coding/gsr2/s
 prev_page_start	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn prev_page_start(&self) -> usize {$/;"	f
 prev_page_start_is_page_start_minus_page_size	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn prev_page_start_is_page_start_minus_page_size() {$/;"	f
 process_control	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn process_control(&mut self, control: &Control) {$/;"	f
-process_editor_key	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn process_editor_key(&self, key: Key, _kind: EntryKind) {$/;"	f
+process_editor_key	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn process_editor_key(&self, key: Key, kind: EntryKind) {$/;"	f
 process_event	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn process_event(&mut self, event: Event, controller_rc: &RcController) {$/;"	f
 process_key	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn process_key(&mut self, key: Key) {$/;"	f
 process_key_event	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn process_key_event($/;"	f

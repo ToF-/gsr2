@@ -1,6 +1,12 @@
+use gtk::glib::timeout_add_local;
+use gtk::glib::{ControlFlow, Propagation};
+use crate::env::default_values::{ENTRY_CURSOR_1, ENTRY_CURSOR_2};
+use crate::gui::mode::EntryKind;
+use crate::gui::mode::Mode;
+use std::time::Duration;
 use gtk::CssProvider;
+#[allow(deprecated)]
 use gtk::prelude::StyleContextExt;
-use gtk::glib::Propagation;
 use crate::gui::event::Event;
 use crate::RcController;
 use crate::clone;
@@ -17,6 +23,7 @@ pub struct EntryWindow {
     window: gtk::Window,
 }
 
+#[allow(deprecated)]
 impl EntryWindow {
     pub fn new(application_window: &gtk::ApplicationWindow, prompt: &str, text: &str, controller_rc: &RcController) -> Self {
         let entry_text = gtk::Label::builder()
@@ -73,6 +80,7 @@ impl EntryWindow {
             .build();
         window.set_child(Some(&entry_box));
         Self::attach_key_pressed_event_handler(&window, controller_rc);
+        Self::attach_cursor_blink_event(&window, controller_rc);
         EntryWindow {
             window: window,
         }
@@ -100,8 +108,40 @@ impl EntryWindow {
         window.add_controller(event_controller_key);
     }
 
-    pub fn entry_text(&self) -> gtk::Label {
-        let label: gtk::Label = self.window
+    fn attach_cursor_blink_event(window: &gtk::Window, controller_rc: &RcController) {
+        let delay: u64 = 1;
+        timeout_add_local(
+            Duration::new(delay, 0),
+            clone!(
+                #[strong] window,
+                #[strong] controller_rc,
+                move || {
+                    if let Ok(controller) = controller_rc.try_borrow() {
+                        if Mode::Editing(EntryKind::Label) == controller.state().mode() {
+                            let label = Self::entry_text_label(&window);
+                            let mut content = label.text().to_string();
+                            let cursor = content.pop();
+                            let new_cursor = if cursor == Some(ENTRY_CURSOR_1) {
+                                ENTRY_CURSOR_2
+                            } else {
+                                ENTRY_CURSOR_1
+                            };
+                            content.push(new_cursor);
+                            label.set_text(&content);
+                            ControlFlow::Continue
+                        } else {
+                            ControlFlow::Break
+                        }
+                    } else {
+                        panic!("can't borrow mut controller")
+                    }
+                }
+        ),
+        );
+    }
+
+    fn entry_text_label(window: &gtk::Window) -> gtk::Label {
+        let label: gtk::Label = window
             .first_child().expect("can't get first_child")
             .downcast::<gtk::Box>().expect("can't downcast as box")
             .first_child().expect("can't get entry prompt")
@@ -110,10 +150,23 @@ impl EntryWindow {
             .downcast::<gtk::Label>().expect("can't downcast as label");
         label
     }
+    pub fn entry_text(&self) -> gtk::Label {
+        Self::entry_text_label(&self.window)
+    }
 
     pub fn add_char(&self, ch: char) {
         let mut content: String = self.entry_text().text().to_string();
+        content.pop();
         content.push(ch);
+        content.push(ENTRY_CURSOR_1);
+        self.entry_text().set_text(&content)
+    }
+
+    pub fn delete_char(&self) {
+        let mut content: String = self.entry_text().text().to_string();
+        content.pop();
+        content.pop();
+        content.push(ENTRY_CURSOR_1);
         self.entry_text().set_text(&content)
     }
 

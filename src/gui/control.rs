@@ -4,6 +4,7 @@ use std::collections::HashMap;
 pub enum Control {
     Enter,
     Cancel,
+    DeleteChar,
     Left,
     Right,
     Up,
@@ -44,6 +45,7 @@ pub fn default_controls() -> Controls {
     let controls: HashMap<String, Control> = HashMap::from([
         (String::from("Return"), Control::Enter),
         (String::from("Escape"), Control::Cancel),
+        (String::from("BackSpace"), Control::DeleteChar),
         (String::from("n"), Control::MoveNext),
         (String::from("p"), Control::MovePrev),
         (String::from("Z"), Control::MoveLast),

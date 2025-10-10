@@ -235,6 +235,7 @@ impl Controller {
                         match controls.get(&key_name.to_string()) {
                                 Some(Control::Cancel) => self.cancel(),
                                 Some(Control::Enter) => self.enter(),
+                                Some(Control::DeleteChar) => self.delete_editor_char(),
                                 Some(_) |
                                 None => self.process_editor_key(key, kind) 
                         }
@@ -312,9 +313,20 @@ impl Controller {
         }
     }
 
-    pub fn process_editor_key(&self, key: Key, _kind: EntryKind) {
+    pub fn delete_editor_char(&self) {
+        self.main_window().entry_window().delete_char();
+    }
+    pub fn process_editor_key(&self, key: Key, kind: EntryKind) {
+        println!("{:?}", key.name());
         if let Some(ch) = key.to_unicode() {
-            self.main_window().entry_window().add_char(ch)
+            let ch_is_ok = match kind {
+                EntryKind::Number => ch.is_ascii_digit(),
+                EntryKind::Label => matches!(ch,
+                    'a'..='z' | '0'..='9' | '-' | '_'),
+            };
+            if ch_is_ok {
+                self.main_window().entry_window().add_char(ch)
+            }
         }
     }
     pub fn cancel(&mut self) {
