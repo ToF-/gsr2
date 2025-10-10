@@ -1,4 +1,3 @@
-use crate::file::picture_file::get_palette_from_picture_file;
 use crate::env::default_values::MAX_PALETTE_COLORS;
 use crate::file::picture_file::get_data_from_picture_file;
 use image::{DynamicImage, Rgb};

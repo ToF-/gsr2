@@ -1,3 +1,4 @@
+use gtk::prelude::BoxExt;
 use gtk::Align;
 use crate::env::default_values::{ENTRY_WINDOW_HEIGHT, ENTRY_WINDOW_WIDTH};
 
@@ -29,12 +30,12 @@ impl EntryWindow {
             .vexpand(true)
             .homogeneous(false)
             .build();
-        entry_box.add_child(prompt_label);
-        entry_box.add_child(entry_text);
+        entry_box.append(&prompt_label);
+        entry_box.append(&entry_text);
         let entry_window = gtk::Window::builder()
-            .width(ENTRY_WINDOW_WIDTH)
-            .height(ENTRY_WINDOW_HEIGHT)
-            .tansient_for(application_window)
+            .content_width(ENTRY_WINDOW_WIDTH)
+            .content_height(ENTRY_WINDOW_HEIGHT)
+            .transient_for(application_window)
             .build();
         entry_window.set_child(&entry_box);
         EntryWindow {
