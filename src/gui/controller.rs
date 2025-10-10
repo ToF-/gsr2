@@ -1,4 +1,4 @@
-use crate::env::default_values::FOCUS_SYMBOL;
+use crate::env::default_values::FOCUS_SYMBOL_1;
 use crate::gui::mode::EntryKind;
 use crate::model::order::Order;
 use crate::gui::mode::Mode;
@@ -34,8 +34,8 @@ pub struct Controller {
     controls: Controls,
     database: Database,
     state: State,
+    focus_symbol_change_on: bool,
     main_window_opt: Option<MainWindow>,
-    focus_symbol_rc: Rc<Cell<char>>,
 }
 
 pub type RcController = Rc<RefCell<Controller>>;
@@ -55,7 +55,7 @@ impl Controller {
                     database,
                     state: State::new(pictures_per_row as usize, cli.slideshow().is_some()),
                     main_window_opt: None,
-                    focus_symbol_rc: Rc::new(Cell::new(FOCUS_SYMBOL_1)),
+                    focus_symbol_change_on: false,
                 }),
             }
         })
@@ -70,6 +70,18 @@ impl Controller {
     }
     pub fn set_main_window(&mut self, main_window: MainWindow) {
         self.main_window_opt = Some(main_window)
+    }
+
+    pub fn focus_symbol_change_on(&self) -> bool {
+        self.focus_symbol_change_on
+    }
+
+    pub fn set_focus_symbol_change_on(&mut self) {
+        self.focus_symbol_change_on = true
+    }
+
+    pub fn set_focus_symbol_change_off(&mut self) {
+        self.focus_symbol_change_on = false
     }
 
     pub fn state(&self) -> State {
@@ -164,7 +176,7 @@ impl Controller {
             self.navigator
                 .move_towards(Direction::Index { value: index });
         }
-        self.main_window().set_label_for_current_picture(self, Some(FOCUS_SYMBOL));
+        self.toggle_focus_symbol()
     }
 
     pub fn process_pane_clicked(&mut self, _button: usize, pane_number: usize) {
@@ -199,9 +211,14 @@ impl Controller {
                 self.main_window().set_pictures(self);
                 self.navigator.set_page_unchanged();
             };
-            self.main_window().set_label_for_current_picture(self, Some(FOCUS_SYMBOL));
+            self.toggle_focus_symbol();
             self.main_window().set_title(self);
         }
+    }
+
+    pub fn toggle_focus_symbol(&mut self) {
+        self.state.toggle_focus_symbol();
+        self.main_window().set_label_for_current_picture(self, Some(self.state().focus_symbol()))
     }
 
     pub fn process_key(&mut self, key: Key) {
@@ -372,6 +389,9 @@ impl Controller {
 
     pub fn toggle_single_view(&mut self) {
         self.state.toggle_single_view();
+        if ! self.state().single_view() {
+            self.main_window().picture_grid().attach_focus_symbol_change_event()
+        }
         if self.state.full_size_on() {
             self.state.toggle_full_size()
         }

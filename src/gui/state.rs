@@ -1,3 +1,4 @@
+use crate::env::default_values::{FOCUS_SYMBOL_1, FOCUS_SYMBOL_2};
 use crate::gui::mode::Mode;
 
 #[derive(Clone, Debug)]
@@ -11,6 +12,7 @@ pub struct State {
     display_date_on: bool,
     display_size_on: bool,
     mode: Mode,
+    focus_symbol: char,
 }
 
 impl State {
@@ -25,13 +27,26 @@ impl State {
             display_date_on: false,
             display_size_on: false,
             mode : Mode::View,
+            focus_symbol: FOCUS_SYMBOL_1,
         }
     }
 
     pub fn mode(&self) -> Mode {
         self.mode.clone()
     }
+
+    pub fn focus_symbol(&self) -> char {
+        self.focus_symbol
+    }
     
+    pub fn toggle_focus_symbol(&mut self) {
+        if self.focus_symbol == FOCUS_SYMBOL_1 {
+            self.focus_symbol = FOCUS_SYMBOL_2
+        } else {
+            self.focus_symbol = FOCUS_SYMBOL_1
+        }
+    }
+
     pub fn set_mode(&mut self, mode: Mode) {
         self.mode = mode
     }

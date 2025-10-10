@@ -1,3 +1,7 @@
+use gtk::glib::timeout_add_local;
+use gtk::glib::{ControlFlow, Propagation};
+use std::time::Duration;
+use crate::clone;
 use crate::env::default_values::MAX_PICTURES_PER_ROW;
 use crate::gui::controller::RcController;
 use crate::gui::display::picture_label_display;
@@ -8,10 +12,14 @@ use gtk::prelude::BoxExt;
 use gtk::prelude::Cast;
 use gtk::prelude::GridExt;
 use gtk::prelude::WidgetExt;
+use crate::env::default_values::{FOCUS_SYMBOL_1, FOCUS_SYMBOL_2};
+use std::rc::Rc;
+use std::cell::RefCell;
 
 #[derive(Clone, Debug)]
 pub struct PictureGrid {
     grid: gtk::Grid,
+    focus_symbol_change_on: usize,
     controller_rc: RcController,
 }
 
@@ -19,6 +27,7 @@ impl PictureGrid {
     pub fn new_from_grid(grid: &gtk::Grid, controller_rc: &RcController) -> Self {
         PictureGrid {
             controller_rc: controller_rc.clone(),
+            focus_symbol_change_on: 0,
             grid: grid.clone(),
         }
     }
@@ -26,17 +35,66 @@ impl PictureGrid {
         let grid = make_grid();
         let picture_grid = PictureGrid {
             grid,
+            focus_symbol_change_on: 0,
             controller_rc: controller_rc.clone(),
         };
         picture_grid.attach_cells(pictures_per_row);
+        
         picture_grid
     }
 
+    pub fn set_focus_symbol_change_off(&mut self) {
+        println!("set_focus_symbol_change_off");
+        self.focus_symbol_change_on = 0;
+    }
+
+    pub fn set_focus_symbol_change_on(&mut self) {
+        println!("set_focus_symbol_change_on");
+        self.focus_symbol_change_on = self.focus_symbol_change_on + 1;
+    }
+
+    pub fn attach_focus_symbol_change_event(&mut self) {
+        let controller_rc = self.controller_rc.clone();
+        let picture_grid_rc = Rc::new(RefCell::new(self.clone()));
+        if self.focus_symbol_change_on == 0 {
+            let delay: u64 = 1;
+            timeout_add_local(
+                Duration::new(delay, 0),
+                clone!(
+                    #[strong] picture_grid_rc,
+                    #[strong] controller_rc,
+                    move || {
+                        if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+                            if ! controller.state().single_view() {
+                                controller.toggle_focus_symbol();
+                                if let Ok(mut picture_grid) = picture_grid_rc.try_borrow_mut() {
+                                    println!("{:?}", picture_grid.focus_symbol_change_on);
+                                }
+                                ControlFlow::Continue
+                            } else {
+                                if let Ok(mut picture_grid) = picture_grid_rc.try_borrow_mut() {
+                                    picture_grid.set_focus_symbol_change_off();
+                                }
+                                ControlFlow::Break
+
+                            }
+                        } else {
+                            if let Ok(mut picture_grid) = picture_grid_rc.try_borrow_mut() {
+                                picture_grid.set_focus_symbol_change_off();
+                            }
+                            ControlFlow::Continue
+                        }
+                    }
+                ));
+                self.focus_symbol_change_on = 1;
+        }
+
+    }
     pub fn grid(&self) -> gtk::Grid {
         self.grid.clone()
     }
 
-    pub fn set_label_for(&self, picture: &Picture, col: i32, row: i32, with_focus: Option<&str>) {
+    pub fn set_label_for(&mut self, picture: &Picture, col: i32, row: i32, with_focus: Option<char>) {
         let grid = self.grid();
         if let Some(cell_box) = grid.child_at(col, row) {
             let gtk_picture = cell_box

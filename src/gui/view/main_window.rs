@@ -1,4 +1,4 @@
-use crate::env::default_values::FOCUS_SYMBOL;
+use crate::env::default_values::FOCUS_SYMBOL_1;
 use crate::gui::view::entry_window::EntryWindow;
 use crate::gui::control::Control;
 use crate::gui::mode::Mode;
@@ -195,7 +195,7 @@ impl MainWindow {
         self.application_window().set_title(Some(&title));
     }
 
-    pub fn set_pictures_for_multiple_view(&self, controller: &Controller, pictures_per_row: i32) {
+    pub fn set_pictures_for_multiple_view(&mut self, controller: &Controller, pictures_per_row: i32) {
         let navigator = controller.navigator();
         let gallery = controller.gallery();
         let picture_grid = self.picture_grid.clone();
@@ -211,7 +211,7 @@ impl MainWindow {
                 if let Some(index) = navigator.position_from_coords(coords.0, coords.1) {
                     let picture = gallery.picture(index);
                     let with_focus = if index == navigator.position() {
-                        Some(FOCUS_SYMBOL)
+                        Some(FOCUS_SYMBOL_1)
                     } else {
                         None
                     };
@@ -228,7 +228,8 @@ impl MainWindow {
                         .set_label_for(&picture, col, row, with_focus);
                 }
             }
-        }
+        };
+        self.picture_grid.attach_focus_symbol_change_event()
     }
 
     pub fn set_picture_for_single_view(&self, controller: &Controller) {
@@ -244,7 +245,7 @@ impl MainWindow {
         picture_frame.set_picture(controller, &gtk_picture);
     }
 
-    pub fn set_pictures(&self, controller: &Controller) {
+    pub fn set_pictures(&mut self, controller: &Controller) {
         if controller.state().single_view() {
             self.set_picture_for_single_view(controller)
         } else {
@@ -252,14 +253,14 @@ impl MainWindow {
             self.set_pictures_for_multiple_view(controller, pictures_per_row as i32)
         }
     }
-    pub fn set_label_for_current_picture(&self, controller: &Controller, with_focus: Option<&str>) {
+    pub fn set_label_for_current_picture(&self, controller: &Controller, with_focus: Option<char>) {
         let navigator = controller.navigator();
         let position = navigator.position();
         let picture = controller.current_picture();
         if !controller.state().single_view()
             && let Some((row, col)) = navigator.coords_from_position(position)
         {
-            let picture_grid = self.picture_grid();
+            let mut picture_grid = self.picture_grid();
             picture_grid.set_label_for(&picture, col as i32, row as i32, with_focus);
         }
     }

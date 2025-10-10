@@ -107,7 +107,6 @@ impl EntryWindow {
         ));
         window.add_controller(event_controller_key);
     }
-
     fn attach_cursor_blink_event(window: &gtk::Window, controller_rc: &RcController) {
         let delay: u64 = 1;
         timeout_add_local(
