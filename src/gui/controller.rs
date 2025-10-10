@@ -62,7 +62,7 @@ impl Controller {
     }
 
     pub fn main_window(&self) -> MainWindow {
-        self.main_window_opt.clone().unwrap().clone()
+        self.main_window_opt.clone().unwrap()
     }
     pub fn set_main_window(&mut self, main_window: MainWindow) {
         self.main_window_opt = Some(main_window)
@@ -232,11 +232,13 @@ impl Controller {
                 match key.name() {
                     None => {},
                     Some(key_name) => {
-                        if let Some(control) = controls.get(&key_name.to_string()) {
-                             self.process_control(control)
+                        match controls.get(&key_name.to_string()) {
+                                Some(Control::Cancel) => self.cancel(),
+                                Some(Control::Enter) => self.enter(),
+                                Some(_) |
+                                None => self.process_editor_key(key, kind) 
                         }
                     },
-                    Some(_) => {},
                 }
             }
         }
@@ -310,8 +312,17 @@ impl Controller {
         }
     }
 
+    pub fn process_editor_key(&self, key: Key, _kind: EntryKind) {
+        if let Some(ch) = key.to_unicode() {
+            self.main_window().entry_window().add_char(ch)
+        }
+    }
     pub fn cancel(&mut self) {
-        println!("cancelling…");
+        self.main_window().close_entry_window();
+        self.state.set_mode(Mode::View)
+    }
+
+    pub fn enter(&mut self) {
         self.main_window().close_entry_window();
         self.state.set_mode(Mode::View)
     }
@@ -320,8 +331,10 @@ impl Controller {
         println!("entering a label…");
         let mut main_window = self.main_window();
         main_window.popup_entry_window("Enter a label:", "");
-        self.state.set_mode(Mode::Editing(EntryKind::Label))
+        self.state.set_mode(Mode::Editing(EntryKind::Label));
+        self.main_window_opt = Some(main_window);
     }
+
     pub fn quit(&self) {
         let application_window = self.main_window().application_window();
         application_window.close()

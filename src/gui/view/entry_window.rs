@@ -1,3 +1,5 @@
+use gtk::CssProvider;
+use gtk::prelude::StyleContextExt;
 use gtk::glib::Propagation;
 use crate::gui::event::Event;
 use crate::RcController;
@@ -22,11 +24,35 @@ impl EntryWindow {
             .halign(Align::Center)
             .label(text)
             .build();
+        let text_css_provider = CssProvider::new();
+        text_css_provider.load_from_string(
+            "
+            label {
+                padding: 10px;
+                font-size: 32px;
+            }
+        ",
+        );
+        entry_text.style_context().add_provider(
+            &text_css_provider,
+            gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
         let prompt_label = gtk::Label::builder()
             .valign(Align::Center)
             .halign(Align::Center)
             .label(prompt)
             .build();
+        let prompt_css_provider = CssProvider::new();
+        prompt_css_provider.load_from_string(
+            "
+            label {
+                padding: 1px;
+                font-size: 16px;
+            }
+        ",
+        );
+        prompt_label.style_context().add_provider(
+            &prompt_css_provider,
+            gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
         let entry_box = gtk::Box::builder()
             .orientation(Orientation::Vertical)
             .spacing(0)
@@ -74,7 +100,7 @@ impl EntryWindow {
         window.add_controller(event_controller_key);
     }
 
-    pub fn entry_text(&self) -> String {
+    pub fn entry_text(&self) -> gtk::Label {
         let label: gtk::Label = self.window
             .first_child().expect("can't get first_child")
             .downcast::<gtk::Box>().expect("can't downcast as box")
@@ -82,7 +108,13 @@ impl EntryWindow {
             .downcast::<gtk::Label>().expect("can't downcast as label")
             .next_sibling().expect("can't get next label")
             .downcast::<gtk::Label>().expect("can't downcast as label");
-        label.label().to_string()
+        label
+    }
+
+    pub fn add_char(&self, ch: char) {
+        let mut content: String = self.entry_text().text().to_string();
+        content.push(ch);
+        self.entry_text().set_text(&content)
     }
 
     pub fn popup(&self) {

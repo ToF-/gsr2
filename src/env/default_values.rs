@@ -1,7 +1,7 @@
 pub const DEFAULT_HEIGHT: i32 = 1000;
 pub const DEFAULT_WIDTH: i32 = 1000;
-pub const ENTRY_WINDOW_WIDTH: i32 = 500;
-pub const ENTRY_WINDOW_HEIGHT: i32 =250;
+pub const ENTRY_WINDOW_WIDTH: i32 = 250;
+pub const ENTRY_WINDOW_HEIGHT: i32 = 100;
 pub const DIMENSION_MIN: i32 = 100;
 pub const DIMENSION_MAX: i32 = 5000;
 pub const SLIDESHOW_DELAY_MIN: i32 = 1;

@@ -189,7 +189,7 @@ impl MainWindow {
                 Control::SetOrder => String::from("Order… (d|n|r|s)"),
                 _ => panic!("incorrect choice for setting: {:?}", choice),
             },
-            Mode::Editing(kind) => String::from("Editing…"),
+            Mode::Editing(_kind) => String::from("Editing…"),
         };
         self.application_window().set_title(Some(&title));
     }
@@ -274,12 +274,12 @@ impl MainWindow {
             );
         entry_window.popup();
         self.entry_window_opt = Some(entry_window.clone());
-        println!("{:?}", self.entry_window_opt);
     }
 
+    pub fn entry_window(&self) -> EntryWindow {
+        self.entry_window_opt.clone().unwrap()
+    }
     pub fn close_entry_window(&mut self) {
-        println!("close_entry_window {:?}", self.entry_window_opt);
-        println!("{:?}", self.entry_window_opt);
         if let Some(entry_window) = &self.entry_window_opt {
             println!("closing…");
             entry_window.close();

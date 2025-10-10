@@ -18,8 +18,8 @@ DIMENSION_MAX	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^p
 DIMENSION_MIN	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const DIMENSION_MIN: i32 = 100;$/;"	c
 Database	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^pub struct Database {$/;"	s
 Direction	/Users/christophethibaut/Coding/gsr2/src/gui/direction.rs	/^pub enum Direction {$/;"	g
-ENTRY_WINDOW_HEIGHT	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const ENTRY_WINDOW_HEIGHT: i32 =250;$/;"	c
-ENTRY_WINDOW_WIDTH	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const ENTRY_WINDOW_WIDTH: i32 = 500;$/;"	c
+ENTRY_WINDOW_HEIGHT	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const ENTRY_WINDOW_HEIGHT: i32 = 100;$/;"	c
+ENTRY_WINDOW_WIDTH	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const ENTRY_WINDOW_WIDTH: i32 = 250;$/;"	c
 EXPAND_ON_SYMBOL	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const EXPAND_ON_SYMBOL: &str = "  ⃞";$/;"	c
 Editor	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^pub struct Editor {$/;"	s
 EntryKind	/Users/christophethibaut/Coding/gsr2/src/gui/mode.rs	/^pub enum EntryKind {$/;"	g
@@ -76,6 +76,7 @@ a_thumbnail_picture_has_the_name_of_the_original_picture_with_thumb_and_size_suf
 acknowledge_grid_size_change	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn acknowledge_grid_size_change(&mut self) {$/;"	f
 acknowledge_grid_size_change	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn acknowledge_grid_size_change(&mut self) {$/;"	f
 activate	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn activate(application: &gtk::Application, args: &Args, controller_rc: &RcController) {$/;"	f
+add_char	/Users/christophethibaut/Coding/gsr2/src/gui/view/entry_window.rs	/^    pub fn add_char(&self, ch: char) {$/;"	f
 after_begin_input_edting_is_true	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    fn after_begin_input_edting_is_true() {$/;"	f
 after_moving_old_position_and_new_position_can_differ	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn after_moving_old_position_and_new_position_can_differ() {$/;"	f
 after_page_change_page_change_is_detected	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn after_page_change_page_change_is_detected() {$/;"	f
@@ -114,6 +115,7 @@ check_path_return_error_on_non_existent_path	/Users/christophethibaut/Coding/gsr
 check_path_return_error_on_path_that_is_not_a_directory	/Users/christophethibaut/Coding/gsr2/src/file/paths.rs	/^    fn check_path_return_error_on_path_that_is_not_a_directory() {$/;"	f
 check_picture_file	/Users/christophethibaut/Coding/gsr2/src/file/paths.rs	/^pub fn check_picture_file(file_name: &str) -> Result<String> {$/;"	f
 check_thumbnail_size_display	/Users/christophethibaut/Coding/gsr2/src/model/gen_image.rs	/^    fn check_thumbnail_size_display() {$/;"	f
+close	/Users/christophethibaut/Coding/gsr2/src/gui/view/entry_window.rs	/^    pub fn close(&self) {$/;"	f
 close_entry_window	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn close_entry_window(&mut self) {$/;"	f
 cmp	/Users/christophethibaut/Coding/gsr2/src/model/image_data.rs	/^    fn cmp(&self, _: &Self) -> std::cmp::Ordering {$/;"	f
 command_line_interface_dir_command_with_non_existing_specified_directory	/Users/christophethibaut/Coding/gsr2/src/cli/args.rs	/^    fn command_line_interface_dir_command_with_non_existing_specified_directory() {$/;"	f
@@ -142,7 +144,9 @@ dimension	/Users/christophethibaut/Coding/gsr2/src/env/dimension.rs	/^pub fn dim
 display_date_on	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn display_date_on(&self) -> bool {$/;"	f
 display_size_on	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn display_size_on(&self) -> bool {$/;"	f
 editing	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    pub fn editing(&self) -> bool {$/;"	f
-entry_text	/Users/christophethibaut/Coding/gsr2/src/gui/view/entry_window.rs	/^    pub fn entry_text(&self) -> String {$/;"	f
+enter	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn enter(&mut self) {$/;"	f
+entry_text	/Users/christophethibaut/Coding/gsr2/src/gui/view/entry_window.rs	/^    pub fn entry_text(&self) -> gtk::Label {$/;"	f
+entry_window	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn entry_window(&self) -> EntryWindow {$/;"	f
 expand_display	/Users/christophethibaut/Coding/gsr2/src/gui/display.rs	/^fn expand_display(on: bool) -> String {$/;"	f
 expand_on	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn expand_on(&self) -> bool {$/;"	f
 extract_a_palette_from_a_picture_file	/Users/christophethibaut/Coding/gsr2/src/model/image_data.rs	/^    fn extract_a_palette_from_a_picture_file() {$/;"	f
@@ -288,6 +292,7 @@ position_from_coords_depnds_on_page_start	/Users/christophethibaut/Coding/gsr2/s
 prev_page_start	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn prev_page_start(&self) -> usize {$/;"	f
 prev_page_start_is_page_start_minus_page_size	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn prev_page_start_is_page_start_minus_page_size() {$/;"	f
 process_control	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn process_control(&mut self, control: &Control) {$/;"	f
+process_editor_key	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn process_editor_key(&self, key: Key, _kind: EntryKind) {$/;"	f
 process_event	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn process_event(&mut self, event: Event, controller_rc: &RcController) {$/;"	f
 process_key	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn process_key(&mut self, key: Key) {$/;"	f
 process_key_event	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn process_key_event($/;"	f
