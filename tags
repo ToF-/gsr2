@@ -86,6 +86,7 @@ application_window	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window
 args	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn args(&self) -> Args {$/;"	f
 arrow_move	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn arrow_move(&mut self, direction: Direction) {$/;"	f
 attach_cells	/Users/christophethibaut/Coding/gsr2/src/gui/view/picture_grid.rs	/^    pub fn attach_cells(&self, pictures_per_row: i32) {$/;"	f
+attach_key_pressed_event_handler	/Users/christophethibaut/Coding/gsr2/src/gui/view/entry_window.rs	/^    fn attach_key_pressed_event_handler(window: &gtk::Window, controller_rc: &RcController) {$/;"	f
 attach_key_pressed_event_handlers	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^fn attach_key_pressed_event_handlers($/;"	f
 attach_panel_event_handlers	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^fn attach_panel_event_handlers(panel: &gtk::Grid, controller_rc: &RcController) {$/;"	f
 attach_slideshow_event	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn attach_slideshow_event(seconds: i32, controller_rc: &RcController) {$/;"	f
@@ -240,7 +241,7 @@ new	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    pub fn new() ->
 new	/Users/christophethibaut/Coding/gsr2/src/gui/gsr_application/mod.rs	/^    pub fn new() -> Self {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn new(limit: usize, pictures_per_row: usize) -> Self {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn new(pictures_per_row: usize, slideshow_on: bool) -> Self {$/;"	f
-new	/Users/christophethibaut/Coding/gsr2/src/gui/view/entry_window.rs	/^    pub fn new(application_window: &gtk::ApplicationWindow, prompt: &str, text: &str, digits_only: bool) -> Self {$/;"	f
+new	/Users/christophethibaut/Coding/gsr2/src/gui/view/entry_window.rs	/^    pub fn new(application_window: &gtk::ApplicationWindow, prompt: &str, text: &str, controller_rc: &RcController) -> Self {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/gui/view/picture_frame.rs	/^    pub fn new() -> Self {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/gui/view/picture_grid.rs	/^    pub fn new(pictures_per_row: i32, controller_rc: &RcController) -> Self {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^    pub fn new() -> Self {$/;"	f
@@ -276,7 +277,8 @@ pictures_per_row	/Users/christophethibaut/Coding/gsr2/src/file/paths.rs	/^      
 pictures_per_row	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn pictures_per_row(&self) -> usize {$/;"	f
 pictures_per_row_is_determined_by_grid_option	/Users/christophethibaut/Coding/gsr2/src/cli/args.rs	/^    fn pictures_per_row_is_determined_by_grid_option() {$/;"	f
 pictures_per_row_is_determined_by_thumbnails_option	/Users/christophethibaut/Coding/gsr2/src/cli/args.rs	/^    fn pictures_per_row_is_determined_by_thumbnails_option() {$/;"	f
-popup_entry_window	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn popup_entry_window(&mut self, prompt: &str, text: &str, digits_only: bool) {$/;"	f
+popup	/Users/christophethibaut/Coding/gsr2/src/gui/view/entry_window.rs	/^    pub fn popup(&self) {$/;"	f
+popup_entry_window	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn popup_entry_window(&mut self, prompt: &str, text: &str) {$/;"	f
 position	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn position(&self) -> usize {$/;"	f
 position_from_coords	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn position_from_coords(&self, row: usize, col: usize) -> Option<usize> {$/;"	f
 position_from_coords_depnds_on_page_start	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn position_from_coords_depnds_on_page_start() {$/;"	f

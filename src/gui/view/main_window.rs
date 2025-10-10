@@ -269,6 +269,7 @@ impl MainWindow {
                 &self.application_window(),
                 prompt,
                 text,
+                &self.controller_rc
             );
         self.entry_window = Some(entry_window.clone());
         entry_window.popup()
