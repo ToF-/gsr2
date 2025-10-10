@@ -1,3 +1,4 @@
+use crate::gui::mode::EntryKind;
 use crate::model::order::Order;
 use crate::gui::mode::Mode;
 use crate::Args;
@@ -226,9 +227,19 @@ impl Controller {
                     },
                 };
                 self.state.set_mode(Mode::View)
+            },
+            Mode::Editing(kind) => {
+                match key.name() {
+                    None => {},
+                    Some(key_name) => {
+                        if let Some(control) = controls.get(&key_name.to_string()) {
+                             self.process_control(control)
+                        }
+                    },
+                    Some(_) => {},
+                }
             }
         }
-
     }
 
     pub fn set_setting(&mut self, setting: &Control, choice: &Control) {
@@ -264,6 +275,7 @@ impl Controller {
 
     pub fn process_control(&mut self, control: &Control) {
         match control {
+            Control::Cancel => self.cancel(),
             Control::MoveNext => self.move_next(),
             Control::MovePrev => self.move_prev(),
             Control::MoveLast => self.move_last(),
@@ -298,10 +310,17 @@ impl Controller {
         }
     }
 
-    pub fn label(&self) {
+    pub fn cancel(&mut self) {
+        println!("cancelling…");
+        self.main_window().close_entry_window();
+        self.state.set_mode(Mode::View)
+    }
+
+    pub fn label(&mut self) {
         println!("entering a label…");
         let mut main_window = self.main_window();
         main_window.popup_entry_window("Enter a label:", "");
+        self.state.set_mode(Mode::Editing(EntryKind::Label))
     }
     pub fn quit(&self) {
         let application_window = self.main_window().application_window();

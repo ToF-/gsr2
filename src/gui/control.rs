@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 #[derive(PartialEq, Clone, Debug)]
 pub enum Control {
+    Cancel,
     Left,
     Right,
     Up,
@@ -40,6 +41,7 @@ pub type Controls = HashMap<String, Control>;
 // these default controls are valid on my ergodox bepo modified
 pub fn default_controls() -> Controls {
     let controls: HashMap<String, Control> = HashMap::from([
+        (String::from("Escape"), Control::Cancel),
         (String::from("n"), Control::MoveNext),
         (String::from("p"), Control::MovePrev),
         (String::from("Z"), Control::MoveLast),

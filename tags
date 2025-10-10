@@ -22,6 +22,7 @@ ENTRY_WINDOW_HEIGHT	/Users/christophethibaut/Coding/gsr2/src/env/default_values.
 ENTRY_WINDOW_WIDTH	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const ENTRY_WINDOW_WIDTH: i32 = 500;$/;"	c
 EXPAND_ON_SYMBOL	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const EXPAND_ON_SYMBOL: &str = "  ⃞";$/;"	c
 Editor	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^pub struct Editor {$/;"	s
+EntryKind	/Users/christophethibaut/Coding/gsr2/src/gui/mode.rs	/^pub enum EntryKind {$/;"	g
 EntryWindow	/Users/christophethibaut/Coding/gsr2/src/gui/view/entry_window.rs	/^pub struct EntryWindow {$/;"	s
 Event	/Users/christophethibaut/Coding/gsr2/src/gui/event.rs	/^pub enum Event {$/;"	g
 FOCUS_SYMBOL	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const FOCUS_SYMBOL: &str = "▄ ";$/;"	c
@@ -94,6 +95,7 @@ begin_input	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    pub fn 
 can_move	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn can_move(&mut self, direction: Direction) -> bool {$/;"	f
 can_move_next_page	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn can_move_next_page(&mut self) -> bool {$/;"	f
 can_move_prev_page	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn can_move_prev_page(&mut self) -> bool {$/;"	f
+cancel	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn cancel(&mut self) {$/;"	f
 cancel_input	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    pub fn cancel_input(&mut self) {$/;"	f
 cancelling_set_editing_to_false	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    fn cancelling_set_editing_to_false() {$/;"	f
 cannot_append_forbidden_chars	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    fn cannot_append_forbidden_chars() {$/;"	f
@@ -112,6 +114,7 @@ check_path_return_error_on_non_existent_path	/Users/christophethibaut/Coding/gsr
 check_path_return_error_on_path_that_is_not_a_directory	/Users/christophethibaut/Coding/gsr2/src/file/paths.rs	/^    fn check_path_return_error_on_path_that_is_not_a_directory() {$/;"	f
 check_picture_file	/Users/christophethibaut/Coding/gsr2/src/file/paths.rs	/^pub fn check_picture_file(file_name: &str) -> Result<String> {$/;"	f
 check_thumbnail_size_display	/Users/christophethibaut/Coding/gsr2/src/model/gen_image.rs	/^    fn check_thumbnail_size_display() {$/;"	f
+close_entry_window	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn close_entry_window(&mut self) {$/;"	f
 cmp	/Users/christophethibaut/Coding/gsr2/src/model/image_data.rs	/^    fn cmp(&self, _: &Self) -> std::cmp::Ordering {$/;"	f
 command_line_interface_dir_command_with_non_existing_specified_directory	/Users/christophethibaut/Coding/gsr2/src/cli/args.rs	/^    fn command_line_interface_dir_command_with_non_existing_specified_directory() {$/;"	f
 command_line_interface_dir_command_with_object_specified_not_directory	/Users/christophethibaut/Coding/gsr2/src/cli/args.rs	/^    fn command_line_interface_dir_command_with_object_specified_not_directory() {$/;"	f
@@ -185,7 +188,7 @@ input	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    pub fn input(
 input_kind	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    pub fn input_kind(&self) -> Option<InputKind> {$/;"	f
 insert_and_retrieve_a_picture	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    fn insert_and_retrieve_a_picture() {$/;"	f
 insert_nine_colors_sample_into_db	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    pub fn insert_nine_colors_sample_into_db() {$/;"	f
-label	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn label(&self) {$/;"	f
+label	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn label(&mut self) {$/;"	f
 label	/Users/christophethibaut/Coding/gsr2/src/model/image_data.rs	/^    pub fn label(&self) -> String {$/;"	f
 label	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    pub fn label(&self) -> String {$/;"	f
 large_picture	/Users/christophethibaut/Coding/gsr2/src/model/gen_image.rs	/^pub fn large_picture() -> DynamicImage {$/;"	f
@@ -365,5 +368,6 @@ total_pages_according_to_len_and_page_size	/Users/christophethibaut/Coding/gsr2/
 update_page_limits	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn update_page_limits(&mut self) {$/;"	f
 value_variants	/Users/christophethibaut/Coding/gsr2/src/model/order.rs	/^    fn value_variants<'a>() -> &'a [Self] {$/;"	f
 view_file_path	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    pub fn view_file_path(&self, pictures_per_row: usize) -> String {$/;"	f
+window	/Users/christophethibaut/Coding/gsr2/src/gui/view/entry_window.rs	/^    pub fn window(&self) -> gtk::Window {$/;"	f
 with_no_grid_or_thumbnail_option_pictures_per_row_is_1	/Users/christophethibaut/Coding/gsr2/src/cli/args.rs	/^    fn with_no_grid_or_thumbnail_option_pictures_per_row_is_1() {$/;"	f
 write_thumbnail	/Users/christophethibaut/Coding/gsr2/src/model/gen_image.rs	/^fn write_thumbnail<R: std::io::Seek + std::io::Read>($/;"	f

@@ -40,6 +40,7 @@ impl EntryWindow {
         entry_box.append(&entry_text);
         let window = gtk::Window::builder()
             .decorated(false)
+            .modal(true)
             .default_width(ENTRY_WINDOW_WIDTH)
             .default_height(ENTRY_WINDOW_HEIGHT)
             .transient_for(application_window)
@@ -86,6 +87,14 @@ impl EntryWindow {
 
     pub fn popup(&self) {
         self.window.present()
+    }
+
+    pub fn window(&self) -> gtk::Window {
+        self.window.clone()
+    }
+
+    pub fn close(&self) {
+        self.window.close()
     }
 }
 
