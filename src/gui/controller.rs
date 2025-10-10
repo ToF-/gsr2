@@ -295,6 +295,7 @@ impl Controller {
             Control::ToggleExpand => self.toggle_expand(),
             Control::ToggleFullSize => self.toggle_full_size(),
             Control::ToggleSlideShow => self.toggle_slideshow(),
+            Control::Jump => self.jump(),
             Control::Label => self.label(),
             Control::GridTwo => self.change_grid_size(2),
             Control::GridThree => self.change_grid_size(3),
@@ -317,7 +318,6 @@ impl Controller {
         self.main_window().entry_window().delete_char();
     }
     pub fn process_editor_key(&self, key: Key, kind: EntryKind) {
-        println!("{:?}", key.name());
         if let Some(ch) = key.to_unicode() {
             let ch_is_ok = match kind {
                 EntryKind::Number => ch.is_ascii_digit(),
@@ -335,15 +335,29 @@ impl Controller {
     }
 
     pub fn enter(&mut self) {
+        let content = self.main_window().entry_window().final_text();
         self.main_window().close_entry_window();
+        if self.state.mode() == Mode::Editing(EntryKind::Number) {
+            let index: usize = content.parse().unwrap();
+            let direction = Direction::Index { value: index };
+            if self.navigator().can_move(direction.clone()) {
+                self.navigator.move_towards(direction)
+            }
+        };
         self.state.set_mode(Mode::View)
     }
 
     pub fn label(&mut self) {
-        println!("entering a label…");
         let mut main_window = self.main_window();
         main_window.popup_entry_window("Enter a label:", "");
         self.state.set_mode(Mode::Editing(EntryKind::Label));
+        self.main_window_opt = Some(main_window);
+    }
+
+    pub fn jump(&mut self) {
+        let mut main_window = self.main_window();
+        main_window.popup_entry_window("Enter a number:", "");
+        self.state.set_mode(Mode::Editing(EntryKind::Number));
         self.main_window_opt = Some(main_window);
     }
 

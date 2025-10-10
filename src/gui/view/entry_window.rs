@@ -117,21 +117,22 @@ impl EntryWindow {
                 #[strong] controller_rc,
                 move || {
                     if let Ok(controller) = controller_rc.try_borrow() {
-                        if Mode::Editing(EntryKind::Label) == controller.state().mode() {
-                            let label = Self::entry_text_label(&window);
-                            let mut content = label.text().to_string();
-                            let cursor = content.pop();
-                            let new_cursor = if cursor == Some(ENTRY_CURSOR_1) {
-                                ENTRY_CURSOR_2
+                        if Mode::Editing(EntryKind::Label) == controller.state().mode() 
+                            || Mode::Editing(EntryKind::Number) == controller.state().mode() {
+                                let label = Self::entry_text_label(&window);
+                                let mut content = label.text().to_string();
+                                let cursor = content.pop();
+                                let new_cursor = if cursor == Some(ENTRY_CURSOR_1) {
+                                    ENTRY_CURSOR_2
+                                } else {
+                                    ENTRY_CURSOR_1
+                                };
+                                content.push(new_cursor);
+                                label.set_text(&content);
+                                ControlFlow::Continue
                             } else {
-                                ENTRY_CURSOR_1
-                            };
-                            content.push(new_cursor);
-                            label.set_text(&content);
-                            ControlFlow::Continue
-                        } else {
-                            ControlFlow::Break
-                        }
+                                ControlFlow::Break
+                            }
                     } else {
                         panic!("can't borrow mut controller")
                     }
@@ -152,6 +153,13 @@ impl EntryWindow {
     }
     pub fn entry_text(&self) -> gtk::Label {
         Self::entry_text_label(&self.window)
+    }
+
+    pub fn final_text(&self) -> String {
+        let label = self.entry_text();
+        let mut content: String = label.text().to_string();
+        content.pop();
+        content
     }
 
     pub fn add_char(&self, ch: char) {

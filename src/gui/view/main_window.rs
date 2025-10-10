@@ -281,7 +281,6 @@ impl MainWindow {
     }
     pub fn close_entry_window(&mut self) {
         if let Some(entry_window) = &self.entry_window_opt {
-            println!("closing…");
             entry_window.close();
             self.entry_window_opt = None
         }
