@@ -186,8 +186,8 @@ impl MainWindow {
         let title = match controller.state().mode() {
             Mode::View => title_display(controller),
             Mode::Setting(choice) => match choice {
-                Control::SetDisplay => String::from("Display… (d|s)"),
-                Control::SetOrder => String::from("Order… (d|n|r|s)"),
+                Control::SetDisplay => String::from("Display… (d:date on | s:size on | f:focus change on)"),
+                Control::SetOrder => String::from("Order… (d: by date | n: by name | r: randomize | s: by size)"),
                 _ => panic!("incorrect choice for setting: {:?}", choice),
             },
             Mode::Editing(_kind) => String::from("Editing…"),
@@ -228,8 +228,7 @@ impl MainWindow {
                         .set_label_for(&picture, col, row, with_focus);
                 }
             }
-        };
-        self.picture_grid.attach_focus_symbol_change_event()
+        }
     }
 
     pub fn set_picture_for_single_view(&self, controller: &Controller) {

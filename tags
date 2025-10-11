@@ -28,8 +28,8 @@ EntryKind	/Users/christophethibaut/Coding/gsr2/src/gui/mode.rs	/^pub enum EntryK
 EntryWindow	/Users/christophethibaut/Coding/gsr2/src/gui/view/entry_window.rs	/^pub struct EntryWindow {$/;"	s
 Event	/Users/christophethibaut/Coding/gsr2/src/gui/event.rs	/^pub enum Event {$/;"	g
 FOCUS_SYMBOL	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const FOCUS_SYMBOL: &str = "▄ ";$/;"	c
-FOCUS_SYMBOL_1	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const FOCUS_SYMBOL_1: char = '▚';$/;"	c
-FOCUS_SYMBOL_2	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const FOCUS_SYMBOL_2: char = '▞';$/;"	c
+FOCUS_SYMBOL_1	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const FOCUS_SYMBOL_1: char = '░'; \/\/ '▚';$/;"	c
+FOCUS_SYMBOL_2	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const FOCUS_SYMBOL_2: char = '▓'; \/\/ '▞';$/;"	c
 FULL_SIZE_ON_SYMBOL	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const FULL_SIZE_ON_SYMBOL: &str = " 🔍";$/;"	c
 FileSize	/Users/christophethibaut/Coding/gsr2/src/model/image_data.rs	/^pub type FileSize = u64;$/;"	T
 Gallery	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^pub struct Gallery {$/;"	s
@@ -93,7 +93,7 @@ args	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn arg
 arrow_move	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn arrow_move(&mut self, direction: Direction) {$/;"	f
 attach_cells	/Users/christophethibaut/Coding/gsr2/src/gui/view/picture_grid.rs	/^    pub fn attach_cells(&self, pictures_per_row: i32) {$/;"	f
 attach_cursor_blink_event	/Users/christophethibaut/Coding/gsr2/src/gui/view/entry_window.rs	/^    fn attach_cursor_blink_event(window: &gtk::Window, controller_rc: &RcController) {$/;"	f
-attach_focus_symbol_change_event	/Users/christophethibaut/Coding/gsr2/src/gui/view/picture_grid.rs	/^    pub fn attach_focus_symbol_change_event(controller_rc: &RcController) {$/;"	f
+attach_focus_symbol_change_event	/Users/christophethibaut/Coding/gsr2/src/gui/view/picture_grid.rs	/^    pub fn attach_focus_symbol_change_event(&self) {$/;"	f
 attach_key_pressed_event_handler	/Users/christophethibaut/Coding/gsr2/src/gui/view/entry_window.rs	/^    fn attach_key_pressed_event_handler(window: &gtk::Window, controller_rc: &RcController) {$/;"	f
 attach_key_pressed_event_handlers	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^fn attach_key_pressed_event_handlers($/;"	f
 attach_panel_event_handlers	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^fn attach_panel_event_handlers(panel: &gtk::Grid, controller_rc: &RcController) {$/;"	f
@@ -109,6 +109,7 @@ cannot_append_forbidden_chars	/Users/christophethibaut/Coding/gsr2/src/gui/edito
 cannot_move_down_if_beyond_limit	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn cannot_move_down_if_beyond_limit() {$/;"	f
 cannot_move_up_if_before_limit	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn cannot_move_up_if_before_limit() {$/;"	f
 change_dimension	/Users/christophethibaut/Coding/gsr2/src/gui/view/picture_grid.rs	/^    pub fn change_dimension(&mut self, pictures_per_row: i32) {$/;"	f
+change_focus_symbol_on	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn change_focus_symbol_on(&self) -> bool {$/;"	f
 change_grid_size	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn change_grid_size(&mut self, pictures_per_row: usize) {$/;"	f
 change_grid_size	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn change_grid_size(&mut self, pictures_per_row: usize) {$/;"	f
 change_grid_size	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn change_grid_size(&mut self, pictures_per_row: usize) {$/;"	f
@@ -170,6 +171,7 @@ find_file_path	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^    p
 finding_a_picture_by_file_path	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^    fn finding_a_picture_by_file_path() {$/;"	f
 fmt	/Users/christophethibaut/Coding/gsr2/src/model/order.rs	/^    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {$/;"	f
 focus_symbol	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn focus_symbol(&self) -> char {$/;"	f
+focus_symbol_change_on	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn focus_symbol_change_on(&self) -> bool {$/;"	f
 frame	/Users/christophethibaut/Coding/gsr2/src/gui/view/picture_frame.rs	/^    pub fn frame(&self) -> gtk::Box {$/;"	f
 frame_window	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn frame_window(&self) -> gtk::ScrolledWindow {$/;"	f
 from	/Users/christophethibaut/Coding/gsr2/src/model/order.rs	/^pub fn from(s: &str) -> Option<Order> {$/;"	f
@@ -326,9 +328,12 @@ rusqlite_retrieve_picture_with_file_path	/Users/christophethibaut/Coding/gsr2/sr
 rusqlite_row_to_picture	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    fn rusqlite_row_to_picture(row: &Row) -> SqlResult<Picture, rusqlite::Error> {$/;"	f
 save_large_picture	/Users/christophethibaut/Coding/gsr2/src/model/gen_image.rs	/^pub fn save_large_picture() {$/;"	f
 save_nine_colors	/Users/christophethibaut/Coding/gsr2/src/model/gen_image.rs	/^pub fn save_nine_colors() {$/;"	f
+set_focus_symbol_change_off	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_focus_symbol_change_off(&mut self) {$/;"	f
+set_focus_symbol_change_on	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_focus_symbol_change_on(&mut self) {$/;"	f
 set_gallery	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_gallery(&mut self, gallery: Gallery) {$/;"	f
 set_image_data	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    pub fn set_image_data(&mut self, image_data: ImageData) {$/;"	f
 set_label_for	/Users/christophethibaut/Coding/gsr2/src/gui/view/picture_grid.rs	/^    pub fn set_label_for(&mut self, picture: &Picture, col: i32, row: i32, with_focus: Option<char>) {$/;"	f
+set_label_for_current_picture	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_label_for_current_picture(&mut self) {$/;"	f
 set_label_for_current_picture	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn set_label_for_current_picture(&self, controller: &Controller, with_focus: Option<char>) {$/;"	f
 set_main_window	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_main_window(&mut self, main_window: MainWindow) {$/;"	f
 set_mode	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn set_mode(&mut self, mode: Mode) {$/;"	f
@@ -367,13 +372,14 @@ thumbnail_size_for	/Users/christophethibaut/Coding/gsr2/src/model/gen_image.rs	/
 thumbnail_size_for_different_number_of_pictures_per_row	/Users/christophethibaut/Coding/gsr2/src/model/gen_image.rs	/^    fn thumbnail_size_for_different_number_of_pictures_per_row() {$/;"	f
 title_display	/Users/christophethibaut/Coding/gsr2/src/gui/display.rs	/^pub fn title_display(controller: &Controller) -> String {$/;"	f
 to_possible_value	/Users/christophethibaut/Coding/gsr2/src/model/order.rs	/^    fn to_possible_value(&self) -> Option<PossibleValue> {$/;"	f
+toggle_change_focus_symbol	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn toggle_change_focus_symbol(&mut self) {$/;"	f
 toggle_display_date	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn toggle_display_date(&mut self) {$/;"	f
 toggle_display_date	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn toggle_display_date(&mut self) {$/;"	f
+toggle_display_focus_symbol_change	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn toggle_display_focus_symbol_change(&mut self) {$/;"	f
 toggle_display_size	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn toggle_display_size(&mut self) {$/;"	f
 toggle_display_size	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn toggle_display_size(&mut self) {$/;"	f
 toggle_expand	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn toggle_expand(&mut self) {$/;"	f
 toggle_expand	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn toggle_expand(&mut self) {$/;"	f
-toggle_focus_symbol	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn toggle_focus_symbol(&mut self) {$/;"	f
 toggle_focus_symbol	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn toggle_focus_symbol(&mut self) {$/;"	f
 toggle_full_size	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn toggle_full_size(&mut self) {$/;"	f
 toggle_full_size	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn toggle_full_size(&mut self) {$/;"	f

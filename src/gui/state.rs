@@ -13,6 +13,7 @@ pub struct State {
     display_size_on: bool,
     mode: Mode,
     focus_symbol: char,
+    change_focus_symbol_on: bool,
 }
 
 impl State {
@@ -28,6 +29,7 @@ impl State {
             display_size_on: false,
             mode : Mode::View,
             focus_symbol: FOCUS_SYMBOL_1,
+            change_focus_symbol_on: true,
         }
     }
 
@@ -39,6 +41,14 @@ impl State {
         self.focus_symbol
     }
     
+    pub fn change_focus_symbol_on(&self) -> bool {
+        self.change_focus_symbol_on
+    }
+
+    pub fn toggle_change_focus_symbol(&mut self) {
+        self.change_focus_symbol_on = ! self.change_focus_symbol_on
+    }
+
     pub fn toggle_focus_symbol(&mut self) {
         if self.focus_symbol == FOCUS_SYMBOL_1 {
             self.focus_symbol = FOCUS_SYMBOL_2

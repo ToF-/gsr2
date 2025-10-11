@@ -176,7 +176,7 @@ impl Controller {
             self.navigator
                 .move_towards(Direction::Index { value: index });
         }
-        self.toggle_focus_symbol()
+        self.set_label_for_current_picture()
     }
 
     pub fn process_pane_clicked(&mut self, _button: usize, pane_number: usize) {
@@ -211,13 +211,15 @@ impl Controller {
                 self.main_window().set_pictures(self);
                 self.navigator.set_page_unchanged();
             };
-            self.toggle_focus_symbol();
+            self.set_label_for_current_picture();
             self.main_window().set_title(self);
         }
     }
 
-    pub fn toggle_focus_symbol(&mut self) {
-        self.state.toggle_focus_symbol();
+    pub fn set_label_for_current_picture(&mut self) {
+        if self.state.change_focus_symbol_on() {
+            self.state.toggle_focus_symbol()
+        };
         self.main_window().set_label_for_current_picture(self, Some(self.state().focus_symbol()))
     }
 
@@ -271,6 +273,7 @@ impl Controller {
             Control::SetDisplay => match choice {
                     Control::DisplayDate |
                     Control::DisplaySize => self.process_control(choice),
+                    Control::DisplayFocus => self.toggle_display_focus_symbol_change(),
                     _ => println!("?"),
                 },
             Control::SetOrder => match choice {
@@ -389,9 +392,6 @@ impl Controller {
 
     pub fn toggle_single_view(&mut self) {
         self.state.toggle_single_view();
-        if ! self.state().single_view() {
-            self.main_window().picture_grid().attach_focus_symbol_change_event()
-        }
         if self.state.full_size_on() {
             self.state.toggle_full_size()
         }
@@ -421,6 +421,10 @@ impl Controller {
             } else {
                 String::from("off")
             });
+    }
+
+    pub fn toggle_display_focus_symbol_change(&mut self) {
+        self.state.toggle_change_focus_symbol()
     }
 
     pub fn toggle_display_size(&mut self) {

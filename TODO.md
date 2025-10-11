@@ -58,7 +58,8 @@
        ON order by name
        OR randomize
 - [X] entry window with cursor for label and jump
-- [ ] make the focus character used in grid blink :
+- [X] make the focus character used in grid blink :
     - replace with_focus: bool by with_focus: Option<char>
     - store a RefCell of this symbol in the controlle struc
     - add timer event to alternate this symbol every second ▚ ▞
+- [ ] the gallery loads picture file with names like pierre-soulages-peinture-19-juin-1963-1963.jpg!Large.jpg, that's a bug
