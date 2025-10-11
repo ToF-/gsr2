@@ -1,7 +1,7 @@
-use time_format;
 use crate::file::paths::{file_name_from, thumbnail_name_from};
 use crate::model::image_data::ImageData;
 use std::io::Result;
+use time_format;
 
 #[derive(Debug, Clone, Ord, PartialOrd, PartialEq, Eq)]
 pub struct Picture {
@@ -53,9 +53,8 @@ impl Picture {
         if let Some(image_data) = &self.image_data {
             let timestamp = time_format::from_system_time(image_data.modified_time())
                 .expect("can't unwrap modified time");
-            let sql_format = time_format::format_common_utc(
-                timestamp,
-                time_format::DateFormat::SQL).unwrap();
+            let sql_format =
+                time_format::format_common_utc(timestamp, time_format::DateFormat::SQL).unwrap();
             sql_format
         } else {
             String::from("…/…")

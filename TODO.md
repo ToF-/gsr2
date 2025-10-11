@@ -62,4 +62,4 @@
     - replace with_focus: bool by with_focus: Option<char>
     - store a RefCell of this symbol in the controlle struc
     - add timer event to alternate this symbol every second ▚ ▞
-- [ ] the gallery loads picture file with names like pierre-soulages-peinture-19-juin-1963-1963.jpg!Large.jpg, that's a bug
+- [X] the gallery loads picture file with names like pierre-soulages-peinture-19-juin-1963-1963.jpg!Large.jpg, that's a bug

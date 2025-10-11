@@ -1,31 +1,36 @@
-use gtk::glib::timeout_add_local;
-use gtk::glib::{ControlFlow, Propagation};
-use crate::env::default_values::{ENTRY_CURSOR_1, ENTRY_CURSOR_2};
-use crate::gui::mode::EntryKind;
-use crate::gui::mode::Mode;
-use std::time::Duration;
-use gtk::CssProvider;
-#[allow(deprecated)]
-use gtk::prelude::StyleContextExt;
-use crate::gui::event::Event;
 use crate::RcController;
 use crate::clone;
+use crate::env::default_values::{ENTRY_CURSOR_1, ENTRY_CURSOR_2};
+use crate::env::default_values::{ENTRY_WINDOW_HEIGHT, ENTRY_WINDOW_WIDTH};
+use crate::gui::event::Event;
+use crate::gui::mode::EntryKind;
+use crate::gui::mode::Mode;
+use gtk::Align;
+use gtk::CssProvider;
+use gtk::glib::timeout_add_local;
+use gtk::glib::{ControlFlow, Propagation};
+use gtk::prelude::BoxExt;
 use gtk::prelude::Cast;
 use gtk::prelude::GtkWindowExt;
+#[allow(deprecated)]
+use gtk::prelude::StyleContextExt;
 use gtk::prelude::WidgetExt;
-use gtk::prelude::BoxExt;
-use gtk::Align;
-use crate::env::default_values::{ENTRY_WINDOW_HEIGHT, ENTRY_WINDOW_WIDTH};
+use std::time::Duration;
 
 use gtk::Orientation;
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub struct EntryWindow {
     window: gtk::Window,
 }
 
 #[allow(deprecated)]
 impl EntryWindow {
-    pub fn new(application_window: &gtk::ApplicationWindow, prompt: &str, text: &str, controller_rc: &RcController) -> Self {
+    pub fn new(
+        application_window: &gtk::ApplicationWindow,
+        prompt: &str,
+        text: &str,
+        controller_rc: &RcController,
+    ) -> Self {
         let entry_text = gtk::Label::builder()
             .valign(Align::Center)
             .halign(Align::Center)
@@ -40,9 +45,9 @@ impl EntryWindow {
             }
         ",
         );
-        entry_text.style_context().add_provider(
-            &text_css_provider,
-            gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
+        entry_text
+            .style_context()
+            .add_provider(&text_css_provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
         let prompt_label = gtk::Label::builder()
             .valign(Align::Center)
             .halign(Align::Center)
@@ -59,7 +64,8 @@ impl EntryWindow {
         );
         prompt_label.style_context().add_provider(
             &prompt_css_provider,
-            gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
+            gtk::STYLE_PROVIDER_PRIORITY_APPLICATION,
+        );
         let entry_box = gtk::Box::builder()
             .orientation(Orientation::Vertical)
             .spacing(0)
@@ -81,29 +87,27 @@ impl EntryWindow {
         window.set_child(Some(&entry_box));
         Self::attach_key_pressed_event_handler(&window, controller_rc);
         Self::attach_cursor_blink_event(&window, controller_rc);
-        EntryWindow {
-            window: window,
-        }
+        EntryWindow { window: window }
     }
 
     fn attach_key_pressed_event_handler(window: &gtk::Window, controller_rc: &RcController) {
         let event_controller_key = gtk::EventControllerKey::new();
         event_controller_key.connect_key_pressed(clone!(
-                #[strong]
-                controller_rc,
-                move |_, key, key_code, modifier_type| {
-                    if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-                        controller.process_event(
-                            Event::KeyPressed {
-                                key,
-                                key_code,
-                                modifier_type,
-                            },
-                            &controller_rc,
-                        );
-                    };
-                    Propagation::Stop
-                }
+            #[strong]
+            controller_rc,
+            move |_, key, key_code, modifier_type| {
+                if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+                    controller.process_event(
+                        Event::KeyPressed {
+                            key,
+                            key_code,
+                            modifier_type,
+                        },
+                        &controller_rc,
+                    );
+                };
+                Propagation::Stop
+            }
         ));
         window.add_controller(event_controller_key);
     }
@@ -112,42 +116,51 @@ impl EntryWindow {
         timeout_add_local(
             Duration::new(delay, 0),
             clone!(
-                #[strong] window,
-                #[strong] controller_rc,
+                #[strong]
+                window,
+                #[strong]
+                controller_rc,
                 move || {
                     if let Ok(controller) = controller_rc.try_borrow() {
-                        if Mode::Editing(EntryKind::Label) == controller.state().mode() 
-                            || Mode::Editing(EntryKind::Number) == controller.state().mode() {
-                                let label = Self::entry_text_label(&window);
-                                let mut content = label.text().to_string();
-                                let cursor = content.pop();
-                                let new_cursor = if cursor == Some(ENTRY_CURSOR_1) {
-                                    ENTRY_CURSOR_2
-                                } else {
-                                    ENTRY_CURSOR_1
-                                };
-                                content.push(new_cursor);
-                                label.set_text(&content);
-                                ControlFlow::Continue
+                        if Mode::Editing(EntryKind::Label) == controller.state().mode()
+                            || Mode::Editing(EntryKind::Number) == controller.state().mode()
+                        {
+                            let label = Self::entry_text_label(&window);
+                            let mut content = label.text().to_string();
+                            let cursor = content.pop();
+                            let new_cursor = if cursor == Some(ENTRY_CURSOR_1) {
+                                ENTRY_CURSOR_2
                             } else {
-                                ControlFlow::Break
-                            }
+                                ENTRY_CURSOR_1
+                            };
+                            content.push(new_cursor);
+                            label.set_text(&content);
+                            ControlFlow::Continue
+                        } else {
+                            ControlFlow::Break
+                        }
                     } else {
                         panic!("can't borrow mut controller")
                     }
                 }
-        ),
+            ),
         );
     }
 
     fn entry_text_label(window: &gtk::Window) -> gtk::Label {
         let label: gtk::Label = window
-            .first_child().expect("can't get first_child")
-            .downcast::<gtk::Box>().expect("can't downcast as box")
-            .first_child().expect("can't get entry prompt")
-            .downcast::<gtk::Label>().expect("can't downcast as label")
-            .next_sibling().expect("can't get next label")
-            .downcast::<gtk::Label>().expect("can't downcast as label");
+            .first_child()
+            .expect("can't get first_child")
+            .downcast::<gtk::Box>()
+            .expect("can't downcast as box")
+            .first_child()
+            .expect("can't get entry prompt")
+            .downcast::<gtk::Label>()
+            .expect("can't downcast as label")
+            .next_sibling()
+            .expect("can't get next label")
+            .downcast::<gtk::Label>()
+            .expect("can't downcast as label");
         label
     }
     pub fn entry_text(&self) -> gtk::Label {
@@ -189,7 +202,3 @@ impl EntryWindow {
         self.window.close()
     }
 }
-
-
-
-

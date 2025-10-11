@@ -1,20 +1,20 @@
-use gtk::glib::timeout_add_local;
-use gtk::glib::{ControlFlow, Propagation};
-use std::time::Duration;
 use crate::clone;
 use crate::env::default_values::MAX_PICTURES_PER_ROW;
+use crate::env::default_values::{FOCUS_SYMBOL_1, FOCUS_SYMBOL_2};
 use crate::gui::controller::RcController;
 use crate::gui::display::picture_label_display;
 use crate::gui::view::picture_cell_box::make_picture_cell_box;
 use crate::gui::view::picture_frame::make_label;
 use crate::model::picture::Picture;
+use gtk::glib::timeout_add_local;
+use gtk::glib::{ControlFlow, Propagation};
 use gtk::prelude::BoxExt;
 use gtk::prelude::Cast;
 use gtk::prelude::GridExt;
 use gtk::prelude::WidgetExt;
-use crate::env::default_values::{FOCUS_SYMBOL_1, FOCUS_SYMBOL_2};
-use std::rc::Rc;
 use std::cell::RefCell;
+use std::rc::Rc;
+use std::time::Duration;
 
 #[derive(Clone, Debug)]
 pub struct PictureGrid {
@@ -46,25 +46,33 @@ impl PictureGrid {
         timeout_add_local(
             Duration::new(delay, 0),
             clone!(
-                #[strong] controller_rc,
+                #[strong]
+                controller_rc,
                 move || {
                     if let Ok(mut controller) = controller_rc.try_borrow_mut() {
                         if controller.state().change_focus_symbol_on() {
-                            if ! controller.state().single_view() {
+                            if !controller.state().single_view() {
                                 controller.set_label_for_current_picture()
                             }
                         };
                     }
-                        ControlFlow::Continue
+                    ControlFlow::Continue
                 }
-            ));
+            ),
+        );
     }
 
     pub fn grid(&self) -> gtk::Grid {
         self.grid.clone()
     }
 
-    pub fn set_label_for(&mut self, picture: &Picture, col: i32, row: i32, with_focus: Option<char>) {
+    pub fn set_label_for(
+        &mut self,
+        picture: &Picture,
+        col: i32,
+        row: i32,
+        with_focus: Option<char>,
+    ) {
         let grid = self.grid();
         if let Some(cell_box) = grid.child_at(col, row) {
             let gtk_picture = cell_box

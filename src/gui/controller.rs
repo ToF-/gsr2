@@ -1,30 +1,30 @@
-use crate::env::default_values::FOCUS_SYMBOL_1;
-use crate::gui::mode::EntryKind;
-use crate::model::order::Order;
-use crate::gui::mode::Mode;
 use crate::Args;
 use crate::MainWindow;
 use crate::cli::command::Command;
+use crate::env::default_values::FOCUS_SYMBOL_1;
 use crate::env::environment::database_connection;
 use crate::file::database::Database;
 use crate::file::picture_file::create_missing_thumbnails;
 use crate::gui::control::{Control, Controls, default_controls};
 use crate::gui::direction::Direction;
 use crate::gui::event::Event;
+use crate::gui::mode::EntryKind;
+use crate::gui::mode::Mode;
 use crate::gui::navigator::Navigator;
 use crate::gui::state::State;
 use crate::gui::view::main_window::LEFT_PANE;
 use crate::model::gallery::Gallery;
+use crate::model::order::Order;
 use crate::model::picture::Picture;
 use gdk::{Key, ModifierType};
 use gtk::prelude::*;
 use gtk::{self, gdk};
 use rand::Rng;
 use rand::rng;
+use std::cell::Cell;
 use std::cell::RefCell;
 use std::io::Result as IOResult;
 use std::rc::Rc;
-use std::cell::Cell;
 
 #[derive(Debug)]
 pub struct Controller {
@@ -166,8 +166,7 @@ impl Controller {
         }
     }
     pub fn process_picture_clicked(&mut self, _button: u32, col: i32, row: i32) {
-        self.main_window()
-            .set_label_for_current_picture(self, None);
+        self.main_window().set_label_for_current_picture(self, None);
         if let Some(index) = self
             .navigator
             .position_from_coords(row as usize, col as usize)
@@ -220,7 +219,8 @@ impl Controller {
         if self.state.change_focus_symbol_on() {
             self.state.toggle_focus_symbol()
         };
-        self.main_window().set_label_for_current_picture(self, Some(self.state().focus_symbol()))
+        self.main_window()
+            .set_label_for_current_picture(self, Some(self.state().focus_symbol()))
     }
 
     pub fn process_key(&mut self, key: Key) {
@@ -234,9 +234,9 @@ impl Controller {
                     }
                 }
             },
-            Mode::Setting(setting) => { 
+            Mode::Setting(setting) => {
                 match key.name() {
-                    None => {},
+                    None => {}
                     Some(key_name) => {
                         let key_prefix: &str = match setting {
                             Control::SetDisplay => "D",
@@ -247,43 +247,37 @@ impl Controller {
                         if let Some(control) = controls.get(&key_sequence) {
                             self.set_setting(&setting, control);
                         }
-                    },
+                    }
                 };
                 self.state.set_mode(Mode::View)
-            },
-            Mode::Editing(kind) => {
-                match key.name() {
-                    None => {},
-                    Some(key_name) => {
-                        match controls.get(&key_name.to_string()) {
-                                Some(Control::Cancel) => self.cancel(),
-                                Some(Control::Enter) => self.enter(),
-                                Some(Control::DeleteChar) => self.delete_editor_char(),
-                                Some(_) |
-                                None => self.process_editor_key(key, kind) 
-                        }
-                    },
-                }
             }
+            Mode::Editing(kind) => match key.name() {
+                None => {}
+                Some(key_name) => match controls.get(&key_name.to_string()) {
+                    Some(Control::Cancel) => self.cancel(),
+                    Some(Control::Enter) => self.enter(),
+                    Some(Control::DeleteChar) => self.delete_editor_char(),
+                    Some(_) | None => self.process_editor_key(key, kind),
+                },
+            },
         }
     }
 
     pub fn set_setting(&mut self, setting: &Control, choice: &Control) {
         match setting {
             Control::SetDisplay => match choice {
-                    Control::DisplayDate |
-                    Control::DisplaySize => self.process_control(choice),
-                    Control::DisplayFocus => self.toggle_display_focus_symbol_change(),
-                    _ => println!("?"),
-                },
-            Control::SetOrder => match choice {
-                    Control::OrderByName |
-                        Control::OrderByDate |
-                        Control::OrderBySize |
-                        Control::Randomize => self.process_control(choice),
-                    _ => println!("?"),
+                Control::DisplayDate | Control::DisplaySize => self.process_control(choice),
+                Control::DisplayFocus => self.toggle_display_focus_symbol_change(),
+                _ => println!("?"),
             },
-            _ => {},
+            Control::SetOrder => match choice {
+                Control::OrderByName
+                | Control::OrderByDate
+                | Control::OrderBySize
+                | Control::Randomize => self.process_control(choice),
+                _ => println!("?"),
+            },
+            _ => {}
         }
     }
 
@@ -415,12 +409,14 @@ impl Controller {
     pub fn toggle_display_date(&mut self) {
         self.state.toggle_display_date();
         self.main_window().set_title(self);
-        println!("display date {}",
+        println!(
+            "display date {}",
             if self.state().display_date_on() {
-                String::from("on") 
+                String::from("on")
             } else {
                 String::from("off")
-            });
+            }
+        );
     }
 
     pub fn toggle_display_focus_symbol_change(&mut self) {
@@ -430,12 +426,14 @@ impl Controller {
     pub fn toggle_display_size(&mut self) {
         self.state.toggle_display_size();
         self.main_window().set_title(self);
-        println!("display size {}",
+        println!(
+            "display size {}",
             if self.state().display_size_on() {
-                String::from("on") 
+                String::from("on")
             } else {
                 String::from("off")
-            });
+            }
+        );
     }
 
     pub fn toggle_full_size(&mut self) {
@@ -461,7 +459,8 @@ impl Controller {
         let current_file_path = self.current_picture().file_path();
         self.gallery.sort_by(order);
         if let Some(index) = self.gallery().find_file_path(&current_file_path) {
-            self.navigator.move_towards(Direction::Index{ value: index })
+            self.navigator
+                .move_towards(Direction::Index { value: index })
         } else {
             self.navigator.move_towards(Direction::First)
         };

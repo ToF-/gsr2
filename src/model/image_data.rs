@@ -102,6 +102,7 @@ pub fn get_palette(image: &DynamicImage) -> Palette {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::file::picture_file::get_palette_from_picture_file;
     use crate::model::gen_image::{NINE_COLORS, gen_nine_colors};
 
     #[test]

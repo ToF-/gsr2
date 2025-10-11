@@ -1,12 +1,12 @@
-use crate::env::default_values::FOCUS_SYMBOL_1;
-use crate::gui::view::entry_window::EntryWindow;
-use crate::gui::control::Control;
-use crate::gui::mode::Mode;
 use crate::Args;
+use crate::env::default_values::FOCUS_SYMBOL_1;
 use crate::file::paths::check_path_exists;
+use crate::gui::control::Control;
 use crate::gui::direction::Direction;
 use crate::gui::display::title_display;
 use crate::gui::event::Event::{KeyPressed, NextSlideDelay, PaneClicked};
+use crate::gui::mode::Mode;
+use crate::gui::view::entry_window::EntryWindow;
 use crate::gui::view::picture_cell_box::make_picture_cell_box;
 use crate::gui::view::picture_frame::PictureFrame;
 use crate::gui::view::picture_grid::PictureGrid;
@@ -43,7 +43,6 @@ pub struct MainWindow {
     stack: gtk::Stack,
     frame_window: gtk::ScrolledWindow,
     controller_rc: RcController,
-
 }
 
 impl MainWindow {
@@ -186,8 +185,12 @@ impl MainWindow {
         let title = match controller.state().mode() {
             Mode::View => title_display(controller),
             Mode::Setting(choice) => match choice {
-                Control::SetDisplay => String::from("Display… (d:date on | s:size on | f:focus change on)"),
-                Control::SetOrder => String::from("Order… (d: by date | n: by name | r: randomize | s: by size)"),
+                Control::SetDisplay => {
+                    String::from("Display… (d:date on | s:size on | f:focus change on)")
+                }
+                Control::SetOrder => {
+                    String::from("Order… (d: by date | n: by name | r: randomize | s: by size)")
+                }
                 _ => panic!("incorrect choice for setting: {:?}", choice),
             },
             Mode::Editing(_kind) => String::from("Editing…"),
@@ -195,7 +198,11 @@ impl MainWindow {
         self.application_window().set_title(Some(&title));
     }
 
-    pub fn set_pictures_for_multiple_view(&mut self, controller: &Controller, pictures_per_row: i32) {
+    pub fn set_pictures_for_multiple_view(
+        &mut self,
+        controller: &Controller,
+        pictures_per_row: i32,
+    ) {
         let navigator = controller.navigator();
         let gallery = controller.gallery();
         let picture_grid = self.picture_grid.clone();
@@ -272,11 +279,11 @@ impl MainWindow {
 
     pub fn popup_entry_window(&mut self, prompt: &str, text: &str) {
         let entry_window = EntryWindow::new(
-                &self.application_window(),
-                prompt,
-                text,
-                &self.controller_rc
-            );
+            &self.application_window(),
+            prompt,
+            text,
+            &self.controller_rc,
+        );
         entry_window.popup();
         self.entry_window_opt = Some(entry_window.clone());
     }

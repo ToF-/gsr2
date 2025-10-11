@@ -32,6 +32,7 @@ FOCUS_SYMBOL_1	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^
 FOCUS_SYMBOL_2	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const FOCUS_SYMBOL_2: char = '▓'; \/\/ '▞';$/;"	c
 FULL_SIZE_ON_SYMBOL	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const FULL_SIZE_ON_SYMBOL: &str = " 🔍";$/;"	c
 FileSize	/Users/christophethibaut/Coding/gsr2/src/model/image_data.rs	/^pub type FileSize = u64;$/;"	T
+GARBAGE	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const GARBAGE: &str = "!:";$/;"	c
 Gallery	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^pub struct Gallery {$/;"	s
 GsrApplication	/Users/christophethibaut/Coding/gsr2/src/gui/gsr_application/imp.rs	/^pub struct GsrApplication;$/;"	s
 GsrApplication	/Users/christophethibaut/Coding/gsr2/src/gui/gsr_application/mod.rs	/^    pub struct GsrApplication(ObjectSubclass<imp::GsrApplication>)$/;"	s
@@ -114,12 +115,14 @@ change_grid_size	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^  
 change_grid_size	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn change_grid_size(&mut self, pictures_per_row: usize) {$/;"	f
 change_grid_size	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn change_grid_size(&mut self, pictures_per_row: usize) {$/;"	f
 check_path	/Users/christophethibaut/Coding/gsr2/src/file/paths.rs	/^pub fn check_path(source: &str) -> Result<String> {$/;"	f
+check_path_does_not_contain_garbage	/Users/christophethibaut/Coding/gsr2/src/file/paths.rs	/^pub fn check_path_does_not_contain_garbage(path: &PathBuf) -> Result<&PathBuf> {$/;"	f
 check_path_exists	/Users/christophethibaut/Coding/gsr2/src/file/paths.rs	/^pub fn check_path_exists(path: &PathBuf) -> Result<&PathBuf> {$/;"	f
 check_path_is_a_file	/Users/christophethibaut/Coding/gsr2/src/file/paths.rs	/^pub fn check_path_is_a_file(path: &PathBuf) -> Result<&PathBuf> {$/;"	f
 check_path_is_a_jpg_or_png_file	/Users/christophethibaut/Coding/gsr2/src/file/paths.rs	/^pub fn check_path_is_a_jpg_or_png_file(path: &PathBuf) -> Result<&PathBuf> {$/;"	f
 check_path_is_directory	/Users/christophethibaut/Coding/gsr2/src/file/paths.rs	/^pub fn check_path_is_directory(path: &PathBuf) -> Result<&PathBuf> {$/;"	f
 check_path_return_error_on_non_existent_path	/Users/christophethibaut/Coding/gsr2/src/file/paths.rs	/^    fn check_path_return_error_on_non_existent_path() {$/;"	f
 check_path_return_error_on_path_that_is_not_a_directory	/Users/christophethibaut/Coding/gsr2/src/file/paths.rs	/^    fn check_path_return_error_on_path_that_is_not_a_directory() {$/;"	f
+check_path_return_error_on_several_extensions	/Users/christophethibaut/Coding/gsr2/src/file/paths.rs	/^    fn check_path_return_error_on_several_extensions() {$/;"	f
 check_picture_file	/Users/christophethibaut/Coding/gsr2/src/file/paths.rs	/^pub fn check_picture_file(file_name: &str) -> Result<String> {$/;"	f
 check_thumbnail_size_display	/Users/christophethibaut/Coding/gsr2/src/model/gen_image.rs	/^    fn check_thumbnail_size_display() {$/;"	f
 close	/Users/christophethibaut/Coding/gsr2/src/gui/view/entry_window.rs	/^    pub fn close(&self) {$/;"	f
@@ -262,7 +265,7 @@ new	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    pub fn new() ->
 new	/Users/christophethibaut/Coding/gsr2/src/gui/gsr_application/mod.rs	/^    pub fn new() -> Self {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn new(limit: usize, pictures_per_row: usize) -> Self {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn new(pictures_per_row: usize, slideshow_on: bool) -> Self {$/;"	f
-new	/Users/christophethibaut/Coding/gsr2/src/gui/view/entry_window.rs	/^    pub fn new(application_window: &gtk::ApplicationWindow, prompt: &str, text: &str, controller_rc: &RcController) -> Self {$/;"	f
+new	/Users/christophethibaut/Coding/gsr2/src/gui/view/entry_window.rs	/^    pub fn new($/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/gui/view/picture_frame.rs	/^    pub fn new() -> Self {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/gui/view/picture_grid.rs	/^    pub fn new(pictures_per_row: i32, controller_rc: &RcController) -> Self {$/;"	f
 new	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^    pub fn new() -> Self {$/;"	f
@@ -305,6 +308,7 @@ position_from_coords	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/
 position_from_coords_depnds_on_page_start	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn position_from_coords_depnds_on_page_start() {$/;"	f
 prev_page_start	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn prev_page_start(&self) -> usize {$/;"	f
 prev_page_start_is_page_start_minus_page_size	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn prev_page_start_is_page_start_minus_page_size() {$/;"	f
+print	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^    pub fn print(&self) {$/;"	f
 process_control	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn process_control(&mut self, control: &Control) {$/;"	f
 process_editor_key	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn process_editor_key(&self, key: Key, kind: EntryKind) {$/;"	f
 process_event	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn process_event(&mut self, event: Event, controller_rc: &RcController) {$/;"	f
@@ -332,7 +336,7 @@ set_focus_symbol_change_off	/Users/christophethibaut/Coding/gsr2/src/gui/control
 set_focus_symbol_change_on	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_focus_symbol_change_on(&mut self) {$/;"	f
 set_gallery	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_gallery(&mut self, gallery: Gallery) {$/;"	f
 set_image_data	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    pub fn set_image_data(&mut self, image_data: ImageData) {$/;"	f
-set_label_for	/Users/christophethibaut/Coding/gsr2/src/gui/view/picture_grid.rs	/^    pub fn set_label_for(&mut self, picture: &Picture, col: i32, row: i32, with_focus: Option<char>) {$/;"	f
+set_label_for	/Users/christophethibaut/Coding/gsr2/src/gui/view/picture_grid.rs	/^    pub fn set_label_for($/;"	f
 set_label_for_current_picture	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_label_for_current_picture(&mut self) {$/;"	f
 set_label_for_current_picture	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn set_label_for_current_picture(&self, controller: &Controller, with_focus: Option<char>) {$/;"	f
 set_main_window	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_main_window(&mut self, main_window: MainWindow) {$/;"	f
@@ -343,7 +347,7 @@ set_picture	/Users/christophethibaut/Coding/gsr2/src/gui/view/picture_frame.rs	/
 set_picture_for	/Users/christophethibaut/Coding/gsr2/src/gui/view/picture_grid.rs	/^    pub fn set_picture_for(&self, col: i32, row: i32, picture: &gtk::Picture) {$/;"	f
 set_picture_for_single_view	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn set_picture_for_single_view(&self, controller: &Controller) {$/;"	f
 set_pictures	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn set_pictures(&mut self, controller: &Controller) {$/;"	f
-set_pictures_for_multiple_view	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn set_pictures_for_multiple_view(&mut self, controller: &Controller, pictures_per_row: i32) {$/;"	f
+set_pictures_for_multiple_view	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn set_pictures_for_multiple_view($/;"	f
 set_pictures_per_row	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn set_pictures_per_row(&mut self, pictures_per_row: usize) {$/;"	f
 set_setting	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_setting(&mut self, setting: &Control, choice: &Control) {$/;"	f
 set_slideshow_off	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_slideshow_off(&mut self) {$/;"	f

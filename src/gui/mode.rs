@@ -10,7 +10,5 @@ pub enum EntryKind {
 pub enum Mode {
     Setting(Control),
     View,
-    Editing(EntryKind)
+    Editing(EntryKind),
 }
-
-

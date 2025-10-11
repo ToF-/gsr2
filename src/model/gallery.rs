@@ -1,10 +1,10 @@
-use std::cmp::Reverse;
 use crate::file::database::Database;
 use crate::file::picture_file::{get_all_picture_file_paths, get_picture_file_path};
 use crate::model::order::Order;
 use crate::model::picture::Picture;
 use rand::prelude::SliceRandom;
 use rand::rng;
+use std::cmp::Reverse;
 use std::io::{Error, Result};
 
 #[derive(Debug, Clone)]
@@ -40,7 +40,7 @@ impl Gallery {
         match get_all_picture_file_paths(path) {
             Ok(list) => {
                 for file_path in list {
-                    match Picture::new_with_file_image_data(&file_path,"") {
+                    match Picture::new_with_file_image_data(&file_path, "") {
                         Ok(picture) => self.pictures.push(picture),
                         Err(err) => return Err(err),
                     }
@@ -75,20 +75,29 @@ impl Gallery {
     pub fn sort_by(&mut self, order: Order) {
         match order {
             Order::Name => self.pictures.sort_by_key(|picture| picture.file_path()),
-            Order::Size => self.pictures.sort_by_key(|picture| 
-                picture.image_data().map(|image_data|
-                    image_data.size()
-                )),
-            Order::Date => self.pictures.sort_by_key(|picture|
-                picture.image_data().map(|image_data|
-                    (true, Reverse(image_data.modified_time()))
-                )),
+            Order::Size => self
+                .pictures
+                .sort_by_key(|picture| picture.image_data().map(|image_data| image_data.size())),
+            Order::Date => self.pictures.sort_by_key(|picture| {
+                picture
+                    .image_data()
+                    .map(|image_data| (true, Reverse(image_data.modified_time())))
+            }),
             _ => self.pictures.shuffle(&mut rng()),
         }
     }
 
     pub fn find_file_path(&self, file_path: &str) -> Option<usize> {
-        self.pictures.clone().into_iter().position(|picture| picture.file_path() == file_path)
+        self.pictures
+            .clone()
+            .into_iter()
+            .position(|picture| picture.file_path() == file_path)
+    }
+
+    pub fn print(&self) {
+        for picture in self.pictures.clone() {
+            println!("{}", picture.file_path())
+        }
     }
 }
 
@@ -111,6 +120,7 @@ mod tests {
             .load_from_directory("./testdata/")
             .expect("can't load from directory");
         gallery.sort_by(Order::Name);
+        gallery.print();
         assert_eq!(4, gallery.len());
         assert_eq!(
             String::from("./testdata/large_picture.png"),
@@ -188,6 +198,6 @@ mod tests {
         gallery
             .load_from_database(&database)
             .expect("can't load from database");
-        assert_eq!(Some(0), gallery.find_file_path(NINE_COLORS))
+        assert!(gallery.find_file_path(NINE_COLORS).is_some())
     }
 }

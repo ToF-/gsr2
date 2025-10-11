@@ -1,8 +1,8 @@
-use crate::model::order::Order;
 use crate::Command;
 use crate::env::default_values::{DEFAULT_HEIGHT, DEFAULT_SLIDESHOW_DELAY, DEFAULT_WIDTH};
 use crate::env::dimension::{dimension, slideshow_delay};
 use crate::file::paths::{check_path, check_picture_file};
+use crate::model::order::Order;
 use clap::Parser;
 use std::io::{Error, Result};
 

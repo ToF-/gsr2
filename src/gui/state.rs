@@ -27,7 +27,7 @@ impl State {
             slideshow_on,
             display_date_on: false,
             display_size_on: false,
-            mode : Mode::View,
+            mode: Mode::View,
             focus_symbol: FOCUS_SYMBOL_1,
             change_focus_symbol_on: true,
         }
@@ -40,13 +40,13 @@ impl State {
     pub fn focus_symbol(&self) -> char {
         self.focus_symbol
     }
-    
+
     pub fn change_focus_symbol_on(&self) -> bool {
         self.change_focus_symbol_on
     }
 
     pub fn toggle_change_focus_symbol(&mut self) {
-        self.change_focus_symbol_on = ! self.change_focus_symbol_on
+        self.change_focus_symbol_on = !self.change_focus_symbol_on
     }
 
     pub fn toggle_focus_symbol(&mut self) {
@@ -116,7 +116,7 @@ impl State {
     }
 
     pub fn toggle_display_date(&mut self) {
-        self.display_date_on = ! self.display_date_on
+        self.display_date_on = !self.display_date_on
     }
 
     pub fn display_size_on(&self) -> bool {
@@ -124,7 +124,7 @@ impl State {
     }
 
     pub fn toggle_display_size(&mut self) {
-        self.display_size_on = ! self.display_size_on
+        self.display_size_on = !self.display_size_on
     }
 }
 

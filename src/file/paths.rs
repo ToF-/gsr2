@@ -1,3 +1,4 @@
+use crate::env::default_values::GARBAGE;
 use crate::env::default_values::THUMB_SUFFIX;
 use crate::env::default_values::VALID_EXTENSIONS;
 use crate::model::gen_image::{thumbnail_size_display, thumbnail_size_for};
@@ -35,21 +36,36 @@ pub fn check_path_is_a_file(path: &PathBuf) -> Result<&PathBuf> {
 }
 
 pub fn check_path_is_a_jpg_or_png_file(path: &PathBuf) -> Result<&PathBuf> {
-    if let Some(extension) = path.extension()
-        && VALID_EXTENSIONS.contains(&extension.to_str().unwrap())
-    {
-        return Ok(path);
+    check_path_does_not_contain_garbage(path).and_then(|path| {
+        if let Some(extension) = path.extension()
+            && VALID_EXTENSIONS.contains(&extension.to_str().unwrap())
+        {
+            return Ok(path);
+        }
+        Err(Error::other(format!(
+            "{} is not a jpg or png file",
+            path.display()
+        )))
+    })
+}
+
+pub fn check_path_does_not_contain_garbage(path: &PathBuf) -> Result<&PathBuf> {
+    for ch in path.display().to_string().chars() {
+        if GARBAGE.contains(ch) {
+            return Err(Error::other(format!(
+                "{} is not a valid jpg or png file",
+                path.display()
+            )));
+        }
     }
-    Err(Error::other(format!(
-        "{} is not a jpg or png file",
-        path.display()
-    )))
+    Ok(path)
 }
 
 pub fn check_picture_file(file_name: &str) -> Result<String> {
     match check_path_exists(&PathBuf::from(file_name))
         .and_then(check_path_is_a_file)
         .and_then(check_path_is_a_jpg_or_png_file)
+        .and_then(check_path_does_not_contain_garbage)
     {
         Ok(path) => Ok(path.display().to_string()),
         Err(e) => Err(e),
@@ -114,6 +130,11 @@ mod tests {
         assert_eq!(String::from("./src/paths.rs"), dir);
     }
 
+    #[test]
+    #[should_panic]
+    fn check_path_return_error_on_several_extensions() {
+        let _ = check_picture_file("testdata/nine_colors.png!Large.png").unwrap();
+    }
     #[test]
     fn thumbnail_name_from_normal_file_has_thumb_suffix() {
         const pictures_per_row: usize = 10;

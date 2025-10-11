@@ -153,7 +153,8 @@ pub mod tests {
 
     pub fn insert_nine_colors_sample_into_db() {
         let database = my_db();
-        let picture: Picture = Picture::new_with_file_image_data(NINE_COLORS, "sample").expect("can't create picture");
+        let picture: Picture =
+            Picture::new_with_file_image_data(NINE_COLORS, "sample").expect("can't create picture");
         let _ = database.rusqlite_insert_picture(&picture);
     }
 
