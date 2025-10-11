@@ -1,3 +1,4 @@
+use crate::file::picture_file::create_missing_thumbnails;
 use crate::cli::args::Args;
 use crate::cli::command::Command;
 use crate::env::default_values::APPLICATION_ID;
@@ -44,8 +45,17 @@ fn main() {
                     }
                     Ok(_) => {}
                 }
-            }
-
+            };
+            if let Ok(controller) = controller_rc.try_borrow() {
+                if cli.list {
+                    controller.gallery().print();
+                    exit(0)
+                };
+                if let Some(pictures_per_row) = cli.create_missing_thumbnails {
+                    create_missing_thumbnails(&controller.gallery(), pictures_per_row as usize);
+                    exit(0)
+                };
+            };
             let application: gtk::Application = make_application(APPLICATION_ID);
             application.connect_activate(clone!(
                 #[strong]

@@ -194,10 +194,6 @@ impl EntryWindow {
         self.window.present()
     }
 
-    pub fn window(&self) -> gtk::Window {
-        self.window.clone()
-    }
-
     pub fn close(&self) {
         self.window.close()
     }

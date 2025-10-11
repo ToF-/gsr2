@@ -1,19 +1,16 @@
 use crate::clone;
 use crate::env::default_values::MAX_PICTURES_PER_ROW;
-use crate::env::default_values::{FOCUS_SYMBOL_1, FOCUS_SYMBOL_2};
 use crate::gui::controller::RcController;
 use crate::gui::display::picture_label_display;
 use crate::gui::view::picture_cell_box::make_picture_cell_box;
 use crate::gui::view::picture_frame::make_label;
 use crate::model::picture::Picture;
 use gtk::glib::timeout_add_local;
-use gtk::glib::{ControlFlow, Propagation};
+use gtk::glib::ControlFlow;
 use gtk::prelude::BoxExt;
 use gtk::prelude::Cast;
 use gtk::prelude::GridExt;
 use gtk::prelude::WidgetExt;
-use std::cell::RefCell;
-use std::rc::Rc;
 use std::time::Duration;
 
 #[derive(Clone, Debug)]

@@ -63,3 +63,4 @@
     - store a RefCell of this symbol in the controlle struc
     - add timer event to alternate this symbol every second ▚ ▞
 - [X] the gallery loads picture file with names like pierre-soulages-peinture-19-juin-1963-1963.jpg!Large.jpg, that's a bug
+- [X] --print option only prints the picture file names and quit

@@ -36,6 +36,7 @@ pub fn get_picture_file_path(file_path: &str) -> Result<String> {
 }
 
 pub fn create_missing_thumbnails(gallery: &Gallery, pictures_per_row: usize) {
+    let mut count: usize = 0;
     for picture in gallery.pictures() {
         let file_path = picture.file_path();
         let thumbnail_file_path = picture.thumbnail_file_path_for_size(pictures_per_row);
@@ -43,14 +44,18 @@ pub fn create_missing_thumbnails(gallery: &Gallery, pictures_per_row: usize) {
             Ok(_) => {}
             Err(_) => {
                 match create_thumbnail_file(&thumbnail_file_path, &file_path, pictures_per_row) {
-                    Ok(_) => println!("creating thumbnail {}", thumbnail_file_path),
+                    Ok(_) => {
+                        println!("creating thumbnail {}", thumbnail_file_path);
+                        count += 1
+                    },
                     Err(err) => {
                         eprintln!("{}", err);
                     }
                 }
             }
         }
-    }
+    };
+    println!("{} thumbnails created", count)
 }
 
 #[allow(dead_code)]

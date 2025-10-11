@@ -1,7 +1,6 @@
 use crate::Args;
 use crate::MainWindow;
 use crate::cli::command::Command;
-use crate::env::default_values::FOCUS_SYMBOL_1;
 use crate::env::environment::database_connection;
 use crate::file::database::Database;
 use crate::file::picture_file::create_missing_thumbnails;
@@ -21,7 +20,6 @@ use gtk::prelude::*;
 use gtk::{self, gdk};
 use rand::Rng;
 use rand::rng;
-use std::cell::Cell;
 use std::cell::RefCell;
 use std::io::Result as IOResult;
 use std::rc::Rc;
@@ -34,7 +32,6 @@ pub struct Controller {
     controls: Controls,
     database: Database,
     state: State,
-    focus_symbol_change_on: bool,
     main_window_opt: Option<MainWindow>,
 }
 
@@ -55,7 +52,6 @@ impl Controller {
                     database,
                     state: State::new(pictures_per_row as usize, cli.slideshow().is_some()),
                     main_window_opt: None,
-                    focus_symbol_change_on: false,
                 }),
             }
         })
@@ -70,18 +66,6 @@ impl Controller {
     }
     pub fn set_main_window(&mut self, main_window: MainWindow) {
         self.main_window_opt = Some(main_window)
-    }
-
-    pub fn focus_symbol_change_on(&self) -> bool {
-        self.focus_symbol_change_on
-    }
-
-    pub fn set_focus_symbol_change_on(&mut self) {
-        self.focus_symbol_change_on = true
-    }
-
-    pub fn set_focus_symbol_change_off(&mut self) {
-        self.focus_symbol_change_on = false
     }
 
     pub fn state(&self) -> State {
@@ -123,9 +107,6 @@ impl Controller {
             Ok(size) => {
                 gallery.sort_by(args.order);
                 println!("{} pictures", &gallery.len());
-                if let Some(pictures_per_row) = self.args.create_missing_thumbnails {
-                    create_missing_thumbnails(&gallery.clone(), pictures_per_row as usize);
-                }
                 self.set_gallery(gallery);
                 self.navigator().set_page_changed();
                 Ok(size)

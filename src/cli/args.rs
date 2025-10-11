@@ -38,13 +38,18 @@ pub struct Args {
     #[arg(short, long, value_name="ORDER", ignore_case(true), default_value_t = Order::Name)]
     pub order: Order,
 
-    /// create missing thumbnails for grid with N x N pictures per page (N in range [2..10])
+    /// create missing thumbnails for grid with N x N pictures per page (N in range [2..10]) and
+    /// then quit
     #[arg(short, long, value_name = "N", value_parser(clap::value_parser!(u8).range(2..=10)))]
     pub create_missing_thumbnails: Option<u8>,
 
     /// window height
     #[arg(long, value_name = "N")]
     pub height: Option<i32>,
+
+    /// list the picture file names in the selection and then quit
+    #[arg(long)]
+    pub list: bool,
 
     /// window width
     #[arg(long, value_name = "N")]

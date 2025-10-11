@@ -27,7 +27,6 @@ Editor	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^pub struct Edito
 EntryKind	/Users/christophethibaut/Coding/gsr2/src/gui/mode.rs	/^pub enum EntryKind {$/;"	g
 EntryWindow	/Users/christophethibaut/Coding/gsr2/src/gui/view/entry_window.rs	/^pub struct EntryWindow {$/;"	s
 Event	/Users/christophethibaut/Coding/gsr2/src/gui/event.rs	/^pub enum Event {$/;"	g
-FOCUS_SYMBOL	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const FOCUS_SYMBOL: &str = "▄ ";$/;"	c
 FOCUS_SYMBOL_1	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const FOCUS_SYMBOL_1: char = '░'; \/\/ '▚';$/;"	c
 FOCUS_SYMBOL_2	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const FOCUS_SYMBOL_2: char = '▓'; \/\/ '▞';$/;"	c
 FULL_SIZE_ON_SYMBOL	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const FULL_SIZE_ON_SYMBOL: &str = " 🔍";$/;"	c
@@ -174,7 +173,6 @@ find_file_path	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^    p
 finding_a_picture_by_file_path	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^    fn finding_a_picture_by_file_path() {$/;"	f
 fmt	/Users/christophethibaut/Coding/gsr2/src/model/order.rs	/^    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {$/;"	f
 focus_symbol	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn focus_symbol(&self) -> char {$/;"	f
-focus_symbol_change_on	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn focus_symbol_change_on(&self) -> bool {$/;"	f
 frame	/Users/christophethibaut/Coding/gsr2/src/gui/view/picture_frame.rs	/^    pub fn frame(&self) -> gtk::Box {$/;"	f
 frame_window	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn frame_window(&self) -> gtk::ScrolledWindow {$/;"	f
 from	/Users/christophethibaut/Coding/gsr2/src/model/order.rs	/^pub fn from(s: &str) -> Option<Order> {$/;"	f
@@ -332,8 +330,6 @@ rusqlite_retrieve_picture_with_file_path	/Users/christophethibaut/Coding/gsr2/sr
 rusqlite_row_to_picture	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    fn rusqlite_row_to_picture(row: &Row) -> SqlResult<Picture, rusqlite::Error> {$/;"	f
 save_large_picture	/Users/christophethibaut/Coding/gsr2/src/model/gen_image.rs	/^pub fn save_large_picture() {$/;"	f
 save_nine_colors	/Users/christophethibaut/Coding/gsr2/src/model/gen_image.rs	/^pub fn save_nine_colors() {$/;"	f
-set_focus_symbol_change_off	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_focus_symbol_change_off(&mut self) {$/;"	f
-set_focus_symbol_change_on	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_focus_symbol_change_on(&mut self) {$/;"	f
 set_gallery	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_gallery(&mut self, gallery: Gallery) {$/;"	f
 set_image_data	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    pub fn set_image_data(&mut self, image_data: ImageData) {$/;"	f
 set_label_for	/Users/christophethibaut/Coding/gsr2/src/gui/view/picture_grid.rs	/^    pub fn set_label_for($/;"	f
@@ -397,6 +393,5 @@ total_pages_according_to_len_and_page_size	/Users/christophethibaut/Coding/gsr2/
 update_page_limits	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn update_page_limits(&mut self) {$/;"	f
 value_variants	/Users/christophethibaut/Coding/gsr2/src/model/order.rs	/^    fn value_variants<'a>() -> &'a [Self] {$/;"	f
 view_file_path	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    pub fn view_file_path(&self, pictures_per_row: usize) -> String {$/;"	f
-window	/Users/christophethibaut/Coding/gsr2/src/gui/view/entry_window.rs	/^    pub fn window(&self) -> gtk::Window {$/;"	f
 with_no_grid_or_thumbnail_option_pictures_per_row_is_1	/Users/christophethibaut/Coding/gsr2/src/cli/args.rs	/^    fn with_no_grid_or_thumbnail_option_pictures_per_row_is_1() {$/;"	f
 write_thumbnail	/Users/christophethibaut/Coding/gsr2/src/model/gen_image.rs	/^fn write_thumbnail<R: std::io::Seek + std::io::Read>($/;"	f
