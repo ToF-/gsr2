@@ -3,7 +3,6 @@ use crate::clone;
 use crate::env::default_values::{ENTRY_CURSOR_1, ENTRY_CURSOR_2};
 use crate::env::default_values::{ENTRY_WINDOW_HEIGHT, ENTRY_WINDOW_WIDTH};
 use crate::gui::event::Event;
-use crate::gui::mode::EntryKind;
 use crate::gui::mode::Mode;
 use gtk::Align;
 use gtk::CssProvider;
@@ -122,9 +121,7 @@ impl EntryWindow {
                 controller_rc,
                 move || {
                     if let Ok(controller) = controller_rc.try_borrow() {
-                        if Mode::Editing(EntryKind::Label) == controller.state().mode()
-                            || Mode::Editing(EntryKind::Number) == controller.state().mode()
-                        {
+                        if Mode::Editing == controller.state().mode() {
                             let label = Self::entry_text_label(&window);
                             let mut content = label.text().to_string();
                             let cursor = content.pop();
@@ -167,27 +164,8 @@ impl EntryWindow {
         Self::entry_text_label(&self.window)
     }
 
-    pub fn final_text(&self) -> String {
-        let label = self.entry_text();
-        let mut content: String = label.text().to_string();
-        content.pop();
-        content
-    }
-
-    pub fn add_char(&self, ch: char) {
-        let mut content: String = self.entry_text().text().to_string();
-        content.pop();
-        content.push(ch);
-        content.push(ENTRY_CURSOR_1);
-        self.entry_text().set_text(&content)
-    }
-
-    pub fn delete_char(&self) {
-        let mut content: String = self.entry_text().text().to_string();
-        content.pop();
-        content.pop();
-        content.push(ENTRY_CURSOR_1);
-        self.entry_text().set_text(&content)
+    pub fn set_text(&self, text: &str) {
+        self.entry_text().set_text(&text);
     }
 
     pub fn popup(&self) {

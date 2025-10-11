@@ -38,7 +38,6 @@ pub const RIGHT_PANE: usize = 1;
 pub struct MainWindow {
     picture_grid: PictureGrid,
     picture_frame: PictureFrame,
-    entry_window_opt: Option<EntryWindow>,
     application_window: gtk::ApplicationWindow,
     stack: gtk::Stack,
     frame_window: gtk::ScrolledWindow,
@@ -112,7 +111,6 @@ impl MainWindow {
         MainWindow {
             picture_grid: picture_grid.clone(),
             picture_frame: picture_frame.clone(),
-            entry_window_opt: None,
             application_window: application_window.clone(),
             stack: stack.clone(),
             frame_window: single_view_scrolled_window.clone(),
@@ -193,7 +191,7 @@ impl MainWindow {
                 }
                 _ => panic!("incorrect choice for setting: {:?}", choice),
             },
-            Mode::Editing(_kind) => String::from("Editing…"),
+            Mode::Editing => String::from("Editing…"),
         };
         self.application_window().set_title(Some(&title));
     }
@@ -277,7 +275,7 @@ impl MainWindow {
         child_name == "single_view"
     }
 
-    pub fn popup_entry_window(&mut self, prompt: &str, text: &str) {
+    pub fn popup_entry_window(&self, prompt: &str, text: &str) -> EntryWindow {
         let entry_window = EntryWindow::new(
             &self.application_window(),
             prompt,
@@ -285,17 +283,7 @@ impl MainWindow {
             &self.controller_rc,
         );
         entry_window.popup();
-        self.entry_window_opt = Some(entry_window.clone());
-    }
-
-    pub fn entry_window(&self) -> EntryWindow {
-        self.entry_window_opt.clone().unwrap()
-    }
-    pub fn close_entry_window(&mut self) {
-        if let Some(entry_window) = &self.entry_window_opt {
-            entry_window.close();
-            self.entry_window_opt = None
-        }
+        entry_window
     }
 
     pub fn change_grid_size(&mut self, pictures_per_row: usize) {

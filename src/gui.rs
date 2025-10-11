@@ -2,6 +2,8 @@ pub mod control;
 pub mod controller;
 pub mod direction;
 pub mod display;
+pub mod editor;
+pub mod entry_kind;
 pub mod event;
 pub mod mode;
 pub mod navigator;

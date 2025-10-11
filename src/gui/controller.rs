@@ -1,13 +1,13 @@
+use crate::gui::entry_kind::EntryKind;
+use crate::gui::editor::Editor;
 use crate::Args;
 use crate::MainWindow;
 use crate::cli::command::Command;
 use crate::env::environment::database_connection;
 use crate::file::database::Database;
-use crate::file::picture_file::create_missing_thumbnails;
 use crate::gui::control::{Control, Controls, default_controls};
 use crate::gui::direction::Direction;
 use crate::gui::event::Event;
-use crate::gui::mode::EntryKind;
 use crate::gui::mode::Mode;
 use crate::gui::navigator::Navigator;
 use crate::gui::state::State;
@@ -33,6 +33,7 @@ pub struct Controller {
     database: Database,
     state: State,
     main_window_opt: Option<MainWindow>,
+    editor: Editor,
 }
 
 pub type RcController = Rc<RefCell<Controller>>;
@@ -47,6 +48,7 @@ impl Controller {
                 Ok(database) => Ok(Controller {
                     args: cli.clone(),
                     gallery,
+                    editor: Editor::new(),
                     navigator: Navigator::new(0, pictures_per_row as usize),
                     controls: default_controls(),
                     database,
@@ -232,15 +234,30 @@ impl Controller {
                 };
                 self.state.set_mode(Mode::View)
             }
-            Mode::Editing(kind) => match key.name() {
-                None => {}
-                Some(key_name) => match controls.get(&key_name.to_string()) {
-                    Some(Control::Cancel) => self.cancel(),
-                    Some(Control::Enter) => self.enter(),
-                    Some(Control::DeleteChar) => self.delete_editor_char(),
-                    Some(_) | None => self.process_editor_key(key, kind),
-                },
+            Mode::Editing => {
+                self.editor.process(key);
+                if ! self.editor.editing() {
+                    self.state.set_mode(Mode::View);
+                    if !self.editor.input().is_empty() {
+                        match
+                            self.editor.entry_kind() {
+                                EntryKind::Label => self.label_current_picture_with(&self.editor.input()),
+                                EntryKind::Number => self.move_towards_index(self.editor.input().parse().unwrap()),
+                            }
+                    }
+                }
             },
+        }
+    }
+
+    pub fn label_current_picture_with(&mut self, label: &str) {
+        println!("here I label the current picture with {}", label)
+    }
+
+    pub fn move_towards_index(&mut self, index: usize) {
+        let direction = Direction::Index { value: index };
+        if self.navigator().can_move(direction.clone()) {
+            self.navigator.move_towards(direction)
         }
     }
 
@@ -277,7 +294,6 @@ impl Controller {
 
     pub fn process_control(&mut self, control: &Control) {
         match control {
-            Control::Cancel => self.cancel(),
             Control::MoveNext => self.move_next(),
             Control::MovePrev => self.move_prev(),
             Control::MoveLast => self.move_last(),
@@ -313,51 +329,14 @@ impl Controller {
         }
     }
 
-    pub fn delete_editor_char(&self) {
-        self.main_window().entry_window().delete_char();
-    }
-    pub fn process_editor_key(&self, key: Key, kind: EntryKind) {
-        if let Some(ch) = key.to_unicode() {
-            let ch_is_ok = match kind {
-                EntryKind::Number => ch.is_ascii_digit(),
-                EntryKind::Label => matches!(ch,
-                    'a'..='z' | '0'..='9' | '-' | '_'),
-            };
-            if ch_is_ok {
-                self.main_window().entry_window().add_char(ch)
-            }
-        }
-    }
-    pub fn cancel(&mut self) {
-        self.main_window().close_entry_window();
-        self.state.set_mode(Mode::View)
-    }
-
-    pub fn enter(&mut self) {
-        let content = self.main_window().entry_window().final_text();
-        self.main_window().close_entry_window();
-        if self.state.mode() == Mode::Editing(EntryKind::Number) {
-            let index: usize = content.parse().unwrap();
-            let direction = Direction::Index { value: index };
-            if self.navigator().can_move(direction.clone()) {
-                self.navigator.move_towards(direction)
-            }
-        };
-        self.state.set_mode(Mode::View)
-    }
-
     pub fn label(&mut self) {
-        let mut main_window = self.main_window();
-        main_window.popup_entry_window("Enter a label:", "");
-        self.state.set_mode(Mode::Editing(EntryKind::Label));
-        self.main_window_opt = Some(main_window);
+        self.editor.begin(&self.main_window(), EntryKind::Label);
+        self.state.set_mode(Mode::Editing);
     }
 
     pub fn jump(&mut self) {
-        let mut main_window = self.main_window();
-        main_window.popup_entry_window("Enter a number:", "");
-        self.state.set_mode(Mode::Editing(EntryKind::Number));
-        self.main_window_opt = Some(main_window);
+        self.editor.begin(&self.main_window(), EntryKind::Number);
+        self.state.set_mode(Mode::Editing);
     }
 
     pub fn quit(&self) {

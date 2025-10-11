@@ -1,15 +1,17 @@
-#[derive(Clone, Debug, PartialEq)]
-#[allow(dead_code)]
-pub enum InputKind {
-    Label,
-}
+use gtk::{self, gdk};
+use gdk::Key;
+use crate::gui::control::{Control, Controls, default_controls};
+use crate::gui::view::entry_window::EntryWindow;
+use crate::MainWindow;
+use crate::gui::entry_kind::EntryKind;
 
-#[allow(dead_code)]
 #[derive(Clone, Debug)]
 pub struct Editor {
     editing: bool,
     input: String,
-    input_kind: Option<InputKind>,
+    controls: Controls,
+    entry_kind: EntryKind,
+    entry_window_opt: Option<EntryWindow>,
 }
 
 #[allow(dead_code)]
@@ -17,9 +19,20 @@ impl Editor {
     pub fn new() -> Editor {
         Editor {
             editing: false,
+            controls: default_controls(),
             input: String::from(""),
-            input_kind: None,
+            entry_kind: EntryKind::Label,
+            entry_window_opt: None,
         }
+    }
+
+    pub fn begin(&mut self, main_window: &MainWindow, entry_kind: EntryKind) {
+        let prompt: &str = match entry_kind {
+            EntryKind::Label => "Enter a label",
+            EntryKind::Number => "Enter a number",
+        };
+        self.input = String::from("");
+        self.entry_window_opt = Some(main_window.popup_entry_window(&prompt, &self.input));
     }
 
     pub fn editing(&self) -> bool {
@@ -30,15 +43,42 @@ impl Editor {
         self.input.clone()
     }
 
-    pub fn input_kind(&self) -> Option<InputKind> {
-        self.input_kind.clone()
+    pub fn entry_kind(&self) -> EntryKind {
+        self.entry_kind.clone()
     }
 
-    pub fn begin_input(&mut self, kind: InputKind) {
+    pub fn process(&mut self, key: Key) {
+        match key.name() {
+            None => {}
+            Some(key_name) => match self.controls.get(&key_name.to_string()) {
+                Some(Control::Cancel) => self.cancel(),
+                Some(Control::Enter) => self.enter(),
+                Some(Control::DeleteChar) => self.delete(),
+                Some(_) | None => self.append_from_key(key)
+            },
+        }
+    }
+
+    pub fn append_from_key(&mut self, key: Key) {
+        if let Some(ch) = key.to_unicode() {
+            self.append(ch);
+        }
+    }
+    pub fn cancel(&mut self) {
+        self.input = String::from("");
+        self.editing = false;
+        self.entry_window_opt.clone().unwrap().close();
+    }
+
+    pub fn enter(&mut self) {
+        self.entry_window_opt.clone().unwrap().close();
+        self.editing = false
+    }
+
+    pub fn begin_input(&mut self, kind: EntryKind) {
         self.editing = true;
         self.input = String::from("");
-        self.input_kind = Some(kind);
-        println!("begin input");
+        self.entry_kind = kind
     }
 
     pub fn confirm_input(&mut self) -> String {
@@ -56,23 +96,21 @@ impl Editor {
             self.input = String::from("")
         }
     }
-    pub fn append(&mut self, ch: char) -> bool {
-        if self.editing && matches!(ch, 'a'..='z' | '0'..='9' | '-' | '_') {
+    pub fn append(&mut self, ch: char) {
+        let ch_is_ok = match self.entry_kind {
+            EntryKind::Number => ch.is_ascii_digit(),
+            EntryKind::Label => matches!(ch,
+                'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_'),
+        };
+        if ch_is_ok {
             self.input.push(ch);
-            println!("{}", self.input);
-            true
-        } else {
-            false
+            self.entry_window_opt.clone().unwrap().set_text(&self.input)
         }
     }
 
-    pub fn delete(&mut self) -> bool {
-        if self.editing && !self.input.clone().is_empty() {
-            self.input.pop();
-            true
-        } else {
-            false
-        }
+    pub fn delete(&mut self) {
+        self.input.pop();
+        self.entry_window_opt.clone().unwrap().set_text(&self.input)
     }
 }
 #[cfg(test)]
@@ -83,7 +121,7 @@ mod tests {
     fn initially_not_editing() {
         let editor = Editor::new();
         assert!(!editor.editing());
-        assert_eq!(None, editor.input_kind());
+        assert_eq!(None, editor.entry_kind_opt());
     }
 
     #[test]
@@ -92,7 +130,7 @@ mod tests {
         editor.begin_input(InputKind::Label);
         assert!(editor.editing());
         assert_eq!(String::from(""), editor.input());
-        assert_eq!(Some(InputKind::Label), editor.input_kind());
+        assert_eq!(Some(InputKind::Label), editor.entry_kind_opt());
     }
 
     #[test]
