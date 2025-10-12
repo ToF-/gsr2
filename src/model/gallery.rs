@@ -115,7 +115,7 @@ mod tests {
     use crate::file::database::tests::{
         delete_nine_colors_from_db, insert_nine_colors_sample_into_db,
     };
-    use crate::model::gen_image::{NINE_COLORS, SINGLE_DOT, WHITE_SQUARE, LARGE_PICTURE};
+    use crate::model::gen_image::{LARGE_PICTURE, NINE_COLORS, SINGLE_DOT, WHITE_SQUARE};
 
     #[test]
     fn loading_from_a_directory_collect_all_the_picture_files_from_that_directory() {

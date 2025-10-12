@@ -3,4 +3,3 @@ pub enum EntryKind {
     Label,
     Number,
 }
-

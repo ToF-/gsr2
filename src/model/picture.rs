@@ -89,7 +89,7 @@ impl Picture {
         let new_image_data = if let Some(image_data) = &self.image_data {
             ImageData {
                 label: label.to_string(),
-                .. image_data.clone()
+                ..image_data.clone()
             }
         } else {
             ImageData::new(label)

@@ -1,5 +1,3 @@
-use crate::gui::entry_kind::EntryKind;
-use crate::gui::editor::Editor;
 use crate::Args;
 use crate::MainWindow;
 use crate::cli::command::Command;
@@ -7,6 +5,8 @@ use crate::env::environment::database_connection;
 use crate::file::database::Database;
 use crate::gui::control::{Control, Controls, default_controls};
 use crate::gui::direction::Direction;
+use crate::gui::editor::Editor;
+use crate::gui::entry_kind::EntryKind;
 use crate::gui::event::Event;
 use crate::gui::mode::Mode;
 use crate::gui::navigator::Navigator;
@@ -154,7 +154,7 @@ impl Controller {
         }
     }
     pub fn process_picture_clicked(&mut self, _button: u32, col: i32, row: i32) {
-        self.main_window().set_label_for_current_picture(self, None);
+        self.main_window().set_label_text_for_current_picture(self, None);
         if let Some(index) = self
             .navigator
             .position_from_coords(row as usize, col as usize)
@@ -163,7 +163,7 @@ impl Controller {
             self.navigator
                 .move_towards(Direction::Index { value: index });
         }
-        self.set_label_for_current_picture()
+        self.set_label_text_for_current_picture()
     }
 
     pub fn process_pane_clicked(&mut self, _button: usize, pane_number: usize) {
@@ -185,7 +185,7 @@ impl Controller {
         _controller_rc: &RcController,
     ) {
         let main_window = self.main_window();
-        main_window.set_label_for_current_picture(self, None);
+        main_window.set_label_text_for_current_picture(self, None);
         let old_slideshow_on = self.state().slideshow_on();
         self.process_key(key);
 
@@ -198,17 +198,17 @@ impl Controller {
                 self.main_window().set_pictures(self);
                 self.navigator.set_page_unchanged();
             };
-            self.set_label_for_current_picture();
+            self.set_label_text_for_current_picture();
             self.main_window().set_title(self);
         }
     }
 
-    pub fn set_label_for_current_picture(&mut self) {
+    pub fn set_label_text_for_current_picture(&mut self) {
         if self.state.change_focus_symbol_on() {
             self.state.toggle_focus_symbol()
         };
         self.main_window()
-            .set_label_for_current_picture(self, Some(self.state().focus_symbol()))
+            .set_label_text_for_current_picture(self, Some(self.state().focus_symbol()))
     }
 
     pub fn process_key(&mut self, key: Key) {
@@ -241,17 +241,20 @@ impl Controller {
             }
             Mode::Editing => {
                 self.editor.process(key);
-                if ! self.editor.editing() {
+                if !self.editor.editing() {
                     self.state.set_mode(Mode::View);
                     if !self.editor.input().is_empty() {
-                        match
-                            self.editor.entry_kind() {
-                                EntryKind::Label => self.label_current_picture_with(&self.editor.input()),
-                                EntryKind::Number => self.move_towards_index(self.editor.input().parse().unwrap()),
+                        match self.editor.entry_kind() {
+                            EntryKind::Label => {
+                                self.label_current_picture_with(&self.editor.input())
                             }
+                            EntryKind::Number => {
+                                self.move_towards_index(self.editor.input().parse().unwrap())
+                            }
+                        }
                     }
                 }
-            },
+            }
         }
     }
 

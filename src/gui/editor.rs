@@ -1,9 +1,9 @@
-use gtk::{self, gdk};
-use gdk::Key;
-use crate::gui::control::{Control, Controls, default_controls};
-use crate::gui::view::entry_window::EntryWindow;
 use crate::MainWindow;
+use crate::gui::control::{Control, Controls, default_controls};
 use crate::gui::entry_kind::EntryKind;
+use crate::gui::view::entry_window::EntryWindow;
+use gdk::Key;
+use gtk::{self, gdk};
 
 #[derive(Clone, Debug)]
 pub struct Editor {
@@ -56,7 +56,7 @@ impl Editor {
                 Some(Control::Cancel) => self.cancel(),
                 Some(Control::Enter) => self.enter(),
                 Some(Control::DeleteChar) => self.delete(),
-                Some(_) | None => self.append_from_key(key)
+                Some(_) | None => self.append_from_key(key),
             },
         }
     }
@@ -116,8 +116,9 @@ impl Editor {
     }
 
     fn refresh_view(&self) {
-        self.entry_window_opt.clone().
-            map(|window| window.set_text(&self.input));
+        self.entry_window_opt
+            .clone()
+            .map(|window| window.set_text(&self.input));
     }
 }
 #[cfg(test)]

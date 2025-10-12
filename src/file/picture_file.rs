@@ -47,14 +47,14 @@ pub fn create_missing_thumbnails(gallery: &Gallery, pictures_per_row: usize) {
                     Ok(_) => {
                         println!("creating thumbnail {}", thumbnail_file_path);
                         count += 1
-                    },
+                    }
                     Err(err) => {
                         eprintln!("{}", err);
                     }
                 }
             }
         }
-    };
+    }
     println!("{} thumbnails created", count)
 }
 

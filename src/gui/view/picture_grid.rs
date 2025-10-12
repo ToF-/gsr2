@@ -5,8 +5,8 @@ use crate::gui::display::picture_label_display;
 use crate::gui::view::picture_cell_box::make_picture_cell_box;
 use crate::gui::view::picture_frame::make_label;
 use crate::model::picture::Picture;
-use gtk::glib::timeout_add_local;
 use gtk::glib::ControlFlow;
+use gtk::glib::timeout_add_local;
 use gtk::prelude::BoxExt;
 use gtk::prelude::Cast;
 use gtk::prelude::GridExt;
@@ -49,7 +49,7 @@ impl PictureGrid {
                     if let Ok(mut controller) = controller_rc.try_borrow_mut() {
                         if controller.state().change_focus_symbol_on() {
                             if !controller.state().single_view() {
-                                controller.set_label_for_current_picture()
+                                controller.set_label_text_for_current_picture()
                             }
                         };
                     }
@@ -63,7 +63,7 @@ impl PictureGrid {
         self.grid.clone()
     }
 
-    pub fn set_label_for(
+    pub fn set_label_text_at(
         &mut self,
         picture: &Picture,
         col: i32,

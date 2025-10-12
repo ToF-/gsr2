@@ -230,7 +230,7 @@ impl MainWindow {
                     };
                     self.picture_grid.set_picture_for(col, row, &gtk_picture);
                     self.picture_grid
-                        .set_label_for(&picture, col, row, with_focus);
+                        .set_label_text_at(&picture, col, row, with_focus);
                 }
             }
         }
@@ -257,7 +257,11 @@ impl MainWindow {
             self.set_pictures_for_multiple_view(controller, pictures_per_row as i32)
         }
     }
-    pub fn set_label_for_current_picture(&self, controller: &Controller, with_focus: Option<char>) {
+    pub fn set_label_text_for_current_picture(
+        &self,
+        controller: &Controller,
+        with_focus: Option<char>,
+    ) {
         let navigator = controller.navigator();
         let position = navigator.position();
         let picture = controller.current_picture();
@@ -265,7 +269,7 @@ impl MainWindow {
             && let Some((row, col)) = navigator.coords_from_position(position)
         {
             let mut picture_grid = self.picture_grid();
-            picture_grid.set_label_for(&picture, col as i32, row as i32, with_focus);
+            picture_grid.set_label_text_at(&picture, col as i32, row as i32, with_focus);
         }
     }
 
