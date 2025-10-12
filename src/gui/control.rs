@@ -63,7 +63,7 @@ pub fn default_controls() -> Controls {
         (   (String::from("Escape"), Mode::View),
             Control::CancelRange,
         ),
-        ((String::from("BackSpace"), Mode::View), Control::DeleteChar),
+        ((String::from("BackSpace"), Mode::Editing), Control::DeleteChar),
         ((String::from("J"), Mode::View), Control::Jump),
         ((String::from("n"), Mode::View), Control::MoveNext),
         ((String::from("p"), Mode::View), Control::MovePrev),

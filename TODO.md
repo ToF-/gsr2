@@ -68,3 +68,4 @@
 - [X] picture grid can mark pictures  50% opaque
 - [X] navigator can define a range
 - [X] a control depends on key and mode
+- [ ] apply label on a range

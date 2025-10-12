@@ -221,6 +221,8 @@ label	/Users/christophethibaut/Coding/gsr2/src/model/image_data.rs	/^    pub fn 
 label	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    pub fn label(&self) -> String {$/;"	f
 label_current_picture_with	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn label_current_picture_with(&mut self, label: &str) {$/;"	f
 label_length_is_limited_to_max_label_length	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    fn label_length_is_limited_to_max_label_length() {$/;"	f
+label_pictures_in_range_with	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn label_pictures_in_range_with(&mut self, label: &str) {$/;"	f
+label_pictures_with	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn label_pictures_with(&mut self, label: &str) {$/;"	f
 large_picture	/Users/christophethibaut/Coding/gsr2/src/model/gen_image.rs	/^pub fn large_picture() -> DynamicImage {$/;"	f
 left_pane	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^pub fn left_pane(panel_grid: &gtk::Grid) -> gtk::Label {$/;"	f
 len	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^    pub fn len(&self) -> usize {$/;"	f
