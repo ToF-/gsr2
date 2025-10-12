@@ -9,6 +9,8 @@ pub struct Navigator {
     page_start: usize,
     page_end: usize,
     page_changed: bool,
+    range_start: Option<usize>,
+    range_end: Option<usize>,
 }
 
 impl Navigator {
@@ -21,6 +23,8 @@ impl Navigator {
             page_start: 0,
             page_end: 0,
             page_changed: false,
+            range_start: None,
+            range_end: None,
         };
         result.update_page_limits();
         result
@@ -70,6 +74,21 @@ impl Navigator {
         }
     }
 
+    pub fn range_start(&self) -> Option<usize> {
+        self.range_start
+    }
+
+    pub fn range_end(&self) -> Option<usize> {
+        self.range_end
+    }
+
+    pub fn set_range(&mut self, index: usize) {
+        if self.range_start == None {
+            self.range_start = Some(index)
+        } else {
+            self.range_end = Some(index)
+        }
+    }
     pub fn has_moved(&self) -> bool {
         self.page_changed || (self.old_position != self.position)
     }
@@ -404,5 +423,16 @@ mod tests {
     fn total_pages_according_to_len_and_page_size() {
         let mut navigator = Navigator::new(10, 2);
         assert_eq!(navigator.total_pages(), 3);
+    }
+
+    #[test]
+    fn navigator_can_define_a_range() {
+        let mut navigator = Navigator::new(10, 2);
+        assert_eq!(None, navigator.range_start());
+        assert_eq!(None, navigator.range_end());
+        navigator.set_range(2);
+        assert_eq!(Some(2), navigator.range_start());
+        navigator.set_range(6);
+        assert_eq!(Some(6), navigator.range_end());
     }
 }
