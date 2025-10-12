@@ -114,6 +114,7 @@ change_focus_symbol_on	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^ 
 change_grid_size	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn change_grid_size(&mut self, pictures_per_row: usize) {$/;"	f
 change_grid_size	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn change_grid_size(&mut self, pictures_per_row: usize) {$/;"	f
 change_grid_size	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn change_grid_size(&mut self, pictures_per_row: usize) {$/;"	f
+changing_a_picture_by_its_index	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^    fn changing_a_picture_by_its_index() {$/;"	f
 check_path	/Users/christophethibaut/Coding/gsr2/src/file/paths.rs	/^pub fn check_path(source: &str) -> Result<String> {$/;"	f
 check_path_does_not_contain_garbage	/Users/christophethibaut/Coding/gsr2/src/file/paths.rs	/^pub fn check_path_does_not_contain_garbage(path: &PathBuf) -> Result<&PathBuf> {$/;"	f
 check_path_exists	/Users/christophethibaut/Coding/gsr2/src/file/paths.rs	/^pub fn check_path_exists(path: &PathBuf) -> Result<&PathBuf> {$/;"	f
@@ -190,6 +191,7 @@ get_data_from_picture_file	/Users/christophethibaut/Coding/gsr2/src/file/picture
 get_palette	/Users/christophethibaut/Coding/gsr2/src/model/image_data.rs	/^pub fn get_palette(image: &DynamicImage) -> Palette {$/;"	f
 get_palette_from_picture_file	/Users/christophethibaut/Coding/gsr2/src/file/picture_file.rs	/^pub fn get_palette_from_picture_file(file_path: &str) -> Result<Palette> {$/;"	f
 get_picture_file_path	/Users/christophethibaut/Coding/gsr2/src/file/picture_file.rs	/^pub fn get_picture_file_path(file_path: &str) -> Result<String> {$/;"	f
+getting_a_picture_by_its_index	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^    fn getting_a_picture_by_its_index() {$/;"	f
 given_a_destination_index_can_move_if_within_limit	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn given_a_destination_index_can_move_if_within_limit() {$/;"	f
 given_coords_can_tell_position_trivial_case	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn given_coords_can_tell_position_trivial_case() {$/;"	f
 given_coords_can_tell_position_with_several_pictures_per_row_on_first_page	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn given_coords_can_tell_position_with_several_pictures_per_row_on_first_page() {$/;"	f
@@ -329,8 +331,11 @@ rusqlite_retrieve_picture_with_file_path	/Users/christophethibaut/Coding/gsr2/sr
 rusqlite_row_to_picture	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    fn rusqlite_row_to_picture(row: &Row) -> SqlResult<Picture, rusqlite::Error> {$/;"	f
 save_large_picture	/Users/christophethibaut/Coding/gsr2/src/model/gen_image.rs	/^pub fn save_large_picture() {$/;"	f
 save_nine_colors	/Users/christophethibaut/Coding/gsr2/src/model/gen_image.rs	/^pub fn save_nine_colors() {$/;"	f
+set_current_picture	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_current_picture(&mut self, picture: Picture) {$/;"	f
 set_gallery	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_gallery(&mut self, gallery: Gallery) {$/;"	f
 set_image_data	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    pub fn set_image_data(&mut self, image_data: ImageData) {$/;"	f
+set_label	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    pub fn set_label(&mut self, label: &str) {$/;"	f
+set_label_changes_image_data	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    fn set_label_changes_image_data() {$/;"	f
 set_label_for	/Users/christophethibaut/Coding/gsr2/src/gui/view/picture_grid.rs	/^    pub fn set_label_for($/;"	f
 set_label_for_current_picture	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_label_for_current_picture(&mut self) {$/;"	f
 set_label_for_current_picture	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn set_label_for_current_picture(&self, controller: &Controller, with_focus: Option<char>) {$/;"	f
@@ -339,6 +344,7 @@ set_mode	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn set_
 set_page_changed	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn set_page_changed(&mut self) {$/;"	f
 set_page_unchanged	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn set_page_unchanged(&mut self) {$/;"	f
 set_picture	/Users/christophethibaut/Coding/gsr2/src/gui/view/picture_frame.rs	/^    pub fn set_picture(&self, controller: &Controller, picture: &gtk::Picture) {$/;"	f
+set_picture	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^    pub fn set_picture(&mut self, index: usize, picture: Picture) {$/;"	f
 set_picture_for	/Users/christophethibaut/Coding/gsr2/src/gui/view/picture_grid.rs	/^    pub fn set_picture_for(&self, col: i32, row: i32, picture: &gtk::Picture) {$/;"	f
 set_picture_for_single_view	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn set_picture_for_single_view(&self, controller: &Controller) {$/;"	f
 set_pictures	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn set_pictures(&mut self, controller: &Controller) {$/;"	f

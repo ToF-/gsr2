@@ -85,6 +85,18 @@ impl Picture {
         }
     }
 
+    pub fn set_label(&mut self, label: &str) {
+        let new_image_data = if let Some(image_data) = &self.image_data {
+            ImageData {
+                label: label.to_string(),
+                .. image_data.clone()
+            }
+        } else {
+            ImageData::new(label)
+        };
+        self.image_data = Some(new_image_data)
+    }
+
     pub fn thumbnail_file_path_for_size(&self, pictures_per_row: usize) -> String {
         thumbnail_name_from(&self.file_path, pictures_per_row)
     }
@@ -149,5 +161,11 @@ mod tests {
             String::from("testdata/nine_colorsTHUMBLarger.png"),
             picture.view_file_path(2)
         );
+    }
+    #[test]
+    fn set_label_changes_image_data() {
+        let mut picture = Picture::new("testdata/nine_colors.png");
+        picture.set_label("foo-bar-qux");
+        assert_eq!(String::from("foo-bar-qux"), picture.label());
     }
 }

@@ -93,6 +93,11 @@ impl Controller {
         self.gallery.picture(navigator.position())
     }
 
+    pub fn set_current_picture(&mut self, picture: Picture) {
+        let navigator = &self.navigator;
+        self.gallery.set_picture(navigator.position(), picture)
+    }
+
     pub fn load_picture_data(&mut self) -> IOResult<usize> {
         let mut gallery = Gallery::new();
         let args = self.args.clone();
@@ -237,7 +242,6 @@ impl Controller {
             Mode::Editing => {
                 self.editor.process(key);
                 if ! self.editor.editing() {
-                    println!("done editing");
                     self.state.set_mode(Mode::View);
                     if !self.editor.input().is_empty() {
                         match
@@ -252,7 +256,9 @@ impl Controller {
     }
 
     pub fn label_current_picture_with(&mut self, label: &str) {
-        println!("label: {}", label)
+        let mut picture = self.current_picture();
+        picture.set_label(label);
+        self.set_current_picture(picture);
     }
 
     pub fn move_towards_index(&mut self, index: usize) {

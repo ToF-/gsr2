@@ -35,6 +35,10 @@ impl Gallery {
         self.pictures[index].clone()
     }
 
+    pub fn set_picture(&mut self, index: usize, picture: Picture) {
+        self.pictures[index] = picture
+    }
+
     pub fn load_from_directory(&mut self, path: &str) -> Result<usize> {
         println!("loading directory…");
         match get_all_picture_file_paths(path) {
@@ -111,7 +115,7 @@ mod tests {
     use crate::file::database::tests::{
         delete_nine_colors_from_db, insert_nine_colors_sample_into_db,
     };
-    use crate::model::gen_image::{NINE_COLORS, SINGLE_DOT, WHITE_SQUARE};
+    use crate::model::gen_image::{NINE_COLORS, SINGLE_DOT, WHITE_SQUARE, LARGE_PICTURE};
 
     #[test]
     fn loading_from_a_directory_collect_all_the_picture_files_from_that_directory() {
@@ -192,6 +196,16 @@ mod tests {
         assert!(result)
     }
     #[test]
+    fn getting_a_picture_by_its_index() {
+        let database: Database = my_db();
+        let mut gallery = Gallery::new();
+        gallery
+            .load_from_database(&database)
+            .expect("can't load from database");
+        gallery.sort_by(Order::Name);
+        assert_eq!(LARGE_PICTURE, gallery.picture(0).file_path());
+    }
+    #[test]
     fn finding_a_picture_by_file_path() {
         let database: Database = my_db();
         let mut gallery = Gallery::new();
@@ -199,5 +213,18 @@ mod tests {
             .load_from_database(&database)
             .expect("can't load from database");
         assert!(gallery.find_file_path(NINE_COLORS).is_some())
+    }
+    #[test]
+    fn changing_a_picture_by_its_index() {
+        let database: Database = my_db();
+        let mut gallery = Gallery::new();
+        gallery
+            .load_from_database(&database)
+            .expect("can't load from database");
+        gallery.sort_by(Order::Name);
+        let mut picture = gallery.picture(0);
+        picture.set_label("some-label");
+        gallery.set_picture(0, picture);
+        assert_eq!(String::from("some-label"), gallery.picture(0).label());
     }
 }
