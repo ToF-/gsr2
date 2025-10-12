@@ -1,3 +1,4 @@
+use std::mem;
 use crate::gui::direction::Direction;
 
 #[derive(Debug, Clone)]
@@ -50,6 +51,14 @@ impl Navigator {
         self.page_end
     }
 
+    pub fn range(&self) -> Option<(usize, usize)> {
+        if let Some(start) = self.range_start() 
+            && let Some(end) = self.range_end() {
+                Some((start, end))
+            } else {
+                None
+            }
+        }
     pub fn page_size(&self) -> usize {
         self.pictures_per_row * self.pictures_per_row
     }
@@ -83,12 +92,26 @@ impl Navigator {
     }
 
     pub fn set_range(&mut self, index: usize) {
+        if self.range().is_some() {
+            self.range_start = None;
+            self.range_end = None;
+        }
         if self.range_start == None {
             self.range_start = Some(index)
         } else {
-            self.range_end = Some(index)
+            self.range_end = Some(index);
+            if self.range_end < self.range_start {
+                mem::swap(&mut self.range_start, &mut self.range_end)
+            }
+
         }
     }
+
+    pub fn cancel_range(&mut self) {
+        self.range_start = None;
+        self.range_end = None
+    }
+
     pub fn has_moved(&self) -> bool {
         self.page_changed || (self.old_position != self.position)
     }
@@ -434,5 +457,46 @@ mod tests {
         assert_eq!(Some(2), navigator.range_start());
         navigator.set_range(6);
         assert_eq!(Some(6), navigator.range_end());
+    }
+    
+    #[test]
+    fn navigator_can_define_a_range_backwards() {
+        let mut navigator = Navigator::new(10, 2);
+        assert_eq!(None, navigator.range_start());
+        assert_eq!(None, navigator.range_end());
+        navigator.set_range(6);
+        navigator.set_range(2);
+        assert_eq!(Some(2), navigator.range_start());
+        assert_eq!(Some(6), navigator.range_end());
+    }
+    #[test]
+    fn has_a_range_if_range_start_and_range_end_are_set() {
+        let mut navigator = Navigator::new(10, 2);
+        assert_eq!(None, navigator.range());
+        navigator.set_range(2);
+        assert_eq!(None, navigator.range());
+        navigator.set_range(6);
+        assert_eq!(Some((2,6)), navigator.range());
+    }
+    #[test]
+    fn starting_a_new_range_cancels_current_range() {
+        let mut navigator = Navigator::new(10, 2);
+        assert_eq!(None, navigator.range_start());
+        assert_eq!(None, navigator.range_end());
+        navigator.set_range(6);
+        navigator.set_range(2);
+        assert_eq!(Some((2,6)), navigator.range());
+        navigator.set_range(4);
+        assert_eq!(None, navigator.range());
+    }
+    #[test]
+    fn can_cancel_a_range() {
+        let mut navigator = Navigator::new(10, 2);
+        navigator.set_range(6);
+        navigator.set_range(2);
+        assert_eq!(Some((2,6)), navigator.range());
+        navigator.cancel_range();
+        assert_eq!(None, navigator.range_start());
+        assert_eq!(None, navigator.range_end());
     }
 }

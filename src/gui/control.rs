@@ -6,6 +6,8 @@ pub enum Control {
     ConfirmEdition,
     CancelEdition,
     DeleteChar,
+    SetRange,
+    CancelRange,
     Jump,
     Left,
     Right,
@@ -54,6 +56,12 @@ pub fn default_controls() -> Controls {
         (
             (String::from("Return"), Mode::Editing),
             Control::ConfirmEdition,
+        ),
+        (   (String::from("Return"), Mode::View),
+            Control::SetRange,
+        ),
+        (   (String::from("Escape"), Mode::View),
+            Control::CancelRange,
         ),
         ((String::from("BackSpace"), Mode::View), Control::DeleteChar),
         ((String::from("J"), Mode::View), Control::Jump),
@@ -199,6 +207,10 @@ mod tests {
         assert_eq!(
             Some(&Control::ConfirmEdition),
             default_controls().get(&(String::from("Return"), Mode::Editing))
+        );
+        assert_eq!(
+            Some(&Control::SetRange),
+            default_controls().get(&(String::from("Return"), Mode::View))
         );
     }
 }

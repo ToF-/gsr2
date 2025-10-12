@@ -29,12 +29,14 @@ EntryWindow	/Users/christophethibaut/Coding/gsr2/src/gui/view/entry_window.rs	/^
 Event	/Users/christophethibaut/Coding/gsr2/src/gui/event.rs	/^pub enum Event {$/;"	g
 FOCUS_SYMBOL_1	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const FOCUS_SYMBOL_1: char = '░';$/;"	c
 FOCUS_SYMBOL_2	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const FOCUS_SYMBOL_2: char = '▓';$/;"	c
+FULL_OPACITY	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const FULL_OPACITY: f64 = 1.0;$/;"	c
 FULL_SIZE_ON_SYMBOL	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const FULL_SIZE_ON_SYMBOL: &str = " 🔍";$/;"	c
 FileSize	/Users/christophethibaut/Coding/gsr2/src/model/image_data.rs	/^pub type FileSize = u64;$/;"	T
 GARBAGE	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const GARBAGE: &str = "!:";$/;"	c
 Gallery	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^pub struct Gallery {$/;"	s
 GsrApplication	/Users/christophethibaut/Coding/gsr2/src/gui/gsr_application/imp.rs	/^pub struct GsrApplication;$/;"	s
 GsrApplication	/Users/christophethibaut/Coding/gsr2/src/gui/gsr_application/mod.rs	/^    pub struct GsrApplication(ObjectSubclass<imp::GsrApplication>)$/;"	s
+HALF_OPACITY	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const HALF_OPACITY: f64 = 0.5;$/;"	c
 ImageData	/Users/christophethibaut/Coding/gsr2/src/model/image_data.rs	/^pub struct ImageData {$/;"	s
 ImageDataMap	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^pub type ImageDataMap = HashMap<String, ImageData>;$/;"	T
 KeyAndMode	/Users/christophethibaut/Coding/gsr2/src/gui/control.rs	/^pub type KeyAndMode = (String, Mode);$/;"	T
@@ -102,11 +104,14 @@ attach_panel_event_handlers	/Users/christophethibaut/Coding/gsr2/src/gui/view/ma
 attach_slideshow_event	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn attach_slideshow_event(seconds: i32, controller_rc: &RcController) {$/;"	f
 begin	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    pub fn begin(&mut self, main_window: &MainWindow, entry_kind: EntryKind) {$/;"	f
 begin_input	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    pub fn begin_input(&mut self, kind: EntryKind) {$/;"	f
+can_cancel_a_range	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn can_cancel_a_range() {$/;"	f
 can_move	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn can_move(&mut self, direction: Direction) -> bool {$/;"	f
 can_move_next_page	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn can_move_next_page(&mut self) -> bool {$/;"	f
 can_move_prev_page	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn can_move_prev_page(&mut self) -> bool {$/;"	f
 cancel	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    pub fn cancel(&mut self) {$/;"	f
 cancel_input	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    pub fn cancel_input(&mut self) {$/;"	f
+cancel_range	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn cancel_range(&mut self) {$/;"	f
+cancel_range	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn cancel_range(&mut self) {$/;"	f
 cancelling_set_editing_to_false	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    fn cancelling_set_editing_to_false() {$/;"	f
 cannot_append_forbidden_chars	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    fn cannot_append_forbidden_chars() {$/;"	f
 cannot_move_down_if_beyond_limit	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn cannot_move_down_if_beyond_limit() {$/;"	f
@@ -203,6 +208,7 @@ given_coords_can_tell_position_with_several_pictures_per_row_on_first_page	/User
 given_illegal_coors_position_is_none	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn given_illegal_coors_position_is_none() {$/;"	f
 grid	/Users/christophethibaut/Coding/gsr2/src/gui/view/picture_grid.rs	/^    pub fn grid(&self) -> gtk::Grid {$/;"	f
 gtk_picture_from_file_path	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^pub fn gtk_picture_from_file_path(file_path: &Path) -> gtk::Picture {$/;"	f
+has_a_range_if_range_start_and_range_end_are_set	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn has_a_range_if_range_start_and_range_end_are_set() {$/;"	f
 has_moved	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn has_moved(&self) -> bool {$/;"	f
 image_data	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    pub fn image_data(&self) -> Option<ImageData> {$/;"	f
 initially_not_editing	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    fn initially_not_editing() {$/;"	f
@@ -261,6 +267,8 @@ moving_to_end_of_page	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	
 moving_up_moves_to_entry_one_row_above	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn moving_up_moves_to_entry_one_row_above() {$/;"	f
 my_db	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    pub fn my_db() -> Database {$/;"	f
 navigator	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn navigator(&self) -> Navigator {$/;"	f
+navigator_can_define_a_range	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn navigator_can_define_a_range() {$/;"	f
+navigator_can_define_a_range_backwards	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn navigator_can_define_a_range_backwards() {$/;"	f
 navigator_can_move_to_first_and_last_position	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn navigator_can_move_to_first_and_last_position() {$/;"	f
 navigator_cannot_move_before_first_position	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn navigator_cannot_move_before_first_position() {$/;"	f
 navigator_cannot_move_past_gallery_limit	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn navigator_cannot_move_past_gallery_limit() {$/;"	f
@@ -323,6 +331,9 @@ process_key_event	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^ 
 process_pane_clicked	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn process_pane_clicked(&mut self, _button: usize, pane_number: usize) {$/;"	f
 process_picture_clicked	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn process_picture_clicked(&mut self, _button: u32, col: i32, row: i32) {$/;"	f
 quit	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn quit(&self) {$/;"	f
+range	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn range(&self) -> Option<(usize, usize)> {$/;"	f
+range_end	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn range_end(&self) -> Option<usize> {$/;"	f
+range_start	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn range_start(&self) -> Option<usize> {$/;"	f
 reattach_slideshow_event	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn reattach_slideshow_event(&self, seconds: i32) {$/;"	f
 refresh_view	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    fn refresh_view(&self) {$/;"	f
 remove_cells	/Users/christophethibaut/Coding/gsr2/src/gui/view/picture_grid.rs	/^    pub fn remove_cells(&self) {$/;"	f
@@ -352,7 +363,7 @@ set_label_text_for_current_picture	/Users/christophethibaut/Coding/gsr2/src/gui/
 set_main_window	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_main_window(&mut self, main_window: MainWindow) {$/;"	f
 set_mode	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn set_mode(&mut self, mode: Mode) {$/;"	f
 set_opacity_for_current_picture	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_opacity_for_current_picture(&mut self, opacity: f64) {$/;"	f
-set_opacity_for_current_picture	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn set_opacity_for_current_picture($/;"	f
+set_opacity_for_current_picture	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn set_opacity_for_current_picture(&self, controller: &Controller, opacity: f64) {$/;"	f
 set_page_changed	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn set_page_changed(&mut self) {$/;"	f
 set_page_unchanged	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn set_page_unchanged(&mut self) {$/;"	f
 set_picture	/Users/christophethibaut/Coding/gsr2/src/gui/view/picture_frame.rs	/^    pub fn set_picture(&self, controller: &Controller, picture: &gtk::Picture) {$/;"	f
@@ -363,6 +374,8 @@ set_picture_opacity_at	/Users/christophethibaut/Coding/gsr2/src/gui/view/picture
 set_pictures	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn set_pictures(&mut self, controller: &Controller) {$/;"	f
 set_pictures_for_multiple_view	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn set_pictures_for_multiple_view($/;"	f
 set_pictures_per_row	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn set_pictures_per_row(&mut self, pictures_per_row: usize) {$/;"	f
+set_range	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_range(&mut self) {$/;"	f
+set_range	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn set_range(&mut self, index: usize) {$/;"	f
 set_setting	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_setting(&mut self, setting: &Control, choice: &Control) {$/;"	f
 set_slideshow_off	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_slideshow_off(&mut self) {$/;"	f
 set_slideshow_off	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn set_slideshow_off(&mut self) {$/;"	f
@@ -381,6 +394,7 @@ sort_and_compare_lists	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs
 sort_by	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^    pub fn sort_by(&mut self, order: Order) {$/;"	f
 sorting_by_different_criteria	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^    fn sorting_by_different_criteria() {$/;"	f
 stack	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn stack(&self) -> gtk::Stack {$/;"	f
+starting_a_new_range_cancels_current_range	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn starting_a_new_range_cancels_current_range() {$/;"	f
 startup_gui	/Users/christophethibaut/Coding/gsr2/src/gui/view/application.rs	/^pub fn startup_gui() {$/;"	f
 state	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn state(&self) -> State {$/;"	f
 thumbnail_file_path_for_size	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    pub fn thumbnail_file_path_for_size(&self, pictures_per_row: usize) -> String {$/;"	f

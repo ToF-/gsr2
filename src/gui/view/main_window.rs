@@ -1,3 +1,4 @@
+use crate::env::default_values::{FULL_OPACITY, HALF_OPACITY};
 use crate::Args;
 use crate::env::default_values::FOCUS_SYMBOL_1;
 use crate::file::paths::check_path_exists;
@@ -229,6 +230,24 @@ impl MainWindow {
                         no_thumbnail_picture()
                     };
                     self.picture_grid.set_picture_at(col, row, &gtk_picture);
+                    let opacity: f64 = 
+                        if let Some(position) = navigator.position_from_coords(row as usize, col as usize) {
+                            if let Some((start, end)) = navigator.range() {
+                                if (start..=end).contains(&position) { 
+                                    HALF_OPACITY 
+                                } else {
+                                    FULL_OPACITY
+                                } 
+                            } else if let Some(start) = navigator.range_start()
+                                && position == start {
+                                    HALF_OPACITY
+                                } else {
+                                    FULL_OPACITY
+                                }
+                        } else {
+                            FULL_OPACITY
+                        };
+                    self.picture_grid.set_picture_opacity_at(col, row, opacity);
                     self.picture_grid
                         .set_label_text_at(&picture, col, row, with_focus);
                 }

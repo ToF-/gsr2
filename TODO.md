@@ -66,5 +66,5 @@
 - [X] --print option only prints the picture file names and quit
 - [X] refactor : transfer editing features to Editor
 - [X] picture grid can mark pictures  50% opaque
-- [ ] navigator can define a range
+- [X] navigator can define a range
 - [X] a control depends on key and mode

@@ -350,6 +350,8 @@ impl Controller {
             Control::OrderByDate => self.order_by(Order::Date),
             Control::OrderBySize => self.order_by(Order::Size),
             Control::Randomize => self.order_by(Order::Random),
+            Control::SetRange => self.set_range(),
+            Control::CancelRange => self.cancel_range(),
             _ => {}
         }
     }
@@ -460,6 +462,19 @@ impl Controller {
         navigator.update_page_limits();
         navigator.set_page_changed();
         self.acknowledge_grid_size_change();
+    }
+
+    pub fn set_range(&mut self) {
+        let position = self.navigator.position();
+        let mut navigator = &mut self.navigator;
+        navigator.set_range(position);
+        self.navigator.set_page_changed()
+    }
+
+    pub fn cancel_range(&mut self) {
+        let mut navigator = &mut self.navigator;
+        navigator.cancel_range();
+        self.navigator.set_page_changed()
     }
 
     pub fn acknowledge_grid_size_change(&mut self) {
