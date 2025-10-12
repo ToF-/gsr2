@@ -156,7 +156,7 @@ mod tests {
         gallery
             .load_from_database(&database)
             .expect("can't load from database");
-        assert_eq!(3, gallery.len());
+        assert_eq!(4, gallery.len());
     }
 
     fn sort_and_compare_lists() -> bool {

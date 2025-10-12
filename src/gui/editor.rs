@@ -31,6 +31,7 @@ impl Editor {
             EntryKind::Label => "Enter a label",
             EntryKind::Number => "Enter a number",
         };
+        self.entry_kind = entry_kind;
         self.editing = true;
         self.input = String::from("");
         self.entry_window_opt = Some(main_window.popup_entry_window(&prompt, &self.input));

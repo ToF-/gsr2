@@ -143,6 +143,10 @@ pub mod tests {
             "INSERT INTO Picture (FilePath, Label) VALUES ('testdata/white_square.png', 'foo');",
             [],
         ).expect("db error");
+        database.connection.execute(
+            "INSERT INTO Picture (FilePath, Label) VALUES ('testdata/large_picture.png', 'foo');",
+            [],
+        ).expect("db error");
         database
     }
 
@@ -179,7 +183,7 @@ pub mod tests {
         let status: SqlResult<ImageDataMap> = database.rusqlite_retrieve_all_pictures();
         assert!(status.is_ok());
         let map = status.unwrap();
-        assert_eq!(3, map.len());
+        assert_eq!(4, map.len());
         assert_eq!(
             "sample".to_string(),
             map.get(NINE_COLORS).unwrap().clone().label()
