@@ -237,6 +237,7 @@ impl Controller {
             Mode::Editing => {
                 self.editor.process(key);
                 if ! self.editor.editing() {
+                    println!("done editing");
                     self.state.set_mode(Mode::View);
                     if !self.editor.input().is_empty() {
                         match
@@ -251,7 +252,7 @@ impl Controller {
     }
 
     pub fn label_current_picture_with(&mut self, label: &str) {
-        println!("here I label the current picture with {}", label)
+        println!("label: {}", label)
     }
 
     pub fn move_towards_index(&mut self, index: usize) {

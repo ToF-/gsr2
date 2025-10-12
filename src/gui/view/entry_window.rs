@@ -122,16 +122,7 @@ impl EntryWindow {
                 move || {
                     if let Ok(controller) = controller_rc.try_borrow() {
                         if Mode::Editing == controller.state().mode() {
-                            let label = Self::entry_text_label(&window);
-                            let mut content = label.text().to_string();
-                            let cursor = content.pop();
-                            let new_cursor = if cursor == Some(ENTRY_CURSOR_1) {
-                                ENTRY_CURSOR_2
-                            } else {
-                                ENTRY_CURSOR_1
-                            };
-                            content.push(new_cursor);
-                            label.set_text(&content);
+                            Self::append_cursor(&window);
                             ControlFlow::Continue
                         } else {
                             ControlFlow::Break
@@ -166,6 +157,23 @@ impl EntryWindow {
 
     pub fn set_text(&self, text: &str) {
         self.entry_text().set_text(&text);
+        Self::append_cursor(&self.window);
+    }
+
+    fn append_cursor(window: &gtk::Window) {
+        let label = Self::entry_text_label(&window);
+        let mut content = label.text().to_string();
+        let last_char = content.pop();
+        match last_char {
+            None => content.push(ENTRY_CURSOR_1),
+            Some(ENTRY_CURSOR_1) => content.push(ENTRY_CURSOR_2),
+            Some(ENTRY_CURSOR_2) => content.push(ENTRY_CURSOR_1),
+            Some(other) => {
+                content.push(other);
+                content.push(ENTRY_CURSOR_1)
+            }
+        }
+        label.set_text(&content);
     }
 
     pub fn popup(&self) {

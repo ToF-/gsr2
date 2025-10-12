@@ -31,6 +31,7 @@ impl Editor {
             EntryKind::Label => "Enter a label",
             EntryKind::Number => "Enter a number",
         };
+        self.editing = true;
         self.input = String::from("");
         self.entry_window_opt = Some(main_window.popup_entry_window(&prompt, &self.input));
     }
@@ -104,13 +105,18 @@ impl Editor {
         };
         if ch_is_ok {
             self.input.push(ch);
-            self.entry_window_opt.clone().unwrap().set_text(&self.input)
+            self.refresh_view();
         }
     }
 
     pub fn delete(&mut self) {
         self.input.pop();
-        self.entry_window_opt.clone().unwrap().set_text(&self.input)
+        self.refresh_view();
+    }
+
+    fn refresh_view(&self) {
+        self.entry_window_opt.clone().
+            map(|window| window.set_text(&self.input));
     }
 }
 #[cfg(test)]
@@ -121,72 +127,72 @@ mod tests {
     fn initially_not_editing() {
         let editor = Editor::new();
         assert!(!editor.editing());
-        assert_eq!(None, editor.entry_kind_opt());
+        assert_eq!(EntryKind::Label, editor.entry_kind());
     }
 
     #[test]
     fn after_begin_input_edting_is_true() {
         let mut editor = Editor::new();
-        editor.begin_input(InputKind::Label);
+        editor.begin_input(EntryKind::Label);
         assert!(editor.editing());
         assert_eq!(String::from(""), editor.input());
-        assert_eq!(Some(InputKind::Label), editor.entry_kind_opt());
+        assert_eq!(EntryKind::Label, editor.entry_kind());
     }
 
     #[test]
     fn appending_a_char_changes_the_input() {
         let mut editor = Editor::new();
-        editor.begin_input(InputKind::Label);
-        assert!(editor.append('a'));
+        editor.begin_input(EntryKind::Label);
+        editor.append('a');
         assert_eq!(String::from("a"), editor.input.clone());
-        assert!(editor.append('b'));
+        editor.append('b');
         assert_eq!(String::from("ab"), editor.input.clone());
-        assert!(editor.append('0'));
+        editor.append('0');
         assert_eq!(String::from("ab0"), editor.input.clone());
-        assert!(editor.append('9'));
+        editor.append('9');
         assert_eq!(String::from("ab09"), editor.input.clone());
-        assert!(editor.append('-'));
+        editor.append('-');
         assert_eq!(String::from("ab09-"), editor.input.clone());
-        assert!(editor.append('_'));
+        editor.append('_');
         assert_eq!(String::from("ab09-_"), editor.input.clone());
     }
     #[test]
     fn cannot_append_forbidden_chars() {
         let mut editor = Editor::new();
-        editor.begin_input(InputKind::Label);
-        assert!(!editor.append('"'));
-        assert!(!editor.append('@'));
-        assert!(!editor.append('^'));
+        editor.begin_input(EntryKind::Label);
+        editor.append('"');
+        editor.append('@');
+        editor.append('^');
         assert_eq!(String::from(""), editor.input());
     }
     #[test]
     fn deleting_a_char_changes_the_input() {
         let mut editor = Editor::new();
-        editor.begin_input(InputKind::Label);
-        assert!(editor.append('a'));
-        assert!(editor.append('b'));
-        assert!(editor.append('c'));
-        assert!(editor.delete());
+        editor.begin_input(EntryKind::Label);
+        editor.append('a');
+        editor.append('b');
+        editor.append('c');
+        editor.delete();
         assert_eq!(String::from("ab"), editor.input.clone());
     }
 
     #[test]
     fn confirming_return_input_and_set_editing_to_false() {
         let mut editor = Editor::new();
-        editor.begin_input(InputKind::Label);
-        assert!(editor.append('a'));
-        assert!(editor.append('b'));
-        assert!(editor.append('c'));
+        editor.begin_input(EntryKind::Label);
+        editor.append('a');
+        editor.append('b');
+        editor.append('c');
         assert_eq!(String::from("abc"), editor.confirm_input());
         assert!(!editor.editing());
     }
     #[test]
     fn cancelling_set_editing_to_false() {
         let mut editor = Editor::new();
-        editor.begin_input(InputKind::Label);
-        assert!(editor.append('a'));
-        assert!(editor.append('b'));
-        assert!(editor.append('c'));
+        editor.begin_input(EntryKind::Label);
+        editor.append('a');
+        editor.append('b');
+        editor.append('c');
         editor.cancel_input();
         assert!(!editor.editing());
     }
