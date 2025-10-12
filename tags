@@ -9,7 +9,7 @@ Args	/Users/christophethibaut/Coding/gsr2/src/cli/args.rs	/^pub struct Args {$/;
 Command	/Users/christophethibaut/Coding/gsr2/src/cli/command.rs	/^pub enum Command {$/;"	g
 Control	/Users/christophethibaut/Coding/gsr2/src/gui/control.rs	/^pub enum Control {$/;"	g
 Controller	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^pub struct Controller {$/;"	s
-Controls	/Users/christophethibaut/Coding/gsr2/src/gui/control.rs	/^pub type Controls = HashMap<String, Control>;$/;"	T
+Controls	/Users/christophethibaut/Coding/gsr2/src/gui/control.rs	/^pub type Controls = HashMap<KeyAndMode, Control>;$/;"	T
 DATABASE_CONNECTION_VAR	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const DATABASE_CONNECTION_VAR: &str = "GSRDBC";$/;"	c
 DEFAULT_HEIGHT	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const DEFAULT_HEIGHT: i32 = 1000;$/;"	c
 DEFAULT_SLIDESHOW_DELAY	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const DEFAULT_SLIDESHOW_DELAY: i32 = 60;$/;"	c
@@ -37,6 +37,7 @@ GsrApplication	/Users/christophethibaut/Coding/gsr2/src/gui/gsr_application/imp.
 GsrApplication	/Users/christophethibaut/Coding/gsr2/src/gui/gsr_application/mod.rs	/^    pub struct GsrApplication(ObjectSubclass<imp::GsrApplication>)$/;"	s
 ImageData	/Users/christophethibaut/Coding/gsr2/src/model/image_data.rs	/^pub struct ImageData {$/;"	s
 ImageDataMap	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^pub type ImageDataMap = HashMap<String, ImageData>;$/;"	T
+KeyAndMode	/Users/christophethibaut/Coding/gsr2/src/gui/control.rs	/^pub type KeyAndMode = (String, Mode);$/;"	T
 LARGE_PICTURE	/Users/christophethibaut/Coding/gsr2/src/model/gen_image.rs	/^pub const LARGE_PICTURE: &str = "testdata\/large_picture.png";$/;"	c
 LEFT_PANE	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^pub const LEFT_PANE: usize = 0;$/;"	c
 MAX_LABEL_LENGTH	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const MAX_LABEL_LENGTH: usize = 20;$/;"	c
@@ -180,7 +181,7 @@ frame_window	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^
 from	/Users/christophethibaut/Coding/gsr2/src/model/order.rs	/^pub fn from(s: &str) -> Option<Order> {$/;"	f
 from_connection	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    pub fn from_connection(connection_string: &str) -> std::io::Result<Self> {$/;"	f
 from_file	/Users/christophethibaut/Coding/gsr2/src/model/image_data.rs	/^    pub fn from_file(file_path: &str) -> Result<Self> {$/;"	f
-from_key_name_to_a_control	/Users/christophethibaut/Coding/gsr2/src/gui/control.rs	/^    fn from_key_name_to_a_control() {$/;"	f
+from_key_name_and_mode_to_a_control	/Users/christophethibaut/Coding/gsr2/src/gui/control.rs	/^    fn from_key_name_and_mode_to_a_control() {$/;"	f
 full_size_arrow_move	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn full_size_arrow_move(&self, direction: Direction) {$/;"	f
 full_size_arrow_move	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn full_size_arrow_move(&self, direction: Direction) {$/;"	f
 full_size_display	/Users/christophethibaut/Coding/gsr2/src/gui/display.rs	/^fn full_size_display(on: bool) -> String {$/;"	f
@@ -412,6 +413,7 @@ treat_space_as_dash	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^   
 treat_uppercase_as_lowercase	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    fn treat_uppercase_as_lowercase() {$/;"	f
 update_a_picture	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    fn update_a_picture() {$/;"	f
 update_page_limits	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn update_page_limits(&mut self) {$/;"	f
+v	/Users/christophethibaut/Coding/gsr2/src/gui/control.rs	/^        const v: Mode = Mode::View;$/;"	c
 value_variants	/Users/christophethibaut/Coding/gsr2/src/model/order.rs	/^    fn value_variants<'a>() -> &'a [Self] {$/;"	f
 view_file_path	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    pub fn view_file_path(&self, pictures_per_row: usize) -> String {$/;"	f
 with_no_grid_or_thumbnail_option_pictures_per_row_is_1	/Users/christophethibaut/Coding/gsr2/src/cli/args.rs	/^    fn with_no_grid_or_thumbnail_option_pictures_per_row_is_1() {$/;"	f

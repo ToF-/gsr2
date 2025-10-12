@@ -45,14 +45,12 @@ impl Database {
     }
 
     pub fn rusqlite_update_picture(&self, picture: &Picture) -> SqlResult<usize> {
-           self.connection.execute(
-               "UPDATE Picture            \n\
+        self.connection.execute(
+            "UPDATE Picture            \n\
                SET Label = ?2             \n\
                WHERE FilePath = ?1;",
-               params![
-               picture.file_path(),
-               picture.label(),
-               ])
+            params![picture.file_path(), picture.label(),],
+        )
     }
 
     #[allow(dead_code)]
@@ -203,18 +201,21 @@ pub mod tests {
             retrieved.set_label("bingo");
             assert_eq!("bingo", &retrieved.label());
             match database.rusqlite_update_picture(&retrieved) {
-                Ok(updated) => if let Ok(updated) = database.rusqlite_retrieve_picture_with_file_path(NINE_COLORS) {
-                    assert_eq!(String::from("bingo"), updated.label())
-                } else {
-                    assert!(false, "could not retrieve the picture")
-                },
-                Err(err) => 
-                    assert!(false, "{}", err)
+                Ok(updated) => {
+                    if let Ok(updated) =
+                        database.rusqlite_retrieve_picture_with_file_path(NINE_COLORS)
+                    {
+                        assert_eq!(String::from("bingo"), updated.label())
+                    } else {
+                        assert!(false, "could not retrieve the picture")
+                    }
+                }
+                Err(err) => assert!(false, "{}", err),
             }
         } else {
             assert!(false, "could not retrieve the picture")
         };
-}
+    }
 
     #[test]
     fn retrieve_all_pictures_ordered_by_file_path() {

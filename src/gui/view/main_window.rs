@@ -273,16 +273,14 @@ impl MainWindow {
         }
     }
 
-    pub fn set_opacity_for_current_picture(
-        &self,
-        controller: &Controller,
-        opacity: f64) {
+    pub fn set_opacity_for_current_picture(&self, controller: &Controller, opacity: f64) {
         let navigator = controller.navigator();
         let position = navigator.position();
         if !controller.state().single_view()
             && let Some((row, col)) = navigator.coords_from_position(position)
         {
-            self.picture_grid.set_picture_opacity_at(col as i32, row as i32, opacity);
+            self.picture_grid
+                .set_picture_opacity_at(col as i32, row as i32, opacity);
         }
     }
 

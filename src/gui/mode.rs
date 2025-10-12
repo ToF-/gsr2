@@ -1,6 +1,6 @@
 use crate::gui::control::Control;
 
-#[derive(PartialEq, Clone, Debug)]
+#[derive(PartialEq, Eq, Hash, Clone, Debug)]
 pub enum Mode {
     Setting(Control),
     View,

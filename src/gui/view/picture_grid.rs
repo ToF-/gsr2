@@ -1,8 +1,8 @@
-use crate::gui::mode::Mode;
 use crate::clone;
 use crate::env::default_values::MAX_PICTURES_PER_ROW;
 use crate::gui::controller::RcController;
 use crate::gui::display::picture_label_display;
+use crate::gui::mode::Mode;
 use crate::gui::view::picture_cell_box::make_picture_cell_box;
 use crate::gui::view::picture_frame::make_label;
 use crate::model::picture::Picture;
@@ -50,7 +50,8 @@ impl PictureGrid {
                     if let Ok(mut controller) = controller_rc.try_borrow_mut() {
                         if controller.state().change_focus_symbol_on() {
                             if !controller.state().single_view()
-                                && controller.state().mode() == Mode::View {
+                                && controller.state().mode() == Mode::View
+                            {
                                 controller.set_label_text_for_current_picture()
                             }
                         };
@@ -144,7 +145,8 @@ impl PictureGrid {
 
     fn picture_at(&self, col: i32, row: i32) -> Option<gtk::Picture> {
         if let Some(cell_box) = self.cell_box_at(col, row) {
-            cell_box.first_child()
+            cell_box
+                .first_child()
                 .unwrap()
                 .downcast::<gtk::Picture>()
                 .ok()

@@ -2,6 +2,7 @@ use crate::MainWindow;
 use crate::env::default_values::MAX_LABEL_LENGTH;
 use crate::gui::control::{Control, Controls, default_controls};
 use crate::gui::entry_kind::EntryKind;
+use crate::gui::mode::Mode;
 use crate::gui::view::entry_window::EntryWindow;
 use gdk::Key;
 use gtk::{self, gdk};
@@ -53,9 +54,9 @@ impl Editor {
     pub fn process(&mut self, key: Key) {
         match key.name() {
             None => {}
-            Some(key_name) => match self.controls.get(&key_name.to_string()) {
-                Some(Control::Cancel) => self.cancel(),
-                Some(Control::Enter) => self.enter(),
+            Some(key_name) => match self.controls.get(&(key_name.to_string(), Mode::Editing)) {
+                Some(Control::CancelEdition) => self.cancel(),
+                Some(Control::ConfirmEdition) => self.enter(),
                 Some(Control::DeleteChar) => self.delete(),
                 Some(_) | None => self.append_from_key(key),
             },

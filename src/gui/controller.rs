@@ -213,7 +213,8 @@ impl Controller {
     }
 
     pub fn set_opacity_for_current_picture(&mut self, opacity: f64) {
-        self.main_window().set_opacity_for_current_picture(&self, opacity)
+        self.main_window()
+            .set_opacity_for_current_picture(&self, opacity)
     }
     pub fn process_key(&mut self, key: Key) {
         let controls = self.controls.clone();
@@ -221,7 +222,7 @@ impl Controller {
             Mode::View => match key.name() {
                 None => {}
                 Some(key_name) => {
-                    if let Some(control) = controls.get(&key_name.to_string()) {
+                    if let Some(control) = controls.get(&(key_name.to_string(), Mode::View)) {
                         self.process_control(control)
                     }
                 }
@@ -230,13 +231,9 @@ impl Controller {
                 match key.name() {
                     None => {}
                     Some(key_name) => {
-                        let key_prefix: &str = match setting {
-                            Control::SetDisplay => "D",
-                            Control::SetOrder => "O",
-                            _ => "no_control",
-                        };
-                        let key_sequence: String = key_prefix.to_owned() + &key_name.to_string();
-                        if let Some(control) = controls.get(&key_sequence) {
+                        if let Some(control) =
+                            controls.get(&(key_name.to_string(), Mode::Setting(setting)))
+                        {
                             self.set_setting(&setting, control);
                         }
                     }
@@ -248,20 +245,20 @@ impl Controller {
                 if !self.editor.editing() {
                     self.state.set_mode(Mode::View);
                     match self.editor.entry_kind() {
-                            EntryKind::Label => {
-                                if !self.editor.input().is_empty() {
-                                    self.label_current_picture_with(&self.editor.input())
-                                };
-                                self.set_opacity_for_current_picture(1.00);
-                            },
-                            EntryKind::Number => {
-                                self.move_towards_index(self.editor.input().parse().unwrap())
-                            },
+                        EntryKind::Label => {
+                            if !self.editor.input().is_empty() {
+                                self.label_current_picture_with(&self.editor.input())
+                            };
+                            self.set_opacity_for_current_picture(1.00);
+                        }
+                        EntryKind::Number => {
+                            self.move_towards_index(self.editor.input().parse().unwrap())
                         }
                     }
                 }
             }
         }
+    }
 
     pub fn label_current_picture_with(&mut self, label: &str) {
         let mut picture = self.current_picture();
@@ -274,10 +271,10 @@ impl Controller {
         if self.args.on_database() {
             let picture = self.current_picture();
             match self.database.rusqlite_update_picture(&picture) {
-                Ok(_) => {},
+                Ok(_) => {}
                 Err(err) => {
                     println!("{}", err);
-                },
+                }
             }
         }
     }

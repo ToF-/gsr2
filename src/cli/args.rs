@@ -140,7 +140,7 @@ mod tests {
         } else {
             assert!(false)
         }
-        assert!(! args.clone().on_database())
+        assert!(!args.clone().on_database())
     }
 
     #[test]
@@ -184,7 +184,7 @@ mod tests {
         } else {
             assert!(false)
         }
-        assert!(! args.clone().on_database())
+        assert!(!args.clone().on_database())
     }
     #[test]
     fn command_line_interface_dir_command_with_non_existing_specified_directory() {

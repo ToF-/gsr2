@@ -65,4 +65,6 @@
 - [X] the gallery loads picture file with names like pierre-soulages-peinture-19-juin-1963-1963.jpg!Large.jpg, that's a bug
 - [X] --print option only prints the picture file names and quit
 - [X] refactor : transfer editing features to Editor
-- [ ] picture grid can mark pictures  50% opaque
+- [X] picture grid can mark pictures  50% opaque
+- [ ] navigator can define a range
+- [X] a control depends on key and mode
