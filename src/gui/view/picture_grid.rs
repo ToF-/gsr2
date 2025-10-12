@@ -122,7 +122,7 @@ impl PictureGrid {
         }
     }
 
-    pub fn set_picture_for(&self, col: i32, row: i32, picture: &gtk::Picture) {
+    pub fn set_picture_at(&self, col: i32, row: i32, picture: &gtk::Picture) {
         let grid = self.grid();
         if let Some(widget) = grid.child_at(col, row) {
             let cell_box: gtk::Box = widget.downcast::<gtk::Box>().unwrap();
@@ -132,6 +132,31 @@ impl PictureGrid {
             cell_box.append(picture);
             cell_box.append(&make_label());
         };
+    }
+
+    fn cell_box_at(&self, col: i32, row: i32) -> Option<gtk::Box> {
+        if let Some(widget) = self.grid.child_at(col, row) {
+            widget.downcast::<gtk::Box>().ok()
+        } else {
+            None
+        }
+    }
+
+    fn picture_at(&self, col: i32, row: i32) -> Option<gtk::Picture> {
+        if let Some(cell_box) = self.cell_box_at(col, row) {
+            cell_box.first_child()
+                .unwrap()
+                .downcast::<gtk::Picture>()
+                .ok()
+        } else {
+            None
+        }
+    }
+
+    pub fn set_picture_opacity_at(&self, col: i32, row: i32, opacity: f64) {
+        if let Some(picture) = self.picture_at(col, row) {
+            picture.set_opacity(opacity)
+        }
     }
 
     pub fn change_dimension(&mut self, pictures_per_row: i32) {

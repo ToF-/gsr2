@@ -45,8 +45,6 @@ impl Database {
     }
 
     pub fn rusqlite_update_picture(&self, picture: &Picture) -> SqlResult<usize> {
-        let file_path: String = picture.file_path();
-        if let Some(image_data) = picture.image_data() {
            self.connection.execute(
                "UPDATE Picture            \n\
                SET Label = ?2             \n\
@@ -55,10 +53,8 @@ impl Database {
                picture.file_path(),
                picture.label(),
                ])
-        } else {
-            Ok(0)
-        }
     }
+
     #[allow(dead_code)]
     pub fn rusqlite_delete_picture_with_file_path(&self, file_path: &str) -> SqlResult<usize> {
         self.connection.execute(

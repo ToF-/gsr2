@@ -212,6 +212,9 @@ impl Controller {
             .set_label_text_for_current_picture(self, Some(self.state().focus_symbol()))
     }
 
+    pub fn set_opacity_for_current_picture(&mut self, opacity: f64) {
+        self.main_window().set_opacity_for_current_picture(&self, opacity)
+    }
     pub fn process_key(&mut self, key: Key) {
         let controls = self.controls.clone();
         match self.state().mode() {
@@ -244,20 +247,21 @@ impl Controller {
                 self.editor.process(key);
                 if !self.editor.editing() {
                     self.state.set_mode(Mode::View);
-                    if !self.editor.input().is_empty() {
-                        match self.editor.entry_kind() {
+                    match self.editor.entry_kind() {
                             EntryKind::Label => {
-                                self.label_current_picture_with(&self.editor.input())
-                            }
+                                if !self.editor.input().is_empty() {
+                                    self.label_current_picture_with(&self.editor.input())
+                                };
+                                self.set_opacity_for_current_picture(1.00);
+                            },
                             EntryKind::Number => {
                                 self.move_towards_index(self.editor.input().parse().unwrap())
-                            }
+                            },
                         }
                     }
                 }
             }
         }
-    }
 
     pub fn label_current_picture_with(&mut self, label: &str) {
         let mut picture = self.current_picture();
@@ -354,6 +358,7 @@ impl Controller {
     }
 
     pub fn label(&mut self) {
+        self.set_opacity_for_current_picture(0.25);
         self.editor.begin(&self.main_window(), EntryKind::Label);
         self.state.set_mode(Mode::Editing);
     }

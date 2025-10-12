@@ -32,7 +32,7 @@
 - [x] slideshow mode
 - [x] any other event stops the slide show
 - [x] S command put the slide show back
-- [ ] edit and add a label, save it in the database and retrieve it
+- [x] edit and add a label, save it in the database and retrieve it
 - [X] solve the dilemna:
     
     Controller has a View
@@ -64,4 +64,5 @@
     - add timer event to alternate this symbol every second ▚ ▞
 - [X] the gallery loads picture file with names like pierre-soulages-peinture-19-juin-1963-1963.jpg!Large.jpg, that's a bug
 - [X] --print option only prints the picture file names and quit
-- [ ] refactor : transfer editing features to Editor
+- [X] refactor : transfer editing features to Editor
+- [ ] picture grid can mark pictures  50% opaque
