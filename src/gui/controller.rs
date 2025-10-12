@@ -154,7 +154,8 @@ impl Controller {
         }
     }
     pub fn process_picture_clicked(&mut self, _button: u32, col: i32, row: i32) {
-        self.main_window().set_label_text_for_current_picture(self, None);
+        self.main_window()
+            .set_label_text_for_current_picture(self, None);
         if let Some(index) = self
             .navigator
             .position_from_coords(row as usize, col as usize)

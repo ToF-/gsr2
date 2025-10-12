@@ -1,4 +1,5 @@
 use crate::MainWindow;
+use crate::env::default_values::MAX_LABEL_LENGTH;
 use crate::gui::control::{Control, Controls, default_controls};
 use crate::gui::entry_kind::EntryKind;
 use crate::gui::view::entry_window::EntryWindow;
@@ -102,11 +103,19 @@ impl Editor {
         let ch_is_ok = match self.entry_kind {
             EntryKind::Number => ch.is_ascii_digit(),
             EntryKind::Label => matches!(ch,
-                'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_'),
+                'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' '),
         };
-        if ch_is_ok {
-            self.input.push(ch);
+        if ch_is_ok && self.input.len() < MAX_LABEL_LENGTH {
+            self.input.push(Self::convert_char(ch));
             self.refresh_view();
+        }
+    }
+
+    fn convert_char(ch: char) -> char {
+        match ch {
+            ' ' => '-',
+            other if other.is_ascii() => other.to_lowercase().next().unwrap(),
+            other => other,
         }
     }
 
@@ -167,6 +176,25 @@ mod tests {
         editor.append('^');
         assert_eq!(String::from(""), editor.input());
     }
+
+    #[test]
+    fn treat_space_as_dash() {
+        let mut editor = Editor::new();
+        editor.begin_input(EntryKind::Label);
+        editor.append('a');
+        editor.append(' ');
+        editor.append('b');
+        assert_eq!(String::from("a-b"), editor.input());
+    }
+    #[test]
+    fn treat_uppercase_as_lowercase() {
+        let mut editor = Editor::new();
+        editor.begin_input(EntryKind::Label);
+        editor.append('A');
+        editor.append('B');
+        editor.append('Z');
+        assert_eq!(String::from("abz"), editor.input());
+    }
     #[test]
     fn deleting_a_char_changes_the_input() {
         let mut editor = Editor::new();
@@ -197,5 +225,14 @@ mod tests {
         editor.append('c');
         editor.cancel_input();
         assert!(!editor.editing());
+    }
+    #[test]
+    fn label_length_is_limited_to_max_label_length() {
+        let mut editor = Editor::new();
+        editor.begin_input(EntryKind::Label);
+        for _ in 0..40 {
+            editor.append('a')
+        }
+        assert_eq!(MAX_LABEL_LENGTH, editor.input.clone().len());
     }
 }
