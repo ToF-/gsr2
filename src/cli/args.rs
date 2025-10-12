@@ -111,6 +111,14 @@ impl Args {
             1
         }
     }
+
+    pub fn on_database(&self) -> bool {
+        match self.command {
+            Some(Command::File { file_path: _ }) => false,
+            Some(Command::Dir { directory: _ }) => false,
+            _ => true,
+        }
+    }
 }
 
 #[cfg(test)]
@@ -127,11 +135,12 @@ mod tests {
         gen_single_dot();
         let args = vec!["gsr", "file", SINGLE_DOT];
         let args = Args::parse_and_check(Some(args)).unwrap();
-        if let Some(Command::File { file_path }) = args.command {
-            assert_eq!(String::from(SINGLE_DOT), file_path);
+        if let Some(Command::File { ref file_path }) = args.command {
+            assert_eq!(SINGLE_DOT, file_path);
         } else {
             assert!(false)
         }
+        assert!(! args.clone().on_database())
     }
 
     #[test]
@@ -163,18 +172,19 @@ mod tests {
         assert_eq!(
             "src/file/paths.rs is not a jpg or png file",
             &err.to_string()
-        )
+        );
     }
 
     #[test]
     fn command_line_interface_with_command_directory_and_adequate_argument() {
         let args = vec!["gsr", "dir", "."];
         let args = Args::parse_and_check(Some(args)).unwrap();
-        if let Some(Command::Dir { directory }) = args.command {
-            assert_eq!(String::from("."), directory);
+        if let Some(Command::Dir { ref directory }) = args.command {
+            assert_eq!(".", directory);
         } else {
             assert!(false)
         }
+        assert!(! args.clone().on_database())
     }
     #[test]
     fn command_line_interface_dir_command_with_non_existing_specified_directory() {
@@ -211,5 +221,11 @@ mod tests {
         let args = vec!["gsr", "--thumbnails", "dir", "testdata"];
         let args = Args::parse_and_check(Some(args)).unwrap();
         assert_eq!(10, args.pictures_per_row())
+    }
+    #[test]
+    fn command_line_interface_with_no_command_dir_or_file_is_on_database() {
+        let args = vec!["gsr", "--grid", "5"];
+        let args = Args::parse_and_check(Some(args)).unwrap();
+        assert!(args.on_database())
     }
 }

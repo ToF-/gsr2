@@ -1,3 +1,4 @@
+use crate::gui::mode::Mode;
 use crate::clone;
 use crate::env::default_values::MAX_PICTURES_PER_ROW;
 use crate::gui::controller::RcController;
@@ -48,7 +49,8 @@ impl PictureGrid {
                 move || {
                     if let Ok(mut controller) = controller_rc.try_borrow_mut() {
                         if controller.state().change_focus_symbol_on() {
-                            if !controller.state().single_view() {
+                            if !controller.state().single_view()
+                                && controller.state().mode() == Mode::View {
                                 controller.set_label_text_for_current_picture()
                             }
                         };

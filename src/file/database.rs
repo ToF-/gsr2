@@ -44,6 +44,21 @@ impl Database {
         )
     }
 
+    pub fn rusqlite_update_picture(&self, picture: &Picture) -> SqlResult<usize> {
+        let file_path: String = picture.file_path();
+        if let Some(image_data) = picture.image_data() {
+           self.connection.execute(
+               "UPDATE Picture            \n\
+               SET Label = ?2             \n\
+               WHERE FilePath = ?1;",
+               params![
+               picture.file_path(),
+               picture.label(),
+               ])
+        } else {
+            Ok(0)
+        }
+    }
     #[allow(dead_code)]
     pub fn rusqlite_delete_picture_with_file_path(&self, file_path: &str) -> SqlResult<usize> {
         self.connection.execute(
@@ -177,6 +192,34 @@ pub mod tests {
             assert!(false, "could not retrieve the picture")
         }
     }
+
+    #[test]
+    fn update_a_picture() {
+        let database = my_db();
+        delete_nine_colors_from_db();
+        insert_nine_colors_sample_into_db();
+        if let Ok(mut retrieved) = database.rusqlite_retrieve_picture_with_file_path(NINE_COLORS) {
+            if let Some(image_data) = retrieved.image_data() {
+                assert_eq!(String::from("sample"), image_data.label())
+            } else {
+                assert!(false, "there was no label")
+            }
+            retrieved.set_label("bingo");
+            assert_eq!("bingo", &retrieved.label());
+            match database.rusqlite_update_picture(&retrieved) {
+                Ok(updated) => if let Ok(updated) = database.rusqlite_retrieve_picture_with_file_path(NINE_COLORS) {
+                    assert_eq!(String::from("bingo"), updated.label())
+                } else {
+                    assert!(false, "could not retrieve the picture")
+                },
+                Err(err) => 
+                    assert!(false, "{}", err)
+            }
+        } else {
+            assert!(false, "could not retrieve the picture")
+        };
+}
+
     #[test]
     fn retrieve_all_pictures_ordered_by_file_path() {
         let database = my_db();

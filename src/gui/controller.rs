@@ -263,6 +263,19 @@ impl Controller {
         let mut picture = self.current_picture();
         picture.set_label(label);
         self.set_current_picture(picture);
+        self.save_current_picture_data()
+    }
+
+    fn save_current_picture_data(&mut self) {
+        if self.args.on_database() {
+            let picture = self.current_picture();
+            match self.database.rusqlite_update_picture(&picture) {
+                Ok(_) => {},
+                Err(err) => {
+                    println!("{}", err);
+                },
+            }
+        }
     }
 
     pub fn move_towards_index(&mut self, index: usize) {
