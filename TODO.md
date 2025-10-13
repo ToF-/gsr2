@@ -2,8 +2,8 @@
 ## Gallery Show in Rust
 
 ## Todo
-- [ ] confirmation box for deletion
-- [ ] deletion of picture data and file
+- [X] confirmation box for deletion
+- [X] deletion of picture data and file
 - [X] apply label on a range
 - [X] a control depends on key and mode
 - [X] navigator can define a range
