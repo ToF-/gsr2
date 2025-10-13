@@ -1,5 +1,8 @@
 extern crate image;
-
+use image::Pixels;
+use image::{DynamicImage, GenericImageView, Rgba};
+use crate::model::image_data::Rgb8;
+use std::collections::HashSet;
 use gtk::gdk;
 use gtk::glib;
 use std::ffi::OsStr;
@@ -123,10 +126,27 @@ pub fn create_thumbnail_file(
     }
 }
 
+fn rgba_key(rgba: Rgba<u8>) -> u32 {
+        (rgba[0] as u32) << 24
+        | (rgba[1] as u32) << 16
+        | (rgba[2] as u32) << 8
+        | (rgba[3] as u32)
+}
+
+pub fn color_count(image: &DynamicImage) -> usize {
+    let mut colors: HashSet<u32> = HashSet::new();
+    let pixels: Vec<(u32,u32,Rgba<u8>)> = image.pixels().collect();
+    for pixel in pixels {
+        let rgba = pixel.2;
+        colors.insert(rgba_key(rgba));
+    };
+    colors.len()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
-
+    use crate::test_data::{NINE_COLORS,SINGLE_DOT};
 
     #[test]
     fn check_thumbnail_size_display() {
@@ -156,5 +176,9 @@ mod tests {
 
     #[test]
     fn counting_the_numbers_of_distinct_colors_in_an_image() {
+        let image = image::open(SINGLE_DOT).expect(&format!("can't load {}", SINGLE_DOT));
+        assert_eq!(2, color_count(&image));
+        let image = image::open(NINE_COLORS).expect(&format!("can't load {}", SINGLE_DOT));
+        assert_eq!(10, color_count(&image));
     }
 }
