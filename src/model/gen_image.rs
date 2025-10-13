@@ -2,6 +2,15 @@ extern crate image;
 
 use gtk::gdk;
 use gtk::glib;
+use std::ffi::OsStr;
+use std::fs::File;
+use std::io::BufReader;
+use std::io::Result as IOResult;
+use std::path::Path;
+use thumbnailer::ThumbnailSize;
+use thumbnailer::create_thumbnails;
+use thumbnailer::error::ThumbResult;
+
 
 pub fn no_thumbnail_picture() -> gtk::Picture {
     let width = 256;
@@ -31,15 +40,6 @@ pub fn no_thumbnail_picture() -> gtk::Picture {
     );
     gtk::Picture::for_paintable(&texture)
 }
-
-use std::ffi::OsStr;
-use std::fs::File;
-use std::io::BufReader;
-use std::io::Result as IOResult;
-use std::path::Path;
-use thumbnailer::ThumbnailSize;
-use thumbnailer::create_thumbnails;
-use thumbnailer::error::ThumbResult;
 
 pub fn thumbnail_size_display(size: ThumbnailSize) -> String {
     match size {
