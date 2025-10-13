@@ -40,7 +40,7 @@ HALF_OPACITY	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pu
 ImageData	/Users/christophethibaut/Coding/gsr2/src/model/image_data.rs	/^pub struct ImageData {$/;"	s
 ImageDataMap	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^pub type ImageDataMap = HashMap<String, ImageData>;$/;"	T
 KeyAndMode	/Users/christophethibaut/Coding/gsr2/src/gui/control.rs	/^pub type KeyAndMode = (String, Mode);$/;"	T
-LARGE_PICTURE	/Users/christophethibaut/Coding/gsr2/src/model/gen_image.rs	/^pub const LARGE_PICTURE: &str = "testdata\/large_picture.png";$/;"	c
+LARGE_PICTURE	/Users/christophethibaut/Coding/gsr2/src/test_data.rs	/^pub const LARGE_PICTURE: &str = "testdata\/large_picture.png";$/;"	c
 LEFT_PANE	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^pub const LEFT_PANE: usize = 0;$/;"	c
 MAX_LABEL_LENGTH	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const MAX_LABEL_LENGTH: usize = 20;$/;"	c
 MAX_PALETTE_COLORS	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const MAX_PALETTE_COLORS: u8 = 9;$/;"	c
@@ -48,7 +48,7 @@ MAX_PICTURES_PER_ROW	/Users/christophethibaut/Coding/gsr2/src/env/default_values
 MainWindow	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^pub struct MainWindow {$/;"	s
 Mode	/Users/christophethibaut/Coding/gsr2/src/gui/mode.rs	/^pub enum Mode {$/;"	g
 NAME	/Users/christophethibaut/Coding/gsr2/src/gui/gsr_application/imp.rs	/^    const NAME: &'static str = "GsrApplication";$/;"	c
-NINE_COLORS	/Users/christophethibaut/Coding/gsr2/src/model/gen_image.rs	/^pub const NINE_COLORS: &str = "testdata\/nine_colors.png";$/;"	c
+NINE_COLORS	/Users/christophethibaut/Coding/gsr2/src/test_data.rs	/^pub const NINE_COLORS: &str = "testdata\/nine_colors.png";$/;"	c
 Navigator	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^pub struct Navigator {$/;"	s
 ONE_PICTURE_PER_ROW	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const ONE_PICTURE_PER_ROW: usize = 1;$/;"	c
 Order	/Users/christophethibaut/Coding/gsr2/src/model/order.rs	/^pub enum Order {$/;"	g
@@ -64,7 +64,7 @@ RIGHT_PANE	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^pu
 RcController	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^pub type RcController = Rc<RefCell<Controller>>;$/;"	T
 Rgb8	/Users/christophethibaut/Coding/gsr2/src/model/image_data.rs	/^pub type Rgb8 = Rgb<u8>;$/;"	T
 SCROLL_STEP	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const SCROLL_STEP: f64 = 100.0;$/;"	c
-SINGLE_DOT	/Users/christophethibaut/Coding/gsr2/src/model/gen_image.rs	/^pub const SINGLE_DOT: &str = "testdata\/single_dot.png";$/;"	c
+SINGLE_DOT	/Users/christophethibaut/Coding/gsr2/src/test_data.rs	/^pub const SINGLE_DOT: &str = "testdata\/single_dot.png";$/;"	c
 SLIDESHOW_DELAY_MAX	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const SLIDESHOW_DELAY_MAX: i32 = 900;$/;"	c
 SLIDESHOW_DELAY_MIN	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const SLIDESHOW_DELAY_MIN: i32 = 1;$/;"	c
 Setting	/Users/christophethibaut/Coding/gsr2/src/gui/setting.rs	/^pub enum Setting {$/;"	g
@@ -74,7 +74,7 @@ THUMB_SUFFIX	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pu
 Tags	/Users/christophethibaut/Coding/gsr2/src/model/image_data.rs	/^pub type Tags = HashSet<String>;$/;"	T
 Type	/Users/christophethibaut/Coding/gsr2/src/gui/gsr_application/imp.rs	/^    type Type = super::GsrApplication;$/;"	T
 VALID_EXTENSIONS	/Users/christophethibaut/Coding/gsr2/src/env/default_values.rs	/^pub const VALID_EXTENSIONS: [&str; 6] = ["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"];$/;"	c
-WHITE_SQUARE	/Users/christophethibaut/Coding/gsr2/src/model/gen_image.rs	/^pub const WHITE_SQUARE: &str = "testdata\/white_square.png";$/;"	c
+WHITE_SQUARE	/Users/christophethibaut/Coding/gsr2/src/test_data.rs	/^pub const WHITE_SQUARE: &str = "testdata\/white_square.png";$/;"	c
 a_picture_has_a_file_name	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    fn a_picture_has_a_file_name() {$/;"	f
 a_picture_has_file_path_which_is_the_full_path_and_file_path_on_the_file_system	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    fn a_picture_has_file_path_which_is_the_full_path_and_file_path_on_the_file_system() {$/;"	f
 a_picture_view_file_name_depends_on_pictures_per_row	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    fn a_picture_view_file_name_depends_on_pictures_per_row() {$/;"	f
@@ -152,6 +152,7 @@ confirming_return_input_and_set_editing_to_false	/Users/christophethibaut/Coding
 convert_char	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    fn convert_char(ch: char) -> char {$/;"	f
 coords_from_position	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn coords_from_position(&self, position: usize) -> Option<(usize, usize)> {$/;"	f
 coords_from_position_depends_on_given_position	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn coords_from_position_depends_on_given_position() {$/;"	f
+counting_the_numbers_of_distinct_colors_in_an_image	/Users/christophethibaut/Coding/gsr2/src/model/gen_image.rs	/^    fn counting_the_numbers_of_distinct_colors_in_an_image() {$/;"	f
 create_missing_thumbnails	/Users/christophethibaut/Coding/gsr2/src/file/picture_file.rs	/^pub fn create_missing_thumbnails(gallery: &Gallery, pictures_per_row: usize) {$/;"	f
 create_thumbnail_file	/Users/christophethibaut/Coding/gsr2/src/model/gen_image.rs	/^pub fn create_thumbnail_file($/;"	f
 current_page	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn current_page(&self) -> usize {$/;"	f
@@ -200,8 +201,9 @@ full_size_arrow_move	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_wind
 full_size_display	/Users/christophethibaut/Coding/gsr2/src/gui/display.rs	/^fn full_size_display(on: bool) -> String {$/;"	f
 full_size_on	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn full_size_on(&self) -> bool {$/;"	f
 gallery	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn gallery(&self) -> &Gallery {$/;"	f
-gen_nine_colors	/Users/christophethibaut/Coding/gsr2/src/model/gen_image.rs	/^pub fn gen_nine_colors() -> DynamicImage {$/;"	f
-gen_pictures	/Users/christophethibaut/Coding/gsr2/src/model/gen_image.rs	/^    fn gen_pictures() {$/;"	f
+gen_nine_colors	/Users/christophethibaut/Coding/gsr2/src/test_data.rs	/^pub fn gen_nine_colors() -> DynamicImage {$/;"	f
+gen_single_dot	/Users/christophethibaut/Coding/gsr2/src/test_data.rs	/^pub fn gen_single_dot() -> DynamicImage {$/;"	f
+gen_white_square	/Users/christophethibaut/Coding/gsr2/src/test_data.rs	/^pub fn gen_white_square() -> DynamicImage {$/;"	f
 get_all_picture_file_paths	/Users/christophethibaut/Coding/gsr2/src/file/picture_file.rs	/^pub fn get_all_picture_file_paths(path: &str) -> Result<Vec<String>> {$/;"	f
 get_data_from_picture_file	/Users/christophethibaut/Coding/gsr2/src/file/picture_file.rs	/^pub fn get_data_from_picture_file(file_path: &str) -> Result<PictureFileData> {$/;"	f
 get_palette	/Users/christophethibaut/Coding/gsr2/src/model/image_data.rs	/^pub fn get_palette(image: &DynamicImage) -> Palette {$/;"	f
@@ -229,7 +231,7 @@ label_current_picture_with	/Users/christophethibaut/Coding/gsr2/src/gui/controll
 label_length_is_limited_to_max_label_length	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    fn label_length_is_limited_to_max_label_length() {$/;"	f
 label_pictures_in_range_with	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn label_pictures_in_range_with(&mut self, label: &str) {$/;"	f
 label_pictures_with	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn label_pictures_with(&mut self, label: &str) {$/;"	f
-large_picture	/Users/christophethibaut/Coding/gsr2/src/model/gen_image.rs	/^pub fn large_picture() -> DynamicImage {$/;"	f
+large_picture	/Users/christophethibaut/Coding/gsr2/src/test_data.rs	/^pub fn large_picture() -> DynamicImage {$/;"	f
 left_pane	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^pub fn left_pane(panel_grid: &gtk::Grid) -> gtk::Label {$/;"	f
 len	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^    pub fn len(&self) -> usize {$/;"	f
 limit	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn limit(&self) -> usize {$/;"	f
@@ -359,10 +361,10 @@ rusqlite_retrieve_picture_with_file_path	/Users/christophethibaut/Coding/gsr2/sr
 rusqlite_row_to_picture	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    fn rusqlite_row_to_picture(row: &Row) -> SqlResult<Picture, rusqlite::Error> {$/;"	f
 rusqlite_update_picture	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    pub fn rusqlite_update_picture(&self, picture: &Picture) -> SqlResult<usize> {$/;"	f
 save_current_picture_data	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    fn save_current_picture_data(&mut self) {$/;"	f
-save_large_picture	/Users/christophethibaut/Coding/gsr2/src/model/gen_image.rs	/^pub fn save_large_picture() {$/;"	f
-save_nine_colors	/Users/christophethibaut/Coding/gsr2/src/model/gen_image.rs	/^pub fn save_nine_colors() {$/;"	f
-save_single_dot	/Users/christophethibaut/Coding/gsr2/src/model/gen_image.rs	/^pub fn save_single_dot() {$/;"	f
-save_white_square	/Users/christophethibaut/Coding/gsr2/src/model/gen_image.rs	/^pub fn save_white_square() {$/;"	f
+save_large_picture	/Users/christophethibaut/Coding/gsr2/src/gen_data.rs	/^pub fn save_large_picture() {$/;"	f
+save_nine_colors	/Users/christophethibaut/Coding/gsr2/src/gen_data.rs	/^pub fn save_nine_colors() {$/;"	f
+save_single_dot	/Users/christophethibaut/Coding/gsr2/src/gen_data.rs	/^pub fn save_single_dot() {$/;"	f
+save_white_square	/Users/christophethibaut/Coding/gsr2/src/gen_data.rs	/^pub fn save_white_square() {$/;"	f
 set_current_picture	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_current_picture(&mut self, picture: Picture) {$/;"	f
 set_gallery	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_gallery(&mut self, gallery: Gallery) {$/;"	f
 set_image_data	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    pub fn set_image_data(&mut self, image_data: ImageData) {$/;"	f

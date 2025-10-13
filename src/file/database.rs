@@ -127,7 +127,7 @@ impl Database {
 pub mod tests {
     use super::*;
     use crate::env::default_values::TEST_DATABASE_FILE;
-    use crate::model::gen_image::{NINE_COLORS, SINGLE_DOT, WHITE_SQUARE};
+    use crate::test_data::*;
 
     pub fn my_db() -> Database {
         let database = Database::rusqlite_from_connection(TEST_DATABASE_FILE)

@@ -17,6 +17,7 @@ mod env;
 mod file;
 mod gui;
 mod model;
+mod test_data;
 
 fn main() {
     match Args::parse_and_check(None) {

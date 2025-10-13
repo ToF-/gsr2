@@ -127,12 +127,11 @@ mod tests {
     use crate::Command::Dir;
     use crate::Command::File;
     use crate::cli::command::Command;
-    use crate::model::gen_image::{SINGLE_DOT, gen_single_dot};
     use std::io::ErrorKind;
+    use crate::test_data::*;
 
     #[test]
     fn command_line_interface_with_command_file_with_adequate_argument() {
-        gen_single_dot();
         let args = vec!["gsr", "file", SINGLE_DOT];
         let args = Args::parse_and_check(Some(args)).unwrap();
         if let Some(Command::File { ref file_path }) = args.command {
