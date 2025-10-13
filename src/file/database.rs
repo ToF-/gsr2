@@ -53,7 +53,6 @@ impl Database {
         )
     }
 
-    #[allow(dead_code)]
     pub fn rusqlite_delete_picture_with_file_path(&self, file_path: &str) -> SqlResult<usize> {
         self.connection.execute(
             "DELETE FROM Picture        \n\

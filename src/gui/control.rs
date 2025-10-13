@@ -6,6 +6,7 @@ pub enum Control {
     ConfirmEdition,
     CancelEdition,
     DeleteChar,
+    DeletePicture,
     SetRange,
     CancelRange,
     Jump,
@@ -73,8 +74,9 @@ pub fn default_controls() -> Controls {
         ((String::from("z"), Mode::View), Control::MoveEndPage),
         ((String::from("e"), Mode::View), Control::ToggleExpand),
         ((String::from("f"), Mode::View), Control::ToggleFullSize),
-        ((String::from("x"), Mode::View), Control::TogglePalette),
+        ((String::from("P"), Mode::View), Control::TogglePalette),
         ((String::from("R"), Mode::View), Control::MoveRandom),
+        ((String::from("X"), Mode::View), Control::DeletePicture),
         ((String::from("S"), Mode::View), Control::ToggleSlideShow),
         ((String::from("l"), Mode::View), Control::Label),
         ((String::from("q"), Mode::View), Control::Quit),
@@ -183,10 +185,6 @@ mod tests {
         assert_eq!(
             Some(&Control::Label),
             default_controls().get(&(String::from("l"), v))
-        );
-        assert_eq!(
-            Some(&Control::TogglePalette),
-            default_controls().get(&(String::from("x"), v))
         );
         assert_eq!(
             Some(&Control::ToggleExpand),

@@ -1,3 +1,4 @@
+use std::ffi::OsStr;
 use crate::env::default_values::GARBAGE;
 use crate::env::default_values::THUMB_SUFFIX;
 use crate::env::default_values::VALID_EXTENSIONS;
@@ -89,10 +90,7 @@ pub fn file_name_from(file_path: &str) -> String {
         .to_string()
 }
 
-pub fn thumbnail_name_from(file_name: &str, pictures_per_row: usize) -> String {
-    let path: PathBuf = PathBuf::from(file_name);
-    let extension = path.extension().expect("can't compute path extension");
-    let file_stem = path.file_stem().expect("can't compute path file stem");
+fn thumbnail_name_for_path(path: PathBuf, file_stem: &OsStr, extension: &OsStr, pictures_per_row: usize) -> String {
     let thumb_file_name = PathBuf::from(
         file_stem.to_str().unwrap().to_owned()
             + THUMB_SUFFIX
@@ -103,6 +101,21 @@ pub fn thumbnail_name_from(file_name: &str, pictures_per_row: usize) -> String {
         .to_str()
         .unwrap()
         .to_string()
+}
+pub fn thumbnail_name_from(file_name: &str, pictures_per_row: usize) -> String {
+    let path: PathBuf = PathBuf::from(file_name);
+    let extension = path.extension().expect("can't compute path extension");
+    let file_stem = path.file_stem().expect("can't compute path file stem");
+    thumbnail_name_for_path(path.clone(), file_stem, extension, pictures_per_row)
+}
+
+pub fn thumbnail_names_from(file_name: &str) -> Vec<String> {
+    let mut result: Vec<String> = vec![];
+    result.push(thumbnail_name_from(file_name, 10));
+    result.push(thumbnail_name_from(file_name, 7));
+    result.push(thumbnail_name_from(file_name, 4));
+    result.push(thumbnail_name_from(file_name, 2));
+    result
 }
 
 #[cfg(test)]
@@ -146,5 +159,15 @@ mod tests {
             "testdata/my_other_fileTHUMBSmall.PNG",
             thumbnail_name_from("testdata/my_other_file.PNG", pictures_per_row)
         )
+    }
+    #[test]
+    fn thumbnail_names_for_all_grid_sizes() {
+        assert_eq!(vec![
+            String::from("testdata/my_fileTHUMBSmall.jpg"),
+            String::from("testdata/my_fileTHUMBMedium.jpg"),
+            String::from("testdata/my_fileTHUMBLarge.jpg"),
+            String::from("testdata/my_fileTHUMBLarger.jpg")],
+            thumbnail_names_from("testdata/my_file.jpg"))
+
     }
 }

@@ -32,6 +32,7 @@ impl Editor {
         let prompt: &str = match entry_kind {
             EntryKind::Label => "Enter a label",
             EntryKind::Number => "Enter a number",
+            EntryKind::DeleteConfirmation => "Delete these pictures and quit?",
         };
         self.entry_kind = entry_kind;
         self.editing = true;
@@ -103,6 +104,7 @@ impl Editor {
     pub fn append(&mut self, ch: char) {
         let ch_is_ok = match self.entry_kind {
             EntryKind::Number => ch.is_ascii_digit(),
+            EntryKind::DeleteConfirmation => matches!(ch, 'e'|'n'|'o'|'s'|'y'),
             EntryKind::Label => matches!(ch,
                 'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' '),
         };

@@ -211,10 +211,13 @@ pub fn save_large_picture() {
 #[cfg(test)]
 mod tests {
     use super::*;
+    // uncomment test to save test pictures
     // #[test]
-    fn gen_large_picture() {
-        save_large_picture()
+    fn gen_pictures() {
+        save_nine_colors()
     }
+
+
     #[test]
     fn check_thumbnail_size_display() {
         assert_eq!("Icon", &thumbnail_size_display(ThumbnailSize::Icon));

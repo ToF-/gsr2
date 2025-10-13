@@ -1,8 +1,9 @@
+use crate::file::picture_file::delete_picture_files;
 use crate::Args;
 use crate::MainWindow;
 use crate::cli::command::Command;
 use crate::env::environment::database_connection;
-use crate::file::database::Database;
+use crate::file::database::*;
 use crate::gui::control::{Control, Controls, default_controls};
 use crate::gui::direction::Direction;
 use crate::gui::editor::Editor;
@@ -254,6 +255,11 @@ impl Controller {
                         EntryKind::Number => {
                             self.move_towards_index(self.editor.input().parse().unwrap())
                         }
+                        EntryKind::DeleteConfirmation => {
+                            if &self.editor.input() == "yes" {
+                                self.confirm_delete_picture()
+                            }
+                        }
                     }
                 }
             }
@@ -261,7 +267,7 @@ impl Controller {
     }
 
     pub fn label_pictures_with(&mut self, label: &str) {
-       if let Some((start, end)) = self.navigator.range() {
+       if let Some(_) = self.navigator.range() {
            self.label_pictures_in_range_with(label);
            self.navigator.cancel_range();
        } else {
@@ -380,6 +386,7 @@ impl Controller {
             Control::Randomize => self.order_by(Order::Random),
             Control::SetRange => self.set_range(),
             Control::CancelRange => self.cancel_range(),
+            Control::DeletePicture => self.delete_picture(),
             _ => {}
         }
     }
@@ -494,15 +501,63 @@ impl Controller {
 
     pub fn set_range(&mut self) {
         let position = self.navigator.position();
-        let mut navigator = &mut self.navigator;
+        let navigator = &mut self.navigator;
         navigator.set_range(position);
         self.navigator.set_page_changed()
     }
 
     pub fn cancel_range(&mut self) {
-        let mut navigator = &mut self.navigator;
+        let navigator = &mut self.navigator;
         navigator.cancel_range();
         self.navigator.set_page_changed()
+    }
+
+    fn delete_pictures_in_range(&self) {
+        if let Some((start, end)) = self.navigator().range() {
+            for index in start..=end {
+                let picture = &self.gallery.picture(index);
+                match delete_picture_files(&picture.file_path()) {
+                    Ok(_) => match self.database.rusqlite_delete_picture_with_file_path(&picture.file_path()) {
+                            Ok(_) => {},
+                            Err(err) => {
+                                println!("{}", err);
+                            },
+                        },
+                    Err(err) => {
+                        println!("{}", err);
+                    }
+                }
+            }
+        }
+    }
+
+    fn delete_current_picture(&self) {
+        let picture = self.current_picture();
+        match delete_picture_files(&picture.file_path()) {
+            Ok(_) => match self.database.rusqlite_delete_picture_with_file_path(&picture.file_path()) {
+                Ok(_) => {},
+                Err(err) => {
+                    println!("{}", err);
+                },
+            },
+            Err(err) => {
+                println!("{}", err);
+            }
+        }
+    }
+
+    pub fn confirm_delete_picture(&mut self) {
+       if let Some(_) = self.navigator.range() {
+           self.delete_pictures_in_range()
+       } else {
+           self.delete_current_picture()
+       }
+       self.quit()
+    }
+
+    pub fn delete_picture(&mut self) {
+        self.editor.begin(&self.main_window(), EntryKind::DeleteConfirmation);
+        self.state.set_mode(Mode::Editing);
     }
 
     pub fn acknowledge_grid_size_change(&mut self) {
