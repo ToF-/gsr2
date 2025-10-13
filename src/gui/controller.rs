@@ -1,4 +1,4 @@
-use crate::file::picture_file::delete_picture_files;
+use crate::file::delete_picture;
 use crate::cli::args::Args;
 use crate::gui::view::main_window::MainWindow;
 use crate::cli::command::Command;
@@ -258,6 +258,8 @@ impl Controller {
                         EntryKind::DeleteConfirmation => {
                             if &self.editor.input() == "yes" {
                                 self.confirm_delete_picture()
+                            } else {
+                                self.cancel_delete_picture()
                             }
                         }
                     }
@@ -516,16 +518,11 @@ impl Controller {
         if let Some((start, end)) = self.navigator().range() {
             for index in start..=end {
                 let picture = &self.gallery.picture(index);
-                match delete_picture_files(&picture.file_path()) {
-                    Ok(_) => match self.database.rusqlite_delete_picture_with_file_path(&picture.file_path()) {
-                            Ok(_) => {},
-                            Err(err) => {
-                                println!("{}", err);
-                            },
-                        },
+                match delete_picture(&self.database, &picture.file_path()) {
+                    Ok(_) => {},
                     Err(err) => {
                         println!("{}", err);
-                    }
+                    },
                 }
             }
         }
@@ -533,17 +530,18 @@ impl Controller {
 
     fn delete_current_picture(&self) {
         let picture = self.current_picture();
-        match delete_picture_files(&picture.file_path()) {
-            Ok(_) => match self.database.rusqlite_delete_picture_with_file_path(&picture.file_path()) {
-                Ok(_) => {},
-                Err(err) => {
-                    println!("{}", err);
-                },
-            },
+        match delete_picture(&self.database, &picture.file_path()) {
+            Ok(_) => {},
             Err(err) => {
                 println!("{}", err);
-            }
+            },
         }
+    }
+
+    pub fn cancel_delete_picture(&mut self) {
+        let navigator = &mut self.navigator;
+        navigator.cancel_range();
+        self.navigator.set_page_changed()
     }
 
     pub fn confirm_delete_picture(&mut self) {

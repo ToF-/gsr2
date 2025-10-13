@@ -109,6 +109,7 @@ can_move	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn 
 can_move_next_page	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn can_move_next_page(&mut self) -> bool {$/;"	f
 can_move_prev_page	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn can_move_prev_page(&mut self) -> bool {$/;"	f
 cancel	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    pub fn cancel(&mut self) {$/;"	f
+cancel_delete_picture	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn cancel_delete_picture(&mut self) {$/;"	f
 cancel_input	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    pub fn cancel_input(&mut self) {$/;"	f
 cancel_range	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn cancel_range(&mut self) {$/;"	f
 cancel_range	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn cancel_range(&mut self) {$/;"	f
@@ -161,6 +162,7 @@ default_controls	/Users/christophethibaut/Coding/gsr2/src/gui/control.rs	/^pub f
 delete	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    pub fn delete(&mut self) {$/;"	f
 delete_current_picture	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    fn delete_current_picture(&self) {$/;"	f
 delete_nine_colors_from_db	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    pub fn delete_nine_colors_from_db() {$/;"	f
+delete_picture	/Users/christophethibaut/Coding/gsr2/src/file.rs	/^pub fn delete_picture(database: &Database, file_path: &str) -> IOResult<()> {$/;"	f
 delete_picture	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn delete_picture(&mut self) {$/;"	f
 delete_picture_file	/Users/christophethibaut/Coding/gsr2/src/file/picture_file.rs	/^pub fn delete_picture_file(file_path: &str) -> Result<()> {$/;"	f
 delete_picture_files	/Users/christophethibaut/Coding/gsr2/src/file/picture_file.rs	/^pub fn delete_picture_files(file_path: &str) -> Result<()> {$/;"	f
