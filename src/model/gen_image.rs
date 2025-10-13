@@ -132,7 +132,7 @@ pub fn create_thumbnail_file(
 }
 
 #[allow(dead_code)]
-pub fn gen_single_dot() {
+pub fn save_single_dot() {
     let mut image = RgbImage::new(10, 10);
     image.put_pixel(5, 5, Rgb([255, 255, 255]));
     image.save(SINGLE_DOT).unwrap();
@@ -181,7 +181,7 @@ pub fn gen_nine_colors() -> DynamicImage {
 }
 
 #[allow(dead_code)]
-pub fn gen_white_square() {
+pub fn save_white_square() {
     let range = 100..900;
     let mut image = RgbImage::new(1000, 1000);
 

@@ -1,6 +1,6 @@
 use crate::file::picture_file::delete_picture_files;
-use crate::Args;
-use crate::MainWindow;
+use crate::cli::args::Args;
+use crate::gui::view::main_window::MainWindow;
 use crate::cli::command::Command;
 use crate::env::environment::database_connection;
 use crate::file::database::*;

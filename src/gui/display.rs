@@ -1,4 +1,4 @@
-use crate::Controller;
+use crate::gui::controller::Controller;
 use crate::env::default_values::{EXPAND_ON_SYMBOL, FULL_SIZE_ON_SYMBOL};
 
 fn expand_display(on: bool) -> String {

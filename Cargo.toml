@@ -3,6 +3,15 @@ name = "gsr2"
 version = "0.1.0"
 edition = "2024"
 authors = ["ToF-"]
+default-run = "main"
+
+[[bin]]
+name = "gen_data"
+path = "src/gen_data.rs"
+
+[[bin]]
+name = "main"
+path = "src/main.rs"
 
 [dependencies]
 clap = { version = "4.5.4", features = ["derive"] }
