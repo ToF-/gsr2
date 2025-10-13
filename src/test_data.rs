@@ -1,6 +1,8 @@
+#![allow(dead_code)]
 use image::DynamicImage;
 use image::Rgb;
 use image::RgbImage;
+
 
 pub const SINGLE_DOT: &str = "testdata/single_dot.png";
 pub const NINE_COLORS: &str = "testdata/nine_colors.png";

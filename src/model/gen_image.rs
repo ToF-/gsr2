@@ -1,9 +1,7 @@
 extern crate image;
-use image::DynamicImage;
 
 use gtk::gdk;
 use gtk::glib;
-use image::{Rgb, RgbImage};
 
 pub fn no_thumbnail_picture() -> gtk::Picture {
     let width = 256;
