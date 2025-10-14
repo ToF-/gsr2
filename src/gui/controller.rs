@@ -510,7 +510,6 @@ impl Controller {
     }
 
     pub fn toggle_selected(&mut self) {
-        println!("toggle select");
         let position = self.navigator.position();
         let navigator = &mut self.navigator;
         if navigator.is_selected(position) {

@@ -108,11 +108,14 @@ can_cancel_a_range	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^ 
 can_move	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn can_move(&mut self, direction: Direction) -> bool {$/;"	f
 can_move_next_page	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn can_move_next_page(&mut self) -> bool {$/;"	f
 can_move_prev_page	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn can_move_prev_page(&mut self) -> bool {$/;"	f
+can_select_and_unselect_an_picture_index	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn can_select_and_unselect_an_picture_index() {$/;"	f
+can_yield_an_ordered_list_of_selected_pictures	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn can_yield_an_ordered_list_of_selected_pictures() {$/;"	f
 cancel	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    pub fn cancel(&mut self) {$/;"	f
 cancel_delete_picture	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn cancel_delete_picture(&mut self) {$/;"	f
 cancel_input	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    pub fn cancel_input(&mut self) {$/;"	f
 cancel_range	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn cancel_range(&mut self) {$/;"	f
 cancel_range	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn cancel_range(&mut self) {$/;"	f
+cancelling_a_range_unselects_included_pictures	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn cancelling_a_range_unselects_included_pictures() {$/;"	f
 cancelling_set_editing_to_false	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    fn cancelling_set_editing_to_false() {$/;"	f
 cannot_append_forbidden_chars	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    fn cannot_append_forbidden_chars() {$/;"	f
 cannot_move_down_if_beyond_limit	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn cannot_move_down_if_beyond_limit() {$/;"	f
@@ -168,7 +171,7 @@ delete_picture	/Users/christophethibaut/Coding/gsr2/src/file.rs	/^pub fn delete_
 delete_picture	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn delete_picture(&mut self) {$/;"	f
 delete_picture_file	/Users/christophethibaut/Coding/gsr2/src/file/picture_file.rs	/^pub fn delete_picture_file(file_path: &str) -> Result<()> {$/;"	f
 delete_picture_files	/Users/christophethibaut/Coding/gsr2/src/file/picture_file.rs	/^pub fn delete_picture_files(file_path: &str) -> Result<()> {$/;"	f
-delete_pictures_in_range	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    fn delete_pictures_in_range(&self) {$/;"	f
+delete_selected_pictures	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    fn delete_selected_pictures(&mut self) {$/;"	f
 deleting_a_char_changes_the_input	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    fn deleting_a_char_changes_the_input() {$/;"	f
 dimension	/Users/christophethibaut/Coding/gsr2/src/env/dimension.rs	/^pub fn dimension($/;"	f
 display_date_on	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn display_date_on(&self) -> bool {$/;"	f
@@ -224,6 +227,7 @@ initially_not_editing	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^ 
 input	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    pub fn input(&self) -> String {$/;"	f
 insert_and_retrieve_a_picture	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    fn insert_and_retrieve_a_picture() {$/;"	f
 insert_nine_colors_sample_into_db	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    pub fn insert_nine_colors_sample_into_db() {$/;"	f
+is_selected	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn is_selected(&self, index: usize) -> bool {$/;"	f
 jump	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn jump(&mut self) {$/;"	f
 label	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn label(&mut self) {$/;"	f
 label	/Users/christophethibaut/Coding/gsr2/src/model/image_data.rs	/^    pub fn label(&self) -> String {$/;"	f
@@ -367,6 +371,8 @@ save_large_picture	/Users/christophethibaut/Coding/gsr2/src/gen_data.rs	/^pub fn
 save_nine_colors	/Users/christophethibaut/Coding/gsr2/src/gen_data.rs	/^pub fn save_nine_colors() {$/;"	f
 save_single_dot	/Users/christophethibaut/Coding/gsr2/src/gen_data.rs	/^pub fn save_single_dot() {$/;"	f
 save_white_square	/Users/christophethibaut/Coding/gsr2/src/gen_data.rs	/^pub fn save_white_square() {$/;"	f
+select	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn select(&mut self, index: usize) {$/;"	f
+selection	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn selection(&mut self) -> Vec<usize> {$/;"	f
 set_current_picture	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_current_picture(&mut self, picture: Picture) {$/;"	f
 set_gallery	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_gallery(&mut self, gallery: Gallery) {$/;"	f
 set_image_data	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    pub fn set_image_data(&mut self, image_data: ImageData) {$/;"	f
@@ -396,6 +402,7 @@ set_slideshow_off	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^ 
 set_slideshow_off	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn set_slideshow_off(&mut self) {$/;"	f
 set_text	/Users/christophethibaut/Coding/gsr2/src/gui/view/entry_window.rs	/^    pub fn set_text(&self, text: &str) {$/;"	f
 set_title	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn set_title(&self, controller: &Controller) {$/;"	f
+setting_a_range_selects_included_pictures	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn setting_a_range_selects_included_pictures() {$/;"	f
 setting_display	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn setting_display(&mut self) {$/;"	f
 setting_order	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn setting_order(&mut self) {$/;"	f
 single_view	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn single_view(&self) -> bool {$/;"	f
@@ -434,6 +441,7 @@ toggle_expand	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn
 toggle_focus_symbol	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn toggle_focus_symbol(&mut self) {$/;"	f
 toggle_full_size	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn toggle_full_size(&mut self) {$/;"	f
 toggle_full_size	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn toggle_full_size(&mut self) {$/;"	f
+toggle_selected	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn toggle_selected(&mut self) {$/;"	f
 toggle_single_view	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn toggle_single_view(&mut self) {$/;"	f
 toggle_single_view	/Users/christophethibaut/Coding/gsr2/src/gui/state.rs	/^    pub fn toggle_single_view(&mut self) {$/;"	f
 toggle_slideshow	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn toggle_slideshow(&mut self) {$/;"	f
@@ -443,6 +451,7 @@ total_pages	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub 
 total_pages_according_to_len_and_page_size	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn total_pages_according_to_len_and_page_size() {$/;"	f
 treat_space_as_dash	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    fn treat_space_as_dash() {$/;"	f
 treat_uppercase_as_lowercase	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    fn treat_uppercase_as_lowercase() {$/;"	f
+unselect	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn unselect(&mut self, index: usize) {$/;"	f
 update_a_picture	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    fn update_a_picture() {$/;"	f
 update_page_limits	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn update_page_limits(&mut self) {$/;"	f
 v	/Users/christophethibaut/Coding/gsr2/src/gui/control.rs	/^        const v: Mode = Mode::View;$/;"	c
