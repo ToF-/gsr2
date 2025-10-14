@@ -1,4 +1,5 @@
 use std::mem;
+use std::collections::HashSet;
 use crate::gui::direction::Direction;
 
 #[derive(Debug, Clone)]
@@ -12,6 +13,7 @@ pub struct Navigator {
     page_changed: bool,
     range_start: Option<usize>,
     range_end: Option<usize>,
+    selected_pictures: HashSet<usize>,
 }
 
 impl Navigator {
@@ -26,6 +28,7 @@ impl Navigator {
             page_changed: false,
             range_start: None,
             range_end: None,
+            selected_pictures: HashSet::new(),
         };
         result.update_page_limits();
         result
@@ -93,21 +96,35 @@ impl Navigator {
 
     pub fn set_range(&mut self, index: usize) {
         if self.range().is_some() {
-            self.range_start = None;
-            self.range_end = None;
+            self.cancel_range();
         }
         if self.range_start == None {
-            self.range_start = Some(index)
+            self.range_start = Some(index);
+            self.select(index);
         } else {
             self.range_end = Some(index);
             if self.range_end < self.range_start {
                 mem::swap(&mut self.range_start, &mut self.range_end)
             }
 
+        };
+        if let Some((start, end)) = self.range() {
+            self.selected_pictures.clear();
+            for index in start..=end {
+                self.select(index)
+            }
         }
     }
 
     pub fn cancel_range(&mut self) {
+        if let Some((start, end)) = self.range() {
+            self.selected_pictures.clear();
+            for index in start..=end {
+                self.unselect(index)
+            }
+        } else if let Some(start) = self.range_start {
+            self.unselect(start)
+        };
         self.range_start = None;
         self.range_end = None
     }
@@ -219,7 +236,27 @@ impl Navigator {
             self.page_changed = old_page_start != self.page_start;
         }
     }
+
+    pub fn is_selected(&self, index: usize) -> bool {
+        self.selected_pictures.contains(&index)
+    }
+
+    pub fn select(&mut self, index: usize) {
+        let _ = self.selected_pictures.insert(index);
+    }
+
+    pub fn unselect(&mut self, index: usize) {
+        let _ = self.selected_pictures.remove(&index);
+    }
+
+    pub fn selection(&mut self) -> Vec<usize> {
+        let mut result: Vec<usize> = self.selected_pictures.clone()
+            .into_iter().collect();
+        result.sort();
+        result
+    }
 }
+
 #[cfg(test)]
 
 mod tests {
@@ -498,5 +535,50 @@ mod tests {
         navigator.cancel_range();
         assert_eq!(None, navigator.range_start());
         assert_eq!(None, navigator.range_end());
+    }
+
+    #[test]
+    fn can_select_and_unselect_an_picture_index() {
+        let mut navigator = Navigator::new(10, 2);
+        assert!(! navigator.is_selected(0));
+        navigator.select(9);
+        assert!(navigator.is_selected(9));
+        navigator.unselect(9);
+        assert!(!navigator.is_selected(9));
+    }
+
+    #[test]
+    fn setting_a_range_selects_included_pictures() {
+        let mut navigator = Navigator::new(10, 2);
+        navigator.set_range(6);
+        assert!(navigator.is_selected(6));
+        navigator.set_range(2);
+        navigator.select(9);
+        assert!(!navigator.is_selected(1));
+        assert!(navigator.is_selected(2));
+        assert!(navigator.is_selected(3));
+        assert!(navigator.is_selected(4));
+        assert!(navigator.is_selected(5));
+        assert!(navigator.is_selected(6));
+        assert!(!navigator.is_selected(7));
+    }
+    #[test]
+    fn cancelling_a_range_unselects_included_pictures() {
+        let mut navigator = Navigator::new(10, 2);
+        navigator.set_range(6);
+        navigator.set_range(2);
+        navigator.cancel_range();
+        assert!(!navigator.is_selected(2));
+        assert!(!navigator.is_selected(3));
+        assert!(!navigator.is_selected(4));
+        assert!(!navigator.is_selected(5));
+        assert!(!navigator.is_selected(6));
+    }
+    #[test]
+    fn can_yield_an_ordered_list_of_selected_pictures() {
+        let mut navigator = Navigator::new(10, 2);
+        navigator.set_range(6);
+        navigator.set_range(2);
+        assert_eq!(vec![2,3,4,5,6], navigator.selection());
     }
 }

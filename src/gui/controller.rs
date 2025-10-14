@@ -387,6 +387,7 @@ impl Controller {
             Control::OrderBySize => self.order_by(Order::Size),
             Control::Randomize => self.order_by(Order::Random),
             Control::SetRange => self.set_range(),
+            Control::ToggleSelected => self.toggle_selected(),
             Control::CancelRange => self.cancel_range(),
             Control::DeletePicture => self.delete_picture(),
             _ => {}
@@ -508,22 +509,32 @@ impl Controller {
         self.navigator.set_page_changed()
     }
 
+    pub fn toggle_selected(&mut self) {
+        println!("toggle select");
+        let position = self.navigator.position();
+        let navigator = &mut self.navigator;
+        if navigator.is_selected(position) {
+            navigator.unselect(position)
+        } else {
+            navigator.select(position)
+        }
+        self.navigator.set_page_changed()
+    }
+
     pub fn cancel_range(&mut self) {
         let navigator = &mut self.navigator;
         navigator.cancel_range();
         self.navigator.set_page_changed()
     }
 
-    fn delete_pictures_in_range(&self) {
-        if let Some((start, end)) = self.navigator().range() {
-            for index in start..=end {
-                let picture = &self.gallery.picture(index);
-                match delete_picture(&self.database, &picture.file_path()) {
-                    Ok(_) => {},
-                    Err(err) => {
-                        println!("{}", err);
-                    },
-                }
+    fn delete_selected_pictures(&mut self) {
+        for index in self.navigator.selection() {
+            let picture = &self.gallery.picture(index);
+            match delete_picture(&self.database, &picture.file_path()) {
+                Ok(_) => {},
+                Err(err) => {
+                    println!("{}", err);
+                },
             }
         }
     }
@@ -545,12 +556,8 @@ impl Controller {
     }
 
     pub fn confirm_delete_picture(&mut self) {
-       if let Some(_) = self.navigator.range() {
-           self.delete_pictures_in_range()
-       } else {
-           self.delete_current_picture()
-       };
-       self.navigator.set_page_changed()
+        self.delete_selected_pictures();
+        self.navigator.set_page_changed()
     }
 
     pub fn delete_picture(&mut self) {

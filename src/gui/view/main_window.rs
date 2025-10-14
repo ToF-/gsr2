@@ -230,20 +230,13 @@ impl MainWindow {
                         no_thumbnail_picture()
                     };
                     self.picture_grid.set_picture_at(col, row, &gtk_picture);
-                    let opacity: f64 = 
+                    let opacity: f64 =
                         if let Some(position) = navigator.position_from_coords(row as usize, col as usize) {
-                            if let Some((start, end)) = navigator.range() {
-                                if (start..=end).contains(&position) { 
-                                    HALF_OPACITY 
-                                } else {
-                                    FULL_OPACITY
-                                } 
-                            } else if let Some(start) = navigator.range_start()
-                                && position == start {
-                                    HALF_OPACITY
-                                } else {
-                                    FULL_OPACITY
-                                }
+                            if navigator.is_selected(position) {
+                                HALF_OPACITY
+                            } else {
+                                FULL_OPACITY
+                            }
                         } else {
                             FULL_OPACITY
                         };
