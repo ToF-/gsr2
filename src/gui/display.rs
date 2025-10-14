@@ -28,7 +28,7 @@ fn page_display(controller: &Controller) -> String {
 }
 pub fn picture_label_display(label: &str, with_focus: Option<char>) -> String {
     format!(
-        "{}{}",
+        "{} {}",
         if let Some(symbol) = with_focus {
             symbol
         } else {
