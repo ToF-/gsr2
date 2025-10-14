@@ -6,3 +6,10 @@ create_db: sql/create_db.sql
 
 gen_data: src/gen_data.rs
 	cargo run --bin gen_data
+	cargo run -- -c 10
+	cargo run -- -c 7
+	cargo run -- -c 4
+	cargo run -- -c 2
+
+reinit_data: create_db gen_data
+	

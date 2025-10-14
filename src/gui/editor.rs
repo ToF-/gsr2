@@ -32,7 +32,7 @@ impl Editor {
         let prompt: &str = match entry_kind {
             EntryKind::Label => "Enter a label",
             EntryKind::Number => "Enter a number",
-            EntryKind::DeleteConfirmation => "Delete these pictures and quit?",
+            EntryKind::DeleteConfirmation => "Delete these pictures?",
         };
         self.entry_kind = entry_kind;
         self.editing = true;

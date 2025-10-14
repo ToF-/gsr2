@@ -549,8 +549,8 @@ impl Controller {
            self.delete_pictures_in_range()
        } else {
            self.delete_current_picture()
-       }
-       self.quit()
+       };
+       self.navigator.set_page_changed()
     }
 
     pub fn delete_picture(&mut self) {
