@@ -18,7 +18,16 @@ pub fn startup_gui() {
         image { margin:1em ; } 
         label { color:white; 
                 font-family:sans-serif;
-                font-size:12px;}",
+                font-size:12px;}
+        label.pane {
+            color: gray;
+            font-size: 22px;
+            background-color:black;
+        }
+        label.entry {
+            padding: 10px;
+            font-size: 32px;
+        }"
     );
     gtk::style_context_add_provider_for_display(&Display::default().unwrap(), &css_provider, 1000);
 }

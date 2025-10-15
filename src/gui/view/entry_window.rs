@@ -35,18 +35,7 @@ impl EntryWindow {
             .halign(Align::Center)
             .label(text)
             .build();
-        let text_css_provider = CssProvider::new();
-        text_css_provider.load_from_string(
-            "
-            label {
-                padding: 10px;
-                font-size: 32px;
-            }
-        ",
-        );
-        entry_text
-            .style_context()
-            .add_provider(&text_css_provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
+        entry_text.add_css_class("entry");
         let prompt_label = gtk::Label::builder()
             .valign(Align::Center)
             .halign(Align::Center)

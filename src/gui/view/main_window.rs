@@ -383,30 +383,12 @@ fn make_panel(view_grid: &gtk::Grid) -> gtk::Grid {
     panel.set_vexpand(true);
     panel.set_row_homogeneous(true);
     panel.set_column_homogeneous(false);
-    let buttons_css_provider = CssProvider::new();
-    buttons_css_provider.load_from_string(
-        "
-            label {
-                color: gray;
-                font-size: 12px;
-            }
-            text-button {
-                background-color: black;
-            }
-        ",
-    );
     let left_pane = Label::new(Some("←"));
     let right_pane = Label::new(Some("→"));
-    left_pane.set_width_chars(10);
-    right_pane.set_width_chars(10);
-    left_pane.style_context().add_provider(
-        &buttons_css_provider,
-        gtk::STYLE_PROVIDER_PRIORITY_APPLICATION,
-    );
-    right_pane.style_context().add_provider(
-        &buttons_css_provider,
-        gtk::STYLE_PROVIDER_PRIORITY_APPLICATION,
-    );
+    left_pane.set_width_chars(5);
+    left_pane.add_css_class("pane");
+    right_pane.set_width_chars(5);
+    right_pane.add_css_class("pane");
     panel.attach(&left_pane, 0, 0, 1, 1);
     panel.attach(view_grid, 1, 0, 1, 1);
     panel.attach(&right_pane, 2, 0, 1, 1);
