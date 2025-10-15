@@ -13,6 +13,7 @@ use std::path::Path;
 use thumbnailer::ThumbnailSize;
 use thumbnailer::create_thumbnails;
 use thumbnailer::error::ThumbResult;
+use palette_extract::{Color, get_palette_rgb};
 
 
 pub fn no_thumbnail_picture() -> gtk::Picture {
@@ -143,6 +144,21 @@ pub fn color_count(image: &DynamicImage) -> usize {
     colors.len()
 }
 
+type Palette = Vec<Color>;
+
+
+fn color_to_u32(color: &Color) -> u32 {
+    ((color.r as u32) << 16) | ((color.g as u32) << 8) | (color.b as u32)
+}
+
+pub fn get_palette(image: &DynamicImage) -> Palette {
+    let pixels: &[u8] = image.as_bytes();
+    let mut palette = get_palette_rgb(pixels);
+    palette.sort_by_key(color_to_u32);
+    palette
+}
+
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -181,4 +197,21 @@ mod tests {
         let image = image::open(NINE_COLORS).expect(&format!("can't load {}", SINGLE_DOT));
         assert_eq!(10, color_count(&image));
     }
+
+    #[test]
+    fn extracting_a_palette_from_an_image() {
+        let image = image::open(SINGLE_DOT).expect(&format!("can't load {}", SINGLE_DOT));
+        let palette = get_palette(&image);
+            let expected: Palette = vec![
+                Color { r: 4, g: 4, b: 4, },
+                Color { r: 8, g: 4, b: 4, },
+                Color { r: 8, g: 4, b: 4, },
+                Color { r: 8, g: 4, b: 4, },
+                Color { r: 64, g: 4, b: 132, },
+                Color { r: 64, g: 132, b: 128, },
+                Color { r: 68, g: 4, b: 4, },
+                Color { r: 252, g: 252, b: 252, }];
+        assert_eq!(expected, palette);
+    }
+        
 }

@@ -2,9 +2,10 @@
 ## Gallery Show in Rust
 
 ## Todo
-- [ ] range affects the selected flag
-- [ ] space selects/unselects a picture
-- [ ] get the number of colors in an image
+- [ ] collect color information about picture files
+- [X] range affects the selected flag
+- [X] space selects/unselects a picture
+- [X] get the number of colors in an image
 - [X] confirmation box for deletion
 - [X] deletion of picture data and file
 - [X] apply label on a range
