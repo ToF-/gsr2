@@ -14,7 +14,11 @@ pub fn make_application(application_id: &str) -> gtk::Application {
 pub fn startup_gui() {
     let css_provider = gtk::CssProvider::new();
     css_provider.load_from_string(
-        "window { background-color:black;} image { margin:1em ; } label { color:white; }",
+        "window { background-color:black;} 
+        image { margin:1em ; } 
+        label { color:white; 
+                font-family:sans-serif;
+                font-size:12px;}",
     );
     gtk::style_context_add_provider_for_display(&Display::default().unwrap(), &css_provider, 1000);
 }
