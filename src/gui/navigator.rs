@@ -249,11 +249,19 @@ impl Navigator {
         let _ = self.selected_pictures.remove(&index);
     }
 
+    pub fn unselect_all(&mut self) {
+        self.selected_pictures.clear();
+        self.cancel_range();
+    }
+
     pub fn selection(&mut self) -> Vec<usize> {
         let mut result: Vec<usize> = self.selected_pictures.clone()
             .into_iter().collect();
         result.sort();
         result
+    }
+    pub fn has_selected(&self) -> bool {
+        ! self.selected_pictures.is_empty()
     }
 }
 
@@ -561,6 +569,7 @@ mod tests {
         assert!(navigator.is_selected(5));
         assert!(navigator.is_selected(6));
         assert!(!navigator.is_selected(7));
+        assert!(navigator.has_selected());
     }
     #[test]
     fn cancelling_a_range_unselects_included_pictures() {
@@ -573,6 +582,16 @@ mod tests {
         assert!(!navigator.is_selected(4));
         assert!(!navigator.is_selected(5));
         assert!(!navigator.is_selected(6));
+    }
+    #[test]
+    fn unselect_all_cancel_ranges_and_selected_pictures() {
+        let mut navigator = Navigator::new(10, 2);
+        navigator.set_range(6);
+        navigator.set_range(2);
+        navigator.select(9);
+        navigator.unselect_all();
+        assert_eq!(None, navigator.range());
+        assert!(! navigator.has_selected());
     }
     #[test]
     fn can_yield_an_ordered_list_of_selected_pictures() {

@@ -248,7 +248,7 @@ impl Controller {
                     match self.editor.entry_kind() {
                         EntryKind::Label => {
                             if !self.editor.input().is_empty() {
-                                self.label_pictures_with(&self.editor.input())
+                                self.label_selected_pictures(&self.editor.input())
                             };
                             self.set_opacity_for_current_picture(1.00);
                         }
@@ -268,31 +268,32 @@ impl Controller {
         }
     }
 
-    pub fn label_pictures_with(&mut self, label: &str) {
-       if let Some(_) = self.navigator.range() {
-           self.label_pictures_in_range_with(label);
-           self.navigator.cancel_range();
-       } else {
-           self.label_current_picture_with(label)
-       }
-    }
-    pub fn label_pictures_in_range_with(&mut self, label: &str) {
-        if let Some((start, end)) = self.navigator.range() {
-            let gallery = &mut self.gallery;
-            for index in start..=end {
-                let mut picture = gallery.picture(index);
-                picture.set_label(label);
-                gallery.set_picture(index, picture.clone());
-                if self.args.on_database() {
-                    match self.database.rusqlite_update_picture(&picture) {
-                        Ok(_) => {}
-                        Err(err) => {
-                            println!("{}", err);
-                        }
-                    }
+    fn label_picture_at_index(&mut self, index: usize, label :&str) {
+        let mut picture = self.gallery.picture(index);
+        picture.set_label(label);
+        self.gallery.set_picture(index, picture.clone());
+        if self.args.on_database() {
+            match self.database.rusqlite_update_picture(&picture) {
+                Ok(_) => {}
+                Err(err) => {
+                    println!("{}", err);
                 }
             }
         }
+    }
+
+    pub fn label_selected_pictures(&mut self, label: &str) {
+        let gallery = &mut self.gallery;
+        if self.navigator.has_selected() {
+            for index in 0..self.navigator.limit() {
+                if self.navigator.is_selected(index) {
+                    self.label_picture_at_index(index, label);
+                }
+            };
+            self.navigator.unselect_all();
+        } else {
+            self.label_picture_at_index(self.navigator().position(), label)
+        };
         self.navigator.set_page_changed()
     }
 
