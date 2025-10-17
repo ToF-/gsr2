@@ -11,7 +11,7 @@ use crate::gui::view::entry_window::EntryWindow;
 use crate::gui::view::picture_cell_box::make_picture_cell_box;
 use crate::gui::view::picture_frame::PictureFrame;
 use crate::gui::view::picture_grid::PictureGrid;
-use crate::model::gen_image::no_thumbnail_picture;
+use crate::model::thumbnail::no_thumbnail_picture;
 use crate::model::picture::Picture;
 use crate::{Controller, RcController};
 use gtk::gio::File as GtkFile;

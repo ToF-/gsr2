@@ -19,7 +19,7 @@ pub const MAX_PICTURES_PER_ROW: i32 = 10;
 pub const EXPAND_ON_SYMBOL: &str = "  ⃞";
 pub const FULL_SIZE_ON_SYMBOL: &str = " 🔍";
 #[allow(dead_code)]
-pub const MAX_PALETTE_COLORS: u8 = 9;
+pub const MAX_PALETTE_COLORS: u8 = 10;
 #[allow(dead_code)]
 pub const ONE_PICTURE_PER_ROW: usize = 1;
 #[allow(dead_code)]

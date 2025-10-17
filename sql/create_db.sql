@@ -5,8 +5,6 @@ CREATE TABLE IF NOT EXISTS Picture (
     ModifiedTime INTEGER,
     Rank INTEGER,
     Palette BLOB,
-    Selected BOOLEAN,
-    Deleted BOOLEAN,
     Cover BOOLEAN);
 
 CREATE TABLE IF NOT EXISTS Tag (

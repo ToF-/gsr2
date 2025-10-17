@@ -2,7 +2,7 @@ use std::ffi::OsStr;
 use crate::env::default_values::GARBAGE;
 use crate::env::default_values::THUMB_SUFFIX;
 use crate::env::default_values::VALID_EXTENSIONS;
-use crate::model::gen_image::{thumbnail_size_display, thumbnail_size_for};
+use crate::model::thumbnail::{thumbnail_size_display, thumbnail_size_for};
 use std::io::{Error, ErrorKind, Result};
 use std::path::PathBuf;
 

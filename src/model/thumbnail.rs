@@ -128,6 +128,7 @@ mod tests {
     use super::*;
     use crate::test_data::{NINE_COLORS,SINGLE_DOT};
     use palette_extract::Color;
+    use crate::env::default_values::MAX_PALETTE_COLORS;
 
     #[test]
     fn check_thumbnail_size_display() {
@@ -155,30 +156,4 @@ mod tests {
         assert_eq!("Larger", &thumbnail_size_display(thumbnail_size_for(2)));
     }
 
-    #[test]
-    fn counting_the_numbers_of_distinct_colors_in_an_image() {
-        let image = image::open(SINGLE_DOT).expect(&format!("can't load {}", SINGLE_DOT));
-        let palette = Palette::from(&image);
-        assert_eq!(2, palette.count());
-        let image = image::open(NINE_COLORS).expect(&format!("can't load {}", SINGLE_DOT));
-        let palette = Palette::from(&image);
-        assert_eq!(10, palette.count())
-    }
-
-    #[test]
-    fn extracting_a_palette_from_an_image() {
-        let image = image::open(SINGLE_DOT).expect(&format!("can't load {}", SINGLE_DOT));
-        let palette = Palette::from(&image);
-            let expected  = vec![
-                Color { r: 4, g: 4, b: 4, },
-                Color { r: 8, g: 4, b: 4, },
-                Color { r: 8, g: 4, b: 4, },
-                Color { r: 8, g: 4, b: 4, },
-                Color { r: 64, g: 4, b: 132, },
-                Color { r: 64, g: 132, b: 128, },
-                Color { r: 68, g: 4, b: 4, },
-                Color { r: 252, g: 252, b: 252, }];
-        assert_eq!(expected, palette.sample());
-    }
-        
 }

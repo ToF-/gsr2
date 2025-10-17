@@ -6,7 +6,7 @@ use crate::file::paths::check_path_exists;
 use crate::file::paths::{check_path, check_path_is_a_jpg_or_png_file, check_picture_file};
 use crate::model::palette::{Palette};
 use crate::model::gallery::Gallery;
-use crate::model::gen_image::create_thumbnail_file;
+use crate::model::thumbnail::create_thumbnail_file;
 use crate::model::image_data::PictureFileData;
 use std::fs;
 use std::io::Error;
