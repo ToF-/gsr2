@@ -56,6 +56,9 @@ fn main() {
                     create_missing_thumbnails(&controller.gallery(), pictures_per_row as usize);
                     exit(0)
                 };
+                if cli.collect_data {
+                    println!("collecting data for picture files in the database…");
+                }
             };
             let application: gtk::Application = make_application(APPLICATION_ID);
             application.connect_activate(clone!(
