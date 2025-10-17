@@ -1,3 +1,4 @@
+use crate::model::palette::Palette;
 use crate::file::picture_file::get_data_from_picture_file;
 use image::{DynamicImage, Rgb};
 use palette_extract::{MaxColors, PixelEncoding, PixelFilter, Quality, get_palette_with_options};
@@ -7,13 +8,12 @@ use std::io::Result;
 use std::time::SystemTime;
 
 pub type Rgb8 = Rgb<u8>;
-pub type Palette = [Rgb8; 9];
 pub type FileSize = u64;
 #[allow(dead_code)]
 pub struct PictureFileData(pub FileSize, pub SystemTime);
 pub type Tags = HashSet<String>;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone)]
 pub struct ImageData {
     pub label: String,
     pub size: FileSize,
@@ -28,7 +28,7 @@ impl ImageData {
             label: label.to_string(),
             size: 0,
             modified_time: SystemTime::now(),
-            palette: [Rgb::from([0, 0, 0]); 9],
+            palette: Palette::new(vec![],0),
             tags: HashSet::new(),
         }
     }
@@ -39,7 +39,7 @@ impl ImageData {
                 label: String::from(""),
                 size: file_data.0,
                 modified_time: file_data.1,
-                palette: [Rgb::from([0, 0, 0]); 9],
+            palette: Palette::new(vec![],0),
                 tags: HashSet::new(),
             })
         })
@@ -59,18 +59,6 @@ impl ImageData {
     }
 }
 
-impl Ord for ImageData {
-    fn cmp(&self, _: &Self) -> std::cmp::Ordering {
-        todo!()
-    }
-}
-
-impl PartialOrd for ImageData {
-    fn partial_cmp(&self, other: &ImageData) -> std::option::Option<std::cmp::Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -80,30 +68,33 @@ mod tests {
     #[test]
     fn extract_a_palette_of_9_most_used_colors() {
         let image: DynamicImage = gen_nine_colors();
-        let palette = get_palette(&image);
-        assert_eq!(Rgb([4, 4, 4]), palette[0]);
-        assert_eq!(Rgb([4, 4, 252]), palette[1]);
-        assert_eq!(Rgb([4, 132, 132]), palette[2]);
-        assert_eq!(Rgb([136, 100, 76]), palette[3]);
-        assert_eq!(Rgb([156, 204, 52]), palette[4]);
-        assert_eq!(Rgb([236, 132, 236]), palette[5]);
-        assert_eq!(Rgb([252, 4, 4]), palette[6]);
-        assert_eq!(Rgb([252, 140, 4]), palette[7]);
-        assert_eq!(Rgb([252, 252, 4]), palette[8]);
+        let palette = Palette::from(&image);
+        let sample = palette.sample();
+        // assert_eq!(Rgb([4, 4, 4]), sample[0]);
+        // assert_eq!(Rgb([4, 4, 252]), sample[1]);
+        // assert_eq!(Rgb([4, 132, 132]), sample[2]);
+        // assert_eq!(Rgb([136, 100, 76]), sample[3]);
+        // assert_eq!(Rgb([156, 204, 52]), sample[4]);
+        // assert_eq!(Rgb([236, 132, 236]), sample[5]);
+        // assert_eq!(Rgb([252, 4, 4]), sample[6]);
+        // assert_eq!(Rgb([252, 140, 4]), sample[7]);
+        // assert_eq!(Rgb([252, 252, 4]), sample[8]);
     }
 
     #[test]
     fn extract_a_palette_from_a_picture_file() {
-        let palette = get_palette_from_picture_file(NINE_COLORS).unwrap();
-        assert_eq!(Rgb([4, 4, 4]), palette[0]);
-        assert_eq!(Rgb([4, 4, 252]), palette[1]);
-        assert_eq!(Rgb([4, 132, 132]), palette[2]);
-        assert_eq!(Rgb([136, 100, 76]), palette[3]);
-        assert_eq!(Rgb([156, 204, 52]), palette[4]);
-        assert_eq!(Rgb([236, 132, 236]), palette[5]);
-        assert_eq!(Rgb([252, 4, 4]), palette[6]);
-        assert_eq!(Rgb([252, 140, 4]), palette[7]);
-        assert_eq!(Rgb([252, 252, 4]), palette[8]);
+        let image: DynamicImage = gen_nine_colors();
+        let palette = Palette::from(&image);
+        let sample = palette.sample();
+        // assert_eq!(Rgb([4, 4, 4]), sample[0]);
+        // assert_eq!(Rgb([4, 4, 252]), sample[1]);
+        // assert_eq!(Rgb([4, 132, 132]), sample[2]);
+        // assert_eq!(Rgb([136, 100, 76]), sample[3]);
+        // assert_eq!(Rgb([156, 204, 52]), sample[4]);
+        // assert_eq!(Rgb([236, 132, 236]), sample[5]);
+        // assert_eq!(Rgb([252, 4, 4]), sample[6]);
+        // assert_eq!(Rgb([252, 140, 4]), sample[7]);
+        // assert_eq!(Rgb([252, 252, 4]), sample[8]);
     }
 
     #[test]

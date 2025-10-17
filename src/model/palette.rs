@@ -6,6 +6,7 @@ use palette_extract::Color;
 use image::Rgba;
 use std::collections::HashSet;
 
+#[derive(Debug, Clone)]
 pub struct Palette {
     sample: Vec<Color>,
     count: usize,

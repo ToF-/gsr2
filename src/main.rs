@@ -1,3 +1,4 @@
+use crate::file::picture_file::collect_data;
 use crate::cli::args::Args;
 use crate::cli::command::Command;
 use crate::env::default_values::APPLICATION_ID;
@@ -58,6 +59,13 @@ fn main() {
                 };
                 if cli.collect_data {
                     println!("collecting data for picture files in the database…");
+                    match collect_data(&controller.gallery()) {
+                        Ok(_) => exit(0),
+                        Err(err) => {
+                            eprintln!("{}", err);
+                            exit(1);
+                        },
+                    }
                 }
             };
             let application: gtk::Application = make_application(APPLICATION_ID);

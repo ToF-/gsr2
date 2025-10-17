@@ -43,8 +43,8 @@ pub struct Args {
     #[arg(long, value_name = "N", value_parser(clap::value_parser!(u8).range(2..=10)))]
     pub create_missing_thumbnails: Option<u8>,
 
-    /// collect picture data to store in the database
-    #[arg(long, default_value_t = false)]
+    /// collect picture data from the select files to store in the database
+    #[arg(long)]
     pub collect_data: bool,
 
     /// window height

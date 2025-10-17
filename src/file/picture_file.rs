@@ -60,6 +60,11 @@ pub fn create_missing_thumbnails(gallery: &Gallery, pictures_per_row: usize) {
     println!("{} thumbnails created", count)
 }
 
+pub fn collect_data(gallery: &Gallery) -> Result<()> {
+    for picture in gallery.pictures() {
+    };
+    Ok(())
+}
 pub fn delete_picture_file(file_path: &str) -> Result<()> {
     let path = Path::new(file_path);
     if path.exists() {

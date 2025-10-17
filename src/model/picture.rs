@@ -3,7 +3,7 @@ use crate::model::image_data::ImageData;
 use std::io::Result;
 use time_format;
 
-#[derive(Debug, Clone, Ord, PartialOrd, PartialEq, Eq)]
+#[derive(Debug, Clone)]
 pub struct Picture {
     file_path: String,
     thumbnail_small_file_path: String,
