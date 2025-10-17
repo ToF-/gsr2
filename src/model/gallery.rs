@@ -110,13 +110,13 @@ mod tests {
 
     use super::*;
     use crate::env::default_values::TEST_DATABASE_FILE;
-    use crate::test_data::*;
     use crate::file::database::Database;
     use crate::file::database::tests::my_db;
     use crate::file::database::tests::{
         delete_nine_colors_from_db, insert_nine_colors_sample_into_db,
     };
     use crate::test_data;
+    use crate::test_data::*;
 
     #[test]
     fn loading_from_a_directory_collect_all_the_picture_files_from_that_directory() {

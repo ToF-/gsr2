@@ -1,16 +1,16 @@
-use crate::file::paths::thumbnail_names_from;
-use std::path::Path;
-use std::fs::remove_file;
 use crate::env::default_values::THUMB_SUFFIX;
 use crate::file::paths::check_path_exists;
+use crate::file::paths::thumbnail_names_from;
 use crate::file::paths::{check_path, check_path_is_a_jpg_or_png_file, check_picture_file};
-use crate::model::palette::{Palette};
 use crate::model::gallery::Gallery;
-use crate::model::thumbnail::create_thumbnail_file;
 use crate::model::image_data::PictureFileData;
+use crate::model::palette::Palette;
+use crate::model::thumbnail::create_thumbnail_file;
 use std::fs;
+use std::fs::remove_file;
 use std::io::Error;
 use std::io::Result;
+use std::path::Path;
 use std::path::PathBuf;
 use walkdir::WalkDir;
 
@@ -61,8 +61,7 @@ pub fn create_missing_thumbnails(gallery: &Gallery, pictures_per_row: usize) {
 }
 
 pub fn collect_data(gallery: &Gallery) -> Result<()> {
-    for picture in gallery.pictures() {
-    };
+    for picture in gallery.pictures() {}
     Ok(())
 }
 pub fn delete_picture_file(file_path: &str) -> Result<()> {
@@ -71,21 +70,23 @@ pub fn delete_picture_file(file_path: &str) -> Result<()> {
         let _ = remove_file(path);
         Ok(())
     } else {
-        Err(std::io::Error::other(format!("cannot delete file {}", file_path)))
+        Err(std::io::Error::other(format!(
+            "cannot delete file {}",
+            file_path
+        )))
     }
 }
 
 pub fn delete_picture_files(file_path: &str) -> Result<()> {
-    delete_picture_file(file_path)
-        .and_then(|_| {
-            let thumbnails = thumbnail_names_from(file_path);
-            for thumbnail_file_path in thumbnails {
-                if let Err(err) = delete_picture_file(&thumbnail_file_path) {
-                    return Err(err)
-                }
+    delete_picture_file(file_path).and_then(|_| {
+        let thumbnails = thumbnail_names_from(file_path);
+        for thumbnail_file_path in thumbnails {
+            if let Err(err) = delete_picture_file(&thumbnail_file_path) {
+                return Err(err);
             }
-            Ok(())
-        })
+        }
+        Ok(())
+    })
 }
 
 #[allow(dead_code)]

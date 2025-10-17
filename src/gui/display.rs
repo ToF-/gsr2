@@ -1,5 +1,5 @@
-use crate::gui::controller::Controller;
 use crate::env::default_values::{EXPAND_ON_SYMBOL, FULL_SIZE_ON_SYMBOL};
+use crate::gui::controller::Controller;
 
 fn expand_display(on: bool) -> String {
     match on {

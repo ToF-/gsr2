@@ -27,7 +27,7 @@ pub fn startup_gui() {
         label.entry {
             padding: 10px;
             font-size: 32px;
-        }"
+        }",
     );
     gtk::style_context_add_provider_for_display(&Display::default().unwrap(), &css_provider, 1000);
 }

@@ -1,5 +1,5 @@
-use crate::model::palette::Palette;
 use crate::file::picture_file::get_data_from_picture_file;
+use crate::model::palette::Palette;
 use image::{DynamicImage, Rgb};
 use palette_extract::{MaxColors, PixelEncoding, PixelFilter, Quality, get_palette_with_options};
 use std::cmp::Ordering;
@@ -28,7 +28,7 @@ impl ImageData {
             label: label.to_string(),
             size: 0,
             modified_time: SystemTime::now(),
-            palette: Palette::new(vec![],0),
+            palette: Palette::new(vec![], 0),
             tags: HashSet::new(),
         }
     }
@@ -39,7 +39,7 @@ impl ImageData {
                 label: String::from(""),
                 size: file_data.0,
                 modified_time: file_data.1,
-            palette: Palette::new(vec![],0),
+                palette: Palette::new(vec![], 0),
                 tags: HashSet::new(),
             })
         })
@@ -62,8 +62,8 @@ impl ImageData {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::test_data::*;
     use crate::file::picture_file::get_palette_from_picture_file;
+    use crate::test_data::*;
 
     #[test]
     fn extract_a_palette_of_9_most_used_colors() {

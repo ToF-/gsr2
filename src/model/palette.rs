@@ -1,8 +1,8 @@
 use crate::env::default_values::MAX_PALETTE_COLORS;
-use image::{DynamicImage, GenericImageView};
-use palette_extract::{get_palette_with_options, Quality, MaxColors, PixelEncoding, PixelFilter};
-use palette_extract::Color;
 use image::Rgba;
+use image::{DynamicImage, GenericImageView};
+use palette_extract::Color;
+use palette_extract::{MaxColors, PixelEncoding, PixelFilter, Quality, get_palette_with_options};
 use std::collections::HashSet;
 
 #[derive(Debug, Clone)]
@@ -12,18 +12,14 @@ pub struct Palette {
 }
 
 impl Palette {
-
     pub fn new(sample: Vec<Color>, count: usize) -> Self {
-        Palette{
-            sample,
-            count,
-        }
+        Palette { sample, count }
     }
 
     pub fn from(image: &DynamicImage) -> Self {
         let sample = get_palette(image);
         let count = color_count(image);
-        Palette { sample, count, }
+        Palette { sample, count }
     }
 
     pub fn sample(&self) -> Vec<Color> {
@@ -33,36 +29,32 @@ impl Palette {
     pub fn count(&self) -> usize {
         self.count
     }
-
 }
 
 pub fn get_palette(image: &DynamicImage) -> Vec<Color> {
     let pixels: &[u8] = image.as_bytes();
-    let mut sample = get_palette_with_options(&pixels,
+    let mut sample = get_palette_with_options(
+        &pixels,
         PixelEncoding::Rgb,
         Quality::new(5),
         MaxColors::new(MAX_PALETTE_COLORS),
-        PixelFilter::None);
+        PixelFilter::None,
+    );
     sample.sort_by_key(color_to_u32);
     sample
 }
 
 fn rgba_key(rgba: Rgba<u8>) -> u32 {
-        (rgba[0] as u32) << 24
-        | (rgba[1] as u32) << 16
-        | (rgba[2] as u32) << 8
-        | (rgba[3] as u32)
+    (rgba[0] as u32) << 24 | (rgba[1] as u32) << 16 | (rgba[2] as u32) << 8 | (rgba[3] as u32)
 }
-
-
 
 pub fn color_count(image: &DynamicImage) -> usize {
     let mut colors: HashSet<u32> = HashSet::new();
-    let pixels: Vec<(u32,u32,Rgba<u8>)> = image.pixels().collect();
+    let pixels: Vec<(u32, u32, Rgba<u8>)> = image.pixels().collect();
     for pixel in pixels {
         let rgba = pixel.2;
         colors.insert(rgba_key(rgba));
-    };
+    }
     colors.len()
 }
 
@@ -73,9 +65,9 @@ fn color_to_u32(color: &Color) -> u32 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::test_data::{NINE_COLORS,SINGLE_DOT};
-    use palette_extract::Color;
     use crate::env::default_values::MAX_PALETTE_COLORS;
+    use crate::test_data::{NINE_COLORS, SINGLE_DOT};
+    use palette_extract::Color;
 
     #[test]
     fn counting_the_numbers_of_distinct_colors_in_an_image() {

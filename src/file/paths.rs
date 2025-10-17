@@ -1,8 +1,8 @@
-use std::ffi::OsStr;
 use crate::env::default_values::GARBAGE;
 use crate::env::default_values::THUMB_SUFFIX;
 use crate::env::default_values::VALID_EXTENSIONS;
 use crate::model::thumbnail::{thumbnail_size_display, thumbnail_size_for};
+use std::ffi::OsStr;
 use std::io::{Error, ErrorKind, Result};
 use std::path::PathBuf;
 
@@ -90,7 +90,12 @@ pub fn file_name_from(file_path: &str) -> String {
         .to_string()
 }
 
-fn thumbnail_name_for_path(path: PathBuf, file_stem: &OsStr, extension: &OsStr, pictures_per_row: usize) -> String {
+fn thumbnail_name_for_path(
+    path: PathBuf,
+    file_stem: &OsStr,
+    extension: &OsStr,
+    pictures_per_row: usize,
+) -> String {
     let thumb_file_name = PathBuf::from(
         file_stem.to_str().unwrap().to_owned()
             + THUMB_SUFFIX
@@ -162,12 +167,14 @@ mod tests {
     }
     #[test]
     fn thumbnail_names_for_all_grid_sizes() {
-        assert_eq!(vec![
-            String::from("testdata/my_fileTHUMBSmall.jpg"),
-            String::from("testdata/my_fileTHUMBMedium.jpg"),
-            String::from("testdata/my_fileTHUMBLarge.jpg"),
-            String::from("testdata/my_fileTHUMBLarger.jpg")],
-            thumbnail_names_from("testdata/my_file.jpg"))
-
+        assert_eq!(
+            vec![
+                String::from("testdata/my_fileTHUMBSmall.jpg"),
+                String::from("testdata/my_fileTHUMBMedium.jpg"),
+                String::from("testdata/my_fileTHUMBLarge.jpg"),
+                String::from("testdata/my_fileTHUMBLarger.jpg")
+            ],
+            thumbnail_names_from("testdata/my_file.jpg")
+        )
     }
 }

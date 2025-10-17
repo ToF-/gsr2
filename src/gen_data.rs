@@ -1,5 +1,5 @@
 extern crate image;
-use crate::test_data::*; 
+use crate::test_data::*;
 
 mod test_data;
 

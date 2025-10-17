@@ -1,6 +1,6 @@
-use crate::env::default_values::{FULL_OPACITY, HALF_OPACITY};
 use crate::Args;
 use crate::env::default_values::FOCUS_SYMBOL_1;
+use crate::env::default_values::{FULL_OPACITY, HALF_OPACITY};
 use crate::file::paths::check_path_exists;
 use crate::gui::control::Control;
 use crate::gui::direction::Direction;
@@ -11,8 +11,8 @@ use crate::gui::view::entry_window::EntryWindow;
 use crate::gui::view::picture_cell_box::make_picture_cell_box;
 use crate::gui::view::picture_frame::PictureFrame;
 use crate::gui::view::picture_grid::PictureGrid;
-use crate::model::thumbnail::no_thumbnail_picture;
 use crate::model::picture::Picture;
+use crate::model::thumbnail::no_thumbnail_picture;
 use crate::{Controller, RcController};
 use gtk::gio::File as GtkFile;
 use gtk::glib::clone;
@@ -25,9 +25,7 @@ use gtk::prelude::{
     ApplicationExtManual, Cast, GestureSingleExt, GridExt, GtkApplicationExt, GtkWindowExt,
     WidgetExt,
 };
-use gtk::{
-    ApplicationWindow, Grid, Label, Picture as GtkPicture, ScrolledWindow, Window,
-};
+use gtk::{ApplicationWindow, Grid, Label, Picture as GtkPicture, ScrolledWindow, Window};
 use std::path::Path;
 use std::path::PathBuf;
 use std::time::Duration;
@@ -230,16 +228,17 @@ impl MainWindow {
                         no_thumbnail_picture()
                     };
                     self.picture_grid.set_picture_at(col, row, &gtk_picture);
-                    let opacity: f64 =
-                        if let Some(position) = navigator.position_from_coords(row as usize, col as usize) {
-                            if navigator.is_selected(position) {
-                                HALF_OPACITY
-                            } else {
-                                FULL_OPACITY
-                            }
+                    let opacity: f64 = if let Some(position) =
+                        navigator.position_from_coords(row as usize, col as usize)
+                    {
+                        if navigator.is_selected(position) {
+                            HALF_OPACITY
                         } else {
                             FULL_OPACITY
-                        };
+                        }
+                    } else {
+                        FULL_OPACITY
+                    };
                     self.picture_grid.set_picture_opacity_at(col, row, opacity);
                     self.picture_grid
                         .set_label_text_at(&picture, col, row, with_focus);

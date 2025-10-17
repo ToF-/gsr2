@@ -131,8 +131,8 @@ mod tests {
     use crate::Command::Dir;
     use crate::Command::File;
     use crate::cli::command::Command;
-    use std::io::ErrorKind;
     use crate::test_data::*;
+    use std::io::ErrorKind;
 
     #[test]
     fn command_line_interface_with_command_file_with_adequate_argument() {

@@ -1,7 +1,7 @@
-use crate::file::picture_file::collect_data;
 use crate::cli::args::Args;
 use crate::cli::command::Command;
 use crate::env::default_values::APPLICATION_ID;
+use crate::file::picture_file::collect_data;
 use crate::file::picture_file::create_missing_thumbnails;
 use crate::gui::controller::Controller;
 use crate::gui::controller::RcController;
@@ -31,6 +31,7 @@ fn main() {
                 println!("viewing file from the database");
             }
             let controller_result = Controller::new(cli.clone());
+            println!("{:?}", controller_result);
             let controller_rc: RcController = match controller_result {
                 Ok(controller) => Rc::new(RefCell::new(controller)),
                 Err(err) => {
@@ -64,7 +65,7 @@ fn main() {
                         Err(err) => {
                             eprintln!("{}", err);
                             exit(1);
-                        },
+                        }
                     }
                 }
             };

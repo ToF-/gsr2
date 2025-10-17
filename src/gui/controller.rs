@@ -1,9 +1,8 @@
-use crate::file::delete_picture;
 use crate::cli::args::Args;
-use crate::gui::view::main_window::MainWindow;
 use crate::cli::command::Command;
 use crate::env::environment::database_connection;
 use crate::file::database::*;
+use crate::file::delete_picture;
 use crate::gui::control::{Control, Controls, default_controls};
 use crate::gui::direction::Direction;
 use crate::gui::editor::Editor;
@@ -13,6 +12,7 @@ use crate::gui::mode::Mode;
 use crate::gui::navigator::Navigator;
 use crate::gui::state::State;
 use crate::gui::view::main_window::LEFT_PANE;
+use crate::gui::view::main_window::MainWindow;
 use crate::model::gallery::Gallery;
 use crate::model::order::Order;
 use crate::model::picture::Picture;
@@ -268,7 +268,7 @@ impl Controller {
         }
     }
 
-    fn label_picture_at_index(&mut self, index: usize, label :&str) {
+    fn label_picture_at_index(&mut self, index: usize, label: &str) {
         let mut picture = self.gallery.picture(index);
         picture.set_label(label);
         self.gallery.set_picture(index, picture.clone());
@@ -288,7 +288,7 @@ impl Controller {
                 if self.navigator.is_selected(index) {
                     self.label_picture_at_index(index, label);
                 }
-            };
+            }
             self.navigator.unselect_all();
         } else {
             self.label_picture_at_index(self.navigator().position(), label)
@@ -530,10 +530,10 @@ impl Controller {
         for index in self.navigator.selection() {
             let picture = &self.gallery.picture(index);
             match delete_picture(&self.database, &picture.file_path()) {
-                Ok(_) => {},
+                Ok(_) => {}
                 Err(err) => {
                     println!("{}", err);
-                },
+                }
             }
         }
     }
@@ -541,10 +541,10 @@ impl Controller {
     fn delete_current_picture(&self) {
         let picture = self.current_picture();
         match delete_picture(&self.database, &picture.file_path()) {
-            Ok(_) => {},
+            Ok(_) => {}
             Err(err) => {
                 println!("{}", err);
-            },
+            }
         }
     }
 
@@ -560,7 +560,8 @@ impl Controller {
     }
 
     pub fn delete_picture(&mut self) {
-        self.editor.begin(&self.main_window(), EntryKind::DeleteConfirmation);
+        self.editor
+            .begin(&self.main_window(), EntryKind::DeleteConfirmation);
         self.state.set_mode(Mode::Editing);
     }
 

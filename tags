@@ -191,6 +191,10 @@ extracting_a_palette_from_an_image	/Users/christophethibaut/Coding/gsr2/src/mode
 file_name	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    pub fn file_name(&self) -> String {$/;"	f
 file_name_from	/Users/christophethibaut/Coding/gsr2/src/file/paths.rs	/^pub fn file_name_from(file_path: &str) -> String {$/;"	f
 file_path	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    pub fn file_path(&self) -> String {$/;"	f
+file_path_as_retrieved	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    pub fn file_path_as_retrieved(&self, file_path: &str) -> String {$/;"	f
+file_path_as_stored	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    pub fn file_path_as_stored(&self, file_path: &str) -> String {$/;"	f
+file_path_starting_with_home_dir_are_tilded_as_stored	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    fn file_path_starting_with_home_dir_are_tilded_as_stored() {$/;"	f
+file_path_starting_with_tilde_are_developped_as_retrieved	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    fn file_path_starting_with_tilde_are_developped_as_retrieved() {$/;"	f
 file_size_display	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    pub fn file_size_display(&self) -> String {$/;"	f
 find_file_path	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^    pub fn find_file_path(&self, file_path: &str) -> Option<usize> {$/;"	f
 finding_a_picture_by_file_path	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^    fn finding_a_picture_by_file_path() {$/;"	f
@@ -238,7 +242,7 @@ label	/Users/christophethibaut/Coding/gsr2/src/model/image_data.rs	/^    pub fn 
 label	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    pub fn label(&self) -> String {$/;"	f
 label_current_picture_with	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn label_current_picture_with(&mut self, label: &str) {$/;"	f
 label_length_is_limited_to_max_label_length	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    fn label_length_is_limited_to_max_label_length() {$/;"	f
-label_picture_at_index	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    fn label_picture_at_index(&mut self, index: usize, label :&str) {$/;"	f
+label_picture_at_index	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    fn label_picture_at_index(&mut self, index: usize, label: &str) {$/;"	f
 label_selected_pictures	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn label_selected_pictures(&mut self, label: &str) {$/;"	f
 large_picture	/Users/christophethibaut/Coding/gsr2/src/test_data.rs	/^pub fn large_picture() -> DynamicImage {$/;"	f
 left_pane	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^pub fn left_pane(panel_grid: &gtk::Grid) -> gtk::Label {$/;"	f
@@ -425,7 +429,7 @@ starting_a_new_range_cancels_current_range	/Users/christophethibaut/Coding/gsr2/
 startup_gui	/Users/christophethibaut/Coding/gsr2/src/gui/view/application.rs	/^pub fn startup_gui() {$/;"	f
 state	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn state(&self) -> State {$/;"	f
 thumbnail_file_path_for_size	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    pub fn thumbnail_file_path_for_size(&self, pictures_per_row: usize) -> String {$/;"	f
-thumbnail_name_for_path	/Users/christophethibaut/Coding/gsr2/src/file/paths.rs	/^fn thumbnail_name_for_path(path: PathBuf, file_stem: &OsStr, extension: &OsStr, pictures_per_row: usize) -> String {$/;"	f
+thumbnail_name_for_path	/Users/christophethibaut/Coding/gsr2/src/file/paths.rs	/^fn thumbnail_name_for_path($/;"	f
 thumbnail_name_from	/Users/christophethibaut/Coding/gsr2/src/file/paths.rs	/^pub fn thumbnail_name_from(file_name: &str, pictures_per_row: usize) -> String {$/;"	f
 thumbnail_name_from_normal_file_has_thumb_suffix	/Users/christophethibaut/Coding/gsr2/src/file/paths.rs	/^    fn thumbnail_name_from_normal_file_has_thumb_suffix() {$/;"	f
 thumbnail_names_for_all_grid_sizes	/Users/christophethibaut/Coding/gsr2/src/file/paths.rs	/^    fn thumbnail_names_for_all_grid_sizes() {$/;"	f

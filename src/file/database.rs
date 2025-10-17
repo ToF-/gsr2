@@ -2,12 +2,14 @@ use crate::model::image_data::ImageData;
 use crate::model::picture::Picture;
 use rusqlite::{Connection, Result as SqlResult, Row, params};
 use std::collections::HashMap;
+use std::env;
 use std::io::Result as IOResult;
 
 pub type ImageDataMap = HashMap<String, ImageData>;
 
 #[derive(Debug)]
 pub struct Database {
+    home_dir: Option<String>,
     connection: Connection,
 }
 
@@ -22,7 +24,10 @@ impl Database {
     fn rusqlite_from_connection(connection_string: &str) -> SqlResult<Self> {
         println!("connecting to {connection_string}…");
         match Connection::open(connection_string) {
-            Ok(connection) => Ok(Database { connection }),
+            Ok(connection) => Ok(Database {
+                home_dir: env::home_dir().map(|path| path.display().to_string()),
+                connection,
+            }),
             Err(err) => Err(err),
         }
     }
@@ -120,6 +125,32 @@ impl Database {
             row.get(1)
                 .and_then(|label: String| Ok(Picture::new_with_label(&file_path, &label)))
         })
+    }
+
+    pub fn file_path_as_stored(&self, file_path: &str) -> String {
+        if let Some(home_dir) = &self.home_dir {
+            if file_path.starts_with(&home_dir.to_string()) {
+                let result = file_path.to_string();
+                result.replace(&home_dir.to_string(), "~")
+            } else {
+                file_path.to_string()
+            }
+        } else {
+            file_path.to_string()
+        }
+    }
+
+    pub fn file_path_as_retrieved(&self, file_path: &str) -> String {
+        if let Some(home_dir) = &self.home_dir {
+            if file_path.starts_with("~") {
+                let result = file_path.to_string();
+                result.replace("~", &home_dir.to_string())
+            } else {
+                file_path.to_string()
+            }
+        } else {
+            file_path.to_string()
+        }
     }
 }
 
@@ -232,5 +263,25 @@ pub mod tests {
             map.get(WHITE_SQUARE).unwrap().clone().label()
         );
         assert_eq!("".to_string(), map.get(SINGLE_DOT).unwrap().clone().label());
+    }
+
+    #[test]
+    fn file_path_starting_with_home_dir_are_tilded_as_stored() {
+        let database = my_db();
+        if let Some(path) = env::home_dir() {
+            let this_file_path = path.display().to_string() + "/test_file.jpg";
+            let expected = "~/test_file.jpg";
+            assert_eq!(expected, database.file_path_as_stored(&this_file_path))
+        }
+    }
+
+    #[test]
+    fn file_path_starting_with_tilde_are_developped_as_retrieved() {
+        let database = my_db();
+        if let Some(path) = env::home_dir() {
+            let this_file_path = "~/test_file.jpg";
+            let expected = path.display().to_string() + "/test_file.jpg";
+            assert_eq!(expected, database.file_path_as_retrieved(&this_file_path));
+        }
     }
 }

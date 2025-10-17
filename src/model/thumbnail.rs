@@ -11,7 +11,6 @@ use thumbnailer::ThumbnailSize;
 use thumbnailer::create_thumbnails;
 use thumbnailer::error::ThumbResult;
 
-
 pub fn no_thumbnail_picture() -> gtk::Picture {
     let width = 256;
     let height = 256;
@@ -126,9 +125,9 @@ pub fn create_thumbnail_file(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::test_data::{NINE_COLORS,SINGLE_DOT};
-    use palette_extract::Color;
     use crate::env::default_values::MAX_PALETTE_COLORS;
+    use crate::test_data::{NINE_COLORS, SINGLE_DOT};
+    use palette_extract::Color;
 
     #[test]
     fn check_thumbnail_size_display() {
@@ -155,5 +154,4 @@ mod tests {
         assert_eq!("Large", &thumbnail_size_display(thumbnail_size_for(3)));
         assert_eq!("Larger", &thumbnail_size_display(thumbnail_size_for(2)));
     }
-
 }
