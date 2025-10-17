@@ -23,10 +23,10 @@ use gtk::prelude::BoxExt;
 #[allow(deprecated)]
 use gtk::prelude::{
     ApplicationExtManual, Cast, GestureSingleExt, GridExt, GtkApplicationExt, GtkWindowExt,
-    StyleContextExt, WidgetExt,
+    WidgetExt,
 };
 use gtk::{
-    ApplicationWindow, CssProvider, Grid, Label, Picture as GtkPicture, ScrolledWindow, Window,
+    ApplicationWindow, Grid, Label, Picture as GtkPicture, ScrolledWindow, Window,
 };
 use std::path::Path;
 use std::path::PathBuf;

@@ -1,4 +1,3 @@
-use crate::env::default_values::MAX_PALETTE_COLORS;
 use crate::file::picture_file::get_data_from_picture_file;
 use image::{DynamicImage, Rgb};
 use palette_extract::{MaxColors, PixelEncoding, PixelFilter, Quality, get_palette_with_options};
@@ -70,33 +69,6 @@ impl PartialOrd for ImageData {
     fn partial_cmp(&self, other: &ImageData) -> std::option::Option<std::cmp::Ordering> {
         Some(self.cmp(other))
     }
-}
-
-fn compare_rgb(color: &Rgb8, other: &Rgb8) -> Ordering {
-    match color[0].cmp(&other[0]) {
-        Ordering::Equal => match color[1].cmp(&other[1]) {
-            Ordering::Equal => color[2].cmp(&other[2]),
-            res => res,
-        },
-        res => res,
-    }
-}
-
-pub fn get_palette(image: &DynamicImage) -> Palette {
-    let mut palette: Palette = [Rgb([0, 0, 0]); 9];
-    let pixels: &[u8] = image.as_bytes();
-    let colors = get_palette_with_options(
-        pixels,
-        PixelEncoding::Rgb,
-        Quality::new(5),
-        MaxColors::new(MAX_PALETTE_COLORS + 1),
-        PixelFilter::None,
-    );
-    colors.iter().enumerate().for_each(|(i, c)| {
-        palette[i] = Rgb([c.r, c.g, c.b]);
-    });
-    palette.sort_by(compare_rgb);
-    palette
 }
 
 #[cfg(test)]

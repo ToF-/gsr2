@@ -1,8 +1,4 @@
 extern crate image;
-use image::Pixels;
-use image::{DynamicImage, GenericImageView, Rgba};
-use crate::model::image_data::Rgb8;
-use std::collections::HashSet;
 use gtk::gdk;
 use gtk::glib;
 use std::ffi::OsStr;
@@ -13,7 +9,6 @@ use std::path::Path;
 use thumbnailer::ThumbnailSize;
 use thumbnailer::create_thumbnails;
 use thumbnailer::error::ThumbResult;
-use palette_extract::{Color, get_palette_rgb};
 
 
 pub fn no_thumbnail_picture() -> gtk::Picture {
@@ -126,38 +121,6 @@ pub fn create_thumbnail_file(
         }
     }
 }
-
-fn rgba_key(rgba: Rgba<u8>) -> u32 {
-        (rgba[0] as u32) << 24
-        | (rgba[1] as u32) << 16
-        | (rgba[2] as u32) << 8
-        | (rgba[3] as u32)
-}
-
-pub fn color_count(image: &DynamicImage) -> usize {
-    let mut colors: HashSet<u32> = HashSet::new();
-    let pixels: Vec<(u32,u32,Rgba<u8>)> = image.pixels().collect();
-    for pixel in pixels {
-        let rgba = pixel.2;
-        colors.insert(rgba_key(rgba));
-    };
-    colors.len()
-}
-
-type Palette = Vec<Color>;
-
-
-fn color_to_u32(color: &Color) -> u32 {
-    ((color.r as u32) << 16) | ((color.g as u32) << 8) | (color.b as u32)
-}
-
-pub fn get_palette(image: &DynamicImage) -> Palette {
-    let pixels: &[u8] = image.as_bytes();
-    let mut palette = get_palette_rgb(pixels);
-    palette.sort_by_key(color_to_u32);
-    palette
-}
-
 
 #[cfg(test)]
 mod tests {

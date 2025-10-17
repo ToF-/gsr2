@@ -4,11 +4,10 @@ use std::fs::remove_file;
 use crate::env::default_values::THUMB_SUFFIX;
 use crate::file::paths::check_path_exists;
 use crate::file::paths::{check_path, check_path_is_a_jpg_or_png_file, check_picture_file};
+use crate::model::palette::{Palette};
 use crate::model::gallery::Gallery;
 use crate::model::gen_image::create_thumbnail_file;
-use crate::model::image_data::Palette;
 use crate::model::image_data::PictureFileData;
-use crate::model::image_data::get_palette;
 use std::fs;
 use std::io::Error;
 use std::io::Result;
@@ -101,7 +100,7 @@ pub fn get_data_from_picture_file(file_path: &str) -> Result<PictureFileData> {
 pub fn get_palette_from_picture_file(file_path: &str) -> Result<Palette> {
     match image::open(file_path) {
         Ok(image) => {
-            let palette = get_palette(&image);
+            let palette = Palette::from(&image);
             Ok(palette)
         }
         Err(_) => Err(Error::other(format!(

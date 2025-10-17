@@ -1,6 +1,4 @@
 extern crate image;
-use image::DynamicImage;
-use image::{Rgb, RgbImage};
 use crate::test_data::*; 
 
 mod test_data;

@@ -283,7 +283,6 @@ impl Controller {
     }
 
     pub fn label_selected_pictures(&mut self, label: &str) {
-        let gallery = &mut self.gallery;
         if self.navigator.has_selected() {
             for index in 0..self.navigator.limit() {
                 if self.navigator.is_selected(index) {
