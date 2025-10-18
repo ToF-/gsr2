@@ -69,8 +69,13 @@ impl Gallery {
     pub fn load_from_file_path(&mut self, file_path: &str) -> Result<usize> {
         match get_picture_file_path(file_path) {
             Ok(path) => {
-                self.pictures.push(Picture::new(&path));
-                Ok(self.pictures.len())
+                match Picture::new_with_file_image_data(&path, "") {
+                    Ok(picture) => {
+                        self.pictures.push(picture);
+                        Ok(1)
+                    },
+                    Err(err) => return Err(err),
+                }
             }
             Err(err) => Err(err),
         }

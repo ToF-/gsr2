@@ -138,66 +138,66 @@ mod tests {
 
     #[test]
     fn from_key_name_and_mode_to_a_control() {
-        const v: Mode = Mode::View;
+        const V: Mode = Mode::View;
         assert_eq!(
             Some(&Control::MoveNext),
-            default_controls().get(&(String::from("n"), v))
+            default_controls().get(&(String::from("n"), V))
         );
         assert_eq!(
             Some(&Control::MovePrev),
-            default_controls().get(&(String::from("p"), v))
+            default_controls().get(&(String::from("p"), V))
         );
         assert_eq!(
             Some(&Control::MoveLast),
-            default_controls().get(&(String::from("Z"), v))
+            default_controls().get(&(String::from("Z"), V))
         );
         assert_eq!(
             Some(&Control::MoveFirst),
-            default_controls().get(&(String::from("A"), v))
+            default_controls().get(&(String::from("A"), V))
         );
         assert_eq!(
             Some(&Control::MoveStartPage),
-            default_controls().get(&(String::from("a"), v))
+            default_controls().get(&(String::from("a"), V))
         );
         assert_eq!(
             Some(&Control::MoveEndPage),
-            default_controls().get(&(String::from("z"), v))
+            default_controls().get(&(String::from("z"), V))
         );
         assert_eq!(
             Some(&Control::Left),
-            default_controls().get(&(String::from("Left"), v))
+            default_controls().get(&(String::from("Left"), V))
         );
         assert_eq!(
             Some(&Control::Right),
-            default_controls().get(&(String::from("Right"), v))
+            default_controls().get(&(String::from("Right"), V))
         );
         assert_eq!(
             Some(&Control::Up),
-            default_controls().get(&(String::from("Up"), v))
+            default_controls().get(&(String::from("Up"), V))
         );
         assert_eq!(
             Some(&Control::Down),
-            default_controls().get(&(String::from("Down"), v))
+            default_controls().get(&(String::from("Down"), V))
         );
         assert_eq!(
             Some(&Control::Quit),
-            default_controls().get(&(String::from("q"), v))
+            default_controls().get(&(String::from("q"), V))
         );
         assert_eq!(
             Some(&Control::Label),
-            default_controls().get(&(String::from("l"), v))
+            default_controls().get(&(String::from("l"), V))
         );
         assert_eq!(
             Some(&Control::ToggleExpand),
-            default_controls().get(&(String::from("e"), v))
+            default_controls().get(&(String::from("e"), V))
         );
         assert_eq!(
             Some(&Control::ToggleFullSize),
-            default_controls().get(&(String::from("f"), v))
+            default_controls().get(&(String::from("f"), V))
         );
         assert_eq!(
             Some(&Control::ToggleSingleView),
-            default_controls().get(&(String::from("period"), v))
+            default_controls().get(&(String::from("period"), V))
         );
         assert_eq!(
             Some(&Control::CancelEdition),

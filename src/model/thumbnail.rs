@@ -1,5 +1,4 @@
 extern crate image;
-use crate::model::palette::Palette;
 use gtk::gdk;
 use gtk::glib;
 use std::ffi::OsStr;

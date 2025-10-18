@@ -155,14 +155,14 @@ mod tests {
     }
     #[test]
     fn thumbnail_name_from_normal_file_has_thumb_suffix() {
-        const pictures_per_row: usize = 10;
+        const PICTURES_PER_ROW: usize = 10;
         assert_eq!(
             "testdata/my_fileTHUMBSmall.jpg",
-            thumbnail_name_from("testdata/my_file.jpg", pictures_per_row)
+            thumbnail_name_from("testdata/my_file.jpg", PICTURES_PER_ROW)
         );
         assert_eq!(
             "testdata/my_other_fileTHUMBSmall.PNG",
-            thumbnail_name_from("testdata/my_other_file.PNG", pictures_per_row)
+            thumbnail_name_from("testdata/my_other_file.PNG", PICTURES_PER_ROW)
         )
     }
     #[test]

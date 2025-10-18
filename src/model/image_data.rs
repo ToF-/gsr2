@@ -1,8 +1,6 @@
 use crate::file::picture_file::get_data_from_picture_file;
 use crate::model::palette::Palette;
-use image::{DynamicImage, Rgb};
-use palette_extract::{MaxColors, PixelEncoding, PixelFilter, Quality, get_palette_with_options};
-use std::cmp::Ordering;
+use image::Rgb;
 use std::collections::HashSet;
 use std::io::Result;
 use std::time::SystemTime;
@@ -64,6 +62,7 @@ mod tests {
     use super::*;
     use crate::file::picture_file::get_palette_from_picture_file;
     use crate::test_data::*;
+    use image::DynamicImage;
 
     #[test]
     fn extract_a_palette_of_9_most_used_colors() {

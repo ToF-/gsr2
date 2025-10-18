@@ -64,6 +64,10 @@ impl Controller {
         self.args.clone()
     }
 
+    pub fn database(&self) -> Database {
+        self.database.clone()
+    }
+
     pub fn main_window(&self) -> MainWindow {
         self.main_window_opt.clone().unwrap()
     }

@@ -4,13 +4,17 @@ use rusqlite::{Connection, Result as SqlResult, Row, params};
 use std::collections::HashMap;
 use std::env;
 use std::io::Result as IOResult;
+use std::rc::Rc;
+use std::cell::{RefCell,Ref};
+
+
 
 pub type ImageDataMap = HashMap<String, ImageData>;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Database {
     home_dir: Option<String>,
-    connection: Connection,
+    connection_rc: Rc<RefCell<Connection>>,
 }
 
 impl Database {
@@ -26,15 +30,24 @@ impl Database {
         match Connection::open(connection_string) {
             Ok(connection) => Ok(Database {
                 home_dir: env::home_dir().map(|path| path.display().to_string()),
-                connection,
+                connection_rc: Rc::new(RefCell::new(connection)),
             }),
             Err(err) => Err(err),
         }
     }
 
+
+    pub fn connection(&self) -> Ref<Connection> {
+        if let Ok(connection) = self.connection_rc.try_borrow() {
+            connection
+        } else {
+            panic!("can't open database connection")
+        }
+    }
+
     #[allow(dead_code)]
     pub fn rusqlite_insert_picture(&self, picture: &Picture) -> SqlResult<usize> {
-        self.connection.execute(
+        self.connection().execute(
             "INSERT INTO Picture          \n\
            (FilePath,                    \n\
             Label)                       \n\
@@ -50,7 +63,7 @@ impl Database {
     }
 
     pub fn rusqlite_update_picture(&self, picture: &Picture) -> SqlResult<usize> {
-        self.connection.execute(
+        self.connection().execute(
             "UPDATE Picture            \n\
                SET Label = ?2             \n\
                WHERE FilePath = ?1;",
@@ -59,7 +72,7 @@ impl Database {
     }
 
     pub fn rusqlite_delete_picture_with_file_path(&self, file_path: &str) -> SqlResult<usize> {
-        self.connection.execute(
+        self.connection().execute(
             "DELETE FROM Picture        \n\
             WHERE FilePath = ?1;",
             params![file_path.to_string()],
@@ -68,7 +81,7 @@ impl Database {
 
     #[allow(dead_code)]
     pub fn rusqlite_retrieve_picture_with_file_path(&self, file_path: &str) -> SqlResult<Picture> {
-        self.connection.query_row(
+        self.connection().query_row(
             "SELECT FilePath,           \n\
              Label                      \n\
              FROM Picture               \n\
@@ -79,7 +92,7 @@ impl Database {
     }
 
     pub fn rusqlite_retrieve_all_pictures(&self) -> SqlResult<ImageDataMap> {
-        self.connection
+        self.connection()
             .prepare(
                 "SELECT FilePath, Label           \n\
             FROM Picture ORDER BY FilePath;",
@@ -129,9 +142,14 @@ impl Database {
 
     pub fn file_path_as_stored(&self, file_path: &str) -> String {
         if let Some(home_dir) = &self.home_dir {
-            if file_path.starts_with(&home_dir.to_string()) {
-                let result = file_path.to_string();
-                result.replace(&home_dir.to_string(), "~")
+            let home_dir_str = home_dir.to_string();
+            if file_path.starts_with(&home_dir_str) {
+                let mut home_dir_iter = home_dir_str.chars();
+                let mut file_path_iter = file_path.chars();
+                while let Some(_) = home_dir_iter.next() {
+                    file_path_iter.next();
+                };
+                "~".to_owned() + file_path_iter.as_str()
             } else {
                 file_path.to_string()
             }
@@ -143,8 +161,10 @@ impl Database {
     pub fn file_path_as_retrieved(&self, file_path: &str) -> String {
         if let Some(home_dir) = &self.home_dir {
             if file_path.starts_with("~") {
-                let result = file_path.to_string();
-                result.replace("~", &home_dir.to_string())
+                let mut remaining = file_path.chars();
+                remaining.next();
+                let result = home_dir.to_string() + remaining.as_str();
+                result
             } else {
                 file_path.to_string()
             }
@@ -164,25 +184,25 @@ pub mod tests {
         let database = Database::rusqlite_from_connection(TEST_DATABASE_FILE)
             .expect("test database can't be open");
         database
-            .connection
+            .connection()
             .execute("DELETE FROM Picture;", [])
             .expect("db error");
-        database.connection.execute(
+        database.connection().execute(
             "INSERT INTO Picture (FilePath, Label) VALUES ('testdata/nine_colors.png', 'sample');",
             [],
         ).expect("db error");
         database
-            .connection
+            .connection()
             .execute(
                 "INSERT INTO Picture (FilePath, Label) VALUES ('testdata/single_dot.png', '');",
                 [],
             )
             .expect("db error");
-        database.connection.execute(
+        database.connection().execute(
             "INSERT INTO Picture (FilePath, Label) VALUES ('testdata/white_square.png', 'foo');",
             [],
         ).expect("db error");
-        database.connection.execute(
+        database.connection().execute(
             "INSERT INTO Picture (FilePath, Label) VALUES ('testdata/large_picture.png', 'foo');",
             [],
         ).expect("db error");
@@ -268,20 +288,38 @@ pub mod tests {
     #[test]
     fn file_path_starting_with_home_dir_are_tilded_as_stored() {
         let database = my_db();
-        if let Some(path) = env::home_dir() {
-            let this_file_path = path.display().to_string() + "/test_file.jpg";
-            let expected = "~/test_file.jpg";
+        if let Some(home) = env::home_dir() {
+            let this_file_path = home.display().to_string() + "/test_file"+ &home.display().to_string() +"/file.jpg";
+            let expected = "~/test_file".to_owned() + &home.display().to_string() + "/file.jpg";
             assert_eq!(expected, database.file_path_as_stored(&this_file_path))
+        }
+    }
+
+    #[test]
+    fn file_path_not_starting_with_home_dir_are_not_tilded_as_stored() {
+        let database = my_db();
+        if let Some(home) = env::home_dir() {
+            let this_file_path = "/other/".to_owned() + &home.display().to_string() + "/test_file.jpg";
+            assert_eq!(this_file_path, database.file_path_as_stored(&this_file_path))
         }
     }
 
     #[test]
     fn file_path_starting_with_tilde_are_developped_as_retrieved() {
         let database = my_db();
-        if let Some(path) = env::home_dir() {
-            let this_file_path = "~/test_file.jpg";
-            let expected = path.display().to_string() + "/test_file.jpg";
+        if let Some(home) = env::home_dir() {
+            let this_file_path = "~/test_file/~/.jpg";
+            let expected = home.display().to_string() + "/test_file/~/.jpg";
             assert_eq!(expected, database.file_path_as_retrieved(&this_file_path));
+        }
+    }
+
+    #[test]
+    fn file_path_not_starting_with_tilde_are_not_developped_as_retrieved() {
+        let database = my_db();
+        if let Some(home) = env::home_dir() {
+            let this_file_path = "/other/~/test_file.jpg";
+            assert_eq!(this_file_path, database.file_path_as_retrieved(&this_file_path));
         }
     }
 }

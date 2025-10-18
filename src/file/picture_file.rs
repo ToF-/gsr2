@@ -1,3 +1,7 @@
+use crate::model::picture::Picture;
+use std::collections::HashSet;
+use crate::model::image_data::ImageData;
+use crate::file::Database;
 use crate::env::default_values::THUMB_SUFFIX;
 use crate::file::paths::check_path_exists;
 use crate::file::paths::thumbnail_names_from;
@@ -60,10 +64,37 @@ pub fn create_missing_thumbnails(gallery: &Gallery, pictures_per_row: usize) {
     println!("{} thumbnails created", count)
 }
 
-pub fn collect_data(gallery: &Gallery) -> Result<()> {
-    for picture in gallery.pictures() {}
+pub fn collect_data(gallery: &Gallery, database: &Database) -> Result<()> {
+    for picture in gallery.pictures() {
+        if database.rusqlite_retrieve_picture_with_file_path(&picture.file_path()).is_err() {
+            let image = image::open(&picture.file_path()).expect(&format!("can't load {}", picture.file_path()));
+            let palette = Palette::from(&image);
+            let new_image_data =  match picture.image_data() {
+                Some(image_data) => ImageData {
+                    palette: palette,
+                    .. image_data
+                },
+                None =>
+                    if let Ok(file_data) = get_data_from_picture_file(&picture.file_path()) {
+                        ImageData {
+                            label: "".to_string(),
+                            size: file_data.0,
+                            modified_time: file_data.1,
+                            palette: palette,
+                            tags: HashSet::new(),
+                        }
+                    } else {
+                        return Err(std::io::Error::other(format!("cannot get file data for {}", picture.file_path())))
+                    },
+            };
+            let mut new_picture = Picture::new(&picture.file_path());
+            new_picture.set_image_data(new_image_data);
+            println!("store this: {:?}", new_picture)
+        }
+    };
     Ok(())
 }
+
 pub fn delete_picture_file(file_path: &str) -> Result<()> {
     let path = Path::new(file_path);
     if path.exists() {

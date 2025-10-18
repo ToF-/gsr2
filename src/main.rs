@@ -31,7 +31,6 @@ fn main() {
                 println!("viewing file from the database");
             }
             let controller_result = Controller::new(cli.clone());
-            println!("{:?}", controller_result);
             let controller_rc: RcController = match controller_result {
                 Ok(controller) => Rc::new(RefCell::new(controller)),
                 Err(err) => {
@@ -60,7 +59,7 @@ fn main() {
                 };
                 if cli.collect_data {
                     println!("collecting data for picture files in the database…");
-                    match collect_data(&controller.gallery()) {
+                    match collect_data(&controller.gallery(), &controller.database()) {
                         Ok(_) => exit(0),
                         Err(err) => {
                             eprintln!("{}", err);
