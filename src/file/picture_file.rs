@@ -65,7 +65,10 @@ pub fn create_missing_thumbnails(gallery: &Gallery, pictures_per_row: usize) {
 }
 
 pub fn collect_data(gallery: &Gallery, database: &Database) -> Result<()> {
+    let mut count: usize = 0;
+    let total: usize = gallery.pictures().len();
     for picture in gallery.pictures() {
+        count += 1;
         if database.rusqlite_retrieve_picture_with_file_path(&picture.file_path()).is_err() {
             let image = image::open(&picture.file_path()).expect(&format!("can't load {}", picture.file_path()));
             let palette = Palette::from(&image);
@@ -89,7 +92,8 @@ pub fn collect_data(gallery: &Gallery, database: &Database) -> Result<()> {
             };
             let mut new_picture = Picture::new(&picture.file_path());
             new_picture.set_image_data(new_image_data);
-            println!("store this: {:?}", new_picture)
+
+            println!("{}/{}:{}", count, total, picture.file_path());
         }
     };
     Ok(())

@@ -45,20 +45,33 @@ impl Database {
         }
     }
 
-    #[allow(dead_code)]
     pub fn rusqlite_insert_picture(&self, picture: &Picture) -> SqlResult<usize> {
+        let image_data = match picture.image_data() {
+            Some(data) => data,
+            None => ImageData::new(""),
+        }
         self.connection().execute(
             "INSERT INTO Picture          \n\
-           (FilePath,                    \n\
-            Label)                       \n\
-           VALUES (?1, ?2);",
-            params![
-                picture.file_path(),
-                picture
-                    .image_data()
-                    .map(|data| data.label())
-                    .unwrap_or(String::from(""))
-            ],
+             FilePath,                    \n\
+             Label,                       \n\
+             FileSize,                    \n\
+             ModifiedTime,                \n\
+             Rank,                        \n\
+             SampleSize,                  \n\
+             Sample,                      \n\
+             ColorCount,                  \n\
+             Cover)                       \n\
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9);",
+             params![
+             self.file_path_as_stored(picture.file_path()),
+             image_data.label(),
+             image_data.file_size,
+             image_data.modified_time,
+             0, // rank to do
+             image_data.palette.sample().len(),
+             image_data.palette.sample(),
+             image_data.palette.count(),
+             false],
         )
     }
 

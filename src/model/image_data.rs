@@ -17,6 +17,7 @@ pub struct ImageData {
     pub size: FileSize,
     pub modified_time: SystemTime,
     pub palette: Palette,
+    pub cover: bool,
     pub tags: Tags,
 }
 
@@ -27,6 +28,7 @@ impl ImageData {
             size: 0,
             modified_time: SystemTime::now(),
             palette: Palette::new(vec![], 0),
+            cover: false,
             tags: HashSet::new(),
         }
     }
@@ -38,6 +40,7 @@ impl ImageData {
                 size: file_data.0,
                 modified_time: file_data.1,
                 palette: Palette::new(vec![], 0),
+                cover: false,
                 tags: HashSet::new(),
             })
         })
