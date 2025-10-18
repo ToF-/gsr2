@@ -142,6 +142,7 @@ check_picture_file	/Users/christophethibaut/Coding/gsr2/src/file/paths.rs	/^pub 
 check_thumbnail_size_display	/Users/christophethibaut/Coding/gsr2/src/model/thumbnail.rs	/^    fn check_thumbnail_size_display() {$/;"	f
 close	/Users/christophethibaut/Coding/gsr2/src/gui/view/entry_window.rs	/^    pub fn close(&self) {$/;"	f
 collect_data	/Users/christophethibaut/Coding/gsr2/src/file/picture_file.rs	/^pub fn collect_data(gallery: &Gallery, database: &Database) -> Result<()> {$/;"	f
+collect_picture_data	/Users/christophethibaut/Coding/gsr2/src/file/picture_file.rs	/^pub fn collect_picture_data(picture: &Picture) -> Result<Picture> {$/;"	f
 color_count	/Users/christophethibaut/Coding/gsr2/src/model/palette.rs	/^pub fn color_count(image: &DynamicImage) -> usize {$/;"	f
 color_to_u32	/Users/christophethibaut/Coding/gsr2/src/model/palette.rs	/^fn color_to_u32(color: &Color) -> u32 {$/;"	f
 command_line_interface_dir_command_with_non_existing_specified_directory	/Users/christophethibaut/Coding/gsr2/src/cli/args.rs	/^    fn command_line_interface_dir_command_with_non_existing_specified_directory() {$/;"	f
@@ -240,6 +241,7 @@ image_data	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    pub f
 initially_not_editing	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    fn initially_not_editing() {$/;"	f
 input	/Users/christophethibaut/Coding/gsr2/src/gui/editor.rs	/^    pub fn input(&self) -> String {$/;"	f
 insert_and_retrieve_a_picture	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    fn insert_and_retrieve_a_picture() {$/;"	f
+insert_and_retrieve_a_picture_with_image_data	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    fn insert_and_retrieve_a_picture_with_image_data() {$/;"	f
 insert_nine_colors_sample_into_db	/Users/christophethibaut/Coding/gsr2/src/file/database.rs	/^    pub fn insert_nine_colors_sample_into_db() {$/;"	f
 is_selected	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn is_selected(&self, index: usize) -> bool {$/;"	f
 jump	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn jump(&mut self) {$/;"	f

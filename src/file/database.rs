@@ -49,7 +49,7 @@ impl Database {
         let image_data = match picture.image_data() {
             Some(data) => data,
             None => ImageData::new(""),
-        }
+        };
         self.connection().execute(
             "INSERT INTO Picture          \n\
              FilePath,                    \n\
@@ -63,13 +63,13 @@ impl Database {
              Cover)                       \n\
              VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9);",
              params![
-             self.file_path_as_stored(picture.file_path()),
+             self.file_path_as_stored(&picture.file_path()),
              image_data.label(),
-             image_data.file_size,
-             image_data.modified_time,
+             image_data.size,
+             0, // modified_time.duration_since(UNIX_EPOCH).unwrap().as_secs() as i64,
              0, // rank to do
-             image_data.palette.sample().len(),
-             image_data.palette.sample(),
+             0, // image_data.palette.sample().len(),
+             [], // image_data.palette.sample(),
              image_data.palette.count(),
              false],
         )
@@ -334,5 +334,9 @@ pub mod tests {
             let this_file_path = "/other/~/test_file.jpg";
             assert_eq!(this_file_path, database.file_path_as_retrieved(&this_file_path));
         }
+    }
+
+    #[test]
+    fn insert_and_retrieve_a_picture_with_image_data() {
     }
 }
