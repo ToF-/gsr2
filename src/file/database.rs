@@ -55,7 +55,7 @@ impl Database {
             Some(data) => data,
             None => ImageData::new(""),
         };
-        println!("image_data:\n{:?}", image_data);
+        println!("image_data:\n{:?}\n", image_data);
         self.connection().execute(
             "INSERT INTO Picture (        \n\
              FilePath,                    \n\
@@ -162,7 +162,7 @@ impl Database {
     }
 
     fn rusqlite_row_to_picture(row: &Row) -> SqlResult<Picture, rusqlite::Error> {
-        println!("{:?}", row);
+        println!("this is the row {:?}", row);
         let file_path: String = row.get(0).expect("can't get column FilePath");
         let label: String = row.get(1).expect("can't get column Label");
         let size: u64 = match row.get(2) {
@@ -185,6 +185,7 @@ impl Database {
             tags: HashSet::new(),
             cover: false,
         };
+        picture.set_image_data(image_data);
         Ok(picture)
     }
 
@@ -356,17 +357,18 @@ pub mod tests {
                 cover: false,
                 tags: HashSet::new(),
         };
-        picture.set_image_data(image_data);
-        println!("picture to insert: \n {:?}", picture);
+        picture.set_image_data(image_data.clone());
+        let modified_time_initial = picture_file_data.1.duration_since(UNIX_EPOCH);
         database.rusqlite_delete_picture_with_file_path(&file_path);
         assert_eq!( Ok(1), database.rusqlite_insert_picture(&picture));
         let result = database.rusqlite_retrieve_picture_with_file_path(&file_path);
-        println!("{:?}", result);
         assert!(result.is_ok(), "could not retrieve picture in db");
         let retrieved = result.unwrap();
         assert_eq!("testdata/some_pic.jpeg", retrieved.file_path());
         assert_eq!("some_label", retrieved.label());
         assert_eq!(49746, retrieved.image_data().unwrap().size);
+        let modified_time_retrieved = retrieved.image_data().unwrap().modified_time.duration_since(UNIX_EPOCH);
+        assert_eq!(modified_time_initial.unwrap(), modified_time_retrieved.unwrap());
         // todo retrieve picture from db, compare with variable pictuire
     }
 }
