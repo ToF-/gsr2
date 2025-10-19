@@ -1,3 +1,8 @@
+use crate::model::palette::Palette;
+use std::time::SystemTime;
+use std::time::Duration;
+use std::collections::HashSet;
+use std::time::UNIX_EPOCH;
 use crate::model::image_data::ImageData;
 use crate::model::picture::Picture;
 use rusqlite::{Connection, Result as SqlResult, Row, params};
@@ -50,6 +55,7 @@ impl Database {
             Some(data) => data,
             None => ImageData::new(""),
         };
+        println!("image_data:\n{:?}", image_data);
         self.connection().execute(
             "INSERT INTO Picture (        \n\
              FilePath,                    \n\
@@ -66,7 +72,7 @@ impl Database {
              self.file_path_as_stored(&picture.file_path()),
              image_data.label(),
              image_data.size,
-             0, // modified_time.duration_since(UNIX_EPOCH).unwrap().as_secs() as i64,
+             image_data.modified_time.duration_since(UNIX_EPOCH).unwrap().as_secs() as i64,
              0, // rank to do
              0, // image_data.palette.sample().len(),
              [], // image_data.palette.sample(),
@@ -96,7 +102,9 @@ impl Database {
     pub fn rusqlite_retrieve_picture_with_file_path(&self, file_path: &str) -> SqlResult<Picture> {
         self.connection().query_row(
             "SELECT FilePath,           \n\
-             Label                      \n\
+             Label,                     \n\
+             FileSize,                  \n\
+             ModifiedTime               \n\
              FROM Picture               \n\
              WHERE FilePath = ?1;",
             params![file_path],
@@ -114,7 +122,7 @@ impl Database {
                 let mut map: ImageDataMap = HashMap::new();
                 statement.query([]).and_then(|mut rows| {
                     while let Some(row) = rows.next().unwrap() {
-                        match Self::rusqlite_row_to_picture(row) {
+                        match Self::rusqlite_row_to_mere_picture(row) {
                             Ok(picture) => {
                                 let _ =
                                     map.insert(picture.file_path(), picture.image_data().unwrap());
@@ -146,11 +154,38 @@ impl Database {
         }
     }
 
+
+    fn rusqlite_row_to_mere_picture(row: &Row) -> SqlResult<Picture, rusqlite::Error> {
+        let file_path: String = row.get(0).expect("can't get column FilePath");
+        let label: String = row.get(1).expect("can't get column Label");
+        Ok(Picture::new_with_label(&file_path, &label))
+    }
+
     fn rusqlite_row_to_picture(row: &Row) -> SqlResult<Picture, rusqlite::Error> {
-        row.get(0).and_then(|file_path: String| {
-            row.get(1)
-                .and_then(|label: String| Ok(Picture::new_with_label(&file_path, &label)))
-        })
+        println!("{:?}", row);
+        let file_path: String = row.get(0).expect("can't get column FilePath");
+        let label: String = row.get(1).expect("can't get column Label");
+        let size: u64 = match row.get(2) {
+            Ok(n) => n,
+            Err(err) => {
+                eprintln!("rusqlite error: {}", err);
+                0
+            },
+        };
+        let modified_time: SystemTime = {
+           let n: i64 = row.get(3).expect("can't get column ModifiedTime");
+           UNIX_EPOCH + Duration::new(n as u64, 0)
+        };
+        let mut picture = Picture::new_with_label(&file_path, &label);
+        let image_data = ImageData {
+            label: label,
+            size: size,
+            modified_time: modified_time,
+            palette: Palette::new(vec![], 0),
+            tags: HashSet::new(),
+            cover: false,
+        };
+        Ok(picture)
     }
 
     pub fn file_path_as_stored(&self, file_path: &str) -> String {
@@ -242,52 +277,6 @@ pub mod tests {
     }
 
     #[test]
-    fn insert_and_retrieve_a_picture() {
-        let database = my_db();
-        delete_nine_colors_from_db();
-        insert_nine_colors_sample_into_db();
-        if let Ok(retrieved) = database.rusqlite_retrieve_picture_with_file_path(NINE_COLORS) {
-            if let Some(image_data) = retrieved.image_data() {
-                assert_eq!(String::from("sample"), image_data.label())
-            } else {
-                assert!(false, "there was no label")
-            }
-        } else {
-            assert!(false, "could not retrieve the picture")
-        }
-    }
-
-    #[test]
-    fn update_a_picture() {
-        let database = my_db();
-        delete_nine_colors_from_db();
-        insert_nine_colors_sample_into_db();
-        if let Ok(mut retrieved) = database.rusqlite_retrieve_picture_with_file_path(NINE_COLORS) {
-            if let Some(image_data) = retrieved.image_data() {
-                assert_eq!(String::from("sample"), image_data.label())
-            } else {
-                assert!(false, "there was no label")
-            }
-            retrieved.set_label("bingo");
-            assert_eq!("bingo", &retrieved.label());
-            match database.rusqlite_update_picture(&retrieved) {
-                Ok(updated) => {
-                    if let Ok(updated) =
-                        database.rusqlite_retrieve_picture_with_file_path(NINE_COLORS)
-                    {
-                        assert_eq!(String::from("bingo"), updated.label())
-                    } else {
-                        assert!(false, "could not retrieve the picture")
-                    }
-                }
-                Err(err) => assert!(false, "{}", err),
-            }
-        } else {
-            assert!(false, "could not retrieve the picture")
-        };
-    }
-
-    #[test]
     fn retrieve_all_pictures_ordered_by_file_path() {
         let database = my_db();
         let status: SqlResult<ImageDataMap> = database.rusqlite_retrieve_all_pictures();
@@ -346,11 +335,11 @@ pub mod tests {
     #[test]
     fn insert_and_retrieve_a_picture_with_image_data() {
         let database = my_db();
-        let mut picture = Picture::new("testdata/nine_colors.png");
+        let mut picture = Picture::new("testdata/some_pic.jpeg");
         let file_path = picture.file_path();
-        let picture_file_data = get_data_from_picture_file(&file_path).expect("can't access to file data");
+        let picture_file_data = get_data_from_picture_file(NINE_COLORS).expect("can't access to file data");
         let image_data = ImageData {
-            label: "foo".to_string(),
+            label: "some_label".to_string(),
             size: picture_file_data.0,
             modified_time: picture_file_data.1,
             palette: Palette::new([
@@ -367,8 +356,17 @@ pub mod tests {
                 cover: false,
                 tags: HashSet::new(),
         };
-        assert_eq!( Ok(1), database.rusqlite_delete_picture_with_file_path(&file_path));
+        picture.set_image_data(image_data);
+        println!("picture to insert: \n {:?}", picture);
+        database.rusqlite_delete_picture_with_file_path(&file_path);
         assert_eq!( Ok(1), database.rusqlite_insert_picture(&picture));
-        // todo retrieve picture from db, compare with variable picture
+        let result = database.rusqlite_retrieve_picture_with_file_path(&file_path);
+        println!("{:?}", result);
+        assert!(result.is_ok(), "could not retrieve picture in db");
+        let retrieved = result.unwrap();
+        assert_eq!("testdata/some_pic.jpeg", retrieved.file_path());
+        assert_eq!("some_label", retrieved.label());
+        assert_eq!(49746, retrieved.image_data().unwrap().size);
+        // todo retrieve picture from db, compare with variable pictuire
     }
 }

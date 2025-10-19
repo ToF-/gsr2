@@ -240,7 +240,6 @@ has_selected	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn has_select
 image_data	/Users/tof/Coding/gsr2/src/model/picture.rs	/^    pub fn image_data(&self) -> Option<ImageData> {$/;"	f
 initially_not_editing	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    fn initially_not_editing() {$/;"	f
 input	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    pub fn input(&self) -> String {$/;"	f
-insert_and_retrieve_a_picture	/Users/tof/Coding/gsr2/src/file/database.rs	/^    fn insert_and_retrieve_a_picture() {$/;"	f
 insert_and_retrieve_a_picture_with_image_data	/Users/tof/Coding/gsr2/src/file/database.rs	/^    fn insert_and_retrieve_a_picture_with_image_data() {$/;"	f
 insert_nine_colors_sample_into_db	/Users/tof/Coding/gsr2/src/file/database.rs	/^    pub fn insert_nine_colors_sample_into_db() {$/;"	f
 is_selected	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn is_selected(&self, index: usize) -> bool {$/;"	f
@@ -379,6 +378,7 @@ rusqlite_from_connection	/Users/tof/Coding/gsr2/src/file/database.rs	/^    fn ru
 rusqlite_insert_picture	/Users/tof/Coding/gsr2/src/file/database.rs	/^    pub fn rusqlite_insert_picture(&self, picture: &Picture) -> SqlResult<usize> {$/;"	f
 rusqlite_retrieve_all_pictures	/Users/tof/Coding/gsr2/src/file/database.rs	/^    pub fn rusqlite_retrieve_all_pictures(&self) -> SqlResult<ImageDataMap> {$/;"	f
 rusqlite_retrieve_picture_with_file_path	/Users/tof/Coding/gsr2/src/file/database.rs	/^    pub fn rusqlite_retrieve_picture_with_file_path(&self, file_path: &str) -> SqlResult<Picture> {$/;"	f
+rusqlite_row_to_mere_picture	/Users/tof/Coding/gsr2/src/file/database.rs	/^    fn rusqlite_row_to_mere_picture(row: &Row) -> SqlResult<Picture, rusqlite::Error> {$/;"	f
 rusqlite_row_to_picture	/Users/tof/Coding/gsr2/src/file/database.rs	/^    fn rusqlite_row_to_picture(row: &Row) -> SqlResult<Picture, rusqlite::Error> {$/;"	f
 rusqlite_update_picture	/Users/tof/Coding/gsr2/src/file/database.rs	/^    pub fn rusqlite_update_picture(&self, picture: &Picture) -> SqlResult<usize> {$/;"	f
 sample	/Users/tof/Coding/gsr2/src/model/palette.rs	/^    pub fn sample(&self) -> Vec<Color> {$/;"	f
@@ -470,7 +470,6 @@ treat_uppercase_as_lowercase	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    fn t
 unselect	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn unselect(&mut self, index: usize) {$/;"	f
 unselect_all	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn unselect_all(&mut self) {$/;"	f
 unselect_all_cancel_ranges_and_selected_pictures	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    fn unselect_all_cancel_ranges_and_selected_pictures() {$/;"	f
-update_a_picture	/Users/tof/Coding/gsr2/src/file/database.rs	/^    fn update_a_picture() {$/;"	f
 update_page_limits	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn update_page_limits(&mut self) {$/;"	f
 value_variants	/Users/tof/Coding/gsr2/src/model/order.rs	/^    fn value_variants<'a>() -> &'a [Self] {$/;"	f
 view_file_path	/Users/tof/Coding/gsr2/src/model/picture.rs	/^    pub fn view_file_path(&self, pictures_per_row: usize) -> String {$/;"	f
