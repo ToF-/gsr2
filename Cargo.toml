@@ -14,6 +14,7 @@ name = "main"
 path = "src/main.rs"
 
 [dependencies]
+chrono = "0.4.42"
 clap = { version = "4.5.4", features = ["derive"] }
 gtk = { version = "0.10.1", package = "gtk4", features = ["v4_20"] }
 

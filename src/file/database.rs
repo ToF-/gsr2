@@ -192,6 +192,11 @@ pub mod tests {
     use super::*;
     use crate::env::default_values::TEST_DATABASE_FILE;
     use crate::test_data::*;
+    use chrono::prelude::*;
+    use chrono::naive::*;
+    use crate::model::palette::Palette;
+    use std::collections::HashSet;
+    use std::time::SystemTime;
 
     pub fn my_db() -> Database {
         let database = Database::rusqlite_from_connection(TEST_DATABASE_FILE)
@@ -337,6 +342,21 @@ pub mod tests {
     }
 
     #[test]
+    // Picture { file_path: "/Users/christophethibaut/Coding/gsr2/testdata/nine_colors.png", thumbnail_small_file_path: "/Users/christophethibaut/Coding/gsr2/testdata/nine_colorsTHUMBSmall.png", image_data: Some(ImageData { label: "", size: 49746, modified_time: SystemTime { tv_sec: 1760449593, tv_nsec: 386443205 }, palette: Palette { sample: [Color { r: 4, g: 4, b: 4, hex: "#040404" }, Color { r: 4, g: 4, b: 252, hex: "#0404FC" }, Color { r: 4, g: 132, b: 132, hex: "#048484" }, Color { r: 136, g: 100, b: 76, hex: "#88644C" }, Color { r: 156, g: 204, b: 52, hex: "#9CCC34" }, Color { r: 236, g: 132, b: 236, hex: "#EC84EC" }, Color { r: 252, g: 4, b: 4, hex: "#FC0404" }, Color { r: 252, g: 140, b: 4, hex: "#FC8C04" }, Color { r: 252, g: 252, b: 4, hex: "#FCFC04" }], count: 10 }, cover: false, tags: {} })I }
     fn insert_and_retrieve_a_picture_with_image_data() {
+        let database = my_db();
+        let mut picture = Picture::new("/Users/christophethibaut/Coding/gsr2/testdata/nine_colors.png");
+        let image_data = ImageData {
+            label: "foo".to_string(),
+            size: 4807,
+            // modified_time: &NaiveDate::from_ymd_opt(2024, 11, 28)
+            //     .expect("can't create naive date")
+            //     .and_time(NaiveTime::default()),
+            modified_time: SystemTime::now(),
+            palette: Palette::new(vec![], 0),
+            tags: HashSet::new(),
+            cover: false,
+        };
+
     }
 }

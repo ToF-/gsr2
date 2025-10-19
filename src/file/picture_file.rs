@@ -99,6 +99,7 @@ pub fn collect_data(gallery: &Gallery, database: &Database) -> Result<()> {
         if database.rusqlite_retrieve_picture_with_file_path(&picture.file_path()).is_err() {
             match collect_picture_data(&picture) {
                 Ok(picture) => {
+                    println!("{:?}", picture);
                 },
                 Err(err) => {
                     println!("{}", err)
