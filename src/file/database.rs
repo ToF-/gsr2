@@ -71,10 +71,10 @@ impl Database {
              params![
              self.file_path_as_stored(&picture.file_path()),
              image_data.label(),
-             image_data.size,
-             image_data.modified_time.duration_since(UNIX_EPOCH).unwrap().as_secs() as i64,
+             image_data.size(),
+             image_data.modified_time(),
              0, // rank to do
-             0, // image_data.palette.sample().len(),
+             image_data.palette().sample().len(),
              [], // image_data.palette.sample(),
              image_data.palette.count(),
              false],
@@ -98,13 +98,17 @@ impl Database {
         )
     }
 
-    #[allow(dead_code)]
     pub fn rusqlite_retrieve_picture_with_file_path(&self, file_path: &str) -> SqlResult<Picture> {
         self.connection().query_row(
             "SELECT FilePath,           \n\
              Label,                     \n\
              FileSize,                  \n\
-             ModifiedTime               \n\
+             ModifiedTime,              \n\
+             Rank,                      \n\
+             SampleSize,                \n\
+             Sample,                    \n\
+             ColorCount,                \n\
+             Cover                      \n\
              FROM Picture               \n\
              WHERE FilePath = ?1;",
             params![file_path],
@@ -172,18 +176,21 @@ impl Database {
                 0
             },
         };
-        let modified_time: SystemTime = {
-           let n: i64 = row.get(3).expect("can't get column ModifiedTime");
-           UNIX_EPOCH + Duration::new(n as u64, 0)
-        };
+        let modified_time = row.get(3).expect("can't get column ModifiedTime");
+        // todo let rank = row.get(4).expect("can't get column Rank");
+        let sample_size = row.get(5).expect("can't get column SampleSize");
+        // todo let sample = row.get(6).expect("can't get column Sample");
+        let color_count: usize = row.get(7).expect("can't get column ColorCount");
+        let cover = row.get(8).expect("can't get column Cover");
         let mut picture = Picture::new_with_label(&file_path, &label);
+        let palette = Palette::new(vec![], sample_size);
         let image_data = ImageData {
             label: label,
             size: size,
             modified_time: modified_time,
-            palette: Palette::new(vec![], 0),
+            palette: palette,
             tags: HashSet::new(),
-            cover: false,
+            cover: cover,
         };
         picture.set_image_data(image_data);
         Ok(picture)
@@ -226,6 +233,8 @@ impl Database {
 #[cfg(test)]
 pub mod tests {
     use super::*;
+    use crate::model::image_data::timestamp;
+    use crate::model::image_data::TimeStamp;
     use crate::env::default_values::TEST_DATABASE_FILE;
     use crate::test_data::*;
     use chrono::prelude::*;
@@ -353,22 +362,23 @@ pub mod tests {
                 Color { r: 252, g: 4, b: 4 },
                 Color { r: 252, g: 140, b: 4 },
                 Color { r: 252, g: 252, b: 4 }].to_vec(),
-                10),
+                100),
                 cover: false,
                 tags: HashSet::new(),
         };
         picture.set_image_data(image_data.clone());
-        let modified_time_initial = picture_file_data.1.duration_since(UNIX_EPOCH);
+        assert_eq!(100, picture.image_data().unwrap().palette().count());
+        let initial: TimeStamp = picture_file_data.1;
         database.rusqlite_delete_picture_with_file_path(&file_path);
         assert_eq!( Ok(1), database.rusqlite_insert_picture(&picture));
         let result = database.rusqlite_retrieve_picture_with_file_path(&file_path);
         assert!(result.is_ok(), "could not retrieve picture in db");
-        let retrieved = result.unwrap();
-        assert_eq!("testdata/some_pic.jpeg", retrieved.file_path());
-        assert_eq!("some_label", retrieved.label());
-        assert_eq!(49746, retrieved.image_data().unwrap().size);
-        let modified_time_retrieved = retrieved.image_data().unwrap().modified_time.duration_since(UNIX_EPOCH);
-        assert_eq!(modified_time_initial.unwrap(), modified_time_retrieved.unwrap());
-        // todo retrieve picture from db, compare with variable pictuire
+        let retrieved_picture = result.unwrap();
+        assert_eq!("testdata/some_pic.jpeg", retrieved_picture.file_path());
+        assert_eq!("some_label", retrieved_picture.label());
+        assert_eq!(49746, retrieved_picture.image_data().unwrap().size);
+        let retrieved: TimeStamp =  retrieved_picture.image_data().unwrap().modified_time();
+        assert_eq!(initial, retrieved);
+        assert_eq!(100, retrieved_picture.image_data().unwrap().palette().count());
     }
 }

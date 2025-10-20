@@ -1,6 +1,6 @@
 use std::env;
 use std::fs;
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use chrono::{DateTime, Local};
 
 fn main() {
@@ -20,5 +20,12 @@ fn main() {
     let datetime: DateTime<Local> = DateTime::from(modified);
 
     println!("{} ({})", datetime.format("%Y-%m-%d %H:%M:%S%.f"), timestamp_us);
+}
+
+fn datetime_from_timestamp_us(timestamp_us: u64) -> DateTime<Local> {
+    let secs = timestamp_us / 1_000_000;
+    let nanos = (timestamp_us % 1_000_000) * 1_000;
+    let system_time = UNIX_EPOCH + Duration::new(secs, nanos as u32);
+    DateTime::<Local>::from(system_time)
 }
 

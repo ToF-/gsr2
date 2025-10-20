@@ -1,3 +1,4 @@
+use crate::model::image_data::timestamp;
 use crate::model::picture::Picture;
 use std::collections::HashSet;
 use crate::model::image_data::ImageData;
@@ -136,20 +137,18 @@ pub fn delete_picture_files(file_path: &str) -> Result<()> {
     })
 }
 
-#[allow(dead_code)]
 pub fn get_data_from_picture_file(file_path: &str) -> Result<PictureFileData> {
     let path = PathBuf::from(file_path);
     match fs::metadata(path.clone()) {
         Ok(metadata) => {
             let file_size = metadata.len();
-            let modified_time = metadata.modified().unwrap();
+            let modified_time = timestamp(metadata.modified().unwrap());
             Ok(PictureFileData(file_size, modified_time))
         }
         Err(err) => Err(err),
     }
 }
 
-#[allow(dead_code)]
 pub fn get_palette_from_picture_file(file_path: &str) -> Result<Palette> {
     match image::open(file_path) {
         Ok(image) => {

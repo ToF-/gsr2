@@ -1,3 +1,5 @@
+use crate::model::image_data::datetime_from_time_stamp;
+use chrono::DateTime;
 use crate::file::paths::{file_name_from, thumbnail_name_from};
 use crate::model::image_data::ImageData;
 use std::io::Result;
@@ -48,14 +50,9 @@ impl Picture {
         }
     }
 
-    #[allow(dead_code)]
     pub fn modified_time_display(&self) -> String {
         if let Some(image_data) = &self.image_data {
-            let timestamp = time_format::from_system_time(image_data.modified_time())
-                .expect("can't unwrap modified time");
-            let sql_format =
-                time_format::format_common_utc(timestamp, time_format::DateFormat::SQL).unwrap();
-            sql_format
+            datetime_from_time_stamp(image_data.modified_time()).format("%Y-%m-%d %H:%M:%S%.f").to_string()
         } else {
             String::from("…/…")
         }

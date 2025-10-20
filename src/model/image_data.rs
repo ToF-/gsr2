@@ -1,21 +1,37 @@
+use time_format::now;
+use chrono::{DateTime, Local};
+use std::time::UNIX_EPOCH;
 use crate::file::picture_file::get_data_from_picture_file;
 use crate::model::palette::Palette;
 use image::Rgb;
 use std::collections::HashSet;
 use std::io::Result;
-use std::time::SystemTime;
+use std::time::{Duration, SystemTime};
 
 pub type Rgb8 = Rgb<u8>;
 pub type FileSize = u64;
-#[allow(dead_code)]
-pub struct PictureFileData(pub FileSize, pub SystemTime);
+pub type TimeStamp = u64;
+pub struct PictureFileData(pub FileSize, pub TimeStamp);
 pub type Tags = HashSet<String>;
+
+pub fn timestamp(system_time: SystemTime) -> TimeStamp {
+    let duration = system_time.duration_since(UNIX_EPOCH).expect("time went backwards");
+    duration.as_secs() * 1_000_000 + (duration.subsec_nanos() / 1_000) as u64
+}
+
+pub fn datetime_from_time_stamp(timestamp: u64) -> DateTime<Local> {
+    let secs = timestamp / 1_000_000;
+    let nanos = (timestamp % 1_000_000) * 1_000;
+    let system_time = UNIX_EPOCH + Duration::new(secs, nanos as u32);
+    DateTime::<Local>::from(system_time)
+}
+
 
 #[derive(Debug, Clone)]
 pub struct ImageData {
     pub label: String,
     pub size: FileSize,
-    pub modified_time: SystemTime,
+    pub modified_time: TimeStamp,
     pub palette: Palette,
     pub cover: bool,
     pub tags: Tags,
@@ -26,7 +42,7 @@ impl ImageData {
         ImageData {
             label: label.to_string(),
             size: 0,
-            modified_time: SystemTime::now(),
+            modified_time: timestamp(SystemTime::UNIX_EPOCH),
             palette: Palette::new(vec![], 0),
             cover: false,
             tags: HashSet::new(),
@@ -50,13 +66,16 @@ impl ImageData {
         self.label.clone()
     }
 
-    #[allow(dead_code)]
-    pub fn modified_time(&self) -> SystemTime {
+    pub fn modified_time(&self) -> TimeStamp {
         self.modified_time
     }
 
     pub fn size(&self) -> u64 {
         self.size
+    }
+
+    pub fn palette(&self) -> Palette {
+        self.palette.clone()
     }
 }
 
