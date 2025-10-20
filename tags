@@ -264,6 +264,7 @@ loading_from_a_single_file_path_collect_that_single_picture_file	/Users/christop
 loading_from_database_collect_all_the_picture_file_paths_stored	/Users/christophethibaut/Coding/gsr2/src/model/gallery.rs	/^    fn loading_from_database_collect_all_the_picture_file_paths_stored() {$/;"	f
 main	/Users/christophethibaut/Coding/gsr2/src/gen_data.rs	/^pub fn main() {$/;"	f
 main	/Users/christophethibaut/Coding/gsr2/src/main.rs	/^fn main() {$/;"	f
+main	/Users/christophethibaut/Coding/gsr2/src/scratch.rs	/^fn main() {$/;"	f
 main_window	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn main_window(&self) -> MainWindow {$/;"	f
 make_application	/Users/christophethibaut/Coding/gsr2/src/gui/view/application.rs	/^pub fn make_application(application_id: &str) -> gtk::Application {$/;"	f
 make_application_window	/Users/christophethibaut/Coding/gsr2/src/gui/view/main_window.rs	/^fn make_application_window(application: &gtk::Application, args: &Args) -> gtk::ApplicationWindow {$/;"	f
