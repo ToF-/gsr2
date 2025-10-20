@@ -1,3 +1,4 @@
+use crate::model::rank::Rank;
 use crate::env::default_values::{EXPAND_ON_SYMBOL, FULL_SIZE_ON_SYMBOL};
 use crate::gui::controller::Controller;
 
@@ -40,10 +41,14 @@ pub fn picture_label_display(label: &str, with_focus: Option<char>) -> String {
 
 pub fn title_display(controller: &Controller) -> String {
     format!(
-        "#{} {} {} {} {} {}{}",
+        "#{} {} {} {} {} {} {}{}",
         controller.navigator().position(),
         page_display(controller),
         controller.current_picture().file_name(),
+        match controller.current_picture().image_data() {
+            Some(image_data) => image_data.rank(),
+            None => Rank::NoStar,
+        },
         if controller.state().display_date_on() {
             controller.current_picture().modified_time_display()
         } else {

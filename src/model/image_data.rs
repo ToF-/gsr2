@@ -1,3 +1,4 @@
+use crate::model::rank::Rank;
 use time_format::now;
 use chrono::{DateTime, Local};
 use std::time::UNIX_EPOCH;
@@ -32,6 +33,7 @@ pub struct ImageData {
     pub label: String,
     pub size: FileSize,
     pub modified_time: TimeStamp,
+    pub rank: Rank,
     pub palette: Palette,
     pub cover: bool,
     pub tags: Tags,
@@ -42,6 +44,7 @@ impl ImageData {
         ImageData {
             label: label.to_string(),
             size: 0,
+            rank: Rank::NoStar,
             modified_time: timestamp(SystemTime::UNIX_EPOCH),
             palette: Palette::new(vec![], 0),
             cover: false,
@@ -55,6 +58,7 @@ impl ImageData {
                 label: String::from(""),
                 size: file_data.0,
                 modified_time: file_data.1,
+                rank: Rank::NoStar,
                 palette: Palette::new(vec![], 0),
                 cover: false,
                 tags: HashSet::new(),
@@ -76,6 +80,10 @@ impl ImageData {
 
     pub fn palette(&self) -> Palette {
         self.palette.clone()
+    }
+
+    pub fn rank(&self) -> Rank {
+        self.rank
     }
 }
 

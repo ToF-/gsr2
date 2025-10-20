@@ -3,4 +3,5 @@ pub mod image_data;
 pub mod order;
 pub mod palette;
 pub mod picture;
+pub mod rank;
 pub mod thumbnail;

@@ -26,6 +26,12 @@ impl Picture {
         picture
     }
 
+    pub fn new_with_image_data(file_path: &str, image_data: &ImageData) -> Self {
+        let mut picture: Picture = Self::new(file_path);
+        picture.set_image_data(image_data.clone());
+        picture 
+    }
+
     pub fn new_with_file_image_data(file_path: &str, label: &str) -> Result<Self> {
         ImageData::from_file(file_path).and_then(|image_data| {
             let new_image_data = ImageData {
@@ -34,6 +40,7 @@ impl Picture {
             };
             let mut picture: Picture = Self::new(file_path);
             picture.set_image_data(new_image_data);
+            println!("{:?}", picture);
             Ok(picture)
         })
     }

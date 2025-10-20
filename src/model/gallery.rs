@@ -114,14 +114,16 @@ impl Gallery {
 mod tests {
 
     use super::*;
+    use std::env::current_dir;
     use crate::env::default_values::TEST_DATABASE_FILE;
     use crate::file::database::Database;
     use crate::file::database::tests::my_db;
-    use crate::file::database::tests::{
-        delete_nine_colors_from_db, insert_nine_colors_sample_into_db,
-    };
     use crate::test_data;
     use crate::test_data::*;
+
+    fn current_directory() -> String {
+        current_dir().unwrap().display().to_string()
+    }
 
     #[test]
     fn loading_from_a_directory_collect_all_the_picture_files_from_that_directory() {
@@ -209,7 +211,7 @@ mod tests {
             .load_from_database(&database)
             .expect("can't load from database");
         gallery.sort_by(Order::Name);
-        assert_eq!(LARGE_PICTURE, gallery.picture(0).file_path());
+        assert_eq!( current_directory() + "/" + LARGE_PICTURE, gallery.picture(0).file_path());
     }
     #[test]
     fn finding_a_picture_by_file_path() {
@@ -218,7 +220,7 @@ mod tests {
         gallery
             .load_from_database(&database)
             .expect("can't load from database");
-        assert!(gallery.find_file_path(NINE_COLORS).is_some())
+        assert!(gallery.find_file_path(&(current_directory() + "/" + NINE_COLORS)).is_some())
     }
     #[test]
     fn changing_a_picture_by_its_index() {

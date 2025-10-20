@@ -49,8 +49,10 @@ MainWindow	/Users/tof/Coding/gsr2/src/gui/view/main_window.rs	/^pub struct MainW
 Mode	/Users/tof/Coding/gsr2/src/gui/mode.rs	/^pub enum Mode {$/;"	g
 NAME	/Users/tof/Coding/gsr2/src/gui/gsr_application/imp.rs	/^    const NAME: &'static str = "GsrApplication";$/;"	c
 NINE_COLORS	/Users/tof/Coding/gsr2/src/test_data.rs	/^pub const NINE_COLORS: &str = "testdata\/nine_colors.png";$/;"	c
+NO_STAR	/Users/tof/Coding/gsr2/src/env/default_values.rs	/^pub const NO_STAR:            &str = "";$/;"	c
 Navigator	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^pub struct Navigator {$/;"	s
 ONE_PICTURE_PER_ROW	/Users/tof/Coding/gsr2/src/env/default_values.rs	/^pub const ONE_PICTURE_PER_ROW: usize = 1;$/;"	c
+ONE_STAR_SYMBOL	/Users/tof/Coding/gsr2/src/env/default_values.rs	/^pub const ONE_STAR_SYMBOL:    &str = "☆";$/;"	c
 Order	/Users/tof/Coding/gsr2/src/model/order.rs	/^pub enum Order {$/;"	g
 PALETTE_AREA_HEIGHT	/Users/tof/Coding/gsr2/src/env/default_values.rs	/^pub const PALETTE_AREA_HEIGHT: i32 = 10;$/;"	c
 PALETTE_AREA_WIDTH	/Users/tof/Coding/gsr2/src/env/default_values.rs	/^pub const PALETTE_AREA_WIDTH: i32 = 90;$/;"	c
@@ -62,6 +64,7 @@ PictureFileData	/Users/tof/Coding/gsr2/src/model/image_data.rs	/^pub struct Pict
 PictureFrame	/Users/tof/Coding/gsr2/src/gui/view/picture_frame.rs	/^pub struct PictureFrame {$/;"	s
 PictureGrid	/Users/tof/Coding/gsr2/src/gui/view/picture_grid.rs	/^pub struct PictureGrid {$/;"	s
 RIGHT_PANE	/Users/tof/Coding/gsr2/src/gui/view/main_window.rs	/^pub const RIGHT_PANE: usize = 1;$/;"	c
+Rank	/Users/tof/Coding/gsr2/src/model/rank.rs	/^pub enum Rank {$/;"	g
 RcController	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^pub type RcController = Rc<RefCell<Controller>>;$/;"	T
 Rgb8	/Users/tof/Coding/gsr2/src/model/image_data.rs	/^pub type Rgb8 = Rgb<u8>;$/;"	T
 SCROLL_STEP	/Users/tof/Coding/gsr2/src/env/default_values.rs	/^pub const SCROLL_STEP: f64 = 100.0;$/;"	c
@@ -71,7 +74,9 @@ SLIDESHOW_DELAY_MIN	/Users/tof/Coding/gsr2/src/env/default_values.rs	/^pub const
 Setting	/Users/tof/Coding/gsr2/src/gui/setting.rs	/^pub enum Setting {$/;"	g
 State	/Users/tof/Coding/gsr2/src/gui/state.rs	/^pub struct State {$/;"	s
 TEST_DATABASE_FILE	/Users/tof/Coding/gsr2/src/env/default_values.rs	/^pub const TEST_DATABASE_FILE: &str = "testdata\/gsr2.db";$/;"	c
+THREE_STARS_SYMBOL	/Users/tof/Coding/gsr2/src/env/default_values.rs	/^pub const THREE_STARS_SYMBOL: &str = "☆☆☆";$/;"	c
 THUMB_SUFFIX	/Users/tof/Coding/gsr2/src/env/default_values.rs	/^pub const THUMB_SUFFIX: &str = "THUMB";$/;"	c
+TWO_STARS_SYMBOL	/Users/tof/Coding/gsr2/src/env/default_values.rs	/^pub const TWO_STARS_SYMBOL:   &str = "☆☆";$/;"	c
 Tags	/Users/tof/Coding/gsr2/src/model/image_data.rs	/^pub type Tags = HashSet<String>;$/;"	T
 TimeStamp	/Users/tof/Coding/gsr2/src/model/image_data.rs	/^pub type TimeStamp = u64;$/;"	T
 Type	/Users/tof/Coding/gsr2/src/gui/gsr_application/imp.rs	/^    type Type = super::GsrApplication;$/;"	T
@@ -167,6 +172,7 @@ count	/Users/tof/Coding/gsr2/src/model/palette.rs	/^    pub fn count(&self) -> u
 counting_the_numbers_of_distinct_colors_in_an_image	/Users/tof/Coding/gsr2/src/model/palette.rs	/^    fn counting_the_numbers_of_distinct_colors_in_an_image() {$/;"	f
 create_missing_thumbnails	/Users/tof/Coding/gsr2/src/file/picture_file.rs	/^pub fn create_missing_thumbnails(gallery: &Gallery, pictures_per_row: usize) {$/;"	f
 create_thumbnail_file	/Users/tof/Coding/gsr2/src/model/thumbnail.rs	/^pub fn create_thumbnail_file($/;"	f
+current_directory	/Users/tof/Coding/gsr2/src/model/gallery.rs	/^    fn current_directory() -> String {$/;"	f
 current_page	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn current_page(&self) -> usize {$/;"	f
 current_page_according_to_position_pictures_per_row	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    fn current_page_according_to_position_pictures_per_row() {$/;"	f
 current_picture	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn current_picture(&self) -> Picture {$/;"	f
@@ -177,7 +183,6 @@ datetime_from_timestamp_us	/Users/tof/Coding/gsr2/src/scratch.rs	/^fn datetime_f
 default_controls	/Users/tof/Coding/gsr2/src/gui/control.rs	/^pub fn default_controls() -> Controls {$/;"	f
 delete	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    pub fn delete(&mut self) {$/;"	f
 delete_current_picture	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    fn delete_current_picture(&self) {$/;"	f
-delete_nine_colors_from_db	/Users/tof/Coding/gsr2/src/file/database.rs	/^    pub fn delete_nine_colors_from_db() {$/;"	f
 delete_picture	/Users/tof/Coding/gsr2/src/file.rs	/^pub fn delete_picture(database: &Database, file_path: &str) -> IOResult<()> {$/;"	f
 delete_picture	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn delete_picture(&mut self) {$/;"	f
 delete_picture_file	/Users/tof/Coding/gsr2/src/file/picture_file.rs	/^pub fn delete_picture_file(file_path: &str) -> Result<()> {$/;"	f
@@ -211,11 +216,14 @@ file_size_display	/Users/tof/Coding/gsr2/src/model/picture.rs	/^    pub fn file_
 find_file_path	/Users/tof/Coding/gsr2/src/model/gallery.rs	/^    pub fn find_file_path(&self, file_path: &str) -> Option<usize> {$/;"	f
 finding_a_picture_by_file_path	/Users/tof/Coding/gsr2/src/model/gallery.rs	/^    fn finding_a_picture_by_file_path() {$/;"	f
 fmt	/Users/tof/Coding/gsr2/src/model/order.rs	/^    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {$/;"	f
+fmt	/Users/tof/Coding/gsr2/src/model/rank.rs	/^    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {$/;"	f
 focus_symbol	/Users/tof/Coding/gsr2/src/gui/state.rs	/^    pub fn focus_symbol(&self) -> char {$/;"	f
 frame	/Users/tof/Coding/gsr2/src/gui/view/picture_frame.rs	/^    pub fn frame(&self) -> gtk::Box {$/;"	f
 frame_window	/Users/tof/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn frame_window(&self) -> gtk::ScrolledWindow {$/;"	f
 from	/Users/tof/Coding/gsr2/src/model/order.rs	/^pub fn from(s: &str) -> Option<Order> {$/;"	f
 from	/Users/tof/Coding/gsr2/src/model/palette.rs	/^    pub fn from(image: &DynamicImage) -> Self {$/;"	f
+from	/Users/tof/Coding/gsr2/src/model/rank.rs	/^    fn from(n: i64) -> Self {$/;"	f
+from_and_to_i64	/Users/tof/Coding/gsr2/src/model/rank.rs	/^    fn from_and_to_i64() {$/;"	f
 from_connection	/Users/tof/Coding/gsr2/src/file/database.rs	/^    pub fn from_connection(connection_string: &str) -> std::io::Result<Self> {$/;"	f
 from_file	/Users/tof/Coding/gsr2/src/model/image_data.rs	/^    pub fn from_file(file_path: &str) -> Result<Self> {$/;"	f
 from_key_name_and_mode_to_a_control	/Users/tof/Coding/gsr2/src/gui/control.rs	/^    fn from_key_name_and_mode_to_a_control() {$/;"	f
@@ -246,7 +254,7 @@ image_data	/Users/tof/Coding/gsr2/src/model/picture.rs	/^    pub fn image_data(&
 initially_not_editing	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    fn initially_not_editing() {$/;"	f
 input	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    pub fn input(&self) -> String {$/;"	f
 insert_and_retrieve_a_picture_with_image_data	/Users/tof/Coding/gsr2/src/file/database.rs	/^    fn insert_and_retrieve_a_picture_with_image_data() {$/;"	f
-insert_nine_colors_sample_into_db	/Users/tof/Coding/gsr2/src/file/database.rs	/^    pub fn insert_nine_colors_sample_into_db() {$/;"	f
+into	/Users/tof/Coding/gsr2/src/model/rank.rs	/^    fn into(self) -> i64 {$/;"	f
 is_selected	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn is_selected(&self, index: usize) -> bool {$/;"	f
 jump	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn jump(&mut self) {$/;"	f
 label	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn label(&mut self) {$/;"	f
@@ -325,6 +333,7 @@ new_from_application	/Users/tof/Coding/gsr2/src/gui/view/main_window.rs	/^    pu
 new_from_frame	/Users/tof/Coding/gsr2/src/gui/view/picture_frame.rs	/^    pub fn new_from_frame(frame: &gtk::Box) -> Self {$/;"	f
 new_from_grid	/Users/tof/Coding/gsr2/src/gui/view/picture_grid.rs	/^    pub fn new_from_grid(grid: &gtk::Grid, controller_rc: &RcController) -> Self {$/;"	f
 new_with_file_image_data	/Users/tof/Coding/gsr2/src/model/picture.rs	/^    pub fn new_with_file_image_data(file_path: &str, label: &str) -> Result<Self> {$/;"	f
+new_with_image_data	/Users/tof/Coding/gsr2/src/model/picture.rs	/^    pub fn new_with_image_data(file_path: &str, image_data: &ImageData) -> Self {$/;"	f
 new_with_label	/Users/tof/Coding/gsr2/src/model/picture.rs	/^    pub fn new_with_label(file_path: &str, label: &str) -> Self {$/;"	f
 new_with_pictures	/Users/tof/Coding/gsr2/src/model/gallery.rs	/^    pub fn new_with_pictures(pictures: Vec<Picture>) -> Self {$/;"	f
 next_page_start	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn next_page_start(&self) -> usize {$/;"	f
@@ -371,6 +380,7 @@ quit	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn quit(&self) {$/;"
 range	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn range(&self) -> Option<(usize, usize)> {$/;"	f
 range_end	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn range_end(&self) -> Option<usize> {$/;"	f
 range_start	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn range_start(&self) -> Option<usize> {$/;"	f
+rank	/Users/tof/Coding/gsr2/src/model/image_data.rs	/^    pub fn rank(&self) -> Rank {$/;"	f
 reattach_slideshow_event	/Users/tof/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn reattach_slideshow_event(&self, seconds: i32) {$/;"	f
 refresh_view	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    fn refresh_view(&self) {$/;"	f
 remove_cells	/Users/tof/Coding/gsr2/src/gui/view/picture_grid.rs	/^    pub fn remove_cells(&self) {$/;"	f
@@ -431,6 +441,7 @@ set_title	/Users/tof/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn set_ti
 setting_a_range_selects_included_pictures	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    fn setting_a_range_selects_included_pictures() {$/;"	f
 setting_display	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn setting_display(&mut self) {$/;"	f
 setting_order	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn setting_order(&mut self) {$/;"	f
+show	/Users/tof/Coding/gsr2/src/model/rank.rs	/^    pub fn show(&self) -> String {$/;"	f
 single_view	/Users/tof/Coding/gsr2/src/gui/state.rs	/^    pub fn single_view(&self) -> bool {$/;"	f
 single_view	/Users/tof/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn single_view(&self) -> bool {$/;"	f
 size	/Users/tof/Coding/gsr2/src/gui/view/picture_grid.rs	/^    pub fn size(&self) -> usize {$/;"	f

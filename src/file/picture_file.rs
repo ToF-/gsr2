@@ -1,3 +1,4 @@
+use crate::model::rank::Rank;
 use crate::model::image_data::timestamp;
 use crate::model::picture::Picture;
 use std::collections::HashSet;
@@ -79,6 +80,7 @@ pub fn collect_picture_data(picture: &Picture) -> Result<Picture> {
                     label: "".to_string(),
                     size: file_data.0,
                     modified_time: file_data.1,
+                    rank: Rank::NoStar, 
                     palette: palette,
                     tags: HashSet::new(),
                     cover: false,

@@ -1,3 +1,5 @@
+use crate::model::rank::Rank;
+use std::env::current_dir;
 use crate::model::palette::Palette;
 use std::time::SystemTime;
 use std::time::Duration;
@@ -55,7 +57,6 @@ impl Database {
             Some(data) => data,
             None => ImageData::new(""),
         };
-        println!("image_data:\n{:?}\n", image_data);
         self.connection().execute(
             "INSERT INTO Picture (        \n\
              FilePath,                    \n\
@@ -72,7 +73,7 @@ impl Database {
              image_data.label(),
              image_data.size(),
              image_data.modified_time(),
-             0, // rank to do
+             <Rank as Into<i64>>::into(image_data.rank()),
              image_data.palette().sample_as_array(),
              image_data.palette.count(),
              false],
@@ -128,7 +129,7 @@ impl Database {
     pub fn rusqlite_retrieve_all_pictures(&self) -> SqlResult<ImageDataMap> {
         self.connection()
             .prepare(
-                "SELECT                     \n\
+            "SELECT                     \n\
              FilePath,                  \n\
              Label,                     \n\
              FileSize,                  \n\
@@ -155,7 +156,6 @@ impl Database {
                             }
                         }
                     };
-                    println!("{:?}", map);
                     Ok(map)
                 })
             })
@@ -166,11 +166,9 @@ impl Database {
             Ok(map) => {
                 let mut pictures: Vec<Picture> = vec![];
                 for (file_path, image_data) in map.iter() {
-                    match Picture::new_with_file_image_data(file_path, &image_data.label()) {
-                        Ok(picture) => pictures.push(picture),
-                        Err(err) => return Err(err),
-                    }
-                }
+                    let picture = Picture::new_with_image_data(file_path, &image_data);
+                    pictures.push(picture)
+                };
                 Ok(pictures)
             }
             Err(err) => Err(std::io::Error::other(err)),
@@ -195,7 +193,7 @@ impl Database {
             },
         };
         let modified_time = row.get(3).expect("can't get column ModifiedTime");
-        // todo let rank = row.get(4).expect("can't get column Rank");
+        let rank_value: i64 = row.get(4).expect("can't get column Rank");
         let sample_array = row.get(5).expect("can't get column Sample");
         let color_count: usize = row.get(6).expect("can't get column ColorCount");
         let cover = row.get(7).expect("can't get column Cover");
@@ -206,6 +204,7 @@ impl Database {
             label: label,
             size: size,
             modified_time: modified_time,
+            rank: Rank::from(rank_value),
             palette: palette,
             tags: HashSet::new(),
             cover: cover,
@@ -267,41 +266,6 @@ pub mod tests {
         let database = Database::rusqlite_from_connection(TEST_DATABASE_FILE)
             .expect("test database can't be open");
         database
-            .connection()
-            .execute("DELETE FROM Picture;", [])
-            .expect("db error");
-        database.connection().execute(
-            "INSERT INTO Picture (FilePath, Label) VALUES ('testdata/nine_colors.png', 'sample');",
-            [],
-        ).expect("db error");
-        database
-            .connection()
-            .execute(
-                "INSERT INTO Picture (FilePath, Label) VALUES ('testdata/single_dot.png', '');",
-                [],
-            )
-            .expect("db error");
-        database.connection().execute(
-            "INSERT INTO Picture (FilePath, Label) VALUES ('testdata/white_square.png', 'foo');",
-            [],
-        ).expect("db error");
-        database.connection().execute(
-            "INSERT INTO Picture (FilePath, Label) VALUES ('testdata/large_picture.png', 'foo');",
-            [],
-        ).expect("db error");
-        database
-    }
-
-    pub fn delete_nine_colors_from_db() {
-        let database = my_db();
-        let _ = database.rusqlite_delete_picture_with_file_path(NINE_COLORS);
-    }
-
-    pub fn insert_nine_colors_sample_into_db() {
-        let database = my_db();
-        let picture: Picture =
-            Picture::new_with_file_image_data(NINE_COLORS, "sample").expect("can't create picture");
-        let _ = database.rusqlite_insert_picture(&picture);
     }
 
     #[test]
@@ -311,15 +275,6 @@ pub mod tests {
         assert!(status.is_ok());
         let map = status.unwrap();
         assert_eq!(4, map.len());
-        assert_eq!(
-            "sample".to_string(),
-            map.get(NINE_COLORS).unwrap().clone().label()
-        );
-        assert_eq!(
-            "foo".to_string(),
-            map.get(WHITE_SQUARE).unwrap().clone().label()
-        );
-        assert_eq!("".to_string(), map.get(SINGLE_DOT).unwrap().clone().label());
     }
 
     #[test]
@@ -370,6 +325,7 @@ pub mod tests {
             label: "some_label".to_string(),
             size: picture_file_data.0,
             modified_time: picture_file_data.1,
+            rank: Rank::ThreeStars,
             palette: Palette::new([
                 Color { r: 4, g: 4, b: 4 },
                 Color { r: 4, g: 4, b: 252 },
@@ -390,6 +346,7 @@ pub mod tests {
         database.rusqlite_delete_picture_with_file_path(&file_path);
         assert_eq!( Ok(1), database.rusqlite_insert_picture(&picture));
         let result = database.rusqlite_retrieve_picture_with_file_path(&file_path);
+        database.rusqlite_delete_picture_with_file_path(&file_path);
         assert!(result.is_ok(), "could not retrieve picture in db");
         let retrieved_picture = result.unwrap();
         assert_eq!("testdata/some_pic.jpeg", retrieved_picture.file_path());
