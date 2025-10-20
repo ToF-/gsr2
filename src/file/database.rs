@@ -63,19 +63,17 @@ impl Database {
              FileSize,                    \n\
              ModifiedTime,                \n\
              Rank,                        \n\
-             SampleSize,                  \n\
              Sample,                      \n\
              ColorCount,                  \n\
              Cover)                       \n\
-             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9);",
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8);",
              params![
              self.file_path_as_stored(&picture.file_path()),
              image_data.label(),
              image_data.size(),
              image_data.modified_time(),
              0, // rank to do
-             image_data.palette().sample().len(),
-             [], // image_data.palette.sample(),
+             image_data.palette().sample_as_array(),
              image_data.palette.count(),
              false],
         )
@@ -100,12 +98,12 @@ impl Database {
 
     pub fn rusqlite_retrieve_picture_with_file_path(&self, file_path: &str) -> SqlResult<Picture> {
         self.connection().query_row(
-            "SELECT FilePath,           \n\
+            "SELECT                     \n\
+             FilePath,                  \n\
              Label,                     \n\
              FileSize,                  \n\
              ModifiedTime,              \n\
              Rank,                      \n\
-             SampleSize,                \n\
              Sample,                    \n\
              ColorCount,                \n\
              Cover                      \n\
@@ -178,12 +176,12 @@ impl Database {
         };
         let modified_time = row.get(3).expect("can't get column ModifiedTime");
         // todo let rank = row.get(4).expect("can't get column Rank");
-        let sample_size = row.get(5).expect("can't get column SampleSize");
-        // todo let sample = row.get(6).expect("can't get column Sample");
-        let color_count: usize = row.get(7).expect("can't get column ColorCount");
-        let cover = row.get(8).expect("can't get column Cover");
+        let sample_array = row.get(5).expect("can't get column Sample");
+        let color_count: usize = row.get(6).expect("can't get column ColorCount");
+        let cover = row.get(7).expect("can't get column Cover");
         let mut picture = Picture::new_with_label(&file_path, &label);
-        let palette = Palette::new(vec![], sample_size);
+        let mut palette = Palette::new(vec![], color_count);
+        palette.set_sample_from_array(sample_array);
         let image_data = ImageData {
             label: label,
             size: size,

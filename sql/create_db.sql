@@ -4,7 +4,6 @@ CREATE TABLE IF NOT EXISTS Picture (
     FileSize INTEGER,
     ModifiedTime INTEGER,
     Rank INTEGER,
-    SampleSize INTEGER,
     Sample BLOB,
     ColorCount INTEGER,
     Cover BOOLEAN);
