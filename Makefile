@@ -10,8 +10,9 @@ gen_data: src/gen_data.rs
 	cargo run -- --create 4
 	cargo run -- --create 2
 
+ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 collect_data:
-	cargo run -- --collect dir testdata
+	cargo run -- --collect dir $(ROOT_DIR)/testdata
 
 reinit_data: create_db gen_data collect_data
 	sqlite3 testdata/gsr2.db "SELECT FilePath, Label, FileSize, ModifiedTime, Rank, ColorCount, Cover FROM Picture;"

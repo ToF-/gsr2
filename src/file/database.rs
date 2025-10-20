@@ -128,24 +128,34 @@ impl Database {
     pub fn rusqlite_retrieve_all_pictures(&self) -> SqlResult<ImageDataMap> {
         self.connection()
             .prepare(
-                "SELECT FilePath, Label           \n\
-            FROM Picture ORDER BY FilePath;",
+                "SELECT                     \n\
+             FilePath,                  \n\
+             Label,                     \n\
+             FileSize,                  \n\
+             ModifiedTime,              \n\
+             Rank,                      \n\
+             Sample,                    \n\
+             ColorCount,                \n\
+             Cover                      \n\
+             FROM Picture ORDER BY FilePath;",
             )
             .and_then(|mut statement| {
                 let mut map: ImageDataMap = HashMap::new();
                 statement.query([]).and_then(|mut rows| {
                     while let Some(row) = rows.next().unwrap() {
-                        match Self::rusqlite_row_to_mere_picture(row) {
+                        match Self::rusqlite_row_to_picture(row) {
                             Ok(picture) => {
                                 let _ =
-                                    map.insert(picture.file_path(), picture.image_data().unwrap());
+                                    map.insert(
+                                        self.file_path_as_retrieved(&picture.file_path()), picture.image_data().unwrap());
                             }
                             Err(err) => {
                                 eprintln!("{}", err);
                                 return Err(err);
                             }
                         }
-                    }
+                    };
+                    println!("{:?}", map);
                     Ok(map)
                 })
             })
