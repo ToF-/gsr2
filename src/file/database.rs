@@ -96,6 +96,17 @@ impl Database {
         )
     }
 
+    pub fn rusqlite_check_picture_with_file_path(&self, file_path: &str) -> SqlResult<String> {
+        self.connection().query_one(
+            "SELECT                     \n\
+             FilePath                   \n\
+             FROM Picture               \n\
+             WHERE FilePath = ?1;",
+            params![file_path],
+            |row| row.get(0)
+        )
+    }
+
     pub fn rusqlite_retrieve_picture_with_file_path(&self, file_path: &str) -> SqlResult<Picture> {
         self.connection().query_row(
             "SELECT                     \n\
@@ -164,7 +175,6 @@ impl Database {
     }
 
     fn rusqlite_row_to_picture(row: &Row) -> SqlResult<Picture, rusqlite::Error> {
-        println!("this is the row {:?}", row);
         let file_path: String = row.get(0).expect("can't get column FilePath");
         let label: String = row.get(1).expect("can't get column Label");
         let size: u64 = match row.get(2) {

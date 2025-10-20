@@ -97,17 +97,29 @@ pub fn collect_data(gallery: &Gallery, database: &Database) -> Result<()> {
     let total: usize = gallery.pictures().len();
     for picture in gallery.pictures() {
         count += 1;
-        if database.rusqlite_retrieve_picture_with_file_path(&picture.file_path()).is_err() {
-            match collect_picture_data(&picture) {
-                Ok(picture) => {
-                    println!("{:?}", picture);
-                },
-                Err(err) => {
-                    println!("{}", err)
-                },
-            };
-            println!("{}/{}:{}", count, total, picture.file_path());
+        match database.rusqlite_check_picture_with_file_path(&picture.file_path()) {
+            Ok(file_path) => {
+                println!("already in db: {}", file_path)
+            },
+            Err(_) => {
+                match collect_picture_data(&picture) {
+                    Ok(picture) => {
+                        match database.rusqlite_insert_picture(&picture) {
+                            Ok(_) => {
+                                println!("{:?}", picture);
+                            },
+                            Err(err) => {
+                                eprintln!("{}:\n{}", picture.file_path(), err)
+                            },
+                        }
+                    },
+                    Err(err) => {
+                        println!("{}", err)
+                    },
+                };
+            },
         }
+        println!("{}/{}:{}", count, total, picture.file_path());
     };
     Ok(())
 }
