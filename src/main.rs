@@ -103,7 +103,7 @@ fn main() {
                 #[strong]
                 controller_rc,
                 move |application: &gtk::Application| {
-                    MainWindow::activate(application, &cli, &controller_rc, &config)
+                    MainWindow::activate(application, &cli, &controller_rc)
                 }
             ));
             MainWindow::run_application(application);

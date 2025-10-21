@@ -31,6 +31,8 @@ impl Editor {
     pub fn begin(&mut self, main_window: &MainWindow, entry_kind: EntryKind) {
         let prompt: &str = match entry_kind {
             EntryKind::Label => "Enter a label",
+            EntryKind::AddTag => "Enter a new tag to add",
+            EntryKind::RemoveTag => "Enter a tag to remove",
             EntryKind::Number => "Enter a number",
             EntryKind::DeleteConfirmation => "Delete these pictures?",
         };
@@ -105,7 +107,7 @@ impl Editor {
         let ch_is_ok = match self.entry_kind {
             EntryKind::Number => ch.is_ascii_digit(),
             EntryKind::DeleteConfirmation => matches!(ch, 'e' | 'n' | 'o' | 's' | 'y'),
-            EntryKind::Label => matches!(ch,
+            EntryKind::Label | EntryKind::AddTag | EntryKind:: RemoveTag => matches!(ch,
                 'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' '),
         };
         if ch_is_ok && self.input.len() < MAX_LABEL_LENGTH {

@@ -1,3 +1,4 @@
+use crate::model::image_data::Tags;
 use crate::model::rank::Rank;
 use std::env::current_dir;
 use crate::model::palette::Palette;
@@ -130,7 +131,39 @@ impl Database {
              image_data.palette().sample_as_array(),
              image_data.palette.count(),
              false],
+        ).and_then(|_| {
+            self.rusqlite_delete_tags(&picture.file_path())
+                .and_then(|_| {
+                    self.rusqlite_add_tags(&picture.file_path(), &image_data.tags)
+                })
+        })
+    }
+
+    fn rusqlite_delete_tags(&self, file_path: &str) -> SqlResult<usize> {
+        self.connection().execute(
+            "DELETE FROM Tag        \n\
+            WHERE FilePath = ?1;",
+            params![self.file_path_as_stored(file_path)]
         )
+    }
+
+    fn rusqlite_add_tags(&self, file_path: &str, tags: &Tags) -> SqlResult<usize> {
+        let mut count: usize = 0;
+        for label in tags.iter() {
+            match self.connection().execute(
+                "INSERT INTO Tag(          \n\
+                 FilePath,                 \n\
+                 Label)                    \n\
+                 VALUES (?1, ?2);",
+                 params![self.file_path_as_stored(file_path),
+                 label,]) {
+                Ok(n) => { count+= n; },
+                Err(err) => {
+                    eprintln!("{}", err);
+                },
+            }
+        }
+        Ok(count)
     }
 
     pub fn rusqlite_delete_picture_with_file_path(&self, file_path: &str) -> SqlResult<usize> {

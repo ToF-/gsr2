@@ -109,6 +109,16 @@ impl Picture {
             Rank::NoStar
         }
     }
+
+    pub fn add_tag(&mut self, label: &str) {
+        let mut new_image_data: ImageData = match &self.image_data {
+            Some(image_data) => image_data.clone(),
+            None => ImageData::new(""),
+        };
+        let _ = new_image_data.tags.insert(label.to_string());
+        self.image_data = Some(new_image_data.clone());
+    }
+
     pub fn set_label(&mut self, label: &str) {
         let new_image_data = if let Some(image_data) = &self.image_data {
             ImageData {

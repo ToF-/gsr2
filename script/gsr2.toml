@@ -1,4 +1,4 @@
-database_file = 'testdata/gsr2_new.db'
+database_file = 'testdata/gsr2.db'
 width = 1800
 height = 1800
 

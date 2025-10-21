@@ -222,6 +222,7 @@ impl Controller {
         self.main_window()
             .set_opacity_for_current_picture(&self, opacity)
     }
+
     pub fn process_key(&mut self, key: Key) {
         let controls = self.controls.clone();
         match self.state().mode() {
@@ -256,17 +257,25 @@ impl Controller {
                                 self.label_selected_pictures(&self.editor.input())
                             };
                             self.set_opacity_for_current_picture(1.00);
-                        }
+                        },
+                        EntryKind::AddTag => {
+                            if !self.editor.input().is_empty() {
+                                self.tag_selected_pictures(&self.editor.input())
+                            };
+                            self.set_opacity_for_current_picture(1.00);
+                        },
+                        EntryKind::RemoveTag => {
+                        },
                         EntryKind::Number => {
                             self.move_towards_index(self.editor.input().parse().unwrap())
-                        }
+                        },
                         EntryKind::DeleteConfirmation => {
                             if &self.editor.input() == "yes" {
                                 self.confirm_delete_picture()
                             } else {
                                 self.cancel_delete_picture()
                             }
-                        }
+                        },
                     }
                 }
             }
@@ -301,6 +310,20 @@ impl Controller {
         self.navigator.set_page_changed()
     }
 
+    pub fn unlabel_selected_pictures(&mut self) {
+        if self.navigator.has_selected() {
+            for index in 0..self.navigator.limit() {
+                if self.navigator.is_selected(index) {
+                    self.label_picture_at_index(index, "");
+                }
+            }
+            self.navigator.unselect_all();
+        } else {
+            self.label_picture_at_index(self.navigator().position(), "")
+        };
+        self.navigator.set_page_changed()
+    }
+
     pub fn label_current_picture_with(&mut self, label: &str) {
         let mut picture = self.current_picture();
         picture.set_label(label);
@@ -318,6 +341,34 @@ impl Controller {
                 }
             }
         }
+    }
+
+    fn tag_picture_at_index(&mut self, index: usize, label: &str) {
+        let mut picture = self.gallery.picture(index);
+        picture.add_tag(label);
+        self.gallery.set_picture(index, picture.clone());
+        if self.args.on_database() {
+            match self.database.rusqlite_update_picture(&picture) {
+                Ok(_) => {}
+                Err(err) => {
+                    println!("{}", err);
+                }
+            }
+        }
+    }
+
+    pub fn tag_selected_pictures(&mut self, label: &str) {
+        if self.navigator.has_selected() {
+            for index in 0..self.navigator.limit() {
+                if self.navigator.is_selected(index) {
+                    self.tag_picture_at_index(index, label);
+                }
+            }
+            self.navigator.unselect_all();
+        } else {
+            self.tag_picture_at_index(self.navigator().position(), label)
+        };
+        self.navigator.set_page_changed()
     }
 
     pub fn move_towards_index(&mut self, index: usize) {
@@ -341,7 +392,6 @@ impl Controller {
                 | Control::OrderByValue
                 | Control::OrderByLabel
                 | Control::OrderByColorCount
-                | Control::OrderByPalette
                 | Control::OrderByPalette
                 | Control::Randomize => self.process_control(choice),
                 _ => println!("?"),
@@ -383,7 +433,10 @@ impl Controller {
             Control::ToggleSlideShow => self.toggle_slideshow(),
             Control::TogglePalette => self.toggle_palette(),
             Control::Jump => self.jump(),
+            Control::AddTag => self.add_tag(),
+            Control::RemoveTag => self.remove_tag(),
             Control::Label => self.label(),
+            Control::Unlabel => self.unlabel_selected_pictures(),
             Control::GridTwo => self.change_grid_size(2),
             Control::GridThree => self.change_grid_size(3),
             Control::GridFour => self.change_grid_size(4),
@@ -411,6 +464,18 @@ impl Controller {
             Control::RankThreeStars => self.rank_selected_pictures(Rank::ThreeStars),
             _ => {}
         }
+    }
+
+    pub fn add_tag(&mut self) {
+        self.set_opacity_for_current_picture(0.25);
+        self.editor.begin(&self.main_window(), EntryKind::AddTag);
+        self.state.set_mode(Mode::Editing);
+    }
+
+    pub fn remove_tag(&mut self) {
+        self.set_opacity_for_current_picture(0.25);
+        self.editor.begin(&self.main_window(), EntryKind::RemoveTag);
+        self.state.set_mode(Mode::Editing);
     }
 
     pub fn label(&mut self) {

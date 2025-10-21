@@ -1,6 +1,9 @@
+use itertools::Itertools;
+use std::collections::HashSet;
 use crate::model::rank::Rank;
 use crate::env::default_values::{EXPAND_ON_SYMBOL, FULL_SIZE_ON_SYMBOL};
 use crate::gui::controller::Controller;
+use crate::model::image_data::Tags;
 
 fn expand_display(on: bool) -> String {
     match on {
@@ -40,15 +43,26 @@ pub fn picture_label_display(label: &str, rank: Rank, with_focus: Option<char>) 
     )
 }
 
+fn tag_display(tags: Tags) -> String {
+    match tags.len() {
+        0 => String::from(""),
+        _ => format!("| {} |", tags.iter().join(" ")),
+    }
+}
+
 pub fn title_display(controller: &Controller) -> String {
     format!(
-        "#{} {} {} {} {} {} {}{}",
+        "#{} {} {} {} {} {} {} {}{}",
         controller.navigator().position(),
         page_display(controller),
         controller.current_picture().file_name(),
         match controller.current_picture().image_data() {
             Some(image_data) => image_data.rank(),
             None => Rank::NoStar,
+        },
+        match controller.current_picture().image_data() {
+            Some(image_data) => tag_display(image_data.tags),
+            None => "".to_string(),
         },
         if controller.state().display_date_on() {
             controller.current_picture().modified_time_display()

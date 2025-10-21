@@ -119,7 +119,7 @@ impl MainWindow {
         }
     }
 
-    pub fn activate(application: &gtk::Application, args: &Args, controller_rc: &RcController, config: &Config) {
+    pub fn activate(application: &gtk::Application, args: &Args, controller_rc: &RcController) {
         let pictures_per_row = args.pictures_per_row();
         let picture_grid = PictureGrid::new(pictures_per_row, controller_rc);
         let picture_frame = PictureFrame::new();
