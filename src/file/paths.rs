@@ -5,6 +5,15 @@ use crate::model::thumbnail::{thumbnail_size_display, thumbnail_size_for};
 use std::ffi::OsStr;
 use std::io::{Error, ErrorKind, Result};
 use std::path::PathBuf;
+use std::env::{current_dir, home_dir};
+
+pub fn current_directory() -> String {
+    current_dir().unwrap().display().to_string()
+}
+
+pub fn home_directory() -> String {
+    home_dir().map(|path| path.display().to_string()).expect("can't access to home_dir")
+}
 
 pub fn check_path_exists(path: &PathBuf) -> Result<&PathBuf> {
     if path.exists() {

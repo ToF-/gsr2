@@ -85,6 +85,10 @@ impl ImageData {
     pub fn rank(&self) -> Rank {
         self.rank
     }
+
+    pub fn set_rank(&mut self, rank: Rank) {
+        self.rank = rank
+    }
 }
 
 #[cfg(test)]

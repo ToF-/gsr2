@@ -172,7 +172,7 @@ count	/Users/tof/Coding/gsr2/src/model/palette.rs	/^    pub fn count(&self) -> u
 counting_the_numbers_of_distinct_colors_in_an_image	/Users/tof/Coding/gsr2/src/model/palette.rs	/^    fn counting_the_numbers_of_distinct_colors_in_an_image() {$/;"	f
 create_missing_thumbnails	/Users/tof/Coding/gsr2/src/file/picture_file.rs	/^pub fn create_missing_thumbnails(gallery: &Gallery, pictures_per_row: usize) {$/;"	f
 create_thumbnail_file	/Users/tof/Coding/gsr2/src/model/thumbnail.rs	/^pub fn create_thumbnail_file($/;"	f
-current_directory	/Users/tof/Coding/gsr2/src/model/gallery.rs	/^    fn current_directory() -> String {$/;"	f
+current_directory	/Users/tof/Coding/gsr2/src/file/paths.rs	/^pub fn current_directory() -> String {$/;"	f
 current_page	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn current_page(&self) -> usize {$/;"	f
 current_page_according_to_position_pictures_per_row	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    fn current_page_according_to_position_pictures_per_row() {$/;"	f
 current_picture	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn current_picture(&self) -> Picture {$/;"	f
@@ -206,7 +206,7 @@ extracting_a_palette_from_an_image	/Users/tof/Coding/gsr2/src/model/palette.rs	/
 file_name	/Users/tof/Coding/gsr2/src/model/picture.rs	/^    pub fn file_name(&self) -> String {$/;"	f
 file_name_from	/Users/tof/Coding/gsr2/src/file/paths.rs	/^pub fn file_name_from(file_path: &str) -> String {$/;"	f
 file_path	/Users/tof/Coding/gsr2/src/model/picture.rs	/^    pub fn file_path(&self) -> String {$/;"	f
-file_path_as_retrieved	/Users/tof/Coding/gsr2/src/file/database.rs	/^    pub fn file_path_as_retrieved(&self, file_path: &str) -> String {$/;"	f
+file_path_as_retrieved	/Users/tof/Coding/gsr2/src/file/database.rs	/^    pub fn file_path_as_retrieved(file_path: &str) -> String {$/;"	f
 file_path_as_stored	/Users/tof/Coding/gsr2/src/file/database.rs	/^    pub fn file_path_as_stored(&self, file_path: &str) -> String {$/;"	f
 file_path_not_starting_with_home_dir_are_not_tilded_as_stored	/Users/tof/Coding/gsr2/src/file/database.rs	/^    fn file_path_not_starting_with_home_dir_are_not_tilded_as_stored() {$/;"	f
 file_path_not_starting_with_tilde_are_not_developped_as_retrieved	/Users/tof/Coding/gsr2/src/file/database.rs	/^    fn file_path_not_starting_with_tilde_are_not_developped_as_retrieved() {$/;"	f
@@ -250,6 +250,7 @@ gtk_picture_from_file_path	/Users/tof/Coding/gsr2/src/gui/view/main_window.rs	/^
 has_a_range_if_range_start_and_range_end_are_set	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    fn has_a_range_if_range_start_and_range_end_are_set() {$/;"	f
 has_moved	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn has_moved(&self) -> bool {$/;"	f
 has_selected	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn has_selected(&self) -> bool {$/;"	f
+home_directory	/Users/tof/Coding/gsr2/src/file/paths.rs	/^pub fn home_directory() -> String {$/;"	f
 image_data	/Users/tof/Coding/gsr2/src/model/picture.rs	/^    pub fn image_data(&self) -> Option<ImageData> {$/;"	f
 initially_not_editing	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    fn initially_not_editing() {$/;"	f
 input	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    pub fn input(&self) -> String {$/;"	f
@@ -432,6 +433,7 @@ set_pictures_for_multiple_view	/Users/tof/Coding/gsr2/src/gui/view/main_window.r
 set_pictures_per_row	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn set_pictures_per_row(&mut self, pictures_per_row: usize) {$/;"	f
 set_range	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_range(&mut self) {$/;"	f
 set_range	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn set_range(&mut self, index: usize) {$/;"	f
+set_rank	/Users/tof/Coding/gsr2/src/model/image_data.rs	/^    pub fn set_rank(&mut self, rank: Rank) {$/;"	f
 set_sample_from_array	/Users/tof/Coding/gsr2/src/model/palette.rs	/^    pub fn set_sample_from_array(&mut self, array: [u8;31]) {$/;"	f
 set_setting	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_setting(&mut self, setting: &Control, choice: &Control) {$/;"	f
 set_slideshow_off	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_slideshow_off(&mut self) {$/;"	f
@@ -492,6 +494,7 @@ treat_uppercase_as_lowercase	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    fn t
 unselect	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn unselect(&mut self, index: usize) {$/;"	f
 unselect_all	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn unselect_all(&mut self) {$/;"	f
 unselect_all_cancel_ranges_and_selected_pictures	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    fn unselect_all_cancel_ranges_and_selected_pictures() {$/;"	f
+update_a_picture_image_data	/Users/tof/Coding/gsr2/src/file/database.rs	/^    fn update_a_picture_image_data() {$/;"	f
 update_page_limits	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn update_page_limits(&mut self) {$/;"	f
 value_variants	/Users/tof/Coding/gsr2/src/model/order.rs	/^    fn value_variants<'a>() -> &'a [Self] {$/;"	f
 view_file_path	/Users/tof/Coding/gsr2/src/model/picture.rs	/^    pub fn view_file_path(&self, pictures_per_row: usize) -> String {$/;"	f

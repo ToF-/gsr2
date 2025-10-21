@@ -120,10 +120,7 @@ mod tests {
     use crate::file::database::tests::my_db;
     use crate::test_data;
     use crate::test_data::*;
-
-    fn current_directory() -> String {
-        current_dir().unwrap().display().to_string()
-    }
+    use crate::file::paths::current_directory;
 
     #[test]
     fn loading_from_a_directory_collect_all_the_picture_files_from_that_directory() {

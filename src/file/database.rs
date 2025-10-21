@@ -13,6 +13,7 @@ use std::env;
 use std::io::Result as IOResult;
 use std::rc::Rc;
 use std::cell::{RefCell,Ref};
+use crate::file::paths::home_directory;
 
 
 
@@ -20,7 +21,6 @@ pub type ImageDataMap = HashMap<String, ImageData>;
 
 #[derive(Debug, Clone)]
 pub struct Database {
-    home_dir: Option<String>,
     connection_rc: Rc<RefCell<Connection>>,
 }
 
@@ -36,7 +36,6 @@ impl Database {
         println!("connecting to {connection_string}…");
         match Connection::open(connection_string) {
             Ok(connection) => Ok(Database {
-                home_dir: env::home_dir().map(|path| path.display().to_string()),
                 connection_rc: Rc::new(RefCell::new(connection)),
             }),
             Err(err) => Err(err),
@@ -81,11 +80,30 @@ impl Database {
     }
 
     pub fn rusqlite_update_picture(&self, picture: &Picture) -> SqlResult<usize> {
+        let image_data = match picture.image_data() {
+            Some(data) => data,
+            None => ImageData::new(""),
+        };
         self.connection().execute(
-            "UPDATE Picture            \n\
-               SET Label = ?2             \n\
+            "UPDATE Picture               \n\
+             SET                          \n\
+             Label = ?2,                  \n\
+             FileSize = ?3,               \n\
+             ModifiedTime = ?4,           \n\
+             Rank = ?5,                   \n\
+             Sample = ?6,                 \n\
+             ColorCount =?7,              \n\
+             Cover = ?8                   \n\
                WHERE FilePath = ?1;",
-            params![picture.file_path(), picture.label(),],
+            params![
+             self.file_path_as_stored(&picture.file_path()),
+             image_data.label(),
+             image_data.size(),
+             image_data.modified_time(),
+             <Rank as Into<i64>>::into(image_data.rank()),
+             image_data.palette().sample_as_array(),
+             image_data.palette.count(),
+             false],
         )
     }
 
@@ -121,7 +139,7 @@ impl Database {
              Cover                      \n\
              FROM Picture               \n\
              WHERE FilePath = ?1;",
-            params![file_path],
+            params![self.file_path_as_stored(file_path)],
             Self::rusqlite_row_to_picture,
         )
     }
@@ -148,7 +166,7 @@ impl Database {
                             Ok(picture) => {
                                 let _ =
                                     map.insert(
-                                        self.file_path_as_retrieved(&picture.file_path()), picture.image_data().unwrap());
+                                        Self::file_path_as_retrieved(&picture.file_path()), picture.image_data().unwrap());
                             }
                             Err(err) => {
                                 eprintln!("{}", err);
@@ -184,6 +202,7 @@ impl Database {
 
     fn rusqlite_row_to_picture(row: &Row) -> SqlResult<Picture, rusqlite::Error> {
         let file_path: String = row.get(0).expect("can't get column FilePath");
+        let file_path_as_retrieved = Self::file_path_as_retrieved(&file_path);
         let label: String = row.get(1).expect("can't get column Label");
         let size: u64 = match row.get(2) {
             Ok(n) => n,
@@ -197,7 +216,7 @@ impl Database {
         let sample_array = row.get(5).expect("can't get column Sample");
         let color_count: usize = row.get(6).expect("can't get column ColorCount");
         let cover = row.get(7).expect("can't get column Cover");
-        let mut picture = Picture::new_with_label(&file_path, &label);
+        let mut picture = Picture::new_with_label(&file_path_as_retrieved, &label);
         let mut palette = Palette::new(vec![], color_count);
         palette.set_sample_from_array(sample_array);
         let image_data = ImageData {
@@ -214,33 +233,25 @@ impl Database {
     }
 
     pub fn file_path_as_stored(&self, file_path: &str) -> String {
-        if let Some(home_dir) = &self.home_dir {
-            let home_dir_str = home_dir.to_string();
-            if file_path.starts_with(&home_dir_str) {
-                let mut home_dir_iter = home_dir_str.chars();
-                let mut file_path_iter = file_path.chars();
-                while let Some(_) = home_dir_iter.next() {
-                    file_path_iter.next();
-                };
-                "~".to_owned() + file_path_iter.as_str()
-            } else {
-                file_path.to_string()
-            }
+        let home_dir_str = home_directory();
+        if file_path.starts_with(&home_dir_str) {
+            let mut home_dir_iter = home_dir_str.chars();
+            let mut file_path_iter = file_path.chars();
+            while let Some(_) = home_dir_iter.next() {
+                file_path_iter.next();
+            };
+            "~".to_owned() + file_path_iter.as_str()
         } else {
             file_path.to_string()
         }
     }
 
-    pub fn file_path_as_retrieved(&self, file_path: &str) -> String {
-        if let Some(home_dir) = &self.home_dir {
-            if file_path.starts_with("~") {
-                let mut remaining = file_path.chars();
-                remaining.next();
-                let result = home_dir.to_string() + remaining.as_str();
-                result
-            } else {
-                file_path.to_string()
-            }
+    pub fn file_path_as_retrieved(file_path: &str) -> String {
+        if file_path.starts_with("~") {
+            let mut remaining = file_path.chars();
+            remaining.next();
+            let result = home_directory() + remaining.as_str();
+            result
         } else {
             file_path.to_string()
         }
@@ -261,6 +272,7 @@ pub mod tests {
     use std::time::SystemTime;
     use palette_extract::Color;
     use crate::file::picture_file::get_data_from_picture_file;
+    use crate::file::paths::current_directory;
 
     pub fn my_db() -> Database {
         let database = Database::rusqlite_from_connection(TEST_DATABASE_FILE)
@@ -302,7 +314,7 @@ pub mod tests {
         if let Some(home) = env::home_dir() {
             let this_file_path = "~/test_file/~/.jpg";
             let expected = home.display().to_string() + "/test_file/~/.jpg";
-            assert_eq!(expected, database.file_path_as_retrieved(&this_file_path));
+            assert_eq!(expected, Database::file_path_as_retrieved(&this_file_path));
         }
     }
 
@@ -311,7 +323,7 @@ pub mod tests {
         let database = my_db();
         if let Some(home) = env::home_dir() {
             let this_file_path = "/other/~/test_file.jpg";
-            assert_eq!(this_file_path, database.file_path_as_retrieved(&this_file_path));
+            assert_eq!(this_file_path, Database::file_path_as_retrieved(&this_file_path));
         }
     }
 
@@ -355,5 +367,20 @@ pub mod tests {
         let retrieved: TimeStamp =  retrieved_picture.image_data().unwrap().modified_time();
         assert_eq!(initial, retrieved);
         assert_eq!(100, retrieved_picture.image_data().unwrap().palette().count());
+    }
+
+    #[test]
+    fn update_a_picture_image_data() {
+        let database = my_db();
+        let file_path = current_directory() + "/" + NINE_COLORS;
+        let mut picture = database.rusqlite_retrieve_picture_with_file_path(&file_path).expect(&format!("can't retrieve picture: {}", file_path));
+        let old_picture = picture.clone();
+        let mut image_data = picture.image_data().expect("can't access picture image data");
+        image_data.set_rank(Rank::TwoStars);
+        picture.set_image_data(image_data);
+        assert!(database.rusqlite_update_picture(&picture).is_ok());
+        let new_picture = database.rusqlite_retrieve_picture_with_file_path(&file_path).expect(&format!("can't retrieve updated picture: {}", file_path));
+        assert_eq!(Rank::TwoStars, new_picture.image_data().expect("can't access image data").rank());
+        database.rusqlite_update_picture(&picture);
     }
 }
