@@ -13,8 +13,9 @@ use std::env;
 use std::io::Result as IOResult;
 use std::rc::Rc;
 use std::cell::{RefCell,Ref};
-use crate::file::paths::home_directory;
-
+use crate::file::paths::{file_exists, home_directory};
+use std::path::PathBuf;
+use rusqlite::Error::InvalidPath;
 
 
 pub type ImageDataMap = HashMap<String, ImageData>;
@@ -25,14 +26,17 @@ pub struct Database {
 }
 
 impl Database {
-    pub fn from_connection(connection_string: &str) -> std::io::Result<Self> {
-        match Self::rusqlite_from_connection(connection_string) {
+    pub fn from_connection(connection_string: &str, create: bool) -> std::io::Result<Self> {
+        match Self::rusqlite_from_connection(connection_string, create) {
             Ok(database) => Ok(database),
             Err(err) => Err(std::io::Error::other(err)),
         }
     }
 
-    fn rusqlite_from_connection(connection_string: &str) -> SqlResult<Self> {
+    fn rusqlite_from_connection(connection_string: &str, create: bool) -> SqlResult<Self> {
+        if ! file_exists(connection_string) && ! create {
+            return Err(InvalidPath(PathBuf::from(connection_string)))
+        };
         println!("connecting to {connection_string}…");
         match Connection::open(connection_string) {
             Ok(connection) => Ok(Database {
@@ -49,6 +53,28 @@ impl Database {
         } else {
             panic!("can't open database connection")
         }
+    }
+
+    pub fn rusqlite_create_schema(&self) -> SqlResult<usize> {
+        let result = self.connection().execute(
+            "CREATE TABLE IF NOT EXISTS Picture (      \n\
+            FilePath TEXT NOT NULL PRIMARY KEY,        \n\
+            Label TEXT NOT NULL,                       \n\
+            FileSize INTEGER,                          \n\
+            ModifiedTime INTEGER,                      \n\
+            Rank INTEGER,                              \n\
+            Sample BLOB,                               \n\
+            ColorCount INTEGER,                        \n\
+            Cover BOOLEAN);",params![])
+            .and_then(|_|
+                self.connection().execute(
+                    "CREATE TABLE IF NOT EXISTS Tag (    \n\
+                    FilePath TEXT NOT NULL,              \n\
+                    Label TEXT NOT NULL,                \n\
+                    PRIMARY KEY (FilePath, Label));",
+                    params![])
+                );
+        result
     }
 
     pub fn rusqlite_insert_picture(&self, picture: &Picture) -> SqlResult<usize> {

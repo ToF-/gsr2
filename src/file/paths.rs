@@ -26,6 +26,11 @@ pub fn check_path_exists(path: &PathBuf) -> Result<&PathBuf> {
     }
 }
 
+pub fn file_exists(file_path: &str) -> bool {
+    let path = PathBuf::from(file_path);
+    check_path_exists(&path).is_ok()
+}
+
 pub fn check_path_is_directory(path: &PathBuf) -> Result<&PathBuf> {
     if path.is_dir() {
         Ok(path)

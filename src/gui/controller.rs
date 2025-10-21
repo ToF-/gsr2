@@ -45,7 +45,7 @@ impl Controller {
         let gallery = Gallery::new();
         let pictures_per_row = cli.pictures_per_row();
         database_connection().and_then(|connection_string| {
-            match Database::from_connection(&connection_string) {
+            match Database::from_connection(&connection_string, false) {
                 Err(err) => Err(err),
                 Ok(database) => Ok(Controller {
                     args: cli.clone(),

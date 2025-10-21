@@ -4,6 +4,7 @@ use crate::env::default_values::{CONFIG_FILE_VARIABLE, CONFIG_FILE_DEFAULT};
 use std::env;
 use std::io::Result;
 use std::fs;
+use crate::file_exists;
 
 #[derive(Debug, Deserialize)]
 pub struct Config {
@@ -22,6 +23,10 @@ pub fn config_file_location() -> String {
 }
 
 pub fn get_configuration() -> Result<Config> {
+    if ! file_exists(&config_file_location()) {
+        return Err(std::io::Error::other(format!("configuration file {} does not exist", config_file_location())))
+    };
+    println!("configuration: {}", config_file_location());
     match fs::read_to_string(config_file_location()) {
         Ok(content) => match toml::from_str(&content) {
             Ok(config) => Ok(config),

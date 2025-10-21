@@ -1,1 +1,2 @@
 export GSRDBC="testdata/gsr2.db"
+export GSRCFG="script/gsr2.toml"

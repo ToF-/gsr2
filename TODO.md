@@ -2,7 +2,7 @@
 ## Gallery Show in Rust
 
 ## Todo
-- [ ] if a new database file is given, and no option --initialize, print message and exit. if --initialize, create database and exit.
+- [X] if a new database file is given, and no option --initialize, print message and exit. if --initialize, create database and exit.
 - [X] an environment variable defines where to find .gsr.toml file, then this toml defines all interesting variables
 - [X] toggle show palette
 - [X] order by palette

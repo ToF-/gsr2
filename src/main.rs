@@ -1,3 +1,4 @@
+use crate::file::paths::file_exists;
 use crate::cli::args::Args;
 use crate::cli::command::Command;
 use crate::env::default_values::APPLICATION_ID;
@@ -13,6 +14,7 @@ use std::cell::RefCell;
 use std::process::exit;
 use std::rc::Rc;
 use crate::env::configuration::{config_file_location, get_configuration};
+use crate::file::database::Database;
 
 
 mod cli;
@@ -23,7 +25,6 @@ mod model;
 mod test_data;
 
 fn main() {
-    println!("configuration: {}", config_file_location());
     let config = match get_configuration() {
         Ok(config) => config,
         Err(err) => {
@@ -31,10 +32,25 @@ fn main() {
             exit(1)
         }
     };
-   println!("{:?}", config);
-    
     match Args::parse_and_check(None, &config) {
         Ok(cli) => {
+            if ! file_exists(&config.database_file)
+                && cli.initialize {
+                    println!("creating new database file {}", config.database_file);
+                    match Database::from_connection(&config.database_file, true) {
+                        Ok(database) => match database.rusqlite_create_schema() {
+                            Ok(_) => { exit(0); },
+                            Err(err) => {
+                                eprintln!("{}", err);
+                                exit(1)
+                            },
+                        },
+                        Err(err) => {
+                            eprintln!("{}", err);
+                            exit(1)
+                        }
+                    }
+            };
             if let Some(Command::File { ref file_path }) = cli.command {
                 println!("viewing file {}", file_path);
             } else if let Some(Command::Dir { ref directory }) = cli.command {
