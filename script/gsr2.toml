@@ -1,4 +1,4 @@
-[gui]
-width = 2000
-height = 2000
+database_file = 'testdata/gsr2.db'
+width = 1800
+height = 1800
 

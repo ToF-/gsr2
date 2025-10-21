@@ -1,3 +1,4 @@
+use crate::env::configuration::Config;
 use crate::cli::command::Command;
 use crate::env::default_values::{DEFAULT_HEIGHT, DEFAULT_SLIDESHOW_DELAY, DEFAULT_WIDTH};
 use crate::env::dimension::{dimension, slideshow_delay};
@@ -65,14 +66,14 @@ pub struct Args {
 }
 
 impl Args {
-    pub fn parse_and_check(args_opt: Option<Vec<&str>>) -> Result<Self> {
+    pub fn parse_and_check(args_opt: Option<Vec<&str>>, config: &Config) -> Result<Self> {
         let mut args: Self = match args_opt {
             Some(args) => Self::parse_from(args),
             None => Self::parse(),
         };
 
-        args.width = dimension(args.width, "GSR_WIDTH", "width", DEFAULT_WIDTH);
-        args.height = dimension(args.height, "GSR_HEIGHT", "height", DEFAULT_HEIGHT);
+        args.width = dimension(args.width.unwrap_or(config.width), "width", DEFAULT_WIDTH);
+        args.height = dimension(args.height.unwrap_or(config.height), "height", DEFAULT_HEIGHT);
         args.slideshow =
             slideshow_delay(args.slideshow, "slideshow delay", DEFAULT_SLIDESHOW_DELAY);
         if let Some(Command::File { ref file_path }) = args.command {

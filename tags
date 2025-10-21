@@ -10,6 +10,7 @@ COLOR_MAX	/Users/tof/Coding/gsr2/src/gui/view/palette_area.rs	/^    const COLOR_
 CONFIG_FILE_DEFAULT	/Users/tof/Coding/gsr2/src/env/default_values.rs	/^pub const CONFIG_FILE_DEFAULT: &str = ".gsr2.toml";$/;"	c
 CONFIG_FILE_VARIABLE	/Users/tof/Coding/gsr2/src/env/default_values.rs	/^pub const CONFIG_FILE_VARIABLE: &str = "GSRCFG";$/;"	c
 Command	/Users/tof/Coding/gsr2/src/cli/command.rs	/^pub enum Command {$/;"	g
+Config	/Users/tof/Coding/gsr2/src/env/configuration.rs	/^pub struct Config {$/;"	s
 Control	/Users/tof/Coding/gsr2/src/gui/control.rs	/^pub enum Control {$/;"	g
 Controller	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^pub struct Controller {$/;"	s
 Controls	/Users/tof/Coding/gsr2/src/gui/control.rs	/^pub type Controls = HashMap<KeyAndMode, Control>;$/;"	T
@@ -97,7 +98,7 @@ a_readme_file_is_not_a_picture_file	/Users/tof/Coding/gsr2/src/file/paths.rs	/^ 
 a_thumbnail_picture_has_the_name_of_the_original_picture_with_thumb_and_size_suffix	/Users/tof/Coding/gsr2/src/model/picture.rs	/^    fn a_thumbnail_picture_has_the_name_of_the_original_picture_with_thumb_and_size_suffix() {$/;"	f
 acknowledge_grid_size_change	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn acknowledge_grid_size_change(&mut self) {$/;"	f
 acknowledge_grid_size_change	/Users/tof/Coding/gsr2/src/gui/state.rs	/^    pub fn acknowledge_grid_size_change(&mut self) {$/;"	f
-activate	/Users/tof/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn activate(application: &gtk::Application, args: &Args, controller_rc: &RcController) {$/;"	f
+activate	/Users/tof/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn activate(application: &gtk::Application, args: &Args, controller_rc: &RcController, config: &Config) {$/;"	f
 after_begin_input_edting_is_true	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    fn after_begin_input_edting_is_true() {$/;"	f
 after_moving_old_position_and_new_position_can_differ	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    fn after_moving_old_position_and_new_position_can_differ() {$/;"	f
 after_page_change_page_change_is_detected	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    fn after_page_change_page_change_is_detected() {$/;"	f
@@ -245,6 +246,7 @@ gen_nine_colors	/Users/tof/Coding/gsr2/src/test_data.rs	/^pub fn gen_nine_colors
 gen_single_dot	/Users/tof/Coding/gsr2/src/test_data.rs	/^pub fn gen_single_dot() -> DynamicImage {$/;"	f
 gen_white_square	/Users/tof/Coding/gsr2/src/test_data.rs	/^pub fn gen_white_square() -> DynamicImage {$/;"	f
 get_all_picture_file_paths	/Users/tof/Coding/gsr2/src/file/picture_file.rs	/^pub fn get_all_picture_file_paths(path: &str) -> Result<Vec<String>> {$/;"	f
+get_configuration	/Users/tof/Coding/gsr2/src/env/configuration.rs	/^pub fn get_configuration() -> Result<Config> {$/;"	f
 get_data_from_picture_file	/Users/tof/Coding/gsr2/src/file/picture_file.rs	/^pub fn get_data_from_picture_file(file_path: &str) -> Result<PictureFileData> {$/;"	f
 get_palette	/Users/tof/Coding/gsr2/src/model/palette.rs	/^pub fn get_palette(image: &DynamicImage) -> Vec<Color> {$/;"	f
 get_palette_from_picture_file	/Users/tof/Coding/gsr2/src/file/picture_file.rs	/^pub fn get_palette_from_picture_file(file_path: &str) -> Result<Palette> {$/;"	f
@@ -363,7 +365,7 @@ page_start	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn page_start(&
 palette	/Users/tof/Coding/gsr2/src/model/image_data.rs	/^    pub fn palette(&self) -> Palette {$/;"	f
 palette_on	/Users/tof/Coding/gsr2/src/gui/state.rs	/^    pub fn palette_on(&self) -> bool {$/;"	f
 pane_gesture_click	/Users/tof/Coding/gsr2/src/gui/view/main_window.rs	/^fn pane_gesture_click($/;"	f
-parse_and_check	/Users/tof/Coding/gsr2/src/cli/args.rs	/^    pub fn parse_and_check(args_opt: Option<Vec<&str>>) -> Result<Self> {$/;"	f
+parse_and_check	/Users/tof/Coding/gsr2/src/cli/args.rs	/^    pub fn parse_and_check(args_opt: Option<Vec<&str>>, config: &Config) -> Result<Self> {$/;"	f
 picture	/Users/tof/Coding/gsr2/src/model/gallery.rs	/^    pub fn picture(&self, index: usize) -> Picture {$/;"	f
 picture_at	/Users/tof/Coding/gsr2/src/gui/view/picture_grid.rs	/^    fn picture_at(&self, col: i32, row: i32) -> Option<gtk::Picture> {$/;"	f
 picture_frame	/Users/tof/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn picture_frame(&self) -> PictureFrame {$/;"	f

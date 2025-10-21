@@ -1,3 +1,4 @@
+use crate::env::configuration::Config;
 use palette_extract::Color;
 use crate::Args;
 use crate::env::default_values::FOCUS_SYMBOL_1;
@@ -118,7 +119,7 @@ impl MainWindow {
         }
     }
 
-    pub fn activate(application: &gtk::Application, args: &Args, controller_rc: &RcController) {
+    pub fn activate(application: &gtk::Application, args: &Args, controller_rc: &RcController, config: &Config) {
         let pictures_per_row = args.pictures_per_row();
         let picture_grid = PictureGrid::new(pictures_per_row, controller_rc);
         let picture_frame = PictureFrame::new();

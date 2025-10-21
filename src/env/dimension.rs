@@ -2,27 +2,10 @@ use crate::env::default_values;
 use std::env;
 
 pub fn dimension(
-    source: Option<i32>,
-    var_name: &str,
+    value: i32,
     dimension_name: &str,
     default: i32,
 ) -> Option<i32> {
-    let value = match source {
-        Some(n) => n,
-        None => match env::var(var_name) {
-            Ok(s) => match s.parse::<i32>() {
-                Ok(n) => n,
-                _ => {
-                    println!(
-                        "illegal {} value: {}, setting to default",
-                        dimension_name, s
-                    );
-                    default
-                }
-            },
-            _ => default,
-        },
-    };
     if (default_values::DIMENSION_MIN..=default_values::DIMENSION_MAX).contains(&value) {
         Some(value)
     } else {

@@ -12,7 +12,8 @@ use gtk::prelude::ApplicationExt;
 use std::cell::RefCell;
 use std::process::exit;
 use std::rc::Rc;
-use crate::env::configuration::config_file_location;
+use crate::env::configuration::{config_file_location, get_configuration};
+
 
 mod cli;
 mod env;
@@ -22,8 +23,16 @@ mod model;
 mod test_data;
 
 fn main() {
-    println!("reading {}", config_file_location());
-    match Args::parse_and_check(None) {
+    println!("configuration: {}", config_file_location());
+    let config = match get_configuration() {
+        Ok(config) => config,
+        Err(err) => {
+            eprintln!("{}", err);
+            exit(1)
+        }
+    };
+    println!("{:?}", config);
+    match Args::parse_and_check(None, &config) {
         Ok(cli) => {
             if let Some(Command::File { ref file_path }) = cli.command {
                 println!("viewing file {}", file_path);
@@ -77,7 +86,7 @@ fn main() {
                 #[strong]
                 controller_rc,
                 move |application: &gtk::Application| {
-                    MainWindow::activate(application, &cli, &controller_rc)
+                    MainWindow::activate(application, &cli, &controller_rc, &config)
                 }
             ));
             MainWindow::run_application(application);
