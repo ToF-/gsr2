@@ -340,6 +340,7 @@ impl Controller {
                 | Control::OrderBySize
                 | Control::OrderByValue
                 | Control::OrderByLabel
+                | Control::OrderByColorCount
                 | Control::Randomize => self.process_control(choice),
                 _ => println!("?"),
             },
@@ -394,6 +395,7 @@ impl Controller {
             Control::OrderBySize => self.order_by(Order::Size),
             Control::OrderByValue => self.order_by(Order::Value),
             Control::OrderByLabel => self.order_by(Order::Label),
+            Control::OrderByColorCount => self.order_by(Order::ColorCount),
             Control::Randomize => self.order_by(Order::Random),
             Control::SetRange => self.set_range(),
             Control::ToggleSelected => self.toggle_selected(),

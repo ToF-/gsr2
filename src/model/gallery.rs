@@ -102,6 +102,11 @@ impl Gallery {
                     .image_data()
                     .map(|image_data| image_data.rank())
             }),
+            Order::ColorCount => self.pictures.sort_by_key(|picture| {
+                picture
+                    .image_data()
+                    .map(|image_data| image_data.palette().count())
+            }),
             _ => self.pictures.shuffle(&mut rng()),
         }
     }

@@ -2,7 +2,7 @@ use clap::builder::PossibleValue;
 
 #[derive(PartialEq, Clone, Copy, Debug)]
 pub enum Order {
-    Colors,
+    ColorCount,
     Date,
     Label,
     Name,
@@ -15,7 +15,7 @@ pub enum Order {
 #[allow(dead_code)]
 pub fn from(s: &str) -> Option<Order> {
     match s {
-        "c" => Some(Order::Colors),
+        "c" => Some(Order::ColorCount),
         "d" => Some(Order::Date),
         "l" => Some(Order::Label),
         "n" => Some(Order::Name),
@@ -36,7 +36,7 @@ impl std::fmt::Display for Order {
 impl clap::ValueEnum for Order {
     fn value_variants<'a>() -> &'a [Self] {
         &[
-            Order::Colors,
+            Order::ColorCount,
             Order::Date,
             Order::Name,
             Order::Random,
@@ -49,7 +49,7 @@ impl clap::ValueEnum for Order {
 
     fn to_possible_value(&self) -> Option<PossibleValue> {
         Some(match self {
-            Order::Colors => PossibleValue::new("Colors"),
+            Order::ColorCount => PossibleValue::new("Colors"),
             Order::Date => PossibleValue::new("Date"),
             Order::Name => PossibleValue::new("Name"),
             Order::Random => PossibleValue::new("Random"),
