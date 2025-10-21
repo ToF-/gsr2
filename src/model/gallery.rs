@@ -92,6 +92,11 @@ impl Gallery {
                     .image_data()
                     .map(|image_data| (true, Reverse(image_data.modified_time())))
             }),
+            Order::Label => self.pictures.sort_by_key(|picture| {
+                picture
+                    .image_data()
+                    .map(|image_data| image_data.label())
+            }),
             Order::Value => self.pictures.sort_by_key(|picture| {
                 picture
                     .image_data()

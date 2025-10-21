@@ -339,6 +339,7 @@ impl Controller {
                 | Control::OrderByDate
                 | Control::OrderBySize
                 | Control::OrderByValue
+                | Control::OrderByLabel
                 | Control::Randomize => self.process_control(choice),
                 _ => println!("?"),
             },
@@ -392,6 +393,7 @@ impl Controller {
             Control::OrderByDate => self.order_by(Order::Date),
             Control::OrderBySize => self.order_by(Order::Size),
             Control::OrderByValue => self.order_by(Order::Value),
+            Control::OrderByLabel => self.order_by(Order::Label),
             Control::Randomize => self.order_by(Order::Random),
             Control::SetRange => self.set_range(),
             Control::ToggleSelected => self.toggle_selected(),
