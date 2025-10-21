@@ -43,6 +43,10 @@ pub enum Control {
     OrderByDate,
     OrderBySize,
     Randomize,
+    RankNoStar,
+    RankOneStar,
+    RankTwoStars,
+    RankThreeStars,
 }
 
 pub type KeyAndMode = (String, Mode);
@@ -128,6 +132,10 @@ pub fn default_controls() -> Controls {
             (String::from("r"), Mode::Setting(Control::SetOrder)),
             Control::Randomize,
         ),
+        ((String::from("0"), Mode::View), Control::RankNoStar),
+        ((String::from("1"), Mode::View), Control::RankOneStar),
+        ((String::from("2"), Mode::View), Control::RankTwoStars),
+        ((String::from("3"), Mode::View), Control::RankThreeStars),
     ]);
     controls
 }

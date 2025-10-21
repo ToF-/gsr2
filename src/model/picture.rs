@@ -2,6 +2,7 @@ use crate::model::image_data::datetime_from_time_stamp;
 use chrono::DateTime;
 use crate::file::paths::{file_name_from, thumbnail_name_from};
 use crate::model::image_data::ImageData;
+use crate::model::rank::Rank;
 use std::io::Result;
 use time_format;
 
@@ -89,6 +90,13 @@ impl Picture {
         }
     }
 
+    pub fn rank(&self) -> Rank {
+        if let Some(image_data) = &self.image_data {
+            image_data.rank()
+        } else {
+            Rank::NoStar
+        }
+    }
     pub fn set_label(&mut self, label: &str) {
         let new_image_data = if let Some(image_data) = &self.image_data {
             ImageData {
@@ -97,6 +105,18 @@ impl Picture {
             }
         } else {
             ImageData::new(label)
+        };
+        self.image_data = Some(new_image_data)
+    }
+
+    pub fn set_rank(&mut self, rank: Rank) {
+        let new_image_data = if let Some(image_data) = &self.image_data {
+            ImageData {
+                rank: rank,
+                ..image_data.clone()
+            }
+        } else {
+            ImageData::new("")
         };
         self.image_data = Some(new_image_data)
     }

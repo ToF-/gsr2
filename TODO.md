@@ -2,7 +2,8 @@
 ## Gallery Show in Rust
 
 ## Todo
-- [ ] collect color information about picture files
+- [X] set rank on a picture with 1,2,3 or 0
+- [X] collect color information about picture files
 - [X] range affects the selected flag
 - [X] space selects/unselects a picture
 - [X] get the number of colors in an image

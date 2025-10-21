@@ -24,6 +24,7 @@ use rand::rng;
 use std::cell::RefCell;
 use std::io::Result as IOResult;
 use std::rc::Rc;
+use crate::model::rank::Rank;
 
 #[derive(Debug)]
 pub struct Controller {
@@ -394,6 +395,10 @@ impl Controller {
             Control::ToggleSelected => self.toggle_selected(),
             Control::CancelRange => self.cancel_range(),
             Control::DeletePicture => self.delete_picture(),
+            Control::RankNoStar => self.rank_selected_pictures(Rank::NoStar),
+            Control::RankOneStar => self.rank_selected_pictures(Rank::OneStar),
+            Control::RankTwoStars => self.rank_selected_pictures(Rank::TwoStars),
+            Control::RankThreeStars => self.rank_selected_pictures(Rank::ThreeStars),
             _ => {}
         }
     }
@@ -402,6 +407,35 @@ impl Controller {
         self.set_opacity_for_current_picture(0.25);
         self.editor.begin(&self.main_window(), EntryKind::Label);
         self.state.set_mode(Mode::Editing);
+    }
+
+
+    fn rank_picture_at_index(&mut self, index: usize, rank: Rank) {
+        let mut picture = self.gallery.picture(index);
+        picture.set_rank(rank);
+        self.gallery.set_picture(index, picture.clone());
+        if self.args.on_database() {
+            match self.database.rusqlite_update_picture(&picture) {
+                Ok(_) => {}
+                Err(err) => {
+                    println!("{}", err);
+                }
+            }
+        }
+    }
+
+    pub fn rank_selected_pictures(&mut self, rank: Rank) {
+        if self.navigator.has_selected() {
+            for index in 0..self.navigator.limit() {
+                if self.navigator.is_selected(index) {
+                    self.rank_picture_at_index(index, rank);
+                }
+            }
+            self.navigator.unselect_all();
+        } else {
+            self.rank_picture_at_index(self.navigator().position(), rank)
+        };
+        self.navigator.set_page_changed()
     }
 
     pub fn jump(&mut self) {

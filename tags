@@ -356,7 +356,7 @@ picture	/Users/tof/Coding/gsr2/src/model/gallery.rs	/^    pub fn picture(&self, 
 picture_at	/Users/tof/Coding/gsr2/src/gui/view/picture_grid.rs	/^    fn picture_at(&self, col: i32, row: i32) -> Option<gtk::Picture> {$/;"	f
 picture_frame	/Users/tof/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn picture_frame(&self) -> PictureFrame {$/;"	f
 picture_grid	/Users/tof/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn picture_grid(&self) -> PictureGrid {$/;"	f
-picture_label_display	/Users/tof/Coding/gsr2/src/gui/display.rs	/^pub fn picture_label_display(label: &str, with_focus: Option<char>) -> String {$/;"	f
+picture_label_display	/Users/tof/Coding/gsr2/src/gui/display.rs	/^pub fn picture_label_display(label: &str, rank: Rank, with_focus: Option<char>) -> String {$/;"	f
 pictures	/Users/tof/Coding/gsr2/src/model/gallery.rs	/^    pub fn pictures(&self) -> &Vec<Picture> {$/;"	f
 pictures_per_row	/Users/tof/Coding/gsr2/src/cli/args.rs	/^    pub fn pictures_per_row(&self) -> i32 {$/;"	f
 pictures_per_row	/Users/tof/Coding/gsr2/src/gui/state.rs	/^    pub fn pictures_per_row(&self) -> usize {$/;"	f
@@ -382,6 +382,9 @@ range	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn range(&self) -> O
 range_end	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn range_end(&self) -> Option<usize> {$/;"	f
 range_start	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn range_start(&self) -> Option<usize> {$/;"	f
 rank	/Users/tof/Coding/gsr2/src/model/image_data.rs	/^    pub fn rank(&self) -> Rank {$/;"	f
+rank	/Users/tof/Coding/gsr2/src/model/picture.rs	/^    pub fn rank(&self) -> Rank {$/;"	f
+rank_picture_at_index	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    fn rank_picture_at_index(&mut self, index: usize, rank: Rank) {$/;"	f
+rank_selected_pictures	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn rank_selected_pictures(&mut self, rank: Rank) {$/;"	f
 reattach_slideshow_event	/Users/tof/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn reattach_slideshow_event(&self, seconds: i32) {$/;"	f
 refresh_view	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    fn refresh_view(&self) {$/;"	f
 remove_cells	/Users/tof/Coding/gsr2/src/gui/view/picture_grid.rs	/^    pub fn remove_cells(&self) {$/;"	f
@@ -434,6 +437,7 @@ set_pictures_per_row	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn se
 set_range	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_range(&mut self) {$/;"	f
 set_range	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn set_range(&mut self, index: usize) {$/;"	f
 set_rank	/Users/tof/Coding/gsr2/src/model/image_data.rs	/^    pub fn set_rank(&mut self, rank: Rank) {$/;"	f
+set_rank	/Users/tof/Coding/gsr2/src/model/picture.rs	/^    pub fn set_rank(&mut self, rank: Rank) {$/;"	f
 set_sample_from_array	/Users/tof/Coding/gsr2/src/model/palette.rs	/^    pub fn set_sample_from_array(&mut self, array: [u8;31]) {$/;"	f
 set_setting	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_setting(&mut self, setting: &Control, choice: &Control) {$/;"	f
 set_slideshow_off	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_slideshow_off(&mut self) {$/;"	f
