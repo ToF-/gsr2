@@ -42,6 +42,7 @@ pub enum Control {
     OrderByName,
     OrderByDate,
     OrderBySize,
+    OrderByValue,
     Randomize,
     RankNoStar,
     RankOneStar,
@@ -131,6 +132,10 @@ pub fn default_controls() -> Controls {
         (
             (String::from("r"), Mode::Setting(Control::SetOrder)),
             Control::Randomize,
+        ),
+        (
+            (String::from("v"), Mode::Setting(Control::SetOrder)),
+            Control::OrderByValue,
         ),
         ((String::from("0"), Mode::View), Control::RankNoStar),
         ((String::from("1"), Mode::View), Control::RankOneStar),

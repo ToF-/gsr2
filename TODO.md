@@ -2,6 +2,8 @@
 ## Gallery Show in Rust
 
 ## Todo
+- [ ] order by label
+- [X] order by rank
 - [X] set rank on a picture with 1,2,3 or 0
 - [X] collect color information about picture files
 - [X] range affects the selected flag

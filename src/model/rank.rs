@@ -1,7 +1,7 @@
 use crate::env::default_values::{THREE_STARS_SYMBOL, TWO_STARS_SYMBOL, ONE_STAR_SYMBOL, NO_STAR};
 use std::fmt;
 
-#[derive(PartialEq, Copy, Clone, Debug)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Copy, Clone, Debug)]
 pub enum Rank {
    ThreeStars, TwoStars, OneStar, NoStar,
 }

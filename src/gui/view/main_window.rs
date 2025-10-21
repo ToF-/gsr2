@@ -186,7 +186,7 @@ impl MainWindow {
                     String::from("Display… (d:date on | s:size on | f:focus change on)")
                 }
                 Control::SetOrder => {
-                    String::from("Order… (d: by date | n: by name | r: randomize | s: by size)")
+                    String::from("Order… (d: by date | n: by name | r: randomize | s: by size | v: by value)")
                 }
                 _ => panic!("incorrect choice for setting: {:?}", choice),
             },
