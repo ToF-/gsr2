@@ -31,7 +31,8 @@ fn main() {
             exit(1)
         }
     };
-    println!("{:?}", config);
+   println!("{:?}", config);
+    
     match Args::parse_and_check(None, &config) {
         Ok(cli) => {
             if let Some(Command::File { ref file_path }) = cli.command {
