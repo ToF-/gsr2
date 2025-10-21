@@ -1,5 +1,7 @@
+use crate::gui::view::palette_area::make_palette_area;
+use palette_extract::Color;
 use crate::clone;
-use crate::env::default_values::MAX_PICTURES_PER_ROW;
+use crate::env::default_values::{GRID_PALETTE_AREA_HEIGHT, GRID_PALETTE_AREA_WIDTH, MAX_PICTURES_PER_ROW};
 use crate::gui::controller::RcController;
 use crate::gui::display::picture_label_display;
 use crate::gui::mode::Mode;
@@ -123,7 +125,7 @@ impl PictureGrid {
         }
     }
 
-    pub fn set_picture_at(&self, col: i32, row: i32, picture: &gtk::Picture) {
+    pub fn set_picture_at(&self, col: i32, row: i32, picture: &gtk::Picture, with_sample: Option<Vec<Color>>) {
         let grid = self.grid();
         if let Some(widget) = grid.child_at(col, row) {
             let cell_box: gtk::Box = widget.downcast::<gtk::Box>().unwrap();
@@ -132,6 +134,9 @@ impl PictureGrid {
             }
             cell_box.append(picture);
             cell_box.append(&make_label());
+            if let Some(sample) = with_sample {
+                cell_box.append(&make_palette_area(sample, GRID_PALETTE_AREA_WIDTH, GRID_PALETTE_AREA_HEIGHT))
+            }
         };
     }
 

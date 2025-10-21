@@ -2,6 +2,8 @@
 ## Gallery Show in Rust
 
 ## Todo
+- [X] toggle show palette
+- [X] order by palette
 - [X] order by colour count
 - [X] order by label
 - [X] order by rank

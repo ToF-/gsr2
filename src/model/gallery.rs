@@ -107,6 +107,11 @@ impl Gallery {
                     .image_data()
                     .map(|image_data| image_data.palette().count())
             }),
+            Order::Palette => self.pictures.sort_by_key(|picture| {
+                picture
+                    .image_data()
+                    .map(|image_data| image_data.palette().sample_as_array())
+            }),
             _ => self.pictures.shuffle(&mut rng()),
         }
     }

@@ -45,6 +45,7 @@ pub enum Control {
     OrderByValue,
     OrderByLabel,
     OrderByColorCount,
+    OrderByPalette,
     Randomize,
     RankNoStar,
     RankOneStar,
@@ -146,6 +147,10 @@ pub fn default_controls() -> Controls {
         (
             (String::from("c"), Mode::Setting(Control::SetOrder)),
             Control::OrderByColorCount,
+        ),
+        (
+            (String::from("p"), Mode::Setting(Control::SetOrder)),
+            Control::OrderByPalette,
         ),
         ((String::from("0"), Mode::View), Control::RankNoStar),
         ((String::from("1"), Mode::View), Control::RankOneStar),

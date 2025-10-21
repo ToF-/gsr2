@@ -19,6 +19,10 @@ pub const SLIDESHOW_DELAY_MIN: i32 = 1;
 pub const SLIDESHOW_DELAY_MAX: i32 = 900;
 pub const DEFAULT_SLIDESHOW_DELAY: i32 = 60;
 pub const MAX_PICTURES_PER_ROW: i32 = 10;
+pub const FRAME_PALETTE_AREA_HEIGHT: i32 = 10;
+pub const FRAME_PALETTE_AREA_WIDTH: i32 = 90;
+pub const GRID_PALETTE_AREA_HEIGHT: i32 = 5;
+pub const GRID_PALETTE_AREA_WIDTH: i32 = 60;
 
 pub const EXPAND_ON_SYMBOL: &str = "  ⃞";
 pub const FULL_SIZE_ON_SYMBOL: &str = " 🔍";

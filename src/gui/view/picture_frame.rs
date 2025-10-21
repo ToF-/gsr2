@@ -1,9 +1,11 @@
+use crate::env::default_values::{FRAME_PALETTE_AREA_HEIGHT, FRAME_PALETTE_AREA_WIDTH};
 use crate::Controller;
 use gtk::Align;
 use gtk::Orientation;
 use gtk::Picture as GtkPicture;
 use gtk::prelude::BoxExt;
 use gtk::prelude::WidgetExt;
+use crate::gui::view::palette_area::make_palette_area;
 
 #[derive(Clone, Debug)]
 pub struct PictureFrame {
@@ -45,6 +47,12 @@ impl PictureFrame {
         };
         picture.set_can_shrink(!state.full_size_on());
         frame.append(picture);
+        if controller.state().palette_on() {
+            if let Some(image_data) = controller.current_picture().image_data() {
+                let palette_area = make_palette_area(image_data.palette().sample(), FRAME_PALETTE_AREA_WIDTH, FRAME_PALETTE_AREA_HEIGHT);
+                frame.append(&palette_area)
+            }
+        }
     }
 }
 

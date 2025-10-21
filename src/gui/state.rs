@@ -11,6 +11,7 @@ pub struct State {
     slideshow_on: bool,
     display_date_on: bool,
     display_size_on: bool,
+    palette_on: bool,
     mode: Mode,
     focus_symbol: char,
     change_focus_symbol_on: bool,
@@ -27,6 +28,7 @@ impl State {
             slideshow_on,
             display_date_on: false,
             display_size_on: false,
+            palette_on: false,
             mode: Mode::View,
             focus_symbol: FOCUS_SYMBOL_1,
             change_focus_symbol_on: true,
@@ -66,6 +68,14 @@ impl State {
 
     pub fn set_slideshow_off(&mut self) {
         self.slideshow_on = false;
+    }
+
+    pub fn palette_on(&self) -> bool {
+        self.palette_on
+    }
+
+    pub fn toggle_palette(&mut self) {
+        self.palette_on = ! self.palette_on
     }
 
     pub fn pictures_per_row(&self) -> usize {

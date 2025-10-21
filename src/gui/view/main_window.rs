@@ -1,3 +1,4 @@
+use palette_extract::Color;
 use crate::Args;
 use crate::env::default_values::FOCUS_SYMBOL_1;
 use crate::env::default_values::{FULL_OPACITY, HALF_OPACITY};
@@ -186,7 +187,7 @@ impl MainWindow {
                     String::from("Display… (d:date on | s:size on | f:focus change on)")
                 }
                 Control::SetOrder => {
-                    String::from("Order… (c: by color count | d: by date | l: by label | n: by name | r: randomize | s: by size | v: by value)")
+                    String::from("Order… (c: by color count | d: by date | l: by label | p: by palette | n: by name | r: randomize | s: by size | v: by value)")
                 }
                 _ => panic!("incorrect choice for setting: {:?}", choice),
             },
@@ -227,7 +228,12 @@ impl MainWindow {
                     } else {
                         no_thumbnail_picture()
                     };
-                    self.picture_grid.set_picture_at(col, row, &gtk_picture);
+                    let with_sample: Option<Vec<Color>> = if controller.state().palette_on() {
+                        picture.image_data().map(|image_data| image_data.palette().sample())
+                    } else {
+                        None
+                    };
+                    self.picture_grid.set_picture_at(col, row, &gtk_picture, with_sample);
                     let opacity: f64 = if let Some(position) =
                         navigator.position_from_coords(row as usize, col as usize)
                     {

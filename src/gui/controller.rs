@@ -341,6 +341,8 @@ impl Controller {
                 | Control::OrderByValue
                 | Control::OrderByLabel
                 | Control::OrderByColorCount
+                | Control::OrderByPalette
+                | Control::OrderByPalette
                 | Control::Randomize => self.process_control(choice),
                 _ => println!("?"),
             },
@@ -379,6 +381,7 @@ impl Controller {
             Control::ToggleExpand => self.toggle_expand(),
             Control::ToggleFullSize => self.toggle_full_size(),
             Control::ToggleSlideShow => self.toggle_slideshow(),
+            Control::TogglePalette => self.toggle_palette(),
             Control::Jump => self.jump(),
             Control::Label => self.label(),
             Control::GridTwo => self.change_grid_size(2),
@@ -396,6 +399,7 @@ impl Controller {
             Control::OrderByValue => self.order_by(Order::Value),
             Control::OrderByLabel => self.order_by(Order::Label),
             Control::OrderByColorCount => self.order_by(Order::ColorCount),
+            Control::OrderByPalette => self.order_by(Order::Palette),
             Control::Randomize => self.order_by(Order::Random),
             Control::SetRange => self.set_range(),
             Control::ToggleSelected => self.toggle_selected(),
@@ -512,6 +516,12 @@ impl Controller {
             let navigator = &mut self.navigator;
             navigator.set_page_changed();
         }
+    }
+
+    pub fn toggle_palette(&mut self) {
+        self.state.toggle_palette();
+        let navigator = &mut self.navigator;
+        navigator.set_page_changed()
     }
 
     pub fn toggle_slideshow(&mut self) {
