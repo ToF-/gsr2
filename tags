@@ -7,6 +7,8 @@
 APPLICATION_ID	/Users/tof/Coding/gsr2/src/env/default_values.rs	/^pub const APPLICATION_ID: &str = "org.example.gsr";$/;"	c
 Args	/Users/tof/Coding/gsr2/src/cli/args.rs	/^pub struct Args {$/;"	s
 COLOR_MAX	/Users/tof/Coding/gsr2/src/gui/view/palette_area.rs	/^    const COLOR_MAX: f64 = 9.0;$/;"	c
+CONFIG_FILE_DEFAULT	/Users/tof/Coding/gsr2/src/env/default_values.rs	/^pub const CONFIG_FILE_DEFAULT: &str = ".gsr2.toml";$/;"	c
+CONFIG_FILE_VARIABLE	/Users/tof/Coding/gsr2/src/env/default_values.rs	/^pub const CONFIG_FILE_VARIABLE: &str = "GSRCFG";$/;"	c
 Command	/Users/tof/Coding/gsr2/src/cli/command.rs	/^pub enum Command {$/;"	g
 Control	/Users/tof/Coding/gsr2/src/gui/control.rs	/^pub enum Control {$/;"	g
 Controller	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^pub struct Controller {$/;"	s
@@ -164,6 +166,7 @@ command_line_interface_with_command_file_with_non_existing_file	/Users/tof/Codin
 command_line_interface_with_command_file_with_non_file	/Users/tof/Coding/gsr2/src/cli/args.rs	/^    fn command_line_interface_with_command_file_with_non_file() {$/;"	f
 command_line_interface_with_command_file_with_non_jpg_or_png_file	/Users/tof/Coding/gsr2/src/cli/args.rs	/^    fn command_line_interface_with_command_file_with_non_jpg_or_png_file() {$/;"	f
 command_line_interface_with_no_command_dir_or_file_is_on_database	/Users/tof/Coding/gsr2/src/cli/args.rs	/^    fn command_line_interface_with_no_command_dir_or_file_is_on_database() {$/;"	f
+config_file_location	/Users/tof/Coding/gsr2/src/env/configuration.rs	/^pub fn config_file_location() -> String {$/;"	f
 confirm_delete_picture	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn confirm_delete_picture(&mut self) {$/;"	f
 confirm_input	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    pub fn confirm_input(&mut self) -> String {$/;"	f
 confirming_return_input_and_set_editing_to_false	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    fn confirming_return_input_and_set_editing_to_false() {$/;"	f

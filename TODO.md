@@ -2,6 +2,7 @@
 ## Gallery Show in Rust
 
 ## Todo
+- [ ] an environment variable defines where to find .gsr.toml file, then this toml defines all interesting variables
 - [X] toggle show palette
 - [X] order by palette
 - [X] order by colour count

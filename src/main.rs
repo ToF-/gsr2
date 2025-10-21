@@ -12,6 +12,7 @@ use gtk::prelude::ApplicationExt;
 use std::cell::RefCell;
 use std::process::exit;
 use std::rc::Rc;
+use crate::env::configuration::config_file_location;
 
 mod cli;
 mod env;
@@ -21,6 +22,7 @@ mod model;
 mod test_data;
 
 fn main() {
+    println!("reading {}", config_file_location());
     match Args::parse_and_check(None) {
         Ok(cli) => {
             if let Some(Command::File { ref file_path }) = cli.command {
