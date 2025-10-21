@@ -90,6 +90,18 @@ impl Picture {
         }
     }
 
+    pub fn label_sort_key(&self) -> String {
+        if let Some(image_data) = &self.image_data {
+            if ! image_data.label().is_empty() {
+                image_data.label()
+            } else {
+                String::from("~")
+            }
+        } else {
+            String::from("~")
+        }
+    }
+
     pub fn rank(&self) -> Rank {
         if let Some(image_data) = &self.image_data {
             image_data.rank()

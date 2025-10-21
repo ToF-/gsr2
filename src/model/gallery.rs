@@ -94,8 +94,7 @@ impl Gallery {
             }),
             Order::Label => self.pictures.sort_by_key(|picture| {
                 picture
-                    .image_data()
-                    .map(|image_data| image_data.label())
+                    .label_sort_key()
             }),
             Order::Value => self.pictures.sort_by_key(|picture| {
                 picture

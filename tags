@@ -271,6 +271,7 @@ label_current_picture_with	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pu
 label_length_is_limited_to_max_label_length	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    fn label_length_is_limited_to_max_label_length() {$/;"	f
 label_picture_at_index	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    fn label_picture_at_index(&mut self, index: usize, label: &str) {$/;"	f
 label_selected_pictures	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn label_selected_pictures(&mut self, label: &str) {$/;"	f
+label_sort_key	/Users/tof/Coding/gsr2/src/model/picture.rs	/^    pub fn label_sort_key(&self) -> String {$/;"	f
 large_picture	/Users/tof/Coding/gsr2/src/test_data.rs	/^pub fn large_picture() -> DynamicImage {$/;"	f
 left_pane	/Users/tof/Coding/gsr2/src/gui/view/main_window.rs	/^pub fn left_pane(panel_grid: &gtk::Grid) -> gtk::Label {$/;"	f
 len	/Users/tof/Coding/gsr2/src/model/gallery.rs	/^    pub fn len(&self) -> usize {$/;"	f
