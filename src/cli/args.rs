@@ -138,11 +138,15 @@ mod tests {
     use crate::cli::command::Command;
     use crate::test_data::*;
     use std::io::ErrorKind;
+    use crate::get_configuration;
 
+    fn config() -> Config {
+        get_configuration().unwrap()
+    }
     #[test]
     fn command_line_interface_with_command_file_with_adequate_argument() {
         let args = vec!["gsr", "file", SINGLE_DOT];
-        let args = Args::parse_and_check(Some(args)).unwrap();
+        let args = Args::parse_and_check(Some(args),&config()).unwrap();
         if let Some(Command::File { ref file_path }) = args.command {
             assert_eq!(SINGLE_DOT, file_path);
         } else {
@@ -154,7 +158,7 @@ mod tests {
     #[test]
     fn command_line_interface_with_command_file_with_non_existing_file() {
         let args = vec!["gsr", "file", "not_existing.png"];
-        let args = Args::parse_and_check(Some(args));
+        let args = Args::parse_and_check(Some(args), &config());
         assert!(args.is_err());
         let err = args.expect_err("can't extract error");
         assert_eq!(ErrorKind::NotFound, err.kind());
@@ -164,7 +168,7 @@ mod tests {
     #[test]
     fn command_line_interface_with_command_file_with_non_file() {
         let args = vec!["gsr", "file", "testdata"];
-        let args = Args::parse_and_check(Some(args));
+        let args = Args::parse_and_check(Some(args), &config());
         assert!(args.is_err());
         let err = args.expect_err("can't extract error");
         assert_eq!(ErrorKind::Other, err.kind());
@@ -173,7 +177,7 @@ mod tests {
     #[test]
     fn command_line_interface_with_command_file_with_non_jpg_or_png_file() {
         let args = vec!["gsr", "file", "src/file/paths.rs"];
-        let args = Args::parse_and_check(Some(args));
+        let args = Args::parse_and_check(Some(args), &config());
         assert!(args.is_err());
         let err = args.expect_err("can't extract error");
         assert_eq!(ErrorKind::Other, err.kind());
@@ -186,7 +190,7 @@ mod tests {
     #[test]
     fn command_line_interface_with_command_directory_and_adequate_argument() {
         let args = vec!["gsr", "dir", "."];
-        let args = Args::parse_and_check(Some(args)).unwrap();
+        let args = Args::parse_and_check(Some(args), &config()).unwrap();
         if let Some(Command::Dir { ref directory }) = args.command {
             assert_eq!(".", directory);
         } else {
@@ -197,7 +201,7 @@ mod tests {
     #[test]
     fn command_line_interface_dir_command_with_non_existing_specified_directory() {
         let args = vec!["gsr", "dir", "not_existing_dir"];
-        let args = Args::parse_and_check(Some(args));
+        let args = Args::parse_and_check(Some(args), &config());
         assert!(args.is_err());
         let err = args.expect_err("can't extract error");
         assert_eq!(ErrorKind::NotFound, err.kind());
@@ -206,7 +210,7 @@ mod tests {
     #[test]
     fn command_line_interface_dir_command_with_object_specified_not_directory() {
         let args = vec!["gsr", "dir", "README.md"];
-        let args = Args::parse_and_check(Some(args));
+        let args = Args::parse_and_check(Some(args), &config());
         assert!(args.is_err());
         let err = args.expect_err("can't extract error");
         assert_eq!(ErrorKind::NotADirectory, err.kind());
@@ -215,25 +219,25 @@ mod tests {
     #[test]
     fn with_no_grid_or_thumbnail_option_pictures_per_row_is_1() {
         let args = vec!["gsr", "dir", "testdata"];
-        let args = Args::parse_and_check(Some(args)).unwrap();
+        let args = Args::parse_and_check(Some(args), &config()).unwrap();
         assert_eq!(1, args.pictures_per_row())
     }
     #[test]
     fn pictures_per_row_is_determined_by_grid_option() {
         let args = vec!["gsr", "--grid", "5", "dir", "testdata"];
-        let args = Args::parse_and_check(Some(args)).unwrap();
+        let args = Args::parse_and_check(Some(args), &config()).unwrap();
         assert_eq!(5, args.pictures_per_row())
     }
     #[test]
     fn pictures_per_row_is_determined_by_thumbnails_option() {
         let args = vec!["gsr", "--thumbnails", "dir", "testdata"];
-        let args = Args::parse_and_check(Some(args)).unwrap();
+        let args = Args::parse_and_check(Some(args), &config()).unwrap();
         assert_eq!(10, args.pictures_per_row())
     }
     #[test]
     fn command_line_interface_with_no_command_dir_or_file_is_on_database() {
         let args = vec!["gsr", "--grid", "5"];
-        let args = Args::parse_and_check(Some(args)).unwrap();
+        let args = Args::parse_and_check(Some(args), &config()).unwrap();
         assert!(args.on_database())
     }
 }

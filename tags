@@ -99,6 +99,7 @@ a_thumbnail_picture_has_the_name_of_the_original_picture_with_thumb_and_size_suf
 acknowledge_grid_size_change	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn acknowledge_grid_size_change(&mut self) {$/;"	f
 acknowledge_grid_size_change	/Users/tof/Coding/gsr2/src/gui/state.rs	/^    pub fn acknowledge_grid_size_change(&mut self) {$/;"	f
 activate	/Users/tof/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn activate(application: &gtk::Application, args: &Args, controller_rc: &RcController) {$/;"	f
+add_a_tag_to_a_picture_image_data	/Users/tof/Coding/gsr2/src/file/database.rs	/^    fn add_a_tag_to_a_picture_image_data() {$/;"	f
 add_tag	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn add_tag(&mut self) {$/;"	f
 add_tag	/Users/tof/Coding/gsr2/src/model/picture.rs	/^    pub fn add_tag(&mut self, label: &str) {$/;"	f
 after_begin_input_edting_is_true	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    fn after_begin_input_edting_is_true() {$/;"	f
@@ -169,6 +170,7 @@ command_line_interface_with_command_file_with_non_existing_file	/Users/tof/Codin
 command_line_interface_with_command_file_with_non_file	/Users/tof/Coding/gsr2/src/cli/args.rs	/^    fn command_line_interface_with_command_file_with_non_file() {$/;"	f
 command_line_interface_with_command_file_with_non_jpg_or_png_file	/Users/tof/Coding/gsr2/src/cli/args.rs	/^    fn command_line_interface_with_command_file_with_non_jpg_or_png_file() {$/;"	f
 command_line_interface_with_no_command_dir_or_file_is_on_database	/Users/tof/Coding/gsr2/src/cli/args.rs	/^    fn command_line_interface_with_no_command_dir_or_file_is_on_database() {$/;"	f
+config	/Users/tof/Coding/gsr2/src/cli/args.rs	/^    fn config() -> Config {$/;"	f
 config_file_location	/Users/tof/Coding/gsr2/src/env/configuration.rs	/^pub fn config_file_location() -> String {$/;"	f
 confirm_delete_picture	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn confirm_delete_picture(&mut self) {$/;"	f
 confirm_input	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    pub fn confirm_input(&mut self) -> String {$/;"	f

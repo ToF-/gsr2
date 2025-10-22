@@ -200,7 +200,22 @@ impl Database {
              WHERE FilePath = ?1;",
             params![self.file_path_as_stored(file_path)],
             Self::rusqlite_row_to_picture,
-        )
+        ).and_then(|mut picture| {
+            let connection = self.connection();
+            let mut statement = connection.prepare(
+                "SELECT                   \n\
+                Label                     \n\
+                FROM Tag                  \n\
+                WHERE FilePath = ?1;")?;
+                let rows = statement.query_map(
+                    params![self.file_path_as_stored(file_path)],
+                    |row| Ok(row.get(0).expect("can't get column Label")))?;
+                for tag in rows {
+                    let label: String = tag.unwrap();
+                    picture.add_tag(&label)
+                }
+                Ok(picture)
+        })
     }
 
     pub fn rusqlite_retrieve_all_pictures(&self) -> SqlResult<ImageDataMap> {
@@ -334,7 +349,7 @@ pub mod tests {
     use crate::file::paths::current_directory;
 
     pub fn my_db() -> Database {
-        let database = Database::rusqlite_from_connection(TEST_DATABASE_FILE)
+        let database = Database::rusqlite_from_connection(TEST_DATABASE_FILE, false)
             .expect("test database can't be open");
         database
     }
@@ -440,6 +455,23 @@ pub mod tests {
         assert!(database.rusqlite_update_picture(&picture).is_ok());
         let new_picture = database.rusqlite_retrieve_picture_with_file_path(&file_path).expect(&format!("can't retrieve updated picture: {}", file_path));
         assert_eq!(Rank::TwoStars, new_picture.image_data().expect("can't access image data").rank());
-        database.rusqlite_update_picture(&picture);
+        database.rusqlite_update_picture(&old_picture);
+   }
+
+    #[test]
+    fn add_a_tag_to_a_picture_image_data() {
+        let database = my_db();
+        let file_path = current_directory() + "/" + NINE_COLORS;
+        let mut picture = database.rusqlite_retrieve_picture_with_file_path(&file_path).expect(&format!("can't retrieve picture: {}", file_path));
+        let old_picture = picture.clone();
+        let mut image_data = picture.image_data().expect("can't access picture image data");
+        picture.add_tag("foo");
+        picture.add_tag("bar");
+        assert!(database.rusqlite_update_picture(&picture).is_ok());
+        let new_picture = database.rusqlite_retrieve_picture_with_file_path(&file_path).expect(&format!("can't retrieve updated picture: {}", file_path));
+        assert!(new_picture.image_data().unwrap().tags.contains("foo"));
+        assert!(new_picture.image_data().unwrap().tags.contains("bar"));
+        database.rusqlite_update_picture(&old_picture);
     }
+
 }
