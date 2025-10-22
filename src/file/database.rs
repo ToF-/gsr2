@@ -1,16 +1,11 @@
 use crate::model::image_data::Tags;
 use crate::model::rank::Rank;
-use std::env::current_dir;
 use crate::model::palette::Palette;
-use std::time::SystemTime;
-use std::time::Duration;
 use std::collections::HashSet;
-use std::time::UNIX_EPOCH;
 use crate::model::image_data::ImageData;
 use crate::model::picture::Picture;
 use rusqlite::{Connection, Result as SqlResult, Row, params};
 use std::collections::HashMap;
-use std::env;
 use std::io::Result as IOResult;
 use std::rc::Rc;
 use std::cell::{RefCell,Ref};
@@ -185,6 +180,7 @@ impl Database {
         )
     }
 
+    #[cfg(test)]
     pub fn rusqlite_retrieve_picture_with_file_path(&self, file_path: &str) -> SqlResult<Picture> {
         self.connection().query_row(
             "SELECT                     \n\
@@ -296,7 +292,7 @@ impl Database {
                                 tags: new_tags,
                                 .. image_data.clone()
                             };
-                            let mut picture = Picture::new_with_image_data(file_path, &new_image_data);
+                            let picture = Picture::new_with_image_data(file_path, &new_image_data);
                             pictures.push(picture)
                         };
                         pictures.sort_by_key(|picture| picture.file_path());
@@ -309,12 +305,6 @@ impl Database {
         }
     }
 
-
-    fn rusqlite_row_to_mere_picture(row: &Row) -> SqlResult<Picture, rusqlite::Error> {
-        let file_path: String = row.get(0).expect("can't get column FilePath");
-        let label: String = row.get(1).expect("can't get column Label");
-        Ok(Picture::new_with_label(&file_path, &label))
-    }
 
     fn rusqlite_row_to_picture(row: &Row) -> SqlResult<Picture, rusqlite::Error> {
         let file_path: String = row.get(0).expect("can't get column FilePath");
@@ -336,13 +326,13 @@ impl Database {
         let mut palette = Palette::new(vec![], color_count);
         palette.set_sample_from_array(sample_array);
         let image_data = ImageData {
-            label: label,
-            size: size,
-            modified_time: modified_time,
+            label,
+            size,
+            modified_time,
             rank: Rank::from(rank_value),
-            palette: palette,
+            palette,
             tags: HashSet::new(),
-            cover: cover,
+            cover,
         };
         picture.set_image_data(image_data);
         Ok(picture)
@@ -389,6 +379,7 @@ pub mod tests {
     use palette_extract::Color;
     use crate::file::picture_file::get_data_from_picture_file;
     use crate::file::paths::current_directory;
+    use std::env;
 
     pub fn my_db() -> Database {
         let database = Database::rusqlite_from_connection(TEST_DATABASE_FILE, false)

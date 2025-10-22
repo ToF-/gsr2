@@ -1,5 +1,4 @@
 use crate::model::rank::Rank;
-use time_format::now;
 use chrono::{DateTime, Local};
 use std::time::UNIX_EPOCH;
 use crate::file::picture_file::get_data_from_picture_file;

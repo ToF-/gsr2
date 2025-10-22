@@ -1,4 +1,3 @@
-use crate::env::configuration::Config;
 use palette_extract::Color;
 use crate::Args;
 use crate::env::default_values::FOCUS_SYMBOL_1;

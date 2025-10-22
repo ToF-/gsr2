@@ -1,5 +1,4 @@
 use itertools::Itertools;
-use std::collections::HashSet;
 use crate::model::rank::Rank;
 use crate::env::default_values::{EXPAND_ON_SYMBOL, FULL_SIZE_ON_SYMBOL};
 use crate::gui::controller::Controller;

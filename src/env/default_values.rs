@@ -1,4 +1,3 @@
-use crate::file::paths::home_directory;
 pub const DEFAULT_HEIGHT: i32 = 1000;
 pub const DEFAULT_WIDTH: i32 = 1000;
 pub const ENTRY_WINDOW_WIDTH: i32 = 250;
@@ -40,10 +39,10 @@ pub const SCROLL_STEP: f64 = 100.0;
 pub const THUMB_SUFFIX: &str = "THUMB";
 pub const VALID_EXTENSIONS: [&str; 6] = ["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"];
 pub const GARBAGE: &str = "!:";
-pub const TEST_DATABASE_FILE: &str = "testdata/gsr2.db";
-pub const DATABASE_CONNECTION_VAR: &str = "GSRDBC";
 pub const APPLICATION_ID: &str = "org.example.gsr";
 pub const CONFIG_FILE_DEFAULT: &str = ".gsr2.toml";
 pub const CONFIG_FILE_VARIABLE: &str = "GSRCFG";
+#[cfg(test)]
+pub const TEST_DATABASE_FILE: &str = "testdata/gsr2.db";
 
 

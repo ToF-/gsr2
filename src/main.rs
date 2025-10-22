@@ -13,7 +13,7 @@ use gtk::prelude::ApplicationExt;
 use std::cell::RefCell;
 use std::process::exit;
 use std::rc::Rc;
-use crate::env::configuration::{config_file_location, get_configuration};
+use crate::env::configuration::get_configuration;
 use crate::file::database::Database;
 
 

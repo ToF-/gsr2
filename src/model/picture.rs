@@ -1,10 +1,10 @@
+use std::collections::HashSet;
 use crate::model::image_data::datetime_from_time_stamp;
-use chrono::DateTime;
 use crate::file::paths::{file_name_from, thumbnail_name_from};
 use crate::model::image_data::ImageData;
 use crate::model::rank::Rank;
 use std::io::Result;
-use time_format;
+use crate::model::image_data::Tags;
 
 #[derive(Debug, Clone)]
 pub struct Picture {
@@ -110,12 +110,36 @@ impl Picture {
         }
     }
 
+    pub fn tags(&self) -> Tags {
+        if let Some(image_data) = &self.image_data {
+            image_data.tags.clone()
+        } else {
+            HashSet::new()
+        }
+    }
     pub fn add_tag(&mut self, label: &str) {
         let mut new_image_data: ImageData = match &self.image_data {
             Some(image_data) => image_data.clone(),
             None => ImageData::new(""),
         };
         let _ = new_image_data.tags.insert(label.to_string());
+        self.image_data = Some(new_image_data.clone());
+    }
+
+    pub fn has_tag(&self, label: &str) -> bool {
+        if let Some(image_data) = &self.image_data {
+            image_data.tags.contains(label)
+        } else {
+            false
+        }
+    }
+
+    pub fn remove_tag(&mut self, label: &str) {
+        let mut new_image_data: ImageData = match &self.image_data {
+            Some(image_data) => image_data.clone(),
+            None => ImageData::new(""),
+        };
+        let _ = new_image_data.tags.remove(label);
         self.image_data = Some(new_image_data.clone());
     }
 
@@ -134,7 +158,7 @@ impl Picture {
     pub fn set_rank(&mut self, rank: Rank) {
         let new_image_data = if let Some(image_data) = &self.image_data {
             ImageData {
-                rank: rank,
+                rank,
                 ..image_data.clone()
             }
         } else {

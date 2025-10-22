@@ -14,7 +14,6 @@ use crate::model::palette::Palette;
 use crate::model::thumbnail::create_thumbnail_file;
 use std::fs;
 use std::fs::remove_file;
-use std::io::Error;
 use std::io::Result;
 use std::path::Path;
 use std::path::PathBuf;
@@ -71,7 +70,7 @@ pub fn collect_picture_data(picture: &Picture) -> Result<Picture> {
     let palette = Palette::from(&image);
     let new_image_data =  match picture.image_data() {
         Some(image_data) => ImageData {
-            palette: palette,
+            palette,
             .. image_data
         },
         None =>
@@ -81,7 +80,7 @@ pub fn collect_picture_data(picture: &Picture) -> Result<Picture> {
                     size: file_data.0,
                     modified_time: file_data.1,
                     rank: Rank::NoStar, 
-                    palette: palette,
+                    palette,
                     tags: HashSet::new(),
                     cover: false,
                 }
@@ -163,6 +162,9 @@ pub fn get_data_from_picture_file(file_path: &str) -> Result<PictureFileData> {
     }
 }
 
+#[allow(unused_imports)]
+use std::io::Error;
+#[cfg(test)]
 pub fn get_palette_from_picture_file(file_path: &str) -> Result<Palette> {
     match image::open(file_path) {
         Ok(image) => {

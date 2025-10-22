@@ -265,6 +265,10 @@ impl Controller {
                             self.set_opacity_for_current_picture(1.00);
                         },
                         EntryKind::RemoveTag => {
+                            if !self.editor.input().is_empty() {
+                                self.untag_selected_pictures(&self.editor.input())
+                            };
+                            self.set_opacity_for_current_picture(1.00);
                         },
                         EntryKind::Number => {
                             self.move_towards_index(self.editor.input().parse().unwrap())
@@ -357,6 +361,20 @@ impl Controller {
         }
     }
 
+    fn untag_picture_at_index(&mut self, index: usize, label: &str) {
+        let mut picture = self.gallery.picture(index);
+        picture.remove_tag(label);
+        self.gallery.set_picture(index, picture.clone());
+        if self.args.on_database() {
+            match self.database.rusqlite_update_picture(&picture) {
+                Ok(_) => {}
+                Err(err) => {
+                    println!("{}", err);
+                }
+            }
+        }
+    }
+
     pub fn tag_selected_pictures(&mut self, label: &str) {
         if self.navigator.has_selected() {
             for index in 0..self.navigator.limit() {
@@ -367,6 +385,20 @@ impl Controller {
             self.navigator.unselect_all();
         } else {
             self.tag_picture_at_index(self.navigator().position(), label)
+        };
+        self.navigator.set_page_changed()
+    }
+
+    pub fn untag_selected_pictures(&mut self, label: &str) {
+        if self.navigator.has_selected() {
+            for index in 0..self.navigator.limit() {
+                if self.navigator.is_selected(index) {
+                    self.untag_picture_at_index(index, label);
+                }
+            }
+            self.navigator.unselect_all();
+        } else {
+            self.untag_picture_at_index(self.navigator().position(), label)
         };
         self.navigator.set_page_changed()
     }

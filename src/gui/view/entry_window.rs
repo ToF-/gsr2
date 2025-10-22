@@ -75,7 +75,7 @@ impl EntryWindow {
         window.set_child(Some(&entry_box));
         Self::attach_key_pressed_event_handler(&window, controller_rc);
         Self::attach_cursor_blink_event(&window, controller_rc);
-        EntryWindow { window: window }
+        EntryWindow { window }
     }
 
     fn attach_key_pressed_event_handler(window: &gtk::Window, controller_rc: &RcController) {
