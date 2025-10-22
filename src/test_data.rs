@@ -2,11 +2,28 @@
 use image::DynamicImage;
 use image::Rgb;
 use image::RgbImage;
+use std::env::current_dir;
 
 pub const SINGLE_DOT: &str = "testdata/single_dot.png";
 pub const NINE_COLORS: &str = "testdata/nine_colors.png";
 pub const WHITE_SQUARE: &str = "testdata/white_square.png";
 pub const LARGE_PICTURE: &str = "testdata/large_picture.png";
+
+pub fn nine_colors_file_path() -> String {
+    current_dir().unwrap().display().to_string() + "/" + NINE_COLORS
+}
+
+pub fn single_dot_file_path() -> String {
+    current_dir().unwrap().display().to_string() + "/" + SINGLE_DOT
+}
+
+pub fn large_picture_file_path() -> String {
+    current_dir().unwrap().display().to_string() + "/" + LARGE_PICTURE
+}
+
+pub fn white_square_file_path() -> String {
+    current_dir().unwrap().display().to_string() + "/" + WHITE_SQUARE
+}
 
 pub fn large_picture() -> DynamicImage {
     let mut image = RgbImage::new(2250, 2250);

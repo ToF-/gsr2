@@ -2,7 +2,7 @@
 ## Gallery Show in Rust
 
 ## Todo
-- [ ] retrieving tags from a picture, retrieving all tags for all pictures in a big hashmap, then sets the tags in each picture image_data
+- [X] retrieving tags from a picture, retrieving all tags for all pictures in a big hashmap, then sets the tags in each picture image_data
 - [X] adding and removing tags in grid view
 - [X] if a new database file is given, and no option --initialize, print message and exit. if --initialize, create database and exit.
 - [X] an environment variable defines where to find .gsr.toml file, then this toml defines all interesting variables
