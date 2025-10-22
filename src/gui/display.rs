@@ -46,7 +46,11 @@ pub fn picture_label_display(label: &str, rank: Rank, with_focus: Option<char>) 
 fn tag_display(tags: Tags) -> String {
     match tags.len() {
         0 => String::from(""),
-        _ => format!("| {} |", tags.iter().join(" ")),
+        _ => {
+            let mut labels: Vec<String>  = tags.into_iter().collect();
+            labels.sort();
+            format!("| {} |", labels.iter().join(" "))
+        },
     }
 }
 
