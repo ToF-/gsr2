@@ -503,7 +503,7 @@ pub mod tests {
         let mut picture = database.rusqlite_retrieve_picture_with_file_path(&nine_colors_file_path()).unwrap();
         let old_picture = picture.clone();
         let mut image_data = picture.image_data().expect("can't access picture image data");
-        image_data.set_rank(Rank::TwoStars);
+        image_data.rank = Rank::TwoStars;
         picture.set_image_data(image_data);
         assert!(database.rusqlite_update_picture(&picture).is_ok());
         let new_picture = database.rusqlite_retrieve_picture_with_file_path(&nine_colors_file_path()).unwrap();

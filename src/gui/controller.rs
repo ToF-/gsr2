@@ -502,7 +502,7 @@ impl Controller {
 
     pub fn remove_tag(&mut self) {
         self.set_opacity_for_current_picture(0.25);
-        self.editor.begin(&self.main_window(), EntryKind::RemoveTag, Some(self.gallery.all_labels()));
+        self.editor.begin(&self.main_window(), EntryKind::RemoveTag, Some(self.current_picture().tags()));
         self.state.set_mode(Mode::Editing);
     }
 

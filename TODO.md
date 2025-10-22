@@ -2,7 +2,7 @@
 ## Gallery Show in Rust
 
 ## Todo
-- [ ] completion when entering a label or a tag
+- [X] completion when entering a label or a tag
 - [X] find a picture by a pattern in the file path
 - [X] show only cover pictures
 - [X] mark a picture to be a cover

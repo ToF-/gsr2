@@ -126,7 +126,7 @@ attach_key_pressed_event_handlers	/Users/tof/Coding/gsr2/src/gui/view/main_windo
 attach_panel_event_handlers	/Users/tof/Coding/gsr2/src/gui/view/main_window.rs	/^fn attach_panel_event_handlers(panel: &gtk::Grid, controller_rc: &RcController) {$/;"	f
 attach_slideshow_event	/Users/tof/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn attach_slideshow_event(seconds: i32, controller_rc: &RcController) {$/;"	f
 begin	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    pub fn begin(&mut self, main_window: &MainWindow, entry_kind: EntryKind, choice_opt: Option<Vec<String>>) {$/;"	f
-begin_input	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    pub fn begin_input(&mut self, kind: EntryKind) {$/;"	f
+begin_input	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    pub fn begin_input(&mut self, kind: EntryKind, choice_opt: Option<Vec<String>>) {$/;"	f
 can_cancel_a_range	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    fn can_cancel_a_range() {$/;"	f
 can_move	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn can_move(&mut self, direction: Direction) -> bool {$/;"	f
 can_move_next_page	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn can_move_next_page(&mut self) -> bool {$/;"	f
@@ -140,6 +140,7 @@ cancel_range	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn cancel_ra
 cancel_range	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn cancel_range(&mut self) {$/;"	f
 cancelling_a_range_unselects_included_pictures	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    fn cancelling_a_range_unselects_included_pictures() {$/;"	f
 cancelling_set_editing_to_false	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    fn cancelling_set_editing_to_false() {$/;"	f
+candidates	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    pub fn candidates(&self) -> Vec<String> {$/;"	f
 cannot_append_forbidden_chars	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    fn cannot_append_forbidden_chars() {$/;"	f
 cannot_move_down_if_beyond_limit	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    fn cannot_move_down_if_beyond_limit() {$/;"	f
 cannot_move_up_if_before_limit	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    fn cannot_move_up_if_before_limit() {$/;"	f
@@ -370,6 +371,9 @@ next_page_start	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn next_pa
 next_page_start_is_page_start_plus_page_size_modulo_limit	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    fn next_page_start_is_page_start_plus_page_size_modulo_limit() {$/;"	f
 next_slide_delay	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn next_slide_delay(&mut self) {$/;"	f
 nine_colors_file_path	/Users/tof/Coding/gsr2/src/test_data.rs	/^pub fn nine_colors_file_path() -> String {$/;"	f
+no_candidates_when_input_is_empty	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    fn no_candidates_when_input_is_empty() {$/;"	f
+no_candidates_when_input_is_one_char	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    fn no_candidates_when_input_is_one_char() {$/;"	f
+no_candidates_when_no_prefix	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    fn no_candidates_when_no_prefix() {$/;"	f
 no_thumbnail_picture	/Users/tof/Coding/gsr2/src/model/thumbnail.rs	/^pub fn no_thumbnail_picture() -> gtk::Picture {$/;"	f
 old_position	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn old_position(&self) -> usize {$/;"	f
 on_database	/Users/tof/Coding/gsr2/src/cli/args.rs	/^    pub fn on_database(&self) -> bool {$/;"	f
@@ -398,6 +402,7 @@ popup_entry_window	/Users/tof/Coding/gsr2/src/gui/view/main_window.rs	/^    pub 
 position	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn position(&self) -> usize {$/;"	f
 position_from_coords	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn position_from_coords(&self, row: usize, col: usize) -> Option<usize> {$/;"	f
 position_from_coords_depnds_on_page_start	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    fn position_from_coords_depnds_on_page_start() {$/;"	f
+possibles_candidates_when_input_is_two_chars_prefixing_a_choice	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    fn possibles_candidates_when_input_is_two_chars_prefixing_a_choice() {$/;"	f
 prev_page_start	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn prev_page_start(&self) -> usize {$/;"	f
 prev_page_start_is_page_start_minus_page_size	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    fn prev_page_start_is_page_start_minus_page_size() {$/;"	f
 print	/Users/tof/Coding/gsr2/src/model/gallery.rs	/^    pub fn print(&self) {$/;"	f
@@ -408,6 +413,7 @@ process_key	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn process_ke
 process_key_event	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn process_key_event($/;"	f
 process_pane_clicked	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn process_pane_clicked(&mut self, _button: usize, pane_number: usize) {$/;"	f
 process_picture_clicked	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn process_picture_clicked(&mut self, _button: u32, col: i32, row: i32) {$/;"	f
+prompt_label	/Users/tof/Coding/gsr2/src/gui/view/entry_window.rs	/^    fn prompt_label(window: &gtk::Window) -> gtk::Label {$/;"	f
 quit	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn quit(&self) {$/;"	f
 range	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn range(&self) -> Option<(usize, usize)> {$/;"	f
 range_end	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn range_end(&self) -> Option<usize> {$/;"	f
@@ -417,6 +423,7 @@ rank	/Users/tof/Coding/gsr2/src/model/picture.rs	/^    pub fn rank(&self) -> Ran
 rank_picture_at_index	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    fn rank_picture_at_index(&mut self, index: usize, rank: Rank) {$/;"	f
 rank_selected_pictures	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn rank_selected_pictures(&mut self, rank: Rank) {$/;"	f
 reattach_slideshow_event	/Users/tof/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn reattach_slideshow_event(&self, seconds: i32) {$/;"	f
+refresh_prompt	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    fn refresh_prompt(&self, prompt: &str) {$/;"	f
 refresh_view	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    fn refresh_view(&self) {$/;"	f
 remove_cells	/Users/tof/Coding/gsr2/src/gui/view/picture_grid.rs	/^    pub fn remove_cells(&self) {$/;"	f
 remove_children_from_box	/Users/tof/Coding/gsr2/src/gui/view/main_window.rs	/^pub fn remove_children_from_box(cell_box: &gtk::Box) {$/;"	f
@@ -468,6 +475,7 @@ set_picture_opacity_at	/Users/tof/Coding/gsr2/src/gui/view/picture_grid.rs	/^   
 set_pictures	/Users/tof/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn set_pictures(&mut self, controller: &Controller) {$/;"	f
 set_pictures_for_multiple_view	/Users/tof/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn set_pictures_for_multiple_view($/;"	f
 set_pictures_per_row	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn set_pictures_per_row(&mut self, pictures_per_row: usize) {$/;"	f
+set_prompt	/Users/tof/Coding/gsr2/src/gui/view/entry_window.rs	/^    pub fn set_prompt(&self, prompt: &str) {$/;"	f
 set_range	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_range(&mut self) {$/;"	f
 set_range	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn set_range(&mut self, index: usize) {$/;"	f
 set_rank	/Users/tof/Coding/gsr2/src/model/picture.rs	/^    pub fn set_rank(&mut self, rank: Rank) {$/;"	f
@@ -499,7 +507,7 @@ state	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn state(&self) -> 
 tag_display	/Users/tof/Coding/gsr2/src/gui/display.rs	/^fn tag_display(tags: Tags) -> String {$/;"	f
 tag_picture_at_index	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    fn tag_picture_at_index(&mut self, index: usize, label: &str) {$/;"	f
 tag_selected_pictures	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn tag_selected_pictures(&mut self, label: &str) {$/;"	f
-tags	/Users/tof/Coding/gsr2/src/model/picture.rs	/^    pub fn tags(&self) -> Tags {$/;"	f
+tags	/Users/tof/Coding/gsr2/src/model/picture.rs	/^    pub fn tags(&self) -> Vec<String> {$/;"	f
 thumbnail_file_path_for_size	/Users/tof/Coding/gsr2/src/model/picture.rs	/^    pub fn thumbnail_file_path_for_size(&self, pictures_per_row: usize) -> String {$/;"	f
 thumbnail_name_for_path	/Users/tof/Coding/gsr2/src/file/paths.rs	/^fn thumbnail_name_for_path($/;"	f
 thumbnail_name_from	/Users/tof/Coding/gsr2/src/file/paths.rs	/^pub fn thumbnail_name_from(file_name: &str, pictures_per_row: usize) -> String {$/;"	f

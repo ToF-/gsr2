@@ -110,11 +110,13 @@ impl Picture {
         }
     }
 
-    pub fn tags(&self) -> Tags {
+    pub fn tags(&self) -> Vec<String> {
         if let Some(image_data) = &self.image_data {
-            image_data.tags.clone()
+            let mut result: Vec<String> = image_data.tags.clone().into_iter().collect();
+            result.sort();
+            result
         } else {
-            HashSet::new()
+            vec![]
         }
     }
     pub fn add_tag(&mut self, label: &str) {

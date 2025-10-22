@@ -140,6 +140,20 @@ impl EntryWindow {
             .expect("can't downcast as label");
         label
     }
+
+    fn prompt_label(window: &gtk::Window) -> gtk::Label {
+        let label: gtk::Label = window
+            .first_child()
+            .expect("can't get first_child")
+            .downcast::<gtk::Box>()
+            .expect("can't downcast as box")
+            .first_child()
+            .expect("can't get entry prompt")
+            .downcast::<gtk::Label>()
+            .expect("can't downcast as label");
+        label
+    }
+
     pub fn entry_text(&self) -> gtk::Label {
         Self::entry_text_label(&self.window)
     }
@@ -147,6 +161,10 @@ impl EntryWindow {
     pub fn set_text(&self, text: &str) {
         self.entry_text().set_text(&text);
         Self::append_cursor(&self.window);
+    }
+
+    pub fn set_prompt(&self, prompt: &str) {
+        Self::prompt_label(&self.window).set_text(&prompt);
     }
 
     fn append_cursor(window: &gtk::Window) {

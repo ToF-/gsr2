@@ -10,6 +10,7 @@ use gtk::{self, gdk};
 
 #[derive(Clone, Debug)]
 pub struct Editor {
+    prompt: String,
     editing: bool,
     input: String,
     controls: Controls,
@@ -22,6 +23,7 @@ pub struct Editor {
 impl Editor {
     pub fn new() -> Editor {
         Editor {
+            prompt: "".to_string(),
             editing: false,
             controls: default_controls(),
             input: String::from(""),
@@ -32,9 +34,6 @@ impl Editor {
     }
 
     pub fn begin(&mut self, main_window: &MainWindow, entry_kind: EntryKind, choice_opt: Option<Vec<String>>) {
-        if let Some(choice) = choice_opt {
-            self.choice = choice.clone()
-        };
         let prompt: &str = match entry_kind {
             EntryKind::Label => "Enter a label",
             EntryKind::AddTag => "Enter a new tag to add",
@@ -43,10 +42,18 @@ impl Editor {
             EntryKind::DeleteConfirmation => "Delete these pictures?",
             EntryKind::Find => "Enter a part of the picture file name",
         };
-        self.entry_kind = entry_kind;
+        self.prompt = prompt.to_string();
+        self.begin_input(entry_kind, choice_opt);
+        self.entry_window_opt = Some(main_window.popup_entry_window(&self.prompt, &self.input));
+    }
+
+    pub fn begin_input(&mut self, kind: EntryKind, choice_opt: Option<Vec<String>>) {
+        self.entry_kind = kind;
+        if let Some(choice) = choice_opt {
+            self.choice = choice.clone()
+        };
         self.editing = true;
         self.input = String::from("");
-        self.entry_window_opt = Some(main_window.popup_entry_window(&prompt, &self.input));
     }
 
     pub fn editing(&self) -> bool {
@@ -77,6 +84,7 @@ impl Editor {
     pub fn append_from_key(&mut self, key: Key) {
         if let Some(ch) = key.to_unicode() {
             self.append(ch);
+            self.refresh_prompt(&self.prompt)
         }
     }
     pub fn cancel(&mut self) {
@@ -91,13 +99,38 @@ impl Editor {
     }
 
     pub fn complete(&mut self) {
-        println!("{}", self.choice.iter().join(" "));
+        if let Some(entry_window) = &self.entry_window_opt {
+            let candidates = self.candidates();
+            match candidates.len() {
+                0 => {
+                    self.refresh_prompt(&self.prompt)
+                },
+                1 => {
+                    self.input = candidates[0].clone();
+                    self.refresh_prompt(&self.prompt);
+                    self.refresh_view()
+                },
+                _ => {
+                    self.refresh_prompt(
+                        &(self.prompt.clone() + " [ " + &candidates.iter().join(" ") + " ] "))
+                }
+            }
+        }
     }
 
-    pub fn begin_input(&mut self, kind: EntryKind) {
-        self.editing = true;
-        self.input = String::from("");
-        self.entry_kind = kind
+    pub fn candidates(&self) -> Vec<String> {
+        if ! self.choice.is_empty()
+            && self.input.len() >= 2 {
+                let mut result: Vec<String> = vec![];
+                for candidate in self.choice.clone() {
+                    if candidate.starts_with(&self.input) {
+                        result.push(candidate)
+                    }
+                };
+                result
+            } else {
+                vec![]
+            }
     }
 
     pub fn confirm_input(&mut self) -> String {
@@ -125,6 +158,7 @@ impl Editor {
         if ch_is_ok && self.input.len() < MAX_LABEL_LENGTH {
             self.input.push(Self::convert_char(ch));
             self.refresh_view();
+            self.refresh_prompt(&self.prompt);
         }
     }
 
@@ -138,7 +172,14 @@ impl Editor {
 
     pub fn delete(&mut self) {
         self.input.pop();
+        self.refresh_prompt(&self.prompt);
         self.refresh_view();
+    }
+
+    fn refresh_prompt(&self, prompt: &str) {
+        if let Some(entry_window) = &self.entry_window_opt {
+            entry_window.set_prompt(prompt)
+        }
     }
 
     fn refresh_view(&self) {
@@ -161,7 +202,7 @@ mod tests {
     #[test]
     fn after_begin_input_edting_is_true() {
         let mut editor = Editor::new();
-        editor.begin_input(EntryKind::Label);
+        editor.begin_input(EntryKind::Label, None);
         assert!(editor.editing());
         assert_eq!(String::from(""), editor.input());
         assert_eq!(EntryKind::Label, editor.entry_kind());
@@ -170,7 +211,7 @@ mod tests {
     #[test]
     fn appending_a_char_changes_the_input() {
         let mut editor = Editor::new();
-        editor.begin_input(EntryKind::Label);
+        editor.begin_input(EntryKind::Label, None);
         editor.append('a');
         assert_eq!(String::from("a"), editor.input.clone());
         editor.append('b');
@@ -187,7 +228,7 @@ mod tests {
     #[test]
     fn cannot_append_forbidden_chars() {
         let mut editor = Editor::new();
-        editor.begin_input(EntryKind::Label);
+        editor.begin_input(EntryKind::Label, None);
         editor.append('"');
         editor.append('@');
         editor.append('^');
@@ -197,7 +238,7 @@ mod tests {
     #[test]
     fn treat_space_as_dash() {
         let mut editor = Editor::new();
-        editor.begin_input(EntryKind::Label);
+        editor.begin_input(EntryKind::Label, None);
         editor.append('a');
         editor.append(' ');
         editor.append('b');
@@ -206,7 +247,7 @@ mod tests {
     #[test]
     fn treat_uppercase_as_lowercase() {
         let mut editor = Editor::new();
-        editor.begin_input(EntryKind::Label);
+        editor.begin_input(EntryKind::Label, None);
         editor.append('A');
         editor.append('B');
         editor.append('Z');
@@ -215,7 +256,7 @@ mod tests {
     #[test]
     fn deleting_a_char_changes_the_input() {
         let mut editor = Editor::new();
-        editor.begin_input(EntryKind::Label);
+        editor.begin_input(EntryKind::Label, None);
         editor.append('a');
         editor.append('b');
         editor.append('c');
@@ -226,7 +267,7 @@ mod tests {
     #[test]
     fn confirming_return_input_and_set_editing_to_false() {
         let mut editor = Editor::new();
-        editor.begin_input(EntryKind::Label);
+        editor.begin_input(EntryKind::Label, None);
         editor.append('a');
         editor.append('b');
         editor.append('c');
@@ -236,7 +277,7 @@ mod tests {
     #[test]
     fn cancelling_set_editing_to_false() {
         let mut editor = Editor::new();
-        editor.begin_input(EntryKind::Label);
+        editor.begin_input(EntryKind::Label, None);
         editor.append('a');
         editor.append('b');
         editor.append('c');
@@ -246,10 +287,51 @@ mod tests {
     #[test]
     fn label_length_is_limited_to_max_label_length() {
         let mut editor = Editor::new();
-        editor.begin_input(EntryKind::Label);
+        editor.begin_input(EntryKind::Label, None);
         for _ in 0..40 {
             editor.append('a')
         }
         assert_eq!(MAX_LABEL_LENGTH, editor.input.clone().len());
+    }
+
+    #[test]
+    fn no_candidates_when_input_is_empty() {
+        let mut editor = Editor::new();
+        editor.begin_input(EntryKind::Label, Some(vec!["bar".to_string(),"foo".to_string(),"qux".to_string(),"zoo".to_string()]));
+        assert!(editor.candidates().is_empty())
+    }
+    #[test]
+    fn no_candidates_when_input_is_one_char() {
+        let mut editor = Editor::new();
+        editor.begin_input(EntryKind::Label, Some(vec!["bar".to_string(),"foo".to_string(),"qux".to_string(),"zoo".to_string()]));
+        editor.append('b');
+        assert!(editor.candidates().is_empty())
+    }
+    #[test]
+    fn possibles_candidates_when_input_is_two_chars_prefixing_a_choice() {
+        let mut editor = Editor::new();
+        editor.begin_input(EntryKind::Label, Some(vec!["bar".to_string(),"foo".to_string(),"qux".to_string(),"zone".to_string(), "zoo".to_string()]));
+        editor.append('b');
+        editor.append('a');
+        assert_eq!(vec!["bar".to_string()], editor.candidates());
+        editor.delete();
+        editor.delete();
+        editor.append('f');
+        editor.append('o');
+        assert_eq!(vec!["foo".to_string()], editor.candidates());
+        editor.delete();
+        editor.delete();
+        editor.append('z');
+        editor.append('o');
+        assert_eq!(vec!["zone".to_string(), "zoo".to_string()], editor.candidates());
+
+    }
+    #[test]
+    fn no_candidates_when_no_prefix() {
+        let mut editor = Editor::new();
+        editor.begin_input(EntryKind::Label, Some(vec!["bar".to_string(),"foo".to_string(),"qux".to_string(),"zoo".to_string()]));
+        editor.append('a');
+        editor.append('b');
+        assert!(editor.candidates().is_empty())
     }
 }
