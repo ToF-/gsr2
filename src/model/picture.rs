@@ -167,6 +167,24 @@ impl Picture {
         self.image_data = Some(new_image_data)
     }
 
+    pub fn toggle_cover(&mut self) {
+        let mut new_image_data = if let Some(image_data) = &self.image_data {
+            image_data.clone()
+        } else {
+            ImageData::new("")
+        };
+        new_image_data.cover = ! new_image_data.cover;
+        self.image_data = Some(new_image_data);
+    }
+
+    pub fn cover(&self) -> bool {
+        if let Some(image_data) = &self.image_data {
+            image_data.cover
+        } else {
+            false
+        }
+    }
+
     pub fn thumbnail_file_path_for_size(&self, pictures_per_row: usize) -> String {
         thumbnail_name_from(&self.file_path, pictures_per_row)
     }

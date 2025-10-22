@@ -9,6 +9,7 @@ Args	/Users/tof/Coding/gsr2/src/cli/args.rs	/^pub struct Args {$/;"	s
 COLOR_MAX	/Users/tof/Coding/gsr2/src/gui/view/palette_area.rs	/^    const COLOR_MAX: f64 = 9.0;$/;"	c
 CONFIG_FILE_DEFAULT	/Users/tof/Coding/gsr2/src/env/default_values.rs	/^pub const CONFIG_FILE_DEFAULT: &str = ".gsr2.toml";$/;"	c
 CONFIG_FILE_VARIABLE	/Users/tof/Coding/gsr2/src/env/default_values.rs	/^pub const CONFIG_FILE_VARIABLE: &str = "GSRCFG";$/;"	c
+COVER_SYMBOL	/Users/tof/Coding/gsr2/src/env/default_values.rs	/^pub const COVER_SYMBOL: &str = "🌟";$/;"	c
 Command	/Users/tof/Coding/gsr2/src/cli/command.rs	/^pub enum Command {$/;"	g
 Config	/Users/tof/Coding/gsr2/src/env/configuration.rs	/^pub struct Config {$/;"	s
 Control	/Users/tof/Coding/gsr2/src/gui/control.rs	/^pub enum Control {$/;"	g
@@ -182,6 +183,8 @@ coords_from_position	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn co
 coords_from_position_depends_on_given_position	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    fn coords_from_position_depends_on_given_position() {$/;"	f
 count	/Users/tof/Coding/gsr2/src/model/palette.rs	/^    pub fn count(&self) -> usize {$/;"	f
 counting_the_numbers_of_distinct_colors_in_an_image	/Users/tof/Coding/gsr2/src/model/palette.rs	/^    fn counting_the_numbers_of_distinct_colors_in_an_image() {$/;"	f
+cover	/Users/tof/Coding/gsr2/src/model/picture.rs	/^    pub fn cover(&self) -> bool {$/;"	f
+cover_display	/Users/tof/Coding/gsr2/src/gui/display.rs	/^fn cover_display(cover: bool) -> String {$/;"	f
 create_missing_thumbnails	/Users/tof/Coding/gsr2/src/file/picture_file.rs	/^pub fn create_missing_thumbnails(gallery: &Gallery, pictures_per_row: usize) {$/;"	f
 create_thumbnail_file	/Users/tof/Coding/gsr2/src/model/thumbnail.rs	/^pub fn create_thumbnail_file($/;"	f
 current_directory	/Users/tof/Coding/gsr2/src/file/paths.rs	/^pub fn current_directory() -> String {$/;"	f
@@ -378,7 +381,7 @@ picture	/Users/tof/Coding/gsr2/src/model/gallery.rs	/^    pub fn picture(&self, 
 picture_at	/Users/tof/Coding/gsr2/src/gui/view/picture_grid.rs	/^    fn picture_at(&self, col: i32, row: i32) -> Option<gtk::Picture> {$/;"	f
 picture_frame	/Users/tof/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn picture_frame(&self) -> PictureFrame {$/;"	f
 picture_grid	/Users/tof/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn picture_grid(&self) -> PictureGrid {$/;"	f
-picture_label_display	/Users/tof/Coding/gsr2/src/gui/display.rs	/^pub fn picture_label_display(label: &str, rank: Rank, with_focus: Option<char>) -> String {$/;"	f
+picture_label_display	/Users/tof/Coding/gsr2/src/gui/display.rs	/^pub fn picture_label_display(label: &str, rank: Rank, cover: bool, with_focus: Option<char>) -> String {$/;"	f
 pictures	/Users/tof/Coding/gsr2/src/model/gallery.rs	/^    pub fn pictures(&self) -> &Vec<Picture> {$/;"	f
 pictures_per_row	/Users/tof/Coding/gsr2/src/cli/args.rs	/^    pub fn pictures_per_row(&self) -> i32 {$/;"	f
 pictures_per_row	/Users/tof/Coding/gsr2/src/gui/state.rs	/^    pub fn pictures_per_row(&self) -> usize {$/;"	f
@@ -507,6 +510,8 @@ timestamp	/Users/tof/Coding/gsr2/src/model/image_data.rs	/^pub fn timestamp(syst
 title_display	/Users/tof/Coding/gsr2/src/gui/display.rs	/^pub fn title_display(controller: &Controller) -> String {$/;"	f
 to_possible_value	/Users/tof/Coding/gsr2/src/model/order.rs	/^    fn to_possible_value(&self) -> Option<PossibleValue> {$/;"	f
 toggle_change_focus_symbol	/Users/tof/Coding/gsr2/src/gui/state.rs	/^    pub fn toggle_change_focus_symbol(&mut self) {$/;"	f
+toggle_cover	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn toggle_cover(&mut self) {$/;"	f
+toggle_cover	/Users/tof/Coding/gsr2/src/model/picture.rs	/^    pub fn toggle_cover(&mut self) {$/;"	f
 toggle_display_date	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn toggle_display_date(&mut self) {$/;"	f
 toggle_display_date	/Users/tof/Coding/gsr2/src/gui/state.rs	/^    pub fn toggle_display_date(&mut self) {$/;"	f
 toggle_display_focus_symbol_change	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn toggle_display_focus_symbol_change(&mut self) {$/;"	f

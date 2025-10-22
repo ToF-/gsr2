@@ -460,6 +460,7 @@ impl Controller {
             Control::Down => self.arrow_move(Direction::Down),
             Control::Quit => self.quit(),
             Control::ToggleSingleView => self.toggle_single_view(),
+            Control::ToggleCover => self.toggle_cover(),
             Control::ToggleExpand => self.toggle_expand(),
             Control::ToggleFullSize => self.toggle_full_size(),
             Control::ToggleSlideShow => self.toggle_slideshow(),
@@ -498,6 +499,19 @@ impl Controller {
         }
     }
 
+    pub fn toggle_cover(&mut self) {
+        let index = self.navigator().position();
+        let mut picture = self.gallery.picture(index);
+        picture.toggle_cover();
+        self.gallery.set_picture(index, picture.clone());
+        match self.database.rusqlite_update_picture(&picture) {
+            Ok(_) => {}
+            Err(err) => {
+                println!("{}", err);
+            }
+        }
+        self.navigator.set_page_changed()
+    }
     pub fn add_tag(&mut self) {
         self.set_opacity_for_current_picture(0.25);
         self.editor.begin(&self.main_window(), EntryKind::AddTag);

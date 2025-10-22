@@ -1,3 +1,4 @@
+use crate::env::default_values::COVER_SYMBOL;
 use itertools::Itertools;
 use crate::model::rank::Rank;
 use crate::env::default_values::{EXPAND_ON_SYMBOL, FULL_SIZE_ON_SYMBOL};
@@ -29,9 +30,10 @@ fn page_display(controller: &Controller) -> String {
         )
     }
 }
-pub fn picture_label_display(label: &str, rank: Rank, with_focus: Option<char>) -> String {
+pub fn picture_label_display(label: &str, rank: Rank, cover: bool, with_focus: Option<char>) -> String {
     format!(
-        "{} {} {}",
+        "{} {} {} {}",
+        cover_display(cover),
         if let Some(symbol) = with_focus {
             symbol
         } else {
@@ -39,9 +41,17 @@ pub fn picture_label_display(label: &str, rank: Rank, with_focus: Option<char>) 
         },
         label,
         rank,
+
     )
 }
 
+fn cover_display(cover: bool) -> String {
+    if cover {
+        COVER_SYMBOL.to_string()
+    } else {
+        "".to_string()
+    }
+}
 fn tag_display(tags: Tags) -> String {
     match tags.len() {
         0 => String::from(""),
@@ -55,7 +65,12 @@ fn tag_display(tags: Tags) -> String {
 
 pub fn title_display(controller: &Controller) -> String {
     format!(
-        "#{} {} {} {} {} {} {} {}{}",
+        "{} #{} {} {} {} {} {} {} {}{}",
+        cover_display(
+            match controller.current_picture().image_data() {
+                Some(image_data) => image_data.cover,
+                None => false,
+            }),
         controller.navigator().position(),
         page_display(controller),
         controller.current_picture().file_name(),

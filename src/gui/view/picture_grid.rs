@@ -87,7 +87,7 @@ impl PictureGrid {
                 .unwrap()
                 .downcast::<gtk::Label>()
                 .unwrap();
-            label.set_text(&picture_label_display(&picture.label(), picture.rank(), with_focus))
+            label.set_text(&picture_label_display(&picture.label(), picture.rank(), picture.cover(), with_focus))
         }
     }
 
