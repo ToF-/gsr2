@@ -228,6 +228,7 @@ file_path_not_starting_with_tilde_are_not_developped_as_retrieved	/Users/tof/Cod
 file_path_starting_with_home_dir_are_tilded_as_stored	/Users/tof/Coding/gsr2/src/file/database.rs	/^    fn file_path_starting_with_home_dir_are_tilded_as_stored() {$/;"	f
 file_path_starting_with_tilde_are_developped_as_retrieved	/Users/tof/Coding/gsr2/src/file/database.rs	/^    fn file_path_starting_with_tilde_are_developped_as_retrieved() {$/;"	f
 file_size_display	/Users/tof/Coding/gsr2/src/model/picture.rs	/^    pub fn file_size_display(&self) -> String {$/;"	f
+find_all_the_tags_in_the_database	/Users/tof/Coding/gsr2/src/file/database.rs	/^    fn find_all_the_tags_in_the_database() {$/;"	f
 find_file_path	/Users/tof/Coding/gsr2/src/model/gallery.rs	/^    pub fn find_file_path(&self, file_path: &str) -> Option<usize> {$/;"	f
 finding_a_picture_by_file_path	/Users/tof/Coding/gsr2/src/model/gallery.rs	/^    fn finding_a_picture_by_file_path() {$/;"	f
 fmt	/Users/tof/Coding/gsr2/src/model/order.rs	/^    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {$/;"	f
@@ -422,6 +423,7 @@ rusqlite_delete_tags	/Users/tof/Coding/gsr2/src/file/database.rs	/^    fn rusqli
 rusqlite_from_connection	/Users/tof/Coding/gsr2/src/file/database.rs	/^    fn rusqlite_from_connection(connection_string: &str, create: bool) -> SqlResult<Self> {$/;"	f
 rusqlite_insert_picture	/Users/tof/Coding/gsr2/src/file/database.rs	/^    pub fn rusqlite_insert_picture(&self, picture: &Picture) -> SqlResult<usize> {$/;"	f
 rusqlite_retrieve_all_pictures	/Users/tof/Coding/gsr2/src/file/database.rs	/^    pub fn rusqlite_retrieve_all_pictures(&self) -> SqlResult<ImageDataMap> {$/;"	f
+rusqlite_retrieve_all_tags	/Users/tof/Coding/gsr2/src/file/database.rs	/^    pub fn rusqlite_retrieve_all_tags(&self) -> SqlResult<HashMap<String, HashSet<String>>> {$/;"	f
 rusqlite_retrieve_picture_with_file_path	/Users/tof/Coding/gsr2/src/file/database.rs	/^    pub fn rusqlite_retrieve_picture_with_file_path(&self, file_path: &str) -> SqlResult<Picture> {$/;"	f
 rusqlite_row_to_mere_picture	/Users/tof/Coding/gsr2/src/file/database.rs	/^    fn rusqlite_row_to_mere_picture(row: &Row) -> SqlResult<Picture, rusqlite::Error> {$/;"	f
 rusqlite_row_to_picture	/Users/tof/Coding/gsr2/src/file/database.rs	/^    fn rusqlite_row_to_picture(row: &Row) -> SqlResult<Picture, rusqlite::Error> {$/;"	f

@@ -253,16 +253,58 @@ impl Database {
             })
     }
 
+    pub fn rusqlite_retrieve_all_tags(&self) -> SqlResult<HashMap<String, HashSet<String>>> {
+        self.connection()
+            .prepare(
+                "SELECT                \n\
+                FilePath,              \n\
+                Label                  \n\
+                FROM Tag;"
+            ).and_then(|mut statement| {
+                let mut map: HashMap<String, HashSet<String>> = HashMap::new();
+                statement.query([]).and_then(|mut rows| {
+                    while let Some(row) = rows.next().unwrap() {
+                        let file_path: String = row.get(0).expect("can't access to column FilePath");
+                        let file_path_as_retrieved = Self::file_path_as_retrieved(&file_path);
+                        let label: String = row.get(1).expect("can't access to column Label");
+                        if let Some(tags) = map.get_mut(&file_path_as_retrieved) {
+                            let _ = tags.insert(label);
+                        } else {
+                            let mut tags = HashSet::new();
+                            let _ = tags.insert(label);
+                            map.insert(file_path_as_retrieved, tags);
+                        };
+                    };
+                    Ok(map)
+                })
+            })
+    }
+
     pub fn retrieve_all_pictures(&self) -> IOResult<Vec<Picture>> {
         match self.rusqlite_retrieve_all_pictures() {
-            Ok(map) => {
-                let mut pictures: Vec<Picture> = vec![];
-                for (file_path, image_data) in map.iter() {
-                    let picture = Picture::new_with_image_data(file_path, &image_data);
-                    pictures.push(picture)
-                };
-                Ok(pictures)
-            }
+            Ok(picture_map) => {
+                match self.rusqlite_retrieve_all_tags() {
+                    Ok(tag_map) => {
+                        println!("{:?}", tag_map);
+                        let mut pictures: Vec<Picture> = vec![];
+                        for (file_path, image_data) in picture_map.iter() {
+                            let new_tags = if let Some(tags) = tag_map.get(file_path) {
+                                tags.clone()
+                            } else {
+                                HashSet::new()
+                            };
+                            let new_image_data = ImageData {
+                                tags: new_tags,
+                                .. image_data.clone()
+                            };
+                            let mut picture = Picture::new_with_image_data(file_path, &image_data);
+                            pictures.push(picture)
+                        };
+                        Ok(pictures)
+                    },
+                    Err(err) => Err(std::io::Error::other(err)),
+                }
+            },
             Err(err) => Err(std::io::Error::other(err)),
         }
     }
@@ -331,7 +373,7 @@ impl Database {
         }
     }
 }
-
+// ""
 #[cfg(test)]
 pub mod tests {
     use super::*;
@@ -472,6 +514,47 @@ pub mod tests {
         assert!(new_picture.image_data().unwrap().tags.contains("foo"));
         assert!(new_picture.image_data().unwrap().tags.contains("bar"));
         database.rusqlite_update_picture(&old_picture);
+    }
+
+    #[test]
+    fn find_all_the_tags_in_the_database() {
+        let database = my_db();
+        let mut file_path = current_directory() + "/" + NINE_COLORS;
+        let mut picture = database.rusqlite_retrieve_picture_with_file_path(&file_path).expect(&format!("can't retrieve picture: {}", file_path));
+        let mut image_data = picture.image_data().expect("can't access picture image data");
+        picture.add_tag("foo");
+        picture.add_tag("bar");
+        assert!(database.rusqlite_update_picture(&picture).is_ok());
+        let mut file_path = current_directory() + "/" + WHITE_SQUARE;
+        let mut picture = database.rusqlite_retrieve_picture_with_file_path(&file_path).expect(&format!("can't retrieve picture: {}", file_path));
+        let mut image_data = picture.image_data().expect("can't access picture image data");
+        picture.add_tag("qux");
+        picture.add_tag("foo");
+        assert!(database.rusqlite_update_picture(&picture).is_ok());
+        let mut file_path = current_directory() + "/" + SINGLE_DOT;
+        let mut picture = database.rusqlite_retrieve_picture_with_file_path(&file_path).expect(&format!("can't retrieve picture: {}", file_path));
+        let mut image_data = picture.image_data().expect("can't access picture image data");
+        picture.add_tag("dot");
+        picture.add_tag("bar");
+        assert!(database.rusqlite_update_picture(&picture).is_ok());
+
+        let mut result = database.rusqlite_retrieve_all_tags();
+        assert!(result.is_ok());
+        let map = result.unwrap();
+        let mut file_path = current_directory() + "/" + NINE_COLORS;
+        assert!(map.get(&file_path).unwrap().contains("foo"));
+        assert!(map.get(&file_path).unwrap().contains("bar"));
+        let mut file_path = current_directory() + "/" + WHITE_SQUARE;
+        assert!(map.get(&file_path).unwrap().contains("qux"));
+        assert!(map.get(&file_path).unwrap().contains("foo"));
+        let mut file_path = current_directory() + "/" + SINGLE_DOT;
+        assert!(map.get(&file_path).unwrap().contains("dot"));
+        assert!(map.get(&file_path).unwrap().contains("bar"));
+
+        let result = database.retrieve_all_pictures();
+        assert!(result.is_ok());
+        let pictures = result.unwrap();
+        assert_eq!("", format!("{:?}", pictures));
     }
 
 }
