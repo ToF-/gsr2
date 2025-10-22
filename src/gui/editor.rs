@@ -1,3 +1,4 @@
+use itertools::Itertools;
 use crate::MainWindow;
 use crate::env::default_values::MAX_LABEL_LENGTH;
 use crate::gui::control::{Control, Controls, default_controls};
@@ -14,6 +15,7 @@ pub struct Editor {
     controls: Controls,
     entry_kind: EntryKind,
     entry_window_opt: Option<EntryWindow>,
+    choice: Vec<String>,
 }
 
 #[allow(dead_code)]
@@ -25,16 +27,21 @@ impl Editor {
             input: String::from(""),
             entry_kind: EntryKind::Label,
             entry_window_opt: None,
+            choice: vec![],
         }
     }
 
-    pub fn begin(&mut self, main_window: &MainWindow, entry_kind: EntryKind) {
+    pub fn begin(&mut self, main_window: &MainWindow, entry_kind: EntryKind, choice_opt: Option<Vec<String>>) {
+        if let Some(choice) = choice_opt {
+            self.choice = choice.clone()
+        };
         let prompt: &str = match entry_kind {
             EntryKind::Label => "Enter a label",
             EntryKind::AddTag => "Enter a new tag to add",
             EntryKind::RemoveTag => "Enter a tag to remove",
             EntryKind::Number => "Enter a number",
             EntryKind::DeleteConfirmation => "Delete these pictures?",
+            EntryKind::Find => "Enter a part of the picture file name",
         };
         self.entry_kind = entry_kind;
         self.editing = true;
@@ -61,6 +68,7 @@ impl Editor {
                 Some(Control::CancelEdition) => self.cancel(),
                 Some(Control::ConfirmEdition) => self.enter(),
                 Some(Control::DeleteChar) => self.delete(),
+                Some(Control::Complete) => self.complete(),
                 Some(_) | None => self.append_from_key(key),
             },
         }
@@ -80,6 +88,10 @@ impl Editor {
     pub fn enter(&mut self) {
         self.entry_window_opt.clone().unwrap().close();
         self.editing = false
+    }
+
+    pub fn complete(&mut self) {
+        println!("{}", self.choice.iter().join(" "));
     }
 
     pub fn begin_input(&mut self, kind: EntryKind) {
@@ -107,7 +119,7 @@ impl Editor {
         let ch_is_ok = match self.entry_kind {
             EntryKind::Number => ch.is_ascii_digit(),
             EntryKind::DeleteConfirmation => matches!(ch, 'e' | 'n' | 'o' | 's' | 'y'),
-            EntryKind::Label | EntryKind::AddTag | EntryKind:: RemoveTag => matches!(ch,
+            EntryKind::Label | EntryKind::AddTag | EntryKind:: RemoveTag | EntryKind:: Find => matches!(ch,
                 'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' '),
         };
         if ch_is_ok && self.input.len() < MAX_LABEL_LENGTH {

@@ -99,11 +99,6 @@ impl Controller {
         self.gallery.picture(navigator.position())
     }
 
-    pub fn set_current_picture(&mut self, picture: Picture) {
-        let navigator = &self.navigator;
-        self.gallery.set_picture(navigator.position(), picture)
-    }
-
     pub fn load_picture_data(&mut self) -> IOResult<usize> {
         let mut gallery = Gallery::new();
         let args = self.args.clone();
@@ -280,6 +275,11 @@ impl Controller {
                                 self.cancel_delete_picture()
                             }
                         },
+                        EntryKind::Find => {
+                            if !self.editor.input().is_empty() {
+                                self.find_pattern(&self.editor.input())
+                            };
+                        },
                     }
                 }
             }
@@ -326,25 +326,6 @@ impl Controller {
             self.label_picture_at_index(self.navigator().position(), "")
         };
         self.navigator.set_page_changed()
-    }
-
-    pub fn label_current_picture_with(&mut self, label: &str) {
-        let mut picture = self.current_picture();
-        picture.set_label(label);
-        self.set_current_picture(picture);
-        self.save_current_picture_data()
-    }
-
-    fn save_current_picture_data(&mut self) {
-        if self.args.on_database() {
-            let picture = self.current_picture();
-            match self.database.rusqlite_update_picture(&picture) {
-                Ok(_) => {}
-                Err(err) => {
-                    println!("{}", err);
-                }
-            }
-        }
     }
 
     fn tag_picture_at_index(&mut self, index: usize, label: &str) {
@@ -466,6 +447,7 @@ impl Controller {
             Control::ToggleSlideShow => self.toggle_slideshow(),
             Control::TogglePalette => self.toggle_palette(),
             Control::Jump => self.jump(),
+            Control::Find => self.find(),
             Control::AddTag => self.add_tag(),
             Control::RemoveTag => self.remove_tag(),
             Control::Label => self.label(),
@@ -514,19 +496,19 @@ impl Controller {
     }
     pub fn add_tag(&mut self) {
         self.set_opacity_for_current_picture(0.25);
-        self.editor.begin(&self.main_window(), EntryKind::AddTag);
+        self.editor.begin(&self.main_window(), EntryKind::AddTag, Some(self.gallery.all_labels()));
         self.state.set_mode(Mode::Editing);
     }
 
     pub fn remove_tag(&mut self) {
         self.set_opacity_for_current_picture(0.25);
-        self.editor.begin(&self.main_window(), EntryKind::RemoveTag);
+        self.editor.begin(&self.main_window(), EntryKind::RemoveTag, Some(self.gallery.all_labels()));
         self.state.set_mode(Mode::Editing);
     }
 
     pub fn label(&mut self) {
         self.set_opacity_for_current_picture(0.25);
-        self.editor.begin(&self.main_window(), EntryKind::Label);
+        self.editor.begin(&self.main_window(), EntryKind::Label, Some(self.gallery.all_labels()));
         self.state.set_mode(Mode::Editing);
     }
 
@@ -560,8 +542,22 @@ impl Controller {
     }
 
     pub fn jump(&mut self) {
-        self.editor.begin(&self.main_window(), EntryKind::Number);
+        self.editor.begin(&self.main_window(), EntryKind::Number, None);
         self.state.set_mode(Mode::Editing);
+    }
+
+    pub fn find(&mut self) {
+        self.editor.begin(&self.main_window(), EntryKind::Find, None);
+        self.state.set_mode(Mode::Editing);
+    }
+
+    pub fn find_pattern(&mut self, pattern: &str) {
+        if let Some(index) = self.gallery.pictures().iter().position(
+            |picture| picture.file_path().contains(pattern)) {
+            let navigator = &mut self.navigator;
+            navigator.move_towards(Direction::Index { value: index });
+            navigator.set_page_changed()
+        }
     }
 
     pub fn quit(&self) {
@@ -703,16 +699,6 @@ impl Controller {
         }
     }
 
-    fn delete_current_picture(&self) {
-        let picture = self.current_picture();
-        match delete_picture(&self.database, &picture.file_path()) {
-            Ok(_) => {}
-            Err(err) => {
-                println!("{}", err);
-            }
-        }
-    }
-
     pub fn cancel_delete_picture(&mut self) {
         let navigator = &mut self.navigator;
         navigator.cancel_range();
@@ -726,7 +712,7 @@ impl Controller {
 
     pub fn delete_picture(&mut self) {
         self.editor
-            .begin(&self.main_window(), EntryKind::DeleteConfirmation);
+            .begin(&self.main_window(), EntryKind::DeleteConfirmation, None);
         self.state.set_mode(Mode::Editing);
     }
 

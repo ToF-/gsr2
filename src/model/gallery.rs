@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use crate::Args;
 use crate::file::database::Database;
 use crate::file::picture_file::{get_all_picture_file_paths, get_picture_file_path};
@@ -127,6 +128,21 @@ impl Gallery {
         for picture in self.pictures.clone() {
             println!("{}", picture.file_path())
         }
+    }
+
+    pub fn all_labels(&self) -> Vec<String> {
+        let mut labels: HashSet<String> = HashSet::new();
+        for picture in &self.pictures {
+            if ! picture.label().is_empty() {
+                let _ = labels.insert(picture.label());
+            }
+            for label in picture.tags().iter() {
+                let _ = labels.insert(label.clone());
+            }
+        }
+        let mut result: Vec<String> = labels.into_iter().collect();
+        result.sort();
+        result
     }
 }
 

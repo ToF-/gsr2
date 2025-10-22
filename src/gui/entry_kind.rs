@@ -5,4 +5,5 @@ pub enum EntryKind {
     RemoveTag,
     Number,
     DeleteConfirmation,
+    Find,
 }

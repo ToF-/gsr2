@@ -110,6 +110,7 @@ after_moving_old_position_and_new_position_can_differ	/Users/tof/Coding/gsr2/src
 after_page_change_page_change_is_detected	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    fn after_page_change_page_change_is_detected() {$/;"	f
 after_page_change_position_from_coords_changes	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    fn after_page_change_position_from_coords_changes() {$/;"	f
 after_toggle_single_view_cells_per_row_change	/Users/tof/Coding/gsr2/src/gui/state.rs	/^    fn after_toggle_single_view_cells_per_row_change() {$/;"	f
+all_labels	/Users/tof/Coding/gsr2/src/model/gallery.rs	/^    pub fn all_labels(&self) -> Vec<String> {$/;"	f
 append	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    pub fn append(&mut self, ch: char) {$/;"	f
 append_cursor	/Users/tof/Coding/gsr2/src/gui/view/entry_window.rs	/^    fn append_cursor(window: &gtk::Window) {$/;"	f
 append_from_key	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    pub fn append_from_key(&mut self, key: Key) {$/;"	f
@@ -124,7 +125,7 @@ attach_key_pressed_event_handler	/Users/tof/Coding/gsr2/src/gui/view/entry_windo
 attach_key_pressed_event_handlers	/Users/tof/Coding/gsr2/src/gui/view/main_window.rs	/^fn attach_key_pressed_event_handlers($/;"	f
 attach_panel_event_handlers	/Users/tof/Coding/gsr2/src/gui/view/main_window.rs	/^fn attach_panel_event_handlers(panel: &gtk::Grid, controller_rc: &RcController) {$/;"	f
 attach_slideshow_event	/Users/tof/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn attach_slideshow_event(seconds: i32, controller_rc: &RcController) {$/;"	f
-begin	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    pub fn begin(&mut self, main_window: &MainWindow, entry_kind: EntryKind) {$/;"	f
+begin	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    pub fn begin(&mut self, main_window: &MainWindow, entry_kind: EntryKind, choice_opt: Option<Vec<String>>) {$/;"	f
 begin_input	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    pub fn begin_input(&mut self, kind: EntryKind) {$/;"	f
 can_cancel_a_range	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    fn can_cancel_a_range() {$/;"	f
 can_move	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn can_move(&mut self, direction: Direction) -> bool {$/;"	f
@@ -173,6 +174,7 @@ command_line_interface_with_command_file_with_non_existing_file	/Users/tof/Codin
 command_line_interface_with_command_file_with_non_file	/Users/tof/Coding/gsr2/src/cli/args.rs	/^    fn command_line_interface_with_command_file_with_non_file() {$/;"	f
 command_line_interface_with_command_file_with_non_jpg_or_png_file	/Users/tof/Coding/gsr2/src/cli/args.rs	/^    fn command_line_interface_with_command_file_with_non_jpg_or_png_file() {$/;"	f
 command_line_interface_with_no_command_dir_or_file_is_on_database	/Users/tof/Coding/gsr2/src/cli/args.rs	/^    fn command_line_interface_with_no_command_dir_or_file_is_on_database() {$/;"	f
+complete	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    pub fn complete(&mut self) {$/;"	f
 config	/Users/tof/Coding/gsr2/src/cli/args.rs	/^    fn config() -> Config {$/;"	f
 config_file_location	/Users/tof/Coding/gsr2/src/env/configuration.rs	/^pub fn config_file_location() -> String {$/;"	f
 confirm_delete_picture	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn confirm_delete_picture(&mut self) {$/;"	f
@@ -200,7 +202,6 @@ datetime_from_time_stamp	/Users/tof/Coding/gsr2/src/model/image_data.rs	/^pub fn
 datetime_from_timestamp_us	/Users/tof/Coding/gsr2/src/scratch.rs	/^fn datetime_from_timestamp_us(timestamp_us: u64) -> DateTime<Local> {$/;"	f
 default_controls	/Users/tof/Coding/gsr2/src/gui/control.rs	/^pub fn default_controls() -> Controls {$/;"	f
 delete	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    pub fn delete(&mut self) {$/;"	f
-delete_current_picture	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    fn delete_current_picture(&self) {$/;"	f
 delete_picture	/Users/tof/Coding/gsr2/src/file.rs	/^pub fn delete_picture(database: &Database, file_path: &str) -> IOResult<()> {$/;"	f
 delete_picture	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn delete_picture(&mut self) {$/;"	f
 delete_picture_file	/Users/tof/Coding/gsr2/src/file/picture_file.rs	/^pub fn delete_picture_file(file_path: &str) -> Result<()> {$/;"	f
@@ -233,8 +234,10 @@ file_path_not_starting_with_tilde_are_not_developped_as_retrieved	/Users/tof/Cod
 file_path_starting_with_home_dir_are_tilded_as_stored	/Users/tof/Coding/gsr2/src/file/database.rs	/^    fn file_path_starting_with_home_dir_are_tilded_as_stored() {$/;"	f
 file_path_starting_with_tilde_are_developped_as_retrieved	/Users/tof/Coding/gsr2/src/file/database.rs	/^    fn file_path_starting_with_tilde_are_developped_as_retrieved() {$/;"	f
 file_size_display	/Users/tof/Coding/gsr2/src/model/picture.rs	/^    pub fn file_size_display(&self) -> String {$/;"	f
+find	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn find(&mut self) {$/;"	f
 find_all_the_tags_in_the_database	/Users/tof/Coding/gsr2/src/file/database.rs	/^    fn find_all_the_tags_in_the_database() {$/;"	f
 find_file_path	/Users/tof/Coding/gsr2/src/model/gallery.rs	/^    pub fn find_file_path(&self, file_path: &str) -> Option<usize> {$/;"	f
+find_pattern	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn find_pattern(&mut self, pattern: &str) {$/;"	f
 finding_a_picture_by_file_path	/Users/tof/Coding/gsr2/src/model/gallery.rs	/^    fn finding_a_picture_by_file_path() {$/;"	f
 fmt	/Users/tof/Coding/gsr2/src/model/order.rs	/^    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {$/;"	f
 fmt	/Users/tof/Coding/gsr2/src/model/rank.rs	/^    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {$/;"	f
@@ -284,7 +287,6 @@ jump	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn jump(&mut self) {
 label	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn label(&mut self) {$/;"	f
 label	/Users/tof/Coding/gsr2/src/model/image_data.rs	/^    pub fn label(&self) -> String {$/;"	f
 label	/Users/tof/Coding/gsr2/src/model/picture.rs	/^    pub fn label(&self) -> String {$/;"	f
-label_current_picture_with	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn label_current_picture_with(&mut self, label: &str) {$/;"	f
 label_length_is_limited_to_max_label_length	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    fn label_length_is_limited_to_max_label_length() {$/;"	f
 label_picture_at_index	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    fn label_picture_at_index(&mut self, index: usize, label: &str) {$/;"	f
 label_selected_pictures	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn label_selected_pictures(&mut self, label: &str) {$/;"	f
@@ -439,14 +441,12 @@ rusqlite_row_to_picture	/Users/tof/Coding/gsr2/src/file/database.rs	/^    fn rus
 rusqlite_update_picture	/Users/tof/Coding/gsr2/src/file/database.rs	/^    pub fn rusqlite_update_picture(&self, picture: &Picture) -> SqlResult<usize> {$/;"	f
 sample	/Users/tof/Coding/gsr2/src/model/palette.rs	/^    pub fn sample(&self) -> Vec<Color> {$/;"	f
 sample_as_array	/Users/tof/Coding/gsr2/src/model/palette.rs	/^    pub fn sample_as_array(&self) -> [u8;31] {$/;"	f
-save_current_picture_data	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    fn save_current_picture_data(&mut self) {$/;"	f
 save_large_picture	/Users/tof/Coding/gsr2/src/gen_data.rs	/^pub fn save_large_picture() {$/;"	f
 save_nine_colors	/Users/tof/Coding/gsr2/src/gen_data.rs	/^pub fn save_nine_colors() {$/;"	f
 save_single_dot	/Users/tof/Coding/gsr2/src/gen_data.rs	/^pub fn save_single_dot() {$/;"	f
 save_white_square	/Users/tof/Coding/gsr2/src/gen_data.rs	/^pub fn save_white_square() {$/;"	f
 select	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn select(&mut self, index: usize) {$/;"	f
 selection	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn selection(&mut self) -> Vec<usize> {$/;"	f
-set_current_picture	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_current_picture(&mut self, picture: Picture) {$/;"	f
 set_gallery	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_gallery(&mut self, gallery: Gallery) {$/;"	f
 set_image_data	/Users/tof/Coding/gsr2/src/model/picture.rs	/^    pub fn set_image_data(&mut self, image_data: ImageData) {$/;"	f
 set_label	/Users/tof/Coding/gsr2/src/model/picture.rs	/^    pub fn set_label(&mut self, label: &str) {$/;"	f
@@ -470,7 +470,6 @@ set_pictures_for_multiple_view	/Users/tof/Coding/gsr2/src/gui/view/main_window.r
 set_pictures_per_row	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn set_pictures_per_row(&mut self, pictures_per_row: usize) {$/;"	f
 set_range	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_range(&mut self) {$/;"	f
 set_range	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn set_range(&mut self, index: usize) {$/;"	f
-set_rank	/Users/tof/Coding/gsr2/src/model/image_data.rs	/^    pub fn set_rank(&mut self, rank: Rank) {$/;"	f
 set_rank	/Users/tof/Coding/gsr2/src/model/picture.rs	/^    pub fn set_rank(&mut self, rank: Rank) {$/;"	f
 set_sample_from_array	/Users/tof/Coding/gsr2/src/model/palette.rs	/^    pub fn set_sample_from_array(&mut self, array: [u8;31]) {$/;"	f
 set_setting	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_setting(&mut self, setting: &Control, choice: &Control) {$/;"	f
