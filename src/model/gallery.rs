@@ -1,3 +1,4 @@
+use crate::Args;
 use crate::file::database::Database;
 use crate::file::picture_file::{get_all_picture_file_paths, get_picture_file_path};
 use crate::model::order::Order;
@@ -55,9 +56,9 @@ impl Gallery {
         }
     }
 
-    pub fn load_from_database(&mut self, database: &Database) -> Result<usize> {
+    pub fn load_from_database(&mut self, database: &Database, args: &Args) -> Result<usize> {
         println!("loading from database…");
-        match database.retrieve_all_pictures() {
+        match database.retrieve_all_pictures(args) {
             Ok(pictures) => {
                 self.pictures = pictures;
                 Ok(self.len())
@@ -136,7 +137,7 @@ mod tests {
     use std::env::current_dir;
     use crate::env::default_values::TEST_DATABASE_FILE;
     use crate::file::database::Database;
-    use crate::file::database::tests::my_db;
+    use crate::file::database::tests::{my_args, my_db};
     use crate::test_data;
     use crate::test_data::*;
     use crate::file::paths::current_directory;
@@ -182,7 +183,7 @@ mod tests {
         let database: Database = my_db();
         let mut gallery = Gallery::new();
         gallery
-            .load_from_database(&database)
+            .load_from_database(&database, &my_args())
             .expect("can't load from database");
         assert_eq!(4, gallery.len());
     }
@@ -224,7 +225,7 @@ mod tests {
         let database: Database = my_db();
         let mut gallery = Gallery::new();
         gallery
-            .load_from_database(&database)
+            .load_from_database(&database, &my_args())
             .expect("can't load from database");
         gallery.sort_by(Order::Name);
         assert_eq!( current_directory() + "/" + LARGE_PICTURE, gallery.picture(0).file_path());
@@ -234,7 +235,7 @@ mod tests {
         let database: Database = my_db();
         let mut gallery = Gallery::new();
         gallery
-            .load_from_database(&database)
+            .load_from_database(&database, &my_args())
             .expect("can't load from database");
         assert!(gallery.find_file_path(&(current_directory() + "/" + NINE_COLORS)).is_some())
     }
@@ -243,7 +244,7 @@ mod tests {
         let database: Database = my_db();
         let mut gallery = Gallery::new();
         gallery
-            .load_from_database(&database)
+            .load_from_database(&database, &my_args())
             .expect("can't load from database");
         gallery.sort_by(Order::Name);
         let mut picture = gallery.picture(0);

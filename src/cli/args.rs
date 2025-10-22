@@ -39,6 +39,10 @@ pub struct Args {
     #[arg(short, long, value_name="ORDER", ignore_case(true), default_value_t = Order::Name)]
     pub order: Order,
 
+    /// display only pictures which are selected as cover
+    #[arg(long)]
+    pub cover: bool,
+
     /// create missing thumbnails for grid with N x N pictures per page (N in range [2..10]) and
     /// then quit
     #[arg(long, value_name = "N", value_parser(clap::value_parser!(u8).range(2..=10)))]

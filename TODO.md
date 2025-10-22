@@ -3,7 +3,7 @@
 
 ## Todo
 - [ ] find a picture by a pattern in the file path
-- [ ] show only cover pictures
+- [X] show only cover pictures
 - [X] mark a picture to be a cover
 - [X] retrieving tags from a picture, retrieving all tags for all pictures in a big hashmap, then sets the tags in each picture image_data
 - [X] adding and removing tags in grid view

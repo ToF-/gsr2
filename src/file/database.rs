@@ -1,3 +1,4 @@
+use crate::cli::args::Args;
 use crate::model::image_data::Tags;
 use crate::model::rank::Rank;
 use crate::model::palette::Palette;
@@ -125,7 +126,7 @@ impl Database {
              <Rank as Into<i64>>::into(image_data.rank()),
              image_data.palette().sample_as_array(),
              image_data.palette.count(),
-             false],
+             image_data.cover],
         ).and_then(|_| {
             self.rusqlite_delete_tags(&picture.file_path())
                 .and_then(|_| {
@@ -214,9 +215,7 @@ impl Database {
         })
     }
 
-    pub fn rusqlite_retrieve_all_pictures(&self) -> SqlResult<ImageDataMap> {
-        self.connection()
-            .prepare(
+    const SELECT_STAR_FROM_PICTURE: &str = 
             "SELECT                     \n\
              FilePath,                  \n\
              Label,                     \n\
@@ -226,8 +225,24 @@ impl Database {
              Sample,                    \n\
              ColorCount,                \n\
              Cover                      \n\
-             FROM Picture ORDER BY FilePath;",
-            )
+             FROM Picture              \n";
+
+    const WHERE_COVER: &str = 
+        "WHERE Cover = true \n";
+
+    const ORDER_FILE_PATH: &str = 
+        "ORDER BY FilePath \n";
+    pub fn rusqlite_retrieve_all_pictures(&self, args: &Args) -> SqlResult<ImageDataMap> {
+        let sql_query = Self::SELECT_STAR_FROM_PICTURE.to_owned() + 
+            if args.cover {
+                Self::WHERE_COVER
+            } else {
+                ""
+            } +
+        Self::ORDER_FILE_PATH
+            + ";" ;
+        self.connection()
+            .prepare(&sql_query)
             .and_then(|mut statement| {
                 let mut map: ImageDataMap = HashMap::new();
                 statement.query([]).and_then(|mut rows| {
@@ -276,8 +291,8 @@ impl Database {
             })
     }
 
-    pub fn retrieve_all_pictures(&self) -> IOResult<Vec<Picture>> {
-        match self.rusqlite_retrieve_all_pictures() {
+    pub fn retrieve_all_pictures(&self, args: &Args) -> IOResult<Vec<Picture>> {
+        match self.rusqlite_retrieve_all_pictures(args) {
             Ok(picture_map) => {
                 match self.rusqlite_retrieve_all_tags() {
                     Ok(tag_map) => {
@@ -380,6 +395,7 @@ pub mod tests {
     use crate::file::picture_file::get_data_from_picture_file;
     use crate::file::paths::current_directory;
     use std::env;
+    use crate::get_configuration;
 
     pub fn my_db() -> Database {
         let database = Database::rusqlite_from_connection(TEST_DATABASE_FILE, false)
@@ -387,11 +403,15 @@ pub mod tests {
         database
     }
     
-
+    pub fn my_args() -> Args {
+        let cmd: Option<Vec<&str>> = None;
+        let config = get_configuration().unwrap();
+        Args::parse_and_check(cmd, &config).unwrap()
+    }
     #[test]
     fn retrieve_all_pictures_ordered_by_file_path() {
         let database = my_db();
-        let status: SqlResult<ImageDataMap> = database.rusqlite_retrieve_all_pictures();
+        let status: SqlResult<ImageDataMap> = database.rusqlite_retrieve_all_pictures(&my_args());
         assert!(status.is_ok());
         let map = status.unwrap();
         assert_eq!(4, map.len());
@@ -538,7 +558,7 @@ pub mod tests {
         assert!(map.get(&file_path).unwrap().contains("dot"));
         assert!(map.get(&file_path).unwrap().contains("bar"));
 
-        let result = database.retrieve_all_pictures();
+        let result = database.retrieve_all_pictures(&my_args());
         assert!(result.is_ok());
         let pictures = result.unwrap();
         assert_eq!(nine_colors_file_path(), pictures[1].file_path());

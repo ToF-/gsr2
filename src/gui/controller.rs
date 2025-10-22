@@ -110,7 +110,7 @@ impl Controller {
         let result = match args.command {
             Some(Command::File { file_path }) => gallery.load_from_file_path(&file_path),
             Some(Command::Dir { directory }) => gallery.load_from_directory(&directory),
-            None => gallery.load_from_database(&self.database),
+            None => gallery.load_from_database(&self.database, &args),
         };
         match result {
             Ok(0) => {

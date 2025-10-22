@@ -61,6 +61,7 @@ NO_STAR	/Users/tof/Coding/gsr2/src/env/default_values.rs	/^pub const NO_STAR:   
 Navigator	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^pub struct Navigator {$/;"	s
 ONE_PICTURE_PER_ROW	/Users/tof/Coding/gsr2/src/env/default_values.rs	/^pub const ONE_PICTURE_PER_ROW: usize = 1;$/;"	c
 ONE_STAR_SYMBOL	/Users/tof/Coding/gsr2/src/env/default_values.rs	/^pub const ONE_STAR_SYMBOL:    &str = "☆";$/;"	c
+ORDER_FILE_PATH	/Users/tof/Coding/gsr2/src/file/database.rs	/^    const ORDER_FILE_PATH: &str = $/;"	c
 Order	/Users/tof/Coding/gsr2/src/model/order.rs	/^pub enum Order {$/;"	g
 PALETTE_AREA_HEIGHT	/Users/tof/Coding/gsr2/src/env/default_values.rs	/^pub const PALETTE_AREA_HEIGHT: i32 = 10;$/;"	c
 PALETTE_AREA_WIDTH	/Users/tof/Coding/gsr2/src/env/default_values.rs	/^pub const PALETTE_AREA_WIDTH: i32 = 90;$/;"	c
@@ -76,6 +77,7 @@ Rank	/Users/tof/Coding/gsr2/src/model/rank.rs	/^pub enum Rank {$/;"	g
 RcController	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^pub type RcController = Rc<RefCell<Controller>>;$/;"	T
 Rgb8	/Users/tof/Coding/gsr2/src/model/image_data.rs	/^pub type Rgb8 = Rgb<u8>;$/;"	T
 SCROLL_STEP	/Users/tof/Coding/gsr2/src/env/default_values.rs	/^pub const SCROLL_STEP: f64 = 100.0;$/;"	c
+SELECT_STAR_FROM_PICTURE	/Users/tof/Coding/gsr2/src/file/database.rs	/^    const SELECT_STAR_FROM_PICTURE: &str = $/;"	c
 SINGLE_DOT	/Users/tof/Coding/gsr2/src/test_data.rs	/^pub const SINGLE_DOT: &str = "testdata\/single_dot.png";$/;"	c
 SLIDESHOW_DELAY_MAX	/Users/tof/Coding/gsr2/src/env/default_values.rs	/^pub const SLIDESHOW_DELAY_MAX: i32 = 900;$/;"	c
 SLIDESHOW_DELAY_MIN	/Users/tof/Coding/gsr2/src/env/default_values.rs	/^pub const SLIDESHOW_DELAY_MIN: i32 = 1;$/;"	c
@@ -90,6 +92,7 @@ TimeStamp	/Users/tof/Coding/gsr2/src/model/image_data.rs	/^pub type TimeStamp = 
 Type	/Users/tof/Coding/gsr2/src/gui/gsr_application/imp.rs	/^    type Type = super::GsrApplication;$/;"	T
 V	/Users/tof/Coding/gsr2/src/gui/control.rs	/^        const V: Mode = Mode::View;$/;"	c
 VALID_EXTENSIONS	/Users/tof/Coding/gsr2/src/env/default_values.rs	/^pub const VALID_EXTENSIONS: [&str; 6] = ["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"];$/;"	c
+WHERE_COVER	/Users/tof/Coding/gsr2/src/file/database.rs	/^    const WHERE_COVER: &str = $/;"	c
 WHITE_SQUARE	/Users/tof/Coding/gsr2/src/test_data.rs	/^pub const WHITE_SQUARE: &str = "testdata\/white_square.png";$/;"	c
 a_picture_has_a_file_name	/Users/tof/Coding/gsr2/src/model/picture.rs	/^    fn a_picture_has_a_file_name() {$/;"	f
 a_picture_has_file_path_which_is_the_full_path_and_file_path_on_the_file_system	/Users/tof/Coding/gsr2/src/model/picture.rs	/^    fn a_picture_has_file_path_which_is_the_full_path_and_file_path_on_the_file_system() {$/;"	f
@@ -291,7 +294,7 @@ large_picture_file_path	/Users/tof/Coding/gsr2/src/test_data.rs	/^pub fn large_p
 left_pane	/Users/tof/Coding/gsr2/src/gui/view/main_window.rs	/^pub fn left_pane(panel_grid: &gtk::Grid) -> gtk::Label {$/;"	f
 len	/Users/tof/Coding/gsr2/src/model/gallery.rs	/^    pub fn len(&self) -> usize {$/;"	f
 limit	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn limit(&self) -> usize {$/;"	f
-load_from_database	/Users/tof/Coding/gsr2/src/model/gallery.rs	/^    pub fn load_from_database(&mut self, database: &Database) -> Result<usize> {$/;"	f
+load_from_database	/Users/tof/Coding/gsr2/src/model/gallery.rs	/^    pub fn load_from_database(&mut self, database: &Database, args: &Args) -> Result<usize> {$/;"	f
 load_from_directory	/Users/tof/Coding/gsr2/src/model/gallery.rs	/^    pub fn load_from_directory(&mut self, path: &str) -> Result<usize> {$/;"	f
 load_from_file_path	/Users/tof/Coding/gsr2/src/model/gallery.rs	/^    pub fn load_from_file_path(&mut self, file_path: &str) -> Result<usize> {$/;"	f
 load_picture_data	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn load_picture_data(&mut self) -> IOResult<usize> {$/;"	f
@@ -334,6 +337,7 @@ moving_to_a_specific_index	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    fn 
 moving_to_beginning_of_page	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    fn moving_to_beginning_of_page() {$/;"	f
 moving_to_end_of_page	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    fn moving_to_end_of_page() {$/;"	f
 moving_up_moves_to_entry_one_row_above	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    fn moving_up_moves_to_entry_one_row_above() {$/;"	f
+my_args	/Users/tof/Coding/gsr2/src/file/database.rs	/^    pub fn my_args() -> Args {$/;"	f
 my_db	/Users/tof/Coding/gsr2/src/file/database.rs	/^    pub fn my_db() -> Database {$/;"	f
 navigator	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn navigator(&self) -> Navigator {$/;"	f
 navigator_can_define_a_range	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    fn navigator_can_define_a_range() {$/;"	f
@@ -416,7 +420,7 @@ remove_cells	/Users/tof/Coding/gsr2/src/gui/view/picture_grid.rs	/^    pub fn re
 remove_children_from_box	/Users/tof/Coding/gsr2/src/gui/view/main_window.rs	/^pub fn remove_children_from_box(cell_box: &gtk::Box) {$/;"	f
 remove_tag	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn remove_tag(&mut self) {$/;"	f
 remove_tag	/Users/tof/Coding/gsr2/src/model/picture.rs	/^    pub fn remove_tag(&mut self, label: &str) {$/;"	f
-retrieve_all_pictures	/Users/tof/Coding/gsr2/src/file/database.rs	/^    pub fn retrieve_all_pictures(&self) -> IOResult<Vec<Picture>> {$/;"	f
+retrieve_all_pictures	/Users/tof/Coding/gsr2/src/file/database.rs	/^    pub fn retrieve_all_pictures(&self, args: &Args) -> IOResult<Vec<Picture>> {$/;"	f
 retrieve_all_pictures_ordered_by_file_path	/Users/tof/Coding/gsr2/src/file/database.rs	/^    fn retrieve_all_pictures_ordered_by_file_path() {$/;"	f
 rgba_key	/Users/tof/Coding/gsr2/src/model/palette.rs	/^fn rgba_key(rgba: Rgba<u8>) -> u32 {$/;"	f
 right_pane	/Users/tof/Coding/gsr2/src/gui/view/main_window.rs	/^pub fn right_pane(panel_grid: &gtk::Grid) -> gtk::Label {$/;"	f
@@ -428,7 +432,7 @@ rusqlite_delete_picture_with_file_path	/Users/tof/Coding/gsr2/src/file/database.
 rusqlite_delete_tags	/Users/tof/Coding/gsr2/src/file/database.rs	/^    fn rusqlite_delete_tags(&self, file_path: &str) -> SqlResult<usize> {$/;"	f
 rusqlite_from_connection	/Users/tof/Coding/gsr2/src/file/database.rs	/^    fn rusqlite_from_connection(connection_string: &str, create: bool) -> SqlResult<Self> {$/;"	f
 rusqlite_insert_picture	/Users/tof/Coding/gsr2/src/file/database.rs	/^    pub fn rusqlite_insert_picture(&self, picture: &Picture) -> SqlResult<usize> {$/;"	f
-rusqlite_retrieve_all_pictures	/Users/tof/Coding/gsr2/src/file/database.rs	/^    pub fn rusqlite_retrieve_all_pictures(&self) -> SqlResult<ImageDataMap> {$/;"	f
+rusqlite_retrieve_all_pictures	/Users/tof/Coding/gsr2/src/file/database.rs	/^    pub fn rusqlite_retrieve_all_pictures(&self, args: &Args) -> SqlResult<ImageDataMap> {$/;"	f
 rusqlite_retrieve_all_tags	/Users/tof/Coding/gsr2/src/file/database.rs	/^    pub fn rusqlite_retrieve_all_tags(&self) -> SqlResult<HashMap<String, HashSet<String>>> {$/;"	f
 rusqlite_retrieve_picture_with_file_path	/Users/tof/Coding/gsr2/src/file/database.rs	/^    pub fn rusqlite_retrieve_picture_with_file_path(&self, file_path: &str) -> SqlResult<Picture> {$/;"	f
 rusqlite_row_to_picture	/Users/tof/Coding/gsr2/src/file/database.rs	/^    fn rusqlite_row_to_picture(row: &Row) -> SqlResult<Picture, rusqlite::Error> {$/;"	f
