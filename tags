@@ -139,6 +139,7 @@ cancel_delete_picture	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn 
 cancel_input	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    pub fn cancel_input(&mut self) {$/;"	f
 cancel_range	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn cancel_range(&mut self) {$/;"	f
 cancel_range	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn cancel_range(&mut self) {$/;"	f
+cancel_selection	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn cancel_selection(&mut self) {$/;"	f
 cancelling_a_range_unselects_included_pictures	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    fn cancelling_a_range_unselects_included_pictures() {$/;"	f
 cancelling_set_editing_to_false	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    fn cancelling_set_editing_to_false() {$/;"	f
 candidates	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    pub fn candidates(&self) -> Vec<String> {$/;"	f

@@ -491,6 +491,7 @@ impl Controller {
             Control::SetDisplay => self.setting_display(),
             Control::SetOrder => self.setting_order(),
             Control::SetSelection => self.set_selection(),
+            Control::CancelSelection => self.cancel_selection(),
             Control::DisplayDate => self.toggle_display_date(),
             Control::DisplaySize => self.toggle_display_size(),
             Control::OrderByName => self.order_by(Order::Name),
@@ -529,6 +530,18 @@ impl Controller {
     pub fn set_selection(&mut self) {
         self.editor.begin(&self.main_window(), EntryKind::SetSelection, Some(self.gallery.all_labels()));
         self.state.set_mode(Mode::Editing);
+    }
+
+    pub fn cancel_selection(&mut self) {
+        let current_file_path = self.current_picture().file_path();
+        self.gallery.set_selection(HashSet::new());
+        if let Some(index) = self.gallery().find_file_path(&current_file_path) {
+            self.navigator
+                .move_towards(Direction::Index { value: index })
+        } else {
+            self.navigator.move_towards(Direction::First)
+        };
+        self.navigator.set_page_changed();
     }
 
     pub fn apply_selection(&mut self, selection_str: &str) {
