@@ -27,6 +27,20 @@ pub fn file_exists(file_path: &str) -> bool {
     check_path_exists(&path).is_ok()
 }
 
+pub fn check_collectable(path: &PathBuf) -> Result<&PathBuf> {
+    check_path_is_directory(&path)
+        .and_then(|path| {
+            let home_dir = home_dir().unwrap_or("@".into());
+            if path.starts_with(home_dir) || path.is_absolute() {
+                Ok(path)
+            } else {
+                Err(Error::new(
+                        ErrorKind::NotADirectory,
+                        format!("{} is not absolute and not starting with home directory", path.display())))
+            }
+        })
+}
+
 pub fn check_path_is_directory(path: &PathBuf) -> Result<&PathBuf> {
     if path.is_dir() {
         Ok(path)

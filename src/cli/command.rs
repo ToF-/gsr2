@@ -13,4 +13,9 @@ pub enum Command {
         #[arg(value_name = "DIRECTORY")]
         directory: String,
     },
+    /// <DIRECTORY> collect data from the pictures in directory
+    Collect {
+        #[arg(value_name = "DIRECTORY")]
+        directory: String,
+    }
 }

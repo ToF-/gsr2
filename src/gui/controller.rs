@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+use crate::file::paths::check_collectable;
 use std::collections::HashSet;
 use crate::cli::args::Args;
 use crate::cli::command::Command;
@@ -26,6 +28,8 @@ use std::cell::RefCell;
 use std::io::Result as IOResult;
 use std::rc::Rc;
 use crate::model::rank::Rank;
+use crate::file::picture_file::collect_data;
+use std::process::exit;
 
 #[derive(Debug)]
 pub struct Controller {
@@ -106,6 +110,27 @@ impl Controller {
         let result = match args.command {
             Some(Command::File { file_path }) => gallery.load_from_file_path(&file_path),
             Some(Command::Dir { directory }) => gallery.load_from_directory(&directory),
+            Some(Command::Collect { directory }) => {
+                println!("collecting data for picture files in the database…");
+                let path: PathBuf = PathBuf::from(directory);
+                match check_collectable(&path) {
+                    Ok(directory) => { 
+                        gallery.load_from_directory(&directory.display().to_string());
+                        match collect_data(&gallery, &self.database()) {
+                            Ok(_) => exit(0),
+                            Err(err) => {
+                                eprintln!("{}", err);
+                                exit(1);
+                            }
+                        }
+                    },
+                    Err(err) => {
+                        eprintln!("{}", err);
+                        exit(1);
+                    }
+                }
+            },
+
             None => gallery.load_from_database(&self.database, &args),
         };
         match result {
