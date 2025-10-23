@@ -2,7 +2,8 @@
 ## Gallery Show in Rust
 
 ## Todo
-- [ ] create missing thumbnails should be a command
+- [ ] list should be a command
+- [X] create missing thumbnails should be a command
 - [X] restrict option picture on list of tags picture selected only if having all the tags
 - [X] select option pictures on list of tags : any picture having one of these tags is selected
 - [ ] convert database of gsr V1 into gsr V2

@@ -1,4 +1,5 @@
 use crate::model::selection::Selection;
+use crate::file::picture_file::create_missing_thumbnails;
 use std::path::PathBuf;
 use crate::file::paths::check_collectable;
 use std::collections::HashSet;
@@ -130,6 +131,11 @@ impl Controller {
                         exit(1);
                     }
                 }
+            },
+            Some(Command::Thumbnails { pictures_per_row }) => {
+                gallery.load_from_database(&self.database, &args);
+                create_missing_thumbnails(&gallery, pictures_per_row as usize);
+                exit(0)
             },
             Some(_) => Ok(0),
             None => gallery.load_from_database(&self.database, &args),

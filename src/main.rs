@@ -84,10 +84,6 @@ fn main() {
                     controller.gallery().print();
                     exit(0)
                 };
-                if let Some(pictures_per_row) = cli.create_missing_thumbnails {
-                    create_missing_thumbnails(&controller.gallery(), pictures_per_row as usize);
-                    exit(0)
-                };
             };
             let application: gtk::Application = make_application(APPLICATION_ID);
             application.connect_activate(clone!(

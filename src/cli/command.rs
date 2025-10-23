@@ -20,4 +20,12 @@ pub enum Command {
     },
     /// initialize a new database set in the config file is not existing
     Initialize,
+
+    /// <N> create missing thumbnails for grid with N x N pictures per page (N in range [2..10]) and
+    /// then quit
+    Thumbnails {
+        #[arg(value_name = "N", value_parser(clap::value_parser!(u8).range(2..=10)))]
+        pictures_per_row : u8,
+    },
 }
+
