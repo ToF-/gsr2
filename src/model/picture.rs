@@ -104,13 +104,10 @@ impl Picture {
     }
 
     pub fn selected(&self, selection: &Selection) -> bool {
-        if let Some(image_data) = &self.image_data
-            && ! selection.is_empty() {
-                let tags = selection.tags();
-                let mut intersection = image_data.tags.intersection(&tags);
-                intersection.next().is_some()
-            } else {
-                false
+        if let Some(image_data) = &self.image_data {
+            selection.intersect_with(image_data.tags.clone())
+        } else {
+            false
         }
     }
 

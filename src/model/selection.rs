@@ -35,4 +35,9 @@ impl Selection {
         self.tags.is_empty()
     }
 
+    pub fn intersect_with(&self, tags: Tags) -> bool {
+        let mut intersection = tags.intersection(&self.tags);
+        intersection.next().is_some()
+    }
+
 }

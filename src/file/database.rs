@@ -307,11 +307,14 @@ impl Database {
                                 HashSet::new()
                             };
                             let new_image_data = ImageData {
-                                tags: new_tags,
+                                tags: new_tags.clone(),
                                 .. image_data.clone()
                             };
-                            let picture = Picture::new_with_image_data(file_path, &new_image_data);
-                            pictures.push(picture)
+                            if selection.is_empty() 
+                                || selection.intersect_with(new_tags.clone()) {
+                                    let picture = Picture::new_with_image_data(file_path, &new_image_data);
+                                    pictures.push(picture)
+                            }
                         };
                         pictures.sort_by_key(|picture| picture.file_path());
                         Ok(pictures)

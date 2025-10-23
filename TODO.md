@@ -3,7 +3,7 @@
 
 ## Todo
 - [ ] create missing thumbnails should be a command
-- [ ] select option pictures on list of tags : any picture having one of these tags is selected
+- [X] select option pictures on list of tags : any picture having one of these tags is selected
 - [ ] convert database of gsr V1 into gsr V2
 - [X] initialize should be a command
 - [X] collect should be a commandi with a directory argument, not an option, and not possible with a directory that is not starting with home dir or /
