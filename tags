@@ -116,6 +116,7 @@ append_cursor	/Users/tof/Coding/gsr2/src/gui/view/entry_window.rs	/^    fn appen
 append_from_key	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    pub fn append_from_key(&mut self, key: Key) {$/;"	f
 appending_a_char_changes_the_input	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    fn appending_a_char_changes_the_input() {$/;"	f
 application_window	/Users/tof/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn application_window(&self) -> gtk::ApplicationWindow {$/;"	f
+apply_selection	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn apply_selection(&mut self, selection_str: &str) {$/;"	f
 args	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn args(&self) -> Args {$/;"	f
 arrow_move	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn arrow_move(&mut self, direction: Direction) {$/;"	f
 attach_cells	/Users/tof/Coding/gsr2/src/gui/view/picture_grid.rs	/^    pub fn attach_cells(&self, pictures_per_row: i32) {$/;"	f
@@ -182,7 +183,7 @@ confirm_delete_picture	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn
 confirm_input	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    pub fn confirm_input(&mut self) -> String {$/;"	f
 confirming_return_input_and_set_editing_to_false	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    fn confirming_return_input_and_set_editing_to_false() {$/;"	f
 connection	/Users/tof/Coding/gsr2/src/file/database.rs	/^    pub fn connection(&self) -> Ref<Connection> {$/;"	f
-convert_char	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    fn convert_char(ch: char) -> char {$/;"	f
+convert_char	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    fn convert_char(&self, ch: char) -> char {$/;"	f
 converting_blob_to_palette_sample	/Users/tof/Coding/gsr2/src/model/palette.rs	/^    fn converting_blob_to_palette_sample() {$/;"	f
 converting_palette_sample_to_blob	/Users/tof/Coding/gsr2/src/model/palette.rs	/^    fn converting_palette_sample_to_blob() {$/;"	f
 coords_from_position	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn coords_from_position(&self, position: usize) -> Option<(usize, usize)> {$/;"	f
@@ -377,6 +378,7 @@ no_candidates_when_no_prefix	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    fn n
 no_thumbnail_picture	/Users/tof/Coding/gsr2/src/model/thumbnail.rs	/^pub fn no_thumbnail_picture() -> gtk::Picture {$/;"	f
 old_position	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn old_position(&self) -> usize {$/;"	f
 on_database	/Users/tof/Coding/gsr2/src/cli/args.rs	/^    pub fn on_database(&self) -> bool {$/;"	f
+order	/Users/tof/Coding/gsr2/src/model/gallery.rs	/^    pub fn order(&self) -> Order {$/;"	f
 order_by	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn order_by(&mut self, order: Order) {$/;"	f
 page_changed	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn page_changed(&self) -> bool {$/;"	f
 page_display	/Users/tof/Coding/gsr2/src/gui/display.rs	/^fn page_display(controller: &Controller) -> String {$/;"	f
@@ -403,6 +405,7 @@ position	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn position(&self
 position_from_coords	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn position_from_coords(&self, row: usize, col: usize) -> Option<usize> {$/;"	f
 position_from_coords_depnds_on_page_start	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    fn position_from_coords_depnds_on_page_start() {$/;"	f
 possibles_candidates_when_input_is_two_chars_prefixing_a_choice	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    fn possibles_candidates_when_input_is_two_chars_prefixing_a_choice() {$/;"	f
+possibles_candidates_when_input_is_two_chars_prefixing_a_choice_after_a_first_selection_item	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    fn possibles_candidates_when_input_is_two_chars_prefixing_a_choice_after_a_first_selection_item() {$/;"	f
 prev_page_start	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn prev_page_start(&self) -> usize {$/;"	f
 prev_page_start_is_page_start_minus_page_size	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    fn prev_page_start_is_page_start_minus_page_size() {$/;"	f
 print	/Users/tof/Coding/gsr2/src/model/gallery.rs	/^    pub fn print(&self) {$/;"	f
@@ -453,6 +456,8 @@ save_nine_colors	/Users/tof/Coding/gsr2/src/gen_data.rs	/^pub fn save_nine_color
 save_single_dot	/Users/tof/Coding/gsr2/src/gen_data.rs	/^pub fn save_single_dot() {$/;"	f
 save_white_square	/Users/tof/Coding/gsr2/src/gen_data.rs	/^pub fn save_white_square() {$/;"	f
 select	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn select(&mut self, index: usize) {$/;"	f
+select	/Users/tof/Coding/gsr2/src/model/gallery.rs	/^    pub fn select(&mut self, selection: HashSet<String>) {$/;"	f
+selected	/Users/tof/Coding/gsr2/src/model/picture.rs	/^    pub fn selected(&self, selection: &HashSet<String>) -> bool {$/;"	f
 selection	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn selection(&mut self) -> Vec<usize> {$/;"	f
 set_gallery	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_gallery(&mut self, gallery: Gallery) {$/;"	f
 set_image_data	/Users/tof/Coding/gsr2/src/model/picture.rs	/^    pub fn set_image_data(&mut self, image_data: ImageData) {$/;"	f
@@ -480,6 +485,7 @@ set_range	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_range(&m
 set_range	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn set_range(&mut self, index: usize) {$/;"	f
 set_rank	/Users/tof/Coding/gsr2/src/model/picture.rs	/^    pub fn set_rank(&mut self, rank: Rank) {$/;"	f
 set_sample_from_array	/Users/tof/Coding/gsr2/src/model/palette.rs	/^    pub fn set_sample_from_array(&mut self, array: [u8;31]) {$/;"	f
+set_selection	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_selection(&mut self) {$/;"	f
 set_setting	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_setting(&mut self, setting: &Control, choice: &Control) {$/;"	f
 set_slideshow_off	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_slideshow_off(&mut self) {$/;"	f
 set_slideshow_off	/Users/tof/Coding/gsr2/src/gui/state.rs	/^    pub fn set_slideshow_off(&mut self) {$/;"	f

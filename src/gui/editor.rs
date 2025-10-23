@@ -41,6 +41,7 @@ impl Editor {
             EntryKind::Number => "Enter a number",
             EntryKind::DeleteConfirmation => "Delete these pictures?",
             EntryKind::Find => "Enter a part of the picture file name",
+            EntryKind::SetSelection => "Enter tags to include in the selection",
         };
         self.prompt = prompt.to_string();
         self.begin_input(entry_kind, choice_opt);
@@ -99,31 +100,38 @@ impl Editor {
     }
 
     pub fn complete(&mut self) {
-        if let Some(entry_window) = &self.entry_window_opt {
-            let candidates = self.candidates();
-            match candidates.len() {
-                0 => {
-                    self.refresh_prompt(&self.prompt)
-                },
-                1 => {
-                    self.input = candidates[0].clone();
-                    self.refresh_prompt(&self.prompt);
-                    self.refresh_view()
-                },
-                _ => {
-                    self.refresh_prompt(
-                        &(self.prompt.clone() + " [ " + &candidates.iter().join(" ") + " ] "))
-                }
+        let candidates = self.candidates();
+        match candidates.len() {
+            0 => {
+                self.refresh_prompt(&self.prompt)
+            },
+            1 => {
+                let candidate = candidates[0].clone();
+                let mut parts = self.input.rsplitn(2, ',');
+                let last = parts.next().unwrap();
+                let firsts = parts.next().unwrap_or("");
+                self.input = if firsts.is_empty() {
+                    candidate
+                } else {
+                    format!("{},{}", firsts, candidate)
+                };
+                self.refresh_prompt(&self.prompt);
+                self.refresh_view()
+            },
+            _ => {
+                self.refresh_prompt(
+                    &(self.prompt.clone() + " [ " + &candidates.iter().join(" ") + " ] "))
             }
         }
     }
 
     pub fn candidates(&self) -> Vec<String> {
+        let last = self.input.rsplit(',').next().unwrap();
         if ! self.choice.is_empty()
-            && self.input.len() >= 2 {
+            && last.len() >= 2 {
                 let mut result: Vec<String> = vec![];
                 for candidate in self.choice.clone() {
-                    if candidate.starts_with(&self.input) {
+                    if candidate.starts_with(&last) {
                         result.push(candidate)
                     }
                 };
@@ -154,16 +162,19 @@ impl Editor {
             EntryKind::DeleteConfirmation => matches!(ch, 'e' | 'n' | 'o' | 's' | 'y'),
             EntryKind::Label | EntryKind::AddTag | EntryKind:: RemoveTag | EntryKind:: Find => matches!(ch,
                 'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' '),
+            EntryKind::SetSelection => matches!(ch,
+                'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' '),
         };
         if ch_is_ok && self.input.len() < MAX_LABEL_LENGTH {
-            self.input.push(Self::convert_char(ch));
+            self.input.push(self.convert_char(ch));
             self.refresh_view();
             self.refresh_prompt(&self.prompt);
         }
     }
 
-    fn convert_char(ch: char) -> char {
+    fn convert_char(&self, ch: char) -> char {
         match ch {
+            ' ' if self.entry_kind == EntryKind::SetSelection => ',',
             ' ' => '-',
             other if other.is_ascii() => other.to_lowercase().next().unwrap(),
             other => other,
@@ -183,9 +194,11 @@ impl Editor {
     }
 
     fn refresh_view(&self) {
-        self.entry_window_opt
-            .clone()
-            .map(|window| window.set_text(&self.input));
+        if let Some(entry_window) = &self.entry_window_opt {
+            self.entry_window_opt
+                .clone()
+                .map(|window| window.set_text(&self.input));
+        }
     }
 }
 #[cfg(test)]
@@ -333,5 +346,21 @@ mod tests {
         editor.append('a');
         editor.append('b');
         assert!(editor.candidates().is_empty())
+    }
+    #[test]
+    fn possibles_candidates_when_input_is_two_chars_prefixing_a_choice_after_a_first_selection_item() {
+        let mut editor = Editor::new();
+        editor.begin_input(EntryKind::SetSelection, Some(vec!["bar".to_string(),"foo".to_string(),"qux".to_string(),"zone".to_string(), "zoo".to_string()]));
+        editor.append('b');
+        editor.append('a');
+        assert_eq!("ba", editor.input);
+        assert_eq!(vec!["bar".to_string()], editor.candidates());
+        editor.complete();
+        assert_eq!("bar", editor.input);
+        editor.append(' ');
+        editor.append('f');
+        editor.append('o');
+        assert_eq!("bar,fo", editor.input);
+        assert_eq!(vec!["foo".to_string()], editor.candidates());
     }
 }

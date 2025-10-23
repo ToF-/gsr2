@@ -102,6 +102,16 @@ impl Picture {
         }
     }
 
+    pub fn selected(&self, selection: &HashSet<String>) -> bool {
+        if let Some(image_data) = &self.image_data
+            && ! selection.is_empty() {
+                let mut intersection = image_data.tags.intersection(&selection);
+                intersection.next().is_some()
+            } else {
+                false
+        }
+    }
+
     pub fn rank(&self) -> Rank {
         if let Some(image_data) = &self.image_data {
             image_data.rank()

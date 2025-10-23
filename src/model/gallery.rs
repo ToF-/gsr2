@@ -12,25 +12,38 @@ use std::io::{Error, Result};
 #[derive(Debug, Clone)]
 pub struct Gallery {
     pictures: Vec<Picture>,
+    order: Order,
+    selection: HashSet<String>,
 }
 
 impl Gallery {
     pub fn new() -> Self {
         Gallery {
             pictures: Vec::new(),
+            order: Order::Name,
+            selection: HashSet::new(),
         }
     }
 
     #[allow(dead_code)]
     pub fn new_with_pictures(pictures: Vec<Picture>) -> Self {
-        Gallery { pictures }
+        Gallery { 
+            pictures,
+            order: Order::Name,
+            selection: HashSet::new(),
+        }
     }
+
     pub fn len(&self) -> usize {
         self.pictures.len()
     }
 
     pub fn pictures(&self) -> &Vec<Picture> {
         &self.pictures
+    }
+
+    pub fn order(&self) -> Order {
+        self.order
     }
 
     pub fn picture(&self, index: usize) -> Picture {
@@ -83,35 +96,48 @@ impl Gallery {
         }
     }
 
+    pub fn select(&mut self, selection: HashSet<String>) {
+        self.selection = selection.clone()
+    }
+
     pub fn sort_by(&mut self, order: Order) {
+        self.order = order;
+        let selection = self.selection.clone();
         match order {
-            Order::Name => self.pictures.sort_by_key(|picture| picture.file_path()),
+            Order::Name => self.pictures.sort_by_key(|picture|
+                (!picture.selected(&selection), picture.file_path())),
+
             Order::Size => self
                 .pictures
-                .sort_by_key(|picture| picture.image_data().map(|image_data| image_data.size())),
+                .sort_by_key(|picture| 
+                    (!picture.selected(&selection), picture.image_data().map(|image_data| image_data.size()))),
+
             Order::Date => self.pictures.sort_by_key(|picture| {
                 picture
                     .image_data()
-                    .map(|image_data| (true, Reverse(image_data.modified_time())))
+                    .map(|image_data| 
+                        (!picture.selected(&selection), (true, Reverse(image_data.modified_time()))))
             }),
             Order::Label => self.pictures.sort_by_key(|picture| {
-                picture
-                    .label_sort_key()
+                (! picture.selected(&selection), picture .label_sort_key())
             }),
             Order::Value => self.pictures.sort_by_key(|picture| {
                 picture
                     .image_data()
-                    .map(|image_data| image_data.rank())
+                    .map(|image_data| 
+                        (!picture.selected(&selection), image_data.rank()))
             }),
             Order::ColorCount => self.pictures.sort_by_key(|picture| {
                 picture
                     .image_data()
-                    .map(|image_data| image_data.palette().count())
+                    .map(|image_data|
+                        (!picture.selected(&selection), image_data.palette().count()))
             }),
             Order::Palette => self.pictures.sort_by_key(|picture| {
                 picture
                     .image_data()
-                    .map(|image_data| image_data.palette().sample_as_array())
+                    .map(|image_data| 
+                        (!picture.selected(&selection), image_data.palette().sample_as_array()))
             }),
             _ => self.pictures.shuffle(&mut rng()),
         }

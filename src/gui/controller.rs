@@ -280,6 +280,11 @@ impl Controller {
                                 self.find_pattern(&self.editor.input())
                             };
                         },
+                        EntryKind::SetSelection => {
+                            if !self.editor.input().is_empty() {
+                                self.apply_selection(&self.editor.input())
+                            }
+                        }
                     }
                 }
             }
@@ -459,6 +464,7 @@ impl Controller {
             Control::GridTen => self.change_grid_size(10),
             Control::SetDisplay => self.setting_display(),
             Control::SetOrder => self.setting_order(),
+            Control::SetSelection => self.set_selection(),
             Control::DisplayDate => self.toggle_display_date(),
             Control::DisplaySize => self.toggle_display_size(),
             Control::OrderByName => self.order_by(Order::Name),
@@ -494,6 +500,15 @@ impl Controller {
         }
         self.navigator.set_page_changed()
     }
+    pub fn set_selection(&mut self) {
+        self.editor.begin(&self.main_window(), EntryKind::SetSelection, Some(self.gallery.all_labels()));
+        self.state.set_mode(Mode::Editing);
+    }
+
+    pub fn apply_selection(&mut self, selection_str: &str) {
+        println!("here I apply the selection {}", selection_str);
+    }
+
     pub fn add_tag(&mut self) {
         self.set_opacity_for_current_picture(0.25);
         self.editor.begin(&self.main_window(), EntryKind::AddTag, Some(self.gallery.all_labels()));
