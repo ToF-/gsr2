@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use crate::env::default_values::COVER_SYMBOL;
 use itertools::Itertools;
 use crate::model::rank::Rank;
@@ -52,6 +53,14 @@ fn cover_display(cover: bool) -> String {
         "".to_string()
     }
 }
+
+fn display_selection(selection: HashSet<String>) -> String {
+    if !selection.is_empty() {
+        format!("=[{}]", selection.into_iter().join("|"))
+    } else {
+        "".to_string()
+    }
+}
 fn tag_display(tags: Tags) -> String {
     match tags.len() {
         0 => String::from(""),
@@ -65,7 +74,7 @@ fn tag_display(tags: Tags) -> String {
 
 pub fn title_display(controller: &Controller) -> String {
     format!(
-        "{} #{} {} {} {} {} {} {} {}{}",
+        "{} #{} {} {} {} {} {} {} {}{} {}",
         cover_display(
             match controller.current_picture().image_data() {
                 Some(image_data) => image_data.cover,
@@ -94,5 +103,6 @@ pub fn title_display(controller: &Controller) -> String {
         },
         expand_display(controller.state().expand_on()),
         full_size_display(controller.state().full_size_on()),
+        display_selection(controller.gallery().selection()),
     )
 }

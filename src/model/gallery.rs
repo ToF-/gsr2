@@ -96,8 +96,13 @@ impl Gallery {
         }
     }
 
-    pub fn select(&mut self, selection: HashSet<String>) {
-        self.selection = selection.clone()
+    pub fn set_selection(&mut self, selection: HashSet<String>) {
+        self.selection = selection.clone();
+        self.sort_by(self.order)
+    }
+
+    pub fn selection(&self) -> HashSet<String> {
+        self.selection.clone()
     }
 
     pub fn sort_by(&mut self, order: Order) {

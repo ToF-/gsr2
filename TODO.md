@@ -2,7 +2,7 @@
 ## Gallery Show in Rust
 
 ## Todo
-- [ ] add a select command in view mode that sorts the gallery by the current sort criteria + selected tag in major. e.g sort by size becomes sort by [excluded + size], the picture not excluded will all appear first
+- [X] add a select command in view mode that sorts the gallery by the current sort criteria + selected tag in major. e.g sort by size becomes sort by [excluded + size], the picture not excluded will all appear first
 - [ ] select pictures on list of tags : any picture having one of these tags is selected
 - [X] completion when entering a label or a tag
 - [X] find a picture by a pattern in the file path

@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use crate::cli::args::Args;
 use crate::cli::command::Command;
 use crate::env::environment::database_connection;
@@ -506,7 +507,14 @@ impl Controller {
     }
 
     pub fn apply_selection(&mut self, selection_str: &str) {
-        println!("here I apply the selection {}", selection_str);
+        let set: HashSet<String> = 
+            selection_str.split(',')
+            .map(|s| s.to_string())
+            .collect();
+        self.gallery.set_selection(set);
+        self.navigator.move_towards(Direction::First);
+        self.navigator.set_page_changed();
+
     }
 
     pub fn add_tag(&mut self) {
