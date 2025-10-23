@@ -1,3 +1,4 @@
+use crate::model::selection::Selection;
 use std::path::PathBuf;
 use crate::file::paths::check_collectable;
 use std::collections::HashSet;
@@ -534,7 +535,7 @@ impl Controller {
 
     pub fn cancel_selection(&mut self) {
         let current_file_path = self.current_picture().file_path();
-        self.gallery.set_selection(HashSet::new());
+        self.gallery.set_selection(Selection::empty());
         if let Some(index) = self.gallery().find_file_path(&current_file_path) {
             self.navigator
                 .move_towards(Direction::Index { value: index })
@@ -545,11 +546,7 @@ impl Controller {
     }
 
     pub fn apply_selection(&mut self, selection_str: &str) {
-        let set: HashSet<String> = 
-            selection_str.split(',')
-            .map(|s| s.to_string())
-            .collect();
-        self.gallery.set_selection(set);
+        self.gallery.set_selection(Selection::from(selection_str));
         self.navigator.move_towards(Direction::First);
         self.navigator.set_page_changed();
 

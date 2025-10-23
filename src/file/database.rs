@@ -1,3 +1,4 @@
+use crate::model::selection::Selection;
 use crate::cli::args::Args;
 use crate::model::image_data::Tags;
 use crate::model::rank::Rank;
@@ -232,6 +233,7 @@ impl Database {
 
     const ORDER_FILE_PATH: &str = 
         "ORDER BY FilePath \n";
+
     pub fn rusqlite_retrieve_all_pictures(&self, args: &Args) -> SqlResult<ImageDataMap> {
         let sql_query = Self::SELECT_STAR_FROM_PICTURE.to_owned() + 
             if args.cover {
@@ -292,6 +294,7 @@ impl Database {
     }
 
     pub fn retrieve_all_pictures(&self, args: &Args) -> IOResult<Vec<Picture>> {
+        let selection = Selection::from_opt(&args.select);
         match self.rusqlite_retrieve_all_pictures(args) {
             Ok(picture_map) => {
                 match self.rusqlite_retrieve_all_tags() {

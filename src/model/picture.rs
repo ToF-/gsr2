@@ -1,3 +1,4 @@
+use crate::model::selection::Selection;
 use std::collections::HashSet;
 use crate::model::image_data::datetime_from_time_stamp;
 use crate::file::paths::{file_name_from, thumbnail_name_from};
@@ -102,10 +103,11 @@ impl Picture {
         }
     }
 
-    pub fn selected(&self, selection: &HashSet<String>) -> bool {
+    pub fn selected(&self, selection: &Selection) -> bool {
         if let Some(image_data) = &self.image_data
             && ! selection.is_empty() {
-                let mut intersection = image_data.tags.intersection(&selection);
+                let tags = selection.tags();
+                let mut intersection = image_data.tags.intersection(&tags);
                 intersection.next().is_some()
             } else {
                 false

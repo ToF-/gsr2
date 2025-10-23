@@ -1,3 +1,4 @@
+use crate::model::label::{Label, from};
 use crate::model::rank::Rank;
 use chrono::{DateTime, Local};
 use std::time::UNIX_EPOCH;
@@ -29,7 +30,7 @@ pub fn datetime_from_time_stamp(timestamp: u64) -> DateTime<Local> {
 
 #[derive(Debug, Clone)]
 pub struct ImageData {
-    pub label: String,
+    pub label: Label,
     pub size: FileSize,
     pub modified_time: TimeStamp,
     pub rank: Rank,
@@ -41,7 +42,7 @@ pub struct ImageData {
 impl ImageData {
     pub fn new(label: &str) -> Self {
         ImageData {
-            label: label.to_string(),
+            label: from(label),
             size: 0,
             rank: Rank::NoStar,
             modified_time: timestamp(SystemTime::UNIX_EPOCH),

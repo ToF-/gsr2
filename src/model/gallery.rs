@@ -1,3 +1,4 @@
+use crate::model::selection::Selection;
 use std::collections::HashSet;
 use crate::Args;
 use crate::file::database::Database;
@@ -13,7 +14,7 @@ use std::io::{Error, Result};
 pub struct Gallery {
     pictures: Vec<Picture>,
     order: Order,
-    selection: HashSet<String>,
+    selection: Selection,
 }
 
 impl Gallery {
@@ -21,7 +22,7 @@ impl Gallery {
         Gallery {
             pictures: Vec::new(),
             order: Order::Name,
-            selection: HashSet::new(),
+            selection: Selection::empty(),
         }
     }
 
@@ -30,7 +31,7 @@ impl Gallery {
         Gallery { 
             pictures,
             order: Order::Name,
-            selection: HashSet::new(),
+            selection: Selection::empty(),
         }
     }
 
@@ -96,12 +97,12 @@ impl Gallery {
         }
     }
 
-    pub fn set_selection(&mut self, selection: HashSet<String>) {
+    pub fn set_selection(&mut self, selection: Selection) {
         self.selection = selection.clone();
         self.sort_by(self.order)
     }
 
-    pub fn selection(&self) -> HashSet<String> {
+    pub fn selection(&self) -> Selection {
         self.selection.clone()
     }
 

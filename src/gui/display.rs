@@ -1,3 +1,4 @@
+use crate::model::selection::Selection;
 use std::collections::HashSet;
 use crate::env::default_values::COVER_SYMBOL;
 use itertools::Itertools;
@@ -54,9 +55,9 @@ fn cover_display(cover: bool) -> String {
     }
 }
 
-fn display_selection(selection: HashSet<String>) -> String {
+fn display_selection(selection: &Selection) -> String {
     if !selection.is_empty() {
-        format!("=[{}]", selection.into_iter().join("|"))
+        format!("=[{}]", selection.tags().into_iter().join("|"))
     } else {
         "".to_string()
     }
@@ -103,6 +104,6 @@ pub fn title_display(controller: &Controller) -> String {
         },
         expand_display(controller.state().expand_on()),
         full_size_display(controller.state().full_size_on()),
-        display_selection(controller.gallery().selection()),
+        display_selection(&controller.gallery().selection()),
     )
 }

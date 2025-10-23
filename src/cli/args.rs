@@ -60,6 +60,10 @@ pub struct Args {
     #[arg(long, value_name = "N")]
     pub width: Option<i32>,
 
+    /// select only picture having at least one tag in TAGS (e.g "foo,bar")
+    #[arg(long, value_name = "TAGS")]
+    pub select: Option<String>,
+
     /// slideshow mode, displaying next picture every N seconds
     #[arg(short, long, value_name = "N")]
     pub slideshow: Option<i32>,
