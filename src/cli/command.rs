@@ -17,5 +17,7 @@ pub enum Command {
     Collect {
         #[arg(value_name = "DIRECTORY")]
         directory: String,
-    }
+    },
+    /// initialize a new database set in the config file is not existing
+    Initialize,
 }

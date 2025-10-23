@@ -130,7 +130,7 @@ impl Controller {
                     }
                 }
             },
-
+            Some(_) => Ok(0),
             None => gallery.load_from_database(&self.database, &args),
         };
         match result {

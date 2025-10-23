@@ -34,8 +34,12 @@ fn main() {
     };
     match Args::parse_and_check(None, &config) {
         Ok(cli) => {
-            if ! file_exists(&config.database_file)
-                && cli.initialize {
+            if let Some(Command::File { ref file_path }) = cli.command {
+                println!("viewing file {}", file_path);
+            } else if let Some(Command::Dir { ref directory }) = cli.command {
+                println!("viewing files in directory {}", directory);
+            } else if let Some(Command::Initialize) = cli.command { 
+                if ! file_exists(&config.database_file) {
                     println!("creating new database file {}", config.database_file);
                     match Database::from_connection(&config.database_file, true) {
                         Ok(database) => match database.rusqlite_create_schema() {
@@ -50,11 +54,10 @@ fn main() {
                             exit(1)
                         }
                     }
-            };
-            if let Some(Command::File { ref file_path }) = cli.command {
-                println!("viewing file {}", file_path);
-            } else if let Some(Command::Dir { ref directory }) = cli.command {
-                println!("viewing files in directory {}", directory);
+                } else {
+                    eprintln!("{} already exists", &config.database_file);
+                    exit(1);
+                }
             } else if cli.command.is_none() {
                 println!("viewing file from the database");
             }

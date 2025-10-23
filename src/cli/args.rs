@@ -52,10 +52,6 @@ pub struct Args {
     #[arg(long, value_name = "N")]
     pub height: Option<i32>,
 
-    /// initialize the database set in the configuration file if it does nt exist
-    #[arg(long)]
-    pub initialize: bool,
-
     /// list the picture file names in the selection and then quit
     #[arg(long)]
     pub list: bool,
@@ -103,7 +99,6 @@ impl Args {
                 Err(e) => return Err(e),
             }
         }
-        println!("{:?}", args.clone());
         Ok(args.clone())
     }
 
