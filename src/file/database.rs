@@ -294,7 +294,13 @@ impl Database {
     }
 
     pub fn retrieve_all_pictures(&self, args: &Args) -> IOResult<Vec<Picture>> {
-        let selection = Selection::from_opt(&args.select);
+        let selection: Selection = if let Some(select) = &args.select {
+            Selection::from(&select, false)
+        } else if let Some(restrict) = &args.restrict {
+            Selection::from(&restrict, true)
+        } else {
+           Selection::empty()
+        };
         match self.rusqlite_retrieve_all_pictures(args) {
             Ok(picture_map) => {
                 match self.rusqlite_retrieve_all_tags() {
@@ -310,8 +316,8 @@ impl Database {
                                 tags: new_tags.clone(),
                                 .. image_data.clone()
                             };
-                            if selection.is_empty() 
-                                || selection.intersect_with(new_tags.clone()) {
+                            if selection.is_empty()
+                                || selection.matches(new_tags.clone()) {
                                     let picture = Picture::new_with_image_data(file_path, &new_image_data);
                                     pictures.push(picture)
                             }

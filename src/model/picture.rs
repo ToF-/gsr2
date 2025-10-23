@@ -105,7 +105,7 @@ impl Picture {
 
     pub fn selected(&self, selection: &Selection) -> bool {
         if let Some(image_data) = &self.image_data {
-            selection.intersect_with(image_data.tags.clone())
+            selection.matches(image_data.tags.clone())
         } else {
             false
         }

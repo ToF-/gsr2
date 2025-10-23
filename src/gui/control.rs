@@ -32,6 +32,7 @@ pub enum Control {
     SetDisplay,
     SetOrder,
     SetSelection,
+    SetRestriction,
     CancelSelection,
     Find,
     Label,
@@ -114,6 +115,7 @@ pub fn default_controls() -> Controls {
         ((String::from("Down"), Mode::View), Control::Down),
         ((String::from("s"), Mode::View), Control::Down),
         ((String::from("equal"), Mode::View), Control::SetSelection),
+        ((String::from("minus"), Mode::View), Control::SetRestriction),
         ((String::from("numbersign"), Mode::View), Control::CancelSelection),
         (
             (String::from("period"), Mode::View),

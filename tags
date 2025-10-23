@@ -119,6 +119,7 @@ append_cursor	/Users/tof/Coding/gsr2/src/gui/view/entry_window.rs	/^    fn appen
 append_from_key	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    pub fn append_from_key(&mut self, key: Key) {$/;"	f
 appending_a_char_changes_the_input	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    fn appending_a_char_changes_the_input() {$/;"	f
 application_window	/Users/tof/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn application_window(&self) -> gtk::ApplicationWindow {$/;"	f
+apply_restriction	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn apply_restriction(&mut self, selection_str: &str) {$/;"	f
 apply_selection	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn apply_selection(&mut self, selection_str: &str) {$/;"	f
 args	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn args(&self) -> Args {$/;"	f
 arrow_move	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn arrow_move(&mut self, direction: Direction) {$/;"	f
@@ -258,12 +259,12 @@ from	/Users/tof/Coding/gsr2/src/model/label.rs	/^pub fn from(s: &str) -> Label {
 from	/Users/tof/Coding/gsr2/src/model/order.rs	/^pub fn from(s: &str) -> Option<Order> {$/;"	f
 from	/Users/tof/Coding/gsr2/src/model/palette.rs	/^    pub fn from(image: &DynamicImage) -> Self {$/;"	f
 from	/Users/tof/Coding/gsr2/src/model/rank.rs	/^    fn from(n: i64) -> Self {$/;"	f
-from	/Users/tof/Coding/gsr2/src/model/selection.rs	/^    pub fn from(s: &str) -> Self {$/;"	f
+from	/Users/tof/Coding/gsr2/src/model/selection.rs	/^    pub fn from(s: &str, restrict: bool) -> Self {$/;"	f
 from_and_to_i64	/Users/tof/Coding/gsr2/src/model/rank.rs	/^    fn from_and_to_i64() {$/;"	f
 from_connection	/Users/tof/Coding/gsr2/src/file/database.rs	/^    pub fn from_connection(connection_string: &str, create: bool) -> std::io::Result<Self> {$/;"	f
 from_file	/Users/tof/Coding/gsr2/src/model/image_data.rs	/^    pub fn from_file(file_path: &str) -> Result<Self> {$/;"	f
 from_key_name_and_mode_to_a_control	/Users/tof/Coding/gsr2/src/gui/control.rs	/^    fn from_key_name_and_mode_to_a_control() {$/;"	f
-from_opt	/Users/tof/Coding/gsr2/src/model/selection.rs	/^    pub fn from_opt(s_opt: &Option<String>) -> Self {$/;"	f
+from_opt	/Users/tof/Coding/gsr2/src/model/selection.rs	/^    pub fn from_opt(s_opt: &Option<String>, restrict: bool) -> Self {$/;"	f
 full_size_arrow_move	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn full_size_arrow_move(&self, direction: Direction) {$/;"	f
 full_size_arrow_move	/Users/tof/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn full_size_arrow_move(&self, direction: Direction) {$/;"	f
 full_size_display	/Users/tof/Coding/gsr2/src/gui/display.rs	/^fn full_size_display(on: bool) -> String {$/;"	f
@@ -291,6 +292,7 @@ has_selected	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn has_select
 has_tag	/Users/tof/Coding/gsr2/src/model/picture.rs	/^    pub fn has_tag(&self, label: &str) -> bool {$/;"	f
 home_directory	/Users/tof/Coding/gsr2/src/file/paths.rs	/^pub fn home_directory() -> String {$/;"	f
 image_data	/Users/tof/Coding/gsr2/src/model/picture.rs	/^    pub fn image_data(&self) -> Option<ImageData> {$/;"	f
+includes	/Users/tof/Coding/gsr2/src/model/selection.rs	/^    pub fn includes(&self, tags: Tags) -> bool {$/;"	f
 initially_not_editing	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    fn initially_not_editing() {$/;"	f
 input	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    pub fn input(&self) -> String {$/;"	f
 insert_and_retrieve_a_picture_with_image_data	/Users/tof/Coding/gsr2/src/file/database.rs	/^    fn insert_and_retrieve_a_picture_with_image_data() {$/;"	f
@@ -335,6 +337,7 @@ make_picture	/Users/tof/Coding/gsr2/src/gui/view/picture_frame.rs	/^fn make_pict
 make_picture_cell_box	/Users/tof/Coding/gsr2/src/gui/view/picture_cell_box.rs	/^pub fn make_picture_cell_box(col: i32, row: i32, controller_rc: &RcController) -> gtk::Box {$/;"	f
 make_scrolled_window	/Users/tof/Coding/gsr2/src/gui/view/main_window.rs	/^fn make_scrolled_window() -> gtk::ScrolledWindow {$/;"	f
 make_stack	/Users/tof/Coding/gsr2/src/gui/view/main_window.rs	/^fn make_stack() -> gtk::Stack {$/;"	f
+matches	/Users/tof/Coding/gsr2/src/model/selection.rs	/^    pub fn matches(&self, tags: Tags) -> bool {$/;"	f
 mode	/Users/tof/Coding/gsr2/src/gui/state.rs	/^    pub fn mode(&self) -> Mode {$/;"	f
 modified_time	/Users/tof/Coding/gsr2/src/model/image_data.rs	/^    pub fn modified_time(&self) -> TimeStamp {$/;"	f
 modified_time_display	/Users/tof/Coding/gsr2/src/model/picture.rs	/^    pub fn modified_time_display(&self) -> String {$/;"	f
@@ -497,6 +500,7 @@ set_prompt	/Users/tof/Coding/gsr2/src/gui/view/entry_window.rs	/^    pub fn set_
 set_range	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_range(&mut self) {$/;"	f
 set_range	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn set_range(&mut self, index: usize) {$/;"	f
 set_rank	/Users/tof/Coding/gsr2/src/model/picture.rs	/^    pub fn set_rank(&mut self, rank: Rank) {$/;"	f
+set_restriction	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_restriction(&mut self) {$/;"	f
 set_sample_from_array	/Users/tof/Coding/gsr2/src/model/palette.rs	/^    pub fn set_sample_from_array(&mut self, array: [u8;31]) {$/;"	f
 set_selection	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_selection(&mut self) {$/;"	f
 set_selection	/Users/tof/Coding/gsr2/src/model/gallery.rs	/^    pub fn set_selection(&mut self, selection: Selection) {$/;"	f

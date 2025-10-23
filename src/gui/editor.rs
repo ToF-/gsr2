@@ -41,7 +41,8 @@ impl Editor {
             EntryKind::Number => "Enter a number",
             EntryKind::DeleteConfirmation => "Delete these pictures?",
             EntryKind::Find => "Enter a part of the picture file name",
-            EntryKind::SetSelection => "Enter tags to include in the selection",
+            EntryKind::SetSelection => "Enter tags to define the selection",
+            EntryKind::SetRestriction => "Enter tags to define the restriction",
         };
         self.prompt = prompt.to_string();
         self.begin_input(entry_kind, choice_opt);
@@ -162,7 +163,7 @@ impl Editor {
             EntryKind::DeleteConfirmation => matches!(ch, 'e' | 'n' | 'o' | 's' | 'y'),
             EntryKind::Label | EntryKind::AddTag | EntryKind:: RemoveTag | EntryKind:: Find => matches!(ch,
                 'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' '),
-            EntryKind::SetSelection => matches!(ch,
+            EntryKind::SetSelection | EntryKind::SetRestriction => matches!(ch,
                 'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' '),
         };
         if ch_is_ok && self.input.len() < MAX_LABEL_LENGTH {
@@ -175,6 +176,7 @@ impl Editor {
     fn convert_char(&self, ch: char) -> char {
         match ch {
             ' ' if self.entry_kind == EntryKind::SetSelection => ',',
+            ' ' if self.entry_kind == EntryKind::SetRestriction => ',',
             ' ' => '-',
             other if other.is_ascii() => other.to_lowercase().next().unwrap(),
             other => other,

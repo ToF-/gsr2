@@ -312,6 +312,11 @@ impl Controller {
                                 self.apply_selection(&self.editor.input())
                             }
                         }
+                        EntryKind::SetRestriction => {
+                            if !self.editor.input().is_empty() {
+                                self.apply_restriction(&self.editor.input())
+                            }
+                        }
                     }
                 }
             }
@@ -492,6 +497,7 @@ impl Controller {
             Control::SetDisplay => self.setting_display(),
             Control::SetOrder => self.setting_order(),
             Control::SetSelection => self.set_selection(),
+            Control::SetRestriction => self.set_restriction(),
             Control::CancelSelection => self.cancel_selection(),
             Control::DisplayDate => self.toggle_display_date(),
             Control::DisplaySize => self.toggle_display_size(),
@@ -529,7 +535,14 @@ impl Controller {
         self.navigator.set_page_changed()
     }
     pub fn set_selection(&mut self) {
-        self.editor.begin(&self.main_window(), EntryKind::SetSelection, Some(self.gallery.all_labels()));
+        self.editor.begin(&self.main_window(), 
+            EntryKind::SetSelection, Some(self.gallery.all_labels()));
+        self.state.set_mode(Mode::Editing);
+    }
+
+    pub fn set_restriction(&mut self) {
+        self.editor.begin(&self.main_window(), 
+            EntryKind::SetRestriction, Some(self.gallery.all_labels()));
         self.state.set_mode(Mode::Editing);
     }
 
@@ -546,11 +559,18 @@ impl Controller {
     }
 
     pub fn apply_selection(&mut self, selection_str: &str) {
-        self.gallery.set_selection(Selection::from(selection_str));
+        self.gallery.set_selection(Selection::from(selection_str, false));
         self.navigator.move_towards(Direction::First);
         self.navigator.set_page_changed();
-
     }
+
+    pub fn apply_restriction(&mut self, selection_str: &str) {
+        self.gallery.set_selection(Selection::from(selection_str, true));
+        self.navigator.move_towards(Direction::First);
+        self.navigator.set_page_changed();
+    }
+
+
 
     pub fn add_tag(&mut self) {
         self.set_opacity_for_current_picture(0.25);

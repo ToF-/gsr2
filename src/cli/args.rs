@@ -61,8 +61,12 @@ pub struct Args {
     pub width: Option<i32>,
 
     /// select only picture having at least one tag in TAGS (e.g "foo,bar")
-    #[arg(long, value_name = "TAGS")]
+    #[arg(long, value_name = "TAGS", conflicts_with = "restrict")]
     pub select: Option<String>,
+
+    /// select only picture having at all their tags in TAGS (e.g "foo,bar")
+    #[arg(long, value_name = "TAGS", conflicts_with = "select")]
+    pub restrict: Option<String>,
 
     /// slideshow mode, displaying next picture every N seconds
     #[arg(short, long, value_name = "N")]
