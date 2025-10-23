@@ -166,7 +166,7 @@ impl Database {
         self.connection().execute(
             "DELETE FROM Picture        \n\
             WHERE FilePath = ?1;",
-            params![file_path.to_string()],
+            params![self.file_path_as_stored(file_path)],
         )
     }
 
