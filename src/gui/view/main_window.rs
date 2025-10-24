@@ -1,3 +1,4 @@
+use crate::env::default_values::QUARTER_OPACITY;
 use palette_extract::Color;
 use crate::Args;
 use crate::env::default_values::FOCUS_SYMBOL_1;
@@ -234,13 +235,15 @@ impl MainWindow {
                         None
                     };
                     self.picture_grid.set_picture_at(col, row, &gtk_picture, with_sample);
-                    let opacity: f64 = if let Some(position) =
-                        navigator.position_from_coords(row as usize, col as usize)
-                    {
+                    let opacity: f64 = if let Some(position) = navigator.position_from_coords(row as usize, col as usize) {
                         if navigator.is_selected(position) {
                             HALF_OPACITY
-                        } else {
+                        } else if gallery.selection().is_empty() {
                             FULL_OPACITY
+                        } else if gallery.selection().matches(picture.tags()) {
+                            FULL_OPACITY
+                        } else {
+                            QUARTER_OPACITY
                         }
                     } else {
                         FULL_OPACITY

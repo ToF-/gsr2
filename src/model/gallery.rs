@@ -1,3 +1,4 @@
+use crate::model::tags::Tags;
 use crate::model::selection::Selection;
 use std::collections::HashSet;
 use crate::Args;
@@ -162,7 +163,7 @@ impl Gallery {
         }
     }
 
-    pub fn all_labels(&self) -> Vec<String> {
+    pub fn all_labels(&self) -> Tags {
         let mut labels: HashSet<String> = HashSet::new();
         for picture in &self.pictures {
             if ! picture.label().is_empty() {
@@ -172,9 +173,7 @@ impl Gallery {
                 let _ = labels.insert(label.clone());
             }
         }
-        let mut result: Vec<String> = labels.into_iter().collect();
-        result.sort();
-        result
+        labels
     }
 }
 

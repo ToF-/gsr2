@@ -1,3 +1,4 @@
+use crate::model::tags::{Tags, empty};
 use itertools::Itertools;
 use crate::MainWindow;
 use crate::env::default_values::MAX_LABEL_LENGTH;
@@ -16,7 +17,7 @@ pub struct Editor {
     controls: Controls,
     entry_kind: EntryKind,
     entry_window_opt: Option<EntryWindow>,
-    choice: Vec<String>,
+    choice: Tags,
 }
 
 #[allow(dead_code)]
@@ -29,11 +30,11 @@ impl Editor {
             input: String::from(""),
             entry_kind: EntryKind::Label,
             entry_window_opt: None,
-            choice: vec![],
+            choice: empty(),
         }
     }
 
-    pub fn begin(&mut self, main_window: &MainWindow, entry_kind: EntryKind, choice_opt: Option<Vec<String>>) {
+    pub fn begin(&mut self, main_window: &MainWindow, entry_kind: EntryKind, choice_opt: Option<Tags>) {
         let prompt: &str = match entry_kind {
             EntryKind::Label => "Enter a label",
             EntryKind::AddTag => "Enter a new tag to add",
@@ -49,7 +50,7 @@ impl Editor {
         self.entry_window_opt = Some(main_window.popup_entry_window(&self.prompt, &self.input));
     }
 
-    pub fn begin_input(&mut self, kind: EntryKind, choice_opt: Option<Vec<String>>) {
+    pub fn begin_input(&mut self, kind: EntryKind, choice_opt: Option<Tags>) {
         self.entry_kind = kind;
         if let Some(choice) = choice_opt {
             self.choice = choice.clone()
@@ -136,6 +137,7 @@ impl Editor {
                         result.push(candidate)
                     }
                 };
+                result.sort();
                 result
             } else {
                 vec![]
@@ -164,7 +166,7 @@ impl Editor {
             EntryKind::Label | EntryKind::AddTag | EntryKind:: RemoveTag | EntryKind:: Find => matches!(ch,
                 'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' '),
             EntryKind::SetSelection | EntryKind::SetRestriction => matches!(ch,
-                'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' '),
+                'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' ' | ',' ),
         };
         if ch_is_ok && self.input.len() < MAX_LABEL_LENGTH {
             self.input.push(self.convert_char(ch));

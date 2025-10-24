@@ -5,7 +5,7 @@ use crate::file::paths::{file_name_from, thumbnail_name_from};
 use crate::model::image_data::ImageData;
 use crate::model::rank::Rank;
 use std::io::Result;
-use crate::model::image_data::Tags;
+use crate::model::tags::{Tags, empty};
 
 #[derive(Debug, Clone)]
 pub struct Picture {
@@ -119,13 +119,11 @@ impl Picture {
         }
     }
 
-    pub fn tags(&self) -> Vec<String> {
+    pub fn tags(&self) -> Tags {
         if let Some(image_data) = &self.image_data {
-            let mut result: Vec<String> = image_data.tags.clone().into_iter().collect();
-            result.sort();
-            result
+            image_data.tags.clone()
         } else {
-            vec![]
+            empty()
         }
     }
     pub fn add_tag(&mut self, label: &str) {
