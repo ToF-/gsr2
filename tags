@@ -5,6 +5,7 @@
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.8	//
 APPLICATION_ID	/Users/tof/Coding/gsr2/src/env/default_values.rs	/^pub const APPLICATION_ID: &str = "org.example.gsr";$/;"	c
+Action	/Users/tof/Coding/gsr2/src/model/action.rs	/^pub enum Action {$/;"	g
 Args	/Users/tof/Coding/gsr2/src/cli/args.rs	/^pub struct Args {$/;"	s
 COLOR_MAX	/Users/tof/Coding/gsr2/src/gui/view/palette_area.rs	/^    const COLOR_MAX: f64 = 9.0;$/;"	c
 CONFIG_FILE_DEFAULT	/Users/tof/Coding/gsr2/src/env/default_values.rs	/^pub const CONFIG_FILE_DEFAULT: &str = ".gsr2.toml";$/;"	c
@@ -449,6 +450,7 @@ remove_cells	/Users/tof/Coding/gsr2/src/gui/view/picture_grid.rs	/^    pub fn re
 remove_children_from_box	/Users/tof/Coding/gsr2/src/gui/view/main_window.rs	/^pub fn remove_children_from_box(cell_box: &gtk::Box) {$/;"	f
 remove_tag	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn remove_tag(&mut self) {$/;"	f
 remove_tag	/Users/tof/Coding/gsr2/src/model/picture.rs	/^    pub fn remove_tag(&mut self, label: &str) {$/;"	f
+repeat_last_action	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn repeat_last_action(&mut self) {$/;"	f
 retrieve_all_pictures	/Users/tof/Coding/gsr2/src/file/database.rs	/^    pub fn retrieve_all_pictures(&self, args: &Args) -> IOResult<Vec<Picture>> {$/;"	f
 retrieve_all_pictures_ordered_by_file_path	/Users/tof/Coding/gsr2/src/file/database.rs	/^    fn retrieve_all_pictures_ordered_by_file_path() {$/;"	f
 rgba_key	/Users/tof/Coding/gsr2/src/model/palette.rs	/^fn rgba_key(rgba: Rgba<u8>) -> u32 {$/;"	f

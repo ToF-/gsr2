@@ -60,6 +60,7 @@ pub enum Control {
     RankOneStar,
     RankTwoStars,
     RankThreeStars,
+    RepeatLastAction,
 }
 
 pub type KeyAndMode = (String, Mode);
@@ -77,7 +78,7 @@ pub fn default_controls() -> Controls {
             Control::ConfirmEdition,
         ),
         (   (String::from("Tab"), Mode::Editing),
-            Control::Complete,
+        Control::Complete,
         ),
         ((String::from("Return"), Mode::View), Control::SetRange),
         ((String::from("Escape"), Mode::View), Control::CancelRange),
@@ -176,7 +177,8 @@ pub fn default_controls() -> Controls {
         ((String::from("1"), Mode::View), Control::RankOneStar),
         ((String::from("2"), Mode::View), Control::RankTwoStars),
         ((String::from("3"), Mode::View), Control::RankThreeStars),
-    ]);
+        ((String::from("Tab"), Mode::View), Control::RepeatLastAction),
+        ]);
     controls
 }
 

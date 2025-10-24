@@ -1,3 +1,4 @@
+use crate::model::action::Action;
 use crate::model::selection::Selection;
 use crate::file::picture_file::create_missing_thumbnails;
 use std::path::PathBuf;
@@ -43,6 +44,7 @@ pub struct Controller {
     state: State,
     main_window_opt: Option<MainWindow>,
     editor: Editor,
+    last_action: Action,
 }
 
 pub type RcController = Rc<RefCell<Controller>>;
@@ -63,6 +65,7 @@ impl Controller {
                     database,
                     state: State::new(pictures_per_row as usize, cli.slideshow().is_some()),
                     main_window_opt: None,
+                    last_action: Action::NoAction,
                 }),
             }
         })
@@ -352,7 +355,8 @@ impl Controller {
                     println!("{}", err);
                 }
             }
-        }
+        };
+        self.last_action = Action::Label(label.to_string());
     }
 
     pub fn label_selected_pictures(&mut self, label: &str) {
@@ -380,7 +384,8 @@ impl Controller {
         } else {
             self.label_picture_at_index(self.navigator().position(), "")
         };
-        self.navigator.set_page_changed()
+        self.navigator.set_page_changed();
+        self.last_action = Action::Unlabel;
     }
 
     fn tag_picture_at_index(&mut self, index: usize, label: &str) {
@@ -422,7 +427,8 @@ impl Controller {
         } else {
             self.tag_picture_at_index(self.navigator().position(), label)
         };
-        self.navigator.set_page_changed()
+        self.navigator.set_page_changed();
+        self.last_action = Action::AddTag(label.to_string());
     }
 
     pub fn untag_selected_pictures(&mut self, label: &str) {
@@ -436,7 +442,8 @@ impl Controller {
         } else {
             self.untag_picture_at_index(self.navigator().position(), label)
         };
-        self.navigator.set_page_changed()
+        self.navigator.set_page_changed();
+        self.last_action = Action::RemoveTag(label.to_string());
     }
 
     pub fn move_towards_index(&mut self, index: usize) {
@@ -535,6 +542,7 @@ impl Controller {
             Control::RankOneStar => self.rank_selected_pictures(Rank::OneStar),
             Control::RankTwoStars => self.rank_selected_pictures(Rank::TwoStars),
             Control::RankThreeStars => self.rank_selected_pictures(Rank::ThreeStars),
+            Control::RepeatLastAction => self.repeat_last_action(),
             _ => {}
         }
     }
@@ -634,7 +642,8 @@ impl Controller {
         } else {
             self.rank_picture_at_index(self.navigator().position(), rank)
         };
-        self.navigator.set_page_changed()
+        self.navigator.set_page_changed();
+        self.last_action = Action::Rank(rank);
     }
 
     pub fn jump(&mut self) {
@@ -892,4 +901,19 @@ impl Controller {
             navigator.move_towards(Direction::Index { value });
         }
     }
+
+    pub fn repeat_last_action(&mut self) {
+        let action = self.last_action.clone();
+        match action {
+            Action::NoAction => {},
+            Action::Label(label) => self.label_selected_pictures(&label),
+            Action::Unlabel => self.unlabel_selected_pictures(),
+            Action::AddTag(label) => self.tag_selected_pictures(&label),
+            Action::RemoveTag(label) => self.untag_selected_pictures(&label),
+            Action::Rank(rank) => self.rank_selected_pictures(rank),
+            _ => {},
+        }
+    }
 }
+
+    

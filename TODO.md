@@ -2,7 +2,7 @@
 ## Gallery Show in Rust
 
 ## Todo
-- [ ] Tab in view mode repeat the last command for selection
+- [X] Tab in view mode repeat the last command for selection
 - [ ] convert database of gsr V1 into gsr V2
 - [X] list should be a command
 - [X] create missing thumbnails should be a command
