@@ -1,19 +1,19 @@
-use crate::model::selection::Selection;
 use crate::cli::args::Args;
-use crate::model::tags::Tags;
-use crate::model::rank::Rank;
-use crate::model::palette::Palette;
-use std::collections::HashSet;
+use crate::file::paths::{file_path_as_stored, file_path_as_retrieved, file_exists, home_directory};
 use crate::model::image_data::ImageData;
+use crate::model::palette::Palette;
 use crate::model::picture::Picture;
-use rusqlite::{Connection, Result as SqlResult, Row, params};
-use std::collections::HashMap;
-use std::io::Result as IOResult;
-use std::rc::Rc;
-use std::cell::{RefCell,Ref};
-use crate::file::paths::{file_exists, home_directory};
-use std::path::PathBuf;
+use crate::model::rank::Rank;
+use crate::model::selection::Selection;
+use crate::model::tags::Tags;
 use rusqlite::Error::InvalidPath;
+use rusqlite::{Connection, Result as SqlResult, Row, params};
+use std::cell::{RefCell,Ref};
+use std::collections::HashMap;
+use std::collections::HashSet;
+use std::io::Result as IOResult;
+use std::path::PathBuf;
+use std::rc::Rc;
 
 
 pub type ImageDataMap = HashMap<String, ImageData>;
@@ -92,7 +92,7 @@ impl Database {
              Cover)                       \n\
              VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8);",
              params![
-             self.file_path_as_stored(&picture.file_path()),
+             file_path_as_stored(&picture.file_path()),
              image_data.label(),
              image_data.size(),
              image_data.modified_time(),
@@ -120,7 +120,7 @@ impl Database {
              Cover = ?8                   \n\
                WHERE FilePath = ?1;",
             params![
-             self.file_path_as_stored(&picture.file_path()),
+             file_path_as_stored(&picture.file_path()),
              image_data.label(),
              image_data.size(),
              image_data.modified_time(),
@@ -140,7 +140,7 @@ impl Database {
         self.connection().execute(
             "DELETE FROM Tag        \n\
             WHERE FilePath = ?1;",
-            params![self.file_path_as_stored(file_path)]
+            params![file_path_as_stored(file_path)]
         )
     }
 
@@ -152,7 +152,7 @@ impl Database {
                  FilePath,                 \n\
                  Label)                    \n\
                  VALUES (?1, ?2);",
-                 params![self.file_path_as_stored(file_path),
+                 params![file_path_as_stored(file_path),
                  label,]) {
                 Ok(n) => { count+= n; },
                 Err(err) => {
@@ -167,7 +167,7 @@ impl Database {
         self.connection().execute(
             "DELETE FROM Picture        \n\
             WHERE FilePath = ?1;",
-            params![self.file_path_as_stored(file_path)],
+            params![file_path_as_stored(file_path)],
         )
     }
 
@@ -196,7 +196,7 @@ impl Database {
              Cover                      \n\
              FROM Picture               \n\
              WHERE FilePath = ?1;",
-            params![self.file_path_as_stored(file_path)],
+            params![file_path_as_stored(file_path)],
             Self::rusqlite_row_to_picture,
         ).and_then(|mut picture| {
             let connection = self.connection();
@@ -206,7 +206,7 @@ impl Database {
                 FROM Tag                  \n\
                 WHERE FilePath = ?1;")?;
                 let rows = statement.query_map(
-                    params![self.file_path_as_stored(file_path)],
+                    params![file_path_as_stored(file_path)],
                     |row| Ok(row.get(0).expect("can't get column Label")))?;
                 for tag in rows {
                     let label: String = tag.unwrap();
@@ -253,7 +253,7 @@ impl Database {
                             Ok(picture) => {
                                 let _ =
                                     map.insert(
-                                        Self::file_path_as_retrieved(&picture.file_path()), picture.image_data().unwrap());
+                                        file_path_as_retrieved(&picture.file_path()), picture.image_data().unwrap());
                             }
                             Err(err) => {
                                 eprintln!("{}", err);
@@ -278,7 +278,7 @@ impl Database {
                 statement.query([]).and_then(|mut rows| {
                     while let Some(row) = rows.next().unwrap() {
                         let file_path: String = row.get(0).expect("can't access to column FilePath");
-                        let file_path_as_retrieved = Self::file_path_as_retrieved(&file_path);
+                        let file_path_as_retrieved = file_path_as_retrieved(&file_path);
                         let label: String = row.get(1).expect("can't access to column Label");
                         if let Some(tags) = map.get_mut(&file_path_as_retrieved) {
                             let _ = tags.insert(label);
@@ -335,7 +335,7 @@ impl Database {
 
     fn rusqlite_row_to_picture(row: &Row) -> SqlResult<Picture, rusqlite::Error> {
         let file_path: String = row.get(0).expect("can't get column FilePath");
-        let file_path_as_retrieved = Self::file_path_as_retrieved(&file_path);
+        let file_path_as_retrieved = file_path_as_retrieved(&file_path);
         let label: String = row.get(1).expect("can't get column Label");
         let size: u64 = match row.get(2) {
             Ok(n) => n,
@@ -363,31 +363,6 @@ impl Database {
         };
         picture.set_image_data(image_data);
         Ok(picture)
-    }
-
-    pub fn file_path_as_stored(&self, file_path: &str) -> String {
-        let home_dir_str = home_directory();
-        if file_path.starts_with(&home_dir_str) {
-            let mut home_dir_iter = home_dir_str.chars();
-            let mut file_path_iter = file_path.chars();
-            while let Some(_) = home_dir_iter.next() {
-                file_path_iter.next();
-            };
-            "~".to_owned() + file_path_iter.as_str()
-        } else {
-            file_path.to_string()
-        }
-    }
-
-    pub fn file_path_as_retrieved(file_path: &str) -> String {
-        if file_path.starts_with("~") {
-            let mut remaining = file_path.chars();
-            remaining.next();
-            let result = home_directory() + remaining.as_str();
-            result
-        } else {
-            file_path.to_string()
-        }
     }
 }
 // ""
@@ -429,43 +404,7 @@ pub mod tests {
         assert_eq!(4, map.len());
     }
 
-    #[test]
-    fn file_path_starting_with_home_dir_are_tilded_as_stored() {
-        let database = my_db();
-        if let Some(home) = env::home_dir() {
-            let this_file_path = home.display().to_string() + "/test_file"+ &home.display().to_string() +"/file.jpg";
-            let expected = "~/test_file".to_owned() + &home.display().to_string() + "/file.jpg";
-            assert_eq!(expected, database.file_path_as_stored(&this_file_path))
-        }
-    }
 
-    #[test]
-    fn file_path_not_starting_with_home_dir_are_not_tilded_as_stored() {
-        let database = my_db();
-        if let Some(home) = env::home_dir() {
-            let this_file_path = "/other/".to_owned() + &home.display().to_string() + "/test_file.jpg";
-            assert_eq!(this_file_path, database.file_path_as_stored(&this_file_path))
-        }
-    }
-
-    #[test]
-    fn file_path_starting_with_tilde_are_developped_as_retrieved() {
-        let database = my_db();
-        if let Some(home) = env::home_dir() {
-            let this_file_path = "~/test_file/~/.jpg";
-            let expected = home.display().to_string() + "/test_file/~/.jpg";
-            assert_eq!(expected, Database::file_path_as_retrieved(&this_file_path));
-        }
-    }
-
-    #[test]
-    fn file_path_not_starting_with_tilde_are_not_developped_as_retrieved() {
-        let database = my_db();
-        if let Some(home) = env::home_dir() {
-            let this_file_path = "/other/~/test_file.jpg";
-            assert_eq!(this_file_path, Database::file_path_as_retrieved(&this_file_path));
-        }
-    }
 
     #[test]
     fn insert_and_retrieve_a_picture_with_image_data() {

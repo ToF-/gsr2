@@ -239,12 +239,12 @@ file_exists	/Users/tof/Coding/gsr2/src/file/paths.rs	/^pub fn file_exists(file_p
 file_name	/Users/tof/Coding/gsr2/src/model/picture.rs	/^    pub fn file_name(&self) -> String {$/;"	f
 file_name_from	/Users/tof/Coding/gsr2/src/file/paths.rs	/^pub fn file_name_from(file_path: &str) -> String {$/;"	f
 file_path	/Users/tof/Coding/gsr2/src/model/picture.rs	/^    pub fn file_path(&self) -> String {$/;"	f
-file_path_as_retrieved	/Users/tof/Coding/gsr2/src/file/database.rs	/^    pub fn file_path_as_retrieved(file_path: &str) -> String {$/;"	f
-file_path_as_stored	/Users/tof/Coding/gsr2/src/file/database.rs	/^    pub fn file_path_as_stored(&self, file_path: &str) -> String {$/;"	f
-file_path_not_starting_with_home_dir_are_not_tilded_as_stored	/Users/tof/Coding/gsr2/src/file/database.rs	/^    fn file_path_not_starting_with_home_dir_are_not_tilded_as_stored() {$/;"	f
-file_path_not_starting_with_tilde_are_not_developped_as_retrieved	/Users/tof/Coding/gsr2/src/file/database.rs	/^    fn file_path_not_starting_with_tilde_are_not_developped_as_retrieved() {$/;"	f
-file_path_starting_with_home_dir_are_tilded_as_stored	/Users/tof/Coding/gsr2/src/file/database.rs	/^    fn file_path_starting_with_home_dir_are_tilded_as_stored() {$/;"	f
-file_path_starting_with_tilde_are_developped_as_retrieved	/Users/tof/Coding/gsr2/src/file/database.rs	/^    fn file_path_starting_with_tilde_are_developped_as_retrieved() {$/;"	f
+file_path_as_retrieved	/Users/tof/Coding/gsr2/src/file/paths.rs	/^pub fn file_path_as_retrieved(source: &str) -> String {$/;"	f
+file_path_as_stored	/Users/tof/Coding/gsr2/src/file/paths.rs	/^pub fn file_path_as_stored(source: &str) -> String {$/;"	f
+file_path_not_starting_with_home_dir_are_not_tilded_as_stored	/Users/tof/Coding/gsr2/src/file/paths.rs	/^    fn file_path_not_starting_with_home_dir_are_not_tilded_as_stored() {$/;"	f
+file_path_not_starting_with_tilde_are_not_developped_as_retrieved	/Users/tof/Coding/gsr2/src/file/paths.rs	/^    fn file_path_not_starting_with_tilde_are_not_developped_as_retrieved() {$/;"	f
+file_path_starting_with_home_dir_are_tilded_as_stored	/Users/tof/Coding/gsr2/src/file/paths.rs	/^    fn file_path_starting_with_home_dir_are_tilded_as_stored() {$/;"	f
+file_path_starting_with_tilde_are_developped_as_retrieved	/Users/tof/Coding/gsr2/src/file/paths.rs	/^    fn file_path_starting_with_tilde_are_developped_as_retrieved() {$/;"	f
 file_size_display	/Users/tof/Coding/gsr2/src/model/picture.rs	/^    pub fn file_size_display(&self) -> String {$/;"	f
 find	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn find(&mut self) {$/;"	f
 find_all_the_tags_in_the_database	/Users/tof/Coding/gsr2/src/file/database.rs	/^    fn find_all_the_tags_in_the_database() {$/;"	f

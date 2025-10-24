@@ -1,3 +1,4 @@
+use std::env;
 use crate::env::default_values::GARBAGE;
 use crate::env::default_values::THUMB_SUFFIX;
 use crate::env::default_values::VALID_EXTENSIONS;
@@ -147,6 +148,28 @@ pub fn thumbnail_names_from(file_name: &str) -> Vec<String> {
     result
 }
 
+pub fn file_path_as_stored(source: &str) -> String {
+    let home = home_directory();
+    if ! source.starts_with(&home) {
+        return source.to_string()
+    }
+    let mut home_iter = home.chars();
+    let mut source_iter = source.chars();
+    while let Some(_) = home_iter.next() {
+        source_iter.next();
+    };
+    format!("~{}", source_iter.as_str())
+}
+
+pub fn file_path_as_retrieved(source: &str) -> String {
+    if ! source.starts_with("~") {
+        return source.to_string()
+    }
+    let mut source_iter = source.chars();
+    source_iter.next();
+    format!("{}{}", home_directory(), source_iter.as_str())
+}
+
 #[cfg(test)]
 
 mod tests {
@@ -201,6 +224,43 @@ mod tests {
             thumbnail_names_from("testdata/my_file.jpg")
         )
     }
+
+    #[test]
+    fn file_path_starting_with_home_dir_are_tilded_as_stored() {
+        if let Some(home_dir) = env::home_dir() {
+            let home = home_dir.display().to_string();
+            let file_path = format!("{home}/test_dir/{home}/file.jpg");
+            let expected = format!("~/test_dir/{home}/file.jpg");
+            assert_eq!(expected, file_path_as_stored(&file_path))
+        }
+    }
+    #[test]
+    fn file_path_not_starting_with_home_dir_are_not_tilded_as_stored() {
+        if let Some(home_dir) = env::home_dir() {
+            let home = home_dir.display().to_string();
+            let file_path = format!("/other/{home}/test_file.jpg");
+            assert_eq!(file_path, file_path_as_stored(&file_path))
+        }
+    }
+
+    #[test]
+    fn file_path_starting_with_tilde_are_developped_as_retrieved() {
+        if let Some(home_dir) = env::home_dir() {
+            let home = home_dir.display().to_string();
+            let file_path = "~/test_file/~/.jpg";
+            let expected = format!("{home}/test_file/~/.jpg");
+            assert_eq!(expected, file_path_as_retrieved(&file_path));
+        }
+    }
+
+    #[test]
+    fn file_path_not_starting_with_tilde_are_not_developped_as_retrieved() {
+        if let Some(home) = env::home_dir() {
+            let file_path = "/other/~/test_file.jpg";
+            assert_eq!(file_path, file_path_as_retrieved(&file_path));
+        }
+    }
+
 }
 
 #[allow(unused_imports)]
