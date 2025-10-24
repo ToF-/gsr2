@@ -1,6 +1,6 @@
 use crate::model::selection::Selection;
 use crate::cli::args::Args;
-use crate::model::image_data::Tags;
+use crate::model::tags::Tags;
 use crate::model::rank::Rank;
 use crate::model::palette::Palette;
 use std::collections::HashSet;

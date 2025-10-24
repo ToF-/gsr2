@@ -1,5 +1,5 @@
 use crate::model::order::Order;
-use crate::model::tags::{Tags, empty};
+use crate::model::tags::{Tags, empty, tags_from_str};
 use itertools::Itertools;
 use crate::MainWindow;
 use crate::env::default_values::MAX_LABEL_LENGTH;
@@ -110,13 +110,13 @@ impl Editor {
                 self.refresh_prompt(&self.prompt)
             },
             1 => {
+                let words: Vec<&str> = self.input.split(',').collect();
+                let (last,firsts) = words.split_last().unwrap();
                 let candidate = candidates[0].clone();
-                let mut parts = self.input.rsplitn(2, ',');
-                let firsts = parts.next().unwrap_or("");
-                self.input = if firsts.is_empty() {
-                    candidate
-                } else {
-                    format!("{},{}", firsts, candidate)
+                self.input = match firsts.len() {
+                    0 => candidate,
+                    1 => format!("{},{}", firsts[0], candidate),
+                    _ => format!("{},{}", firsts.join(","), candidate),
                 };
                 self.refresh_prompt(&self.prompt);
                 self.refresh_view()
@@ -129,20 +129,24 @@ impl Editor {
     }
 
     pub fn candidates(&self) -> Vec<String> {
-        let last = self.input.rsplit(',').next().unwrap();
-        if ! self.choice.is_empty()
-            && last.len() >= 2 {
-                let mut result: Vec<String> = vec![];
-                for candidate in self.choice.clone() {
-                    if candidate.starts_with(&last) {
-                        result.push(candidate)
-                    }
-                };
-                result.sort();
-                result
-            } else {
-                vec![]
-            }
+        let words = self.input.split(',');
+        if let Some(last) = words.last() {
+            if ! self.choice.is_empty()
+                && last.len() >= 2 {
+                    let mut result: Vec<String> = vec![];
+                    for candidate in self.choice.clone() {
+                        if candidate.starts_with(&last) {
+                            result.push(candidate)
+                        }
+                    };
+                    result.sort();
+                    result
+                } else {
+                    vec![]
+                }
+        } else {
+            vec![]
+        }
     }
 
     pub fn confirm_input(&mut self) -> String {
@@ -332,20 +336,20 @@ mod tests {
     #[test]
     fn no_candidates_when_input_is_empty() {
         let mut editor = Editor::new();
-        editor.begin_input(EntryKind::Label, Some(vec!["bar".to_string(),"foo".to_string(),"qux".to_string(),"zoo".to_string()]));
+        editor.begin_input(EntryKind::Label, Some(tags_from_str("bar,foo,qux,zoo")));
         assert!(editor.candidates().is_empty())
     }
     #[test]
     fn no_candidates_when_input_is_one_char() {
         let mut editor = Editor::new();
-        editor.begin_input(EntryKind::Label, Some(vec!["bar".to_string(),"foo".to_string(),"qux".to_string(),"zoo".to_string()]));
+        editor.begin_input(EntryKind::Label, Some(tags_from_str("bar,foo,qux,zoo")));
         editor.append('b');
         assert!(editor.candidates().is_empty())
     }
     #[test]
     fn possibles_candidates_when_input_is_two_chars_prefixing_a_choice() {
         let mut editor = Editor::new();
-        editor.begin_input(EntryKind::Label, Some(vec!["bar".to_string(),"foo".to_string(),"qux".to_string(),"zone".to_string(), "zoo".to_string()]));
+        editor.begin_input(EntryKind::Label, Some(tags_from_str("bar,foo,qux,zone,zoo")));
         editor.append('b');
         editor.append('a');
         assert_eq!(vec!["bar".to_string()], editor.candidates());
@@ -364,7 +368,7 @@ mod tests {
     #[test]
     fn no_candidates_when_no_prefix() {
         let mut editor = Editor::new();
-        editor.begin_input(EntryKind::Label, Some(vec!["bar".to_string(),"foo".to_string(),"qux".to_string(),"zoo".to_string()]));
+        editor.begin_input(EntryKind::Label, Some(tags_from_str("bar,foo,qux,zoo")));
         editor.append('a');
         editor.append('b');
         assert!(editor.candidates().is_empty())
@@ -372,7 +376,7 @@ mod tests {
     #[test]
     fn possibles_candidates_when_input_is_two_chars_prefixing_a_choice_after_a_first_selection_item() {
         let mut editor = Editor::new();
-        editor.begin_input(EntryKind::SetSelection, Some(vec!["bar".to_string(),"foo".to_string(),"qux".to_string(),"zone".to_string(), "zoo".to_string()]));
+        editor.begin_input(EntryKind::SetSelection, Some(tags_from_str("bar,foo,qux,zone,zoo")));
         editor.append('b');
         editor.append('a');
         assert_eq!("ba", editor.input);

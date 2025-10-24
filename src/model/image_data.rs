@@ -1,19 +1,17 @@
+use crate::model::tags::Tags;
 use crate::model::label::{Label, from};
 use crate::model::rank::Rank;
 use chrono::{DateTime, Local};
 use std::time::UNIX_EPOCH;
 use crate::file::picture_file::get_data_from_picture_file;
 use crate::model::palette::Palette;
-use image::Rgb;
 use std::collections::HashSet;
 use std::io::Result;
 use std::time::{Duration, SystemTime};
 
-pub type Rgb8 = Rgb<u8>;
 pub type FileSize = u64;
 pub type TimeStamp = u64;
 pub struct PictureFileData(pub FileSize, pub TimeStamp);
-pub type Tags = HashSet<String>;
 
 pub fn timestamp(system_time: SystemTime) -> TimeStamp {
     let duration = system_time.duration_since(UNIX_EPOCH).expect("time went backwards");

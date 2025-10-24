@@ -79,7 +79,6 @@ QUARTER_OPACITY	/Users/tof/Coding/gsr2/src/env/default_values.rs	/^pub const QUA
 RIGHT_PANE	/Users/tof/Coding/gsr2/src/gui/view/main_window.rs	/^pub const RIGHT_PANE: usize = 1;$/;"	c
 Rank	/Users/tof/Coding/gsr2/src/model/rank.rs	/^pub enum Rank {$/;"	g
 RcController	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^pub type RcController = Rc<RefCell<Controller>>;$/;"	T
-Rgb8	/Users/tof/Coding/gsr2/src/model/image_data.rs	/^pub type Rgb8 = Rgb<u8>;$/;"	T
 SCROLL_STEP	/Users/tof/Coding/gsr2/src/env/default_values.rs	/^pub const SCROLL_STEP: f64 = 100.0;$/;"	c
 SELECT_STAR_FROM_PICTURE	/Users/tof/Coding/gsr2/src/file/database.rs	/^    const SELECT_STAR_FROM_PICTURE: &str = $/;"	c
 SINGLE_DOT	/Users/tof/Coding/gsr2/src/test_data.rs	/^pub const SINGLE_DOT: &str = "testdata\/single_dot.png";$/;"	c
@@ -92,7 +91,6 @@ TEST_DATABASE_FILE	/Users/tof/Coding/gsr2/src/env/default_values.rs	/^pub const 
 THREE_STARS_SYMBOL	/Users/tof/Coding/gsr2/src/env/default_values.rs	/^pub const THREE_STARS_SYMBOL: &str = "☆☆☆";$/;"	c
 THUMB_SUFFIX	/Users/tof/Coding/gsr2/src/env/default_values.rs	/^pub const THUMB_SUFFIX: &str = "THUMB";$/;"	c
 TWO_STARS_SYMBOL	/Users/tof/Coding/gsr2/src/env/default_values.rs	/^pub const TWO_STARS_SYMBOL:   &str = "☆☆";$/;"	c
-Tags	/Users/tof/Coding/gsr2/src/model/image_data.rs	/^pub type Tags = HashSet<String>;$/;"	T
 Tags	/Users/tof/Coding/gsr2/src/model/tags.rs	/^pub type Tags = HashSet<Label>;$/;"	T
 TimeStamp	/Users/tof/Coding/gsr2/src/model/image_data.rs	/^pub type TimeStamp = u64;$/;"	T
 Type	/Users/tof/Coding/gsr2/src/gui/gsr_application/imp.rs	/^    type Type = super::GsrApplication;$/;"	T
@@ -540,7 +538,7 @@ tag_picture_at_index	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    fn tag_p
 tag_selected_pictures	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn tag_selected_pictures(&mut self, label: &str) {$/;"	f
 tags	/Users/tof/Coding/gsr2/src/model/picture.rs	/^    pub fn tags(&self) -> Tags {$/;"	f
 tags	/Users/tof/Coding/gsr2/src/model/selection.rs	/^    pub fn tags(&self) -> Tags {$/;"	f
-tags_from_string	/Users/tof/Coding/gsr2/src/model/tags.rs	/^pub fn tags_from_string(s: &str) -> Tags {$/;"	f
+tags_from_str	/Users/tof/Coding/gsr2/src/model/tags.rs	/^pub fn tags_from_str(s: &str) -> Tags {$/;"	f
 thumbnail_file_path_for_size	/Users/tof/Coding/gsr2/src/model/picture.rs	/^    pub fn thumbnail_file_path_for_size(&self, pictures_per_row: usize) -> String {$/;"	f
 thumbnail_name_for_path	/Users/tof/Coding/gsr2/src/file/paths.rs	/^fn thumbnail_name_for_path($/;"	f
 thumbnail_name_from	/Users/tof/Coding/gsr2/src/file/paths.rs	/^pub fn thumbnail_name_from(file_name: &str, pictures_per_row: usize) -> String {$/;"	f

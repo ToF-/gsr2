@@ -4,7 +4,7 @@ use crate::model::rank::Rank;
 use crate::env::default_values::{COVER_SYMBOL, EXPAND_ON_SYMBOL, FULL_SIZE_ON_SYMBOL, ORDER_SYMBOL};
 use crate::model::order::Order;
 use crate::gui::controller::Controller;
-use crate::model::image_data::Tags;
+use crate::model::tags::Tags;
 
 fn expand_display(on: bool) -> String {
     match on {

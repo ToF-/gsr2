@@ -1,4 +1,4 @@
-use crate::model::tags::{Tags, empty, tags_from_string};
+use crate::model::tags::{Tags, empty, tags_from_str};
 
 #[derive(Debug,Clone)]
 pub struct Selection {
@@ -9,7 +9,7 @@ pub struct Selection {
 impl Selection {
     pub fn from(s: &str, restrict: bool) -> Self {
         Selection {
-            tags: tags_from_string(s),
+            tags: tags_from_str(s),
             restrict,
         }
     }
