@@ -162,6 +162,18 @@ pub fn get_data_from_picture_file(file_path: &str) -> Result<PictureFileData> {
     }
 }
 
+#[allow(dead_code)]
+pub fn move_from_source_to_target(source: &str, target: &str) -> Result<usize> {
+    println!("here I move all files and data from {} to {}", source, target);
+    // target must be absolute or home_dir prefixed, and exist
+    // look for file_path (as stored) in the database where parent = source (as stored)
+    // copy file_path picture file (as retrieved) to target (as retrievd) + file_name
+    // copy file_pathTHUMB* to target + file_name THUMB* for all sizes if they exists
+    // insert new picture and tags in database with target (as stored) + file_name
+    // delete picture and tags for file_path (as stored) in the database
+    Ok(0)
+}
+
 #[allow(unused_imports)]
 use std::io::Error;
 #[cfg(test)]

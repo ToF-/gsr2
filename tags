@@ -64,6 +64,7 @@ Navigator	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^pub struct Navigator {$/
 ONE_PICTURE_PER_ROW	/Users/tof/Coding/gsr2/src/env/default_values.rs	/^pub const ONE_PICTURE_PER_ROW: usize = 1;$/;"	c
 ONE_STAR_SYMBOL	/Users/tof/Coding/gsr2/src/env/default_values.rs	/^pub const ONE_STAR_SYMBOL:    &str = "☆";$/;"	c
 ORDER_FILE_PATH	/Users/tof/Coding/gsr2/src/file/database.rs	/^    const ORDER_FILE_PATH: &str = $/;"	c
+ORDER_SYMBOL	/Users/tof/Coding/gsr2/src/env/default_values.rs	/^pub const ORDER_SYMBOL: &str = "↑";$/;"	c
 Order	/Users/tof/Coding/gsr2/src/model/order.rs	/^pub enum Order {$/;"	g
 PALETTE_AREA_HEIGHT	/Users/tof/Coding/gsr2/src/env/default_values.rs	/^pub const PALETTE_AREA_HEIGHT: i32 = 10;$/;"	c
 PALETTE_AREA_WIDTH	/Users/tof/Coding/gsr2/src/env/default_values.rs	/^pub const PALETTE_AREA_WIDTH: i32 = 90;$/;"	c
@@ -191,7 +192,7 @@ confirm_delete_picture	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn
 confirm_input	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    pub fn confirm_input(&mut self) -> String {$/;"	f
 confirming_return_input_and_set_editing_to_false	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    fn confirming_return_input_and_set_editing_to_false() {$/;"	f
 connection	/Users/tof/Coding/gsr2/src/file/database.rs	/^    pub fn connection(&self) -> Ref<Connection> {$/;"	f
-convert_char	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    fn convert_char(&self, ch: char) -> char {$/;"	f
+convert_char	/Users/tof/Coding/gsr2/src/gui/editor.rs	/^    fn convert_char(&mut self, ch: char) {$/;"	f
 converting_blob_to_palette_sample	/Users/tof/Coding/gsr2/src/model/palette.rs	/^    fn converting_blob_to_palette_sample() {$/;"	f
 converting_palette_sample_to_blob	/Users/tof/Coding/gsr2/src/model/palette.rs	/^    fn converting_palette_sample_to_blob() {$/;"	f
 coords_from_position	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn coords_from_position(&self, position: usize) -> Option<(usize, usize)> {$/;"	f
@@ -345,6 +346,7 @@ modified_time	/Users/tof/Coding/gsr2/src/model/image_data.rs	/^    pub fn modifi
 modified_time_display	/Users/tof/Coding/gsr2/src/model/picture.rs	/^    pub fn modified_time_display(&self) -> String {$/;"	f
 move_end	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn move_end(&mut self) {$/;"	f
 move_first	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn move_first(&mut self) {$/;"	f
+move_from_source_to_target	/Users/tof/Coding/gsr2/src/file/picture_file.rs	/^pub fn move_from_source_to_target(source: &str, target: &str) -> Result<usize> {$/;"	f
 move_last	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn move_last(&mut self) {$/;"	f
 move_next	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn move_next(&mut self) {$/;"	f
 move_next_page	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn move_next_page(&mut self) {$/;"	f
@@ -398,6 +400,7 @@ old_position	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn old_positi
 on_database	/Users/tof/Coding/gsr2/src/cli/args.rs	/^    pub fn on_database(&self) -> bool {$/;"	f
 order	/Users/tof/Coding/gsr2/src/model/gallery.rs	/^    pub fn order(&self) -> Order {$/;"	f
 order_by	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn order_by(&mut self, order: Order) {$/;"	f
+order_display	/Users/tof/Coding/gsr2/src/gui/display.rs	/^fn order_display(order: Order) -> String {$/;"	f
 page_changed	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn page_changed(&self) -> bool {$/;"	f
 page_display	/Users/tof/Coding/gsr2/src/gui/display.rs	/^fn page_display(controller: &Controller) -> String {$/;"	f
 page_end	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn page_end(&self) -> usize {$/;"	f
@@ -489,6 +492,7 @@ set_main_window	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_ma
 set_mode	/Users/tof/Coding/gsr2/src/gui/state.rs	/^    pub fn set_mode(&mut self, mode: Mode) {$/;"	f
 set_opacity_for_current_picture	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    pub fn set_opacity_for_current_picture(&mut self, opacity: f64) {$/;"	f
 set_opacity_for_current_picture	/Users/tof/Coding/gsr2/src/gui/view/main_window.rs	/^    pub fn set_opacity_for_current_picture(&self, controller: &Controller, opacity: f64) {$/;"	f
+set_order	/Users/tof/Coding/gsr2/src/gui/controller.rs	/^    fn set_order(&mut self, input: &str) {$/;"	f
 set_page_changed	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn set_page_changed(&mut self) {$/;"	f
 set_page_unchanged	/Users/tof/Coding/gsr2/src/gui/navigator.rs	/^    pub fn set_page_unchanged(&mut self) {$/;"	f
 set_picture	/Users/tof/Coding/gsr2/src/gui/view/picture_frame.rs	/^    pub fn set_picture(&self, controller: &Controller, picture: &gtk::Picture) {$/;"	f

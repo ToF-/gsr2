@@ -1,4 +1,3 @@
-use crate::model::label;
 use crate::model::tags::{Tags, empty, tags_from_string};
 
 #[derive(Debug,Clone)]

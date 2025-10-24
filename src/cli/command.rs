@@ -29,6 +29,12 @@ pub enum Command {
         directory: Option<String>,
     },
 
+    /// <SOURCE_DIR> <TARGET_DIR> move picture files and data from source to target directory
+    Move {
+        source: String,
+        target: String,
+    },
+
     /// <N> create missing thumbnails for grid with N x N pictures per page (N in range [2..10]) and
     /// then quit
     Thumbnails {

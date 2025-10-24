@@ -1,3 +1,4 @@
+use crate::model::order::Order;
 use crate::model::tags::{Tags, empty};
 use itertools::Itertools;
 use crate::MainWindow;
@@ -40,6 +41,7 @@ impl Editor {
             EntryKind::AddTag => "Enter a new tag to add",
             EntryKind::RemoveTag => "Enter a tag to remove",
             EntryKind::Number => "Enter a number",
+            EntryKind::Order => "Enter a sorting criteria: c)olors d)ate l)abel n)ame p)alette r)andom s)ize v)alue ",
             EntryKind::DeleteConfirmation => "Delete these pictures?",
             EntryKind::Find => "Enter a part of the picture file name",
             EntryKind::SetSelection => "Enter tags to define the selection",
@@ -110,7 +112,6 @@ impl Editor {
             1 => {
                 let candidate = candidates[0].clone();
                 let mut parts = self.input.rsplitn(2, ',');
-                let last = parts.next().unwrap();
                 let firsts = parts.next().unwrap_or("");
                 self.input = if firsts.is_empty() {
                     candidate
@@ -167,26 +168,45 @@ impl Editor {
                 'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' '),
             EntryKind::SetSelection | EntryKind::SetRestriction => matches!(ch,
                 'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' ' | ',' ),
+            EntryKind::Order => matches!(ch, 'c' | 'd' | 'p' |  'l' |  'n' | 'r' | 's' | 'v' ),
         };
         if ch_is_ok && self.input.len() < MAX_LABEL_LENGTH {
-            self.input.push(self.convert_char(ch));
+            self.convert_char(ch);
             self.refresh_view();
             self.refresh_prompt(&self.prompt);
         }
     }
 
-    fn convert_char(&self, ch: char) -> char {
+    fn convert_char(&mut self, ch: char) {
         match ch {
-            ' ' if self.entry_kind == EntryKind::SetSelection => ',',
-            ' ' if self.entry_kind == EntryKind::SetRestriction => ',',
-            ' ' => '-',
-            other if other.is_ascii() => other.to_lowercase().next().unwrap(),
-            other => other,
+            ' ' if self.entry_kind == EntryKind::SetSelection => self.input.push(','),
+            ' ' if self.entry_kind == EntryKind::SetRestriction => self.input.push(','),
+            ' ' => self.input.push('-'),
+            c if self.entry_kind == EntryKind::Order => { 
+                let order:Order = match c {
+                    'c' => Order::ColorCount,
+                    'd' => Order::Date,
+                    'l' => Order::Label,
+                    'n' => Order::Name,
+                    'p' => Order::Palette,
+                    'r' => Order::Random,
+                    's' => Order::Size,
+                    'v' => Order::Value,
+                    _ => todo!(),
+                };
+                self.input = format!("{}", order);
+            },
+            other if other.is_ascii() => { self.input.push(other.to_lowercase().next().unwrap()) },
+            other => { self.input.push(other) },
         }
     }
 
     pub fn delete(&mut self) {
-        self.input.pop();
+        if self.entry_kind == EntryKind::Order {
+            self.input = String::from("");
+        } else {
+            let _ = self.input.pop();
+        }
         self.refresh_prompt(&self.prompt);
         self.refresh_view();
     }
@@ -198,10 +218,8 @@ impl Editor {
     }
 
     fn refresh_view(&self) {
-        if let Some(entry_window) = &self.entry_window_opt {
-            self.entry_window_opt
-                .clone()
-                .map(|window| window.set_text(&self.input));
+        if let Some(window) = &self.entry_window_opt {
+            window.set_text(&self.input);
         }
     }
 }

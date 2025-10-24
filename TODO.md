@@ -2,8 +2,9 @@
 ## Gallery Show in Rust
 
 ## Todo
+- [ ] move all pictures starting with a a file path to a new file path (the new file path must exist, must be absolute or home based)
 - [X] Tab in view mode repeat the last command for selection
-- [ ] convert database of gsr V1 into gsr V2
+- [ ] convert database of gsr V1 into gsr V2 -- not really important
 - [X] list should be a command
 - [X] create missing thumbnails should be a command
 - [X] restrict option picture on list of tags picture selected only if having all the tags

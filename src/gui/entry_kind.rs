@@ -4,6 +4,7 @@ pub enum EntryKind {
     AddTag,
     RemoveTag,
     Number,
+    Order,
     DeleteConfirmation,
     Find,
     SetRestriction,

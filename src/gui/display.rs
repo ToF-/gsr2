@@ -1,9 +1,8 @@
 use crate::model::selection::Selection;
-use std::collections::HashSet;
-use crate::env::default_values::COVER_SYMBOL;
 use itertools::Itertools;
 use crate::model::rank::Rank;
-use crate::env::default_values::{EXPAND_ON_SYMBOL, FULL_SIZE_ON_SYMBOL};
+use crate::env::default_values::{COVER_SYMBOL, EXPAND_ON_SYMBOL, FULL_SIZE_ON_SYMBOL, ORDER_SYMBOL};
+use crate::model::order::Order;
 use crate::gui::controller::Controller;
 use crate::model::image_data::Tags;
 
@@ -31,6 +30,10 @@ fn page_display(controller: &Controller) -> String {
             controller.navigator().total_pages(),
         )
     }
+}
+
+fn order_display(order: Order) -> String {
+    format!("{}{}", ORDER_SYMBOL, order)
 }
 pub fn picture_label_display(label: &str, rank: Rank, cover: bool, with_focus: Option<char>) -> String {
     format!(
@@ -75,7 +78,7 @@ fn tag_display(tags: Tags) -> String {
 
 pub fn title_display(controller: &Controller) -> String {
     format!(
-        "{} #{} {} {} {} {} {} {} {}{} {}",
+        "{} #{} {} {} {} {} {} {} {} {}{} {}",
         cover_display(
             match controller.current_picture().image_data() {
                 Some(image_data) => image_data.cover,
@@ -83,6 +86,7 @@ pub fn title_display(controller: &Controller) -> String {
             }),
         controller.navigator().position(),
         page_display(controller),
+        order_display(controller.gallery().order()),
         controller.current_picture().file_name(),
         match controller.current_picture().image_data() {
             Some(image_data) => image_data.rank(),

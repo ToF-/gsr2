@@ -2,8 +2,6 @@ use crate::file::paths::file_exists;
 use crate::cli::args::Args;
 use crate::cli::command::Command;
 use crate::env::default_values::APPLICATION_ID;
-use crate::file::picture_file::collect_data;
-use crate::file::picture_file::create_missing_thumbnails;
 use crate::gui::controller::Controller;
 use crate::gui::controller::RcController;
 use crate::gui::view::application::make_application;

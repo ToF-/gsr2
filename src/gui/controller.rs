@@ -3,7 +3,6 @@ use crate::model::selection::Selection;
 use crate::file::picture_file::create_missing_thumbnails;
 use std::path::PathBuf;
 use crate::file::paths::check_collectable;
-use std::collections::HashSet;
 use crate::cli::args::Args;
 use crate::cli::command::Command;
 use crate::env::environment::database_connection;
@@ -316,6 +315,9 @@ impl Controller {
                         EntryKind::Number => {
                             self.move_towards_index(self.editor.input().parse().unwrap())
                         },
+                        EntryKind::Order => {
+                            self.set_order(&self.editor.input())
+                        }
                         EntryKind::DeleteConfirmation => {
                             if &self.editor.input() == "yes" {
                                 self.confirm_delete_picture()
@@ -342,6 +344,22 @@ impl Controller {
                 }
             }
         }
+    }
+
+    fn set_order(&mut self, input: &str) {
+        let choice: Control = match input {
+            "ColorCount" => Control::OrderByColorCount,
+            "Date"       => Control::OrderByDate,
+            "Label"      => Control::OrderByLabel,
+            "Name"       => Control::OrderByName,
+            "Palette"    => Control::OrderByPalette,
+            "Random"     => Control::Randomize,
+            "Size"       => Control::OrderBySize,
+            "Value"      => Control::OrderByValue,
+            &_ => todo!(),
+
+        };
+        self.process_control(&choice)
     }
 
     fn label_picture_at_index(&mut self, index: usize, label: &str) {
@@ -481,8 +499,11 @@ impl Controller {
     }
 
     pub fn setting_order(&mut self) {
-        self.state.set_mode(Mode::Setting(Control::SetOrder))
+        self.editor.begin(&self.main_window(), 
+            EntryKind::Order, None);
+        self.state.set_mode(Mode::Editing);
     }
+
     pub fn next_slide_delay(&mut self) {
         self.move_next();
         self.main_window().set_pictures(self)
@@ -911,7 +932,6 @@ impl Controller {
             Action::AddTag(label) => self.tag_selected_pictures(&label),
             Action::RemoveTag(label) => self.untag_selected_pictures(&label),
             Action::Rank(rank) => self.rank_selected_pictures(rank),
-            _ => {},
         }
     }
 }

@@ -7,6 +7,7 @@ pub const ENTRY_CURSOR_2: char = '▫';
 pub const FOCUS_SYMBOL_1: char = '◆';
 pub const FOCUS_SYMBOL_2: char = '◇';
 pub const COVER_SYMBOL: &str = "🌟";
+pub const ORDER_SYMBOL: &str = "↑";
 pub const THREE_STARS_SYMBOL: &str = "☆☆☆";
 pub const TWO_STARS_SYMBOL:   &str = "☆☆";
 pub const ONE_STAR_SYMBOL:    &str = "☆";

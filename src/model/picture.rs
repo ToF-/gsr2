@@ -1,5 +1,4 @@
 use crate::model::selection::Selection;
-use std::collections::HashSet;
 use crate::model::image_data::datetime_from_time_stamp;
 use crate::file::paths::{file_name_from, thumbnail_name_from};
 use crate::model::image_data::ImageData;
