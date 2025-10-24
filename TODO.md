@@ -2,14 +2,14 @@
 ## Gallery Show in Rust
 
 ## Todo
-- [ ] list should be a command
+- [ ] Tab in view mode repeat the last command for selection
+- [ ] convert database of gsr V1 into gsr V2
+- [X] list should be a command
 - [X] create missing thumbnails should be a command
 - [X] restrict option picture on list of tags picture selected only if having all the tags
 - [X] select option pictures on list of tags : any picture having one of these tags is selected
-- [ ] convert database of gsr V1 into gsr V2
 - [X] initialize should be a command
 - [X] collect should be a commandi with a directory argument, not an option, and not possible with a directory that is not starting with home dir or /
-- [ ] Tab in view mode repeat the last command for selection
 - [X] cancel the current selection
 - [X] add a select command in view mode that sorts the gallery by the current sort criteria + selected tag in major. e.g sort by size becomes sort by [excluded + size], the picture not excluded will all appear first
 - [X] completion when entering a label or a tag

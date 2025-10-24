@@ -47,10 +47,6 @@ pub struct Args {
     #[arg(long, value_name = "N")]
     pub height: Option<i32>,
 
-    /// list the picture file names in the selection and then quit
-    #[arg(long)]
-    pub list: bool,
-
     /// window width
     #[arg(long, value_name = "N")]
     pub width: Option<i32>,

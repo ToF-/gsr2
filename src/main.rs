@@ -79,12 +79,6 @@ fn main() {
                     Ok(_) => {}
                 }
             };
-            if let Ok(controller) = controller_rc.try_borrow() {
-                if cli.list {
-                    controller.gallery().print();
-                    exit(0)
-                };
-            };
             let application: gtk::Application = make_application(APPLICATION_ID);
             application.connect_activate(clone!(
                 #[strong]

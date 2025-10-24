@@ -8,18 +8,26 @@ pub enum Command {
         #[arg(value_name = "FILE_PATH")]
         file_path: String,
     },
+    
     /// <DIRECTORY> view the pictures in directory
     Dir {
         #[arg(value_name = "DIRECTORY")]
         directory: String,
     },
+    
     /// <DIRECTORY> collect data from the pictures in directory
     Collect {
         #[arg(value_name = "DIRECTORY")]
         directory: String,
     },
+
     /// initialize a new database set in the config file is not existing
     Initialize,
+
+    /// [DIRECTORY] list the picture file names in the directory or database 
+    List {
+        directory: Option<String>,
+    },
 
     /// <N> create missing thumbnails for grid with N x N pictures per page (N in range [2..10]) and
     /// then quit

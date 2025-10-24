@@ -137,6 +137,18 @@ impl Controller {
                 create_missing_thumbnails(&gallery, pictures_per_row as usize);
                 exit(0)
             },
+            Some(Command::List { ref directory }) => {
+                match directory {
+                    Some(path) => {
+                        gallery.load_from_directory(&path);
+                    },
+                    None =>  {
+                        gallery.load_from_database(&self.database, &args);
+                    }
+                };
+                gallery.print();
+                exit(0)
+            },
             Some(_) => Ok(0),
             None => gallery.load_from_database(&self.database, &args),
         };
