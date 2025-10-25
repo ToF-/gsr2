@@ -1,5 +1,8 @@
 use crate::model::tags::{Tags, empty, tags_from_str};
 
+pub const SOME_TAGS: bool = false;
+pub const ALL_TAGS: bool = true;
+
 #[derive(Debug, Clone)]
 pub struct Selection {
     tags: Tags,
@@ -25,7 +28,7 @@ impl Selection {
     pub fn empty() -> Self {
         Selection {
             tags: empty(),
-            restrict: false,
+            restrict: ALL_TAGS,
         }
     }
 

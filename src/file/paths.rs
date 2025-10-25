@@ -3,12 +3,11 @@ use crate::env::default_values::THUMB_SUFFIX;
 use crate::env::default_values::VALID_EXTENSIONS;
 use crate::model::thumbnail::{thumbnail_size_display, thumbnail_size_for};
 use std::env;
+use std::env::current_dir;
 use std::env::home_dir;
 use std::ffi::OsStr;
 use std::io::{Error, ErrorKind, Result};
-use std::path::PathBuf;
-use std::env::current_dir;
-
+use std::path::{Path,PathBuf};
 
 pub fn current_directory() -> String {
     current_dir().unwrap().display().to_string()
@@ -19,6 +18,15 @@ pub fn home_directory() -> String {
         .expect("can't access to home_dir")
 }
 
+pub fn has_parent(directory: &str, file_path: &str) -> bool {
+    let path = Path::new(file_path);
+    let dir = Path::new(directory);
+    if let Some(parent) = path.parent() {
+        parent == dir
+    } else {
+        false
+    }
+}
 pub fn check_path_exists(path: &PathBuf) -> Result<&PathBuf> {
     if path.exists() {
         Ok(path)
@@ -269,6 +277,12 @@ mod tests {
             let file_path = "/other/~/test_file.jpg";
             assert_eq!(file_path, file_path_as_retrieved(&file_path));
         }
+    }
+
+    #[test]
+    fn has_parent_check_if_a_file_belongs_to_a_directory() {
+        assert!(has_parent("testdata/subdir", "testdata/subdir/my_file.jpg"));
+        assert!(!has_parent("testdata/subdir", "testdata/my_file.jpg"));
     }
 }
 

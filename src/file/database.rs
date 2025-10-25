@@ -243,11 +243,23 @@ impl Database {
 
     const ORDER_FILE_PATH: &str = "ORDER BY FilePath \n";
 
-    pub fn rusqlite_retrieve_all_pictures(&self, args: &Args) -> SqlResult<ImageDataMap> {
-        let sql_query = Self::SELECT_STAR_FROM_PICTURE.to_owned()
-            + if args.cover { Self::WHERE_COVER } else { "" }
-            + Self::ORDER_FILE_PATH
-            + ";";
+        // select * from picture where concat(substring(filepath,1,23), substring(filepath,24)) = filepath ;
+    fn select_parent_dir(parent_dir: String) -> String {
+        let parent = file_path_as_stored(&parent_dir);
+        let file_name_start = parent.len() + 2; // to account for /
+        format!("FilePath like '{}%' AND Instr(Substring(FilePath, {}), '/') = 0", parent, file_name_start)
+    }
+
+    pub fn rusqlite_retrieve_all_pictures(&self, cover:bool, parent_opt: Option<String>) -> SqlResult<ImageDataMap> {
+        let sql_query =format!("{} WHERE true AND {} AND {} ORDER BY FilePath",
+            Self::SELECT_STAR_FROM_PICTURE,
+            if cover { "Cover = true" } else { "true" },
+            if let Some(parent) = parent_opt {
+                &Self::select_parent_dir(parent)
+            } else { 
+                "true"
+            });
+        println!("%%% {}", sql_query);
         self.connection()
             .prepare(&sql_query)
             .and_then(|mut statement| {
@@ -301,15 +313,8 @@ impl Database {
             })
     }
 
-    pub fn retrieve_all_pictures(&self, args: &Args) -> IOResult<Vec<Picture>> {
-        let selection: Selection = if let Some(select) = &args.select {
-            Selection::from(&select, false)
-        } else if let Some(restrict) = &args.restrict {
-            Selection::from(&restrict, true)
-        } else {
-            Selection::empty()
-        };
-        match self.rusqlite_retrieve_all_pictures(args) {
+    pub fn retrieve_all_pictures(&self, selection: Selection, cover: bool, parent_opt: Option<String>) -> IOResult<Vec<Picture>> {
+        match self.rusqlite_retrieve_all_pictures(cover, parent_opt) {
             Ok(picture_map) => match self.rusqlite_retrieve_all_tags() {
                 Ok(tag_map) => {
                     let mut pictures: Vec<Picture> = vec![];
@@ -335,6 +340,10 @@ impl Database {
             },
             Err(err) => Err(std::io::Error::other(err)),
         }
+    }
+
+    pub fn retrieve_all_pictures_with_parent(&self, parent_dir: &str) -> IOResult<Vec<Picture>> {
+        self.retrieve_all_pictures(Selection::empty(), false, Some(parent_dir.to_string()))
     }
 
     fn rusqlite_row_to_picture(row: &Row) -> SqlResult<Picture, rusqlite::Error> {
@@ -402,7 +411,7 @@ pub mod tests {
     #[test]
     fn retrieve_all_pictures_ordered_by_file_path() {
         let database = my_db();
-        let status: SqlResult<ImageDataMap> = database.rusqlite_retrieve_all_pictures(&my_args());
+        let status: SqlResult<ImageDataMap> = database.rusqlite_retrieve_all_pictures(false, None);
         assert!(status.is_ok());
         let map = status.unwrap();
         assert_eq!(4, map.len());
@@ -573,7 +582,7 @@ pub mod tests {
         assert!(map.get(&file_path).unwrap().contains("dot"));
         assert!(map.get(&file_path).unwrap().contains("bar"));
 
-        let result = database.retrieve_all_pictures(&my_args());
+        let result = database.retrieve_all_pictures(Selection::empty(), false, None);
         assert!(result.is_ok());
         let pictures = result.unwrap();
         assert_eq!(nine_colors_file_path(), pictures[1].file_path());
@@ -585,5 +594,26 @@ pub mod tests {
         assert_eq!(white_square_file_path(), pictures[3].file_path());
         assert!(pictures[3].image_data().unwrap().tags.contains("qux"));
         assert!(pictures[3].image_data().unwrap().tags.contains("foo"));
+    }
+
+    #[test]
+    fn finding_all_pictures_with_file_path_having_a_parent_directory() {
+        let database = my_db();
+        let args = my_args();
+        let parent_dir = format!("{}/testdata", current_directory());
+        let result = database.retrieve_all_pictures_with_parent(&parent_dir);
+        assert!(result.is_ok());
+        let pictures = result.unwrap();
+        assert_eq!(4, pictures.len());
+    }
+    #[test]
+    fn find_no_picture_for_a_parent_directory_where_no_picture_exists() {
+        let database = my_db();
+        let args = my_args();
+        let parent_dir = format!("{}", current_directory());
+        let result = database.retrieve_all_pictures_with_parent(&parent_dir);
+        assert!(result.is_ok());
+        let pictures = result.unwrap();
+        assert_eq!(0, pictures.len());
     }
 }

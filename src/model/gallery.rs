@@ -3,7 +3,7 @@ use crate::file::database::Database;
 use crate::file::picture_file::{get_all_picture_file_paths, get_picture_file_path};
 use crate::model::order::Order;
 use crate::model::picture::Picture;
-use crate::model::selection::Selection;
+use crate::model::selection::{SOME_TAGS, ALL_TAGS, Selection};
 use crate::model::tags::Tags;
 use rand::prelude::SliceRandom;
 use rand::rng;
@@ -74,7 +74,14 @@ impl Gallery {
 
     pub fn load_from_database(&mut self, database: &Database, args: &Args) -> Result<usize> {
         println!("loading from database…");
-        match database.retrieve_all_pictures(args) {
+        let selection: Selection = if let Some(labels) = &args.select {
+            Selection::from(&labels, SOME_TAGS) 
+        } else if let Some(labels) = &args.restrict {
+            Selection::from(&labels, ALL_TAGS)
+        } else {
+            Selection::empty()
+        };
+        match database.retrieve_all_pictures(selection, args.cover, None) {
             Ok(pictures) => {
                 self.pictures = pictures;
                 Ok(self.len())
