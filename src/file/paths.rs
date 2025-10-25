@@ -7,7 +7,12 @@ use std::env::home_dir;
 use std::ffi::OsStr;
 use std::io::{Error, ErrorKind, Result};
 use std::path::PathBuf;
+use std::env::current_dir;
 
+
+pub fn current_directory() -> String {
+    current_dir().unwrap().display().to_string()
+}
 pub fn home_directory() -> String {
     home_dir()
         .map(|path| path.display().to_string())
@@ -267,10 +272,9 @@ mod tests {
     }
 }
 
-#[allow(unused_imports)]
-use std::env::current_dir;
 #[cfg(test)]
 
-pub fn current_directory() -> String {
-    current_dir().unwrap().display().to_string()
+mod test {
+    use super::*;
+    use std::env::current_dir;
 }

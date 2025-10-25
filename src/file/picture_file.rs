@@ -1,9 +1,9 @@
-use crate::file::paths::check_collectable;
 use crate::env::default_values::THUMB_SUFFIX;
 use crate::file::Database;
-use crate::file::paths::{check_path_exists, file_exists};
+use crate::file::paths::check_collectable;
 use crate::file::paths::thumbnail_names_from;
 use crate::file::paths::{check_path, check_path_is_a_jpg_or_png_file, check_picture_file};
+use crate::file::paths::{check_path_exists, file_exists};
 use crate::model::gallery::Gallery;
 use crate::model::image_data::ImageData;
 use crate::model::image_data::PictureFileData;
@@ -167,24 +167,18 @@ pub fn get_data_from_picture_file(file_path: &str) -> IOResult<PictureFileData> 
     }
 }
 
-    // target must be absolute or home_dir prefixed, and exist
-    // look for file_path (as stored) in the database where parent = source (as stored)
-    // copy file_path picture file (as retrieved) to target (as retrievd) + file_name
-    // copy file_pathTHUMB* to target + file_name THUMB* for all sizes if they exists
-    // insert new picture and tags in database with target (as stored) + file_name
-    // delete picture and tags for file_path (as stored) in the database
+// target must be absolute or home_dir prefixed, and exist
+// look for file_path (as stored) in the database where parent = source (as stored)
+// copy file_path picture file (as retrieved) to target (as retrievd) + file_name
+// copy file_pathTHUMB* to target + file_name THUMB* for all sizes if they exists
+// insert new picture and tags in database with target (as stored) + file_name
+// delete picture and tags for file_path (as stored) in the database
 #[allow(dead_code)]
 pub fn move_picture_files(source: &str, target: &str) -> IOResult<usize> {
-    check_path_exists(&PathBuf::from(source))
-        .and_then(|source_path| {
-            check_path_exists(&PathBuf::from(target))
-                .and_then(|path| {
-                    check_collectable(path)
-                        .and_then(|target_path| {
-                            Ok(0)
-                        })
-                })
-        })
+    check_path_exists(&PathBuf::from(source)).and_then(|source_path| {
+        check_path_exists(&PathBuf::from(target))
+            .and_then(|path| check_collectable(path).and_then(|target_path| Ok(0)))
+    })
 }
 
 #[allow(unused_imports)]
@@ -192,9 +186,9 @@ pub fn move_picture_files(source: &str, target: &str) -> IOResult<usize> {
 pub mod test {
 
     use super::*;
+    use crate::file::paths::current_directory;
     use std::fs::File;
     use std::io::prelude::*;
-    use crate::file::paths::current_directory;
 
     fn create_dummy_file(file_path: &str) {
         let mut file = File::create(file_path).expect("can't create test file");
@@ -227,11 +221,11 @@ pub mod test {
     fn deleting_picture_files() {
         create_dummy_files();
         delete_picture_files("testdata/dummy_pic.png");
-        assert!(! file_exists("testdata/dummy_pic.png"));
-        assert!(! file_exists("testdata/dummy_picTHUMBLarge.png"));
-        assert!(! file_exists("testdata/dummy_picTHUMBLarger.png"));
-        assert!(! file_exists("testdata/dummy_picTHUMBMedium.png"));
-        assert!(! file_exists("testdata/dummy_picTHUMBSmall.png"));
+        assert!(!file_exists("testdata/dummy_pic.png"));
+        assert!(!file_exists("testdata/dummy_picTHUMBLarge.png"));
+        assert!(!file_exists("testdata/dummy_picTHUMBLarger.png"));
+        assert!(!file_exists("testdata/dummy_picTHUMBMedium.png"));
+        assert!(!file_exists("testdata/dummy_picTHUMBSmall.png"));
     }
 
     #[test]
