@@ -1,5 +1,5 @@
-use crate::env::configuration::Config;
 use crate::cli::command::Command;
+use crate::env::configuration::Config;
 use crate::env::default_values::{DEFAULT_HEIGHT, DEFAULT_SLIDESHOW_DELAY, DEFAULT_WIDTH};
 use crate::env::dimension::{dimension, slideshow_delay};
 use crate::file::paths::{check_path, check_picture_file};
@@ -72,7 +72,11 @@ impl Args {
         };
 
         args.width = dimension(args.width.unwrap_or(config.width), "width", DEFAULT_WIDTH);
-        args.height = dimension(args.height.unwrap_or(config.height), "height", DEFAULT_HEIGHT);
+        args.height = dimension(
+            args.height.unwrap_or(config.height),
+            "height",
+            DEFAULT_HEIGHT,
+        );
         args.slideshow =
             slideshow_delay(args.slideshow, "slideshow delay", DEFAULT_SLIDESHOW_DELAY);
         if let Some(Command::File { ref file_path }) = args.command {
@@ -130,9 +134,9 @@ mod tests {
     use crate::Command::Dir;
     use crate::Command::File;
     use crate::cli::command::Command;
+    use crate::get_configuration;
     use crate::test_data::*;
     use std::io::ErrorKind;
-    use crate::get_configuration;
 
     fn config() -> Config {
         get_configuration().unwrap()
@@ -140,7 +144,7 @@ mod tests {
     #[test]
     fn command_line_interface_with_command_file_with_adequate_argument() {
         let args = vec!["gsr", "file", SINGLE_DOT];
-        let args = Args::parse_and_check(Some(args),&config()).unwrap();
+        let args = Args::parse_and_check(Some(args), &config()).unwrap();
         if let Some(Command::File { ref file_path }) = args.command {
             assert_eq!(SINGLE_DOT, file_path);
         } else {

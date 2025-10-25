@@ -1,13 +1,10 @@
-use std::collections::HashSet;
 use crate::model::label::Label;
+use std::collections::HashSet;
 
 pub type Tags = HashSet<Label>;
 
 pub fn tags_from_str(s: &str) -> Tags {
-    let set: HashSet<String> = 
-        s.split(',')
-        .map(|s| s.to_string())
-        .collect();
+    let set: HashSet<String> = s.split(',').map(|s| s.to_string()).collect();
     set
 }
 

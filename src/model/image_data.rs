@@ -1,12 +1,12 @@
-use crate::model::tags::Tags;
-use crate::model::label::{Label, from};
-use crate::model::rank::Rank;
-use chrono::{DateTime, Local};
-use std::time::UNIX_EPOCH;
 use crate::file::picture_file::get_data_from_picture_file;
+use crate::model::label::{Label, from};
 use crate::model::palette::Palette;
+use crate::model::rank::Rank;
+use crate::model::tags::Tags;
+use chrono::{DateTime, Local};
 use std::collections::HashSet;
 use std::io::Result;
+use std::time::UNIX_EPOCH;
 use std::time::{Duration, SystemTime};
 
 pub type FileSize = u64;
@@ -14,7 +14,9 @@ pub type TimeStamp = u64;
 pub struct PictureFileData(pub FileSize, pub TimeStamp);
 
 pub fn timestamp(system_time: SystemTime) -> TimeStamp {
-    let duration = system_time.duration_since(UNIX_EPOCH).expect("time went backwards");
+    let duration = system_time
+        .duration_since(UNIX_EPOCH)
+        .expect("time went backwards");
     duration.as_secs() * 1_000_000 + (duration.subsec_nanos() / 1_000) as u64
 }
 
@@ -24,7 +26,6 @@ pub fn datetime_from_time_stamp(timestamp: u64) -> DateTime<Local> {
     let system_time = UNIX_EPOCH + Duration::new(secs, nanos as u32);
     DateTime::<Local>::from(system_time)
 }
-
 
 #[derive(Debug, Clone)]
 pub struct ImageData {
@@ -83,13 +84,12 @@ impl ImageData {
     pub fn rank(&self) -> Rank {
         self.rank
     }
-
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::file::picture_file::get_palette_from_picture_file;
+    use crate::file::picture_file::test::get_palette_from_picture_file;
     use crate::test_data::*;
     use image::DynamicImage;
 

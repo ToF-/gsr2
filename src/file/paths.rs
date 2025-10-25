@@ -1,15 +1,17 @@
-use std::env;
 use crate::env::default_values::GARBAGE;
 use crate::env::default_values::THUMB_SUFFIX;
 use crate::env::default_values::VALID_EXTENSIONS;
 use crate::model::thumbnail::{thumbnail_size_display, thumbnail_size_for};
+use std::env;
+use std::env::home_dir;
 use std::ffi::OsStr;
 use std::io::{Error, ErrorKind, Result};
 use std::path::PathBuf;
-use std::env::home_dir;
 
 pub fn home_directory() -> String {
-    home_dir().map(|path| path.display().to_string()).expect("can't access to home_dir")
+    home_dir()
+        .map(|path| path.display().to_string())
+        .expect("can't access to home_dir")
 }
 
 pub fn check_path_exists(path: &PathBuf) -> Result<&PathBuf> {
@@ -29,17 +31,20 @@ pub fn file_exists(file_path: &str) -> bool {
 }
 
 pub fn check_collectable(path: &PathBuf) -> Result<&PathBuf> {
-    check_path_is_directory(&path)
-        .and_then(|path| {
-            let home_dir = home_dir().unwrap_or("@".into());
-            if path.starts_with(home_dir) || path.is_absolute() {
-                Ok(path)
-            } else {
-                Err(Error::new(
-                        ErrorKind::NotADirectory,
-                        format!("{} is not absolute and not starting with home directory", path.display())))
-            }
-        })
+    check_path_is_directory(&path).and_then(|path| {
+        let home_dir = home_dir().unwrap_or("@".into());
+        if path.starts_with(home_dir) || path.is_absolute() {
+            Ok(path)
+        } else {
+            Err(Error::new(
+                ErrorKind::NotADirectory,
+                format!(
+                    "{} is not absolute and not starting with home directory",
+                    path.display()
+                ),
+            ))
+        }
+    })
 }
 
 pub fn check_path_is_directory(path: &PathBuf) -> Result<&PathBuf> {
@@ -150,20 +155,20 @@ pub fn thumbnail_names_from(file_name: &str) -> Vec<String> {
 
 pub fn file_path_as_stored(source: &str) -> String {
     let home = home_directory();
-    if ! source.starts_with(&home) {
-        return source.to_string()
+    if !source.starts_with(&home) {
+        return source.to_string();
     }
     let mut home_iter = home.chars();
     let mut source_iter = source.chars();
     while let Some(_) = home_iter.next() {
         source_iter.next();
-    };
+    }
     format!("~{}", source_iter.as_str())
 }
 
 pub fn file_path_as_retrieved(source: &str) -> String {
-    if ! source.starts_with("~") {
-        return source.to_string()
+    if !source.starts_with("~") {
+        return source.to_string();
     }
     let mut source_iter = source.chars();
     source_iter.next();
@@ -260,7 +265,6 @@ mod tests {
             assert_eq!(file_path, file_path_as_retrieved(&file_path));
         }
     }
-
 }
 
 #[allow(unused_imports)]
@@ -270,4 +274,3 @@ use std::env::current_dir;
 pub fn current_directory() -> String {
     current_dir().unwrap().display().to_string()
 }
-

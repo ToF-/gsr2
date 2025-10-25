@@ -1,10 +1,6 @@
 use crate::env::default_values;
 
-pub fn dimension(
-    value: i32,
-    dimension_name: &str,
-    default: i32,
-) -> Option<i32> {
+pub fn dimension(value: i32, dimension_name: &str, default: i32) -> Option<i32> {
     if (default_values::DIMENSION_MIN..=default_values::DIMENSION_MAX).contains(&value) {
         Some(value)
     } else {

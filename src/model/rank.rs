@@ -1,9 +1,12 @@
-use crate::env::default_values::{THREE_STARS_SYMBOL, TWO_STARS_SYMBOL, ONE_STAR_SYMBOL, NO_STAR};
+use crate::env::default_values::{NO_STAR, ONE_STAR_SYMBOL, THREE_STARS_SYMBOL, TWO_STARS_SYMBOL};
 use std::fmt;
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Copy, Clone, Debug)]
 pub enum Rank {
-   ThreeStars, TwoStars, OneStar, NoStar,
+    ThreeStars,
+    TwoStars,
+    OneStar,
+    NoStar,
 }
 
 impl Rank {
@@ -41,12 +44,16 @@ impl Into<i64> for Rank {
 
 impl fmt::Display for Rank {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", match self {
-            Rank::ThreeStars => THREE_STARS_SYMBOL,
-            Rank::TwoStars => TWO_STARS_SYMBOL,
-            Rank::OneStar => ONE_STAR_SYMBOL,
-            Rank::NoStar => NO_STAR,
-        })
+        write!(
+            f,
+            "{}",
+            match self {
+                Rank::ThreeStars => THREE_STARS_SYMBOL,
+                Rank::TwoStars => TWO_STARS_SYMBOL,
+                Rank::OneStar => ONE_STAR_SYMBOL,
+                Rank::NoStar => NO_STAR,
+            }
+        )
     }
 }
 
@@ -57,7 +64,7 @@ mod tests {
     #[test]
     fn from_and_to_i64() {
         let result: i64 = Rank::OneStar.into();
-        assert_eq!(2, result); 
+        assert_eq!(2, result);
         let rank: Rank = Rank::from(1);
         assert_eq!(Rank::TwoStars, rank);
     }

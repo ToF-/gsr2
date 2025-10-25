@@ -1,6 +1,6 @@
 use crate::model::tags::{Tags, empty, tags_from_str};
 
-#[derive(Debug,Clone)]
+#[derive(Debug, Clone)]
 pub struct Selection {
     tags: Tags,
     restrict: bool,
@@ -38,7 +38,7 @@ impl Selection {
     }
 
     pub fn intersect_with(&self, tags: Tags) -> bool {
-        ! self.tags.is_disjoint(&tags)
+        !self.tags.is_disjoint(&tags)
     }
 
     pub fn includes(&self, tags: Tags) -> bool {
@@ -52,5 +52,4 @@ impl Selection {
             self.intersect_with(tags)
         }
     }
-
 }

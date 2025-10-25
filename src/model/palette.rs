@@ -30,8 +30,8 @@ impl Palette {
         self.count
     }
 
-    pub fn sample_as_array(&self) -> [u8;31] {
-        let mut result: [u8;31] = [0;31];
+    pub fn sample_as_array(&self) -> [u8; 31] {
+        let mut result: [u8; 31] = [0; 31];
         result[0] = self.sample.len() as u8;
         for i in 0..self.sample.len() {
             let color = self.sample[i];
@@ -42,7 +42,7 @@ impl Palette {
         result
     }
 
-    pub fn set_sample_from_array(&mut self, array: [u8;31]) {
+    pub fn set_sample_from_array(&mut self, array: [u8; 31]) {
         let len: usize = array[0].into();
         self.sample = vec![];
         for i in 0..len {
@@ -114,7 +114,10 @@ mod tests {
     fn converting_palette_sample_to_blob() {
         let image = image::open(SINGLE_DOT).expect(&format!("can't load {}", SINGLE_DOT));
         let palette = Palette::from(&image);
-        let expected: Vec<u8> = vec![8, 4, 4, 4, 8, 4, 4, 8, 4, 4, 8, 4, 4, 64, 4, 132, 64, 132, 128, 68, 4, 4, 252, 252, 252, 0, 0, 0, 0, 0, 0];
+        let expected: Vec<u8> = vec![
+            8, 4, 4, 4, 8, 4, 4, 8, 4, 4, 8, 4, 4, 64, 4, 132, 64, 132, 128, 68, 4, 4, 252, 252,
+            252, 0, 0, 0, 0, 0, 0,
+        ];
         assert_eq!(expected, palette.sample_as_array());
     }
     #[test]
@@ -122,7 +125,10 @@ mod tests {
         let image = image::open(SINGLE_DOT).expect(&format!("can't load {}", SINGLE_DOT));
         let palette = Palette::from(&image);
         let mut other = Palette::from(&image);
-        other.set_sample_from_array([8, 4, 4, 4, 8, 4, 4, 8, 4, 4, 8, 4, 4, 64, 4, 132, 64, 132, 128, 68, 4, 4, 252, 252, 252, 0, 0, 0, 0, 0, 0]);
+        other.set_sample_from_array([
+            8, 4, 4, 4, 8, 4, 4, 8, 4, 4, 8, 4, 4, 64, 4, 132, 64, 132, 128, 68, 4, 4, 252, 252,
+            252, 0, 0, 0, 0, 0, 0,
+        ]);
         assert_eq!(palette.sample(), other.sample());
     }
 }

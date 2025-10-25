@@ -1,10 +1,11 @@
-use crate::gui::view::palette_area::make_palette_area;
-use palette_extract::Color;
 use crate::clone;
-use crate::env::default_values::{GRID_PALETTE_AREA_HEIGHT, GRID_PALETTE_AREA_WIDTH, MAX_PICTURES_PER_ROW};
+use crate::env::default_values::{
+    GRID_PALETTE_AREA_HEIGHT, GRID_PALETTE_AREA_WIDTH, MAX_PICTURES_PER_ROW,
+};
 use crate::gui::controller::RcController;
 use crate::gui::display::picture_label_display;
 use crate::gui::mode::Mode;
+use crate::gui::view::palette_area::make_palette_area;
 use crate::gui::view::picture_cell_box::make_picture_cell_box;
 use crate::gui::view::picture_frame::make_label;
 use crate::model::picture::Picture;
@@ -14,6 +15,7 @@ use gtk::prelude::BoxExt;
 use gtk::prelude::Cast;
 use gtk::prelude::GridExt;
 use gtk::prelude::WidgetExt;
+use palette_extract::Color;
 use std::time::Duration;
 
 #[derive(Clone, Debug)]
@@ -87,7 +89,12 @@ impl PictureGrid {
                 .unwrap()
                 .downcast::<gtk::Label>()
                 .unwrap();
-            label.set_text(&picture_label_display(&picture.label(), picture.rank(), picture.cover(), with_focus))
+            label.set_text(&picture_label_display(
+                &picture.label(),
+                picture.rank(),
+                picture.cover(),
+                with_focus,
+            ))
         }
     }
 
@@ -125,7 +132,13 @@ impl PictureGrid {
         }
     }
 
-    pub fn set_picture_at(&self, col: i32, row: i32, picture: &gtk::Picture, with_sample: Option<Vec<Color>>) {
+    pub fn set_picture_at(
+        &self,
+        col: i32,
+        row: i32,
+        picture: &gtk::Picture,
+        with_sample: Option<Vec<Color>>,
+    ) {
         let grid = self.grid();
         if let Some(widget) = grid.child_at(col, row) {
             let cell_box: gtk::Box = widget.downcast::<gtk::Box>().unwrap();
@@ -135,7 +148,11 @@ impl PictureGrid {
             cell_box.append(picture);
             cell_box.append(&make_label());
             if let Some(sample) = with_sample {
-                cell_box.append(&make_palette_area(sample, GRID_PALETTE_AREA_WIDTH, GRID_PALETTE_AREA_HEIGHT))
+                cell_box.append(&make_palette_area(
+                    sample,
+                    GRID_PALETTE_AREA_WIDTH,
+                    GRID_PALETTE_AREA_HEIGHT,
+                ))
             }
         };
     }

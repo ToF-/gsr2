@@ -1,10 +1,10 @@
-use serde::Deserialize;
+use crate::env::default_values::{CONFIG_FILE_DEFAULT, CONFIG_FILE_VARIABLE};
 use crate::file::paths::home_directory;
-use crate::env::default_values::{CONFIG_FILE_VARIABLE, CONFIG_FILE_DEFAULT};
-use std::env;
-use std::io::Result;
-use std::fs;
 use crate::file_exists;
+use serde::Deserialize;
+use std::env;
+use std::fs;
+use std::io::Result;
 
 #[derive(Debug, Deserialize)]
 pub struct Config {
@@ -12,7 +12,6 @@ pub struct Config {
     pub height: i32,
     pub database_file: String,
 }
-
 
 pub fn config_file_location() -> String {
     if let Ok(file_name) = env::var(CONFIG_FILE_VARIABLE) {
@@ -23,8 +22,11 @@ pub fn config_file_location() -> String {
 }
 
 pub fn get_configuration() -> Result<Config> {
-    if ! file_exists(&config_file_location()) {
-        return Err(std::io::Error::other(format!("configuration file {} does not exist", config_file_location())))
+    if !file_exists(&config_file_location()) {
+        return Err(std::io::Error::other(format!(
+            "configuration file {} does not exist",
+            config_file_location()
+        )));
     };
     println!("configuration: {}", config_file_location());
     match fs::read_to_string(config_file_location()) {
@@ -35,5 +37,3 @@ pub fn get_configuration() -> Result<Config> {
         Err(err) => Err(err),
     }
 }
-
-

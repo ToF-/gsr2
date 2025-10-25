@@ -1,14 +1,14 @@
-use crate::model::tags::Tags;
-use crate::model::selection::Selection;
-use std::collections::HashSet;
 use crate::Args;
 use crate::file::database::Database;
 use crate::file::picture_file::{get_all_picture_file_paths, get_picture_file_path};
 use crate::model::order::Order;
 use crate::model::picture::Picture;
+use crate::model::selection::Selection;
+use crate::model::tags::Tags;
 use rand::prelude::SliceRandom;
 use rand::rng;
 use std::cmp::Reverse;
+use std::collections::HashSet;
 use std::io::{Error, Result};
 
 #[derive(Debug, Clone)]
@@ -29,7 +29,7 @@ impl Gallery {
 
     #[allow(dead_code)]
     pub fn new_with_pictures(pictures: Vec<Picture>) -> Self {
-        Gallery { 
+        Gallery {
             pictures,
             order: Order::Name,
             selection: Selection::empty(),
@@ -85,15 +85,13 @@ impl Gallery {
 
     pub fn load_from_file_path(&mut self, file_path: &str) -> Result<usize> {
         match get_picture_file_path(file_path) {
-            Ok(path) => {
-                match Picture::new_with_file_image_data(&path, "") {
-                    Ok(picture) => {
-                        self.pictures.push(picture);
-                        Ok(1)
-                    },
-                    Err(err) => return Err(err),
+            Ok(path) => match Picture::new_with_file_image_data(&path, "") {
+                Ok(picture) => {
+                    self.pictures.push(picture);
+                    Ok(1)
                 }
-            }
+                Err(err) => return Err(err),
+            },
             Err(err) => Err(err),
         }
     }
@@ -111,40 +109,45 @@ impl Gallery {
         self.order = order;
         let selection = self.selection.clone();
         match order {
-            Order::Name => self.pictures.sort_by_key(|picture|
-                (!picture.selected(&selection), picture.file_path())),
-
-            Order::Size => self
+            Order::Name => self
                 .pictures
-                .sort_by_key(|picture| 
-                    (!picture.selected(&selection), picture.image_data().map(|image_data| image_data.size()))),
+                .sort_by_key(|picture| (!picture.selected(&selection), picture.file_path())),
+
+            Order::Size => self.pictures.sort_by_key(|picture| {
+                (
+                    !picture.selected(&selection),
+                    picture.image_data().map(|image_data| image_data.size()),
+                )
+            }),
 
             Order::Date => self.pictures.sort_by_key(|picture| {
-                picture
-                    .image_data()
-                    .map(|image_data| 
-                        (!picture.selected(&selection), (true, Reverse(image_data.modified_time()))))
+                picture.image_data().map(|image_data| {
+                    (
+                        !picture.selected(&selection),
+                        (true, Reverse(image_data.modified_time())),
+                    )
+                })
             }),
-            Order::Label => self.pictures.sort_by_key(|picture| {
-                (! picture.selected(&selection), picture .label_sort_key())
-            }),
+            Order::Label => self
+                .pictures
+                .sort_by_key(|picture| (!picture.selected(&selection), picture.label_sort_key())),
             Order::Value => self.pictures.sort_by_key(|picture| {
                 picture
                     .image_data()
-                    .map(|image_data| 
-                        (!picture.selected(&selection), image_data.rank()))
+                    .map(|image_data| (!picture.selected(&selection), image_data.rank()))
             }),
             Order::ColorCount => self.pictures.sort_by_key(|picture| {
                 picture
                     .image_data()
-                    .map(|image_data|
-                        (!picture.selected(&selection), image_data.palette().count()))
+                    .map(|image_data| (!picture.selected(&selection), image_data.palette().count()))
             }),
             Order::Palette => self.pictures.sort_by_key(|picture| {
-                picture
-                    .image_data()
-                    .map(|image_data| 
-                        (!picture.selected(&selection), image_data.palette().sample_as_array()))
+                picture.image_data().map(|image_data| {
+                    (
+                        !picture.selected(&selection),
+                        image_data.palette().sample_as_array(),
+                    )
+                })
             }),
             _ => self.pictures.shuffle(&mut rng()),
         }
@@ -166,7 +169,7 @@ impl Gallery {
     pub fn all_labels(&self) -> Tags {
         let mut labels: HashSet<String> = HashSet::new();
         for picture in &self.pictures {
-            if ! picture.label().is_empty() {
+            if !picture.label().is_empty() {
                 let _ = labels.insert(picture.label());
             }
             for label in picture.tags().iter() {
@@ -181,13 +184,13 @@ impl Gallery {
 mod tests {
 
     use super::*;
-    use std::env::current_dir;
     use crate::env::default_values::TEST_DATABASE_FILE;
     use crate::file::database::Database;
     use crate::file::database::tests::{my_args, my_db};
+    use crate::file::paths::current_directory;
     use crate::test_data;
     use crate::test_data::*;
-    use crate::file::paths::current_directory;
+    use std::env::current_dir;
 
     #[test]
     fn loading_from_a_directory_collect_all_the_picture_files_from_that_directory() {
@@ -275,7 +278,10 @@ mod tests {
             .load_from_database(&database, &my_args())
             .expect("can't load from database");
         gallery.sort_by(Order::Name);
-        assert_eq!( current_directory() + "/" + LARGE_PICTURE, gallery.picture(0).file_path());
+        assert_eq!(
+            current_directory() + "/" + LARGE_PICTURE,
+            gallery.picture(0).file_path()
+        );
     }
     #[test]
     fn finding_a_picture_by_file_path() {
@@ -284,7 +290,11 @@ mod tests {
         gallery
             .load_from_database(&database, &my_args())
             .expect("can't load from database");
-        assert!(gallery.find_file_path(&(current_directory() + "/" + NINE_COLORS)).is_some())
+        assert!(
+            gallery
+                .find_file_path(&(current_directory() + "/" + NINE_COLORS))
+                .is_some()
+        )
     }
     #[test]
     fn changing_a_picture_by_its_index() {

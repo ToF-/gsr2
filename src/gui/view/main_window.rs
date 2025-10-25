@@ -1,7 +1,6 @@
-use crate::env::default_values::QUARTER_OPACITY;
-use palette_extract::Color;
 use crate::Args;
 use crate::env::default_values::FOCUS_SYMBOL_1;
+use crate::env::default_values::QUARTER_OPACITY;
 use crate::env::default_values::{FULL_OPACITY, HALF_OPACITY};
 use crate::file::paths::check_path_exists;
 use crate::gui::control::Control;
@@ -28,6 +27,7 @@ use gtk::prelude::{
     WidgetExt,
 };
 use gtk::{ApplicationWindow, Grid, Label, Picture as GtkPicture, ScrolledWindow, Window};
+use palette_extract::Color;
 use std::path::Path;
 use std::path::PathBuf;
 use std::time::Duration;
@@ -187,9 +187,9 @@ impl MainWindow {
                 Control::SetDisplay => {
                     String::from("Display… (d:date on | s:size on | f:focus change on)")
                 }
-                Control::SetOrder => {
-                    String::from("Order… (c: by color count | d: by date | l: by label | p: by palette | n: by name | r: randomize | s: by size | v: by value)")
-                }
+                Control::SetOrder => String::from(
+                    "Order… (c: by color count | d: by date | l: by label | p: by palette | n: by name | r: randomize | s: by size | v: by value)",
+                ),
                 _ => panic!("incorrect choice for setting: {:?}", choice),
             },
             Mode::Editing => String::from("Editing…"),
@@ -230,12 +230,17 @@ impl MainWindow {
                         no_thumbnail_picture()
                     };
                     let with_sample: Option<Vec<Color>> = if controller.state().palette_on() {
-                        picture.image_data().map(|image_data| image_data.palette().sample())
+                        picture
+                            .image_data()
+                            .map(|image_data| image_data.palette().sample())
                     } else {
                         None
                     };
-                    self.picture_grid.set_picture_at(col, row, &gtk_picture, with_sample);
-                    let opacity: f64 = if let Some(position) = navigator.position_from_coords(row as usize, col as usize) {
+                    self.picture_grid
+                        .set_picture_at(col, row, &gtk_picture, with_sample);
+                    let opacity: f64 = if let Some(position) =
+                        navigator.position_from_coords(row as usize, col as usize)
+                    {
                         if navigator.is_selected(position) {
                             HALF_OPACITY
                         } else if gallery.selection().is_empty() {

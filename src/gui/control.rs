@@ -77,9 +77,7 @@ pub fn default_controls() -> Controls {
             (String::from("Return"), Mode::Editing),
             Control::ConfirmEdition,
         ),
-        (   (String::from("Tab"), Mode::Editing),
-        Control::Complete,
-        ),
+        ((String::from("Tab"), Mode::Editing), Control::Complete),
         ((String::from("Return"), Mode::View), Control::SetRange),
         ((String::from("Escape"), Mode::View), Control::CancelRange),
         ((String::from("space"), Mode::View), Control::ToggleSelected),
@@ -117,7 +115,10 @@ pub fn default_controls() -> Controls {
         ((String::from("s"), Mode::View), Control::Down),
         ((String::from("equal"), Mode::View), Control::SetSelection),
         ((String::from("minus"), Mode::View), Control::SetRestriction),
-        ((String::from("numbersign"), Mode::View), Control::CancelSelection),
+        (
+            (String::from("numbersign"), Mode::View),
+            Control::CancelSelection,
+        ),
         (
             (String::from("period"), Mode::View),
             Control::ToggleSingleView,
@@ -178,7 +179,7 @@ pub fn default_controls() -> Controls {
         ((String::from("2"), Mode::View), Control::RankTwoStars),
         ((String::from("3"), Mode::View), Control::RankThreeStars),
         ((String::from("Tab"), Mode::View), Control::RepeatLastAction),
-        ]);
+    ]);
     controls
 }
 

@@ -1,13 +1,11 @@
-use crate::model::action::Action;
-use crate::model::selection::Selection;
-use crate::file::picture_file::create_missing_thumbnails;
-use std::path::PathBuf;
-use crate::file::paths::check_collectable;
 use crate::cli::args::Args;
 use crate::cli::command::Command;
 use crate::env::environment::database_connection;
 use crate::file::database::*;
 use crate::file::delete_picture;
+use crate::file::paths::check_collectable;
+use crate::file::picture_file::collect_data;
+use crate::file::picture_file::create_missing_thumbnails;
 use crate::gui::control::{Control, Controls, default_controls};
 use crate::gui::direction::Direction;
 use crate::gui::editor::Editor;
@@ -18,9 +16,12 @@ use crate::gui::navigator::Navigator;
 use crate::gui::state::State;
 use crate::gui::view::main_window::LEFT_PANE;
 use crate::gui::view::main_window::MainWindow;
+use crate::model::action::Action;
 use crate::model::gallery::Gallery;
 use crate::model::order::Order;
 use crate::model::picture::Picture;
+use crate::model::rank::Rank;
+use crate::model::selection::Selection;
 use gdk::{Key, ModifierType};
 use gtk::prelude::*;
 use gtk::{self, gdk};
@@ -28,10 +29,9 @@ use rand::Rng;
 use rand::rng;
 use std::cell::RefCell;
 use std::io::Result as IOResult;
-use std::rc::Rc;
-use crate::model::rank::Rank;
-use crate::file::picture_file::collect_data;
+use std::path::PathBuf;
 use std::process::exit;
+use std::rc::Rc;
 
 #[derive(Debug)]
 pub struct Controller {
@@ -118,7 +118,7 @@ impl Controller {
                 println!("collecting data for picture files in the database…");
                 let path: PathBuf = PathBuf::from(directory);
                 match check_collectable(&path) {
-                    Ok(directory) => { 
+                    Ok(directory) => {
                         gallery.load_from_directory(&directory.display().to_string());
                         match collect_data(&gallery, &self.database()) {
                             Ok(_) => exit(0),
@@ -127,30 +127,30 @@ impl Controller {
                                 exit(1);
                             }
                         }
-                    },
+                    }
                     Err(err) => {
                         eprintln!("{}", err);
                         exit(1);
                     }
                 }
-            },
+            }
             Some(Command::Thumbnails { pictures_per_row }) => {
                 gallery.load_from_database(&self.database, &args);
                 create_missing_thumbnails(&gallery, pictures_per_row as usize);
                 exit(0)
-            },
+            }
             Some(Command::List { ref directory }) => {
                 match directory {
                     Some(path) => {
                         gallery.load_from_directory(&path);
-                    },
-                    None =>  {
+                    }
+                    None => {
                         gallery.load_from_database(&self.database, &args);
                     }
                 };
                 gallery.print();
                 exit(0)
-            },
+            }
             Some(_) => Ok(0),
             None => gallery.load_from_database(&self.database, &args),
         };
@@ -299,37 +299,35 @@ impl Controller {
                                 self.label_selected_pictures(&self.editor.input())
                             };
                             self.set_opacity_for_current_picture(1.00);
-                        },
+                        }
                         EntryKind::AddTag => {
                             if !self.editor.input().is_empty() {
                                 self.tag_selected_pictures(&self.editor.input())
                             };
                             self.set_opacity_for_current_picture(1.00);
-                        },
+                        }
                         EntryKind::RemoveTag => {
                             if !self.editor.input().is_empty() {
                                 self.untag_selected_pictures(&self.editor.input())
                             };
                             self.set_opacity_for_current_picture(1.00);
-                        },
+                        }
                         EntryKind::Number => {
                             self.move_towards_index(self.editor.input().parse().unwrap())
-                        },
-                        EntryKind::Order => {
-                            self.set_order(&self.editor.input())
                         }
+                        EntryKind::Order => self.set_order(&self.editor.input()),
                         EntryKind::DeleteConfirmation => {
                             if &self.editor.input() == "yes" {
                                 self.confirm_delete_picture()
                             } else {
                                 self.cancel_delete_picture()
                             }
-                        },
+                        }
                         EntryKind::Find => {
                             if !self.editor.input().is_empty() {
                                 self.find_pattern(&self.editor.input())
                             };
-                        },
+                        }
                         EntryKind::SetSelection => {
                             if !self.editor.input().is_empty() {
                                 self.apply_selection(&self.editor.input())
@@ -349,15 +347,14 @@ impl Controller {
     fn set_order(&mut self, input: &str) {
         let choice: Control = match input {
             "ColorCount" => Control::OrderByColorCount,
-            "Date"       => Control::OrderByDate,
-            "Label"      => Control::OrderByLabel,
-            "Name"       => Control::OrderByName,
-            "Palette"    => Control::OrderByPalette,
-            "Random"     => Control::Randomize,
-            "Size"       => Control::OrderBySize,
-            "Value"      => Control::OrderByValue,
+            "Date" => Control::OrderByDate,
+            "Label" => Control::OrderByLabel,
+            "Name" => Control::OrderByName,
+            "Palette" => Control::OrderByPalette,
+            "Random" => Control::Randomize,
+            "Size" => Control::OrderBySize,
+            "Value" => Control::OrderByValue,
             &_ => todo!(),
-
         };
         self.process_control(&choice)
     }
@@ -499,8 +496,8 @@ impl Controller {
     }
 
     pub fn setting_order(&mut self) {
-        self.editor.begin(&self.main_window(), 
-            EntryKind::Order, None);
+        self.editor
+            .begin(&self.main_window(), EntryKind::Order, None);
         self.state.set_mode(Mode::Editing);
     }
 
@@ -582,14 +579,20 @@ impl Controller {
         self.navigator.set_page_changed()
     }
     pub fn set_selection(&mut self) {
-        self.editor.begin(&self.main_window(), 
-            EntryKind::SetSelection, Some(self.gallery.all_labels()));
+        self.editor.begin(
+            &self.main_window(),
+            EntryKind::SetSelection,
+            Some(self.gallery.all_labels()),
+        );
         self.state.set_mode(Mode::Editing);
     }
 
     pub fn set_restriction(&mut self) {
-        self.editor.begin(&self.main_window(), 
-            EntryKind::SetRestriction, Some(self.gallery.all_labels()));
+        self.editor.begin(
+            &self.main_window(),
+            EntryKind::SetRestriction,
+            Some(self.gallery.all_labels()),
+        );
         self.state.set_mode(Mode::Editing);
     }
 
@@ -606,37 +609,48 @@ impl Controller {
     }
 
     pub fn apply_selection(&mut self, selection_str: &str) {
-        self.gallery.set_selection(Selection::from(selection_str, false));
+        self.gallery
+            .set_selection(Selection::from(selection_str, false));
         self.navigator.move_towards(Direction::First);
         self.navigator.set_page_changed();
     }
 
     pub fn apply_restriction(&mut self, selection_str: &str) {
-        self.gallery.set_selection(Selection::from(selection_str, true));
+        self.gallery
+            .set_selection(Selection::from(selection_str, true));
         self.navigator.move_towards(Direction::First);
         self.navigator.set_page_changed();
     }
 
-
-
     pub fn add_tag(&mut self) {
         self.set_opacity_for_current_picture(0.25);
-        self.editor.begin(&self.main_window(), EntryKind::AddTag, Some(self.gallery.all_labels()));
+        self.editor.begin(
+            &self.main_window(),
+            EntryKind::AddTag,
+            Some(self.gallery.all_labels()),
+        );
         self.state.set_mode(Mode::Editing);
     }
 
     pub fn remove_tag(&mut self) {
         self.set_opacity_for_current_picture(0.25);
-        self.editor.begin(&self.main_window(), EntryKind::RemoveTag, Some(self.current_picture().tags()));
+        self.editor.begin(
+            &self.main_window(),
+            EntryKind::RemoveTag,
+            Some(self.current_picture().tags()),
+        );
         self.state.set_mode(Mode::Editing);
     }
 
     pub fn label(&mut self) {
         self.set_opacity_for_current_picture(0.25);
-        self.editor.begin(&self.main_window(), EntryKind::Label, Some(self.gallery.all_labels()));
+        self.editor.begin(
+            &self.main_window(),
+            EntryKind::Label,
+            Some(self.gallery.all_labels()),
+        );
         self.state.set_mode(Mode::Editing);
     }
-
 
     fn rank_picture_at_index(&mut self, index: usize, rank: Rank) {
         let mut picture = self.gallery.picture(index);
@@ -668,18 +682,24 @@ impl Controller {
     }
 
     pub fn jump(&mut self) {
-        self.editor.begin(&self.main_window(), EntryKind::Number, None);
+        self.editor
+            .begin(&self.main_window(), EntryKind::Number, None);
         self.state.set_mode(Mode::Editing);
     }
 
     pub fn find(&mut self) {
-        self.editor.begin(&self.main_window(), EntryKind::Find, None);
+        self.editor
+            .begin(&self.main_window(), EntryKind::Find, None);
         self.state.set_mode(Mode::Editing);
     }
 
     pub fn find_pattern(&mut self, pattern: &str) {
-        if let Some(index) = self.gallery.pictures().iter().position(
-            |picture| picture.file_path().contains(pattern)) {
+        if let Some(index) = self
+            .gallery
+            .pictures()
+            .iter()
+            .position(|picture| picture.file_path().contains(pattern))
+        {
             let navigator = &mut self.navigator;
             navigator.move_towards(Direction::Index { value: index });
             navigator.set_page_changed()
@@ -926,7 +946,7 @@ impl Controller {
     pub fn repeat_last_action(&mut self) {
         let action = self.last_action.clone();
         match action {
-            Action::NoAction => {},
+            Action::NoAction => {}
             Action::Label(label) => self.label_selected_pictures(&label),
             Action::Unlabel => self.unlabel_selected_pictures(),
             Action::AddTag(label) => self.tag_selected_pictures(&label),
@@ -935,5 +955,3 @@ impl Controller {
         }
     }
 }
-
-    

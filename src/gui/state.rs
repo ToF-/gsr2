@@ -75,7 +75,7 @@ impl State {
     }
 
     pub fn toggle_palette(&mut self) {
-        self.palette_on = ! self.palette_on
+        self.palette_on = !self.palette_on
     }
 
     pub fn pictures_per_row(&self) -> usize {

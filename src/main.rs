@@ -1,7 +1,9 @@
-use crate::file::paths::file_exists;
 use crate::cli::args::Args;
 use crate::cli::command::Command;
+use crate::env::configuration::get_configuration;
 use crate::env::default_values::APPLICATION_ID;
+use crate::file::database::Database;
+use crate::file::paths::file_exists;
 use crate::gui::controller::Controller;
 use crate::gui::controller::RcController;
 use crate::gui::view::application::make_application;
@@ -11,9 +13,6 @@ use gtk::prelude::ApplicationExt;
 use std::cell::RefCell;
 use std::process::exit;
 use std::rc::Rc;
-use crate::env::configuration::get_configuration;
-use crate::file::database::Database;
-
 
 mod cli;
 mod env;
@@ -36,16 +35,18 @@ fn main() {
                 println!("viewing file {}", file_path);
             } else if let Some(Command::Dir { ref directory }) = cli.command {
                 println!("viewing files in directory {}", directory);
-            } else if let Some(Command::Initialize) = cli.command { 
-                if ! file_exists(&config.database_file) {
+            } else if let Some(Command::Initialize) = cli.command {
+                if !file_exists(&config.database_file) {
                     println!("creating new database file {}", config.database_file);
                     match Database::from_connection(&config.database_file, true) {
                         Ok(database) => match database.rusqlite_create_schema() {
-                            Ok(_) => { exit(0); },
+                            Ok(_) => {
+                                exit(0);
+                            }
                             Err(err) => {
                                 eprintln!("{}", err);
                                 exit(1)
-                            },
+                            }
                         },
                         Err(err) => {
                             eprintln!("{}", err);

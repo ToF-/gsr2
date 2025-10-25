@@ -1,10 +1,10 @@
-use crate::model::selection::Selection;
-use crate::model::image_data::datetime_from_time_stamp;
 use crate::file::paths::{file_name_from, thumbnail_name_from};
 use crate::model::image_data::ImageData;
+use crate::model::image_data::datetime_from_time_stamp;
 use crate::model::rank::Rank;
-use std::io::Result;
+use crate::model::selection::Selection;
 use crate::model::tags::{Tags, empty};
+use std::io::Result;
 
 #[derive(Debug, Clone)]
 pub struct Picture {
@@ -30,7 +30,7 @@ impl Picture {
     pub fn new_with_image_data(file_path: &str, image_data: &ImageData) -> Self {
         let mut picture: Picture = Self::new(file_path);
         picture.set_image_data(image_data.clone());
-        picture 
+        picture
     }
 
     pub fn new_with_file_image_data(file_path: &str, label: &str) -> Result<Self> {
@@ -60,7 +60,9 @@ impl Picture {
 
     pub fn modified_time_display(&self) -> String {
         if let Some(image_data) = &self.image_data {
-            datetime_from_time_stamp(image_data.modified_time()).format("%Y-%m-%d %H:%M:%S%.f").to_string()
+            datetime_from_time_stamp(image_data.modified_time())
+                .format("%Y-%m-%d %H:%M:%S%.f")
+                .to_string()
         } else {
             String::from("…/…")
         }
@@ -92,7 +94,7 @@ impl Picture {
 
     pub fn label_sort_key(&self) -> String {
         if let Some(image_data) = &self.image_data {
-            if ! image_data.label().is_empty() {
+            if !image_data.label().is_empty() {
                 image_data.label()
             } else {
                 String::from("~")
@@ -181,7 +183,7 @@ impl Picture {
         } else {
             ImageData::new("")
         };
-        new_image_data.cover = ! new_image_data.cover;
+        new_image_data.cover = !new_image_data.cover;
         self.image_data = Some(new_image_data);
     }
 

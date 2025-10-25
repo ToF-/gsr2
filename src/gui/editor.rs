@@ -1,14 +1,14 @@
-use crate::model::order::Order;
-use crate::model::tags::{Tags, empty, tags_from_str};
-use itertools::Itertools;
 use crate::MainWindow;
 use crate::env::default_values::MAX_LABEL_LENGTH;
 use crate::gui::control::{Control, Controls, default_controls};
 use crate::gui::entry_kind::EntryKind;
 use crate::gui::mode::Mode;
 use crate::gui::view::entry_window::EntryWindow;
+use crate::model::order::Order;
+use crate::model::tags::{Tags, empty, tags_from_str};
 use gdk::Key;
 use gtk::{self, gdk};
+use itertools::Itertools;
 
 #[derive(Clone, Debug)]
 pub struct Editor {
@@ -35,13 +35,20 @@ impl Editor {
         }
     }
 
-    pub fn begin(&mut self, main_window: &MainWindow, entry_kind: EntryKind, choice_opt: Option<Tags>) {
+    pub fn begin(
+        &mut self,
+        main_window: &MainWindow,
+        entry_kind: EntryKind,
+        choice_opt: Option<Tags>,
+    ) {
         let prompt: &str = match entry_kind {
             EntryKind::Label => "Enter a label",
             EntryKind::AddTag => "Enter a new tag to add",
             EntryKind::RemoveTag => "Enter a tag to remove",
             EntryKind::Number => "Enter a number",
-            EntryKind::Order => "Enter a sorting criteria: c)olors d)ate l)abel n)ame p)alette r)andom s)ize v)alue ",
+            EntryKind::Order => {
+                "Enter a sorting criteria: c)olors d)ate l)abel n)ame p)alette r)andom s)ize v)alue "
+            }
             EntryKind::DeleteConfirmation => "Delete these pictures?",
             EntryKind::Find => "Enter a part of the picture file name",
             EntryKind::SetSelection => "Enter tags to define the selection",
@@ -106,12 +113,10 @@ impl Editor {
     pub fn complete(&mut self) {
         let candidates = self.candidates();
         match candidates.len() {
-            0 => {
-                self.refresh_prompt(&self.prompt)
-            },
+            0 => self.refresh_prompt(&self.prompt),
             1 => {
                 let words: Vec<&str> = self.input.split(',').collect();
-                let (last,firsts) = words.split_last().unwrap();
+                let (last, firsts) = words.split_last().unwrap();
                 let candidate = candidates[0].clone();
                 self.input = match firsts.len() {
                     0 => candidate,
@@ -120,30 +125,28 @@ impl Editor {
                 };
                 self.refresh_prompt(&self.prompt);
                 self.refresh_view()
-            },
-            _ => {
-                self.refresh_prompt(
-                    &(self.prompt.clone() + " [ " + &candidates.iter().join(" ") + " ] "))
             }
+            _ => self.refresh_prompt(
+                &(self.prompt.clone() + " [ " + &candidates.iter().join(" ") + " ] "),
+            ),
         }
     }
 
     pub fn candidates(&self) -> Vec<String> {
         let words = self.input.split(',');
         if let Some(last) = words.last() {
-            if ! self.choice.is_empty()
-                && last.len() >= 2 {
-                    let mut result: Vec<String> = vec![];
-                    for candidate in self.choice.clone() {
-                        if candidate.starts_with(&last) {
-                            result.push(candidate)
-                        }
-                    };
-                    result.sort();
-                    result
-                } else {
-                    vec![]
+            if !self.choice.is_empty() && last.len() >= 2 {
+                let mut result: Vec<String> = vec![];
+                for candidate in self.choice.clone() {
+                    if candidate.starts_with(&last) {
+                        result.push(candidate)
+                    }
                 }
+                result.sort();
+                result
+            } else {
+                vec![]
+            }
         } else {
             vec![]
         }
@@ -168,11 +171,13 @@ impl Editor {
         let ch_is_ok = match self.entry_kind {
             EntryKind::Number => ch.is_ascii_digit(),
             EntryKind::DeleteConfirmation => matches!(ch, 'e' | 'n' | 'o' | 's' | 'y'),
-            EntryKind::Label | EntryKind::AddTag | EntryKind:: RemoveTag | EntryKind:: Find => matches!(ch,
-                'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' '),
+            EntryKind::Label | EntryKind::AddTag | EntryKind::RemoveTag | EntryKind::Find => {
+                matches!(ch,
+                'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' ')
+            }
             EntryKind::SetSelection | EntryKind::SetRestriction => matches!(ch,
                 'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' ' | ',' ),
-            EntryKind::Order => matches!(ch, 'c' | 'd' | 'p' |  'l' |  'n' | 'r' | 's' | 'v' ),
+            EntryKind::Order => matches!(ch, 'c' | 'd' | 'p' | 'l' | 'n' | 'r' | 's' | 'v'),
         };
         if ch_is_ok && self.input.len() < MAX_LABEL_LENGTH {
             self.convert_char(ch);
@@ -186,8 +191,8 @@ impl Editor {
             ' ' if self.entry_kind == EntryKind::SetSelection => self.input.push(','),
             ' ' if self.entry_kind == EntryKind::SetRestriction => self.input.push(','),
             ' ' => self.input.push('-'),
-            c if self.entry_kind == EntryKind::Order => { 
-                let order:Order = match c {
+            c if self.entry_kind == EntryKind::Order => {
+                let order: Order = match c {
                     'c' => Order::ColorCount,
                     'd' => Order::Date,
                     'l' => Order::Label,
@@ -199,9 +204,9 @@ impl Editor {
                     _ => todo!(),
                 };
                 self.input = format!("{}", order);
-            },
-            other if other.is_ascii() => { self.input.push(other.to_lowercase().next().unwrap()) },
-            other => { self.input.push(other) },
+            }
+            other if other.is_ascii() => self.input.push(other.to_lowercase().next().unwrap()),
+            other => self.input.push(other),
         }
     }
 
@@ -349,7 +354,10 @@ mod tests {
     #[test]
     fn possibles_candidates_when_input_is_two_chars_prefixing_a_choice() {
         let mut editor = Editor::new();
-        editor.begin_input(EntryKind::Label, Some(tags_from_str("bar,foo,qux,zone,zoo")));
+        editor.begin_input(
+            EntryKind::Label,
+            Some(tags_from_str("bar,foo,qux,zone,zoo")),
+        );
         editor.append('b');
         editor.append('a');
         assert_eq!(vec!["bar".to_string()], editor.candidates());
@@ -362,8 +370,10 @@ mod tests {
         editor.delete();
         editor.append('z');
         editor.append('o');
-        assert_eq!(vec!["zone".to_string(), "zoo".to_string()], editor.candidates());
-
+        assert_eq!(
+            vec!["zone".to_string(), "zoo".to_string()],
+            editor.candidates()
+        );
     }
     #[test]
     fn no_candidates_when_no_prefix() {
@@ -374,9 +384,13 @@ mod tests {
         assert!(editor.candidates().is_empty())
     }
     #[test]
-    fn possibles_candidates_when_input_is_two_chars_prefixing_a_choice_after_a_first_selection_item() {
+    fn possibles_candidates_when_input_is_two_chars_prefixing_a_choice_after_a_first_selection_item()
+     {
         let mut editor = Editor::new();
-        editor.begin_input(EntryKind::SetSelection, Some(tags_from_str("bar,foo,qux,zone,zoo")));
+        editor.begin_input(
+            EntryKind::SetSelection,
+            Some(tags_from_str("bar,foo,qux,zone,zoo")),
+        );
         editor.append('b');
         editor.append('a');
         assert_eq!("ba", editor.input);

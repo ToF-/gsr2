@@ -9,4 +9,3 @@ pub mod rank;
 pub mod selection;
 pub mod tags;
 pub mod thumbnail;
-

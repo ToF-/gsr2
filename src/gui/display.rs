@@ -1,10 +1,12 @@
-use crate::model::selection::Selection;
-use itertools::Itertools;
-use crate::model::rank::Rank;
-use crate::env::default_values::{COVER_SYMBOL, EXPAND_ON_SYMBOL, FULL_SIZE_ON_SYMBOL, ORDER_SYMBOL};
-use crate::model::order::Order;
+use crate::env::default_values::{
+    COVER_SYMBOL, EXPAND_ON_SYMBOL, FULL_SIZE_ON_SYMBOL, ORDER_SYMBOL,
+};
 use crate::gui::controller::Controller;
+use crate::model::order::Order;
+use crate::model::rank::Rank;
+use crate::model::selection::Selection;
 use crate::model::tags::Tags;
+use itertools::Itertools;
 
 fn expand_display(on: bool) -> String {
     match on {
@@ -35,7 +37,12 @@ fn page_display(controller: &Controller) -> String {
 fn order_display(order: Order) -> String {
     format!("{}{}", ORDER_SYMBOL, order)
 }
-pub fn picture_label_display(label: &str, rank: Rank, cover: bool, with_focus: Option<char>) -> String {
+pub fn picture_label_display(
+    label: &str,
+    rank: Rank,
+    cover: bool,
+    with_focus: Option<char>,
+) -> String {
     format!(
         "{} {} {} {}",
         cover_display(cover),
@@ -46,7 +53,6 @@ pub fn picture_label_display(label: &str, rank: Rank, cover: bool, with_focus: O
         },
         label,
         rank,
-
     )
 }
 
@@ -69,21 +75,20 @@ fn tag_display(tags: Tags) -> String {
     match tags.len() {
         0 => String::from(""),
         _ => {
-            let mut labels: Vec<String>  = tags.into_iter().collect();
+            let mut labels: Vec<String> = tags.into_iter().collect();
             labels.sort();
             format!("| {} |", labels.iter().join(" "))
-        },
+        }
     }
 }
 
 pub fn title_display(controller: &Controller) -> String {
     format!(
         "{} #{} {} {} {} {} {} {} {} {}{} {}",
-        cover_display(
-            match controller.current_picture().image_data() {
-                Some(image_data) => image_data.cover,
-                None => false,
-            }),
+        cover_display(match controller.current_picture().image_data() {
+            Some(image_data) => image_data.cover,
+            None => false,
+        }),
         controller.navigator().position(),
         page_display(controller),
         order_display(controller.gallery().order()),
