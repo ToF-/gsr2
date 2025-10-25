@@ -81,7 +81,7 @@ impl Gallery {
         } else {
             Selection::empty()
         };
-        match database.retrieve_all_pictures(selection, args.cover, None) {
+        match database.retrieve_all_pictures(selection, args.cover, args.at.clone()) {
             Ok(pictures) => {
                 self.pictures = pictures;
                 Ok(self.len())
