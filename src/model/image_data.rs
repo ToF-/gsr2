@@ -135,7 +135,7 @@ mod tests {
 
     #[test]
     fn extract_size_from_a_picture_file() {
-        let file_data = get_data_from_picture_file(NINE_COLORS).unwrap();
+        let file_data = get_data_from_picture_file(&nine_colors_file_path()).unwrap();
         assert_eq!(49746, file_data.0);
     }
 }

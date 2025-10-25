@@ -4,25 +4,34 @@ use image::Rgb;
 use image::RgbImage;
 use std::env::current_dir;
 
-pub const SINGLE_DOT: &str = "testdata/single_dot.png";
-pub const NINE_COLORS: &str = "testdata/nine_colors.png";
-pub const WHITE_SQUARE: &str = "testdata/white_square.png";
-pub const LARGE_PICTURE: &str = "testdata/large_picture.png";
+pub const TEST_DATA_DIR: &str = "testdata";
+pub const SINGLE_DOT: &str = "single_dot.png";
+pub const NINE_COLORS: &str = "nine_colors.png";
+pub const WHITE_SQUARE: &str = "white_square.png";
+pub const LARGE_PICTURE: &str = "large_picture.png";
+
+fn current_directory() -> String {
+    current_dir().unwrap().display().to_string()
+}
+
+pub fn test_directory() -> String {
+    current_directory() + "/" + TEST_DATA_DIR
+}
 
 pub fn nine_colors_file_path() -> String {
-    current_dir().unwrap().display().to_string() + "/" + NINE_COLORS
+    current_directory() + "/" + TEST_DATA_DIR + "/" + NINE_COLORS
 }
 
 pub fn single_dot_file_path() -> String {
-    current_dir().unwrap().display().to_string() + "/" + SINGLE_DOT
+    current_directory() + "/" + TEST_DATA_DIR + "/" + SINGLE_DOT
 }
 
 pub fn large_picture_file_path() -> String {
-    current_dir().unwrap().display().to_string() + "/" + LARGE_PICTURE
+    current_directory() + "/" + TEST_DATA_DIR + "/" + LARGE_PICTURE
 }
 
 pub fn white_square_file_path() -> String {
-    current_dir().unwrap().display().to_string() + "/" + WHITE_SQUARE
+    current_directory() + "/" + TEST_DATA_DIR + "/" + WHITE_SQUARE
 }
 
 pub fn large_picture() -> DynamicImage {

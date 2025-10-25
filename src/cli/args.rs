@@ -147,10 +147,11 @@ mod tests {
     }
     #[test]
     fn command_line_interface_with_command_file_with_adequate_argument() {
-        let args = vec!["gsr", "file", SINGLE_DOT];
+        let single_dot = single_dot_file_path();
+        let args = vec!["gsr", "file", &single_dot];
         let args = Args::parse_and_check(Some(args), &config()).unwrap();
         if let Some(Command::File { ref file_path }) = args.command {
-            assert_eq!(SINGLE_DOT, file_path);
+            assert_eq!(&single_dot_file_path(), file_path);
         } else {
             assert!(false)
         }

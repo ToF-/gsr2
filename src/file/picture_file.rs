@@ -1,6 +1,7 @@
 use crate::env::default_values::THUMB_SUFFIX;
 use crate::file::Database;
 use crate::file::paths::check_collectable;
+use crate::file::paths::thumbnail_name_from;
 use crate::file::paths::thumbnail_names_from;
 use crate::file::paths::{check_path, check_path_is_a_jpg_or_png_file, check_picture_file};
 use crate::file::paths::{check_path_exists, file_exists};
@@ -14,7 +15,8 @@ use crate::model::rank::Rank;
 use crate::model::thumbnail::create_thumbnail_file;
 use std::collections::HashSet;
 use std::fs;
-use std::fs::remove_file;
+use std::fs::{copy, remove_file};
+use std::io::Error;
 use std::io::Error as IOError;
 use std::io::Result as IOResult;
 use std::path::Path;
@@ -167,17 +169,44 @@ pub fn get_data_from_picture_file(file_path: &str) -> IOResult<PictureFileData> 
     }
 }
 
-// target must be absolute or home_dir prefixed, and exist
-// look for file_path (as stored) in the database where parent = source (as stored)
-// copy file_path picture file (as retrieved) to target (as retrievd) + file_name
-// copy file_pathTHUMB* to target + file_name THUMB* for all sizes if they exists
-// insert new picture and tags in database with target (as stored) + file_name
-// delete picture and tags for file_path (as stored) in the database
+fn move_file(source: &str, target: &str) {
+    if file_exists(source) {
+        copy(PathBuf::from(source), PathBuf::from(target));
+        remove_file(PathBuf::from(source));
+    }
+}
+
 #[allow(dead_code)]
-pub fn move_picture_files(source: &str, target: &str) -> IOResult<usize> {
-    check_path_exists(&PathBuf::from(source)).and_then(|source_path| {
-        check_path_exists(&PathBuf::from(target))
-            .and_then(|path| check_collectable(path).and_then(|target_path| Ok(0)))
+pub fn move_picture_files(file_path: &str, target_dir: &str) -> IOResult<u64> {
+    check_path_exists(&PathBuf::from(file_path)).and_then(|source_file_path| {
+        check_path_exists(&PathBuf::from(target_dir)).and_then(|existing_path| {
+            check_collectable(existing_path).and_then(|target_path| {
+                if let Some(file_name) = source_file_path.file_name() {
+                    let target_file_path = target_path.join(file_name);
+                    if *source_file_path != target_file_path {
+                        let source_file_path_name: String = source_file_path.display().to_string();
+                        let target_file_path_name: String = target_file_path.display().to_string();
+
+                        move_file(&source_file_path_name, &target_file_path_name);
+                        move_file(&thumbnail_name_from(&source_file_path_name, 10), &thumbnail_name_from(&target_file_path_name, 10));
+                        move_file(&thumbnail_name_from(&source_file_path_name, 7),  &thumbnail_name_from(&target_file_path_name, 7));
+                        move_file(&thumbnail_name_from(&source_file_path_name, 4),  &thumbnail_name_from(&target_file_path_name, 4));
+                        move_file(&thumbnail_name_from(&source_file_path_name, 2),  &thumbnail_name_from(&target_file_path_name, 2));
+                        Ok(1)
+                    } else {
+                        Err(Error::other(format!(
+                            "same source and target: {}",
+                            source_file_path.display()
+                        )))
+                    }
+                } else {
+                    Err(Error::other(format!(
+                        "can't file file name in {}",
+                        file_path
+                    )))
+                }
+            })
+        })
     })
 }
 
@@ -187,6 +216,8 @@ pub mod test {
 
     use super::*;
     use crate::file::paths::current_directory;
+    use crate::file::paths::thumbnail_name_from;
+    use crate::test_data::*;
     use std::fs::File;
     use std::io::prelude::*;
 
@@ -202,6 +233,18 @@ pub mod test {
         create_dummy_file("testdata/dummy_picTHUMBLarger.png");
         create_dummy_file("testdata/dummy_picTHUMBMedium.png");
         create_dummy_file("testdata/dummy_picTHUMBSmall.png");
+    }
+
+    fn my_file_path() -> String {
+        format!("{}/{}/{}", current_directory(), TEST_DATA_DIR, NINE_COLORS)
+    }
+
+    fn my_test_dir() -> String {
+        format!("{}/{}", current_directory(), TEST_DATA_DIR)
+    }
+
+    fn my_target_dir() -> String {
+        format!("{}/{}/subdir", current_directory(), TEST_DATA_DIR)
     }
 
     pub fn get_palette_from_picture_file(file_path: &str) -> IOResult<Palette> {
@@ -230,32 +273,49 @@ pub mod test {
 
     #[test]
     fn moving_picture_files_to_a_directory_error_wrong_target() {
-        let source_dir = format!("{}/testdata", current_directory());
-        let target_dir = format!("{}/testdata/foo", current_directory());
-        let result = move_picture_files(&source_dir, &target_dir);
+        let file_path = my_file_path();
+        let target_dir = String::from("./test");
+        let result = move_picture_files(&file_path, &target_dir);
         assert!(result.is_err());
     }
 
     #[test]
     fn moving_picture_files_to_a_directory_error_wrong_source() {
-        let source_dir = format!("{}/foo", current_directory());
-        let target_dir = format!("{}/testdata/subdir", current_directory());
-        let result = move_picture_files(&source_dir, &target_dir);
+        let file_path = String::from("a_file.jpg");
+        let target_dir = my_target_dir();
+        let result = move_picture_files(&file_path, &target_dir);
         assert!(result.is_err());
     }
 
     #[test]
     fn moving_picture_files_to_a_directory_error_not_absolute_target() {
-        let source_dir = format!("{}/testdata", current_directory());
-        let target_dir = "testdata/subdir";
-        let result = move_picture_files(&source_dir, &target_dir);
+        let file_path = my_file_path();
+        let target_dir = String::from("./testdata/subdir");
+        let result = move_picture_files(&file_path, &target_dir);
         assert!(result.is_err());
     }
+    #[test]
+    fn moving_picture_files_to_a_directory_error_same_source_and_target() {
+        let file_path = my_file_path();
+        let target_dir = test_directory();
+        let result = move_picture_files(&file_path, &target_dir);
+        assert!(result.is_err());
+    }
+    #[test]
     fn moving_picture_files_to_a_directory() {
-        let source_dir = format!("{}/testdata", current_directory());
-        let target_dir = format!("{}/testdata/subdir", current_directory());
-        let result = move_picture_files(&source_dir, &target_dir);
-
+        let file_path = my_file_path();
+        let target_dir = my_target_dir();
+        let test_dir = my_test_dir();
+        let target_file_path = format!("{}/{}", target_dir, NINE_COLORS);
+        let result = move_picture_files(&file_path, &target_dir);
         assert!(result.is_ok());
+        assert!(file_exists(&target_file_path));
+        assert!(!file_exists(&file_path));
+        assert!(file_exists(&thumbnail_name_from(&target_file_path, 10)));
+        assert!(file_exists(&thumbnail_name_from(&target_file_path, 7)));
+        assert!(file_exists(&thumbnail_name_from(&target_file_path, 4)));
+        assert!(file_exists(&thumbnail_name_from(&target_file_path, 2)));
+
+        move_picture_files(&target_file_path, &test_dir);
     }
 }

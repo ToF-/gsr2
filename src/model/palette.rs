@@ -91,28 +91,32 @@ fn color_to_u32(color: &Color) -> u32 {
 mod tests {
     use super::*;
     use crate::env::default_values::MAX_PALETTE_COLORS;
-    use crate::test_data::{NINE_COLORS, SINGLE_DOT};
+    use crate::test_data::*;
     use palette_extract::Color;
 
     #[test]
     fn counting_the_numbers_of_distinct_colors_in_an_image() {
-        let image = image::open(SINGLE_DOT).expect(&format!("can't load {}", SINGLE_DOT));
+        let image = image::open(single_dot_file_path())
+            .expect(&format!("can't load {}", single_dot_file_path()));
         let palette = Palette::from(&image);
         assert_eq!(2, palette.count());
-        let image = image::open(NINE_COLORS).expect(&format!("can't load {}", SINGLE_DOT));
+        let image = image::open(nine_colors_file_path())
+            .expect(&format!("can't load {}", single_dot_file_path()));
         let palette = Palette::from(&image);
         assert_eq!(10, palette.count())
     }
 
     #[test]
     fn extracting_a_palette_from_an_image() {
-        let image = image::open(SINGLE_DOT).expect(&format!("can't load {}", SINGLE_DOT));
+        let image = image::open(single_dot_file_path())
+            .expect(&format!("can't load {}", single_dot_file_path()));
         let palette = Palette::from(&image);
         assert_eq!(8, palette.sample().len());
     }
     #[test]
     fn converting_palette_sample_to_blob() {
-        let image = image::open(SINGLE_DOT).expect(&format!("can't load {}", SINGLE_DOT));
+        let image = image::open(single_dot_file_path())
+            .expect(&format!("can't load {}", single_dot_file_path()));
         let palette = Palette::from(&image);
         let expected: Vec<u8> = vec![
             8, 4, 4, 4, 8, 4, 4, 8, 4, 4, 8, 4, 4, 64, 4, 132, 64, 132, 128, 68, 4, 4, 252, 252,
@@ -122,7 +126,8 @@ mod tests {
     }
     #[test]
     fn converting_blob_to_palette_sample() {
-        let image = image::open(SINGLE_DOT).expect(&format!("can't load {}", SINGLE_DOT));
+        let image = image::open(single_dot_file_path())
+            .expect(&format!("can't load {}", single_dot_file_path()));
         let palette = Palette::from(&image);
         let mut other = Palette::from(&image);
         other.set_sample_from_array([

@@ -203,25 +203,25 @@ mod tests {
     fn loading_from_a_directory_collect_all_the_picture_files_from_that_directory() {
         let mut gallery = Gallery::new();
         gallery
-            .load_from_directory("./testdata/")
+            .load_from_directory(&test_directory())
             .expect("can't load from directory");
         gallery.sort_by(Order::Name);
         gallery.print();
         assert_eq!(4, gallery.len());
         assert_eq!(
-            String::from("./testdata/large_picture.png"),
+            String::from(&large_picture_file_path()),
             gallery.picture(0).file_path()
         );
         assert_eq!(
-            String::from("./testdata/nine_colors.png"),
+            String::from(&nine_colors_file_path()),
             gallery.picture(1).file_path()
         );
         assert_eq!(
-            String::from("./testdata/single_dot.png"),
+            String::from(&single_dot_file_path()),
             gallery.picture(2).file_path()
         );
         assert_eq!(
-            String::from("./testdata/white_square.png"),
+            String::from(white_square_file_path()),
             gallery.picture(3).file_path()
         );
     }
@@ -230,7 +230,7 @@ mod tests {
     fn loading_from_a_single_file_path_collect_that_single_picture_file() {
         let mut gallery = Gallery::new();
         gallery
-            .load_from_file_path(NINE_COLORS)
+            .load_from_file_path(&nine_colors_file_path())
             .expect("can't load the file");
         assert_eq!(1, gallery.len());
     }
@@ -248,7 +248,7 @@ mod tests {
     fn sort_and_compare_lists() -> bool {
         let mut gallery = Gallery::new();
         gallery
-            .load_from_directory("./testdata/")
+            .load_from_directory(&test_directory())
             .expect("can't load from directory");
         gallery.sort_by(Order::Name);
         let list_by_name: Vec<String> = Vec::from(gallery.pictures.clone())
@@ -285,10 +285,7 @@ mod tests {
             .load_from_database(&database, &my_args())
             .expect("can't load from database");
         gallery.sort_by(Order::Name);
-        assert_eq!(
-            current_directory() + "/" + LARGE_PICTURE,
-            gallery.picture(0).file_path()
-        );
+        assert_eq!(large_picture_file_path(), gallery.picture(0).file_path());
     }
     #[test]
     fn finding_a_picture_by_file_path() {
@@ -297,11 +294,7 @@ mod tests {
         gallery
             .load_from_database(&database, &my_args())
             .expect("can't load from database");
-        assert!(
-            gallery
-                .find_file_path(&(current_directory() + "/" + NINE_COLORS))
-                .is_some()
-        )
+        assert!(gallery.find_file_path(&nine_colors_file_path()).is_some())
     }
     #[test]
     fn changing_a_picture_by_its_index() {
