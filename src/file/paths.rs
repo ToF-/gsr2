@@ -7,7 +7,7 @@ use std::env::current_dir;
 use std::env::home_dir;
 use std::ffi::OsStr;
 use std::io::{Error, ErrorKind, Result};
-use std::path::{Path,PathBuf};
+use std::path::{Path, PathBuf};
 
 pub fn current_directory() -> String {
     current_dir().unwrap().display().to_string()

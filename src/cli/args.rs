@@ -27,7 +27,7 @@ pub struct Args {
     #[command(subcommand)]
     pub command: Option<Command>,
 
-    /// select only picture data for pictures present on <DIRECTORY> 
+    /// select only picture data for pictures present on <DIRECTORY>
     #[arg(long, value_name = "DIRECTORY")]
     pub at: Option<String>,
 

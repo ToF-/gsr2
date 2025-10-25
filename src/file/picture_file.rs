@@ -251,11 +251,11 @@ pub mod test {
         let result = move_picture_files(&source_dir, &target_dir);
         assert!(result.is_err());
     }
-    // #[test]
     fn moving_picture_files_to_a_directory() {
         let source_dir = format!("{}/testdata", current_directory());
         let target_dir = format!("{}/testdata/subdir", current_directory());
         let result = move_picture_files(&source_dir, &target_dir);
+
         assert!(result.is_ok());
     }
 }

@@ -41,7 +41,6 @@ impl Picture {
             };
             let mut picture: Picture = Self::new(file_path);
             picture.set_image_data(new_image_data);
-            println!("{:?}", picture);
             Ok(picture)
         })
     }

@@ -85,8 +85,9 @@ impl Database {
             Some(data) => data,
             None => ImageData::new(""),
         };
-        self.connection().execute(
-            "INSERT INTO Picture (        \n\
+        self.connection()
+            .execute(
+                "INSERT INTO Picture (        \n\
              FilePath,                    \n\
              Label,                       \n\
              FileSize,                    \n\
@@ -96,17 +97,35 @@ impl Database {
              ColorCount,                  \n\
              Cover)                       \n\
              VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8);",
-            params![
-                file_path_as_stored(&picture.file_path()),
-                image_data.label(),
-                image_data.size(),
-                image_data.modified_time(),
-                <Rank as Into<i64>>::into(image_data.rank()),
-                image_data.palette().sample_as_array(),
-                image_data.palette.count(),
-                false
-            ],
-        )
+                params![
+                    file_path_as_stored(&picture.file_path()),
+                    image_data.label(),
+                    image_data.size(),
+                    image_data.modified_time(),
+                    <Rank as Into<i64>>::into(image_data.rank()),
+                    image_data.palette().sample_as_array(),
+                    image_data.palette.count(),
+                    image_data.cover(),
+                ],
+            )
+            .and_then(|count| {
+                let mut tag_count = 0;
+                for tag in image_data.tags() {
+                    match self.connection().execute(
+                        "INSERT INTO Tag(         \n\
+                    FilePath,                 \n\
+                    Label)                    \n\
+                    VALUES (?1, ?2);",
+                        params![file_path_as_stored(&picture.file_path()), tag],
+                    ) {
+                        Ok(n) => tag_count += n,
+                        Err(err) => {
+                            eprintln!("{}", err);
+                        }
+                    }
+                }
+                Ok(count + tag_count)
+            })
     }
 
     pub fn rusqlite_update_picture(&self, picture: &Picture) -> SqlResult<usize> {
@@ -173,11 +192,19 @@ impl Database {
     }
 
     pub fn rusqlite_delete_picture_with_file_path(&self, file_path: &str) -> SqlResult<usize> {
-        self.connection().execute(
-            "DELETE FROM Picture        \n\
+        self.connection()
+            .execute(
+                "DELETE FROM Picture        \n\
             WHERE FilePath = ?1;",
-            params![file_path_as_stored(file_path)],
-        )
+                params![file_path_as_stored(file_path)],
+            )
+            .and_then(|count| {
+                self.connection().execute(
+                    "DELETE FROM Tag        \n\
+            WHERE FilePath = ?1;",
+                    params![file_path_as_stored(file_path)],
+                )
+            })
     }
 
     pub fn rusqlite_check_picture_with_file_path(&self, file_path: &str) -> SqlResult<String> {
@@ -243,23 +270,31 @@ impl Database {
 
     const ORDER_FILE_PATH: &str = "ORDER BY FilePath \n";
 
-        // select * from picture where concat(substring(filepath,1,23), substring(filepath,24)) = filepath ;
+    // select * from picture where concat(substring(filepath,1,23), substring(filepath,24)) = filepath ;
     fn select_parent_dir(parent_dir: String) -> String {
         let parent = file_path_as_stored(&parent_dir);
         let file_name_start = parent.len() + 2; // to account for /
-        format!("FilePath like '{}%' AND Instr(Substring(FilePath, {}), '/') = 0", parent, file_name_start)
+        format!(
+            "FilePath like '{}%' AND Instr(Substring(FilePath, {}), '/') = 0",
+            parent, file_name_start
+        )
     }
 
-    pub fn rusqlite_retrieve_all_pictures(&self, cover:bool, parent_opt: Option<String>) -> SqlResult<ImageDataMap> {
-        let sql_query =format!("{} WHERE true AND {} AND {} ORDER BY FilePath",
+    pub fn rusqlite_retrieve_all_pictures(
+        &self,
+        cover: bool,
+        parent_opt: Option<String>,
+    ) -> SqlResult<ImageDataMap> {
+        let sql_query = format!(
+            "{} WHERE true AND {} AND {} ORDER BY FilePath",
             Self::SELECT_STAR_FROM_PICTURE,
             if cover { "Cover = true" } else { "true" },
             if let Some(parent) = parent_opt {
                 &Self::select_parent_dir(parent)
-            } else { 
+            } else {
                 "true"
-            });
-        println!("%%% {}", sql_query);
+            }
+        );
         self.connection()
             .prepare(&sql_query)
             .and_then(|mut statement| {
@@ -313,7 +348,12 @@ impl Database {
             })
     }
 
-    pub fn retrieve_all_pictures(&self, selection: Selection, cover: bool, parent_opt: Option<String>) -> IOResult<Vec<Picture>> {
+    pub fn retrieve_all_pictures(
+        &self,
+        selection: Selection,
+        cover: bool,
+        parent_opt: Option<String>,
+    ) -> IOResult<Vec<Picture>> {
         match self.rusqlite_retrieve_all_pictures(cover, parent_opt) {
             Ok(picture_map) => match self.rusqlite_retrieve_all_tags() {
                 Ok(tag_map) => {
@@ -468,14 +508,15 @@ pub mod tests {
                 .to_vec(),
                 100,
             ),
-            cover: false,
-            tags: HashSet::new(),
+            cover: true,
+            tags: HashSet::from([String::from("foo"), String::from("bar")]),
         };
         picture.set_image_data(image_data.clone());
         assert_eq!(100, picture.image_data().unwrap().palette().count());
         let initial: TimeStamp = picture_file_data.1;
         database.rusqlite_delete_picture_with_file_path(&file_path);
-        assert_eq!(Ok(1), database.rusqlite_insert_picture(&picture));
+
+        assert!(database.rusqlite_insert_picture(&picture).is_ok());
         let result = database.rusqlite_retrieve_picture_with_file_path(&file_path);
         database.rusqlite_delete_picture_with_file_path(&file_path);
         assert!(result.is_ok(), "could not retrieve picture in db");
@@ -489,6 +530,8 @@ pub mod tests {
             100,
             retrieved_picture.image_data().unwrap().palette().count()
         );
+        assert_eq!(true, retrieved_picture.image_data().unwrap().cover());
+        assert_eq!(2, retrieved_picture.image_data().unwrap().tags.len());
     }
 
     #[test]

@@ -84,6 +84,14 @@ impl ImageData {
     pub fn rank(&self) -> Rank {
         self.rank
     }
+
+    pub fn cover(&self) -> bool {
+        self.cover
+    }
+
+    pub fn tags(&self) -> Tags {
+        self.tags.clone()
+    }
 }
 
 #[cfg(test)]
