@@ -200,6 +200,7 @@ counting_the_numbers_of_distinct_colors_in_an_image	/Users/christophethibaut/Cod
 cover	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    pub fn cover(&self) -> bool {$/;"	f
 cover_display	/Users/christophethibaut/Coding/gsr2/src/gui/display.rs	/^fn cover_display(cover: bool) -> String {$/;"	f
 create_dummy_file	/Users/christophethibaut/Coding/gsr2/src/file/picture_file.rs	/^    fn create_dummy_file(file_path: &str) {$/;"	f
+create_dummy_files	/Users/christophethibaut/Coding/gsr2/src/file/picture_file.rs	/^    fn create_dummy_files() {$/;"	f
 create_missing_thumbnails	/Users/christophethibaut/Coding/gsr2/src/file/picture_file.rs	/^pub fn create_missing_thumbnails(gallery: &Gallery, pictures_per_row: usize) {$/;"	f
 create_thumbnail_file	/Users/christophethibaut/Coding/gsr2/src/model/thumbnail.rs	/^pub fn create_thumbnail_file($/;"	f
 current_directory	/Users/christophethibaut/Coding/gsr2/src/file/paths.rs	/^pub fn current_directory() -> String {$/;"	f
@@ -346,10 +347,10 @@ modified_time	/Users/christophethibaut/Coding/gsr2/src/model/image_data.rs	/^   
 modified_time_display	/Users/christophethibaut/Coding/gsr2/src/model/picture.rs	/^    pub fn modified_time_display(&self) -> String {$/;"	f
 move_end	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn move_end(&mut self) {$/;"	f
 move_first	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn move_first(&mut self) {$/;"	f
-move_from_source_to_target	/Users/christophethibaut/Coding/gsr2/src/file/picture_file.rs	/^pub fn move_from_source_to_target(source: &str, target: &str) -> IOResult<usize> {$/;"	f
 move_last	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn move_last(&mut self) {$/;"	f
 move_next	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn move_next(&mut self) {$/;"	f
 move_next_page	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn move_next_page(&mut self) {$/;"	f
+move_picture_files	/Users/christophethibaut/Coding/gsr2/src/file/picture_file.rs	/^pub fn move_picture_files(source: &str, target: &str) -> IOResult<usize> {$/;"	f
 move_prev	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn move_prev(&mut self) {$/;"	f
 move_prev_page	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn move_prev_page(&mut self) {$/;"	f
 move_random	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn move_random(&mut self) {$/;"	f
@@ -357,6 +358,10 @@ move_start	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub 
 move_towards	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    pub fn move_towards(&mut self, direction: Direction) {$/;"	f
 move_towards_index	/Users/christophethibaut/Coding/gsr2/src/gui/controller.rs	/^    pub fn move_towards_index(&mut self, index: usize) {$/;"	f
 moving_down_moves_to_entry_one_row_further	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn moving_down_moves_to_entry_one_row_further() {$/;"	f
+moving_picture_files_to_a_directory	/Users/christophethibaut/Coding/gsr2/src/file/picture_file.rs	/^    fn moving_picture_files_to_a_directory() {$/;"	f
+moving_picture_files_to_a_directory_error_not_absolute_target	/Users/christophethibaut/Coding/gsr2/src/file/picture_file.rs	/^    fn moving_picture_files_to_a_directory_error_not_absolute_target() {$/;"	f
+moving_picture_files_to_a_directory_error_wrong_source	/Users/christophethibaut/Coding/gsr2/src/file/picture_file.rs	/^    fn moving_picture_files_to_a_directory_error_wrong_source() {$/;"	f
+moving_picture_files_to_a_directory_error_wrong_target	/Users/christophethibaut/Coding/gsr2/src/file/picture_file.rs	/^    fn moving_picture_files_to_a_directory_error_wrong_target() {$/;"	f
 moving_to_a_specific_index	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn moving_to_a_specific_index() {$/;"	f
 moving_to_beginning_of_page	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn moving_to_beginning_of_page() {$/;"	f
 moving_to_end_of_page	/Users/christophethibaut/Coding/gsr2/src/gui/navigator.rs	/^    fn moving_to_end_of_page() {$/;"	f
