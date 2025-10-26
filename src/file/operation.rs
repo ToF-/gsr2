@@ -13,15 +13,21 @@ pub fn delete_operation(file_path: &str) -> Operation {
     Operation::Delete(PathBuf::from(file_path_as_retrieved(file_path)))
 }
 
-pub fn copy_operation(file_path: &str, target_dir: &str) -> Operation {
+fn target_file_path(file_path: &str, target_dir: &str) -> PathBuf {
     let mut target_path = PathBuf::from(file_path_as_retrieved(target_dir));
     let source_path = PathBuf::from(file_path_as_retrieved(file_path));
     if let Some(file_name) = source_path.file_name() {
         target_path.push(file_name);
-        Operation::Copy(source_path, target_path)
     } else {
         panic!("{} has no file_name", file_path)
-    }
+    };
+    target_path
+}
+
+pub fn copy_operation(file_path: &str, target_dir: &str) -> Operation {
+    let source_path = PathBuf::from(file_path_as_retrieved(file_path));
+    let target_path = target_file_path(file_path, target_dir);
+    Operation::Copy(source_path, target_path)
 }
 
 pub fn delete_operations(file_path: &str) -> Vec<Operation> {
@@ -34,18 +40,6 @@ pub fn delete_operations(file_path: &str) -> Vec<Operation> {
         }
     };
     operations.push(delete_operation(file_path));
-    operations
-}
-
-pub fn move_picture(file_path: &str, target_dir: &str) -> Vec<Operation> {
-    let mut operations: Vec<Operation> = vec![];
-    let mut moves = move_operations(file_path, target_dir);
-    operations.append(&mut moves);
-    if let Operation::Copy(source_path, target_path) = operations[10].clone() {
-        let source = source_path.into_os_string().to_str().unwrap().clone();
-        let target = target_path.into_os_string().to_str().unwrap().clone();
-        operations.push(Operation::MovePictureData(source.to_string(), target.to_string()))
-    };
     operations
 }
 
@@ -70,6 +64,20 @@ pub fn move_operations(file_path: &str, target_dir: &str) -> Vec<Operation> {
     operations.append(&mut deletions);
     operations
 }
+pub fn move_picture(file_path: &str, target_dir: &str) -> Vec<Operation> {
+    let mut operations: Vec<Operation> = vec![];
+    let mut moves = move_operations(file_path, target_dir);
+    operations.append(&mut moves);
+    let source_path = file_path_as_stored(file_path);
+    let target_path = target_file_path(file_path, target_dir);
+    operations.push(
+        Operation::MovePictureData(
+            file_path_as_stored(file_path),
+            target_path.into_os_string().to_str().unwrap().to_string())
+    );
+    operations
+}
+
 
 #[cfg(test)]
 mod test {
