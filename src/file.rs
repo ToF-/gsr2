@@ -2,9 +2,9 @@ use crate::file::database::Database;
 use crate::file::picture_file::delete_picture_files;
 use std::io::Result as IOResult;
 pub mod database;
+mod operation;
 pub mod paths;
 pub mod picture_file;
-mod operation;
 
 pub fn delete_picture(database: &Database, file_path: &str) -> IOResult<()> {
     match database.rusqlite_delete_picture_with_file_path(file_path) {

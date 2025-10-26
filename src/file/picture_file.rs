@@ -188,10 +188,22 @@ pub fn move_picture_files(file_path: &str, target_dir: &str) -> IOResult<u64> {
                         let target_file_path_name: String = target_file_path.display().to_string();
 
                         move_file(&source_file_path_name, &target_file_path_name);
-                        move_file(&thumbnail_name_from(&source_file_path_name, 10), &thumbnail_name_from(&target_file_path_name, 10));
-                        move_file(&thumbnail_name_from(&source_file_path_name, 7),  &thumbnail_name_from(&target_file_path_name, 7));
-                        move_file(&thumbnail_name_from(&source_file_path_name, 4),  &thumbnail_name_from(&target_file_path_name, 4));
-                        move_file(&thumbnail_name_from(&source_file_path_name, 2),  &thumbnail_name_from(&target_file_path_name, 2));
+                        move_file(
+                            &thumbnail_name_from(&source_file_path_name, 10),
+                            &thumbnail_name_from(&target_file_path_name, 10),
+                        );
+                        move_file(
+                            &thumbnail_name_from(&source_file_path_name, 7),
+                            &thumbnail_name_from(&target_file_path_name, 7),
+                        );
+                        move_file(
+                            &thumbnail_name_from(&source_file_path_name, 4),
+                            &thumbnail_name_from(&target_file_path_name, 4),
+                        );
+                        move_file(
+                            &thumbnail_name_from(&source_file_path_name, 2),
+                            &thumbnail_name_from(&target_file_path_name, 2),
+                        );
                         Ok(1)
                     } else {
                         Err(Error::other(format!(
