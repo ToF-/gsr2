@@ -48,6 +48,15 @@ pub fn copy_operations(file_path: &str, target_dir: &str) -> Vec<Operation> {
     operations
 }
 
+pub fn move_operations(file_path: &str, target_dir: &str) -> Vec<Operation> {
+    let mut operations: Vec<Operation> = vec![];
+    let mut copies = copy_operations(file_path, target_dir);
+    let mut deletions = delete_operations(file_path);
+    operations.append(&mut copies);
+    operations.append(&mut deletions);
+    operations
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -139,7 +148,7 @@ mod test {
     }
 
     #[test]
-    fn batch_copy_operation_for_thumbnails_if_exsiting() {
+    fn batch_copy_operation_for_thumbnails_if_existing() {
         let file_path_to_copy = format!("{}/{}/{}", current_directory(), TEST_DATA_DIR, "my_file.foo");
         let other_file_path_to_copy = format!("{}/{}/{}", current_directory(), TEST_DATA_DIR, "my_fileTHUMBLarge.foo");
         let target_dir = format!("{}/{}/subdir", current_directory(), TEST_DATA_DIR);
@@ -157,4 +166,30 @@ mod test {
         remove_dummy_file(&other_file_path_to_copy);
     }
 
+    #[test]
+    fn move_operation_for_thumbnails_if_existing() {
+        let file_path_to_move = format!("{}/{}/{}", current_directory(), TEST_DATA_DIR, "my_file.foo");
+        let other_file_path_to_move = format!("{}/{}/{}", current_directory(), TEST_DATA_DIR, "my_fileTHUMBLarge.foo");
+        let target_dir = format!("{}/{}/subdir", current_directory(), TEST_DATA_DIR);
+        create_dummy_file(&file_path_to_move);
+        create_dummy_file(&other_file_path_to_move);
+        let operations = move_operations(&file_path_to_move, &target_dir);
+        assert_eq!(4, operations.len());
+        assert_eq!(
+            copy_operation(&thumbnail_name_from(&file_path_to_move, 4), &target_dir),
+            operations[0]);
+        assert_eq!(
+            copy_operation(&file_path_to_move, &target_dir),
+            operations[1]);
+        assert_eq!(
+            delete_operation(&thumbnail_name_from(&file_path_to_move, 4)),
+            operations[2]
+        );
+        assert_eq!(
+            delete_operation(&file_path_to_move),
+            operations[3]
+        );
+        remove_dummy_file(&file_path_to_move);
+        remove_dummy_file(&other_file_path_to_move);
+    }
 }
