@@ -21,6 +21,14 @@ impl Picture {
             image_data: None,
         }
     }
+    pub fn copy(original: &Self, file_path: &str) -> Self {
+        let mut picture: Picture = Self::new(file_path);
+        if let Some(image_data) = &original.image_data {
+            picture.set_image_data(image_data.clone())
+        };
+        picture
+    }
+
     pub fn new_with_label(file_path: &str, label: &str) -> Self {
         let mut picture: Picture = Self::new(file_path);
         picture.set_image_data(ImageData::new(label));
@@ -215,6 +223,29 @@ mod tests {
             picture.file_path()
         )
     }
+    #[test] 
+    fn mofiying_a_picture() {
+        let mut picture = Picture::new("testdata/nine_colors.png");
+        picture.set_label("foo");
+        picture.set_rank(Rank::ThreeStars);
+        assert_eq!(String::from("foo"), picture.label());
+        assert_eq!(Rank::ThreeStars, picture.rank());
+        assert!(picture.tags().is_empty());
+        picture.add_tag("foo");
+        assert!(picture.tags().contains("foo"));
+    }
+    #[test]
+    fn copying_a_picture_with_a_different_file_path() {
+        let mut original = Picture::new("testdata/nine_colors.png");
+        original.set_label("foo");
+        original.set_rank(Rank::ThreeStars);
+        original.add_tag("bar");
+        let picture = Picture::copy(&original, "testdata/other.png");
+        assert_eq!(String::from("foo"), picture.label());
+        assert_eq!(Rank::ThreeStars, picture.rank());
+        assert!(picture.tags().contains("bar"));
+    }
+
 
     #[test]
     fn a_thumbnail_picture_has_the_name_of_the_original_picture_with_thumb_and_size_suffix() {
