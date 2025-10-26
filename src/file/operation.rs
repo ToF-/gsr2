@@ -30,8 +30,21 @@ pub fn delete_operations(file_path: &str) -> Vec<Operation> {
         if file_exists(&file_path_to_delete) {
             operations.push(delete_operation(&file_path_to_delete))
         }
-    }
+    };
     operations.push(delete_operation(file_path));
+    operations
+}
+
+pub fn copy_operations(file_path: &str, target_dir: &str) -> Vec<Operation> {
+    let mut operations: Vec<Operation> = vec![];
+    for size in [10, 7, 4, 2] {
+        let as_retrieved = file_path_as_retrieved(file_path);
+        let file_path_to_copy =thumbnail_name_from(&as_retrieved, size);
+        if file_exists(&file_path_to_copy) {
+            operations.push(copy_operation(&file_path_to_copy, target_dir))
+        }
+    };
+    operations.push(copy_operation(file_path, target_dir));
     operations
 }
 
@@ -85,6 +98,14 @@ mod test {
         create_dummy_file(&other_file_path_to_delete);
         let operations = delete_operations(&file_path_to_delete);
         assert_eq!(2, operations.len());
+        assert_eq!(
+            delete_operation(&thumbnail_name_from(&file_path_to_delete, 4)),
+            operations[0]
+        );
+        assert_eq!(
+            delete_operation(&file_path_to_delete),
+            operations[1]
+        );
         remove_dummy_file(&file_path_to_delete);
         remove_dummy_file(&other_file_path_to_delete);
     }
@@ -116,4 +137,24 @@ mod test {
             operations[4]
         );
     }
+
+    #[test]
+    fn batch_copy_operation_for_thumbnails_if_exsiting() {
+        let file_path_to_copy = format!("{}/{}/{}", current_directory(), TEST_DATA_DIR, "my_file.foo");
+        let other_file_path_to_copy = format!("{}/{}/{}", current_directory(), TEST_DATA_DIR, "my_fileTHUMBLarge.foo");
+        let target_dir = format!("{}/{}/subdir", current_directory(), TEST_DATA_DIR);
+        create_dummy_file(&file_path_to_copy);
+        create_dummy_file(&other_file_path_to_copy);
+        let operations = copy_operations(&file_path_to_copy, &target_dir);
+        assert_eq!(2, operations.len());
+        assert_eq!(
+            copy_operation(&thumbnail_name_from(&file_path_to_copy, 4), &target_dir),
+            operations[0]);
+        assert_eq!(
+            copy_operation(&file_path_to_copy, &target_dir),
+            operations[1]);
+        remove_dummy_file(&file_path_to_copy);
+        remove_dummy_file(&other_file_path_to_copy);
+    }
+
 }
