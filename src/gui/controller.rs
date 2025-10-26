@@ -364,7 +364,7 @@ impl Controller {
         picture.set_label(label);
         self.gallery.set_picture(index, picture.clone());
         if self.args.on_database() {
-            match self.database.rusqlite_update_picture(&picture) {
+            match self.database.update_picture(&picture) {
                 Ok(_) => {}
                 Err(err) => {
                     println!("{}", err);
@@ -408,7 +408,7 @@ impl Controller {
         picture.add_tag(label);
         self.gallery.set_picture(index, picture.clone());
         if self.args.on_database() {
-            match self.database.rusqlite_update_picture(&picture) {
+            match self.database.update_picture(&picture) {
                 Ok(_) => {}
                 Err(err) => {
                     println!("{}", err);
@@ -422,7 +422,7 @@ impl Controller {
         picture.remove_tag(label);
         self.gallery.set_picture(index, picture.clone());
         if self.args.on_database() {
-            match self.database.rusqlite_update_picture(&picture) {
+            match self.database.update_picture(&picture) {
                 Ok(_) => {}
                 Err(err) => {
                     println!("{}", err);
@@ -570,7 +570,7 @@ impl Controller {
         let mut picture = self.gallery.picture(index);
         picture.toggle_cover();
         self.gallery.set_picture(index, picture.clone());
-        match self.database.rusqlite_update_picture(&picture) {
+        match self.database.update_picture(&picture) {
             Ok(_) => {}
             Err(err) => {
                 println!("{}", err);
@@ -657,7 +657,7 @@ impl Controller {
         picture.set_rank(rank);
         self.gallery.set_picture(index, picture.clone());
         if self.args.on_database() {
-            match self.database.rusqlite_update_picture(&picture) {
+            match self.database.update_picture(&picture) {
                 Ok(_) => {}
                 Err(err) => {
                     println!("{}", err);

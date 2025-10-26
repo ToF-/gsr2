@@ -7,7 +7,7 @@ pub mod paths;
 pub mod picture_file;
 
 pub fn delete_picture(database: &Database, file_path: &str) -> IOResult<()> {
-    match database.rusqlite_delete_picture_with_file_path(file_path) {
+    match database.delete_picture_with_file_path(file_path) {
         Ok(_) => match delete_picture_files(file_path) {
             Ok(_) => Ok(()),
             Err(err) => Err(err),

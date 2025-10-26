@@ -32,6 +32,15 @@ impl Database {
         }
     }
 
+    pub fn connection(&self) -> Ref<Connection> {
+        if let Ok(connection) = self.connection_rc.try_borrow() {
+            connection
+        } else {
+            panic!("can't open database connection")
+        }
+    }
+
+
     fn rusqlite_from_connection(connection_string: &str, create: bool) -> SqlResult<Self> {
         if !file_exists(connection_string) && !create {
             return Err(InvalidPath(PathBuf::from(connection_string)));
@@ -42,14 +51,6 @@ impl Database {
                 connection_rc: Rc::new(RefCell::new(connection)),
             }),
             Err(err) => Err(err),
-        }
-    }
-
-    pub fn connection(&self) -> Ref<Connection> {
-        if let Ok(connection) = self.connection_rc.try_borrow() {
-            connection
-        } else {
-            panic!("can't open database connection")
         }
     }
 
@@ -80,7 +81,7 @@ impl Database {
         result
     }
 
-    pub fn rusqlite_insert_picture(&self, picture: &Picture) -> SqlResult<usize> {
+    fn rusqlite_insert_picture(&self, picture: &Picture) -> SqlResult<usize> {
         let image_data = match picture.image_data() {
             Some(data) => data,
             None => ImageData::new(""),
@@ -128,7 +129,7 @@ impl Database {
             })
     }
 
-    pub fn rusqlite_update_picture(&self, picture: &Picture) -> SqlResult<usize> {
+    fn rusqlite_update_picture(&self, picture: &Picture) -> SqlResult<usize> {
         let image_data = match picture.image_data() {
             Some(data) => data,
             None => ImageData::new(""),
@@ -162,6 +163,7 @@ impl Database {
             })
     }
 
+
     fn rusqlite_delete_tags(&self, file_path: &str) -> SqlResult<usize> {
         self.connection().execute(
             "DELETE FROM Tag        \n\
@@ -191,7 +193,7 @@ impl Database {
         Ok(count)
     }
 
-    pub fn rusqlite_delete_picture_with_file_path(&self, file_path: &str) -> SqlResult<usize> {
+    fn rusqlite_delete_picture_with_file_path(&self, file_path: &str) -> SqlResult<usize> {
         self.connection()
             .execute(
                 "DELETE FROM Picture        \n\
@@ -207,6 +209,13 @@ impl Database {
             })
     }
 
+    pub fn delete_picture_with_file_path(&self, file_path: &str) -> IOResult<usize> {
+        match self.rusqlite_delete_picture_with_file_path(file_path) {
+            Ok(n) => Ok(n),
+            Err(err) => Err(std::io::Error::other(err)),
+        }
+    }
+
     pub fn rusqlite_check_picture_with_file_path(&self, file_path: &str) -> SqlResult<String> {
         self.connection().query_one(
             "SELECT                     \n\
@@ -215,68 +224,6 @@ impl Database {
              WHERE FilePath = ?1;",
             params![file_path],
             |row| row.get(0),
-        )
-    }
-
-    #[cfg(test)]
-    pub fn rusqlite_retrieve_picture_with_file_path(&self, file_path: &str) -> SqlResult<Picture> {
-        self.connection()
-            .query_row(
-                "SELECT                     \n\
-             FilePath,                  \n\
-             Label,                     \n\
-             FileSize,                  \n\
-             ModifiedTime,              \n\
-             Rank,                      \n\
-             Sample,                    \n\
-             ColorCount,                \n\
-             Cover                      \n\
-             FROM Picture               \n\
-             WHERE FilePath = ?1;",
-                params![file_path_as_stored(file_path)],
-                Self::rusqlite_row_to_picture,
-            )
-            .and_then(|mut picture| {
-                let connection = self.connection();
-                let mut statement = connection.prepare(
-                    "SELECT                   \n\
-                Label                     \n\
-                FROM Tag                  \n\
-                WHERE FilePath = ?1;",
-                )?;
-                let rows = statement.query_map(params![file_path_as_stored(file_path)], |row| {
-                    Ok(row.get(0).expect("can't get column Label"))
-                })?;
-                for tag in rows {
-                    let label: String = tag.unwrap();
-                    picture.add_tag(&label)
-                }
-                Ok(picture)
-            })
-    }
-
-    const SELECT_STAR_FROM_PICTURE: &str = "SELECT                     \n\
-             FilePath,                  \n\
-             Label,                     \n\
-             FileSize,                  \n\
-             ModifiedTime,              \n\
-             Rank,                      \n\
-             Sample,                    \n\
-             ColorCount,                \n\
-             Cover                      \n\
-             FROM Picture              \n";
-
-    const WHERE_COVER: &str = "WHERE Cover = true \n";
-
-    const ORDER_FILE_PATH: &str = "ORDER BY FilePath \n";
-
-    // select * from picture where concat(substring(filepath,1,23), substring(filepath,24)) = filepath ;
-    fn select_parent_dir(parent_dir: String) -> String {
-        let parent = file_path_as_stored(&parent_dir);
-        let file_name_start = parent.len() + 2; // to account for /
-        format!(
-            "FilePath like '{}%' AND Instr(Substring(FilePath, {}), '/') = 0",
-            parent, file_name_start
         )
     }
 
@@ -346,6 +293,86 @@ impl Database {
                     Ok(map)
                 })
             })
+    }
+
+    fn rusqlite_retrieve_picture_with_file_path(&self, file_path: &str) -> SqlResult<Picture> {
+        self.connection()
+            .query_row(
+                "SELECT                     \n\
+             FilePath,                  \n\
+             Label,                     \n\
+             FileSize,                  \n\
+             ModifiedTime,              \n\
+             Rank,                      \n\
+             Sample,                    \n\
+             ColorCount,                \n\
+             Cover                      \n\
+             FROM Picture               \n\
+             WHERE FilePath = ?1;",
+                params![file_path_as_stored(file_path)],
+                Self::rusqlite_row_to_picture,
+            )
+            .and_then(|mut picture| {
+                let connection = self.connection();
+                let mut statement = connection.prepare(
+                    "SELECT                   \n\
+                Label                     \n\
+                FROM Tag                  \n\
+                WHERE FilePath = ?1;",
+                )?;
+                let rows = statement.query_map(params![file_path_as_stored(file_path)], |row| {
+                    Ok(row.get(0).expect("can't get column Label"))
+                })?;
+                for tag in rows {
+                    let label: String = tag.unwrap();
+                    picture.add_tag(&label)
+                }
+                Ok(picture)
+            })
+    }
+
+    pub fn retrieve_picture_with_file_path(&self, file_path: &str) -> IOResult<Picture> {
+        match self.rusqlite_retrieve_picture_with_file_path(file_path) {
+            Ok(picture) => Ok(picture),
+            Err(err) => Err(std::io::Error::other(err)),
+        }
+    }
+
+    pub fn insert_picture(&self, picture: &Picture) -> IOResult<usize> {
+        match self.rusqlite_insert_picture(picture) {
+            Ok(n) => Ok(n),
+            Err(err) => Err(std::io::Error::other(err)),
+        }
+    }
+    pub fn update_picture(&self, picture: &Picture) -> IOResult<usize> {
+        match self.rusqlite_update_picture(picture) {
+            Ok(n) => Ok(n),
+            Err(err) => Err(std::io::Error::other(err)),
+        }
+    }
+    const SELECT_STAR_FROM_PICTURE: &str = "SELECT                     \n\
+             FilePath,                  \n\
+             Label,                     \n\
+             FileSize,                  \n\
+             ModifiedTime,              \n\
+             Rank,                      \n\
+             Sample,                    \n\
+             ColorCount,                \n\
+             Cover                      \n\
+             FROM Picture              \n";
+
+    const WHERE_COVER: &str = "WHERE Cover = true \n";
+
+    const ORDER_FILE_PATH: &str = "ORDER BY FilePath \n";
+
+    // select * from picture where concat(substring(filepath,1,23), substring(filepath,24)) = filepath ;
+    fn select_parent_dir(parent_dir: String) -> String {
+        let parent = file_path_as_stored(&parent_dir);
+        let file_name_start = parent.len() + 2; // to account for /
+        format!(
+            "FilePath like '{}%' AND Instr(Substring(FilePath, {}), '/') = 0",
+            parent, file_name_start
+        )
     }
 
     pub fn retrieve_all_pictures(
@@ -451,7 +478,7 @@ pub mod tests {
     #[test]
     fn retrieve_all_pictures_ordered_by_file_path() {
         let database = my_db();
-        let status: SqlResult<ImageDataMap> = database.rusqlite_retrieve_all_pictures(false, None);
+        let status = database.rusqlite_retrieve_all_pictures(false, None);
         assert!(status.is_ok());
         let map = status.unwrap();
         assert_eq!(4, map.len());
@@ -514,11 +541,11 @@ pub mod tests {
         picture.set_image_data(image_data.clone());
         assert_eq!(100, picture.image_data().unwrap().palette().count());
         let initial: TimeStamp = picture_file_data.1;
-        database.rusqlite_delete_picture_with_file_path(&file_path);
+        database.delete_picture_with_file_path(&file_path);
 
         assert!(database.rusqlite_insert_picture(&picture).is_ok());
         let result = database.rusqlite_retrieve_picture_with_file_path(&file_path);
-        database.rusqlite_delete_picture_with_file_path(&file_path);
+        database.delete_picture_with_file_path(&file_path);
         assert!(result.is_ok(), "could not retrieve picture in db");
         let retrieved_picture = result.unwrap();
         assert_eq!("testdata/some_pic.jpeg", retrieved_picture.file_path());

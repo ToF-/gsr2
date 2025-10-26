@@ -1,6 +1,10 @@
+use crate::Database;
+use std::fs::remove_file;
+use std::fs::copy;
 use crate::model::picture::Picture;
 use crate::file::paths::{file_exists, file_path_as_retrieved, file_path_as_stored, thumbnail_name_from};
 use std::path::PathBuf;
+use std::io::Result as IOResult;
 
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub enum Operation {
@@ -78,6 +82,40 @@ pub fn move_picture(file_path: &str, target_dir: &str) -> Vec<Operation> {
     operations
 }
 
+fn execute_operation(operation: &Operation, database: &Database) -> IOResult<(usize)> {
+    match operation {
+        Operation::Delete(path) => {
+            match remove_file(path) {
+                Ok(()) => Ok(0),
+                Err(err) => Err(err),
+            }
+        },
+        Operation::Copy(source_path, target_path) => {
+            copy(source_path, target_path).map(|n| n as usize)
+        },
+        Operation::MovePictureData(source_file_path, target_file_path) => {
+            database.retrieve_picture_with_file_path(source_file_path)
+                .and_then(|original| {
+                    let picture = Picture::copy(&original, target_file_path);
+                    database.insert_picture(&picture)
+                        .and_then(|_| {
+                            database.delete_picture_with_file_path(&original.file_path())
+                        })
+                })
+        }
+    }
+}
+pub fn execute(operations: &Vec<Operation>, database: &Database) -> IOResult<()> {
+    for operation in operations {
+        match execute_operation(operation, database) {
+            Ok(_) => {},
+            Err(err) => {
+                eprintln!("{}", err);
+            }
+        };
+    }
+    Ok(())
+}
 
 #[cfg(test)]
 mod test {
@@ -86,6 +124,8 @@ mod test {
     use crate::test_data::*;
     use std::fs::{File, remove_file};
     use std::io::prelude::*;
+    use crate::file::database::tests::my_db;
+
 
 
     fn create_dummy_file(file_path: &str) {
@@ -225,5 +265,17 @@ mod test {
                 file_path_as_stored(&nine_colors_file_path()),
                 format!("{}/{}/subdir/{}", current_directory(), TEST_DATA_DIR, NINE_COLORS)),
                 operations[10]);
+    }
+    fn executing_operation() {
+        let database = my_db();
+        let picture: Picture = Picture::new(&nine_colors_file_path());
+        let target_dir = format!("{}/{}/subdir", current_directory(), TEST_DATA_DIR);
+        let operations = move_picture(&nine_colors_file_path(), &target_dir);
+        execute(&operations, &database);
+        assert!(file_exists(&format!("{}/{}/subdir/{}", current_directory(), TEST_DATA_DIR, NINE_COLORS)));
+        let source_dir = format!("{}/{}", current_directory(), TEST_DATA_DIR);
+        let new_file_path = format!("{}/{}/subdir/{}", current_directory(), TEST_DATA_DIR, NINE_COLORS);
+        let roll_back = move_picture(&new_file_path, &source_dir);
+
     }
 }

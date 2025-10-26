@@ -113,7 +113,7 @@ pub fn collect_data(gallery: &Gallery, database: &Database) -> IOResult<()> {
             }
             Err(_) => {
                 match collect_picture_data(&picture) {
-                    Ok(picture) => match database.rusqlite_insert_picture(&picture) {
+                    Ok(picture) => match database.insert_picture(&picture) {
                         Ok(_) => {
                             println!("{:?}", picture);
                         }
