@@ -1,10 +1,12 @@
-use crate::file::paths::{file_exists, file_path_as_retrieved, thumbnail_name_from};
+use crate::model::picture::Picture;
+use crate::file::paths::{file_exists, file_path_as_retrieved, file_path_as_stored, thumbnail_name_from};
 use std::path::PathBuf;
 
 #[derive(PartialEq, Eq, Debug)]
 pub enum Operation {
     Delete(PathBuf),
     Copy(PathBuf, PathBuf),
+    MovePictureData(String, String),
 }
 
 pub fn delete_operation(file_path: &str) -> Operation {
@@ -32,6 +34,14 @@ pub fn delete_operations(file_path: &str) -> Vec<Operation> {
         }
     };
     operations.push(delete_operation(file_path));
+    operations
+}
+
+pub fn move_picture(file_path: &str, target_dir: &str) -> Vec<Operation> {
+    let mut operations: Vec<Operation> = vec![];
+    let mut moves = move_operations(file_path, target_dir);
+    operations.append(&mut moves);
+    operations.push(Operation::MovePictureData(file_path.to_string(), target_dir.to_string()));
     operations
 }
 
@@ -191,5 +201,17 @@ mod test {
         );
         remove_dummy_file(&file_path_to_move);
         remove_dummy_file(&other_file_path_to_move);
+    }
+
+    #[test]
+    fn moving_a_picture_takes_all_necesassy_operations() {
+        let picture: Picture = Picture::new(&nine_colors_file_path());
+        let target_dir = format!("{}/{}/subdir", current_directory(), TEST_DATA_DIR);
+        let operations = move_picture(&nine_colors_file_path(), &target_dir);
+        assert_eq!(11, operations.len());
+        assert_eq!(Operation::MovePictureData(
+                file_path_as_stored(&nine_colors_file_path()),
+                format!("{}/{}/subdir/{}", current_directory(), TEST_DATA_DIR, NINE_COLORS)),
+                operations[10]);
     }
 }
