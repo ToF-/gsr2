@@ -1,5 +1,5 @@
+use crate::file::paths::{file_exists, file_path_as_retrieved, thumbnail_name_from};
 use std::path::PathBuf;
-use crate::file::paths::file_path_as_retrieved;
 
 #[derive(PartialEq, Eq, Debug)]
 pub enum Operation {
@@ -8,7 +8,7 @@ pub enum Operation {
 }
 
 pub fn delete_operation(file_path: &str) -> Operation {
-        Operation::Delete(PathBuf::from(file_path_as_retrieved(file_path)))
+    Operation::Delete(PathBuf::from(file_path_as_retrieved(file_path)))
 }
 
 pub fn copy_operation(file_path: &str, target_dir: &str) -> Operation {
@@ -22,17 +22,46 @@ pub fn copy_operation(file_path: &str, target_dir: &str) -> Operation {
     }
 }
 
+pub fn delete_operations(file_path: &str) -> Vec<Operation> {
+    let mut operations: Vec<Operation> = vec![];
+    for size in [10, 7, 4, 2] {
+        let as_retrieved = file_path_as_retrieved(file_path);
+        let file_path_to_delete =thumbnail_name_from(&as_retrieved, size);
+        if file_exists(&file_path_to_delete) {
+            operations.push(delete_operation(&file_path_to_delete))
+        }
+    }
+    operations.push(delete_operation(file_path));
+    operations
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
     use crate::file::paths::{current_directory, home_directory};
+    use crate::test_data::*;
+    use std::fs::{File, remove_file};
+    use std::io::prelude::*;
+
+
+    fn create_dummy_file(file_path: &str) {
+        let mut file = File::create(file_path).expect("can't create test file");
+        file.write_all(b"Hello, world!")
+            .expect("can't write to file");
+    }
+
+    fn remove_dummy_file(file_path: &str) {
+        let path = PathBuf::from(file_path);
+        remove_file(path);
+    }
 
     #[test]
     fn delete_operation_from_a_file_path_as_stored_is_on_file_path_as_retrieved() {
         let file_path_as_retrieved = format!("{}/foo/bar.jpg", home_directory());
         assert_eq!(
             Operation::Delete(file_path_as_retrieved.into()),
-            delete_operation("~/foo/bar.jpg"));
+            delete_operation("~/foo/bar.jpg")
+        );
     }
 
     #[test]
@@ -42,8 +71,49 @@ mod test {
         assert_eq!(
             Operation::Copy(
                 source_file_path_as_retrieved.into(),
-                target_file_path_as_retrieved.into()),
-            copy_operation("~/foo/bar.jpg", "~/other"))
+                target_file_path_as_retrieved.into()
+            ),
+            copy_operation("~/foo/bar.jpg", "~/other")
+        )
+    }
+
+    #[test]
+    fn batch_delete_operation_for_thumbnails_if_existing() {
+        let file_path_to_delete = format!("{}/{}/{}", current_directory(), TEST_DATA_DIR, "my_file.foo");
+        let other_file_path_to_delete = format!("{}/{}/{}", current_directory(), TEST_DATA_DIR, "my_fileTHUMBLarge.foo");
+        create_dummy_file(&file_path_to_delete);
+        create_dummy_file(&other_file_path_to_delete);
+        let operations = delete_operations(&file_path_to_delete);
+        assert_eq!(2, operations.len());
+        remove_dummy_file(&file_path_to_delete);
+        remove_dummy_file(&other_file_path_to_delete);
+    }
+
+    #[test]
+    fn batch_delete_operation_for_existing_thumbnails() {
+        let file_path_to_delete =
+            format!("{}/{}/{}", current_directory(), TEST_DATA_DIR, NINE_COLORS);
+        let operations = delete_operations(&file_path_to_delete);
+        assert_eq!(5, operations.len());
+        assert_eq!(
+            delete_operation(&thumbnail_name_from(&file_path_to_delete, 10)),
+            operations[0]
+        );
+        assert_eq!(
+            delete_operation(&thumbnail_name_from(&file_path_to_delete, 7)),
+            operations[1]
+        );
+        assert_eq!(
+            delete_operation(&thumbnail_name_from(&file_path_to_delete, 4)),
+            operations[2]
+        );
+        assert_eq!(
+            delete_operation(&thumbnail_name_from(&file_path_to_delete, 2)),
+            operations[3]
+        );
+        assert_eq!(
+            delete_operation(&file_path_to_delete),
+            operations[4]
+        );
     }
 }
-
