@@ -2,7 +2,7 @@ use crate::model::picture::Picture;
 use crate::file::paths::{file_exists, file_path_as_retrieved, file_path_as_stored, thumbnail_name_from};
 use std::path::PathBuf;
 
-#[derive(PartialEq, Eq, Debug)]
+#[derive(PartialEq, Eq, Debug, Clone)]
 pub enum Operation {
     Delete(PathBuf),
     Copy(PathBuf, PathBuf),
@@ -41,7 +41,11 @@ pub fn move_picture(file_path: &str, target_dir: &str) -> Vec<Operation> {
     let mut operations: Vec<Operation> = vec![];
     let mut moves = move_operations(file_path, target_dir);
     operations.append(&mut moves);
-    operations.push(Operation::MovePictureData(file_path.to_string(), target_dir.to_string()));
+    if let Operation::Copy(source_path, target_path) = operations[10].clone() {
+        let source = source_path.into_os_string().to_str().unwrap().clone();
+        let target = target_path.into_os_string().to_str().unwrap().clone();
+        operations.push(Operation::MovePictureData(source.to_string(), target.to_string()))
+    };
     operations
 }
 
