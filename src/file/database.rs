@@ -463,6 +463,10 @@ pub mod tests {
     use std::collections::HashSet;
     use std::env;
     use std::time::SystemTime;
+    use crate::env::configuration::Config;
+    use crate::model::order::Order;
+    use serial_test::serial;
+
 
     pub fn my_db() -> Database {
         let database = Database::rusqlite_from_connection(TEST_DATABASE_FILE, false)
@@ -470,12 +474,34 @@ pub mod tests {
         database
     }
 
-    pub fn my_args() -> Args {
+    pub fn my_args() -> IOResult<Args> {
         let cmd: Option<Vec<&str>> = None;
-        let config = get_configuration().unwrap();
-        Args::parse_and_check(cmd, &config).unwrap()
+        let config = Config {
+            width: 1000,
+            height: 1000,
+            database_file: format!("{}/{}/gsr2.db", current_directory(), TEST_DATA_DIR),
+        };
+        Args::parse_and_check(cmd, &config)
     }
+
+    pub fn dummy_args() -> Args {
+        Args{
+            command: None,
+            at: None,
+            grid: None,
+            thumbnails: false,
+            order: Order::Name,
+            cover: false,
+            height: None,
+            width: None,
+            select: None,
+            restrict: None,
+            slideshow: None,
+        }
+    }
+
     #[test]
+    #[serial]
     fn retrieve_all_pictures_ordered_by_file_path() {
         let database = my_db();
         let status = database.rusqlite_retrieve_all_pictures(false, None);
@@ -485,12 +511,13 @@ pub mod tests {
     }
 
     #[test]
+    #[serial]
     fn insert_and_retrieve_a_picture_with_image_data() {
         let database = my_db();
         let mut picture = Picture::new("testdata/some_pic.jpeg");
         let file_path = picture.file_path();
         let picture_file_data = get_data_from_picture_file(&nine_colors_file_path())
-            .expect("can't access to file data");
+            .expect(&format!("can't access to file data: {}", nine_colors_file_path()));
         let image_data = ImageData {
             label: "some_label".to_string(),
             size: picture_file_data.0,
@@ -562,6 +589,7 @@ pub mod tests {
     }
 
     #[test]
+    #[serial]
     fn update_a_picture_image_data() {
         let database = my_db();
         let mut picture = database
@@ -588,6 +616,7 @@ pub mod tests {
     }
 
     #[test]
+    #[serial]
     fn add_a_tag_to_a_picture_image_data() {
         let database = my_db();
         let mut picture = database
@@ -609,6 +638,7 @@ pub mod tests {
     }
 
     #[test]
+    #[serial]
     fn find_all_the_tags_in_the_database() {
         let database = my_db();
         let mut picture = database
@@ -667,9 +697,9 @@ pub mod tests {
     }
 
     #[test]
+    #[serial]
     fn finding_all_pictures_with_file_path_having_a_parent_directory() {
         let database = my_db();
-        let args = my_args();
         let parent_dir = format!("{}/testdata", current_directory());
         let result = database.retrieve_all_pictures_with_parent(&parent_dir);
         assert!(result.is_ok());
@@ -677,9 +707,9 @@ pub mod tests {
         assert_eq!(4, pictures.len());
     }
     #[test]
+    #[serial]
     fn find_no_picture_for_a_parent_directory_where_no_picture_exists() {
         let database = my_db();
-        let args = my_args();
         let parent_dir = format!("{}", current_directory());
         let result = database.retrieve_all_pictures_with_parent(&parent_dir);
         assert!(result.is_ok());

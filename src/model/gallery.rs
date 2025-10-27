@@ -193,13 +193,15 @@ mod tests {
     use super::*;
     use crate::env::default_values::TEST_DATABASE_FILE;
     use crate::file::database::Database;
-    use crate::file::database::tests::{my_args, my_db};
+    use crate::file::database::tests::{my_args, my_db, dummy_args};
     use crate::file::paths::current_directory;
     use crate::test_data;
     use crate::test_data::*;
     use std::env::current_dir;
+    use serial_test::serial; 
 
     #[test]
+    #[serial]
     fn loading_from_a_directory_collect_all_the_picture_files_from_that_directory() {
         let mut gallery = Gallery::new();
         gallery
@@ -227,6 +229,7 @@ mod tests {
     }
 
     #[test]
+    #[serial]
     fn loading_from_a_single_file_path_collect_that_single_picture_file() {
         let mut gallery = Gallery::new();
         gallery
@@ -236,11 +239,13 @@ mod tests {
     }
 
     #[test]
+    #[serial]
     fn loading_from_database_collect_all_the_picture_file_paths_stored() {
         let database: Database = my_db();
         let mut gallery = Gallery::new();
+        let args = dummy_args();
         gallery
-            .load_from_database(&database, &my_args())
+            .load_from_database(&database, &args)
             .expect("can't load from database");
         assert_eq!(4, gallery.len());
     }
@@ -268,6 +273,7 @@ mod tests {
         differences > 0
     }
     #[test]
+    #[serial]
     fn sorting_by_different_criteria() {
         // gen_white_square(); // uncomment if test file missing
         // gen_large_picture(); // ditto
@@ -278,30 +284,36 @@ mod tests {
         assert!(result)
     }
     #[test]
+    #[serial]
     fn getting_a_picture_by_its_index() {
         let database: Database = my_db();
         let mut gallery = Gallery::new();
+        let args = dummy_args();
         gallery
-            .load_from_database(&database, &my_args())
+            .load_from_database(&database, &args)
             .expect("can't load from database");
         gallery.sort_by(Order::Name);
         assert_eq!(large_picture_file_path(), gallery.picture(0).file_path());
     }
     #[test]
+    #[serial]
     fn finding_a_picture_by_file_path() {
         let database: Database = my_db();
         let mut gallery = Gallery::new();
+        let args = dummy_args();
         gallery
-            .load_from_database(&database, &my_args())
+            .load_from_database(&database, &args)
             .expect("can't load from database");
         assert!(gallery.find_file_path(&nine_colors_file_path()).is_some())
     }
     #[test]
+    #[serial]
     fn changing_a_picture_by_its_index() {
         let database: Database = my_db();
         let mut gallery = Gallery::new();
+        let args = dummy_args();
         gallery
-            .load_from_database(&database, &my_args())
+            .load_from_database(&database, &args)
             .expect("can't load from database");
         gallery.sort_by(Order::Name);
         let mut picture = gallery.picture(0);

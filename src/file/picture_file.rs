@@ -232,6 +232,7 @@ pub mod test {
     use crate::test_data::*;
     use std::fs::File;
     use std::io::prelude::*;
+    use serial_test::serial;
 
     fn create_dummy_file(file_path: &str) {
         let mut file = File::create(file_path).expect("can't create test file");
@@ -273,6 +274,7 @@ pub mod test {
     }
 
     #[test]
+    #[serial]
     fn deleting_picture_files() {
         create_dummy_files();
         delete_picture_files("testdata/dummy_pic.png");
@@ -284,6 +286,7 @@ pub mod test {
     }
 
     #[test]
+    #[serial]
     fn moving_picture_files_to_a_directory_error_wrong_target() {
         let file_path = my_file_path();
         let target_dir = String::from("./test");
@@ -292,6 +295,7 @@ pub mod test {
     }
 
     #[test]
+    #[serial]
     fn moving_picture_files_to_a_directory_error_wrong_source() {
         let file_path = String::from("a_file.jpg");
         let target_dir = my_target_dir();
@@ -300,6 +304,7 @@ pub mod test {
     }
 
     #[test]
+    #[serial]
     fn moving_picture_files_to_a_directory_error_not_absolute_target() {
         let file_path = my_file_path();
         let target_dir = String::from("./testdata/subdir");
@@ -307,6 +312,7 @@ pub mod test {
         assert!(result.is_err());
     }
     #[test]
+    #[serial]
     fn moving_picture_files_to_a_directory_error_same_source_and_target() {
         let file_path = my_file_path();
         let target_dir = test_directory();
@@ -314,6 +320,7 @@ pub mod test {
         assert!(result.is_err());
     }
     #[test]
+    #[serial]
     fn moving_picture_files_to_a_directory() {
         let file_path = my_file_path();
         let target_dir = my_target_dir();
