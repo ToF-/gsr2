@@ -125,6 +125,7 @@ mod test {
     use std::fs::{File, remove_file};
     use std::io::prelude::*;
     use crate::file::database::tests::my_db;
+    use std::process::Command;
 
 
 
@@ -163,8 +164,8 @@ mod test {
 
     #[test]
     fn batch_delete_operation_for_thumbnails_if_existing() {
-        let file_path_to_delete = format!("{}/{}/{}", current_directory(), TEST_DATA_DIR, "my_file.foo");
-        let other_file_path_to_delete = format!("{}/{}/{}", current_directory(), TEST_DATA_DIR, "my_fileTHUMBLarge.foo");
+        let file_path_to_delete = format!("{}/{}/{}", current_directory(), TEST_DATA_DIR, "my_file1.foo");
+        let other_file_path_to_delete = format!("{}/{}/{}", current_directory(), TEST_DATA_DIR, "my_file1THUMBLarge.foo");
         create_dummy_file(&file_path_to_delete);
         create_dummy_file(&other_file_path_to_delete);
         let operations = delete_operations(&file_path_to_delete);
@@ -211,8 +212,8 @@ mod test {
 
     #[test]
     fn batch_copy_operation_for_thumbnails_if_existing() {
-        let file_path_to_copy = format!("{}/{}/{}", current_directory(), TEST_DATA_DIR, "my_file.foo");
-        let other_file_path_to_copy = format!("{}/{}/{}", current_directory(), TEST_DATA_DIR, "my_fileTHUMBLarge.foo");
+        let file_path_to_copy = format!("{}/{}/{}", current_directory(), TEST_DATA_DIR, "my_file2.foo");
+        let other_file_path_to_copy = format!("{}/{}/{}", current_directory(), TEST_DATA_DIR, "my_file2THUMBLarge.foo");
         let target_dir = format!("{}/{}/subdir", current_directory(), TEST_DATA_DIR);
         create_dummy_file(&file_path_to_copy);
         create_dummy_file(&other_file_path_to_copy);
@@ -230,11 +231,13 @@ mod test {
 
     #[test]
     fn move_operation_for_thumbnails_if_existing() {
-        let file_path_to_move = format!("{}/{}/{}", current_directory(), TEST_DATA_DIR, "my_file.foo");
-        let other_file_path_to_move = format!("{}/{}/{}", current_directory(), TEST_DATA_DIR, "my_fileTHUMBLarge.foo");
+        let file_path_to_move = format!("{}/{}/{}", current_directory(), TEST_DATA_DIR, "my_file3.foo");
+        let other_file_path_to_move = format!("{}/{}/{}", current_directory(), TEST_DATA_DIR, "my_file3THUMBLarge.foo");
         let target_dir = format!("{}/{}/subdir", current_directory(), TEST_DATA_DIR);
         create_dummy_file(&file_path_to_move);
         create_dummy_file(&other_file_path_to_move);
+        assert!(file_exists(&file_path_to_move));
+        assert!(file_exists(&other_file_path_to_move));
         let operations = move_operations(&file_path_to_move, &target_dir);
         assert_eq!(4, operations.len());
         assert_eq!(
