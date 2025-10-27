@@ -2,6 +2,7 @@
 ## Gallery Show in Rust
 
 ## Todo
+- [X] i toggles information on the title
 - [X] I shows information about the current picture
 - [X] move takes selection / restriction into account
 - [X] move all pictures starting with a a file path to a new file path (the new file path must exist, must be absolute or home based)

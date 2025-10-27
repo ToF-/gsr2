@@ -9,6 +9,7 @@ pub struct State {
     expand_on: bool,
     full_size_on: bool,
     slideshow_on: bool,
+    display_information_on: bool,
     display_date_on: bool,
     display_size_on: bool,
     palette_on: bool,
@@ -26,6 +27,7 @@ impl State {
             expand_on: false,
             full_size_on: false,
             slideshow_on,
+            display_information_on: false,
             display_date_on: false,
             display_size_on: false,
             palette_on: false,
@@ -43,8 +45,16 @@ impl State {
         self.focus_symbol
     }
 
+    pub fn display_information_on(&self) -> bool {
+        self.display_information_on
+    }
+
     pub fn change_focus_symbol_on(&self) -> bool {
         self.change_focus_symbol_on
+    }
+
+    pub fn toggle_display_information_on(&mut self) {
+        self.display_information_on = !self.display_information_on
     }
 
     pub fn toggle_change_focus_symbol(&mut self) {

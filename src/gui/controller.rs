@@ -554,6 +554,7 @@ impl Controller {
             Control::Jump => self.jump(),
             Control::Find => self.find(),
             Control::Information => self.information(),
+            Control::ToggleInformation => self.toggle_information(),
             Control::AddTag => self.add_tag(),
             Control::RemoveTag => self.remove_tag(),
             Control::Label => self.label(),
@@ -724,6 +725,12 @@ impl Controller {
             .begin(&self.main_window(), EntryKind::Information, None);
         self.editor.set_input(&format!("{}", self.current_picture().file_path()));
         self.state.set_mode(Mode::Editing);
+    }
+
+    pub fn toggle_information(&mut self) {
+        self.state.toggle_display_information_on();
+        let navigator = &mut self.navigator;
+        navigator.set_page_changed()
     }
 
     pub fn find_pattern(&mut self, pattern: &str) {

@@ -83,36 +83,40 @@ fn tag_display(tags: Tags) -> String {
 }
 
 pub fn title_display(controller: &Controller) -> String {
-    format!(
-        "{} #{} {} {} {} {} {} {} {} {}{} {}",
-        cover_display(match controller.current_picture().image_data() {
-            Some(image_data) => image_data.cover,
-            None => false,
-        }),
-        controller.navigator().position(),
-        page_display(controller),
-        order_display(controller.gallery().order()),
-        controller.current_picture().file_name(),
-        match controller.current_picture().image_data() {
-            Some(image_data) => image_data.rank(),
-            None => Rank::NoStar,
-        },
-        match controller.current_picture().image_data() {
-            Some(image_data) => tag_display(image_data.tags),
-            None => "".to_string(),
-        },
-        if controller.state().display_date_on() {
-            controller.current_picture().modified_time_display()
-        } else {
-            String::from("")
-        },
-        if controller.state().display_size_on() {
-            controller.current_picture().file_size_display()
-        } else {
-            String::from("")
-        },
-        expand_display(controller.state().expand_on()),
-        full_size_display(controller.state().full_size_on()),
-        display_selection(&controller.gallery().selection()),
-    )
+    if controller.state().display_information_on() {
+        format!("{}", controller.current_picture().file_path())
+    } else {
+        format!(
+            "{} #{} {} {} {} {} {} {} {} {}{} {}",
+            cover_display(match controller.current_picture().image_data() {
+                Some(image_data) => image_data.cover,
+                None => false,
+            }),
+            controller.navigator().position(),
+            page_display(controller),
+            order_display(controller.gallery().order()),
+            controller.current_picture().file_name(),
+            match controller.current_picture().image_data() {
+                Some(image_data) => image_data.rank(),
+                None => Rank::NoStar,
+            },
+            match controller.current_picture().image_data() {
+                Some(image_data) => tag_display(image_data.tags),
+                None => "".to_string(),
+            },
+            if controller.state().display_date_on() {
+                controller.current_picture().modified_time_display()
+            } else {
+                String::from("")
+            },
+            if controller.state().display_size_on() {
+                controller.current_picture().file_size_display()
+            } else {
+                String::from("")
+            },
+            expand_display(controller.state().expand_on()),
+            full_size_display(controller.state().full_size_on()),
+            display_selection(&controller.gallery().selection()),
+            )
+    }
 }
