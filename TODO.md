@@ -2,8 +2,8 @@
 ## Gallery Show in Rust
 
 ## Todo
-- [ ] I shows information about the current picture
-- [ ] move takes selection / restriction into account
+- [X] I shows information about the current picture
+- [X] move takes selection / restriction into account
 - [X] move all pictures starting with a a file path to a new file path (the new file path must exist, must be absolute or home based)
 - [X] Tab in view mode repeat the last command for selection
 - [ ] convert database of gsr V1 into gsr V2 -- not really important
