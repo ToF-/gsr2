@@ -1,6 +1,5 @@
-use crate::cli::args::Args;
 use crate::file::paths::{
-    file_exists, file_path_as_retrieved, file_path_as_stored, home_directory,
+    file_exists, file_path_as_retrieved, file_path_as_stored
 };
 use crate::model::image_data::ImageData;
 use crate::model::palette::Palette;
@@ -466,6 +465,7 @@ pub mod tests {
     use crate::env::configuration::Config;
     use crate::model::order::Order;
     use serial_test::serial;
+    use crate::cli::args::Args;
 
 
     pub fn my_db() -> Database {

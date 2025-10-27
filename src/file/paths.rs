@@ -2,7 +2,6 @@ use crate::env::default_values::GARBAGE;
 use crate::env::default_values::THUMB_SUFFIX;
 use crate::env::default_values::VALID_EXTENSIONS;
 use crate::model::thumbnail::{thumbnail_size_display, thumbnail_size_for};
-use std::env;
 use std::env::current_dir;
 use std::env::home_dir;
 use std::ffi::OsStr;
@@ -192,6 +191,7 @@ pub fn file_path_as_retrieved(source: &str) -> String {
 
 mod tests {
     use super::*;
+    use std::env;
 
     #[test]
     #[should_panic]

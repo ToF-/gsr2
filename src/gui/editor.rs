@@ -5,7 +5,7 @@ use crate::gui::entry_kind::EntryKind;
 use crate::gui::mode::Mode;
 use crate::gui::view::entry_window::EntryWindow;
 use crate::model::order::Order;
-use crate::model::tags::{Tags, empty, tags_from_str};
+use crate::model::tags::{Tags, empty};
 use gdk::Key;
 use gtk::{self, gdk};
 use itertools::Itertools;
@@ -255,6 +255,8 @@ impl Editor {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::model::tags::tags_from_str;
+
 
     #[test]
     fn initially_not_editing() {

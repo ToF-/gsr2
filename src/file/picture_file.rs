@@ -17,7 +17,6 @@ use std::collections::HashSet;
 use std::fs;
 use std::fs::{copy, remove_file};
 use std::io::Error;
-use std::io::Error as IOError;
 use std::io::Result as IOResult;
 use std::path::Path;
 use std::path::PathBuf;
@@ -233,6 +232,7 @@ pub mod test {
     use std::fs::File;
     use std::io::prelude::*;
     use serial_test::serial;
+    use std::io::Error as IOError;
 
     fn create_dummy_file(file_path: &str) {
         let mut file = File::create(file_path).expect("can't create test file");
