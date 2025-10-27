@@ -51,6 +51,7 @@ impl Editor {
             }
             EntryKind::DeleteConfirmation => "Delete these pictures?",
             EntryKind::Find => "Enter a part of the picture file name",
+            EntryKind::Information => "Current picture",
             EntryKind::SetSelection => "Enter tags to define the selection",
             EntryKind::SetRestriction => "Enter tags to define the restriction",
         };
@@ -74,6 +75,12 @@ impl Editor {
 
     pub fn input(&self) -> String {
         self.input.clone()
+    }
+
+    pub fn set_input(&mut self, input: &str) {
+        self.input = input.to_string();
+        self.refresh_view();
+
     }
 
     pub fn entry_kind(&self) -> EntryKind {
@@ -168,6 +175,9 @@ impl Editor {
         }
     }
     pub fn append(&mut self, ch: char) {
+        if self.entry_kind == EntryKind::Information {
+            return
+        };
         let ch_is_ok = match self.entry_kind {
             EntryKind::Number => ch.is_ascii_digit(),
             EntryKind::DeleteConfirmation => matches!(ch, 'e' | 'n' | 'o' | 's' | 'y'),
@@ -178,6 +188,7 @@ impl Editor {
             EntryKind::SetSelection | EntryKind::SetRestriction => matches!(ch,
                 'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' ' | ',' ),
             EntryKind::Order => matches!(ch, 'c' | 'd' | 'p' | 'l' | 'n' | 'r' | 's' | 'v'),
+            EntryKind::Information => false,
         };
         if ch_is_ok && self.input.len() < MAX_LABEL_LENGTH {
             self.convert_char(ch);
@@ -211,6 +222,9 @@ impl Editor {
     }
 
     pub fn delete(&mut self) {
+        if self.entry_kind == EntryKind::Information {
+            return
+        };
         if self.entry_kind == EntryKind::Order {
             self.input = String::from("");
         } else {

@@ -1,3 +1,4 @@
+use crate::model::selection::{ALL_TAGS, SOME_TAGS};
 use crate::file::move_pictures;
 use crate::cli::args::Args;
 use crate::cli::command::Command;
@@ -153,7 +154,14 @@ impl Controller {
                 exit(0)
             }
             Some(Command::Move { source, target }) => {
-                match move_pictures(&self.database, &source, &target) {
+                let selection: Selection = if let Some(labels) = &args.select {
+                    Selection::from(&labels, SOME_TAGS)
+                } else if let Some(labels) = &args.restrict {
+                    Selection::from(&labels, ALL_TAGS)
+                } else {
+                    Selection::empty()
+                };
+                match move_pictures(&self.database, &selection, &source, &target) {
                     Ok(n) => {
                         println!("{} pictures moved from {} to {}", n, source, target);
                         exit(0);
@@ -341,6 +349,9 @@ impl Controller {
                             if !self.editor.input().is_empty() {
                                 self.find_pattern(&self.editor.input())
                             };
+                        }
+                        EntryKind::Information => {
+
                         }
                         EntryKind::SetSelection => {
                             if !self.editor.input().is_empty() {
@@ -542,6 +553,7 @@ impl Controller {
             Control::TogglePalette => self.toggle_palette(),
             Control::Jump => self.jump(),
             Control::Find => self.find(),
+            Control::Information => self.information(),
             Control::AddTag => self.add_tag(),
             Control::RemoveTag => self.remove_tag(),
             Control::Label => self.label(),
@@ -704,6 +716,13 @@ impl Controller {
     pub fn find(&mut self) {
         self.editor
             .begin(&self.main_window(), EntryKind::Find, None);
+        self.state.set_mode(Mode::Editing);
+    }
+
+    pub fn information(&mut self) {
+        self.editor
+            .begin(&self.main_window(), EntryKind::Information, None);
+        self.editor.set_input(&format!("{}", self.current_picture().file_path()));
         self.state.set_mode(Mode::Editing);
     }
 

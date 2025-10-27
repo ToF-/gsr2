@@ -1,3 +1,4 @@
+use crate::model::selection::Selection;
 use crate::file::operation::execute;
 use crate::file::operation::move_picture;
 use crate::file::database::Database;
@@ -18,7 +19,7 @@ pub fn delete_picture(database: &Database, file_path: &str) -> IOResult<()> {
     }
 }
 
-pub fn move_pictures(database: &Database, source_dir: &str, target_dir: &str) -> IOResult<usize> {
+pub fn move_pictures(database: &Database, selection: &Selection, source_dir: &str, target_dir: &str) -> IOResult<usize> {
 
     database.retrieve_all_pictures_with_parent(source_dir)
         .and_then(|pictures| {
