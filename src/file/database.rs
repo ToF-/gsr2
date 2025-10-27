@@ -491,6 +491,7 @@ pub mod tests {
             grid: None,
             thumbnails: false,
             order: Order::Name,
+            r#move: None,
             cover: false,
             height: None,
             width: None,

@@ -69,20 +69,24 @@ pub fn move_operations(file_path: &str, target_dir: &str) -> Vec<Operation> {
     operations
 }
 pub fn move_picture(file_path: &str, target_dir: &str) -> Vec<Operation> {
-    let mut operations: Vec<Operation> = vec![];
-    let mut moves = move_operations(file_path, target_dir);
-    operations.append(&mut moves);
     let source_file = file_path_as_stored(file_path);
     let target_path = target_file_path(file_path, target_dir);
     let target_file = file_path_as_stored(&target_path.into_os_string().to_str().unwrap().to_string());
     if source_file == target_file {
-        println!("same source and target: {}, move cancelled", file_path_as_stored(&source_file))
+        vec![]
     } else {
-        operations.push(
-            Operation::MovePictureData( file_path_as_stored(file_path), target_file)
-        )
-    };
-    operations
+        let mut operations: Vec<Operation> = vec![];
+        let mut moves = move_operations(file_path, target_dir);
+        operations.append(&mut moves);
+        if source_file == target_file {
+            println!("same source and target: {}, move cancelled", file_path_as_stored(&source_file))
+        } else {
+            operations.push(
+                Operation::MovePictureData( file_path_as_stored(file_path), target_file)
+            )
+        };
+        operations
+    }
 }
 
 fn execute_operation(database: &Database, operation: &Operation) -> IOResult<usize> {
@@ -129,6 +133,8 @@ mod test {
     use std::io::prelude::*;
     use crate::file::database::tests::my_db;
     use std::process::Command;
+    use serial_test::serial;
+
 
 
 
@@ -144,6 +150,7 @@ mod test {
     }
 
     #[test]
+    #[serial]
     fn delete_operation_from_a_file_path_as_stored_is_on_file_path_as_retrieved() {
         let file_path_as_retrieved = format!("{}/foo/bar.jpg", home_directory());
         assert_eq!(
@@ -153,6 +160,7 @@ mod test {
     }
 
     #[test]
+    #[serial]
     fn copy_operation_from_a_file_path_as_stored_to_a_target_dir() {
         let source_file_path_as_retrieved = format!("{}/foo/bar.jpg", home_directory());
         let target_file_path_as_retrieved = format!("{}/other/bar.jpg", home_directory());
@@ -166,6 +174,7 @@ mod test {
     }
 
     #[test]
+    #[serial]
     fn batch_delete_operation_for_thumbnails_if_existing() {
         let file_path_to_delete = format!("{}/{}/{}", current_directory(), TEST_DATA_DIR, "my_file1.foo");
         let other_file_path_to_delete = format!("{}/{}/{}", current_directory(), TEST_DATA_DIR, "my_file1THUMBLarge.foo");
@@ -186,6 +195,7 @@ mod test {
     }
 
     #[test]
+    #[serial]
     fn batch_delete_operation_for_existing_thumbnails() {
         let file_path_to_delete =
             format!("{}/{}/{}", current_directory(), TEST_DATA_DIR, NINE_COLORS);
@@ -214,6 +224,7 @@ mod test {
     }
 
     #[test]
+    #[serial]
     fn batch_copy_operation_for_thumbnails_if_existing() {
         let file_path_to_copy = format!("{}/{}/{}", current_directory(), TEST_DATA_DIR, "my_file2.foo");
         let other_file_path_to_copy = format!("{}/{}/{}", current_directory(), TEST_DATA_DIR, "my_file2THUMBLarge.foo");
@@ -233,6 +244,7 @@ mod test {
     }
 
     #[test]
+    #[serial]
     fn move_operation_for_thumbnails_if_existing() {
         let file_path_to_move = format!("{}/{}/{}", current_directory(), TEST_DATA_DIR, "my_file3.foo");
         let other_file_path_to_move = format!("{}/{}/{}", current_directory(), TEST_DATA_DIR, "my_file3THUMBLarge.foo");
@@ -262,26 +274,38 @@ mod test {
     }
 
     #[test]
+    #[serial]
     fn moving_a_picture_takes_all_necessary_operations() {
         let picture: Picture = Picture::new(&nine_colors_file_path());
         let target_dir = format!("{}/{}/subdir", current_directory(), TEST_DATA_DIR);
         let operations = move_picture(&nine_colors_file_path(), &target_dir);
+        let soure_file = file_path_as_stored(&nine_colors_file_path());
+        let target_file = file_path_as_stored(&format!("{}/{}/subdir/{}", current_directory(), TEST_DATA_DIR, NINE_COLORS));
         assert_eq!(11, operations.len());
-        assert_eq!(Operation::MovePictureData(
-                file_path_as_stored(&nine_colors_file_path()),
-                format!("{}/{}/subdir/{}", current_directory(), TEST_DATA_DIR, NINE_COLORS)),
-                operations[10]);
+        assert_eq!(Operation::MovePictureData(soure_file, target_file), operations[10]);
     }
+    #[test]
+    #[serial]
     fn executing_operation() {
         let database = my_db();
         let picture: Picture = Picture::new(&nine_colors_file_path());
         let target_dir = format!("{}/{}/subdir", current_directory(), TEST_DATA_DIR);
         let operations = move_picture(&nine_colors_file_path(), &target_dir);
-        execute(&database, operations);
+        execute(&database, &operations);
         assert!(file_exists(&format!("{}/{}/subdir/{}", current_directory(), TEST_DATA_DIR, NINE_COLORS)));
         let source_dir = format!("{}/{}", current_directory(), TEST_DATA_DIR);
         let new_file_path = format!("{}/{}/subdir/{}", current_directory(), TEST_DATA_DIR, NINE_COLORS);
         let roll_back = move_picture(&new_file_path, &source_dir);
+        execute(&database, &roll_back);
 
+    }
+
+    #[test]
+    fn moving_picture_to_the_same_directory_not_allowed() {
+        let database = my_db();
+        let picture: Picture = Picture::new(&nine_colors_file_path());
+        let target_dir = format!("{}/{}", current_directory(), TEST_DATA_DIR);
+        let operations = move_picture(&nine_colors_file_path(), &target_dir);
+        assert_eq!(0, operations.len());
     }
 }
