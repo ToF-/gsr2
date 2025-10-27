@@ -53,6 +53,10 @@ pub struct Args {
     #[arg(long, value_name = "N")]
     pub height: Option<i32>,
 
+    /// move selected picture to <DIRECTORY> on confirmation
+    #[arg(long, value_name = "DIRECTORY")]
+    pub r#move: Option<String>, 
+    ///
     /// window width
     #[arg(long, value_name = "N")]
     pub width: Option<i32>,
@@ -92,9 +96,14 @@ impl Args {
                         return Err(Error::other("option --grid not allowed for File command"));
                     } else if args.thumbnails {
                         return Err(Error::other(
-                            "option --thumbnails not allowed for File command",
+                            "option --thumbnails not allowed with file command",
                         ));
                     } else {
+                        if let Some(directory) = args.r#move {
+                            return Err(Error::other(
+                                    "option --move not allowed with file command",
+                            ));
+                        };
                         return Ok(args.clone());
                     }
                 }
@@ -103,6 +112,11 @@ impl Args {
             }
         }
         if let Some(Command::Collect { ref directory }) = args.command {
+            if let Some(directory) = args.r#move {
+                return Err(Error::other(
+                        "option --move not allowed with collect command",
+                ));
+            };
             let path = PathBuf::from(directory);
             match check_collectable(&path) {
                 Ok(_) => return Ok(args.clone()),
@@ -110,12 +124,22 @@ impl Args {
             }
         }
         if let Some(Command::Dir { ref directory }) = args.command {
+            if let Some(directory) = args.r#move {
+                return Err(Error::other(
+                        "option --move not allowed with dir command",
+                ));
+            };
             match check_path(directory) {
                 Ok(_) => return Ok(args.clone()),
                 Err(e) => return Err(e),
             }
         }
         if let Some(Command::Move { ref source, ref target }) = args.command {
+            if let Some(directory) = args.r#move {
+                return Err(Error::other(
+                        "option --move not allowed with move command",
+                ));
+            };
             let target_path = PathBuf::from(target);
             let source_path = PathBuf::from(source);
             match check_collectable(&source_path) {
@@ -125,6 +149,13 @@ impl Args {
                     }
                     Err(e) => return Err(e),
                 }
+                Err(e) => return Err(e),
+            }
+        }
+        if let Some(ref target_dir) = args.r#move {
+            let target_path = PathBuf::from(target_dir);
+            match check_collectable(&target_path) {
+                Ok(_) => {},
                 Err(e) => return Err(e),
             }
         }

@@ -5,7 +5,7 @@ use crate::file::database::Database;
 use crate::file::picture_file::delete_picture_files;
 use std::io::Result as IOResult;
 pub mod database;
-mod operation;
+pub mod operation;
 pub mod paths;
 pub mod picture_file;
 

@@ -50,6 +50,7 @@ impl Editor {
                 "Enter a sorting criteria: c)olors d)ate l)abel n)ame p)alette r)andom s)ize v)alue "
             }
             EntryKind::DeleteConfirmation => "Delete these pictures?",
+            EntryKind::MoveConfirmation => "Move these pictures?",
             EntryKind::Find => "Enter a part of the picture file name",
             EntryKind::Information => "Current picture",
             EntryKind::SetSelection => "Enter tags to define the selection",
@@ -81,6 +82,11 @@ impl Editor {
         self.input = input.to_string();
         self.refresh_view();
 
+    }
+
+    pub fn set_prompt(&mut self, prompt: &str) {
+        self.prompt = prompt.to_string();
+        self.refresh_prompt(prompt);
     }
 
     pub fn entry_kind(&self) -> EntryKind {
@@ -180,7 +186,7 @@ impl Editor {
         };
         let ch_is_ok = match self.entry_kind {
             EntryKind::Number => ch.is_ascii_digit(),
-            EntryKind::DeleteConfirmation => matches!(ch, 'e' | 'n' | 'o' | 's' | 'y'),
+            EntryKind::DeleteConfirmation | EntryKind::MoveConfirmation => matches!(ch, 'e' | 'n' | 'o' | 's' | 'y'),
             EntryKind::Label | EntryKind::AddTag | EntryKind::RemoveTag | EntryKind::Find => {
                 matches!(ch,
                 'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' ')

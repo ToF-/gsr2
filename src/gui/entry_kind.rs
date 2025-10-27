@@ -6,6 +6,7 @@ pub enum EntryKind {
     Number,
     Order,
     DeleteConfirmation,
+    MoveConfirmation,
     Find,
     Information,
     SetRestriction,

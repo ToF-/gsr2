@@ -72,13 +72,16 @@ pub fn move_picture(file_path: &str, target_dir: &str) -> Vec<Operation> {
     let mut operations: Vec<Operation> = vec![];
     let mut moves = move_operations(file_path, target_dir);
     operations.append(&mut moves);
-    let source_path = file_path_as_stored(file_path);
+    let source_file = file_path_as_stored(file_path);
     let target_path = target_file_path(file_path, target_dir);
-    operations.push(
-        Operation::MovePictureData(
-            file_path_as_stored(file_path),
-            target_path.into_os_string().to_str().unwrap().to_string())
-    );
+    let target_file = file_path_as_stored(&target_path.into_os_string().to_str().unwrap().to_string());
+    if source_file == target_file {
+        println!("same source and target: {}, move cancelled", file_path_as_stored(&source_file))
+    } else {
+        operations.push(
+            Operation::MovePictureData( file_path_as_stored(file_path), target_file)
+        )
+    };
     operations
 }
 

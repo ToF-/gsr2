@@ -1,3 +1,4 @@
+use crate::file::operation::{execute, move_picture};
 use crate::model::selection::{ALL_TAGS, SOME_TAGS};
 use crate::file::move_pictures;
 use crate::cli::args::Args;
@@ -345,6 +346,13 @@ impl Controller {
                                 self.cancel_delete_picture()
                             }
                         }
+                        EntryKind::MoveConfirmation => {
+                            if &self.editor.input() == "yes" {
+                                self.confirm_move_picture()
+                            } else {
+                                self.cancel_move_picture()
+                            }
+                        }
                         EntryKind::Find => {
                             if !self.editor.input().is_empty() {
                                 self.find_pattern(&self.editor.input())
@@ -583,6 +591,7 @@ impl Controller {
             Control::ToggleSelected => self.toggle_selected(),
             Control::CancelRange => self.cancel_range(),
             Control::DeletePicture => self.delete_picture(),
+            Control::MovePicture => self.move_picture(),
             Control::RankNoStar => self.rank_selected_pictures(Rank::NoStar),
             Control::RankOneStar => self.rank_selected_pictures(Rank::OneStar),
             Control::RankTwoStars => self.rank_selected_pictures(Rank::TwoStars),
@@ -885,6 +894,24 @@ impl Controller {
         }
     }
 
+    fn move_selected_pictures(&mut self) {
+        if let Some(target_dir) = &self.args.r#move {
+            let mut count = 0;
+            for index in self.navigator.selection() {
+                count += 1;
+                let picture = &self.gallery.picture(index);
+                let operations = move_picture(&picture.file_path(), &target_dir);
+                match execute(&self.database, &operations) {
+                    Ok(_) => {}
+                    Err(err) => {
+                        println!("{}", err);
+                    }
+                }
+            }
+            println!("{} pictures moved to {}\nexiting gsr", count, target_dir);
+            self.quit()
+        }
+    }
     pub fn cancel_delete_picture(&mut self) {
         let navigator = &mut self.navigator;
         navigator.cancel_range();
@@ -896,12 +923,33 @@ impl Controller {
         self.navigator.set_page_changed()
     }
 
+
+    pub fn confirm_move_picture(&mut self) {
+        if let Some(target_dir) = &self.args.r#move {
+            self.move_selected_pictures()
+        }
+    }
+
+    pub fn cancel_move_picture(&mut self) {
+        let navigator = &mut self.navigator;
+        navigator.cancel_range();
+        self.navigator.set_page_changed()
+    }
+
     pub fn delete_picture(&mut self) {
         self.editor
             .begin(&self.main_window(), EntryKind::DeleteConfirmation, None);
         self.state.set_mode(Mode::Editing);
     }
 
+    pub fn move_picture(&mut self) {
+        if let Some(target_dir) = &self.args.r#move {
+        self.editor
+            .begin(&self.main_window(), EntryKind::MoveConfirmation, None);
+            self.editor.set_prompt(&format!("move these pictures to {} ?", target_dir));
+            self.state.set_mode(Mode::Editing);
+        }
+    }
     pub fn acknowledge_grid_size_change(&mut self) {
         self.state.acknowledge_grid_size_change();
     }

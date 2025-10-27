@@ -2,6 +2,7 @@
 ## Gallery Show in Rust
 
 ## Todo
+- [ ] option --move-selected <DIRECTORY> interactively moves the selected file on confirm
 - [X] i toggles information on the title
 - [X] I shows information about the current picture
 - [X] move takes selection / restriction into account
