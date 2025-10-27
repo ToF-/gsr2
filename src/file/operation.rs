@@ -82,7 +82,7 @@ pub fn move_picture(file_path: &str, target_dir: &str) -> Vec<Operation> {
     operations
 }
 
-fn execute_operation(operation: &Operation, database: &Database) -> IOResult<(usize)> {
+fn execute_operation(database: &Database, operation: &Operation) -> IOResult<usize> {
     match operation {
         Operation::Delete(path) => {
             match remove_file(path) {
@@ -105,9 +105,9 @@ fn execute_operation(operation: &Operation, database: &Database) -> IOResult<(us
         }
     }
 }
-pub fn execute(operations: &Vec<Operation>, database: &Database) -> IOResult<()> {
+pub fn execute(database: &Database, operations: &Vec<Operation>) -> IOResult<()> {
     for operation in operations {
-        match execute_operation(operation, database) {
+        match execute_operation(database, operation) {
             Ok(_) => {},
             Err(err) => {
                 eprintln!("{}", err);
@@ -259,7 +259,7 @@ mod test {
     }
 
     #[test]
-    fn moving_a_picture_takes_all_necesassy_operations() {
+    fn moving_a_picture_takes_all_necessary_operations() {
         let picture: Picture = Picture::new(&nine_colors_file_path());
         let target_dir = format!("{}/{}/subdir", current_directory(), TEST_DATA_DIR);
         let operations = move_picture(&nine_colors_file_path(), &target_dir);
@@ -274,7 +274,7 @@ mod test {
         let picture: Picture = Picture::new(&nine_colors_file_path());
         let target_dir = format!("{}/{}/subdir", current_directory(), TEST_DATA_DIR);
         let operations = move_picture(&nine_colors_file_path(), &target_dir);
-        execute(&operations, &database);
+        execute(&database, operations);
         assert!(file_exists(&format!("{}/{}/subdir/{}", current_directory(), TEST_DATA_DIR, NINE_COLORS)));
         let source_dir = format!("{}/{}", current_directory(), TEST_DATA_DIR);
         let new_file_path = format!("{}/{}/subdir/{}", current_directory(), TEST_DATA_DIR, NINE_COLORS);

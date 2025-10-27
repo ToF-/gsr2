@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+use crate::file::paths::check_collectable;
 use crate::cli::command::Command;
 use crate::env::configuration::Config;
 use crate::env::default_values::{DEFAULT_HEIGHT, DEFAULT_SLIDESHOW_DELAY, DEFAULT_WIDTH};
@@ -100,9 +102,29 @@ impl Args {
                 Err(e) => return Err(e),
             }
         }
+        if let Some(Command::Collect { ref directory }) = args.command {
+            let path = PathBuf::from(directory);
+            match check_collectable(&path) {
+                Ok(_) => return Ok(args.clone()),
+                Err(e) => return Err(e),
+            }
+        }
         if let Some(Command::Dir { ref directory }) = args.command {
             match check_path(directory) {
                 Ok(_) => return Ok(args.clone()),
+                Err(e) => return Err(e),
+            }
+        }
+        if let Some(Command::Move { ref source, ref target }) = args.command {
+            let target_path = PathBuf::from(target);
+            let source_path = PathBuf::from(source);
+            match check_collectable(&source_path) {
+                Ok(_) => match check_collectable(&target_path) {
+                    Ok(_) => {
+
+                    }
+                    Err(e) => return Err(e),
+                }
                 Err(e) => return Err(e),
             }
         }

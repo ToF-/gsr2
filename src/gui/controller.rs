@@ -1,3 +1,4 @@
+use crate::file::move_pictures;
 use crate::cli::args::Args;
 use crate::cli::command::Command;
 use crate::env::environment::database_connection;
@@ -151,6 +152,19 @@ impl Controller {
                 gallery.print();
                 exit(0)
             }
+            Some(Command::Move { source, target }) => {
+                match move_pictures(&self.database, &source, &target) {
+                    Ok(n) => {
+                        println!("{} pictures moved from {} to {}", n, source, target);
+                        exit(0);
+                    },
+                    Err(err) => {
+                        eprintln!("error: {}", err);
+                        exit(1);
+                    }
+                }
+            }
+
             Some(_) => Ok(0),
             None => gallery.load_from_database(&self.database, &args),
         };
