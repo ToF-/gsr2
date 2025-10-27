@@ -117,14 +117,7 @@ impl Navigator {
     }
 
     pub fn cancel_range(&mut self) {
-        if let Some((start, end)) = self.range() {
-            self.selected_pictures.clear();
-            for index in start..=end {
-                self.unselect(index)
-            }
-        } else if let Some(start) = self.range_start {
-            self.unselect(start)
-        };
+        self.selected_pictures.clear();
         self.range_start = None;
         self.range_end = None
     }

@@ -896,19 +896,25 @@ impl Controller {
 
     fn move_selected_pictures(&mut self) {
         if let Some(target_dir) = &self.args.r#move {
-            let mut count = 0;
+            let mut picture_count = 0;
+            let mut operation_count = 0;
             for index in self.navigator.selection() {
-                count += 1;
                 let picture = &self.gallery.picture(index);
                 let operations = move_picture(&picture.file_path(), &target_dir);
-                match execute(&self.database, &operations) {
-                    Ok(_) => {}
-                    Err(err) => {
-                        println!("{}", err);
+                if operations.is_empty() {
+                    println!("no operation for move of {} to {}", picture.file_path(), target_dir);
+                } else {
+                    picture_count += 1;
+                    operation_count += operations.len();
+                    match execute(&self.database, &operations) {
+                        Ok(_) => {}
+                        Err(err) => {
+                            println!("{}", err);
+                        }
                     }
                 }
             }
-            println!("{} pictures moved to {}\nexiting gsr", count, target_dir);
+            println!("{} pictures moved to {}\n{} operations\nexiting gsr", picture_count, target_dir, operation_count);
             self.quit()
         }
     }
