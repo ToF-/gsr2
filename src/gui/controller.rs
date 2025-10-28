@@ -111,6 +111,19 @@ impl Controller {
         self.gallery.picture(navigator.position())
     }
 
+    fn load_gallery(&mut self) -> IOResult<usize> {
+        let mut gallery = Gallery::new();
+        let args = self.args.clone();
+        let result = match args.command {
+            Some(Command::File { file_path }) => gallery.load_from_file_path(&file_path),
+            Some(Command::Dir { directory }) => gallery.load_from_directory(&directory),
+            None => gallery.load_from_database(&self.database, &args),
+            _ => Ok(0),
+        };
+        self.set_gallery(gallery);
+        result
+    }
+
     pub fn load_picture_data(&mut self) -> IOResult<usize> {
         let mut gallery = Gallery::new();
         let args = self.args.clone();
@@ -760,6 +773,19 @@ impl Controller {
         application_window.close()
     }
 
+    pub fn reload(&mut self) {
+        match self.load_gallery() {
+            Ok(_) => {
+                self.move_first();
+                self.navigator.set_page_changed();
+            },
+            Err(e) => {
+                eprintln!("{}", e);
+                self.quit()
+            }
+        }
+    }
+
     pub fn toggle_single_view(&mut self) {
         self.state.toggle_single_view();
         if self.state.full_size_on() {
@@ -915,7 +941,7 @@ impl Controller {
                 }
             }
             println!("{} pictures moved to {}\n{} operations\nexiting gsr", picture_count, target_dir, operation_count);
-            self.quit()
+            self.reload()
         }
     }
     pub fn cancel_delete_picture(&mut self) {
@@ -926,6 +952,7 @@ impl Controller {
 
     pub fn confirm_delete_picture(&mut self) {
         self.delete_selected_pictures();
+        self.reload();
         self.navigator.set_page_changed()
     }
 
