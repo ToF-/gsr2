@@ -120,7 +120,13 @@ impl Controller {
             None => gallery.load_from_database(&self.database, &args),
             _ => Ok(0),
         };
-        self.set_gallery(gallery);
+        if gallery.len() > 0 {
+            println!("{} pictures", gallery.len());
+            self.set_gallery(gallery);
+        } else {
+            println!("no pictures\nquitting");
+            self.quit();
+        }
         result
     }
 
@@ -970,9 +976,11 @@ impl Controller {
     }
 
     pub fn delete_picture(&mut self) {
-        self.editor
-            .begin(&self.main_window(), EntryKind::DeleteConfirmation, None);
-        self.state.set_mode(Mode::Editing);
+        if self.navigator.has_selected() { 
+            self.editor
+                .begin(&self.main_window(), EntryKind::DeleteConfirmation, None);
+            self.state.set_mode(Mode::Editing);
+        }
     }
 
     pub fn move_picture(&mut self) {
