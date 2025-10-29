@@ -377,6 +377,7 @@ impl Database {
     pub fn retrieve_all_pictures(
         &self,
         selection: Selection,
+        label: Option<String>,
         cover: bool,
         parent_opt: Option<String>,
     ) -> IOResult<Vec<Picture>> {
@@ -394,7 +395,9 @@ impl Database {
                             tags: new_tags.clone(),
                             ..image_data.clone()
                         };
-                        if selection.is_empty() || selection.matches(new_tags.clone()) {
+                        if (selection.is_empty() || selection.matches(new_tags.clone())) 
+                            && (label.clone().is_none() || *label.as_ref().unwrap() == new_image_data.label()) {
+
                             let picture = Picture::new_with_image_data(file_path, &new_image_data);
                             pictures.push(picture)
                         }
@@ -409,7 +412,7 @@ impl Database {
     }
 
     pub fn retrieve_all_pictures_with_parent(&self, parent_dir: &str) -> IOResult<Vec<Picture>> {
-        self.retrieve_all_pictures(Selection::empty(), false, Some(parent_dir.to_string()))
+        self.retrieve_all_pictures(Selection::empty(), None, false, Some(parent_dir.to_string()))
     }
 
     fn rusqlite_row_to_picture(row: &Row) -> SqlResult<Picture, rusqlite::Error> {

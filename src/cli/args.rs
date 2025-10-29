@@ -29,49 +29,54 @@ pub struct Args {
     #[command(subcommand)]
     pub command: Option<Command>,
 
+    /// display only pictures which are selected as cover
+    #[arg(long)]
+    pub cover: bool,
+
     /// select only picture data for pictures present on <DIRECTORY>
-    #[arg(long, value_name = "DIRECTORY")]
-    pub at: Option<String>,
+    #[arg(short, long, value_name = "DIRECTORY")]
+    pub directory: Option<String>,
 
     /// display N x N pictures per page (N in range [2..10[)
     #[arg(short, long, value_name = "N",value_parser(clap::value_parser!(u8).range(2..=9)))]
     pub grid: Option<u8>,
 
-    /// display 10 x 10 thumbnail pictures per page
-    #[arg(short, long, default_value_t = false, conflicts_with("grid"))]
-    pub thumbnails: bool,
+    /// window height
+    #[arg(long, value_name = "N")]
+    pub height: Option<i32>,
+
+    /// display only pictures with label = "LABEL"
+    #[arg(short, long, value_name = "LABEL")]
+    pub label: Option<String>,
+
+    /// move selected picture to <DIRECTORY> on confirmation
+    #[arg(long, value_name = "DIRECTORY")]
+    pub r#move: Option<String>, 
 
     /// display pictures in order
     #[arg(short, long, value_name="ORDER", ignore_case(true), default_value_t = Order::Name)]
     pub order: Order,
 
-    /// display only pictures which are selected as cover
-    #[arg(long)]
-    pub cover: bool,
-
-    /// window height
-    #[arg(long, value_name = "N")]
-    pub height: Option<i32>,
-
-    /// move selected picture to <DIRECTORY> on confirmation
-    #[arg(long, value_name = "DIRECTORY")]
-    pub r#move: Option<String>, 
-    ///
-    /// window width
-    #[arg(long, value_name = "N")]
-    pub width: Option<i32>,
+    /// select only picture having at all their tags in TAGS (e.g "foo,bar")
+    #[arg(long, value_name = "TAGS", conflicts_with = "select")]
+    pub restrict: Option<String>,
 
     /// select only picture having at least one tag in TAGS (e.g "foo,bar")
     #[arg(long, value_name = "TAGS", conflicts_with = "restrict")]
     pub select: Option<String>,
 
-    /// select only picture having at all their tags in TAGS (e.g "foo,bar")
-    #[arg(long, value_name = "TAGS", conflicts_with = "select")]
-    pub restrict: Option<String>,
-
     /// slideshow mode, displaying next picture every N seconds
     #[arg(short, long, value_name = "N")]
     pub slideshow: Option<i32>,
+
+    /// display 10 x 10 thumbnail pictures per page
+    #[arg(short, long, default_value_t = false, conflicts_with("grid"))]
+    pub thumbnails: bool,
+
+    /// window width
+    #[arg(long, value_name = "N")]
+    pub width: Option<i32>,
+
 }
 
 impl Args {

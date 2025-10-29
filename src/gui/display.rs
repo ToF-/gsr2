@@ -6,6 +6,7 @@ use crate::model::order::Order;
 use crate::model::rank::Rank;
 use crate::model::selection::Selection;
 use crate::model::tags::Tags;
+use crate::model::label::Label;
 use itertools::Itertools;
 
 fn expand_display(on: bool) -> String {
@@ -71,6 +72,15 @@ fn display_selection(selection: &Selection) -> String {
         "".to_string()
     }
 }
+
+fn label_display(label: Label) -> String {
+    if label.len() > 0 {
+        format!("<{}>", label)
+    } else {
+        String::from("")
+    }
+}
+
 fn tag_display(tags: Tags) -> String {
     match tags.len() {
         0 => String::from(""),
@@ -87,7 +97,7 @@ pub fn title_display(controller: &Controller) -> String {
         format!("{}", controller.current_picture().file_path())
     } else {
         format!(
-            "{} #{} {} {} {} {} {} {} {} {}{} {}",
+            "{} #{} {} {} {} {} {} {} {} {} {}{} {}",
             cover_display(match controller.current_picture().image_data() {
                 Some(image_data) => image_data.cover,
                 None => false,
@@ -96,6 +106,7 @@ pub fn title_display(controller: &Controller) -> String {
             page_display(controller),
             order_display(controller.gallery().order()),
             controller.current_picture().file_name(),
+            label_display(controller.current_picture().label()),
             match controller.current_picture().image_data() {
                 Some(image_data) => image_data.rank(),
                 None => Rank::NoStar,

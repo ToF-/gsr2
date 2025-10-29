@@ -1,9 +1,9 @@
 [package]
-name = "gsr2"
+name = "gsr"
 version = "0.1.0"
 edition = "2024"
 authors = ["ToF-"]
-default-run = "gsr2"
+default-run = "gsr"
 
 
 [[bin]]
@@ -11,7 +11,7 @@ name = "gen_data"
 path = "src/gen_data.rs"
 
 [[bin]]
-name = "gsr2"
+name = "gsr"
 path = "src/main.rs"
 
 [dependencies]

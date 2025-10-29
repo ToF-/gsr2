@@ -14,6 +14,7 @@ use gtk::prelude::ApplicationExt;
 use std::cell::RefCell;
 use std::process::exit;
 use std::rc::Rc;
+use std::io::Error as IOError;
 
 mod cli;
 mod env;
@@ -30,32 +31,33 @@ fn main() {
             exit(1)
         }
     };
-    match Args::parse_and_check(None, &config) {
-        Ok(cli) => {
-            let controller_result = Controller::new(cli.clone());
-            let controller_rc: RcController = match controller_result {
-                Ok(controller) => Rc::new(RefCell::new(controller)),
-                Err(err) => {
-                    eprintln!("{}", err);
-                    exit(1);
-                }
-            };
-            if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-                match controller.execute_command() {
-                    Ok(Status::Exit) => exit(0),
-                    Err(err) => {
-                        eprintln!("{}", err);
-                        exit(1);
+    let result =  Args::parse_and_check(None, &config)
+        .and_then(|cli| {
+            let args = cli.clone();
+            Controller::new(args.clone())
+                .and_then(|controller| {
+                    let controller_rc: RcController = Rc::new(RefCell::new(controller));
+                    let result = match controller_rc.try_borrow_mut() {
+                        Ok(mut controller) => match controller.execute_command() {
+                            Err(e) => Err(IOError::other(e)),
+                            other => other,
+                        },
+                        Err(e) => Err(IOError::other(e)),
+                    };
+                    if let Ok(Status::Ready) = result {
+                        build_and_run_app(args, controller_rc);
+                        Ok(Status::Done)
+                    } else {
+                        result
                     }
-                    Ok(_) => {}
-                }
-            };
-            build_and_run_app(cli, controller_rc);
-        }
-        Err(err) => {
-            eprintln!("{}", err);
-            exit(1);
-        }
+                })
+        });
+    match result {
+        Ok(Status::Done) | Ok(Status::Exit) | Ok(Status::Ready) => { exit(0) },
+        Err(e) => {
+            eprintln!("{}", e);
+            exit(1)
+        },
     }
 }
 
