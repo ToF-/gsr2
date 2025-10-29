@@ -187,6 +187,15 @@ impl Controller {
                 gallery.print();
                 Ok(Status::Done)
             }
+            Some(Command::Check) => {
+                gallery.load_from_database(&self.database, &args);
+                for picture in gallery.pictures() {
+                    if !file_exists(&picture.file_path()) {
+                        println!("{}",picture.file_path());
+                    }
+                }
+                Ok(Status::Done)
+            }
             Some(Command::Move { source, target }) => {
                 let selection: Selection = if let Some(labels) = &args.select {
                     Selection::from(&labels, SOME_TAGS)

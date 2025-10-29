@@ -59,7 +59,7 @@ pub fn create_missing_thumbnails(gallery: &Gallery, pictures_per_row: usize) {
                         count += 1
                     }
                     Err(err) => {
-                        eprintln!("{}", err);
+                        eprintln!("{} with thumbnail {} for picture {}", err, thumbnail_file_path, file_path);
                     }
                 }
             }

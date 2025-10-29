@@ -27,6 +27,8 @@ pub enum Command {
     /// [DIRECTORY] list the picture file names in the directory or database
     List { directory: Option<String> },
 
+    /// check that files in the database are present on the file system
+    Check ,
     /// <SOURCE_DIR> <TARGET_DIR> move picture files and data from source to target directory
     Move { source: String, target: String },
 
