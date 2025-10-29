@@ -3,14 +3,14 @@ use clap::Subcommand;
 #[derive(Subcommand, Clone, Debug, PartialEq)]
 /// Command
 pub enum Command {
-    /// <FILE_PATH> view the individual picture file_path
+    /// <FILE_PATH> display the picture
     File {
         #[arg(value_name = "FILE_PATH")]
         file_path: String,
     },
 
-    /// <DIRECTORY> view the pictures in directory
-    Dir {
+    /// <DIRECTORY> display pictures in directory
+    Directory {
         #[arg(value_name = "DIRECTORY")]
         directory: String,
     },
@@ -27,8 +27,12 @@ pub enum Command {
     /// [DIRECTORY] list the picture file names in the directory or database
     List { directory: Option<String> },
 
-    /// check that files in the database are present on the file system
-    Check ,
+    /// check picture files for pictures in the database
+    Check,
+
+    /// remove database entries for wich picture files don't exit
+    Clean,
+
     /// <SOURCE_DIR> <TARGET_DIR> move picture files and data from source to target directory
     Move { source: String, target: String },
 
@@ -38,4 +42,6 @@ pub enum Command {
         #[arg(value_name = "N", value_parser(clap::value_parser!(u8).range(2..=10)))]
         pictures_per_row: u8,
     },
+
+
 }

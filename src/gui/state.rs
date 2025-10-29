@@ -1,4 +1,5 @@
 use crate::env::default_values::{FOCUS_SYMBOL_1, FOCUS_SYMBOL_2};
+use crate::cli::args::Args;
 use crate::gui::mode::Mode;
 
 #[derive(Clone, Debug)]
@@ -16,6 +17,7 @@ pub struct State {
     mode: Mode,
     focus_symbol: char,
     change_focus_symbol_on: bool,
+    saved_args: Vec<Args>,
 }
 
 impl State {
@@ -34,7 +36,16 @@ impl State {
             mode: Mode::View,
             focus_symbol: FOCUS_SYMBOL_1,
             change_focus_symbol_on: true,
+            saved_args: vec![],
         }
+    }
+
+    pub fn push_current_args(&mut self, args: Args) {
+        self.saved_args.push(args)
+    }
+
+    pub fn pop_saved_args(&mut self) -> Option<Args> {
+        self.saved_args.pop()
     }
 
     pub fn mode(&self) -> Mode {

@@ -135,7 +135,7 @@ impl Args {
                 Err(e) => return Err(e),
             }
         }
-        if let Some(Command::Dir { ref directory }) = args.command {
+        if let Some(Command::Directory { ref directory }) = args.command {
             match check_path(directory) {
                 Ok(_) => return Ok(args.clone()),
                 Err(e) => return Err(e),
@@ -174,7 +174,7 @@ impl Args {
     pub fn on_database(&self) -> bool {
         match self.command {
             Some(Command::File { file_path: _ }) => false,
-            Some(Command::Dir { directory: _ }) => false,
+            Some(Command::Directory { directory: _ }) => false,
             _ => true,
         }
     }
@@ -183,7 +183,7 @@ impl Args {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::Command::Dir;
+    use crate::Command::Directory;
     use crate::Command::File;
     use crate::cli::command::Command;
     use crate::get_configuration;
@@ -242,7 +242,7 @@ mod tests {
     fn command_line_interface_with_command_directory_and_adequate_argument() {
         let args = vec!["gsr", "dir", "."];
         let args = Args::parse_and_check(Some(args), &config()).unwrap();
-        if let Some(Command::Dir { ref directory }) = args.command {
+        if let Some(Command::Directory { ref directory }) = args.command {
             assert_eq!(".", directory);
         } else {
             assert!(false)

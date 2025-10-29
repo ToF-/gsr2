@@ -490,11 +490,12 @@ pub mod tests {
     pub fn dummy_args() -> Args {
         Args{
             command: None,
-            at: None,
+            directory: None,
             grid: None,
             thumbnails: false,
             order: Order::Name,
             r#move: None,
+            label: None,
             cover: false,
             height: None,
             width: None,
@@ -686,7 +687,7 @@ pub mod tests {
         assert!(map.get(&file_path).unwrap().contains("dot"));
         assert!(map.get(&file_path).unwrap().contains("bar"));
 
-        let result = database.retrieve_all_pictures(Selection::empty(), false, None);
+        let result = database.retrieve_all_pictures(Selection::empty(), None, false, None);
         assert!(result.is_ok());
         let pictures = result.unwrap();
         assert_eq!(nine_colors_file_path(), pictures[1].file_path());

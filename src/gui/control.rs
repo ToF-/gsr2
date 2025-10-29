@@ -64,6 +64,8 @@ pub enum Control {
     RankTwoStars,
     RankThreeStars,
     RepeatLastAction,
+    GotoDirectory,
+    BackFromDirectory,
 }
 
 pub type KeyAndMode = (String, Mode);
@@ -109,7 +111,7 @@ pub fn default_controls() -> Controls {
         ((String::from("L"), Mode::View), Control::Unlabel),
         ((String::from("asterisk"), Mode::View), Control::AddTag),
         ((String::from("slash"), Mode::View), Control::RemoveTag),
-        ((String::from("q"), Mode::View), Control::Quit),
+        ((String::from("Q"), Mode::View), Control::Quit),
         ((String::from("Left"), Mode::View), Control::Left),
         ((String::from("t"), Mode::View), Control::Left),
         ((String::from("Right"), Mode::View), Control::Right),
@@ -185,6 +187,8 @@ pub fn default_controls() -> Controls {
         ((String::from("2"), Mode::View), Control::RankTwoStars),
         ((String::from("3"), Mode::View), Control::RankThreeStars),
         ((String::from("Tab"), Mode::View), Control::RepeatLastAction),
+        ((String::from("g"), Mode::View), Control::GotoDirectory),
+        ((String::from("G"), Mode::View), Control::BackFromDirectory),
     ]);
     controls
 }

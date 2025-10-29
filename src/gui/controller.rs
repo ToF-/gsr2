@@ -1,3 +1,4 @@
+use crate::file::paths::parent_directory;
 use crate::env::configuration::get_configuration;
 use crate::file::paths::file_exists;
 use crate::cli::status::Status;
@@ -120,7 +121,7 @@ impl Controller {
         let args = self.args.clone();
         let result = match args.command {
             Some(Command::File { file_path }) => gallery.load_from_file_path(&file_path),
-            Some(Command::Dir { directory }) => gallery.load_from_directory(&directory),
+            Some(Command::Directory { directory }) => gallery.load_from_directory(&directory),
             None => gallery.load_from_database(&self.database, &args),
             _ => Ok(0),
         };
@@ -142,7 +143,7 @@ impl Controller {
                 Err(e) => Err(e),
                 Ok(_) => Ok(Status::Ready),
             },
-            Some(Command::Dir { directory }) => match gallery.load_from_directory(&directory) {
+            Some(Command::Directory { directory }) => match gallery.load_from_directory(&directory) {
                 Err(e) => Err(e),
                 Ok(0) => {
                     println!("no pictures for this selection");
@@ -192,6 +193,16 @@ impl Controller {
                 for picture in gallery.pictures() {
                     if !file_exists(&picture.file_path()) {
                         println!("{}",picture.file_path());
+                    }
+                }
+                Ok(Status::Done)
+            }
+            Some(Command::Clean) => {
+                gallery.load_from_database(&self.database, &args);
+                for picture in gallery.pictures() {
+                    if !file_exists(&picture.file_path()) {
+                        self.database.delete_picture_with_file_path(&picture.file_path());
+                        println!("deleted from database: {}",picture.file_path());
                     }
                 }
                 Ok(Status::Done)
@@ -654,7 +665,32 @@ pub fn process_event(&mut self, event: Event, controller_rc: &RcController) {
             Control::RankTwoStars => self.rank_selected_pictures(Rank::TwoStars),
             Control::RankThreeStars => self.rank_selected_pictures(Rank::ThreeStars),
             Control::RepeatLastAction => self.repeat_last_action(),
+            Control::GotoDirectory => self.go_to_directory(),
+            Control::BackFromDirectory => self.back_from_directory(),
             _ => {}
+        }
+    }
+
+    pub fn go_to_directory(&mut self) {
+        if let Some(directory) = parent_directory(&self.current_picture().file_path()) {
+            let args = self.args.clone();
+            self.state.push_current_args(args.clone());
+            let new_args = Args{
+                directory: Some(directory),
+                cover: false,
+                .. args.clone()
+            };
+            self.args = new_args;
+            self.reload();
+            self.navigator.set_page_changed()
+        }
+    }
+
+    pub fn back_from_directory(&mut self) {
+        if let Some(old_args) = self.state.pop_saved_args() {
+            self.args = old_args;
+            self.reload();
+            self.navigator.set_page_changed()
         }
     }
 

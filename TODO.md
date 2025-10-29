@@ -2,8 +2,10 @@
 ## Gallery Show in Rust
 
 ## Todo
-- [ ] display label on title
-- [ ] option label select only pictures with LABEL
+- [ ] back from a subdir to the general level, at the picture index that was left
+- [X] enter into a subdir via one its picture: select the parent in the path
+- [X] display label on title
+- [X] option label select only pictures with LABEL
 - [X] after deletion or move, reload the gallery
 - [X] option --move-selected <DIRECTORY> interactively moves the selected file on confirm
 - [X] i toggles information on the title
