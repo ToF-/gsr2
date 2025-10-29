@@ -45,6 +45,10 @@ pub struct Args {
     #[arg(long, value_name = "N")]
     pub height: Option<i32>,
 
+    /// start display from picture number <N>
+    #[arg(short, long, value_name = "N")]
+    pub index: Option<usize>,
+
     /// display only pictures with label = "LABEL"
     #[arg(short, long, value_name = "LABEL")]
     pub label: Option<String>,

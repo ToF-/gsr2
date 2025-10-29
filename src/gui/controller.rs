@@ -153,6 +153,10 @@ impl Controller {
                     println!("{} pictures", &gallery.len());
                     gallery.sort_by(args.order);
                     self.set_gallery(gallery);
+                    if let Some(index) = args.index 
+                        && self.navigator().can_move(Direction::Index { value: index }) {
+                            self.navigator.move_towards(Direction::Index { value: index })
+                    };
                     self.navigator().set_page_changed();
                     Ok(Status::Ready)
                 }
@@ -253,6 +257,10 @@ impl Controller {
                     println!("{} pictures", &gallery.len());
                     gallery.sort_by(args.order);
                     self.set_gallery(gallery);
+                    if let Some(index) = args.index 
+                        && self.navigator().can_move(Direction::Index { value: index }) {
+                            self.navigator.move_towards(Direction::Index { value: index })
+                    };
                     self.navigator().set_page_changed();
                     Ok(Status::Ready)
                 }
@@ -673,6 +681,7 @@ pub fn process_event(&mut self, event: Event, controller_rc: &RcController) {
 
     pub fn go_to_directory(&mut self) {
         if let Some(directory) = parent_directory(&self.current_picture().file_path()) {
+            self.args.index = Some(self.navigator.position());
             let args = self.args.clone();
             self.state.push_current_args(args.clone());
             let new_args = Args{
@@ -690,6 +699,10 @@ pub fn process_event(&mut self, event: Event, controller_rc: &RcController) {
         if let Some(old_args) = self.state.pop_saved_args() {
             self.args = old_args;
             self.reload();
+            if let Some(index) = self.args.index
+                    && self.navigator.can_move(Direction::Index{ value: index }) {
+                        self.navigator.move_towards(Direction::Index{ value: index })
+            };
             self.navigator.set_page_changed()
         }
     }

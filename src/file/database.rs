@@ -492,6 +492,7 @@ pub mod tests {
             command: None,
             directory: None,
             grid: None,
+            index: None,
             thumbnails: false,
             order: Order::Name,
             r#move: None,

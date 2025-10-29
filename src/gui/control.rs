@@ -242,7 +242,7 @@ mod tests {
         );
         assert_eq!(
             Some(&Control::Quit),
-            default_controls().get(&(String::from("q"), V))
+            default_controls().get(&(String::from("Q"), V))
         );
         assert_eq!(
             Some(&Control::Label),
