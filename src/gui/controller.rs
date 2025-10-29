@@ -1,3 +1,6 @@
+use crate::env::configuration::get_configuration;
+use crate::file::paths::file_exists;
+use crate::cli::status::Status;
 use crate::file::operation::{execute, move_picture};
 use crate::model::selection::{ALL_TAGS, SOME_TAGS};
 use crate::file::move_pictures;
@@ -32,6 +35,7 @@ use rand::Rng;
 use rand::rng;
 use std::cell::RefCell;
 use std::io::Result as IOResult;
+use std::io::Error as IOError;
 use std::path::PathBuf;
 use std::process::exit;
 use std::rc::Rc;
@@ -130,12 +134,28 @@ impl Controller {
         result
     }
 
-    pub fn load_picture_data(&mut self) -> IOResult<usize> {
+    pub fn execute_command(&mut self) -> IOResult<Status> {
         let mut gallery = Gallery::new();
         let args = self.args.clone();
-        let result = match args.command {
-            Some(Command::File { file_path }) => gallery.load_from_file_path(&file_path),
-            Some(Command::Dir { directory }) => gallery.load_from_directory(&directory),
+        match args.command {
+            Some(Command::File { file_path }) => match gallery.load_from_file_path(&file_path) {
+                Err(e) => Err(e),
+                Ok(_) => Ok(Status::Ready),
+            },
+            Some(Command::Dir { directory }) => match gallery.load_from_directory(&directory) {
+                Err(e) => Err(e),
+                Ok(0) => {
+                    println!("no pictures for this selection");
+                    Ok(Status::Exit)
+                },
+                Ok(n) => {
+                    println!("{} pictures", &gallery.len());
+                    gallery.sort_by(args.order);
+                    self.set_gallery(gallery);
+                    self.navigator().set_page_changed();
+                    Ok(Status::Ready)
+                }
+            },
             Some(Command::Collect { directory }) => {
                 println!("collecting data for picture files in the database…");
                 let path: PathBuf = PathBuf::from(directory);
@@ -143,23 +163,17 @@ impl Controller {
                     Ok(directory) => {
                         gallery.load_from_directory(&directory.display().to_string());
                         match collect_data(&gallery, &self.database()) {
-                            Ok(_) => exit(0),
-                            Err(err) => {
-                                eprintln!("{}", err);
-                                exit(1);
-                            }
+                            Ok(_) => Ok(Status::Done),
+                                Err(err) => Err(err),
                         }
                     }
-                    Err(err) => {
-                        eprintln!("{}", err);
-                        exit(1);
-                    }
+                    Err(err) => Err(err),
                 }
             }
             Some(Command::Thumbnails { pictures_per_row }) => {
                 gallery.load_from_database(&self.database, &args);
                 create_missing_thumbnails(&gallery, pictures_per_row as usize);
-                exit(0)
+                Ok(Status::Done)
             }
             Some(Command::List { ref directory }) => {
                 match directory {
@@ -171,7 +185,7 @@ impl Controller {
                     }
                 };
                 gallery.print();
-                exit(0)
+                Ok(Status::Done)
             }
             Some(Command::Move { source, target }) => {
                 let selection: Selection = if let Some(labels) = &args.select {
@@ -184,40 +198,54 @@ impl Controller {
                 match move_pictures(&self.database, &selection, &source, &target) {
                     Ok(n) => {
                         println!("{} pictures moved from {} to {}", n, source, target);
-                        exit(0);
+                        Ok(Status::Exit)
                     },
-                    Err(err) => {
-                        eprintln!("error: {}", err);
-                        exit(1);
+                    Err(err) => Err(err)
+                }
+            }
+            Some(Command::Initialize) => {
+                let config = match get_configuration() {
+                    Ok(config) => config,
+                    Err(e) => return Err(e),
+                };
+                if !file_exists(&config.database_file) {
+                    println!("creating new database file {}", config.database_file);
+                    match Database::from_connection(&config.database_file, true) {
+                        Ok(database) => match database.rusqlite_create_schema() {
+                            Ok(_) => Ok(Status::Done),
+                            Err(e) => Err(IOError::other(e)),
+                        },
+                        Err(e) => Err(e),
                     }
+                } else {
+                    Err(IOError::other(format!("{} already exists", &config.database_file)))
                 }
             }
 
-            Some(_) => Ok(0),
-            None => gallery.load_from_database(&self.database, &args),
-        };
-        match result {
-            Ok(0) => {
-                println!("no pictures for this selection");
-                Ok(0)
+            None => match gallery.load_from_database(&self.database, &args) {
+                Err(e) => Err(e),
+                Ok(0) => {
+                    println!("no pictures for this selection");
+                    Ok(Status::Exit)
+                },
+                Ok(n) => {
+                    println!("{} pictures", &gallery.len());
+                    gallery.sort_by(args.order);
+                    self.set_gallery(gallery);
+                    self.navigator().set_page_changed();
+                    Ok(Status::Ready)
+                }
             }
-            Ok(size) => {
-                gallery.sort_by(args.order);
-                println!("{} pictures", &gallery.len());
-                self.set_gallery(gallery);
-                self.navigator().set_page_changed();
-                Ok(size)
-            }
-            Err(err) => Err(std::io::Error::other(err)),
         }
+
     }
 
-    pub fn process_event(&mut self, event: Event, controller_rc: &RcController) {
-        match event {
-            Event::KeyPressed {
-                key,
-                key_code,
-                modifier_type,
+pub fn process_event(&mut self, event: Event, controller_rc: &RcController) {
+    match event {
+        Event::KeyPressed {
+            key,
+            key_code,
+            modifier_type,
             } => {
                 self.process_key_event(key, key_code, modifier_type, controller_rc);
             }
