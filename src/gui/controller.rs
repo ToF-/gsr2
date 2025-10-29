@@ -217,6 +217,7 @@ impl Controller {
                     Ok(config) => config,
                     Err(e) => return Err(e),
                 };
+                println!("initialize");
                 if !file_exists(&config.database_file) {
                     println!("creating new database file {}", config.database_file);
                     match Database::from_connection(&config.database_file, true) {
