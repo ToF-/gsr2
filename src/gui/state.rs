@@ -41,7 +41,12 @@ impl State {
     }
 
     pub fn push_current_args(&mut self, args: Args) {
-        self.saved_args.push(args)
+        if self.saved_args.is_empty() {
+            self.saved_args.push(args)
+        } else if let Some(old_args) = self.saved_args.last()
+            && old_args.directory != args.directory {
+                self.saved_args.push(args)
+        }
     }
 
     pub fn pop_saved_args(&mut self) -> Option<Args> {
