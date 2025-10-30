@@ -1,3 +1,4 @@
+use crate::file::paths::parent_directory;
 use crate::file::paths::{
     file_exists, file_path_as_retrieved, file_path_as_stored
 };
@@ -13,6 +14,7 @@ use std::cell::{Ref, RefCell};
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::io::Result as IOResult;
+use std::io::Error as IOError;
 use std::path::PathBuf;
 use std::rc::Rc;
 
@@ -24,7 +26,7 @@ pub struct Database {
 }
 
 impl Database {
-    pub fn from_connection(connection_string: &str, create: bool) -> std::io::Result<Self> {
+    pub fn from_connection(connection_string: &str, create: bool) -> IOResult<Self> {
         match Self::rusqlite_from_connection(connection_string, create) {
             Ok(database) => Ok(database),
             Err(err) => Err(std::io::Error::other(err)),
@@ -445,6 +447,36 @@ impl Database {
         };
         picture.set_image_data(image_data);
         Ok(picture)
+    }
+
+    fn rusqulite_retrieve_all_file_paths(&mut self) -> SqlResult<HashMap<String, usize>> {
+        let sql_query = "SELECT FilePath FROM Picture;";
+        self.connection()
+            .prepare(sql_query)
+            .and_then(|mut statement| {
+                let mut map: HashMap<String,usize> = HashMap::new();
+                statement.query([]).and_then(|mut rows| {
+                    while let Some(row) = rows.next().unwrap() {
+                        let file_path: String = row.get(0).unwrap();
+                        if let Some(directory) = parent_directory(
+                            &file_path_as_retrieved(&file_path)) {
+                            if let Some(mut count) = map.get_mut(&directory) {
+                                *count += 1; 
+                            } else {
+                                let _ = map.insert(directory, 0);
+                            }
+                        }
+                    };
+                    Ok(map)
+                })
+            })
+    }
+
+    pub fn retrieve_all_parent_dirs(&mut self) -> IOResult<HashMap<String, usize>> {
+        match self.rusqulite_retrieve_all_file_paths() {
+            Ok(result) => Ok(result),
+            Err(e) => Err(IOError::other(e)),
+        }
     }
 }
 // ""

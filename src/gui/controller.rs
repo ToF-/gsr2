@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use crate::file::paths::parent_directory;
 use crate::env::configuration::get_configuration;
 use crate::file::paths::file_exists;
@@ -53,6 +54,7 @@ pub struct Controller {
     main_window_opt: Option<MainWindow>,
     editor: Editor,
     last_action: Action,
+    parent_dirs: HashMap<String, usize>,
 }
 
 pub type RcController = Rc<RefCell<Controller>>;
@@ -64,17 +66,24 @@ impl Controller {
         database_connection(config).and_then(|connection_string| {
             match Database::from_connection(&connection_string, false) {
                 Err(err) => Err(err),
-                Ok(database) => Ok(Controller {
-                    args: cli.clone(),
-                    gallery,
-                    editor: Editor::new(),
-                    navigator: Navigator::new(0, pictures_per_row as usize),
-                    controls: default_controls(),
-                    database,
-                    state: State::new(pictures_per_row as usize, cli.slideshow().is_some()),
-                    main_window_opt: None,
-                    last_action: Action::NoAction,
-                }),
+                Ok(mut database) => {
+                    database.retrieve_all_parent_dirs()
+                        .and_then(|parent_dirs| {
+                            println!("{:?}", parent_dirs);
+                            Ok(Controller {
+                                args: cli.clone(),
+                                gallery,
+                                editor: Editor::new(),
+                                navigator: Navigator::new(0, pictures_per_row as usize),
+                                controls: default_controls(),
+                                database,
+                                state: State::new(pictures_per_row as usize, cli.slideshow().is_some()),
+                                main_window_opt: None,
+                                last_action: Action::NoAction,
+                                parent_dirs,
+                            })
+                        })
+                },
             }
         })
     }
