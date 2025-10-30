@@ -2,6 +2,7 @@
 ## Gallery Show in Rust
 
 ## Todo
+- [ ] don't allow going to subdir if picture per row = 1
 - [ ] when back from a subdir, get to the former mode as well
 - [ ] use + and - to descend / ascend the file paths ?
 - [X] find fist position for label or part of a label 
