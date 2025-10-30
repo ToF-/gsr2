@@ -613,7 +613,7 @@ pub mod tests {
                 .to_vec(),
                 100,
             ),
-            cover: true,
+            cover: None,
             tags: HashSet::from([String::from("foo"), String::from("bar")]),
         };
         picture.set_image_data(image_data.clone());
@@ -635,7 +635,7 @@ pub mod tests {
             100,
             retrieved_picture.image_data().unwrap().palette().count()
         );
-        assert_eq!(true, retrieved_picture.image_data().unwrap().cover());
+        assert_eq!(true, retrieved_picture.image_data().unwrap().cover().is_some());
         assert_eq!(2, retrieved_picture.image_data().unwrap().tags.len());
     }
 

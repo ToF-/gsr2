@@ -113,7 +113,7 @@ pub fn default_controls() -> Controls {
         ((String::from("L"), Mode::View), Control::Unlabel),
         ((String::from("asterisk"), Mode::View), Control::AddTag),
         ((String::from("slash"), Mode::View), Control::RemoveTag),
-        ((String::from("Q"), Mode::View), Control::Quit),
+        ((String::from("q"), Mode::View), Control::Quit),
         ((String::from("Left"), Mode::View), Control::Left),
         ((String::from("t"), Mode::View), Control::Left),
         ((String::from("Right"), Mode::View), Control::Right),
@@ -248,7 +248,7 @@ mod tests {
         );
         assert_eq!(
             Some(&Control::Quit),
-            default_controls().get(&(String::from("Q"), V))
+            default_controls().get(&(String::from("q"), V))
         );
         assert_eq!(
             Some(&Control::Label),

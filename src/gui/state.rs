@@ -52,6 +52,10 @@ impl State {
         result
     }
 
+    pub fn has_saved_args(&self) -> bool {
+        self.saved_args.is_some()
+    }
+
     pub fn mode(&self) -> Mode {
         self.mode.clone()
     }

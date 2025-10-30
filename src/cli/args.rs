@@ -30,7 +30,7 @@ pub struct Args {
     pub command: Option<Command>,
 
     /// display only pictures which are selected as cover
-    #[arg(long)]
+    #[arg(short,long)]
     pub cover: bool,
 
     /// select only picture data for pictures present on <DIRECTORY>

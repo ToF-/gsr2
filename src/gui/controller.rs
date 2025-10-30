@@ -925,9 +925,13 @@ pub fn process_event(&mut self, event: Event, controller_rc: &RcController) {
         }
     }
 
-    pub fn quit(&self) {
-        let application_window = self.main_window().application_window();
-        application_window.close()
+    pub fn quit(&mut self) {
+        if self.state.has_saved_args() {
+            self.back_from_directory()
+        } else {
+            let application_window = self.main_window().application_window();
+            application_window.close()
+        }
     }
 
     pub fn reload(&mut self) {
