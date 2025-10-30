@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use crate::Args;
 use crate::file::database::Database;
 use crate::file::picture_file::{get_all_picture_file_paths, get_picture_file_path};
@@ -10,6 +11,7 @@ use rand::rng;
 use std::cmp::Reverse;
 use std::collections::HashSet;
 use std::io::{Error, Result};
+use crate::file::paths::parent_directory;
 
 #[derive(Debug, Clone)]
 pub struct Gallery {
@@ -185,6 +187,7 @@ impl Gallery {
         }
         labels
     }
+
 }
 
 #[cfg(test)]
