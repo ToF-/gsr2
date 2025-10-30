@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use std::collections::HashMap;
 use crate::file::paths::parent_directory;
 use crate::env::configuration::get_configuration;
@@ -55,6 +56,7 @@ pub struct Controller {
     editor: Editor,
     last_action: Action,
     parent_dirs: HashMap<String, usize>,
+    labels: HashSet<String>,
 }
 
 pub type RcController = Rc<RefCell<Controller>>;
@@ -69,18 +71,22 @@ impl Controller {
                 Ok(mut database) => {
                     database.retrieve_all_parent_dirs()
                         .and_then(|parent_dirs| {
-                            Ok(Controller {
-                                args: cli.clone(),
-                                gallery,
-                                editor: Editor::new(),
-                                navigator: Navigator::new(0, pictures_per_row as usize),
-                                controls: default_controls(),
-                                database,
-                                state: State::new(pictures_per_row as usize, cli.slideshow().is_some()),
-                                main_window_opt: None,
-                                last_action: Action::NoAction,
-                                parent_dirs,
-                            })
+                            database.retrieve_all_labels()
+                                .and_then(|labels| {
+                                    Ok(Controller {
+                                        args: cli.clone(),
+                                        gallery,
+                                        editor: Editor::new(),
+                                        navigator: Navigator::new(0, pictures_per_row as usize),
+                                        controls: default_controls(),
+                                        database,
+                                        state: State::new(pictures_per_row as usize, cli.slideshow().is_some()),
+                                        main_window_opt: None,
+                                        last_action: Action::NoAction,
+                                        parent_dirs,
+                                        labels,
+                                    })
+                                })
                         })
                 },
             }
@@ -114,10 +120,15 @@ impl Controller {
         &self.gallery
     }
 
+    
     pub fn set_gallery(&mut self, gallery: Gallery) {
         self.gallery = gallery;
         self.navigator = Navigator::new(self.gallery.len(), self.state().pictures_per_row());
         self.acknowledge_grid_size_change();
+    }
+
+    pub fn labels(&self) -> HashSet<String> {
+        self.labels.clone()
     }
 
     pub fn current_picture(&self) -> Picture {
@@ -510,6 +521,7 @@ pub fn process_event(&mut self, event: Event, controller_rc: &RcController) {
     }
 
     pub fn label_selected_pictures(&mut self, label: &str) {
+        let _ = self.labels.insert(label.to_string());
         if self.navigator.has_selected() {
             for index in 0..self.navigator.limit() {
                 if self.navigator.is_selected(index) {
@@ -567,6 +579,7 @@ pub fn process_event(&mut self, event: Event, controller_rc: &RcController) {
     }
 
     pub fn tag_selected_pictures(&mut self, label: &str) {
+        let _ = self.labels.insert(label.to_string());
         if self.navigator.has_selected() {
             for index in 0..self.navigator.limit() {
                 if self.navigator.is_selected(index) {
@@ -768,7 +781,7 @@ pub fn process_event(&mut self, event: Event, controller_rc: &RcController) {
         self.editor.begin(
             &self.main_window(),
             EntryKind::SetSelection,
-            Some(self.gallery.all_labels()),
+            Some(self.labels()),
         );
         self.state.set_mode(Mode::Editing);
     }
@@ -777,7 +790,7 @@ pub fn process_event(&mut self, event: Event, controller_rc: &RcController) {
         self.editor.begin(
             &self.main_window(),
             EntryKind::SetRestriction,
-            Some(self.gallery.all_labels()),
+            Some(self.labels()),
         );
         self.state.set_mode(Mode::Editing);
     }
@@ -813,7 +826,7 @@ pub fn process_event(&mut self, event: Event, controller_rc: &RcController) {
         self.editor.begin(
             &self.main_window(),
             EntryKind::AddTag,
-            Some(self.gallery.all_labels()),
+            Some(self.labels()),
         );
         self.state.set_mode(Mode::Editing);
     }
@@ -833,7 +846,7 @@ pub fn process_event(&mut self, event: Event, controller_rc: &RcController) {
         self.editor.begin(
             &self.main_window(),
             EntryKind::Label,
-            Some(self.gallery.all_labels()),
+            Some(self.labels()),
         );
         self.state.set_mode(Mode::Editing);
     }

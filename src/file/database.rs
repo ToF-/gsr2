@@ -268,6 +268,26 @@ impl Database {
             })
     }
 
+    pub fn rusqlite_retrieve_all_labels(&self) -> SqlResult<HashSet<String>> {
+        self.connection()
+            .prepare(
+                "SELECT DISTINCT Label         \n\
+                FROM Picture WHERE Label <> '' \n\
+                UNION                          \n\
+                SELECT DISTINCT Label          \n\
+                FROM Tag WHERE Label <> '';"
+            ).and_then(|mut statement| {
+                let mut map: HashSet<String> = HashSet::new();
+                statement.query([]).and_then(|mut rows| {
+                    while let Some(row) = rows.next().unwrap() {
+                        let label: String = row.get(0).expect("can't access to column Label");
+                            let _ = map.insert(label);
+                    };
+                    Ok(map)
+                })
+            })
+    }
+
     pub fn rusqlite_retrieve_all_tags(&self) -> SqlResult<HashMap<String, HashSet<String>>> {
         self.connection()
             .prepare(
@@ -487,6 +507,13 @@ impl Database {
 
     pub fn retrieve_all_parent_dirs(&self) -> IOResult<HashMap<String, usize>> {
         match self.rusqulite_retrieve_all_file_paths() {
+            Ok(result) => Ok(result),
+            Err(e) => Err(IOError::other(e)),
+        }
+    }
+
+    pub fn retrieve_all_labels(&self) -> IOResult<HashSet<String>> {
+        match self.rusqlite_retrieve_all_labels() {
             Ok(result) => Ok(result),
             Err(e) => Err(IOError::other(e)),
         }
