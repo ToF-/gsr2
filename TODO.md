@@ -2,7 +2,8 @@
 ## Gallery Show in Rust
 
 ## Todo
-- [ ] do not push args on saved args if entering the same subdir again
+- [X] find fist position for label or part of a label 
+- [X] do not push args on saved args if entering the same subdir again
 - [X] back from a subdir to the general level, at the picture index that was left
 - [X] enter into a subdir via one its picture: select the parent in the path
 - [X] display label on title

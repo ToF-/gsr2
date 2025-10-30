@@ -8,6 +8,7 @@ pub enum EntryKind {
     DeleteConfirmation,
     MoveConfirmation,
     Find,
+    FindLabel,
     Information,
     SetRestriction,
     SetSelection,

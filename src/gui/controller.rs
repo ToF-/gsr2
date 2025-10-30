@@ -434,6 +434,11 @@ pub fn process_event(&mut self, event: Event, controller_rc: &RcController) {
                                 self.find_pattern(&self.editor.input())
                             };
                         }
+                        EntryKind::FindLabel => {
+                            if !self.editor.input().is_empty() {
+                                self.find_pattern_in_label(&self.editor.input())
+                            };
+                        }
                         EntryKind::Information => {
 
                         }
@@ -637,6 +642,7 @@ pub fn process_event(&mut self, event: Event, controller_rc: &RcController) {
             Control::TogglePalette => self.toggle_palette(),
             Control::Jump => self.jump(),
             Control::Find => self.find(),
+            Control::FindLabel => self.find_label(),
             Control::Information => self.information(),
             Control::ToggleInformation => self.toggle_information(),
             Control::AddTag => self.add_tag(),
@@ -836,6 +842,13 @@ pub fn process_event(&mut self, event: Event, controller_rc: &RcController) {
         self.state.set_mode(Mode::Editing);
     }
 
+    pub fn find_label(&mut self) {
+        self.editor
+            .begin(&self.main_window(), EntryKind::FindLabel,
+            Some(self.gallery.all_labels()));
+        self.state.set_mode(Mode::Editing);
+    }
+
     pub fn information(&mut self) {
         self.editor
             .begin(&self.main_window(), EntryKind::Information, None);
@@ -855,6 +868,19 @@ pub fn process_event(&mut self, event: Event, controller_rc: &RcController) {
             .pictures()
             .iter()
             .position(|picture| picture.file_path().contains(pattern))
+        {
+            let navigator = &mut self.navigator;
+            navigator.move_towards(Direction::Index { value: index });
+            navigator.set_page_changed()
+        }
+    }
+
+    pub fn find_pattern_in_label(&mut self, pattern: &str) {
+        if let Some(index) = self
+            .gallery
+            .pictures()
+            .iter()
+            .position(|picture| picture.label().contains(pattern))
         {
             let navigator = &mut self.navigator;
             navigator.move_towards(Direction::Index { value: index });
