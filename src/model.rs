@@ -1,4 +1,5 @@
 pub mod action;
+pub mod cover;
 pub mod gallery;
 pub mod image_data;
 pub mod label;

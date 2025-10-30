@@ -1,3 +1,4 @@
+use crate::model::cover::Cover;
 use crate::env::default_values::{
     COVER_SYMBOL, EXPAND_ON_SYMBOL, FULL_SIZE_ON_SYMBOL, ORDER_SYMBOL,
 };
@@ -41,7 +42,7 @@ fn order_display(order: Order) -> String {
 pub fn picture_label_display(
     label: &str,
     rank: Rank,
-    cover: bool,
+    cover: Cover,
     with_focus: Option<char>,
 ) -> String {
     format!(
@@ -57,11 +58,10 @@ pub fn picture_label_display(
     )
 }
 
-fn cover_display(cover: bool) -> String {
-    if cover {
-        COVER_SYMBOL.to_string()
-    } else {
-        "".to_string()
+fn cover_display(cover: Cover) -> String {
+    match cover {
+        None | Some(0) => "".to_string(),
+        Some(count) => format!("{} {} ", COVER_SYMBOL.to_string(), count),
     }
 }
 
@@ -98,10 +98,7 @@ pub fn title_display(controller: &Controller) -> String {
     } else {
         format!(
             "{} #{} {} {} {} {} {} {} {} {} {}{} {}",
-            cover_display(match controller.current_picture().image_data() {
-                Some(image_data) => image_data.cover,
-                None => false,
-            }),
+            cover_display(controller.current_picture().cover()),
             controller.navigator().position(),
             page_display(controller),
             order_display(controller.gallery().order()),

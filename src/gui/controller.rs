@@ -69,7 +69,6 @@ impl Controller {
                 Ok(mut database) => {
                     database.retrieve_all_parent_dirs()
                         .and_then(|parent_dirs| {
-                            println!("{:?}", parent_dirs);
                             Ok(Controller {
                                 args: cli.clone(),
                                 gallery,
@@ -201,6 +200,18 @@ impl Controller {
                     }
                 };
                 gallery.print();
+                if !self.parent_dirs.is_empty() {
+                    println!("----- directories:{} -----", self.parent_dirs.len());
+                    let mut dirs: Vec<String> = vec![];
+                    for dir in self.parent_dirs.keys() {
+                        dirs.push(dir.to_string());
+                    }
+                    dirs.sort();
+                    for dir in dirs {
+                        let count = self.parent_dirs.get(&dir).unwrap();
+                        println!("{}:  {}", dir, count)
+                    }
+                }
                 Ok(Status::Done)
             }
             Some(Command::Check) => {
@@ -730,10 +741,23 @@ pub fn process_event(&mut self, event: Event, controller_rc: &RcController) {
         }
     }
 
+    pub fn current_dir_count(&self) -> usize {
+        if let Some(directory) = parent_directory(&self.current_picture().file_path()) {
+            if let Some(count)= self.parent_dirs.get(&directory) {
+                *count
+            } else {
+                0
+            } 
+        }else {
+            0
+        }
+    }
+
     pub fn toggle_cover(&mut self) {
         let index = self.navigator().position();
         let mut picture = self.gallery.picture(index);
-        picture.toggle_cover();
+        let dir_count = self.current_dir_count();
+        picture.toggle_cover(dir_count);
         self.gallery.set_picture(index, picture.clone());
         match self.database.update_picture(&picture) {
             Ok(_) => {}

@@ -1,3 +1,4 @@
+use crate::model::cover::{bool_to_cover, cover_to_bool};
 use crate::file::paths::parent_directory;
 use crate::file::paths::{
     file_exists, file_path_as_retrieved, file_path_as_stored
@@ -107,7 +108,7 @@ impl Database {
                     <Rank as Into<i64>>::into(image_data.rank()),
                     image_data.palette().sample_as_array(),
                     image_data.palette.count(),
-                    image_data.cover(),
+                    cover_to_bool(image_data.cover()),
                 ],
             )
             .and_then(|count| {
@@ -155,7 +156,7 @@ impl Database {
                     <Rank as Into<i64>>::into(image_data.rank()),
                     image_data.palette().sample_as_array(),
                     image_data.palette.count(),
-                    image_data.cover
+                    cover_to_bool(image_data.cover),
                 ],
             )
             .and_then(|_| {
@@ -383,34 +384,46 @@ impl Database {
         cover: bool,
         parent_opt: Option<String>,
     ) -> IOResult<Vec<Picture>> {
-        match self.rusqlite_retrieve_all_pictures(cover, parent_opt) {
-            Ok(picture_map) => match self.rusqlite_retrieve_all_tags() {
-                Ok(tag_map) => {
-                    let mut pictures: Vec<Picture> = vec![];
-                    for (file_path, image_data) in picture_map.iter() {
-                        let new_tags = if let Some(tags) = tag_map.get(file_path) {
-                            tags.clone()
-                        } else {
-                            HashSet::new()
-                        };
-                        let new_image_data = ImageData {
-                            tags: new_tags.clone(),
-                            ..image_data.clone()
-                        };
-                        if (selection.is_empty() || selection.matches(new_tags.clone())) 
-                            && (label.clone().is_none() || *label.as_ref().unwrap() == new_image_data.label()) {
+        self.retrieve_all_parent_dirs()
+            .and_then(|parent_dirs| {
+                match self.rusqlite_retrieve_all_pictures(cover, parent_opt) {
+                    Ok(picture_map) => match self.rusqlite_retrieve_all_tags() {
+                        Ok(tag_map) => {
+                            let mut pictures: Vec<Picture> = vec![];
+                            for (file_path, image_data) in picture_map.iter() {
+                                let new_tags = if let Some(tags) = tag_map.get(file_path) {
+                                    tags.clone()
+                                } else {
+                                    HashSet::new()
+                                };
+                                let parent_dir = parent_directory(file_path).unwrap();
+                                let mut new_image_data = ImageData {
+                                    tags: new_tags.clone(),
+                                    cover: match image_data.clone().cover {
+                                        None => None,
+                                        Some(_) => if let Some(count) = parent_dirs.get(&parent_dir) {
+                                            Some(*count)
+                                        } else {
+                                            Some(0)
+                                        }
+                                    },
+                                    ..image_data.clone()
+                                };
+                                if (selection.is_empty() || selection.matches(new_tags.clone())) 
+                                    && (label.clone().is_none() || *label.as_ref().unwrap() == new_image_data.label()) {
 
-                            let picture = Picture::new_with_image_data(file_path, &new_image_data);
-                            pictures.push(picture)
+                                        let picture = Picture::new_with_image_data(file_path, &new_image_data);
+                                        pictures.push(picture)
+                                }
+                            }
+                            pictures.sort_by_key(|picture| picture.file_path());
+                            Ok(pictures)
                         }
-                    }
-                    pictures.sort_by_key(|picture| picture.file_path());
-                    Ok(pictures)
+                        Err(err) => Err(std::io::Error::other(err)),
+                    },
+                    Err(err) => Err(std::io::Error::other(err)),
                 }
-                Err(err) => Err(std::io::Error::other(err)),
-            },
-            Err(err) => Err(std::io::Error::other(err)),
-        }
+            })
     }
 
     pub fn retrieve_all_pictures_with_parent(&self, parent_dir: &str) -> IOResult<Vec<Picture>> {
@@ -443,13 +456,13 @@ impl Database {
             rank: Rank::from(rank_value),
             palette,
             tags: HashSet::new(),
-            cover,
+            cover: bool_to_cover(cover),
         };
         picture.set_image_data(image_data);
         Ok(picture)
     }
 
-    fn rusqulite_retrieve_all_file_paths(&mut self) -> SqlResult<HashMap<String, usize>> {
+    fn rusqulite_retrieve_all_file_paths(&self) -> SqlResult<HashMap<String, usize>> {
         let sql_query = "SELECT FilePath FROM Picture;";
         self.connection()
             .prepare(sql_query)
@@ -463,7 +476,7 @@ impl Database {
                             if let Some(mut count) = map.get_mut(&directory) {
                                 *count += 1; 
                             } else {
-                                let _ = map.insert(directory, 0);
+                                let _ = map.insert(directory, 1);
                             }
                         }
                     };
@@ -472,7 +485,7 @@ impl Database {
             })
     }
 
-    pub fn retrieve_all_parent_dirs(&mut self) -> IOResult<HashMap<String, usize>> {
+    pub fn retrieve_all_parent_dirs(&self) -> IOResult<HashMap<String, usize>> {
         match self.rusqulite_retrieve_all_file_paths() {
             Ok(result) => Ok(result),
             Err(e) => Err(IOError::other(e)),

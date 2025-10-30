@@ -1,3 +1,4 @@
+use crate::model::cover::Cover;
 use crate::file::paths::{file_name_from, thumbnail_name_from};
 use crate::model::image_data::ImageData;
 use crate::model::image_data::datetime_from_time_stamp;
@@ -184,21 +185,25 @@ impl Picture {
         self.image_data = Some(new_image_data)
     }
 
-    pub fn toggle_cover(&mut self) {
+    pub fn toggle_cover(&mut self, dir_count: usize) {
         let mut new_image_data = if let Some(image_data) = &self.image_data {
             image_data.clone()
         } else {
             ImageData::new("")
         };
-        new_image_data.cover = !new_image_data.cover;
+        if self.cover().is_some() {
+            new_image_data.cover = None;
+        } else {
+            new_image_data.cover = Some(dir_count)
+        }
         self.image_data = Some(new_image_data);
     }
 
-    pub fn cover(&self) -> bool {
+    pub fn cover(&self) -> Cover {
         if let Some(image_data) = &self.image_data {
             image_data.cover
         } else {
-            false
+            None
         }
     }
 

@@ -1,3 +1,4 @@
+use crate::model::cover::Cover;
 use crate::file::picture_file::get_data_from_picture_file;
 use crate::model::label::{Label, from};
 use crate::model::palette::Palette;
@@ -34,7 +35,7 @@ pub struct ImageData {
     pub modified_time: TimeStamp,
     pub rank: Rank,
     pub palette: Palette,
-    pub cover: bool,
+    pub cover: Cover,
     pub tags: Tags,
 }
 
@@ -46,7 +47,7 @@ impl ImageData {
             rank: Rank::NoStar,
             modified_time: timestamp(SystemTime::UNIX_EPOCH),
             palette: Palette::new(vec![], 0),
-            cover: false,
+            cover: None,
             tags: HashSet::new(),
         }
     }
@@ -59,7 +60,7 @@ impl ImageData {
                 modified_time: file_data.1,
                 rank: Rank::NoStar,
                 palette: Palette::new(vec![], 0),
-                cover: false,
+                cover: None,
                 tags: HashSet::new(),
             })
         })
@@ -85,7 +86,7 @@ impl ImageData {
         self.rank
     }
 
-    pub fn cover(&self) -> bool {
+    pub fn cover(&self) -> Cover {
         self.cover
     }
 

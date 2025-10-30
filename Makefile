@@ -14,3 +14,5 @@ reinit_data:
 	sqlite3 testdata/gsr2.db "SELECT FilePath, Label, FileSize, ModifiedTime, Rank, ColorCount, Cover FROM Picture;"
 	tree testdata
 	
+install:
+	cargo install --path .
