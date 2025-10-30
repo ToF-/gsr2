@@ -40,6 +40,7 @@ use std::io::Error as IOError;
 use std::path::PathBuf;
 use std::process::exit;
 use std::rc::Rc;
+use crate::env::configuration::Configuration;
 
 #[derive(Debug)]
 pub struct Controller {
@@ -57,10 +58,10 @@ pub struct Controller {
 pub type RcController = Rc<RefCell<Controller>>;
 
 impl Controller {
-    pub fn new(cli: Args) -> IOResult<Self> {
+    pub fn new(config: Configuration, cli: Args) -> IOResult<Self> {
         let gallery = Gallery::new();
         let pictures_per_row = cli.pictures_per_row();
-        database_connection().and_then(|connection_string| {
+        database_connection(config).and_then(|connection_string| {
             match Database::from_connection(&connection_string, false) {
                 Err(err) => Err(err),
                 Ok(database) => Ok(Controller {
@@ -136,6 +137,7 @@ impl Controller {
     }
 
     pub fn execute_command(&mut self) -> IOResult<Status> {
+        println!("--- command");
         let mut gallery = Gallery::new();
         let args = self.args.clone();
         match args.command {
@@ -232,7 +234,7 @@ impl Controller {
                     Ok(config) => config,
                     Err(e) => return Err(e),
                 };
-                println!("initialize");
+                println!("initializing database");
                 if !file_exists(&config.database_file) {
                     println!("creating new database file {}", config.database_file);
                     match Database::from_connection(&config.database_file, true) {

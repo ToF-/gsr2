@@ -6,8 +6,8 @@ use std::env;
 use std::fs;
 use std::io::Result;
 
-#[derive(Debug, Deserialize)]
-pub struct Config {
+#[derive(Debug, Deserialize, Clone)]
+pub struct Configuration {
     pub width: i32,
     pub height: i32,
     pub database_file: String,
@@ -21,7 +21,7 @@ pub fn config_file_location() -> String {
     }
 }
 
-pub fn get_configuration() -> Result<Config> {
+pub fn get_configuration() -> Result<Configuration> {
     if !file_exists(&config_file_location()) {
         return Err(std::io::Error::other(format!(
             "configuration file {} does not exist",

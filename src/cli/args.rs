@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 use crate::file::paths::check_collectable;
 use crate::cli::command::Command;
-use crate::env::configuration::Config;
+use crate::env::configuration::Configuration;
 use crate::env::default_values::{DEFAULT_HEIGHT, DEFAULT_SLIDESHOW_DELAY, DEFAULT_WIDTH};
 use crate::env::dimension::{dimension, slideshow_delay};
 use crate::file::paths::{check_path, check_picture_file};
@@ -84,7 +84,7 @@ pub struct Args {
 }
 
 impl Args {
-    pub fn parse_and_check(args_opt: Option<Vec<&str>>, config: &Config) -> Result<Self> {
+    pub fn parse_and_check(args_opt: Option<Vec<&str>>, config: &Configuration) -> Result<Self> {
         let mut args: Self = match args_opt {
             Some(args) => Self::parse_from(args),
             None => Self::parse(),
@@ -194,7 +194,7 @@ mod tests {
     use crate::test_data::*;
     use std::io::ErrorKind;
 
-    fn config() -> Config {
+    fn config() -> Configuration {
         get_configuration().unwrap()
     }
     #[test]

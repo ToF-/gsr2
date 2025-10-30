@@ -1,9 +1,6 @@
-use crate::get_configuration;
+use crate::env::configuration::Configuration;
 use std::io::Result;
 
-pub fn database_connection() -> Result<String> {
-    match get_configuration() {
-        Ok(config) => Ok(config.database_file),
-        Err(err) => Err(err),
-    }
+pub fn database_connection(config: Configuration) -> Result<String> {
+    Ok(config.database_file)
 }

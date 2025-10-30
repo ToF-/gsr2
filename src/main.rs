@@ -34,7 +34,7 @@ fn main() {
     let result =  Args::parse_and_check(None, &config)
         .and_then(|cli| {
             let args = cli.clone();
-            Controller::new(args.clone())
+            Controller::new(config.clone(), args.clone())
                 .and_then(|controller| {
                     let controller_rc: RcController = Rc::new(RefCell::new(controller));
                     let result = match controller_rc.try_borrow_mut() {
