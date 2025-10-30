@@ -2,8 +2,8 @@
 ## Gallery Show in Rust
 
 ## Todo
-- [ ] when on a cover picture, title display the parent dir and length
-- [ ] gather length of each parent dir in pictures
+- [X] when on a cover picture, title display the parent dir and length
+- [X] gather length of each parent dir in pictures
 - [X] don't allow going to subdir if picture per row = 1
 - [X] when back from a subdir, get to the former mode as well
 - [ ] use + and - to descend / ascend the file paths ?

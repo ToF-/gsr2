@@ -145,7 +145,6 @@ impl Controller {
     }
 
     pub fn execute_command(&mut self) -> IOResult<Status> {
-        println!("--- command");
         let mut gallery = Gallery::new();
         let args = self.args.clone();
         match args.command {
@@ -728,10 +727,8 @@ pub fn process_event(&mut self, event: Event, controller_rc: &RcController) {
     pub fn back_from_directory(&mut self) {
         if let Some((pictures_per_row,single_view,old_args)) = self.state.pop_saved_args() {
             self.args = old_args;
-            println!("{:?}", self.state);
             self.state.set_single_view(single_view);
             self.change_grid_size(pictures_per_row);
-            println!("{:?}", self.state);
             self.reload();
             if let Some(index) = self.args.index
                     && self.navigator.can_move(Direction::Index{ value: index }) {

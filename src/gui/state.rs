@@ -43,7 +43,6 @@ impl State {
     pub fn push_current_args(&mut self, args: Args) {
         if self.saved_args.is_none() {
             self.saved_args = Some((self.pictures_per_row, self.single_view, args));
-            println!("{:?}", self.saved_args)
         }
     }
 
