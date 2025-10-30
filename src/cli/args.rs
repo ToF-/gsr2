@@ -62,15 +62,15 @@ pub struct Args {
     pub order: Order,
 
     /// select only picture having at all their tags in TAGS (e.g "foo,bar")
-    #[arg(long, value_name = "TAGS", conflicts_with = "select")]
+    #[arg(short, long, value_name = "TAGS", conflicts_with = "select")]
     pub restrict: Option<String>,
 
     /// select only picture having at least one tag in TAGS (e.g "foo,bar")
-    #[arg(long, value_name = "TAGS", conflicts_with = "restrict")]
+    #[arg(short, long, value_name = "TAGS", conflicts_with = "restrict")]
     pub select: Option<String>,
 
     /// slideshow mode, displaying next picture every N seconds
-    #[arg(short, long, value_name = "N")]
+    #[arg(long, value_name = "N")]
     pub slideshow: Option<i32>,
 
     /// display 10 x 10 thumbnail pictures per page
