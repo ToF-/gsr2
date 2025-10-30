@@ -689,7 +689,8 @@ pub fn process_event(&mut self, event: Event, controller_rc: &RcController) {
 
     pub fn go_to_directory(&mut self) {
         if let Some(directory) = parent_directory(&self.current_picture().file_path()) 
-            && Some(directory.clone()) != self.args.directory {
+            && Some(directory.clone()) != self.args.directory 
+                && !self.state.single_view() {
             self.args.index = Some(self.navigator.position());
             let args = self.args.clone();
             self.state.push_current_args(args.clone());
