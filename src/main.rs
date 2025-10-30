@@ -34,23 +34,38 @@ fn main() {
     let result =  Args::parse_and_check(None, &config)
         .and_then(|cli| {
             let args = cli.clone();
-            Controller::new(config.clone(), args.clone())
-                .and_then(|controller| {
-                    let controller_rc: RcController = Rc::new(RefCell::new(controller));
-                    let result = match controller_rc.try_borrow_mut() {
-                        Ok(mut controller) => match controller.execute_command() {
+            if let Some(Command::Initialize) = args.clone().command {
+                if !file_exists(&config.database_file) {
+                    println!("creating new database file {}", config.database_file);
+                    match Database::from_connection(&config.database_file, true) {
+                        Ok(database) => match database.rusqlite_create_schema() {
+                            Ok(_) => Ok(Status::Done),
                             Err(e) => Err(IOError::other(e)),
-                            other => other,
                         },
-                        Err(e) => Err(IOError::other(e)),
-                    };
-                    if let Ok(Status::Ready) = result {
-                        build_and_run_app(args, controller_rc);
-                        Ok(Status::Done)
-                    } else {
-                        result
+                        Err(e) => Err(e),
                     }
-                })
+                } else {
+                    Err(IOError::other(format!("{} already exists", &config.database_file)))
+                }
+            } else {
+                Controller::new(config.clone(), args.clone())
+                    .and_then(|controller| {
+                        let controller_rc: RcController = Rc::new(RefCell::new(controller));
+                        let result = match controller_rc.try_borrow_mut() {
+                            Ok(mut controller) => match controller.execute_command() {
+                                Err(e) => Err(IOError::other(e)),
+                                other => other,
+                            },
+                            Err(e) => Err(IOError::other(e)),
+                        };
+                        if let Ok(Status::Ready) = result {
+                            build_and_run_app(args, controller_rc);
+                            Ok(Status::Done)
+                        } else {
+                            result
+                        }
+                    })
+            }
         });
     match result {
         Ok(Status::Done) | Ok(Status::Exit) | Ok(Status::Ready) => { exit(0) },

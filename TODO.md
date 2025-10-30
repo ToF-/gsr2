@@ -2,6 +2,7 @@
 ## Gallery Show in Rust
 
 ## Todo
+- [ ] when back from a subdir, get to the former mode as well
 - [ ] use + and - to descend / ascend the file paths ?
 - [X] find fist position for label or part of a label 
 - [X] do not push args on saved args if entering the same subdir again

@@ -260,7 +260,7 @@ mod tests {
         );
         assert_eq!(
             Some(&Control::ToggleFullSize),
-            default_controls().get(&(String::from("f"), V))
+            default_controls().get(&(String::from("percent"), V))
         );
         assert_eq!(
             Some(&Control::ToggleSingleView),

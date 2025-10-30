@@ -17,7 +17,7 @@ pub struct State {
     mode: Mode,
     focus_symbol: char,
     change_focus_symbol_on: bool,
-    saved_args: Vec<Args>,
+    saved_args: Option<(usize, bool,Args)>,
 }
 
 impl State {
@@ -36,21 +36,21 @@ impl State {
             mode: Mode::View,
             focus_symbol: FOCUS_SYMBOL_1,
             change_focus_symbol_on: true,
-            saved_args: vec![],
+            saved_args: None,
         }
     }
 
     pub fn push_current_args(&mut self, args: Args) {
-        if self.saved_args.is_empty() {
-            self.saved_args.push(args)
-        } else if let Some(old_args) = self.saved_args.last()
-            && old_args.directory != args.directory {
-                self.saved_args.push(args)
+        if self.saved_args.is_none() {
+            self.saved_args = Some((self.pictures_per_row, self.single_view, args));
+            println!("{:?}", self.saved_args)
         }
     }
 
-    pub fn pop_saved_args(&mut self) -> Option<Args> {
-        self.saved_args.pop()
+    pub fn pop_saved_args(&mut self) -> Option<(usize, bool,Args)> {
+        let result = self.saved_args.clone();
+        self.saved_args = None;
+        result
     }
 
     pub fn mode(&self) -> Mode {
@@ -85,6 +85,9 @@ impl State {
         }
     }
 
+    pub fn set_single_view(&mut self, single_view: bool) {
+        self.single_view = single_view
+    }
     pub fn set_mode(&mut self, mode: Mode) {
         self.mode = mode
     }

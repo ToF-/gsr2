@@ -465,7 +465,7 @@ pub mod tests {
     use std::collections::HashSet;
     use std::env;
     use std::time::SystemTime;
-    use crate::env::configuration::Config;
+    use crate::env::configuration::Configuration;
     use crate::model::order::Order;
     use serial_test::serial;
     use crate::cli::args::Args;
@@ -479,7 +479,7 @@ pub mod tests {
 
     pub fn my_args() -> IOResult<Args> {
         let cmd: Option<Vec<&str>> = None;
-        let config = Config {
+        let config = Configuration {
             width: 1000,
             height: 1000,
             database_file: format!("{}/{}/gsr2.db", current_directory(), TEST_DATA_DIR),
