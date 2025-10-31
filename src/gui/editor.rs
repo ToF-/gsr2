@@ -82,7 +82,6 @@ impl Editor {
     pub fn set_input(&mut self, input: &str) {
         self.input = input.to_string();
         self.refresh_view();
-
     }
 
     pub fn set_prompt(&mut self, prompt: &str) {
@@ -183,12 +182,18 @@ impl Editor {
     }
     pub fn append(&mut self, ch: char) {
         if self.entry_kind == EntryKind::Information {
-            return
+            return;
         };
         let ch_is_ok = match self.entry_kind {
             EntryKind::Number => ch.is_ascii_digit(),
-            EntryKind::DeleteConfirmation | EntryKind::MoveConfirmation => matches!(ch, 'e' | 'n' | 'o' | 's' | 'y'),
-            EntryKind::Label | EntryKind::AddTag | EntryKind::RemoveTag | EntryKind::Find | EntryKind::FindLabel => {
+            EntryKind::DeleteConfirmation | EntryKind::MoveConfirmation => {
+                matches!(ch, 'e' | 'n' | 'o' | 's' | 'y')
+            }
+            EntryKind::Label
+            | EntryKind::AddTag
+            | EntryKind::RemoveTag
+            | EntryKind::Find
+            | EntryKind::FindLabel => {
                 matches!(ch,
                 'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' ')
             }
@@ -230,7 +235,7 @@ impl Editor {
 
     pub fn delete(&mut self) {
         if self.entry_kind == EntryKind::Information {
-            return
+            return;
         };
         if self.entry_kind == EntryKind::Order {
             self.input = String::from("");
@@ -257,7 +262,6 @@ impl Editor {
 mod tests {
     use super::*;
     use crate::model::tags::tags_from_str;
-
 
     #[test]
     fn initially_not_editing() {

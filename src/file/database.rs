@@ -1,8 +1,6 @@
-use crate::model::cover::{bool_to_cover, cover_to_bool};
 use crate::file::paths::parent_directory;
-use crate::file::paths::{
-    file_exists, file_path_as_retrieved, file_path_as_stored
-};
+use crate::file::paths::{file_exists, file_path_as_retrieved, file_path_as_stored};
+use crate::model::cover::{bool_to_cover, cover_to_bool};
 use crate::model::image_data::ImageData;
 use crate::model::palette::Palette;
 use crate::model::picture::Picture;
@@ -14,8 +12,8 @@ use rusqlite::{Connection, Result as SqlResult, Row, params};
 use std::cell::{Ref, RefCell};
 use std::collections::HashMap;
 use std::collections::HashSet;
-use std::io::Result as IOResult;
 use std::io::Error as IOError;
+use std::io::Result as IOResult;
 use std::path::PathBuf;
 use std::rc::Rc;
 
@@ -41,7 +39,6 @@ impl Database {
             panic!("can't open database connection")
         }
     }
-
 
     fn rusqlite_from_connection(connection_string: &str, create: bool) -> SqlResult<Self> {
         if !file_exists(connection_string) && !create {
@@ -165,7 +162,6 @@ impl Database {
             })
     }
 
-
     fn rusqlite_delete_tags(&self, file_path: &str) -> SqlResult<usize> {
         self.connection().execute(
             "DELETE FROM Tag        \n\
@@ -275,14 +271,15 @@ impl Database {
                 FROM Picture WHERE Label <> '' \n\
                 UNION                          \n\
                 SELECT DISTINCT Label          \n\
-                FROM Tag WHERE Label <> '';"
-            ).and_then(|mut statement| {
+                FROM Tag WHERE Label <> '';",
+            )
+            .and_then(|mut statement| {
                 let mut map: HashSet<String> = HashSet::new();
                 statement.query([]).and_then(|mut rows| {
                     while let Some(row) = rows.next().unwrap() {
                         let label: String = row.get(0).expect("can't access to column Label");
-                            let _ = map.insert(label);
-                    };
+                        let _ = map.insert(label);
+                    }
                     Ok(map)
                 })
             })
@@ -404,50 +401,58 @@ impl Database {
         cover: bool,
         parent_opt: Option<String>,
     ) -> IOResult<Vec<Picture>> {
-        self.retrieve_all_parent_dirs()
-            .and_then(|parent_dirs| {
-                match self.rusqlite_retrieve_all_pictures(cover, parent_opt) {
-                    Ok(picture_map) => match self.rusqlite_retrieve_all_tags() {
-                        Ok(tag_map) => {
-                            let mut pictures: Vec<Picture> = vec![];
-                            for (file_path, image_data) in picture_map.iter() {
-                                let new_tags = if let Some(tags) = tag_map.get(file_path) {
-                                    tags.clone()
-                                } else {
-                                    HashSet::new()
-                                };
-                                let parent_dir = parent_directory(file_path).unwrap();
-                                let mut new_image_data = ImageData {
-                                    tags: new_tags.clone(),
-                                    cover: match image_data.clone().cover {
-                                        None => None,
-                                        Some(_) => if let Some(count) = parent_dirs.get(&parent_dir) {
+        self.retrieve_all_parent_dirs().and_then(|parent_dirs| {
+            match self.rusqlite_retrieve_all_pictures(cover, parent_opt) {
+                Ok(picture_map) => match self.rusqlite_retrieve_all_tags() {
+                    Ok(tag_map) => {
+                        let mut pictures: Vec<Picture> = vec![];
+                        for (file_path, image_data) in picture_map.iter() {
+                            let new_tags = if let Some(tags) = tag_map.get(file_path) {
+                                tags.clone()
+                            } else {
+                                HashSet::new()
+                            };
+                            let parent_dir = parent_directory(file_path).unwrap();
+                            let mut new_image_data = ImageData {
+                                tags: new_tags.clone(),
+                                cover: match image_data.clone().cover {
+                                    None => None,
+                                    Some(_) => {
+                                        if let Some(count) = parent_dirs.get(&parent_dir) {
                                             Some(*count)
                                         } else {
                                             Some(0)
                                         }
-                                    },
-                                    ..image_data.clone()
-                                };
-                                if (selection.is_empty() || selection.matches(new_tags.clone())) 
-                                    && (label.clone().is_none() || *label.as_ref().unwrap() == new_image_data.label()) {
-
-                                        let picture = Picture::new_with_image_data(file_path, &new_image_data);
-                                        pictures.push(picture)
-                                }
+                                    }
+                                },
+                                ..image_data.clone()
+                            };
+                            if (selection.is_empty() || selection.matches(new_tags.clone()))
+                                && (label.clone().is_none()
+                                    || *label.as_ref().unwrap() == new_image_data.label())
+                            {
+                                let picture =
+                                    Picture::new_with_image_data(file_path, &new_image_data);
+                                pictures.push(picture)
                             }
-                            pictures.sort_by_key(|picture| picture.file_path());
-                            Ok(pictures)
                         }
-                        Err(err) => Err(std::io::Error::other(err)),
-                    },
+                        pictures.sort_by_key(|picture| picture.file_path());
+                        Ok(pictures)
+                    }
                     Err(err) => Err(std::io::Error::other(err)),
-                }
-            })
+                },
+                Err(err) => Err(std::io::Error::other(err)),
+            }
+        })
     }
 
     pub fn retrieve_all_pictures_with_parent(&self, parent_dir: &str) -> IOResult<Vec<Picture>> {
-        self.retrieve_all_pictures(Selection::empty(), None, false, Some(parent_dir.to_string()))
+        self.retrieve_all_pictures(
+            Selection::empty(),
+            None,
+            false,
+            Some(parent_dir.to_string()),
+        )
     }
 
     fn rusqlite_row_to_picture(row: &Row) -> SqlResult<Picture, rusqlite::Error> {
@@ -487,19 +492,20 @@ impl Database {
         self.connection()
             .prepare(sql_query)
             .and_then(|mut statement| {
-                let mut map: HashMap<String,usize> = HashMap::new();
+                let mut map: HashMap<String, usize> = HashMap::new();
                 statement.query([]).and_then(|mut rows| {
                     while let Some(row) = rows.next().unwrap() {
                         let file_path: String = row.get(0).unwrap();
-                        if let Some(directory) = parent_directory(
-                            &file_path_as_retrieved(&file_path)) {
+                        if let Some(directory) =
+                            parent_directory(&file_path_as_retrieved(&file_path))
+                        {
                             if let Some(mut count) = map.get_mut(&directory) {
-                                *count += 1; 
+                                *count += 1;
                             } else {
                                 let _ = map.insert(directory, 1);
                             }
                         }
-                    };
+                    }
                     Ok(map)
                 })
             })
@@ -523,25 +529,24 @@ impl Database {
 #[cfg(test)]
 pub mod tests {
     use super::*;
+    use crate::cli::args::Args;
+    use crate::env::configuration::Configuration;
     use crate::env::default_values::TEST_DATABASE_FILE;
     use crate::file::paths::current_directory;
     use crate::file::picture_file::get_data_from_picture_file;
     use crate::get_configuration;
     use crate::model::image_data::TimeStamp;
     use crate::model::image_data::timestamp;
+    use crate::model::order::Order;
     use crate::model::palette::Palette;
     use crate::test_data::*;
     use chrono::naive::*;
     use chrono::prelude::*;
     use palette_extract::Color;
+    use serial_test::serial;
     use std::collections::HashSet;
     use std::env;
     use std::time::SystemTime;
-    use crate::env::configuration::Configuration;
-    use crate::model::order::Order;
-    use serial_test::serial;
-    use crate::cli::args::Args;
-
 
     pub fn my_db() -> Database {
         let database = Database::rusqlite_from_connection(TEST_DATABASE_FILE, false)
@@ -560,7 +565,7 @@ pub mod tests {
     }
 
     pub fn dummy_args() -> Args {
-        Args{
+        Args {
             command: None,
             directory: None,
             grid: None,
@@ -594,8 +599,9 @@ pub mod tests {
         let database = my_db();
         let mut picture = Picture::new("testdata/some_pic.jpeg");
         let file_path = picture.file_path();
-        let picture_file_data = get_data_from_picture_file(&nine_colors_file_path())
-            .expect(&format!("can't access to file data: {}", nine_colors_file_path()));
+        let picture_file_data = get_data_from_picture_file(&nine_colors_file_path()).expect(
+            &format!("can't access to file data: {}", nine_colors_file_path()),
+        );
         let image_data = ImageData {
             label: "some_label".to_string(),
             size: picture_file_data.0,
@@ -662,7 +668,10 @@ pub mod tests {
             100,
             retrieved_picture.image_data().unwrap().palette().count()
         );
-        assert_eq!(true, retrieved_picture.image_data().unwrap().cover().is_some());
+        assert_eq!(
+            true,
+            retrieved_picture.image_data().unwrap().cover().is_some()
+        );
         assert_eq!(2, retrieved_picture.image_data().unwrap().tags.len());
     }
 

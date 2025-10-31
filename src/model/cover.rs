@@ -10,4 +10,3 @@ pub fn bool_to_cover(value: bool) -> Cover {
 pub fn cover_to_bool(cover: Cover) -> bool {
     cover.is_some()
 }
-

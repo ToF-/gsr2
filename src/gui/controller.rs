@@ -1,18 +1,16 @@
-use std::collections::HashSet;
-use std::collections::HashMap;
-use crate::file::paths::parent_directory;
-use crate::env::configuration::get_configuration;
-use crate::file::paths::file_exists;
-use crate::cli::status::Status;
-use crate::file::operation::{execute, move_picture};
-use crate::model::selection::{ALL_TAGS, SOME_TAGS};
-use crate::file::move_pictures;
 use crate::cli::args::Args;
 use crate::cli::command::Command;
+use crate::cli::status::Status;
+use crate::env::configuration::Configuration;
+use crate::env::configuration::get_configuration;
 use crate::env::environment::database_connection;
 use crate::file::database::*;
 use crate::file::delete_picture;
+use crate::file::move_pictures;
+use crate::file::operation::{execute, move_picture};
 use crate::file::paths::check_collectable;
+use crate::file::paths::file_exists;
+use crate::file::paths::parent_directory;
 use crate::file::picture_file::collect_data;
 use crate::file::picture_file::create_missing_thumbnails;
 use crate::gui::control::{Control, Controls, default_controls};
@@ -31,18 +29,20 @@ use crate::model::order::Order;
 use crate::model::picture::Picture;
 use crate::model::rank::Rank;
 use crate::model::selection::Selection;
+use crate::model::selection::{ALL_TAGS, SOME_TAGS};
 use gdk::{Key, ModifierType};
 use gtk::prelude::*;
 use gtk::{self, gdk};
 use rand::Rng;
 use rand::rng;
 use std::cell::RefCell;
-use std::io::Result as IOResult;
+use std::collections::HashMap;
+use std::collections::HashSet;
 use std::io::Error as IOError;
+use std::io::Result as IOResult;
 use std::path::PathBuf;
 use std::process::exit;
 use std::rc::Rc;
-use crate::env::configuration::Configuration;
 
 #[derive(Debug)]
 pub struct Controller {
@@ -62,33 +62,29 @@ pub struct Controller {
 pub type RcController = Rc<RefCell<Controller>>;
 
 impl Controller {
-   pub fn new(config: Configuration, cli: Args) -> IOResult<Self> {
+    pub fn new(config: Configuration, cli: Args) -> IOResult<Self> {
         let gallery = Gallery::new();
         let pictures_per_row = cli.pictures_per_row();
         database_connection(config).and_then(|connection_string| {
             match Database::from_connection(&connection_string, false) {
                 Err(err) => Err(err),
-                Ok(mut database) => {
-                    database.retrieve_all_parent_dirs()
-                        .and_then(|parent_dirs| {
-                            database.retrieve_all_labels()
-                                .and_then(|labels| {
-                                    Ok(Controller {
-                                        args: cli.clone(),
-                                        gallery,
-                                        editor: Editor::new(),
-                                        navigator: Navigator::new(0, pictures_per_row as usize),
-                                        controls: default_controls(),
-                                        database,
-                                        state: State::new(pictures_per_row as usize, cli.slideshow().is_some()),
-                                        main_window_opt: None,
-                                        last_action: Action::NoAction,
-                                        parent_dirs,
-                                        labels,
-                                    })
-                                })
+                Ok(mut database) => database.retrieve_all_parent_dirs().and_then(|parent_dirs| {
+                    database.retrieve_all_labels().and_then(|labels| {
+                        Ok(Controller {
+                            args: cli.clone(),
+                            gallery,
+                            editor: Editor::new(),
+                            navigator: Navigator::new(0, pictures_per_row as usize),
+                            controls: default_controls(),
+                            database,
+                            state: State::new(pictures_per_row as usize, cli.slideshow().is_some()),
+                            main_window_opt: None,
+                            last_action: Action::NoAction,
+                            parent_dirs,
+                            labels,
                         })
-                },
+                    })
+                }),
             }
         })
     }
@@ -120,7 +116,6 @@ impl Controller {
         &self.gallery
     }
 
-    
     pub fn set_gallery(&mut self, gallery: Gallery) {
         self.gallery = gallery;
         self.navigator = Navigator::new(self.gallery.len(), self.state().pictures_per_row());
@@ -163,19 +158,22 @@ impl Controller {
                 Err(e) => Err(e),
                 Ok(_) => Ok(Status::Ready),
             },
-            Some(Command::Directory { directory }) => match gallery.load_from_directory(&directory) {
+            Some(Command::Directory { directory }) => match gallery.load_from_directory(&directory)
+            {
                 Err(e) => Err(e),
                 Ok(0) => {
                     println!("no pictures for this selection");
                     Ok(Status::Exit)
-                },
+                }
                 Ok(n) => {
                     println!("{} pictures", &gallery.len());
                     gallery.sort_by(args.order);
                     self.set_gallery(gallery);
-                    if let Some(index) = args.index 
-                        && self.navigator().can_move(Direction::Index { value: index }) {
-                            self.navigator.move_towards(Direction::Index { value: index })
+                    if let Some(index) = args.index
+                        && self.navigator().can_move(Direction::Index { value: index })
+                    {
+                        self.navigator
+                            .move_towards(Direction::Index { value: index })
                     };
                     self.navigator().set_page_changed();
                     Ok(Status::Ready)
@@ -189,7 +187,7 @@ impl Controller {
                         gallery.load_from_directory(&directory.display().to_string());
                         match collect_data(&gallery, &self.database()) {
                             Ok(_) => Ok(Status::Done),
-                                Err(err) => Err(err),
+                            Err(err) => Err(err),
                         }
                     }
                     Err(err) => Err(err),
@@ -228,7 +226,7 @@ impl Controller {
                 gallery.load_from_database(&self.database, &args);
                 for picture in gallery.pictures() {
                     if !file_exists(&picture.file_path()) {
-                        println!("{}",picture.file_path());
+                        println!("{}", picture.file_path());
                     }
                 }
                 Ok(Status::Done)
@@ -237,8 +235,9 @@ impl Controller {
                 gallery.load_from_database(&self.database, &args);
                 for picture in gallery.pictures() {
                     if !file_exists(&picture.file_path()) {
-                        self.database.delete_picture_with_file_path(&picture.file_path());
-                        println!("deleted from database: {}",picture.file_path());
+                        self.database
+                            .delete_picture_with_file_path(&picture.file_path());
+                        println!("deleted from database: {}", picture.file_path());
                     }
                 }
                 Ok(Status::Done)
@@ -255,8 +254,8 @@ impl Controller {
                     Ok(n) => {
                         println!("{} pictures moved from {} to {}", n, source, target);
                         Ok(Status::Exit)
-                    },
-                    Err(err) => Err(err)
+                    }
+                    Err(err) => Err(err),
                 }
             }
             Some(Command::Initialize) => {
@@ -275,7 +274,10 @@ impl Controller {
                         Err(e) => Err(e),
                     }
                 } else {
-                    Err(IOError::other(format!("{} already exists", &config.database_file)))
+                    Err(IOError::other(format!(
+                        "{} already exists",
+                        &config.database_file
+                    )))
                 }
             }
 
@@ -284,29 +286,30 @@ impl Controller {
                 Ok(0) => {
                     println!("no pictures for this selection");
                     Ok(Status::Exit)
-                },
+                }
                 Ok(n) => {
                     println!("{} pictures", &gallery.len());
                     gallery.sort_by(args.order);
                     self.set_gallery(gallery);
-                    if let Some(index) = args.index 
-                        && self.navigator().can_move(Direction::Index { value: index }) {
-                            self.navigator.move_towards(Direction::Index { value: index })
+                    if let Some(index) = args.index
+                        && self.navigator().can_move(Direction::Index { value: index })
+                    {
+                        self.navigator
+                            .move_towards(Direction::Index { value: index })
                     };
                     self.navigator().set_page_changed();
                     Ok(Status::Ready)
                 }
-            }
+            },
         }
-
     }
 
-pub fn process_event(&mut self, event: Event, controller_rc: &RcController) {
-    match event {
-        Event::KeyPressed {
-            key,
-            key_code,
-            modifier_type,
+    pub fn process_event(&mut self, event: Event, controller_rc: &RcController) {
+        match event {
+            Event::KeyPressed {
+                key,
+                key_code,
+                modifier_type,
             } => {
                 self.process_key_event(key, key_code, modifier_type, controller_rc);
             }
@@ -471,9 +474,7 @@ pub fn process_event(&mut self, event: Event, controller_rc: &RcController) {
                                 self.find_pattern_in_label(&self.editor.input())
                             };
                         }
-                        EntryKind::Information => {
-
-                        }
+                        EntryKind::Information => {}
                         EntryKind::SetSelection => {
                             if !self.editor.input().is_empty() {
                                 self.apply_selection(&self.editor.input())
@@ -720,16 +721,17 @@ pub fn process_event(&mut self, event: Event, controller_rc: &RcController) {
     }
 
     pub fn go_to_directory(&mut self) {
-        if let Some(directory) = parent_directory(&self.current_picture().file_path()) 
-            && Some(directory.clone()) != self.args.directory 
-                && !self.state.single_view() {
+        if let Some(directory) = parent_directory(&self.current_picture().file_path())
+            && Some(directory.clone()) != self.args.directory
+            && !self.state.single_view()
+        {
             self.args.index = Some(self.navigator.position());
             let args = self.args.clone();
             self.state.push_current_args(args.clone());
-            let new_args = Args{
+            let new_args = Args {
                 directory: Some(directory),
                 cover: false,
-                .. args.clone()
+                ..args.clone()
             };
             self.args = new_args;
             self.reload();
@@ -738,14 +740,16 @@ pub fn process_event(&mut self, event: Event, controller_rc: &RcController) {
     }
 
     pub fn back_from_directory(&mut self) {
-        if let Some((pictures_per_row,single_view,old_args)) = self.state.pop_saved_args() {
+        if let Some((pictures_per_row, single_view, old_args)) = self.state.pop_saved_args() {
             self.args = old_args;
             self.state.set_single_view(single_view);
             self.change_grid_size(pictures_per_row);
             self.reload();
             if let Some(index) = self.args.index
-                    && self.navigator.can_move(Direction::Index{ value: index }) {
-                        self.navigator.move_towards(Direction::Index{ value: index })
+                && self.navigator.can_move(Direction::Index { value: index })
+            {
+                self.navigator
+                    .move_towards(Direction::Index { value: index })
             };
             self.navigator.set_page_changed()
         }
@@ -753,12 +757,12 @@ pub fn process_event(&mut self, event: Event, controller_rc: &RcController) {
 
     pub fn current_dir_count(&self) -> usize {
         if let Some(directory) = parent_directory(&self.current_picture().file_path()) {
-            if let Some(count)= self.parent_dirs.get(&directory) {
+            if let Some(count) = self.parent_dirs.get(&directory) {
                 *count
             } else {
                 0
-            } 
-        }else {
+            }
+        } else {
             0
         }
     }
@@ -823,11 +827,8 @@ pub fn process_event(&mut self, event: Event, controller_rc: &RcController) {
 
     pub fn add_tag(&mut self) {
         self.set_opacity_for_current_picture(0.25);
-        self.editor.begin(
-            &self.main_window(),
-            EntryKind::AddTag,
-            Some(self.labels()),
-        );
+        self.editor
+            .begin(&self.main_window(), EntryKind::AddTag, Some(self.labels()));
         self.state.set_mode(Mode::Editing);
     }
 
@@ -843,11 +844,8 @@ pub fn process_event(&mut self, event: Event, controller_rc: &RcController) {
 
     pub fn label(&mut self) {
         self.set_opacity_for_current_picture(0.25);
-        self.editor.begin(
-            &self.main_window(),
-            EntryKind::Label,
-            Some(self.labels()),
-        );
+        self.editor
+            .begin(&self.main_window(), EntryKind::Label, Some(self.labels()));
         self.state.set_mode(Mode::Editing);
     }
 
@@ -893,16 +891,19 @@ pub fn process_event(&mut self, event: Event, controller_rc: &RcController) {
     }
 
     pub fn find_label(&mut self) {
-        self.editor
-            .begin(&self.main_window(), EntryKind::FindLabel,
-            Some(self.gallery.all_labels()));
+        self.editor.begin(
+            &self.main_window(),
+            EntryKind::FindLabel,
+            Some(self.gallery.all_labels()),
+        );
         self.state.set_mode(Mode::Editing);
     }
 
     pub fn information(&mut self) {
         self.editor
             .begin(&self.main_window(), EntryKind::Information, None);
-        self.editor.set_input(&format!("{}", self.current_picture().file_path()));
+        self.editor
+            .set_input(&format!("{}", self.current_picture().file_path()));
         self.state.set_mode(Mode::Editing);
     }
 
@@ -952,7 +953,7 @@ pub fn process_event(&mut self, event: Event, controller_rc: &RcController) {
             Ok(_) => {
                 self.move_first();
                 self.navigator.set_page_changed();
-            },
+            }
             Err(e) => {
                 eprintln!("{}", e);
                 self.quit()
@@ -1102,7 +1103,11 @@ pub fn process_event(&mut self, event: Event, controller_rc: &RcController) {
                 let picture = &self.gallery.picture(index);
                 let operations = move_picture(&picture.file_path(), &target_dir);
                 if operations.is_empty() {
-                    println!("no operation for move of {} to {}", picture.file_path(), target_dir);
+                    println!(
+                        "no operation for move of {} to {}",
+                        picture.file_path(),
+                        target_dir
+                    );
                 } else {
                     picture_count += 1;
                     operation_count += operations.len();
@@ -1114,7 +1119,10 @@ pub fn process_event(&mut self, event: Event, controller_rc: &RcController) {
                     }
                 }
             }
-            println!("{} pictures moved to {}\n{} operations\nexiting gsr", picture_count, target_dir, operation_count);
+            println!(
+                "{} pictures moved to {}\n{} operations\nexiting gsr",
+                picture_count, target_dir, operation_count
+            );
             self.reload()
         }
     }
@@ -1130,7 +1138,6 @@ pub fn process_event(&mut self, event: Event, controller_rc: &RcController) {
         self.navigator.set_page_changed()
     }
 
-
     pub fn confirm_move_picture(&mut self) {
         if let Some(target_dir) = &self.args.r#move {
             self.move_selected_pictures()
@@ -1144,7 +1151,7 @@ pub fn process_event(&mut self, event: Event, controller_rc: &RcController) {
     }
 
     pub fn delete_picture(&mut self) {
-        if self.navigator.has_selected() { 
+        if self.navigator.has_selected() {
             self.editor
                 .begin(&self.main_window(), EntryKind::DeleteConfirmation, None);
             self.state.set_mode(Mode::Editing);
@@ -1153,9 +1160,10 @@ pub fn process_event(&mut self, event: Event, controller_rc: &RcController) {
 
     pub fn move_picture(&mut self) {
         if let Some(target_dir) = &self.args.r#move {
-        self.editor
-            .begin(&self.main_window(), EntryKind::MoveConfirmation, None);
-            self.editor.set_prompt(&format!("move these pictures to {} ?", target_dir));
+            self.editor
+                .begin(&self.main_window(), EntryKind::MoveConfirmation, None);
+            self.editor
+                .set_prompt(&format!("move these pictures to {} ?", target_dir));
             self.state.set_mode(Mode::Editing);
         }
     }

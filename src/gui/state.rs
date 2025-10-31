@@ -1,5 +1,5 @@
-use crate::env::default_values::{FOCUS_SYMBOL_1, FOCUS_SYMBOL_2};
 use crate::cli::args::Args;
+use crate::env::default_values::{FOCUS_SYMBOL_1, FOCUS_SYMBOL_2};
 use crate::gui::mode::Mode;
 
 #[derive(Clone, Debug)]
@@ -17,7 +17,7 @@ pub struct State {
     mode: Mode,
     focus_symbol: char,
     change_focus_symbol_on: bool,
-    saved_args: Option<(usize, bool,Args)>,
+    saved_args: Option<(usize, bool, Args)>,
 }
 
 impl State {
@@ -46,7 +46,7 @@ impl State {
         }
     }
 
-    pub fn pop_saved_args(&mut self) -> Option<(usize, bool,Args)> {
+    pub fn pop_saved_args(&mut self) -> Option<(usize, bool, Args)> {
         let result = self.saved_args.clone();
         self.saved_args = None;
         result

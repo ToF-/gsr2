@@ -39,7 +39,8 @@ pub fn check_path_exists(path: &PathBuf) -> Result<&PathBuf> {
 
 pub fn parent_directory(file_path: &str) -> Option<String> {
     let path = Path::new(file_path);
-    path.parent().map(|parent| parent.to_str().unwrap().to_string())
+    path.parent()
+        .map(|parent| parent.to_str().unwrap().to_string())
 }
 
 pub fn file_exists(file_path: &str) -> bool {

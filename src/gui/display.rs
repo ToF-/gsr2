@@ -1,13 +1,13 @@
-use crate::model::cover::Cover;
 use crate::env::default_values::{
     COVER_SYMBOL, EXPAND_ON_SYMBOL, FULL_SIZE_ON_SYMBOL, ORDER_SYMBOL,
 };
 use crate::gui::controller::Controller;
+use crate::model::cover::Cover;
+use crate::model::label::Label;
 use crate::model::order::Order;
 use crate::model::rank::Rank;
 use crate::model::selection::Selection;
 use crate::model::tags::Tags;
-use crate::model::label::Label;
 use itertools::Itertools;
 
 fn expand_display(on: bool) -> String {
@@ -125,6 +125,6 @@ pub fn title_display(controller: &Controller) -> String {
             expand_display(controller.state().expand_on()),
             full_size_display(controller.state().full_size_on()),
             display_selection(&controller.gallery().selection()),
-            )
+        )
     }
 }

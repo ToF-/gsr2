@@ -54,13 +54,17 @@ pub fn create_missing_thumbnails(gallery: &Gallery, pictures_per_row: usize) {
             match check_path_exists(&PathBuf::from(&thumbnail_file_path)) {
                 Ok(_) => {}
                 Err(_) => {
-                    match create_thumbnail_file(&thumbnail_file_path, &file_path, pictures_per_row) {
+                    match create_thumbnail_file(&thumbnail_file_path, &file_path, pictures_per_row)
+                    {
                         Ok(_) => {
                             println!("creating thumbnail {}", thumbnail_file_path);
                             count += 1
                         }
                         Err(err) => {
-                            eprintln!("{} with thumbnail {} for picture {}", err, thumbnail_file_path, file_path);
+                            eprintln!(
+                                "{} with thumbnail {} for picture {}",
+                                err, thumbnail_file_path, file_path
+                            );
                         }
                     }
                 }
@@ -231,10 +235,10 @@ pub mod test {
     use crate::file::paths::current_directory;
     use crate::file::paths::thumbnail_name_from;
     use crate::test_data::*;
-    use std::fs::File;
-    use std::io::prelude::*;
     use serial_test::serial;
+    use std::fs::File;
     use std::io::Error as IOError;
+    use std::io::prelude::*;
 
     fn create_dummy_file(file_path: &str) {
         let mut file = File::create(file_path).expect("can't create test file");

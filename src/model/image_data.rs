@@ -1,5 +1,5 @@
-use crate::model::cover::Cover;
 use crate::file::picture_file::get_data_from_picture_file;
+use crate::model::cover::Cover;
 use crate::model::label::{Label, from};
 use crate::model::palette::Palette;
 use crate::model::rank::Rank;

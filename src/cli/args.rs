@@ -1,13 +1,13 @@
-use std::path::PathBuf;
-use crate::file::paths::check_collectable;
 use crate::cli::command::Command;
 use crate::env::configuration::Configuration;
 use crate::env::default_values::{DEFAULT_HEIGHT, DEFAULT_SLIDESHOW_DELAY, DEFAULT_WIDTH};
 use crate::env::dimension::{dimension, slideshow_delay};
+use crate::file::paths::check_collectable;
 use crate::file::paths::{check_path, check_picture_file};
 use crate::model::order::Order;
 use clap::Parser;
 use std::io::{Error, Result};
+use std::path::PathBuf;
 
 #[derive(Parser, Clone, Debug, PartialEq)]
 /// Gallery Show
@@ -30,7 +30,7 @@ pub struct Args {
     pub command: Option<Command>,
 
     /// display only pictures which are selected as cover
-    #[arg(short,long)]
+    #[arg(short, long)]
     pub cover: bool,
 
     /// select only picture data for pictures present on <DIRECTORY>
@@ -55,7 +55,7 @@ pub struct Args {
 
     /// move selected picture to <DIRECTORY> on confirmation
     #[arg(long, value_name = "DIRECTORY")]
-    pub r#move: Option<String>, 
+    pub r#move: Option<String>,
 
     /// display pictures in order
     #[arg(short, long, value_name="ORDER", ignore_case(true), default_value_t = Order::Name)]
@@ -80,7 +80,6 @@ pub struct Args {
     /// window width
     #[arg(long, value_name = "N")]
     pub width: Option<i32>,
-
 }
 
 impl Args {
@@ -110,7 +109,7 @@ impl Args {
                     } else {
                         if let Some(_) = args.r#move {
                             return Err(Error::other(
-                                    "option --move not allowed with file command",
+                                "option --move not allowed with file command",
                             ));
                         };
                         return Ok(args.clone());
@@ -123,13 +122,11 @@ impl Args {
         if let Some(ref target_dir) = args.r#move {
             let target_path = PathBuf::from(target_dir);
             match check_collectable(&target_path) {
-                Ok(_) => {},
+                Ok(_) => {}
                 Err(e) => return Err(e),
             };
             if args.command.is_some() {
-                return Err(Error::other(
-                        "option --move not allowed with this command",
-                ));
+                return Err(Error::other("option --move not allowed with this command"));
             }
         }
         if let Some(Command::Collect { ref directory }) = args.command {
@@ -145,16 +142,18 @@ impl Args {
                 Err(e) => return Err(e),
             }
         }
-        if let Some(Command::Move { ref source, ref target }) = args.command {
+        if let Some(Command::Move {
+            ref source,
+            ref target,
+        }) = args.command
+        {
             let target_path = PathBuf::from(target);
             let source_path = PathBuf::from(source);
             match check_collectable(&source_path) {
                 Ok(_) => match check_collectable(&target_path) {
-                    Ok(_) => {
-
-                    }
+                    Ok(_) => {}
                     Err(e) => return Err(e),
-                }
+                },
                 Err(e) => return Err(e),
             }
         }

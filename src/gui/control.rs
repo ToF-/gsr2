@@ -104,7 +104,10 @@ pub fn default_controls() -> Controls {
         ((String::from("z"), Mode::View), Control::MoveEndPage),
         ((String::from("c"), Mode::View), Control::ToggleCover),
         ((String::from("e"), Mode::View), Control::ToggleExpand),
-        ((String::from("percent"), Mode::View), Control::ToggleFullSize),
+        (
+            (String::from("percent"), Mode::View),
+            Control::ToggleFullSize,
+        ),
         ((String::from("P"), Mode::View), Control::TogglePalette),
         ((String::from("R"), Mode::View), Control::MoveRandom),
         ((String::from("X"), Mode::View), Control::DeletePicture),

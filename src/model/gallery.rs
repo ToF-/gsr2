@@ -1,6 +1,6 @@
-use std::collections::HashMap;
 use crate::Args;
 use crate::file::database::Database;
+use crate::file::paths::parent_directory;
 use crate::file::picture_file::{get_all_picture_file_paths, get_picture_file_path};
 use crate::model::order::Order;
 use crate::model::picture::Picture;
@@ -9,9 +9,9 @@ use crate::model::tags::Tags;
 use rand::prelude::SliceRandom;
 use rand::rng;
 use std::cmp::Reverse;
+use std::collections::HashMap;
 use std::collections::HashSet;
 use std::io::{Error, Result};
-use crate::file::paths::parent_directory;
 
 #[derive(Debug, Clone)]
 pub struct Gallery {
@@ -83,7 +83,12 @@ impl Gallery {
         } else {
             Selection::empty()
         };
-        match database.retrieve_all_pictures(selection, args.label.clone(), args.cover, args.directory.clone()) {
+        match database.retrieve_all_pictures(
+            selection,
+            args.label.clone(),
+            args.cover,
+            args.directory.clone(),
+        ) {
             Ok(pictures) => {
                 self.pictures = pictures;
                 Ok(self.len())
@@ -187,7 +192,6 @@ impl Gallery {
         }
         labels
     }
-
 }
 
 #[cfg(test)]
@@ -196,12 +200,12 @@ mod tests {
     use super::*;
     use crate::env::default_values::TEST_DATABASE_FILE;
     use crate::file::database::Database;
-    use crate::file::database::tests::{my_args, my_db, dummy_args};
+    use crate::file::database::tests::{dummy_args, my_args, my_db};
     use crate::file::paths::current_directory;
     use crate::test_data;
     use crate::test_data::*;
+    use serial_test::serial;
     use std::env::current_dir;
-    use serial_test::serial; 
 
     #[test]
     #[serial]

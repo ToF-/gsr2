@@ -42,6 +42,4 @@ pub enum Command {
         #[arg(value_name = "N", value_parser(clap::value_parser!(u8).range(2..=10)))]
         pictures_per_row: u8,
     },
-
-
 }

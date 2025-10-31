@@ -1,4 +1,4 @@
-pub enum Status{
+pub enum Status {
     Done,
     Exit,
     Ready,

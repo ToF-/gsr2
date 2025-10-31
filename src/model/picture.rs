@@ -1,5 +1,5 @@
-use crate::model::cover::Cover;
 use crate::file::paths::{file_name_from, thumbnail_name_from};
+use crate::model::cover::Cover;
 use crate::model::image_data::ImageData;
 use crate::model::image_data::datetime_from_time_stamp;
 use crate::model::rank::Rank;
@@ -228,7 +228,7 @@ mod tests {
             picture.file_path()
         )
     }
-    #[test] 
+    #[test]
     fn mofiying_a_picture() {
         let mut picture = Picture::new("testdata/nine_colors.png");
         picture.set_label("foo");
@@ -250,7 +250,6 @@ mod tests {
         assert_eq!(Rank::ThreeStars, picture.rank());
         assert!(picture.tags().contains("bar"));
     }
-
 
     #[test]
     fn a_thumbnail_picture_has_the_name_of_the_original_picture_with_thumb_and_size_suffix() {
