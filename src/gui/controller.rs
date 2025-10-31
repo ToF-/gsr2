@@ -63,7 +63,7 @@ impl Controller {
             match Database::from_connection(&connection_string, false) {
                 Err(err) => Err(err),
                 Ok(mut database) => {
-                    let mut repository = Repository::new(config);
+                    let mut repository = Repository::new(config, cli.clone());
                     repository.initialize();
                     database.retrieve_all_parent_dirs().and_then(|parent_dirs| {
                         database.retrieve_all_labels().and_then(|labels| {

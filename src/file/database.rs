@@ -393,7 +393,6 @@ impl Database {
             parent, file_name_start
         )
     }
-
     pub fn retrieve_all_pictures(
         &self,
         selection: Selection,
