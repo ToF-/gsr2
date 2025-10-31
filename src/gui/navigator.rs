@@ -13,6 +13,7 @@ pub struct Navigator {
     page_changed: bool,
     range_start: Option<usize>,
     range_end: Option<usize>,
+    range_opt: Option<(usize, usize)>,
     selected_pictures: HashSet<usize>,
 }
 
@@ -28,6 +29,7 @@ impl Navigator {
             page_changed: false,
             range_start: None,
             range_end: None,
+            range_opt: None,
             selected_pictures: HashSet::new(),
         };
         result.update_page_limits();
@@ -109,6 +111,29 @@ impl Navigator {
             }
         };
         if let Some((start, end)) = self.range() {
+            self.range_opt = self.range();
+            self.selected_pictures.clear();
+            for index in start..=end {
+                self.select(index)
+            }
+        }
+    }
+
+    pub fn set_range_all(&mut self) {
+        let start = 0;
+        let end = self.limit-1;
+        self.range_start = Some(start);
+        self.range_end = Some(end);
+        self.range_opt = self.range();
+        for index in start..=end {
+            self.select(index)
+        }
+    }
+
+    pub fn repeat_range(&mut self) {
+        if let Some((start, end)) = self.range_opt {
+            self.range_start = Some(start);
+            self.range_end = Some(end);
             self.selected_pictures.clear();
             for index in start..=end {
                 self.select(index)

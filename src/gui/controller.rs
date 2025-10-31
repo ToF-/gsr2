@@ -704,6 +704,8 @@ impl Controller {
             Control::OrderByPalette => self.order_by(Order::Palette),
             Control::Randomize => self.order_by(Order::Random),
             Control::SetRange => self.set_range(),
+            Control::SetRangeAll => self.set_range_all(),
+            Control::RepeatRange => self.repeat_range(),
             Control::ToggleSelected => self.toggle_selected(),
             Control::CancelRange => self.cancel_range(),
             Control::DeletePicture => self.delete_picture(),
@@ -1062,6 +1064,18 @@ impl Controller {
         let position = self.navigator.position();
         let navigator = &mut self.navigator;
         navigator.set_range(position);
+        self.navigator.set_page_changed()
+    }
+
+    pub fn set_range_all(&mut self) {
+        let navigator = &mut self.navigator;
+        navigator.set_range_all();
+        self.navigator.set_page_changed()
+    }
+
+    pub fn repeat_range(&mut self) {
+        let navigator = &mut self.navigator;
+        navigator.repeat_range();
         self.navigator.set_page_changed()
     }
 
