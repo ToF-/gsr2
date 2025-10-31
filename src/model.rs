@@ -7,6 +7,7 @@ pub mod order;
 pub mod palette;
 pub mod picture;
 pub mod rank;
+pub mod repository;
 pub mod selection;
 pub mod tags;
 pub mod thumbnail;
