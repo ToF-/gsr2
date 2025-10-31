@@ -1,3 +1,4 @@
+use crate::model::image_data::FileSize;
 use crate::file::paths::{file_name_from, thumbnail_name_from};
 use crate::model::cover::Cover;
 use crate::model::image_data::ImageData;
@@ -90,6 +91,10 @@ impl Picture {
 
     pub fn image_data(&self) -> Option<ImageData> {
         self.image_data.clone()
+    }
+
+    pub fn file_size(&self) -> Option<FileSize> {
+        self.image_data.as_ref().map(|image_data| image_data.size)
     }
 
     pub fn label(&self) -> String {

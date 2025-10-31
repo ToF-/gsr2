@@ -45,11 +45,15 @@ impl Repository {
         };
         let mut gallery = self.gallery_rc.try_borrow_mut().expect("can't mutably repository gallery");
         *gallery = match self.database.retrieve_all_pictures(
-            selection,
+            selection.clone(),
             self.args.label.clone(),
             self.args.cover,
             self.args.directory.clone()) {
-            Ok(pictures) => Gallery::new_with_pictures(pictures),
+            Ok(pictures) => {
+                let mut gallery = Gallery::new_with_pictures(pictures);
+                gallery.sort_by(self.args.order);
+                gallery
+            },
             Err(e) => panic!("{}", &format!("{}", e)),
         }
     }
@@ -80,6 +84,7 @@ mod tests {
     use crate::env::configuration::tests::my_cfg;
     use crate::file::paths::current_directory;
     use crate::file::database::tests::my_args;
+    use crate::model::order::Order;
 
 
     #[test]
@@ -96,11 +101,15 @@ mod tests {
     #[test]
     #[serial]
     fn given_initial_args_it_provides_the_gallery_of_all_picture_matching_the_args() {
-        let args = my_args().expect("can't access to test args");
+        let mut args = my_args().expect("can't access to test args");
+        args.order = Order::Size;
         let cfg = my_cfg();
         let mut repository = Repository::new(my_cfg(), args);
         repository.initialize();
         let gallery = repository.gallery_rc.try_borrow().expect("can't borrow repository gallery");
-        assert_eq!(4, gallery.len())
+        assert_eq!(4, gallery.len());
+        println!("{:?}", gallery);
+        assert!(gallery.picture(0).file_size() <= gallery.picture(1).file_size());
+
     }
 }
