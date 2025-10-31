@@ -1,3 +1,4 @@
+use crate::cli::args::Args;
 use crate::model::tags::{Tags, empty, tags_from_str};
 
 pub const SOME_TAGS: bool = false;
@@ -14,6 +15,16 @@ impl Selection {
         Selection {
             tags: tags_from_str(s),
             restrict,
+        }
+    }
+
+    pub fn from_args(args: &Args) -> Self {
+        if let Some(labels) = &args.select {
+            Selection::from(&labels, SOME_TAGS)
+        } else if let Some(labels) = &args.restrict {
+            Selection::from(&labels, ALL_TAGS)
+        } else {
+            Selection::empty()
         }
     }
 

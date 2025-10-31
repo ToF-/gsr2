@@ -1,4 +1,4 @@
-use crate::model::selection::{ALL_TAGS, SOME_TAGS, Selection};
+use crate::model::selection::Selection;
 use crate::model::gallery::Gallery;
 use crate::model::tags::Tags;
 use crate::env::configuration::Configuration;
@@ -36,13 +36,7 @@ impl Repository {
     }
 
     fn retrieve_all_pictures(&mut self) {
-        let selection: Selection = if let Some(labels) = &self.args.select {
-            Selection::from(&labels, SOME_TAGS)
-        } else if let Some(labels) = &self.args.restrict {
-            Selection::from(&labels, ALL_TAGS)
-        } else {
-            Selection::empty()
-        };
+        let selection = Selection::from_args(&self.args);
         let mut gallery = self.gallery_rc.try_borrow_mut().expect("can't mutably repository gallery");
         *gallery = match self.database.retrieve_all_pictures(
             selection.clone(),
@@ -63,7 +57,9 @@ impl Repository {
         self.retrieve_all_pictures();
 
     }
-
+    pub fn pictures_in_directory(&self, directory: &str) -> Gallery {
+        Gallery::new()
+    }
     pub fn all_labels(&self) -> Tags {
         let tags = self.tags_rc.try_borrow().expect("can't borrow repository tags");
         tags.clone()
@@ -110,6 +106,19 @@ mod tests {
         assert_eq!(4, gallery.len());
         println!("{:?}", gallery);
         assert!(gallery.picture(0).file_size() <= gallery.picture(1).file_size());
-
+        assert!(gallery.picture(1).file_size() <= gallery.picture(2).file_size());
+        assert!(gallery.picture(2).file_size() <= gallery.picture(3).file_size());
+    }
+    #[test]
+    #[serial]
+    fn given_a_dir_it_provides_the_gallery_of_data_less_picture_found_there() {
+        let mut args = my_args().expect("can't access to test args");
+        args.order = Order::Size;
+        let cfg = my_cfg();
+        let mut repository = Repository::new(my_cfg(), args);
+        repository.initialize();
+        let gallery = repository.pictures_in_directory("testdata");
+        assert_eq!(4, gallery.len());
+        assert!(gallery.pictures()[0].image_data().is_none());
     }
 }
