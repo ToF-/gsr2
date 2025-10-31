@@ -37,3 +37,19 @@ pub fn get_configuration() -> Result<Configuration> {
         Err(err) => Err(err),
     }
 }
+
+#[cfg(test)]
+
+pub mod tests {
+    use super::*;
+    use crate::test_data::TEST_DATA_DIR;
+    use crate::file::paths::current_directory;
+
+    pub fn my_cfg() -> Configuration {
+        Configuration {
+            width: 1000,
+            height: 1000,
+            database_file: format!("{}/{}/gsr2.db", current_directory(), TEST_DATA_DIR),
+        }
+    }
+}

@@ -1,18 +1,13 @@
 use crate::cli::args::Args;
 use crate::cli::command::Command;
 use crate::cli::status::Status;
-use crate::env::configuration::Configuration;
-use crate::env::configuration::get_configuration;
+use crate::env::configuration::{Configuration, get_configuration};
 use crate::env::environment::database_connection;
 use crate::file::database::*;
-use crate::file::delete_picture;
-use crate::file::move_pictures;
+use crate::file::{delete_picture, move_pictures};
 use crate::file::operation::{execute, move_picture};
-use crate::file::paths::check_collectable;
-use crate::file::paths::file_exists;
-use crate::file::paths::parent_directory;
-use crate::file::picture_file::collect_data;
-use crate::file::picture_file::create_missing_thumbnails;
+use crate::file::paths::{check_collectable, file_exists, parent_directory};
+use crate::file::picture_file::{collect_data, create_missing_thumbnails};
 use crate::gui::control::{Control, Controls, default_controls};
 use crate::gui::direction::Direction;
 use crate::gui::editor::Editor;
@@ -21,23 +16,21 @@ use crate::gui::event::Event;
 use crate::gui::mode::Mode;
 use crate::gui::navigator::Navigator;
 use crate::gui::state::State;
-use crate::gui::view::main_window::LEFT_PANE;
-use crate::gui::view::main_window::MainWindow;
+use crate::gui::view::main_window::{LEFT_PANE, MainWindow};
 use crate::model::action::Action;
 use crate::model::gallery::Gallery;
 use crate::model::order::Order;
 use crate::model::picture::Picture;
 use crate::model::rank::Rank;
-use crate::model::selection::Selection;
-use crate::model::selection::{ALL_TAGS, SOME_TAGS};
+use crate::model::repository::Repository;
+use crate::model::selection::{Selection, ALL_TAGS, SOME_TAGS};
 use gdk::{Key, ModifierType};
 use gtk::prelude::*;
 use gtk::{self, gdk};
 use rand::Rng;
 use rand::rng;
 use std::cell::RefCell;
-use std::collections::HashMap;
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::io::Error as IOError;
 use std::io::Result as IOResult;
 use std::path::PathBuf;
@@ -46,6 +39,7 @@ use std::rc::Rc;
 
 #[derive(Debug)]
 pub struct Controller {
+    repository: Repository,
     args: Args,
     gallery: Gallery,
     navigator: Navigator,
@@ -65,26 +59,31 @@ impl Controller {
     pub fn new(config: Configuration, cli: Args) -> IOResult<Self> {
         let gallery = Gallery::new();
         let pictures_per_row = cli.pictures_per_row();
-        database_connection(config).and_then(|connection_string| {
+        database_connection(config.clone()).and_then(|connection_string| {
             match Database::from_connection(&connection_string, false) {
                 Err(err) => Err(err),
-                Ok(mut database) => database.retrieve_all_parent_dirs().and_then(|parent_dirs| {
-                    database.retrieve_all_labels().and_then(|labels| {
-                        Ok(Controller {
-                            args: cli.clone(),
-                            gallery,
-                            editor: Editor::new(),
-                            navigator: Navigator::new(0, pictures_per_row as usize),
-                            controls: default_controls(),
-                            database,
-                            state: State::new(pictures_per_row as usize, cli.slideshow().is_some()),
-                            main_window_opt: None,
-                            last_action: Action::NoAction,
-                            parent_dirs,
-                            labels,
+                Ok(mut database) => {
+                    let mut repository = Repository::new(config);
+                    repository.initialize();
+                    database.retrieve_all_parent_dirs().and_then(|parent_dirs| {
+                        database.retrieve_all_labels().and_then(|labels| {
+                            Ok(Controller {
+                                repository,
+                                args: cli.clone(),
+                                gallery,
+                                editor: Editor::new(),
+                                navigator: Navigator::new(0, pictures_per_row as usize),
+                                controls: default_controls(),
+                                database,
+                                state: State::new(pictures_per_row as usize, cli.slideshow().is_some()),
+                                main_window_opt: None,
+                                last_action: Action::NoAction,
+                                parent_dirs,
+                                labels,
+                            })
                         })
                     })
-                }),
+                },
             }
         })
     }
@@ -785,7 +784,7 @@ impl Controller {
         self.editor.begin(
             &self.main_window(),
             EntryKind::SetSelection,
-            Some(self.labels()),
+            Some(self.repository.all_labels()),
         );
         self.state.set_mode(Mode::Editing);
     }
@@ -794,7 +793,7 @@ impl Controller {
         self.editor.begin(
             &self.main_window(),
             EntryKind::SetRestriction,
-            Some(self.labels()),
+            Some(self.repository.all_labels()),
         );
         self.state.set_mode(Mode::Editing);
     }
@@ -828,7 +827,7 @@ impl Controller {
     pub fn add_tag(&mut self) {
         self.set_opacity_for_current_picture(0.25);
         self.editor
-            .begin(&self.main_window(), EntryKind::AddTag, Some(self.labels()));
+            .begin(&self.main_window(), EntryKind::AddTag, Some(self.repository.all_labels()));
         self.state.set_mode(Mode::Editing);
     }
 
@@ -845,7 +844,7 @@ impl Controller {
     pub fn label(&mut self) {
         self.set_opacity_for_current_picture(0.25);
         self.editor
-            .begin(&self.main_window(), EntryKind::Label, Some(self.labels()));
+            .begin(&self.main_window(), EntryKind::Label, Some(self.repository.all_labels()));
         self.state.set_mode(Mode::Editing);
     }
 
