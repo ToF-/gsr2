@@ -8,6 +8,12 @@ use std::ffi::OsStr;
 use std::io::{Error, ErrorKind, Result};
 use std::path::{Path, PathBuf};
 
+pub fn file_path_to_string(path: &Path) -> String {
+    path.file_name().expect("can't convert path to file_name")
+        .to_str().expect("can't convert file_name to str")
+        .to_string()
+}
+
 pub fn current_directory() -> String {
     current_dir().unwrap().display().to_string()
 }
@@ -84,7 +90,7 @@ pub fn check_path_is_a_file(path: &PathBuf) -> Result<&PathBuf> {
     }
 }
 
-pub fn check_path_is_a_jpg_or_png_file(path: &PathBuf) -> Result<&PathBuf> {
+pub fn check_picture_path_extension(path: &PathBuf) -> Result<&PathBuf> {
     check_path_does_not_contain_garbage(path).and_then(|path| {
         if let Some(extension) = path.extension()
             && VALID_EXTENSIONS.contains(&extension.to_str().unwrap())
@@ -113,7 +119,7 @@ pub fn check_path_does_not_contain_garbage(path: &PathBuf) -> Result<&PathBuf> {
 pub fn check_picture_file(file_name: &str) -> Result<String> {
     match check_path_exists(&PathBuf::from(file_name))
         .and_then(check_path_is_a_file)
-        .and_then(check_path_is_a_jpg_or_png_file)
+        .and_then(check_picture_path_extension)
         .and_then(check_path_does_not_contain_garbage)
     {
         Ok(path) => Ok(path.display().to_string()),
@@ -203,7 +209,7 @@ mod tests {
     #[should_panic]
     fn a_readme_file_is_not_a_picture_file() {
         let path: PathBuf = PathBuf::from("README.md");
-        let _ = check_path_is_a_jpg_or_png_file(&path).unwrap();
+        let _ = check_picture_path_extension(&path).unwrap();
     }
 
     #[test]

@@ -29,6 +29,18 @@ impl Gallery {
         }
     }
 
+    pub fn from_file_paths(file_paths: Vec<String>) -> Self {
+        let mut pictures: Vec<Picture> = vec![];
+        for file_path in file_paths {
+            pictures.push(Picture::new(&file_path))
+        }
+        Gallery {
+            pictures,
+            order: Order::Name,
+            selection: Selection::empty(),
+        }
+    }
+
     #[allow(dead_code)]
     pub fn new_with_pictures(pictures: Vec<Picture>) -> Self {
         Gallery {

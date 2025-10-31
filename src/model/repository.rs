@@ -1,3 +1,8 @@
+use crate::file::paths::file_path_to_string;
+use crate::file::paths::check_path;
+use walkdir::WalkDir;
+use crate::file::paths::check_picture_path_extension;
+use crate::env::default_values::THUMB_SUFFIX;
 use crate::model::selection::Selection;
 use crate::model::gallery::Gallery;
 use crate::model::tags::Tags;
@@ -57,9 +62,29 @@ impl Repository {
         self.retrieve_all_pictures();
 
     }
-    pub fn pictures_in_directory(&self, directory: &str) -> Gallery {
-        Gallery::new()
+    pub fn pictures_in_directory(&self, dir: &str) -> Gallery {
+        let result = check_path(dir).map(|directory| {
+            let mut file_paths: Vec<String> = Vec::new();
+            for entry in WalkDir::new(directory)
+                .into_iter()
+                    .filter_map(|entry| entry.ok())
+                    .map(|entry| entry.into_path())
+                    .filter(|path| {
+                        path.is_file()
+                            && check_picture_path_extension(path).is_ok()
+                            && ! file_path_to_string(&path).contains(THUMB_SUFFIX)
+                    })
+            {
+                file_paths.push(file_path_to_string(&entry))
+            };
+            file_paths
+        });
+        match result {
+            Ok(file_paths) => Gallery::from_file_paths(file_paths),
+            Err(e) => panic!("{}", &format!("{}", e)),
+        }
     }
+
     pub fn all_labels(&self) -> Tags {
         let tags = self.tags_rc.try_borrow().expect("can't borrow repository tags");
         tags.clone()

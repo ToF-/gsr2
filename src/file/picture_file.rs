@@ -3,7 +3,7 @@ use crate::file::Database;
 use crate::file::paths::check_collectable;
 use crate::file::paths::thumbnail_name_from;
 use crate::file::paths::thumbnail_names_from;
-use crate::file::paths::{check_path, check_path_is_a_jpg_or_png_file, check_picture_file};
+use crate::file::paths::{check_path, check_picture_path_extension, check_picture_file};
 use crate::file::paths::{check_path_exists, file_exists};
 use crate::model::gallery::Gallery;
 use crate::model::image_data::ImageData;
@@ -31,7 +31,7 @@ pub fn get_all_picture_file_paths(path: &str) -> IOResult<Vec<String>> {
             .map(|entry| entry.into_path())
             .filter(|path| {
                 path.is_file()
-                    && check_path_is_a_jpg_or_png_file(path).is_ok()
+                    && check_picture_path_extension(path).is_ok()
                     && !path.display().to_string().contains(THUMB_SUFFIX)
             })
         {
