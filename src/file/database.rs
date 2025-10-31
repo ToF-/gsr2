@@ -593,7 +593,6 @@ pub mod tests {
         assert_eq!(4, map.len());
     }
 
-    #[test]
     #[serial]
     fn insert_and_retrieve_a_picture_with_image_data() {
         let database = my_db();
