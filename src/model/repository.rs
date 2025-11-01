@@ -12,6 +12,7 @@ use crate::model::tags::Tags;
 use crate::env::configuration::Configuration;
 use crate::file::database::Database;
 use std::io::Result as IOResult;
+use std::io::Error as IOError;
 use std::cell::RefCell;
 use crate::cli::args::Args;
 
@@ -35,39 +36,49 @@ impl Repository {
         }
     }
 
-    fn retrieve_all_tags(&mut self) {
-        let mut tags = self.tags_rc.try_borrow_mut().expect("can't mutably repository tags");
-        *tags = match self.database.retrieve_all_labels() {
-            Ok(result) => result,
-            Err(e) => panic!("{}", &format!("{}", e)),
-        };
+    fn retrieve_all_tags(&mut self) -> IOResult<()> {
+        match self.tags_rc.try_borrow_mut() {
+            Ok(mut tags) => match self.database.retrieve_all_labels() {
+                Ok(labels) => {
+                    *tags = Tags::from(labels);
+                    Ok(())
+                },
+                Err(e) => return Err(e),
+            },
+            Err(e) => Err(IOError::other(format!("{}",e))),
+        }
     }
 
-    fn retrieve_all_pictures(&mut self) {
+    fn retrieve_all_pictures(&mut self) -> IOResult<()> {
         let selection = Selection::from_args(&self.args);
-        let mut gallery = self.gallery_rc.try_borrow_mut().expect("can't mutably repository gallery");
-        *gallery = match self.database.retrieve_all_pictures(
-            selection.clone(),
-            self.args.label.clone(),
-            self.args.cover,
-            self.args.directory.clone()) {
-            Ok(pictures) => {
-                let mut gallery = Gallery::new_with_pictures(pictures);
-                gallery.sort_by(self.args.order);
-                gallery
+        match self.gallery_rc.try_borrow_mut() {
+            Ok(mut gallery) => { 
+                *gallery = match self.database.retrieve_all_pictures(
+                    selection.clone(),
+                    self.args.label.clone(),
+                    self.args.cover,
+                    self.args.directory.clone()) {
+                    Ok(pictures) => {
+                        let mut gallery = Gallery::new_with_pictures(pictures);
+                        gallery.sort_by(self.args.order);
+                        gallery
+                    },
+                    Err(e) => return Err(e),
+                };
+                Ok(())
             },
             Err(e) => panic!("{}", &format!("{}", e)),
         }
     }
 
-    pub fn initialize(&mut self) {
-        self.retrieve_all_tags();
-        self.retrieve_all_pictures();
-
+    pub fn initialize(&mut self) -> IOResult<()> {
+        self.retrieve_all_tags()
+            .and_then(|()| self.retrieve_all_pictures())
     }
-    pub fn pictures_in_directory(&self, dir: &str) -> Gallery {
+
+    pub fn pictures_in_directory(&self, dir: &str) -> IOResult<Gallery> {
         let mut pictures: Vec<Picture> = vec![];
-        let result = get_all_picture_file_paths(dir)
+        get_all_picture_file_paths(dir)
             .and_then(|list| {
                 for file_path in list {
                     match Picture::new_with_file_image_data(&file_path, "") {
@@ -75,26 +86,19 @@ impl Repository {
                         Err(err) => return Err(err),
                     }
                 };
-                Ok(pictures)
-            });
-        match result {
-            Ok(pictures) => Gallery::new_with_pictures(pictures),
-            Err(e) => panic!("{}", &format!("{}", e)),
-        }
+                Ok(Gallery::new_with_pictures(pictures))
+            })
     }
 
-    pub fn picture_from_file_path(&self, file_path: &str) -> Gallery {
-        let result = get_picture_file_path(file_path)
+    pub fn picture_from_file_path(&self, file_path: &str) -> IOResult<Gallery> {
+        get_picture_file_path(file_path)
             .and_then(|path| {
                 Picture::new_with_file_image_data(&path, "").map(|picture| {
-                    vec![picture]
+                    Gallery::new_with_pictures(vec![picture])
                 })
-            });
-        match result {
-            Ok(pictures) => Gallery::new_with_pictures(pictures),
-            Err(e) => panic!("{}", &format!("{}", e)),
-        }
+            })
     }
+
     pub fn all_labels(&self) -> Tags {
         let tags = self.tags_rc.try_borrow().expect("can't borrow repository tags");
         tags.clone()
@@ -124,7 +128,7 @@ mod tests {
         let args = my_args().expect("can't access to test args");
         let cfg = my_cfg();
         let mut repository = Repository::new(my_cfg(), args);
-        repository.initialize();
+        repository.initialize().expect("can't initialize");
         assert!(repository.all_labels().contains("a_rather_long_tag"));
         assert!(repository.all_labels().contains("white_square"));
     }
@@ -136,8 +140,9 @@ mod tests {
         args.order = Order::Size;
         let cfg = my_cfg();
         let mut repository = Repository::new(my_cfg(), args);
-        repository.initialize();
-        let gallery = repository.gallery_rc.try_borrow().expect("can't borrow repository gallery");
+        assert!(repository.initialize().is_ok());
+        let gallery_rc = repository.gallery_rc();
+        let gallery = gallery_rc.try_borrow().expect("can't borrow repository gallery");
         assert_eq!(4, gallery.len());
         println!("{:?}", gallery);
         assert!(gallery.picture(0).file_size() <= gallery.picture(1).file_size());
@@ -151,8 +156,10 @@ mod tests {
         args.order = Order::Size;
         let cfg = my_cfg();
         let mut repository = Repository::new(my_cfg(), args);
-        repository.initialize();
-        let gallery = repository.pictures_in_directory("testdata");
+        assert!(repository.initialize().is_ok());
+        let result = repository.pictures_in_directory("testdata");
+        assert!(result.is_ok());
+        let gallery = result.unwrap();
         assert_eq!(4, gallery.len());
     }
     #[test]
@@ -162,8 +169,10 @@ mod tests {
         args.order = Order::Size;
         let cfg = my_cfg();
         let mut repository = Repository::new(my_cfg(), args);
-        repository.initialize();
-        let gallery = repository.picture_from_file_path(&format!("testdata/{}",NINE_COLORS));
+        assert!(repository.initialize().is_ok());
+        let result = repository.picture_from_file_path(&format!("testdata/{}",NINE_COLORS));
+        assert!(result.is_ok());
+        let gallery = result.unwrap();
         assert_eq!(1, gallery.len());
         assert!(gallery.pictures()[0].file_size() > Some(0));
     }
