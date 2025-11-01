@@ -50,7 +50,6 @@ pub struct Controller {
     editor: Editor,
     last_action: Action,
     parent_dirs: HashMap<String, usize>,
-    labels: HashSet<String>,
 }
 
 pub type RcController = Rc<RefCell<Controller>>;
@@ -79,7 +78,6 @@ impl Controller {
                                 main_window_opt: None,
                                 last_action: Action::NoAction,
                                 parent_dirs,
-                                labels,
                             })
                         })
                     })
@@ -122,7 +120,7 @@ impl Controller {
     }
 
     pub fn labels(&self) -> HashSet<String> {
-        self.labels.clone()
+        self.repository.all_labels()
     }
 
     pub fn current_picture(&self) -> Picture {
@@ -134,19 +132,40 @@ impl Controller {
         let mut gallery = Gallery::new();
         let args = self.args.clone();
         let result = match args.command {
-            Some(Command::File { file_path }) => gallery.load_from_file_path(&file_path),
-            Some(Command::Directory { directory }) => gallery.load_from_directory(&directory),
-            None => gallery.load_from_database(&self.database, &args),
+            Some(Command::File { file_path }) => match self.repository.picture_from_file_path(&file_path) {
+                Ok(gallery) => {
+                    println!("{} pictures", gallery.len());
+                    self.set_gallery(gallery.clone());
+                    Ok(gallery.len())
+                },
+                Err(e) => Err(e),
+            },
+            Some(Command::Directory { directory }) => match self.repository.pictures_in_directory(&directory) {
+                Ok(gallery) => {
+                    println!("{} pictures", gallery.len());
+                    self.set_gallery(gallery.clone());
+                    Ok(gallery.len())
+                },
+                Err(e) => Err(e),
+            },
+            None => match self.repository.gallery_rc().try_borrow() {
+                Ok(gallery) => {
+                    println!("{} pictures", gallery.len());
+                    self.set_gallery(gallery.clone());
+                    Ok(gallery.len())
+                },
+                Err(e) => Err(IOError::other(format!("{}",e))),
+            },
             _ => Ok(0),
         };
-        if gallery.len() > 0 {
-            println!("{} pictures", gallery.len());
-            self.set_gallery(gallery);
-        } else {
-            println!("no pictures\nquitting");
-            self.quit();
+        match result {
+            Ok(0) => {
+                println!("no pictures\nquitting");
+                self.quit();
+                Ok(0)
+            },
+            other => other
         }
-        result
     }
 
     pub fn execute_command(&mut self) -> IOResult<Status> {
@@ -521,7 +540,7 @@ impl Controller {
     }
 
     pub fn label_selected_pictures(&mut self, label: &str) {
-        let _ = self.labels.insert(label.to_string());
+        self.repository.add_label(label);
         if self.navigator.has_selected() {
             for index in 0..self.navigator.limit() {
                 if self.navigator.is_selected(index) {
@@ -579,7 +598,7 @@ impl Controller {
     }
 
     pub fn tag_selected_pictures(&mut self, label: &str) {
-        let _ = self.labels.insert(label.to_string());
+        self.repository.add_label(label);
         if self.navigator.has_selected() {
             for index in 0..self.navigator.limit() {
                 if self.navigator.is_selected(index) {

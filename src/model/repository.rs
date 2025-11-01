@@ -36,7 +36,7 @@ impl Repository {
         }
     }
 
-    fn retrieve_all_tags(&mut self) -> IOResult<()> {
+    fn retrieve_all_labels(&mut self) -> IOResult<()> {
         match self.tags_rc.try_borrow_mut() {
             Ok(mut tags) => match self.database.retrieve_all_labels() {
                 Ok(labels) => {
@@ -72,8 +72,8 @@ impl Repository {
     }
 
     pub fn initialize(&mut self) -> IOResult<()> {
-        self.retrieve_all_tags()
-            .and_then(|()| self.retrieve_all_pictures())
+        self.retrieve_all_labels().and_then(|()|
+            self.retrieve_all_pictures())
     }
 
     pub fn pictures_in_directory(&self, dir: &str) -> IOResult<Gallery> {
@@ -104,6 +104,11 @@ impl Repository {
         tags.clone()
     }
 
+    pub fn add_label(&self, label: &str) {
+        let mut tags = self.tags_rc.try_borrow_mut().expect("can't borrow mutably repository tags");
+        tags.insert(label.to_string());
+    }
+
     pub fn gallery_rc(&self) -> RefCell<Gallery> {
         self.gallery_rc.clone()
     }
@@ -131,6 +136,18 @@ mod tests {
         repository.initialize().expect("can't initialize");
         assert!(repository.all_labels().contains("a_rather_long_tag"));
         assert!(repository.all_labels().contains("white_square"));
+    }
+
+    #[test]
+    #[serial]
+    fn after_adding_a_label_the_set_includes_this_label() {
+        let args = my_args().expect("can't access to test args");
+        let cfg = my_cfg();
+        let mut repository = Repository::new(my_cfg(), args);
+        repository.initialize().expect("can't initialize");
+        assert!(!repository.all_labels().contains("a-new-label"));
+        repository.add_label("a-new-label");
+        assert!(repository.all_labels().contains("a-new-label"));
     }
 
     #[test]
@@ -203,5 +220,21 @@ mod tests {
         let gallery = gallery_rc.try_borrow().expect("can't borrow repository gallery");
         assert_eq!(1, gallery.len()); // only 1 pic is cover
         assert!(gallery.pictures()[0].file_path().contains(NINE_COLORS));
+    }
+    #[test]
+    #[serial]
+    fn a_picture_that_is_a_cover_has_the_len_of_its_parent_dir() {
+        let cfg = my_cfg();
+        let mut args = my_args().expect("can't access to test args");
+        let mut repository = Repository::new(my_cfg(), args.clone());
+        assert!(repository.initialize().is_ok());
+        let gallery_rc = repository.gallery_rc();
+        let gallery = gallery_rc.try_borrow().expect("can't borrow repository gallery");
+        let cover_picture = gallery.pictures()[1].clone();
+        assert!(cover_picture.file_path().contains(NINE_COLORS));
+        assert!(cover_picture.cover().is_some());
+        let count = cover_picture.cover().unwrap();
+        assert_eq!(4, count);
+
     }
 }
