@@ -1,3 +1,6 @@
+use crate::file::picture_file::get_all_picture_file_paths;
+use crate::model::picture::Picture;
+use crate::file::picture_file::get_picture_file_path;
 use crate::file::paths::file_path_to_string;
 use crate::file::paths::check_path;
 use walkdir::WalkDir;
@@ -63,28 +66,35 @@ impl Repository {
 
     }
     pub fn pictures_in_directory(&self, dir: &str) -> Gallery {
-        let result = check_path(dir).map(|directory| {
-            let mut file_paths: Vec<String> = Vec::new();
-            for entry in WalkDir::new(directory)
-                .into_iter()
-                    .filter_map(|entry| entry.ok())
-                    .map(|entry| entry.into_path())
-                    .filter(|path| {
-                        path.is_file()
-                            && check_picture_path_extension(path).is_ok()
-                            && ! file_path_to_string(&path).contains(THUMB_SUFFIX)
-                    })
-            {
-                file_paths.push(file_path_to_string(&entry))
-            };
-            file_paths
-        });
+        let mut pictures: Vec<Picture> = vec![];
+        let result = get_all_picture_file_paths(dir)
+            .and_then(|list| {
+                for file_path in list {
+                    match Picture::new_with_file_image_data(&file_path, "") {
+                        Ok(picture) => pictures.push(picture),
+                        Err(err) => return Err(err),
+                    }
+                };
+                Ok(pictures)
+            });
         match result {
-            Ok(file_paths) => Gallery::from_file_paths(file_paths),
+            Ok(pictures) => Gallery::new_with_pictures(pictures),
             Err(e) => panic!("{}", &format!("{}", e)),
         }
     }
 
+    pub fn picture_from_file_path(&self, file_path: &str) -> Gallery {
+        let result = get_picture_file_path(file_path)
+            .and_then(|path| {
+                Picture::new_with_file_image_data(&path, "").map(|picture| {
+                    vec![picture]
+                })
+            });
+        match result {
+            Ok(pictures) => Gallery::new_with_pictures(pictures),
+            Err(e) => panic!("{}", &format!("{}", e)),
+        }
+    }
     pub fn all_labels(&self) -> Tags {
         let tags = self.tags_rc.try_borrow().expect("can't borrow repository tags");
         tags.clone()
@@ -106,7 +116,7 @@ mod tests {
     use crate::file::paths::current_directory;
     use crate::file::database::tests::my_args;
     use crate::model::order::Order;
-
+    use crate::test_data::NINE_COLORS;
 
     #[test]
     #[serial]
@@ -136,7 +146,7 @@ mod tests {
     }
     #[test]
     #[serial]
-    fn given_a_dir_it_provides_the_gallery_of_data_less_picture_found_there() {
+    fn given_a_dir_it_provides_the_gallery_of_pictures_with_only_size_and_modified_time() {
         let mut args = my_args().expect("can't access to test args");
         args.order = Order::Size;
         let cfg = my_cfg();
@@ -144,6 +154,17 @@ mod tests {
         repository.initialize();
         let gallery = repository.pictures_in_directory("testdata");
         assert_eq!(4, gallery.len());
-        assert!(gallery.pictures()[0].image_data().is_none());
+    }
+    #[test]
+    #[serial]
+    fn given_a_file_path_it_provides_the_picture_with_only_size_and_modified_time()  {
+        let mut args = my_args().expect("can't access to test args");
+        args.order = Order::Size;
+        let cfg = my_cfg();
+        let mut repository = Repository::new(my_cfg(), args);
+        repository.initialize();
+        let gallery = repository.picture_from_file_path(&format!("testdata/{}",NINE_COLORS));
+        assert_eq!(1, gallery.len());
+        assert!(gallery.pictures()[0].file_size() > Some(0));
     }
 }
