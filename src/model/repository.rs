@@ -176,4 +176,32 @@ mod tests {
         assert_eq!(1, gallery.len());
         assert!(gallery.pictures()[0].file_size() > Some(0));
     }
+    #[test]
+    #[serial]
+    fn given_a_restriction_in_initial_args_it_provides_only_the_matching_pictures() {
+        let cfg = my_cfg();
+        let mut args = my_args().expect("can't access to test args");
+        args.restrict = Some("foo,bar".to_string());
+        let mut repository = Repository::new(my_cfg(), args.clone());
+        assert!(repository.initialize().is_ok());
+        let gallery_rc = repository.gallery_rc();
+        let gallery = gallery_rc.try_borrow().expect("can't borrow repository gallery");
+        assert_eq!(2, gallery.len()); // only 2 pics have both bar and foo tags, see sql/update_test_data.sql 
+
+        args.restrict = None;
+        args.label = Some("dot".to_string());
+        let mut repository = Repository::new(my_cfg(), args.clone());
+        assert!(repository.initialize().is_ok());
+        let gallery_rc = repository.gallery_rc();
+        let gallery = gallery_rc.try_borrow().expect("can't borrow repository gallery");
+        assert_eq!(1, gallery.len()); // only 1 pic has label "dot"
+        args.label = None;
+        args.cover = true;
+        let mut repository = Repository::new(my_cfg(), args.clone());
+        assert!(repository.initialize().is_ok());
+        let gallery_rc = repository.gallery_rc();
+        let gallery = gallery_rc.try_borrow().expect("can't borrow repository gallery");
+        assert_eq!(1, gallery.len()); // only 1 pic is cover
+        assert!(gallery.pictures()[0].file_path().contains(NINE_COLORS));
+    }
 }
