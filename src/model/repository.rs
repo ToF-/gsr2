@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use crate::file::picture_file::get_all_picture_file_paths;
 use crate::model::picture::Picture;
 use crate::file::picture_file::get_picture_file_path;
@@ -23,6 +24,7 @@ pub struct Repository {
     database: Database,
     tags_rc: RefCell<Tags>,
     gallery_rc: RefCell<Gallery>,
+    parent_dirs: HashMap<String, usize>,
 }
 
 impl Repository {
@@ -33,6 +35,7 @@ impl Repository {
             database,
             tags_rc: RefCell::new(crate::model::tags::empty()),
             gallery_rc: RefCell::new(Gallery::new()),
+            parent_dirs: HashMap::new(),
         }
     }
 
@@ -71,9 +74,20 @@ impl Repository {
         }
     }
 
+    fn retrieve_all_parent_dirs(&mut self) -> IOResult<()> {
+       match self.database.retrieve_all_parent_dirs() {
+           Ok(map) => {
+               self.parent_dirs = map;
+               Ok(())
+           },
+           Err(e) => Err(e)
+       }
+    }
+
     pub fn initialize(&mut self) -> IOResult<()> {
         self.retrieve_all_labels().and_then(|()|
-            self.retrieve_all_pictures())
+            self.retrieve_all_parent_dirs().and_then(|()|
+                self.retrieve_all_pictures()))
     }
 
     pub fn pictures_in_directory(&self, dir: &str) -> IOResult<Gallery> {
@@ -113,6 +127,9 @@ impl Repository {
         self.gallery_rc.clone()
     }
 
+    pub fn parent_dirs(&self) -> HashMap<String, usize> {
+        self.parent_dirs.clone()
+    }
 }
 
 #[cfg(test)]
@@ -235,6 +252,16 @@ mod tests {
         assert!(cover_picture.cover().is_some());
         let count = cover_picture.cover().unwrap();
         assert_eq!(4, count);
-
+    }
+    #[test]
+    #[serial]
+    fn provides_the_list_of_all_parent_dirs() {
+        let cfg = my_cfg();
+        let mut args = my_args().expect("can't access to test args");
+        let mut repository = Repository::new(my_cfg(), args.clone());
+        assert!(repository.initialize().is_ok());
+        let map = repository.parent_dirs();
+        let count: usize = *map.get(&format!("{}/{}", current_directory(), TEST_DATA_DIR)).expect("can't access parent dir count");
+        assert_eq!(4, count);
     }
 }

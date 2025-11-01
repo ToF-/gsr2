@@ -49,7 +49,6 @@ pub struct Controller {
     main_window_opt: Option<MainWindow>,
     editor: Editor,
     last_action: Action,
-    parent_dirs: HashMap<String, usize>,
 }
 
 pub type RcController = Rc<RefCell<Controller>>;
@@ -77,7 +76,6 @@ impl Controller {
                                 state: State::new(pictures_per_row as usize, cli.slideshow().is_some()),
                                 main_window_opt: None,
                                 last_action: Action::NoAction,
-                                parent_dirs,
                             })
                         })
                     })
@@ -226,15 +224,16 @@ impl Controller {
                     }
                 };
                 gallery.print();
-                if !self.parent_dirs.is_empty() {
-                    println!("----- directories:{} -----", self.parent_dirs.len());
+                let parent_dirs = self.repository.parent_dirs();
+                if !parent_dirs.is_empty() {
+                    println!("----- directories:{} -----", parent_dirs.len());
                     let mut dirs: Vec<String> = vec![];
-                    for dir in self.parent_dirs.keys() {
+                    for dir in parent_dirs.keys() {
                         dirs.push(dir.to_string());
                     }
                     dirs.sort();
                     for dir in dirs {
-                        let count = self.parent_dirs.get(&dir).unwrap();
+                        let count = parent_dirs.get(&dir).unwrap();
                         println!("{}:  {}", dir, count)
                     }
                 }
@@ -777,7 +776,7 @@ impl Controller {
 
     pub fn current_dir_count(&self) -> usize {
         if let Some(directory) = parent_directory(&self.current_picture().file_path()) {
-            if let Some(count) = self.parent_dirs.get(&directory) {
+            if let Some(count) = self.repository.parent_dirs().get(&directory) {
                 *count
             } else {
                 0
