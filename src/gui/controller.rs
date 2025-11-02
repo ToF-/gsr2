@@ -871,7 +871,13 @@ impl Controller {
     fn rank_picture_at_index(&mut self, index: usize, rank: Rank) {
         let mut picture = self.gallery.picture(index);
         picture.set_rank(rank);
-        self.gallery.set_picture(index, picture.clone());
+        if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut() {
+            gallery.set_picture(index, picture.clone());
+            self.gallery = gallery.clone();
+            println!("{}", self.gallery.picture(index).rank());
+        } else {
+            panic!("can't borrow mut");
+        }
         if self.args.on_database() {
             match self.database.update_picture(&picture) {
                 Ok(_) => {}
@@ -880,6 +886,7 @@ impl Controller {
                 }
             }
         }
+        println!("gallery: {:?}", self.gallery.pictures().into_iter().map(|p| p.rank()).collect::<Vec<Rank>>());
     }
 
     pub fn rank_selected_pictures(&mut self, rank: Rank) {
