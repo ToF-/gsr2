@@ -203,61 +203,64 @@ impl MainWindow {
         pictures_per_row: i32,
     ) {
         let navigator = controller.navigator();
-        let gallery = controller.gallery();
-        let picture_grid = self.picture_grid.clone();
-        let grid = picture_grid.grid();
-        for col in 0..pictures_per_row {
-            for row in 0..pictures_per_row {
-                let coords = (row as usize, col as usize);
-                let cell = match grid.child_at(col, row) {
-                    Some(widget) => widget.downcast::<gtk::Box>().unwrap(),
-                    None => make_picture_cell_box(col, row, &self.controller_rc),
-                };
-                remove_children_from_box(&cell);
-                if let Some(index) = navigator.position_from_coords(coords.0, coords.1) {
-                    let picture = gallery.picture(index);
-                    let with_focus = if index == navigator.position() {
-                        Some(FOCUS_SYMBOL_1)
-                    } else {
-                        None
+        if let Ok(gallery) = controller.repository().gallery_rc().try_borrow() {
+            let picture_grid = self.picture_grid.clone();
+            let grid = picture_grid.grid();
+            for col in 0..pictures_per_row {
+                for row in 0..pictures_per_row {
+                    let coords = (row as usize, col as usize);
+                    let cell = match grid.child_at(col, row) {
+                        Some(widget) => widget.downcast::<gtk::Box>().unwrap(),
+                        None => make_picture_cell_box(col, row, &self.controller_rc),
                     };
-                    let picture_file_path = picture.view_file_path(pictures_per_row as usize);
-                    let gtk_picture = if let Ok(file_path) =
-                        check_path_exists(&PathBuf::from(picture_file_path))
-                    {
-                        gtk_picture_from_file_path(file_path)
-                    } else {
-                        no_thumbnail_picture()
-                    };
-                    let with_sample: Option<Vec<Color>> = if controller.state().palette_on() {
-                        picture
-                            .image_data()
-                            .map(|image_data| image_data.palette().sample())
-                    } else {
-                        None
-                    };
-                    self.picture_grid
-                        .set_picture_at(col, row, &gtk_picture, with_sample);
-                    let opacity: f64 = if let Some(position) =
-                        navigator.position_from_coords(row as usize, col as usize)
-                    {
-                        if navigator.is_selected(position) {
-                            HALF_OPACITY
-                        } else if gallery.selection().is_empty() {
-                            FULL_OPACITY
-                        } else if gallery.selection().matches(picture.tags()) {
-                            FULL_OPACITY
+                    remove_children_from_box(&cell);
+                    if let Some(index) = navigator.position_from_coords(coords.0, coords.1) {
+                        let picture = gallery.picture(index);
+                        let with_focus = if index == navigator.position() {
+                            Some(FOCUS_SYMBOL_1)
                         } else {
-                            QUARTER_OPACITY
-                        }
-                    } else {
-                        FULL_OPACITY
-                    };
-                    self.picture_grid.set_picture_opacity_at(col, row, opacity);
-                    self.picture_grid
-                        .set_label_text_at(&picture, col, row, with_focus);
+                            None
+                        };
+                        let picture_file_path = picture.view_file_path(pictures_per_row as usize);
+                        let gtk_picture = if let Ok(file_path) =
+                            check_path_exists(&PathBuf::from(picture_file_path))
+                        {
+                            gtk_picture_from_file_path(file_path)
+                        } else {
+                            no_thumbnail_picture()
+                        };
+                        let with_sample: Option<Vec<Color>> = if controller.state().palette_on() {
+                            picture
+                                .image_data()
+                                .map(|image_data| image_data.palette().sample())
+                        } else {
+                            None
+                        };
+                        self.picture_grid
+                            .set_picture_at(col, row, &gtk_picture, with_sample);
+                        let opacity: f64 = if let Some(position) =
+                            navigator.position_from_coords(row as usize, col as usize)
+                        {
+                            if navigator.is_selected(position) {
+                                HALF_OPACITY
+                            } else if gallery.selection().is_empty() {
+                                FULL_OPACITY
+                            } else if gallery.selection().matches(picture.tags()) {
+                                FULL_OPACITY
+                            } else {
+                                QUARTER_OPACITY
+                            }
+                        } else {
+                            FULL_OPACITY
+                        };
+                        self.picture_grid.set_picture_opacity_at(col, row, opacity);
+                        self.picture_grid
+                            .set_label_text_at(&picture, col, row, with_focus);
+                    }
                 }
             }
+        } else {
+            panic!("can't borrow");
         }
     }
 

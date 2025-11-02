@@ -33,6 +33,7 @@ impl Navigator {
             selected_pictures: HashSet::new(),
         };
         result.update_page_limits();
+        println!("new navigator: {:?}", result);
         result
     }
 
@@ -121,7 +122,7 @@ impl Navigator {
 
     pub fn set_range_all(&mut self) {
         let start = 0;
-        let end = self.limit-1;
+        let end = self.limit - 1;
         self.range_start = Some(start);
         self.range_end = Some(end);
         self.range_opt = self.range();
@@ -188,6 +189,7 @@ impl Navigator {
     }
 
     pub fn can_move(&mut self, direction: Direction) -> bool {
+        assert!(self.limit > 0);
         let can_move = match direction {
             Direction::First => true,
             Direction::Last => true,

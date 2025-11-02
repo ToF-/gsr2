@@ -4,10 +4,10 @@ use crate::cli::status::Status;
 use crate::env::configuration::{Configuration, get_configuration};
 use crate::env::environment::database_connection;
 use crate::file::database::*;
-use crate::file::{delete_picture, move_pictures};
 use crate::file::operation::{execute, move_picture};
 use crate::file::paths::{check_collectable, file_exists, parent_directory};
 use crate::file::picture_file::{collect_data, create_missing_thumbnails};
+use crate::file::{delete_picture, move_pictures};
 use crate::gui::control::{Control, Controls, default_controls};
 use crate::gui::direction::Direction;
 use crate::gui::editor::Editor;
@@ -23,7 +23,7 @@ use crate::model::order::Order;
 use crate::model::picture::Picture;
 use crate::model::rank::Rank;
 use crate::model::repository::Repository;
-use crate::model::selection::{Selection, ALL_TAGS, SOME_TAGS};
+use crate::model::selection::{ALL_TAGS, SOME_TAGS, Selection};
 use gdk::{Key, ModifierType};
 use gtk::prelude::*;
 use gtk::{self, gdk};
@@ -41,7 +41,6 @@ use std::rc::Rc;
 pub struct Controller {
     repository: Repository,
     args: Args,
-    gallery: Gallery,
     navigator: Navigator,
     controls: Controls,
     database: Database,
@@ -63,22 +62,24 @@ impl Controller {
                 Ok(mut database) => {
                     let mut repository = Repository::new(config, cli.clone());
                     repository.initialize();
-                    database.retrieve_all_parent_dirs().and_then(|parent_dirs| {
-                        database.retrieve_all_labels().and_then(|labels| {
-                            Ok(Controller {
-                                repository,
-                                args: cli.clone(),
-                                gallery,
-                                editor: Editor::new(),
-                                navigator: Navigator::new(0, pictures_per_row as usize),
-                                controls: default_controls(),
-                                database,
-                                state: State::new(pictures_per_row as usize, cli.slideshow().is_some()),
-                                main_window_opt: None,
-                                last_action: Action::NoAction,
-                            })
-                        })
-                    })
+                    if let Ok(gallery) = repository.gallery_rc().try_borrow() {
+                                Ok(Controller {
+                                    repository: repository.clone(),
+                                    args: cli.clone(),
+                                    editor: Editor::new(),
+                                    navigator: Navigator::new(gallery.len(), pictures_per_row as usize),
+                                    controls: default_controls(),
+                                    database,
+                                    state: State::new(
+                                        pictures_per_row as usize,
+                                        cli.slideshow().is_some(),
+                                    ),
+                                    main_window_opt: None,
+                                    last_action: Action::NoAction,
+                                })
+                    } else {
+                        panic!("can't borrow")
+                    }
                 },
             }
         })
@@ -90,6 +91,10 @@ impl Controller {
 
     pub fn database(&self) -> Database {
         self.database.clone()
+    }
+
+    pub fn repository(&self) -> Repository {
+        self.repository.clone()
     }
 
     pub fn main_window(&self) -> MainWindow {
@@ -107,52 +112,47 @@ impl Controller {
         self.navigator.clone()
     }
 
-    pub fn gallery(&self) -> &Gallery {
-        &self.gallery
-    }
-
-    pub fn set_gallery(&mut self, gallery: Gallery) {
-        self.gallery = gallery;
-        self.navigator = Navigator::new(self.gallery.len(), self.state().pictures_per_row());
-        self.acknowledge_grid_size_change();
-    }
-
     pub fn labels(&self) -> HashSet<String> {
         self.repository.all_labels()
     }
 
     pub fn current_picture(&self) -> Picture {
         let navigator = &self.navigator;
-        self.gallery.picture(navigator.position())
+        if let Ok(gallery) = self.repository.gallery_rc().try_borrow() {
+            gallery.picture(navigator.position())
+        } else {
+            panic!("can't borrow gallery");
+        }
     }
 
     fn load_gallery(&mut self) -> IOResult<usize> {
         let mut gallery = Gallery::new();
         let args = self.args.clone();
         let result = match args.command {
-            Some(Command::File { file_path }) => match self.repository.picture_from_file_path(&file_path) {
-                Ok(gallery) => {
-                    println!("{} pictures", gallery.len());
-                    self.set_gallery(gallery.clone());
-                    Ok(gallery.len())
-                },
-                Err(e) => Err(e),
-            },
-            Some(Command::Directory { directory }) => match self.repository.pictures_in_directory(&directory) {
-                Ok(gallery) => {
-                    println!("{} pictures", gallery.len());
-                    self.set_gallery(gallery.clone());
-                    Ok(gallery.len())
-                },
-                Err(e) => Err(e),
-            },
+            Some(Command::File { file_path }) => {
+                match self.repository.picture_from_file_path(&file_path) {
+                    Ok(gallery) => {
+                        println!("{} pictures", gallery.len());
+                        Ok(gallery.len())
+                    }
+                    Err(e) => Err(e),
+                }
+            }
+            Some(Command::Directory { directory }) => {
+                match self.repository.pictures_in_directory(&directory) {
+                    Ok(gallery) => {
+                        println!("{} pictures", gallery.len());
+                        Ok(gallery.len())
+                    }
+                    Err(e) => Err(e),
+                }
+            }
             None => match self.repository.gallery_rc().try_borrow() {
                 Ok(gallery) => {
                     println!("{} pictures", gallery.len());
-                    self.set_gallery(gallery.clone());
                     Ok(gallery.len())
-                },
-                Err(e) => Err(IOError::other(format!("{}",e))),
+                }
+                Err(e) => Err(IOError::other(format!("{}", e))),
             },
             _ => Ok(0),
         };
@@ -161,8 +161,8 @@ impl Controller {
                 println!("no pictures\nquitting");
                 self.quit();
                 Ok(0)
-            },
-            other => other
+            }
+            other => other,
         }
     }
 
@@ -183,8 +183,6 @@ impl Controller {
                 }
                 Ok(n) => {
                     println!("{} pictures", &gallery.len());
-                    gallery.sort_by(args.order);
-                    self.set_gallery(gallery);
                     if let Some(index) = args.index
                         && self.navigator().can_move(Direction::Index { value: index })
                     {
@@ -298,25 +296,24 @@ impl Controller {
                 }
             }
 
-            None => match gallery.load_from_database(&self.database, &args) {
-                Err(e) => Err(e),
-                Ok(0) => {
-                    println!("no pictures for this selection");
-                    Ok(Status::Exit)
+            None => match self.repository.gallery_rc().try_borrow() {
+                Ok(gallery) => {
+                    if gallery.is_empty() {
+                        println!("no pictures for this selection");
+                        Ok(Status::Exit)
+                    } else {
+                        println!("{} pictures", &gallery.len());
+                        if let Some(index) = args.index
+                            && self.navigator().can_move(Direction::Index { value: index })
+                        {
+                            self.navigator
+                                .move_towards(Direction::Index { value: index })
+                        };
+                        self.navigator().set_page_changed();
+                        Ok(Status::Ready)
+                    }
                 }
-                Ok(n) => {
-                    println!("{} pictures", &gallery.len());
-                    gallery.sort_by(args.order);
-                    self.set_gallery(gallery);
-                    if let Some(index) = args.index
-                        && self.navigator().can_move(Direction::Index { value: index })
-                    {
-                        self.navigator
-                            .move_towards(Direction::Index { value: index })
-                    };
-                    self.navigator().set_page_changed();
-                    Ok(Status::Ready)
-                }
+                Err(e) => Err(IOError::other(e)),
             },
         }
     }
@@ -524,18 +521,22 @@ impl Controller {
     }
 
     fn label_picture_at_index(&mut self, index: usize, label: &str) {
-        let mut picture = self.gallery.picture(index);
-        picture.set_label(label);
-        self.gallery.set_picture(index, picture.clone());
-        if self.args.on_database() {
-            match self.database.update_picture(&picture) {
-                Ok(_) => {}
-                Err(err) => {
-                    println!("{}", err);
+        if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut() {
+            let mut picture = gallery.picture(index);
+            picture.set_label(label);
+            gallery.set_picture(index, picture.clone());
+            if self.args.on_database() {
+                match self.database.update_picture(&picture) {
+                    Ok(_) => {}
+                    Err(err) => {
+                        println!("{}", err);
+                    }
                 }
-            }
-        };
-        self.last_action = Action::Label(label.to_string());
+            };
+            self.last_action = Action::Label(label.to_string());
+        } else {
+            panic!("can't borrow");
+        }
     }
 
     pub fn label_selected_pictures(&mut self, label: &str) {
@@ -569,29 +570,37 @@ impl Controller {
     }
 
     fn tag_picture_at_index(&mut self, index: usize, label: &str) {
-        let mut picture = self.gallery.picture(index);
-        picture.add_tag(label);
-        self.gallery.set_picture(index, picture.clone());
-        if self.args.on_database() {
-            match self.database.update_picture(&picture) {
-                Ok(_) => {}
-                Err(err) => {
-                    println!("{}", err);
+        if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut() {
+            let mut picture = gallery.picture(index);
+            picture.add_tag(label);
+            gallery.set_picture(index, picture.clone());
+            if self.args.on_database() {
+                match self.database.update_picture(&picture) {
+                    Ok(_) => {}
+                    Err(err) => {
+                        println!("{}", err);
+                    }
                 }
             }
+        } else {
+            panic!("can't borrow");
         }
     }
 
     fn untag_picture_at_index(&mut self, index: usize, label: &str) {
-        let mut picture = self.gallery.picture(index);
-        picture.remove_tag(label);
-        self.gallery.set_picture(index, picture.clone());
-        if self.args.on_database() {
-            match self.database.update_picture(&picture) {
-                Ok(_) => {}
-                Err(err) => {
-                    println!("{}", err);
+        if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut() {
+            let mut picture = gallery.picture(index);
+            picture.remove_tag(label);
+            gallery.set_picture(index, picture.clone());
+            if self.args.on_database() {
+                match self.database.update_picture(&picture) {
+                    Ok(_) => {}
+                    Err(err) => {
+                        println!("{}", err);
+                    }
                 }
+            } else {
+                panic!("can't borrow");
             }
         }
     }
@@ -774,31 +783,25 @@ impl Controller {
         }
     }
 
-    pub fn current_dir_count(&self) -> usize {
-        if let Some(directory) = parent_directory(&self.current_picture().file_path()) {
-            if let Some(count) = self.repository.parent_dirs().get(&directory) {
-                *count
-            } else {
-                0
-            }
-        } else {
-            0
-        }
-    }
-
     pub fn toggle_cover(&mut self) {
+
         let index = self.navigator().position();
-        let mut picture = self.gallery.picture(index);
-        let dir_count = self.current_dir_count();
-        picture.toggle_cover(dir_count);
-        self.gallery.set_picture(index, picture.clone());
-        match self.database.update_picture(&picture) {
-            Ok(_) => {}
-            Err(err) => {
-                println!("{}", err);
+        let count = self.repository.directory_count_at_index(index);
+        println!("toggle_cover");
+        if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut() {
+            let mut picture = gallery.picture(index);
+            picture.toggle_cover(count);
+            gallery.set_picture(index, picture.clone());
+            match self.database.update_picture(&picture) {
+                Ok(_) => {}
+                Err(err) => {
+                    println!("{}", err);
+                }
             }
+            self.navigator.set_page_changed()
+        } else {
+            panic!("can't borrow");
         }
-        self.navigator.set_page_changed()
     }
     pub fn set_selection(&mut self) {
         self.editor.begin(
@@ -820,8 +823,8 @@ impl Controller {
 
     pub fn cancel_selection(&mut self) {
         let current_file_path = self.current_picture().file_path();
-        self.gallery.set_selection(Selection::empty());
-        if let Some(index) = self.gallery().find_file_path(&current_file_path) {
+        self.repository.set_selection(Selection::empty());
+        if let Some(index) = self.repository.find_index_for_file_path(&current_file_path) {
             self.navigator
                 .move_towards(Direction::Index { value: index })
         } else {
@@ -831,14 +834,14 @@ impl Controller {
     }
 
     pub fn apply_selection(&mut self, selection_str: &str) {
-        self.gallery
+        self.repository
             .set_selection(Selection::from(selection_str, false));
         self.navigator.move_towards(Direction::First);
         self.navigator.set_page_changed();
     }
 
     pub fn apply_restriction(&mut self, selection_str: &str) {
-        self.gallery
+        self.repository
             .set_selection(Selection::from(selection_str, true));
         self.navigator.move_towards(Direction::First);
         self.navigator.set_page_changed();
@@ -846,8 +849,11 @@ impl Controller {
 
     pub fn add_tag(&mut self) {
         self.set_opacity_for_current_picture(0.25);
-        self.editor
-            .begin(&self.main_window(), EntryKind::AddTag, Some(self.repository.all_labels()));
+        self.editor.begin(
+            &self.main_window(),
+            EntryKind::AddTag,
+            Some(self.repository.all_labels()),
+        );
         self.state.set_mode(Mode::Editing);
     }
 
@@ -863,30 +869,30 @@ impl Controller {
 
     pub fn label(&mut self) {
         self.set_opacity_for_current_picture(0.25);
-        self.editor
-            .begin(&self.main_window(), EntryKind::Label, Some(self.repository.all_labels()));
+        self.editor.begin(
+            &self.main_window(),
+            EntryKind::Label,
+            Some(self.repository.all_labels()),
+        );
         self.state.set_mode(Mode::Editing);
     }
 
     fn rank_picture_at_index(&mut self, index: usize, rank: Rank) {
-        let mut picture = self.gallery.picture(index);
-        picture.set_rank(rank);
         if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut() {
+            let mut picture = gallery.picture(index);
+            picture.set_rank(rank);
             gallery.set_picture(index, picture.clone());
-            self.gallery = gallery.clone();
-            println!("{}", self.gallery.picture(index).rank());
-        } else {
-            panic!("can't borrow mut");
-        }
-        if self.args.on_database() {
-            match self.database.update_picture(&picture) {
-                Ok(_) => {}
-                Err(err) => {
-                    println!("{}", err);
+            if self.args.on_database() {
+                match self.database.update_picture(&picture) {
+                    Ok(_) => {}
+                    Err(err) => {
+                        println!("{}", err);
+                    }
                 }
             }
-        }
-        println!("gallery: {:?}", self.gallery.pictures().into_iter().map(|p| p.rank()).collect::<Vec<Rank>>());
+        } else {
+            panic!("can't borrow mut");
+        };
     }
 
     pub fn rank_selected_pictures(&mut self, rank: Rank) {
@@ -920,7 +926,7 @@ impl Controller {
         self.editor.begin(
             &self.main_window(),
             EntryKind::FindLabel,
-            Some(self.gallery.all_labels()),
+            Some(self.repository.all_labels()),
         );
         self.state.set_mode(Mode::Editing);
     }
@@ -940,28 +946,34 @@ impl Controller {
     }
 
     pub fn find_pattern(&mut self, pattern: &str) {
-        if let Some(index) = self
-            .gallery
-            .pictures()
-            .iter()
-            .position(|picture| picture.file_path().contains(pattern))
-        {
-            let navigator = &mut self.navigator;
-            navigator.move_towards(Direction::Index { value: index });
-            navigator.set_page_changed()
+        if let Ok(gallery) = self.repository.gallery_rc().try_borrow() {
+            if let Some(index) = gallery
+                .pictures()
+                .iter()
+                .position(|picture| picture.file_path().contains(pattern))
+            {
+                let navigator = &mut self.navigator;
+                navigator.move_towards(Direction::Index { value: index });
+                navigator.set_page_changed()
+            }
+        } else {
+            panic!("can't borrow")
         }
     }
 
     pub fn find_pattern_in_label(&mut self, pattern: &str) {
-        if let Some(index) = self
-            .gallery
-            .pictures()
-            .iter()
-            .position(|picture| picture.label().contains(pattern))
-        {
-            let navigator = &mut self.navigator;
-            navigator.move_towards(Direction::Index { value: index });
-            navigator.set_page_changed()
+        if let Ok(gallery) = self.repository.gallery_rc().try_borrow() {
+            if let Some(index) = gallery
+                .pictures()
+                .iter()
+                .position(|picture| picture.label().contains(pattern))
+            {
+                let navigator = &mut self.navigator;
+                navigator.move_towards(Direction::Index { value: index });
+                navigator.set_page_changed()
+            }
+        } else {
+            panic!("can't borrow")
         }
     }
 
@@ -1065,16 +1077,21 @@ impl Controller {
     }
 
     pub fn order_by(&mut self, order: Order) {
-        let current_file_path = self.current_picture().file_path();
-        self.gallery.sort_by(order);
-        if let Some(index) = self.gallery().find_file_path(&current_file_path) {
-            self.navigator
-                .move_towards(Direction::Index { value: index })
+        if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut() {
+            let current_file_path = self.current_picture().file_path();
+            gallery.sort_by(order);
+            if let Some(index) = gallery.find_file_path(&current_file_path) {
+                self.navigator
+                    .move_towards(Direction::Index { value: index })
+            } else {
+                self.navigator.move_towards(Direction::First)
+            };
+            self.navigator.set_page_changed()
         } else {
-            self.navigator.move_towards(Direction::First)
-        };
-        self.navigator.set_page_changed()
+            panic!("can't borrow mut")
+        }
     }
+
     pub fn change_grid_size(&mut self, pictures_per_row: usize) {
         self.state.change_grid_size(pictures_per_row);
         self.main_window().change_grid_size(pictures_per_row);
@@ -1123,8 +1140,7 @@ impl Controller {
 
     fn delete_selected_pictures(&mut self) {
         for index in self.navigator.selection() {
-            let picture = &self.gallery.picture(index);
-            match delete_picture(&self.database, &picture.file_path()) {
+            match self.repository.delete_picture_at_index(index) {
                 Ok(_) => {}
                 Err(err) => {
                     println!("{}", err);
@@ -1138,23 +1154,27 @@ impl Controller {
             let mut picture_count = 0;
             let mut operation_count = 0;
             for index in self.navigator.selection() {
-                let picture = &self.gallery.picture(index);
-                let operations = move_picture(&picture.file_path(), &target_dir);
-                if operations.is_empty() {
-                    println!(
-                        "no operation for move of {} to {}",
-                        picture.file_path(),
-                        target_dir
-                    );
-                } else {
-                    picture_count += 1;
-                    operation_count += operations.len();
-                    match execute(&self.database, &operations) {
-                        Ok(_) => {}
-                        Err(err) => {
-                            println!("{}", err);
+                if let Ok(gallery) = self.repository.gallery_rc().try_borrow() {
+                    let picture = gallery.picture(index);
+                    let operations = move_picture(&picture.file_path(), &target_dir);
+                    if operations.is_empty() {
+                        println!(
+                            "no operation for move of {} to {}",
+                            picture.file_path(),
+                            target_dir
+                        );
+                    } else {
+                        picture_count += 1;
+                        operation_count += operations.len();
+                        match execute(&self.database, &operations) {
+                            Ok(_) => {}
+                            Err(err) => {
+                                println!("{}", err);
+                            }
                         }
                     }
+                } else {
+                    panic!("can't borrow");
                 }
             }
             println!(

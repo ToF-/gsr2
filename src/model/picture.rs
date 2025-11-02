@@ -1,6 +1,6 @@
-use crate::model::image_data::FileSize;
 use crate::file::paths::{file_name_from, thumbnail_name_from};
 use crate::model::cover::Cover;
+use crate::model::image_data::FileSize;
 use crate::model::image_data::ImageData;
 use crate::model::image_data::datetime_from_time_stamp;
 use crate::model::rank::Rank;

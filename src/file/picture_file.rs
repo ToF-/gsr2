@@ -3,7 +3,7 @@ use crate::file::Database;
 use crate::file::paths::check_collectable;
 use crate::file::paths::thumbnail_name_from;
 use crate::file::paths::thumbnail_names_from;
-use crate::file::paths::{check_path, check_picture_path_extension, check_picture_file};
+use crate::file::paths::{check_path, check_picture_file, check_picture_path_extension};
 use crate::file::paths::{check_path_exists, file_exists};
 use crate::model::gallery::Gallery;
 use crate::model::image_data::ImageData;

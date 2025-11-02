@@ -1,30 +1,31 @@
-use std::collections::HashMap;
-use crate::file::picture_file::get_all_picture_file_paths;
-use crate::model::picture::Picture;
-use crate::file::picture_file::get_picture_file_path;
-use crate::file::paths::file_path_to_string;
-use crate::file::paths::check_path;
-use walkdir::WalkDir;
-use crate::file::paths::check_picture_path_extension;
-use crate::env::default_values::THUMB_SUFFIX;
-use crate::model::selection::Selection;
-use crate::model::gallery::Gallery;
-use crate::model::tags::Tags;
-use crate::env::configuration::Configuration;
-use crate::file::database::Database;
-use std::io::Result as IOResult;
-use std::io::Error as IOError;
-use std::cell::RefCell;
+use crate::file::paths::parent_directory;
 use crate::cli::args::Args;
+use crate::env::configuration::Configuration;
+use crate::env::default_values::THUMB_SUFFIX;
+use crate::file::database::Database;
+use crate::file::paths::check_path;
+use crate::file::paths::check_picture_path_extension;
+use crate::file::paths::file_path_to_string;
+use crate::file::picture_file::get_all_picture_file_paths;
+use crate::file::picture_file::get_picture_file_path;
+use crate::model::gallery::Gallery;
+use crate::model::picture::Picture;
+use crate::model::selection::Selection;
+use crate::model::tags::Tags;
+use std::cell::RefCell;
+use std::collections::HashMap;
+use std::io::Error as IOError;
+use std::io::Result as IOResult;
+use walkdir::WalkDir;
 
-
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Repository {
     args: Args,
     database: Database,
     tags_rc: RefCell<Tags>,
     gallery_rc: RefCell<Gallery>,
     parent_dirs: HashMap<String, usize>,
+    selection: Selection,
 }
 
 impl Repository {
@@ -36,6 +37,7 @@ impl Repository {
             tags_rc: RefCell::new(crate::model::tags::empty()),
             gallery_rc: RefCell::new(Gallery::new()),
             parent_dirs: HashMap::new(),
+            selection: Selection::empty(),
         }
     }
 
@@ -45,104 +47,166 @@ impl Repository {
                 Ok(labels) => {
                     *tags = Tags::from(labels);
                     Ok(())
-                },
+                }
                 Err(e) => return Err(e),
             },
-            Err(e) => Err(IOError::other(format!("{}",e))),
+            Err(e) => Err(IOError::other(format!("{}", e))),
         }
     }
 
     fn retrieve_all_pictures(&mut self) -> IOResult<()> {
         let selection = Selection::from_args(&self.args);
         match self.gallery_rc.try_borrow_mut() {
-            Ok(mut gallery) => { 
+            Ok(mut gallery) => {
                 *gallery = match self.database.retrieve_all_pictures(
                     selection.clone(),
                     self.args.label.clone(),
                     self.args.cover,
-                    self.args.directory.clone()) {
+                    self.args.directory.clone(),
+                ) {
                     Ok(pictures) => {
                         let mut gallery = Gallery::new_with_pictures(pictures);
                         gallery.sort_by(self.args.order);
                         gallery
-                    },
+                    }
                     Err(e) => return Err(e),
                 };
                 Ok(())
-            },
+            }
             Err(e) => panic!("{}", &format!("{}", e)),
         }
     }
 
     fn retrieve_all_parent_dirs(&mut self) -> IOResult<()> {
-       match self.database.retrieve_all_parent_dirs() {
-           Ok(map) => {
-               self.parent_dirs = map;
-               Ok(())
-           },
-           Err(e) => Err(e)
-       }
+        match self.database.retrieve_all_parent_dirs() {
+            Ok(map) => {
+                self.parent_dirs = map;
+                Ok(())
+            }
+            Err(e) => Err(e),
+        }
     }
 
     pub fn initialize(&mut self) -> IOResult<()> {
-        self.retrieve_all_labels().and_then(|()|
-            self.retrieve_all_parent_dirs().and_then(|()|
-                self.retrieve_all_pictures()))
+        self.retrieve_all_labels().and_then(|()| {
+            self.retrieve_all_parent_dirs()
+                .and_then(|()| self.retrieve_all_pictures())
+        })
     }
 
     pub fn pictures_in_directory(&self, dir: &str) -> IOResult<Gallery> {
         let mut pictures: Vec<Picture> = vec![];
-        get_all_picture_file_paths(dir)
-            .and_then(|list| {
-                for file_path in list {
-                    match Picture::new_with_file_image_data(&file_path, "") {
-                        Ok(picture) => pictures.push(picture),
-                        Err(err) => return Err(err),
-                    }
-                };
-                Ok(Gallery::new_with_pictures(pictures))
-            })
+        get_all_picture_file_paths(dir).and_then(|list| {
+            for file_path in list {
+                match Picture::new_with_file_image_data(&file_path, "") {
+                    Ok(picture) => pictures.push(picture),
+                    Err(err) => return Err(err),
+                }
+            }
+            Ok(Gallery::new_with_pictures(pictures))
+        })
     }
 
     pub fn picture_from_file_path(&self, file_path: &str) -> IOResult<Gallery> {
-        get_picture_file_path(file_path)
-            .and_then(|path| {
-                Picture::new_with_file_image_data(&path, "").map(|picture| {
-                    Gallery::new_with_pictures(vec![picture])
-                })
-            })
+        get_picture_file_path(file_path).and_then(|path| {
+            Picture::new_with_file_image_data(&path, "")
+                .map(|picture| Gallery::new_with_pictures(vec![picture]))
+        })
     }
 
     pub fn all_labels(&self) -> Tags {
-        let tags = self.tags_rc.try_borrow().expect("can't borrow repository tags");
+        let tags = self
+            .tags_rc
+            .try_borrow()
+            .expect("can't borrow repository tags");
         tags.clone()
     }
 
     pub fn add_label(&self, label: &str) {
-        let mut tags = self.tags_rc.try_borrow_mut().expect("can't borrow mutably repository tags");
+        let mut tags = self
+            .tags_rc
+            .try_borrow_mut()
+            .expect("can't borrow mutably repository tags");
         tags.insert(label.to_string());
     }
 
-    pub fn gallery_rc(&self) -> RefCell<Gallery> {
-        self.gallery_rc.clone()
+    pub fn gallery_rc(&self) -> &RefCell<Gallery> {
+        &self.gallery_rc
     }
 
     pub fn parent_dirs(&self) -> HashMap<String, usize> {
         self.parent_dirs.clone()
+    }
+
+    pub fn directory_count_at_index(&self, index: usize) -> usize {
+        if let Ok(gallery) = self.gallery_rc.try_borrow() {
+            let picture = &gallery.pictures()[index];
+            if let Some(directory) = parent_directory(&picture.file_path()) {
+                if let Some(count) = self.parent_dirs().get(&directory) {
+                    *count
+                } else {
+                    0
+                }
+            } else {
+                    0
+            }
+        } else {
+            panic!("can't borrow");
+        }
+    }
+
+    pub fn save_picture_at(&mut self, index: usize) {
+        if let Ok(gallery) = self.gallery_rc.try_borrow() {
+            println!(
+                "updating picture at index {}:{}",
+                index,
+                gallery.pictures()[index].rank()
+            )
+        }
+    }
+
+    pub fn find_index_for_file_path(&self, file_path: &str) -> Option<usize> {
+        if let Ok(gallery) = self.gallery_rc.try_borrow() {
+            gallery.find_file_path(file_path)
+        } else {
+            panic!("can'tc borrow")
+        }
+    }
+
+    pub fn set_selection(&mut self, selection: Selection) {
+        self.set_selection(selection.clone());
+        if let Ok(mut gallery) = self.gallery_rc.try_borrow_mut() {
+            gallery.set_selection(selection.clone());
+        } else {
+            panic!("can't borrow mut")
+        }
+    }
+
+    pub fn delete_picture_at_index(&mut self, index: usize) -> IOResult<()> {
+        if let Ok(gallery) = self.gallery_rc.try_borrow() {
+            let picture = gallery.pictures()[index].clone();
+            match self.database
+                .delete_picture_with_file_path(&picture.file_path()) {
+                    Ok(_) => Ok(()),
+                    Err(e) => Err(e),
+                }
+        } else {
+            panic!("can't borrow mut")
+        }
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::file::database::tests::my_db;
-    use crate::test_data::TEST_DATA_DIR;
-    use serial_test::serial;
     use crate::env::configuration::tests::my_cfg;
-    use crate::file::paths::current_directory;
     use crate::file::database::tests::my_args;
+    use crate::file::database::tests::my_db;
+    use crate::file::paths::current_directory;
     use crate::model::order::Order;
     use crate::test_data::NINE_COLORS;
+    use crate::test_data::TEST_DATA_DIR;
+    use serial_test::serial;
 
     #[test]
     #[serial]
@@ -176,7 +240,9 @@ mod tests {
         let mut repository = Repository::new(my_cfg(), args);
         assert!(repository.initialize().is_ok());
         let gallery_rc = repository.gallery_rc();
-        let gallery = gallery_rc.try_borrow().expect("can't borrow repository gallery");
+        let gallery = gallery_rc
+            .try_borrow()
+            .expect("can't borrow repository gallery");
         assert_eq!(4, gallery.len());
         println!("{:?}", gallery);
         assert!(gallery.picture(0).file_size() <= gallery.picture(1).file_size());
@@ -198,13 +264,13 @@ mod tests {
     }
     #[test]
     #[serial]
-    fn given_a_file_path_it_provides_the_picture_with_only_size_and_modified_time()  {
+    fn given_a_file_path_it_provides_the_picture_with_only_size_and_modified_time() {
         let mut args = my_args().expect("can't access to test args");
         args.order = Order::Size;
         let cfg = my_cfg();
         let mut repository = Repository::new(my_cfg(), args);
         assert!(repository.initialize().is_ok());
-        let result = repository.picture_from_file_path(&format!("testdata/{}",NINE_COLORS));
+        let result = repository.picture_from_file_path(&format!("testdata/{}", NINE_COLORS));
         assert!(result.is_ok());
         let gallery = result.unwrap();
         assert_eq!(1, gallery.len());
@@ -219,7 +285,9 @@ mod tests {
         let mut repository = Repository::new(my_cfg(), args.clone());
         assert!(repository.initialize().is_ok());
         let gallery_rc = repository.gallery_rc();
-        let gallery = gallery_rc.try_borrow().expect("can't borrow repository gallery");
+        let gallery = gallery_rc
+            .try_borrow()
+            .expect("can't borrow repository gallery");
         assert_eq!(2, gallery.len()); // only 2 pics have both bar and foo tags, see sql/update_test_data.sql 
 
         args.restrict = None;
@@ -227,14 +295,18 @@ mod tests {
         let mut repository = Repository::new(my_cfg(), args.clone());
         assert!(repository.initialize().is_ok());
         let gallery_rc = repository.gallery_rc();
-        let gallery = gallery_rc.try_borrow().expect("can't borrow repository gallery");
+        let gallery = gallery_rc
+            .try_borrow()
+            .expect("can't borrow repository gallery");
         assert_eq!(1, gallery.len()); // only 1 pic has label "dot"
         args.label = None;
         args.cover = true;
         let mut repository = Repository::new(my_cfg(), args.clone());
         assert!(repository.initialize().is_ok());
         let gallery_rc = repository.gallery_rc();
-        let gallery = gallery_rc.try_borrow().expect("can't borrow repository gallery");
+        let gallery = gallery_rc
+            .try_borrow()
+            .expect("can't borrow repository gallery");
         assert_eq!(1, gallery.len()); // only 1 pic is cover
         assert!(gallery.pictures()[0].file_path().contains(NINE_COLORS));
     }
@@ -246,7 +318,9 @@ mod tests {
         let mut repository = Repository::new(my_cfg(), args.clone());
         assert!(repository.initialize().is_ok());
         let gallery_rc = repository.gallery_rc();
-        let gallery = gallery_rc.try_borrow().expect("can't borrow repository gallery");
+        let gallery = gallery_rc
+            .try_borrow()
+            .expect("can't borrow repository gallery");
         let cover_picture = gallery.pictures()[1].clone();
         assert!(cover_picture.file_path().contains(NINE_COLORS));
         assert!(cover_picture.cover().is_some());
@@ -261,7 +335,9 @@ mod tests {
         let mut repository = Repository::new(my_cfg(), args.clone());
         assert!(repository.initialize().is_ok());
         let map = repository.parent_dirs();
-        let count: usize = *map.get(&format!("{}/{}", current_directory(), TEST_DATA_DIR)).expect("can't access parent dir count");
+        let count: usize = *map
+            .get(&format!("{}/{}", current_directory(), TEST_DATA_DIR))
+            .expect("can't access parent dir count");
         assert_eq!(4, count);
     }
 }

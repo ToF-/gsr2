@@ -42,8 +42,8 @@ pub fn get_configuration() -> Result<Configuration> {
 
 pub mod tests {
     use super::*;
-    use crate::test_data::TEST_DATA_DIR;
     use crate::file::paths::current_directory;
+    use crate::test_data::TEST_DATA_DIR;
 
     pub fn my_cfg() -> Configuration {
         Configuration {

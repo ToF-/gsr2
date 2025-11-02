@@ -9,8 +9,10 @@ use std::io::{Error, ErrorKind, Result};
 use std::path::{Path, PathBuf};
 
 pub fn file_path_to_string(path: &Path) -> String {
-    path.file_name().expect("can't convert path to file_name")
-        .to_str().expect("can't convert file_name to str")
+    path.file_name()
+        .expect("can't convert path to file_name")
+        .to_str()
+        .expect("can't convert file_name to str")
         .to_string()
 }
 
