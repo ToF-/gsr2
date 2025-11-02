@@ -26,6 +26,7 @@ pub enum Control {
     MoveStartPage,
     MoveRandom,
     ToggleCover,
+    ToggleCoverSelection,
     ToggleExpand,
     ToggleInformation,
     ToggleFullSize,
@@ -107,6 +108,7 @@ pub fn default_controls() -> Controls {
         ((String::from("a"), Mode::View), Control::MoveStartPage),
         ((String::from("z"), Mode::View), Control::MoveEndPage),
         ((String::from("c"), Mode::View), Control::ToggleCover),
+        ((String::from("C"), Mode::View), Control::ToggleCoverSelection),
         ((String::from("e"), Mode::View), Control::ToggleExpand),
         (
             (String::from("percent"), Mode::View),

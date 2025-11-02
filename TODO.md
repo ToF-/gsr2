@@ -2,6 +2,7 @@
 ## Gallery Show in Rust
 
 ## Todo
+- [ ] a command can toggle covers / whole view
 - [X] when on a cover picture, title display the parent dir and length
 - [X] gather length of each parent dir in pictures
 - [X] don't allow going to subdir if picture per row = 1

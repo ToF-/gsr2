@@ -158,6 +158,15 @@ impl Repository {
         }
     }
 
+    pub fn covers(&self) -> usize {
+        if let Ok(gallery) = self.gallery_rc.try_borrow() {
+            gallery.pictures().into_iter().map(|p| {
+                if p.cover().is_some() { 1 } else { 0 }
+            }).sum()
+        } else {
+            panic!("can't borrow")
+        }
+    }
     pub fn save_picture_at(&mut self, index: usize) {
         if let Ok(gallery) = self.gallery_rc.try_borrow() {
             println!(
@@ -342,5 +351,14 @@ mod tests {
             .get(&format!("{}/{}", current_directory(), TEST_DATA_DIR))
             .expect("can't access parent dir count");
         assert_eq!(4, count);
+    }
+    #[test]
+    #[serial]
+    fn can_tell_if_selection_has_covers() {
+        let cfg = my_cfg();
+        let mut args = my_args().expect("can't access to test args");
+        let mut repository = Repository::new(my_cfg(), args.clone());
+        assert!(repository.initialize().is_ok());
+        assert_eq!(1, repository.covers());
     }
 }

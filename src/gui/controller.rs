@@ -707,6 +707,7 @@ impl Controller {
             Control::Quit => self.quit(),
             Control::ToggleSingleView => self.toggle_single_view(),
             Control::ToggleCover => self.toggle_cover(),
+            Control::ToggleCoverSelection => self.toggle_cover_selection(),
             Control::ToggleExpand => self.toggle_expand(),
             Control::ToggleFullSize => self.toggle_full_size(),
             Control::ToggleSlideShow => self.toggle_slideshow(),
@@ -807,7 +808,6 @@ impl Controller {
 
         let index = self.navigator().position();
         let count = self.repository.directory_count_at_index(index);
-        println!("toggle_cover");
         if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut() {
             let mut picture = gallery.picture(index);
             picture.toggle_cover(count);
@@ -823,6 +823,16 @@ impl Controller {
             panic!("can't borrow");
         }
     }
+
+    pub fn toggle_cover_selection(&mut self) {
+        if !self.args.cover
+            && self.repository.covers() > 0 {
+                println!("here I switch to cover");
+        } else if self.args.cover {
+            println!("here I switch back to all");
+        }
+    }
+
     pub fn set_selection(&mut self) {
         self.editor.begin(
             &self.main_window(),
