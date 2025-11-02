@@ -19,23 +19,3 @@ pub fn delete_picture(database: &Database, file_path: &str) -> IOResult<()> {
     }
 }
 
-pub fn move_pictures(
-    database: &Database,
-    selection: &Selection,
-    source_dir: &str,
-    target_dir: &str,
-) -> IOResult<usize> {
-    database
-        .retrieve_all_pictures_with_parent(source_dir)
-        .and_then(|pictures| {
-            for picture in &pictures {
-                println!("moving {} to {}", picture.file_path(), target_dir);
-                let operations = move_picture(&picture.file_path(), target_dir);
-                match execute(database, &operations) {
-                    Ok(_) => {}
-                    Err(e) => return Err(e),
-                }
-            }
-            Ok(pictures.len())
-        })
-}

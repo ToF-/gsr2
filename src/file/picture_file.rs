@@ -107,35 +107,6 @@ pub fn collect_picture_data(picture: &Picture) -> IOResult<Picture> {
     Ok(new_picture)
 }
 
-pub fn collect_data(gallery: &Gallery, database: &Database) -> IOResult<()> {
-    let mut count: usize = 0;
-    let total: usize = gallery.pictures().len();
-    for picture in gallery.pictures() {
-        count += 1;
-        match database.rusqlite_check_picture_with_file_path(&picture.file_path()) {
-            Ok(file_path) => {
-                println!("already in db: {}", file_path)
-            }
-            Err(_) => {
-                match collect_picture_data(&picture) {
-                    Ok(picture) => match database.insert_picture(&picture) {
-                        Ok(_) => {
-                            println!("{:?}", picture);
-                        }
-                        Err(err) => {
-                            eprintln!("{}:\n{}", picture.file_path(), err)
-                        }
-                    },
-                    Err(err) => {
-                        println!("{}", err)
-                    }
-                };
-            }
-        }
-        println!("{}/{}:{}", count, total, picture.file_path());
-    }
-    Ok(())
-}
 
 pub fn delete_picture_file(file_path: &str) -> IOResult<()> {
     let path = Path::new(file_path);

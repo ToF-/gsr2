@@ -1,13 +1,14 @@
+use crate::file::operation::move_picture;
+use crate::file::operation::execute;
 use crate::cli::args::Args;
 use crate::cli::command::Command;
 use crate::cli::status::Status;
 use crate::env::configuration::{Configuration, get_configuration};
 use crate::env::environment::database_connection;
 use crate::file::database::*;
-use crate::file::operation::{execute, move_picture};
 use crate::file::paths::{check_collectable, file_exists, parent_directory};
-use crate::file::picture_file::{collect_data, create_missing_thumbnails};
-use crate::file::{delete_picture, move_pictures};
+use crate::file::picture_file::{create_missing_thumbnails};
+use crate::file::{delete_picture};
 use crate::gui::control::{Control, Controls, default_controls};
 use crate::gui::direction::Direction;
 use crate::gui::editor::Editor;
@@ -43,7 +44,6 @@ pub struct Controller {
     args: Args,
     navigator: Navigator,
     controls: Controls,
-    database: Database,
     state: State,
     main_window_opt: Option<MainWindow>,
     editor: Editor,
@@ -69,7 +69,6 @@ impl Controller {
                                     editor: Editor::new(),
                                     navigator: Navigator::new(gallery.len(), pictures_per_row as usize),
                                     controls: default_controls(),
-                                    database,
                                     state: State::new(
                                         pictures_per_row as usize,
                                         cli.slideshow().is_some(),
@@ -87,10 +86,6 @@ impl Controller {
 
     pub fn args(&self) -> Args {
         self.args.clone()
-    }
-
-    pub fn database(&self) -> Database {
-        self.database.clone()
     }
 
     pub fn repository(&self) -> Repository {
@@ -209,7 +204,7 @@ impl Controller {
                 match check_collectable(&path) {
                     Ok(directory) => {
                         gallery.load_from_directory(&directory.display().to_string());
-                        match collect_data(&gallery, &self.database()) {
+                        match self.repository.collect_data() {
                             Ok(_) => Ok(Status::Done),
                             Err(err) => Err(err),
                         }
@@ -218,68 +213,35 @@ impl Controller {
                 }
             }
             Some(Command::Thumbnails { pictures_per_row }) => {
-                gallery.load_from_database(&self.database, &args);
-                create_missing_thumbnails(&gallery, pictures_per_row as usize);
-                Ok(Status::Done)
-            }
-            Some(Command::List { ref directory }) => {
-                match directory {
-                    Some(path) => {
-                        gallery.load_from_directory(&path);
-                    }
-                    None => {
-                        gallery.load_from_database(&self.database, &args);
-                    }
-                };
-                gallery.print();
-                let parent_dirs = self.repository.parent_dirs();
-                if !parent_dirs.is_empty() {
-                    println!("----- directories:{} -----", parent_dirs.len());
-                    let mut dirs: Vec<String> = vec![];
-                    for dir in parent_dirs.keys() {
-                        dirs.push(dir.to_string());
-                    }
-                    dirs.sort();
-                    for dir in dirs {
-                        let count = parent_dirs.get(&dir).unwrap();
-                        println!("{}:  {}", dir, count)
-                    }
+                match self.repository.gallery_rc().try_borrow() {
+                    Ok(gallery) => {
+                        create_missing_thumbnails(&gallery, pictures_per_row as usize);
+                        Ok(Status::Done)
+                    },
+                    Err(e) => Err(IOError::other(e)),
                 }
-                Ok(Status::Done)
+            }
+            Some(Command::List { directory }) => {
+                match self.repository.list(directory) {
+                    Ok(_) => Ok(Status::Done),
+                    Err(err) => Err(err),
+                }
             }
             Some(Command::Check) => {
-                gallery.load_from_database(&self.database, &args);
-                for picture in gallery.pictures() {
-                    if !file_exists(&picture.file_path()) {
-                        println!("{}", picture.file_path());
-                    }
+                match self.repository.check() {
+                    Ok(_) => Ok(Status::Done),
+                    Err(err) => Err(err),
                 }
-                Ok(Status::Done)
             }
             Some(Command::Clean) => {
-                gallery.load_from_database(&self.database, &args);
-                for picture in gallery.pictures() {
-                    if !file_exists(&picture.file_path()) {
-                        self.database
-                            .delete_picture_with_file_path(&picture.file_path());
-                        println!("deleted from database: {}", picture.file_path());
-                    }
+                match self.repository.check() {
+                    Ok(_) => Ok(Status::Done),
+                    Err(err) => Err(err),
                 }
-                Ok(Status::Done)
             }
             Some(Command::Move { source, target }) => {
-                let selection: Selection = if let Some(labels) = &args.select {
-                    Selection::from(&labels, SOME_TAGS)
-                } else if let Some(labels) = &args.restrict {
-                    Selection::from(&labels, ALL_TAGS)
-                } else {
-                    Selection::empty()
-                };
-                match move_pictures(&self.database, &selection, &source, &target) {
-                    Ok(n) => {
-                        println!("{} pictures moved from {} to {}", n, source, target);
-                        Ok(Status::Exit)
-                    }
+                match self.repository.move_pictures(&source, &target) {
+                    Ok(_) => Ok(Status::Exit),
                     Err(err) => Err(err),
                 }
             }
@@ -536,7 +498,7 @@ impl Controller {
             picture.set_label(label);
             gallery.set_picture(index, picture.clone());
             if self.args.on_database() {
-                match self.database.update_picture(&picture) {
+                match self.repository.update_picture(&picture) {
                     Ok(_) => {}
                     Err(err) => {
                         println!("{}", err);
@@ -585,7 +547,7 @@ impl Controller {
             picture.add_tag(label);
             gallery.set_picture(index, picture.clone());
             if self.args.on_database() {
-                match self.database.update_picture(&picture) {
+                match self.repository.update_picture(&picture) {
                     Ok(_) => {}
                     Err(err) => {
                         println!("{}", err);
@@ -603,7 +565,7 @@ impl Controller {
             picture.remove_tag(label);
             gallery.set_picture(index, picture.clone());
             if self.args.on_database() {
-                match self.database.update_picture(&picture) {
+                match self.repository.update_picture(&picture) {
                     Ok(_) => {}
                     Err(err) => {
                         println!("{}", err);
@@ -812,7 +774,7 @@ impl Controller {
             let mut picture = gallery.picture(index);
             picture.toggle_cover(count);
             gallery.set_picture(index, picture.clone());
-            match self.database.update_picture(&picture) {
+            match self.repository.update_picture(&picture) {
                 Ok(_) => {}
                 Err(err) => {
                     println!("{}", err);
@@ -827,9 +789,21 @@ impl Controller {
     pub fn toggle_cover_selection(&mut self) {
         if !self.args.cover
             && self.repository.covers() > 0 {
-                println!("here I switch to cover");
+                let new_args = Args {
+                    cover: true,
+                    ..self.args.clone()
+                };
+                self.args = new_args;
+                self.repository.initialize_for_args(&self.args);
+                self.reload()
         } else if self.args.cover {
-            println!("here I switch back to all");
+            let new_args = Args {
+                cover: false,
+                ..self.args.clone()
+            };
+            self.args = new_args;
+            self.repository.initialize_for_args(&self.args);
+            self.reload()
         }
     }
 
@@ -913,7 +887,7 @@ impl Controller {
             picture.set_rank(rank);
             gallery.set_picture(index, picture.clone());
             if self.args.on_database() {
-                match self.database.update_picture(&picture) {
+                match self.repository.update_picture(&picture) {
                     Ok(_) => {}
                     Err(err) => {
                         println!("{}", err);
@@ -1184,29 +1158,16 @@ impl Controller {
             let mut picture_count = 0;
             let mut operation_count = 0;
             for index in self.navigator.selection() {
-                if let Ok(gallery) = self.repository.gallery_rc().try_borrow() {
-                    let picture = gallery.picture(index);
-                    let operations = move_picture(&picture.file_path(), &target_dir);
-                    if operations.is_empty() {
-                        println!(
-                            "no operation for move of {} to {}",
-                            picture.file_path(),
-                            target_dir
-                        );
-                    } else {
+                match self.repository.move_picture_at_index(index, target_dir) {
+                    Ok(count) => {
                         picture_count += 1;
-                        operation_count += operations.len();
-                        match execute(&self.database, &operations) {
-                            Ok(_) => {}
-                            Err(err) => {
-                                println!("{}", err);
-                            }
-                        }
-                    }
-                } else {
-                    panic!("can't borrow");
+                        operation_count += count;
+                    },
+                    Err(err) => {
+                        println!("{}", err);
+                    },
                 }
-            }
+            };
             println!(
                 "{} pictures moved to {}\n{} operations\nexiting gsr",
                 picture_count, target_dir, operation_count
