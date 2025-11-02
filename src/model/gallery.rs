@@ -67,6 +67,7 @@ impl Gallery {
     }
 
     pub fn picture(&self, index: usize) -> Picture {
+        assert!(index < self.len());
         self.pictures[index].clone()
     }
 

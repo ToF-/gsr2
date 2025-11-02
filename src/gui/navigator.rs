@@ -33,7 +33,6 @@ impl Navigator {
             selected_pictures: HashSet::new(),
         };
         result.update_page_limits();
-        println!("new navigator: {:?}", result);
         result
     }
 

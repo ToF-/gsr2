@@ -54,19 +54,19 @@ impl Repository {
         }
     }
 
-    fn retrieve_all_pictures(&mut self) -> IOResult<()> {
-        let selection = Selection::from_args(&self.args);
+    fn retrieve_all_pictures(&mut self, args: &Args) -> IOResult<()> {
+        let selection = Selection::from_args(args);
         match self.gallery_rc.try_borrow_mut() {
             Ok(mut gallery) => {
                 *gallery = match self.database.retrieve_all_pictures(
                     selection.clone(),
-                    self.args.label.clone(),
-                    self.args.cover,
-                    self.args.directory.clone(),
+                    args.label.clone(),
+                    args.cover,
+                    args.directory.clone(),
                 ) {
                     Ok(pictures) => {
                         let mut gallery = Gallery::new_with_pictures(pictures);
-                        gallery.sort_by(self.args.order);
+                        gallery.sort_by(args.order);
                         gallery
                     }
                     Err(e) => return Err(e),
@@ -90,10 +90,13 @@ impl Repository {
     pub fn initialize(&mut self) -> IOResult<()> {
         self.retrieve_all_labels().and_then(|()| {
             self.retrieve_all_parent_dirs()
-                .and_then(|()| self.retrieve_all_pictures())
+                .and_then(|()| self.retrieve_all_pictures(&self.args.clone()))
         })
     }
 
+    pub fn initialize_for_args(&mut self, args: &Args) -> IOResult<()> {
+        self.retrieve_all_pictures(args)
+    }
     pub fn pictures_in_directory(&self, dir: &str) -> IOResult<Gallery> {
         let mut pictures: Vec<Picture> = vec![];
         get_all_picture_file_paths(dir).and_then(|list| {

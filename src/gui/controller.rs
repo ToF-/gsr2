@@ -161,8 +161,18 @@ impl Controller {
                 println!("no pictures\nquitting");
                 self.quit();
                 Ok(0)
+            },
+            Err(e) => Err(e),
+            Ok(n) => {
+                if let Ok(gallery) = self.repository.gallery_rc().try_borrow() {
+                    let navigator = Navigator::new(gallery.len(), self.state.pictures_per_row() as usize);
+                    self.navigator = navigator;
+                } else {
+                    panic!("can't borrow")
+                };
+                Ok(n)
             }
-            other => other,
+
         }
     }
 
@@ -761,25 +771,35 @@ impl Controller {
                 cover: false,
                 ..args.clone()
             };
-            self.args = new_args;
-            self.reload();
-            self.navigator.set_page_changed()
+            self.args = new_args.clone();
+            match self.repository.initialize_for_args(&new_args) {
+                Ok(()) => {
+                    self.reload();
+                    self.navigator.set_page_changed();
+                },
+                Err(e) => eprintln!("{}",e),
+            }
         }
     }
 
     pub fn back_from_directory(&mut self) {
         if let Some((pictures_per_row, single_view, old_args)) = self.state.pop_saved_args() {
-            self.args = old_args;
-            self.state.set_single_view(single_view);
-            self.change_grid_size(pictures_per_row);
-            self.reload();
-            if let Some(index) = self.args.index
-                && self.navigator.can_move(Direction::Index { value: index })
-            {
-                self.navigator
-                    .move_towards(Direction::Index { value: index })
-            };
-            self.navigator.set_page_changed()
+            self.args = old_args.clone();
+            match self.repository.initialize_for_args(&old_args) {
+                Ok(()) => { 
+                    self.state.set_single_view(single_view);
+                    self.change_grid_size(pictures_per_row);
+                    self.reload();
+                    if let Some(index) = self.args.index
+                        && self.navigator.can_move(Direction::Index { value: index })
+                    {
+                        self.navigator
+                            .move_towards(Direction::Index { value: index })
+                    };
+                    self.navigator.set_page_changed()
+                },
+                Err(e) => eprintln!("{}",e),
+            }
         }
     }
 
