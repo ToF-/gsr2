@@ -29,7 +29,7 @@ pub struct Repository {
     database: Database,
     tags_rc: RefCell<Tags>,
     gallery_rc: RefCell<Gallery>,
-    parent_dirs: HashMap<String, usize>,
+    parent_dirs: HashMap<String, (usize, usize)>,
     selection: Selection,
     len: usize,
 }
@@ -187,21 +187,21 @@ impl Repository {
         &self.gallery_rc
     }
 
-    pub fn parent_dirs(&self) -> HashMap<String, usize> {
+    pub fn parent_dirs(&self) -> HashMap<String, (usize,usize)> {
         self.parent_dirs.clone()
     }
 
-    pub fn directory_count_at_index(&self, index: usize) -> usize {
+    pub fn directory_count_at_index(&self, index: usize) -> (usize,usize) {
         if let Ok(gallery) = self.gallery_rc.try_borrow() {
             let picture = &gallery.pictures()[index];
             if let Some(directory) = parent_directory(&picture.file_path()) {
                 if let Some(count) = self.parent_dirs().get(&directory) {
                     *count
                 } else {
-                    0
+                    (0,0)
                 }
             } else {
-                0
+                (0,0)
             }
         } else {
             panic!("can't borrow");
@@ -290,8 +290,10 @@ impl Repository {
                     }
                     dirs.sort();
                     for dir in dirs {
-                        let count = parent_dirs.get(&dir).unwrap();
-                        println!("{}:  {}", dir, count)
+                        let counts = parent_dirs.get(&dir).unwrap();
+                        let count = counts.0;
+                        let covers = counts.1;
+                        println!("{}:  {}({})", dir, count, covers)
                     }
                 };
                 Ok(())
@@ -430,15 +432,16 @@ impl Repository {
         #[serial]
         fn given_initial_args_it_provides_the_gallery_of_all_picture_matching_the_args() {
             let mut args = my_args().expect("can't access to test args");
+            args.order = Order::Size;
             let cfg = my_cfg();
-            let mut repository = Repository::new(my_cfg(), args);
+            let mut repository = Repository::new(my_cfg(), args.clone());
             assert!(repository.initialize().is_ok());
             let gallery_rc = repository.gallery_rc();
             let gallery = gallery_rc
                 .try_borrow()
                 .expect("can't borrow repository gallery");
             assert_eq!(4, gallery.len());
-            println!("{:?}", gallery);
+            println!("{:?}", args);
             assert!(gallery.picture(0).file_size() <= gallery.picture(1).file_size());
             assert!(gallery.picture(1).file_size() <= gallery.picture(2).file_size());
             assert!(gallery.picture(2).file_size() <= gallery.picture(3).file_size());
@@ -524,10 +527,10 @@ impl Repository {
             let mut repository = Repository::new(my_cfg(), args.clone());
             assert!(repository.initialize().is_ok());
             let map = repository.parent_dirs();
-            let count: usize = *map
+            let counts: (usize,usize) = *map
                 .get(&format!("{}/{}", current_directory(), TEST_DATA_DIR))
                 .expect("can't access parent dir count");
-            assert_eq!(4, count);
+            assert_eq!((4,1), counts);
         }
         #[test]
         #[serial]

@@ -750,9 +750,10 @@ impl Controller {
     pub fn toggle_cover(&mut self) {
 
         let index = self.navigator().position();
-        let count = self.repository.directory_count_at_index(index);
+        let counts = self.repository.directory_count_at_index(index);
         if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut() {
             let mut picture = gallery.picture(index);
+            let count = counts.0;
             picture.toggle_cover(count);
             gallery.set_picture(index, picture.clone());
             match self.repository.update_picture(&picture) {

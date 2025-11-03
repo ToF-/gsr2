@@ -417,8 +417,9 @@ impl Database {
                                 cover: match image_data.clone().cover {
                                     None => None,
                                     Some(_) => {
-                                        if let Some(count) = parent_dirs.get(&parent_dir) {
-                                            Some(*count)
+                                        if let Some(pair) = parent_dirs.get(&parent_dir) {
+                                        let count = pair.0;
+                                            Some(count)
                                         } else {
                                             Some(0)
                                         }
@@ -485,23 +486,26 @@ impl Database {
         picture.set_image_data(image_data);
         Ok(picture)
     }
-
-    fn rusqulite_retrieve_all_file_paths(&self) -> SqlResult<HashMap<String, usize>> {
-        let sql_query = "SELECT FilePath FROM Picture;";
+    fn rusqulite_retrieve_all_file_paths(&self) -> SqlResult<HashMap<String, (usize,usize)>> {
+        let sql_query = "SELECT FilePath, Cover FROM Picture;";
         self.connection()
             .prepare(sql_query)
             .and_then(|mut statement| {
-                let mut map: HashMap<String, usize> = HashMap::new();
+                let mut map: HashMap<String, (usize, usize)> = HashMap::new();
                 statement.query([]).and_then(|mut rows| {
                     while let Some(row) = rows.next().unwrap() {
                         let file_path: String = row.get(0).unwrap();
+                        let cover: bool = row.get(1).unwrap();
                         if let Some(directory) =
                             parent_directory(&file_path_as_retrieved(&file_path))
                         {
-                            if let Some(mut count) = map.get_mut(&directory) {
-                                *count += 1;
+                            if let Some(mut pair) = map.get_mut(&directory) {
+                                let count = pair.0;
+                                let covers = pair.1;
+                                *pair = (count+1, if cover { covers + 1 } else { covers });
                             } else {
-                                let _ = map.insert(directory, 1);
+                                let pair = (1, if cover { 1 } else { 0 });
+                                let _ = map.insert(directory, pair);
                             }
                         }
                     }
@@ -510,7 +514,7 @@ impl Database {
             })
     }
 
-    pub fn retrieve_all_parent_dirs(&self) -> IOResult<HashMap<String, usize>> {
+    pub fn retrieve_all_parent_dirs(&self) -> IOResult<HashMap<String, (usize,usize)>> {
         match self.rusqulite_retrieve_all_file_paths() {
             Ok(result) => Ok(result),
             Err(e) => Err(IOError::other(e)),
