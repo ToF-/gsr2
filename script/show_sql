@@ -1,0 +1,2 @@
+#bin/bash
+sqlite3 testdata/gsr2.db -cmd ".database" ".schema" "SELECT RowId, FilePath, Label, FileSize, ModifiedTime, Rank, ColorCount, Cover FROM Picture;" "SELECT RowId, FilePath, Label FROM Tag;"

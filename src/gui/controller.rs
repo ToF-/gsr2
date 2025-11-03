@@ -56,27 +56,21 @@ impl Controller {
     pub fn new(config: Configuration, cli: Args) -> IOResult<Self> {
         let gallery = Gallery::new();
         let pictures_per_row = cli.pictures_per_row();
-        database_connection(config.clone()).and_then(|connection_string| {
-            match Database::from_connection(&connection_string, false) {
-                Err(err) => Err(err),
-                Ok(mut database) => {
-                    let mut repository = Repository::new(config, cli.clone());
-                    repository.initialize();
-                    Ok(Controller {
-                        repository: repository.clone(),
-                        args: cli.clone(),
-                        editor: Editor::new(),
-                        navigator: Navigator::new(repository.len(), pictures_per_row as usize),
-                        controls: default_controls(),
-                        state: State::new(
-                            pictures_per_row as usize,
-                            cli.slideshow().is_some(),
-                        ),
-                        main_window_opt: None,
-                        last_action: Action::NoAction,
-                    })
-                },
-            }
+        let mut repository = Repository::new(config, cli.clone());
+        println!("{:?}", repository.initialize());
+        println!("{} pictures", repository.len());
+        Ok(Controller {
+            repository: repository.clone(),
+            args: cli.clone(),
+            editor: Editor::new(),
+            navigator: Navigator::new(repository.len(), pictures_per_row as usize),
+            controls: default_controls(),
+            state: State::new(
+                pictures_per_row as usize,
+                cli.slideshow().is_some(),
+            ),
+            main_window_opt: None,
+            last_action: Action::NoAction,
         })
     }
 
@@ -191,7 +185,6 @@ impl Controller {
                 let path: PathBuf = PathBuf::from(directory);
                 match check_collectable(&path) {
                     Ok(directory) => {
-                        gallery.load_from_directory(&directory.display().to_string());
                         match self.repository.collect_data() {
                             Ok(_) => Ok(Status::Done),
                             Err(err) => Err(err),

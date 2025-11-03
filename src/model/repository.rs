@@ -1,4 +1,5 @@
-  use crate::file::operation::execute;
+use crate::cli::command::Command;
+use crate::file::operation::execute;
 use crate::file::operation::move_picture;
 use crate::file_exists;
 use crate::file::picture_file::collect_picture_data;
@@ -122,34 +123,39 @@ impl Repository {
     }
 
     pub fn collect_data(&self) -> IOResult<()> {
-        let mut count: usize = 0;
-        if let Ok(mut gallery) = self.gallery_rc.try_borrow_mut() {
-            let total: usize = gallery.pictures().len();
-            for picture in gallery.pictures() {
-                count += 1;
-                match self.database.rusqlite_check_picture_with_file_path(&picture.file_path()) {
-                    Ok(file_path) => {
-                        println!("already in db: {}", file_path)
-                    }
-                    Err(_) => {
-                        match collect_picture_data(&picture) {
-                            Ok(picture) => match self.database.insert_picture(&picture) {
-                                Ok(_) => {
-                                    println!("{:?}", picture);
-                                }
-                                Err(err) => {
-                                    eprintln!("{}:\n{}", picture.file_path(), err)
-                                }
-                            },
-                            Err(err) => {
-                                println!("{}", err)
+        if let Some(Command::Collect { directory }) = &self.args.command {
+            match self.pictures_in_directory(&directory) {
+                Ok(dir_gallery) => {
+                    let total: usize = dir_gallery.len();
+                    let mut count: usize = 0;
+                    for picture in dir_gallery.pictures() {
+                        match self.database.rusqlite_check_picture_with_file_path(&picture.file_path()) {
+                            Ok(file_path) => {
+                                println!("already in db: {}", file_path)
                             }
-                        };
-                    }
-                }
-                println!("{}/{}:{}", count, total, picture.file_path());
+                            Err(_) => {
+                                match collect_picture_data(&picture) {
+                                    Ok(picture) => match self.database.insert_picture(&picture) {
+                                        Ok(_) => {
+                                            println!("{:?}", picture);
+                                        }
+                                        Err(err) => {
+                                            eprintln!("{}:\n{}", picture.file_path(), err)
+                                        }
+                                    },
+                                    Err(err) => {
+                                        println!("{}", err)
+                                    }
+                                };
+                            }
+                        }
+                        count += 1;
+                        println!("{}/{}:{}", count, total, picture.file_path());
+                    };
+                    Ok(())
+                },
+                Err(e) => return Err(e),
             }
-            Ok(())
         } else {
             panic!("can't borrow mut")
         }
@@ -393,7 +399,6 @@ impl Repository {
         #[serial]
         fn given_a_db_once_initialized_it_provides_the_set_of_all_labels() {
             let args = my_args().expect("can't access to test args");
-            let cfg = my_cfg();
             let mut repository = Repository::new(my_cfg(), args);
             repository.initialize().expect("can't initialize");
             assert!(repository.all_labels().contains("a_rather_long_tag"));
@@ -416,7 +421,6 @@ impl Repository {
         #[serial]
         fn given_initial_args_it_provides_the_gallery_of_all_picture_matching_the_args() {
             let mut args = my_args().expect("can't access to test args");
-            args.order = Order::Size;
             let cfg = my_cfg();
             let mut repository = Repository::new(my_cfg(), args);
             assert!(repository.initialize().is_ok());
@@ -435,7 +439,6 @@ impl Repository {
         fn given_a_dir_it_provides_the_gallery_of_pictures_with_only_size_and_modified_time() {
             let mut args = my_args().expect("can't access to test args");
             args.order = Order::Size;
-            let cfg = my_cfg();
             let mut repository = Repository::new(my_cfg(), args);
             assert!(repository.initialize().is_ok());
             let result = repository.pictures_in_directory("testdata");
@@ -448,7 +451,6 @@ impl Repository {
         fn given_a_file_path_it_provides_the_picture_with_only_size_and_modified_time() {
             let mut args = my_args().expect("can't access to test args");
             args.order = Order::Size;
-            let cfg = my_cfg();
             let mut repository = Repository::new(my_cfg(), args);
             assert!(repository.initialize().is_ok());
             let result = repository.picture_from_file_path(&format!("testdata/{}", NINE_COLORS));
@@ -460,7 +462,6 @@ impl Repository {
         #[test]
         #[serial]
         fn given_a_restriction_in_initial_args_it_provides_only_the_matching_pictures() {
-            let cfg = my_cfg();
             let mut args = my_args().expect("can't access to test args");
             args.restrict = Some("foo,bar".to_string());
             let mut repository = Repository::new(my_cfg(), args.clone());
@@ -494,7 +495,6 @@ impl Repository {
         #[test]
         #[serial]
         fn a_picture_that_is_a_cover_has_the_len_of_its_parent_dir() {
-            let cfg = my_cfg();
             let mut args = my_args().expect("can't access to test args");
             let mut repository = Repository::new(my_cfg(), args.clone());
             assert!(repository.initialize().is_ok());
@@ -511,7 +511,6 @@ impl Repository {
         #[test]
         #[serial]
         fn provides_the_list_of_all_parent_dirs() {
-            let cfg = my_cfg();
             let mut args = my_args().expect("can't access to test args");
             let mut repository = Repository::new(my_cfg(), args.clone());
             assert!(repository.initialize().is_ok());
@@ -524,10 +523,18 @@ impl Repository {
         #[test]
         #[serial]
         fn can_tell_if_selection_has_covers() {
-            let cfg = my_cfg();
             let mut args = my_args().expect("can't access to test args");
             let mut repository = Repository::new(my_cfg(), args.clone());
             assert!(repository.initialize().is_ok());
             assert_eq!(1, repository.covers());
+        }
+        // #[test]
+        #[serial]
+        fn initializing_on_a_dir_command_sets_database_off() {
+            let cfg = my_cfg();
+            let cmd: Option<Vec<&str>> = Some(vec!["dir","testdata"]);
+            let my_args = Args::parse_and_check(cmd, &cfg).unwrap();
+            let mut repository = Repository::new(my_cfg(), my_args);
+
         }
     }
