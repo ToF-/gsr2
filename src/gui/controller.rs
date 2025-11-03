@@ -62,23 +62,19 @@ impl Controller {
                 Ok(mut database) => {
                     let mut repository = Repository::new(config, cli.clone());
                     repository.initialize();
-                    if let Ok(gallery) = repository.gallery_rc().try_borrow() {
-                                Ok(Controller {
-                                    repository: repository.clone(),
-                                    args: cli.clone(),
-                                    editor: Editor::new(),
-                                    navigator: Navigator::new(repository.len(), pictures_per_row as usize),
-                                    controls: default_controls(),
-                                    state: State::new(
-                                        pictures_per_row as usize,
-                                        cli.slideshow().is_some(),
-                                    ),
-                                    main_window_opt: None,
-                                    last_action: Action::NoAction,
-                                })
-                    } else {
-                        panic!("can't borrow")
-                    }
+                    Ok(Controller {
+                        repository: repository.clone(),
+                        args: cli.clone(),
+                        editor: Editor::new(),
+                        navigator: Navigator::new(repository.len(), pictures_per_row as usize),
+                        controls: default_controls(),
+                        state: State::new(
+                            pictures_per_row as usize,
+                            cli.slideshow().is_some(),
+                        ),
+                        main_window_opt: None,
+                        last_action: Action::NoAction,
+                    })
                 },
             }
         })
@@ -141,12 +137,10 @@ impl Controller {
                     Err(e) => Err(e),
                 }
             }
-            None => match self.repository.gallery_rc().try_borrow() {
-                Ok(gallery) => {
-                    println!("{} pictures", gallery.len());
-                    Ok(gallery.len())
-                }
-                Err(e) => Err(IOError::other(format!("{}", e))),
+            None => { 
+                let count = self.repository.len();
+                println!("{} pictures", count);
+                Ok(count)
             },
             _ => Ok(0),
         };
@@ -158,12 +152,7 @@ impl Controller {
             },
             Err(e) => Err(e),
             Ok(n) => {
-                if let Ok(gallery) = self.repository.gallery_rc().try_borrow() {
-                    let navigator = Navigator::new(gallery.len(), self.state.pictures_per_row() as usize);
-                    self.navigator = navigator;
-                } else {
-                    panic!("can't borrow")
-                };
+                self.navigator = Navigator::new(self.repository.len(), self.state.pictures_per_row() as usize);
                 Ok(n)
             }
 
