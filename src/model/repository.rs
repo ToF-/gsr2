@@ -1,3 +1,4 @@
+use crate::file::picture_file::delete_picture_files;
 use crate::cli::command::Command;
 use crate::file::operation::execute;
 use crate::file::operation::move_picture;
@@ -26,6 +27,7 @@ use walkdir::WalkDir;
 #[derive(Debug, Clone)]
 pub struct Repository {
     args: Args,
+    on_database: bool,
     database: Database,
     tags_rc: RefCell<Tags>,
     gallery_rc: RefCell<Gallery>,
@@ -39,6 +41,7 @@ impl Repository {
         let database = Database::from_connection(&configuration.database_file, false).unwrap();
         Repository {
             args: args.clone(),
+            on_database: true,
             database,
             tags_rc: RefCell::new(crate::model::tags::empty()),
             gallery_rc: RefCell::new(Gallery::new()),
@@ -99,12 +102,45 @@ impl Repository {
         self.len
     }
 
-    pub fn initialize(&mut self) -> IOResult<()> {
-        self.retrieve_all_labels().and_then(|()| {
-            self.retrieve_all_parent_dirs()
-                .and_then(|()| self.retrieve_all_pictures(&self.args.clone()))
-        })
-    }
+   pub fn initialize(&mut self) -> IOResult<()> {
+       match &self.args.command {
+           Some(Command::File { file_path }) => {
+               self.on_database = false;
+               match self.picture_from_file_path(&file_path) {
+                   Ok(file_gallery) => match self.gallery_rc.try_borrow_mut() {
+                       Ok(mut gallery) => {
+                           *gallery = file_gallery.clone();
+                           self.len = file_gallery.len();
+                           Ok(())
+                       },
+                       Err(e) => Err(IOError::other(e)),
+                   },
+                   Err(e) => Err(e),
+               }
+           },
+           Some(Command::Directory { directory }) => {
+               self.on_database = false;
+               match self.pictures_in_directory(&directory) {
+                   Ok(dir_gallery) => match self.gallery_rc.try_borrow_mut() {
+                       Ok(mut gallery) => {
+                           *gallery = dir_gallery.clone();
+                           self.len = dir_gallery.len();
+                           Ok(())
+                       },
+                       Err(e) => Err(IOError::other(e)),
+                   },
+                   Err(e) => Err(e),
+               }
+           }
+           _ => {
+               self.on_database = true;
+               self.retrieve_all_labels().and_then(|()| {
+                   self.retrieve_all_parent_dirs()
+                       .and_then(|()| self.retrieve_all_pictures(&self.args.clone()))
+               })
+           },
+       }
+   }
 
     pub fn initialize_for_args(&mut self, args: &Args) -> IOResult<()> {
         self.retrieve_all_pictures(args)
@@ -246,16 +282,26 @@ impl Repository {
     }
 
     pub fn delete_picture_at_index(&mut self, index: usize) -> IOResult<()> {
-        if let Ok(gallery) = self.gallery_rc.try_borrow() {
-            let picture = gallery.pictures()[index].clone();
-            match self.database
-                .delete_picture_with_file_path(&picture.file_path()) {
-                    Ok(_) => Ok(()),
-                    Err(e) => Err(e),
+            if let Ok(gallery) = self.gallery_rc.try_borrow() {
+                let picture = gallery.pictures()[index].clone();
+                    let file_path = picture.file_path();
+                if self.on_database {
+                    self.database.delete_picture_with_file_path(&file_path)
+                            .and_then(|_| {
+                                match delete_picture_files(&file_path) {
+                                    Ok(_) => Ok(()),
+                                    Err(err) => Err(err),
+                                }
+                            })
+                } else {
+                    match delete_picture_files(&&file_path) {
+                        Ok(_) => Ok(()),
+                        Err(err) => Err(err),
+                    }
                 }
-        } else {
-            panic!("can't borrow mut")
-        }
+            } else {
+                panic!("can't borrow mut");
+            }
     }
 
     pub fn list(&self, directory: Option<String>) -> IOResult<()> {
