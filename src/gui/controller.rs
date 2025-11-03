@@ -67,7 +67,7 @@ impl Controller {
                                     repository: repository.clone(),
                                     args: cli.clone(),
                                     editor: Editor::new(),
-                                    navigator: Navigator::new(gallery.len(), pictures_per_row as usize),
+                                    navigator: Navigator::new(repository.len(), pictures_per_row as usize),
                                     controls: default_controls(),
                                     state: State::new(
                                         pictures_per_row as usize,
@@ -121,7 +121,6 @@ impl Controller {
     }
 
     fn load_gallery(&mut self) -> IOResult<usize> {
-        let mut gallery = Gallery::new();
         let args = self.args.clone();
         let result = match args.command {
             Some(Command::File { file_path }) => {
@@ -1081,19 +1080,21 @@ impl Controller {
     }
 
     pub fn order_by(&mut self, order: Order) {
+        let new_position: Option<usize>;
+        let current_file_path = self.current_picture().file_path();
         if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut() {
-            let current_file_path = self.current_picture().file_path();
             gallery.sort_by(order);
-            if let Some(index) = gallery.find_file_path(&current_file_path) {
-                self.navigator
-                    .move_towards(Direction::Index { value: index })
-            } else {
-                self.navigator.move_towards(Direction::First)
-            };
-            self.navigator.set_page_changed()
+            new_position = gallery.find_file_path(&current_file_path);
         } else {
             panic!("can't borrow mut")
-        }
+        };
+        if let Some(index) = new_position {
+            self.navigator
+                .move_towards(Direction::Index { value: index })
+        } else {
+            self.navigator.move_towards(Direction::First)
+        };
+        self.navigator.set_page_changed()
     }
 
     pub fn change_grid_size(&mut self, pictures_per_row: usize) {

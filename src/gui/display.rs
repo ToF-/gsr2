@@ -96,39 +96,44 @@ pub fn title_display(controller: &Controller) -> String {
     if controller.state().display_information_on() {
         format!("{}", controller.current_picture().file_path())
     } else {
+        let mut order: Order;
+        let current_picture = controller.current_picture();
+        let selection: Selection = Selection::from_args(&controller.args());
+
         if let Ok(gallery) = controller.repository().gallery_rc().try_borrow() {
-            format!(
-                "{} #{} {} {} {} {} {} {} {} {} {}{} {}",
-                cover_display(controller.current_picture().cover()),
-                controller.navigator().position(),
-                page_display(controller),
-                order_display(gallery.order()),
-                controller.current_picture().file_name(),
-                label_display(controller.current_picture().label()),
-                match controller.current_picture().image_data() {
-                    Some(image_data) => image_data.rank(),
-                    None => Rank::NoStar,
-                },
-                match controller.current_picture().image_data() {
-                    Some(image_data) => tag_display(image_data.tags),
-                    None => "".to_string(),
-                },
-                if controller.state().display_date_on() {
-                    controller.current_picture().modified_time_display()
-                } else {
-                    String::from("")
-                },
-                if controller.state().display_size_on() {
-                    controller.current_picture().file_size_display()
-                } else {
-                    String::from("")
-                },
-                expand_display(controller.state().expand_on()),
-                full_size_display(controller.state().full_size_on()),
-                display_selection(&gallery.selection()),
-            )
+            order = gallery.order();
         } else {
             panic!("can't borrow")
-        }
+        };
+        format!(
+            "{} #{} {} {} {} {} {} {} {} {} {}{} {}",
+            cover_display(current_picture.cover()),
+            controller.navigator().position(),
+            page_display(controller),
+            order_display(order),
+            current_picture.file_name(),
+            label_display(current_picture.label()),
+            match current_picture.image_data() {
+                Some(image_data) => image_data.rank(),
+                None => Rank::NoStar,
+            },
+            match current_picture.image_data() {
+                Some(image_data) => tag_display(image_data.tags),
+                None => "".to_string(),
+            },
+            if controller.state().display_date_on() {
+                current_picture.modified_time_display()
+            } else {
+                String::from("")
+            },
+            if controller.state().display_size_on() {
+                current_picture.file_size_display()
+            } else {
+                String::from("")
+            },
+            expand_display(controller.state().expand_on()),
+            full_size_display(controller.state().full_size_on()),
+            display_selection(&selection),
+            )
     }
 }

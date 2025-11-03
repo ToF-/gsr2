@@ -30,6 +30,7 @@ pub struct Repository {
     gallery_rc: RefCell<Gallery>,
     parent_dirs: HashMap<String, usize>,
     selection: Selection,
+    len: usize,
 }
 
 impl Repository {
@@ -42,6 +43,7 @@ impl Repository {
             gallery_rc: RefCell::new(Gallery::new()),
             parent_dirs: HashMap::new(),
             selection: Selection::from_args(&args),
+            len: 0,
         }
     }
 
@@ -71,6 +73,7 @@ impl Repository {
                     Ok(pictures) => {
                         let mut gallery = Gallery::new_with_pictures(pictures);
                         gallery.sort_by(args.order);
+                        self.len = gallery.len();
                         gallery
                     }
                     Err(e) => return Err(e),
@@ -89,6 +92,10 @@ impl Repository {
             }
             Err(e) => Err(e),
         }
+    }
+
+    pub fn len(&self) -> usize {
+        self.len
     }
 
     pub fn initialize(&mut self) -> IOResult<()> {
@@ -226,6 +233,7 @@ impl Repository {
         self.set_selection(selection.clone());
         if let Ok(mut gallery) = self.gallery_rc.try_borrow_mut() {
             gallery.set_selection(selection.clone());
+            self.len = gallery.len();
         } else {
             panic!("can't borrow mut")
         }
