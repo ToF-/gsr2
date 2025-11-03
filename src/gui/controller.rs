@@ -57,7 +57,7 @@ impl Controller {
         let gallery = Gallery::new();
         let pictures_per_row = cli.pictures_per_row();
         let mut repository = Repository::new(config, cli.clone());
-        println!("{:?}", repository.initialize());
+        repository.initialize();
         println!("{} pictures", repository.len());
         Ok(Controller {
             repository: repository.clone(),
@@ -215,7 +215,7 @@ impl Controller {
                 }
             }
             Some(Command::Clean) => {
-                match self.repository.check() {
+                match self.repository.clean() {
                     Ok(_) => Ok(Status::Done),
                     Err(err) => Err(err),
                 }

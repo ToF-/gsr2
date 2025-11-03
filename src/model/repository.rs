@@ -95,7 +95,7 @@ impl Repository {
         }
     }
 
-    pub fn len(&self) -> usize {
+   pub fn len(&self) -> usize {
         self.len
     }
 
@@ -303,6 +303,7 @@ impl Repository {
     pub fn check(&self) -> IOResult<()> {
         match self.gallery_rc.try_borrow() {
             Ok(gallery) => {
+                println!("checking pictures where picture file does not exists");
                 for picture in gallery.pictures() {
                     if !file_exists(&picture.file_path()) {
                         println!("{}", picture.file_path());
@@ -317,13 +318,21 @@ impl Repository {
     pub fn clean(&self) -> IOResult<()> {
         match self.gallery_rc.try_borrow() {
             Ok(gallery) => {
+                println!("deleting picture data where picture file does not exists");
+                let mut count: usize = 0;
+                let mut deleted: usize = 0;
+                let total = gallery.len();
                 for picture in gallery.pictures() {
                     if !file_exists(&picture.file_path()) {
                         self.database
                             .delete_picture_with_file_path(&picture.file_path());
                         println!("deleted from database: {}", picture.file_path());
+                        deleted += 1;
                     }
+                    count += 1;
+                    println!("{}/{}…", count, total);
                 };
+                println!("{} picture records deleted", deleted); 
                 Ok(())
             }
             Err(e) => Err(IOError::other(e)),
