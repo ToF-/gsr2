@@ -466,7 +466,7 @@ impl Controller {
             "Random" => Control::Randomize,
             "Size" => Control::OrderBySize,
             "Value" => Control::OrderByValue,
-            &_ => todo!(),
+            &_ => Control::CancelEdition,
         };
         self.process_control(&choice)
     }
