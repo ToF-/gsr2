@@ -77,14 +77,26 @@ pub type KeyAndMode = (String, Mode);
 pub type Controls = HashMap<KeyAndMode, Control>;
 
 pub fn help_on_controls() -> String {
-    format!("{}\n{}\n{}\n{}\n{}\n{}\n{}",
-        "n/p z/a Z/A: next/prev page, end/start of page, last/first page",
-        "return: set range start/end,  space: toggle in/out of range",
-        "esc $ !: cancel range, repeat range, whole range",
-        "f/F: find by pattern in name/label",
-        "i/I: toggle information display, display file path",
-        "O then c,d,n,p,r,s,v: pick view order",
-        "D then s,t: display size,modified time in title"
+    format!("{}\n",
+        "n/p z/a Z/A: next/prev page, end/start of page, last/first page \n\
+        return: set range start/end,  space: toggle in/out of range \n\
+        esc $ !: cancel range, repeat range, whole range \n\
+        f/F: find by pattern in name/label \n\
+        J: jump to picture #… \n\
+        i/I: toggle information display, display file path \n\
+        O then c,d,n,p,r,s,v: pick view order \n\
+        D then s,t: display size,modified time in title \n\
+        c: set/unset cover, C: see all covers \n\
+        P: display palette sample \n\
+        . or ^ : single view, e: expand, %: full size \n\
+        R go to random picture  S: resume slide show\n\
+        X/M delete or move (selected) picture(s)\n\
+        l/L : label/unlabel picture\n\
+        *: add tag, /: remove tag\n\
+        =/-/#: select pictures having some/all tags, cancel selection\n\
+        b,ç,é,à,è: grid size of 4,9,16,25 or 100 pictures per page\n\
+        g: view this cover subgroup, G/q: back from subgroup\n\
+        q: quit  H:help"
     )
 }
 // these default controls are valid on my ergodox bepo modified
