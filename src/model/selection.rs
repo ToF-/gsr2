@@ -20,9 +20,9 @@ impl Selection {
 
     pub fn from_args(args: &Args) -> Self {
         if let Some(labels) = &args.select {
-            Selection::from(&labels, SOME_TAGS)
+            Selection::from(labels, SOME_TAGS)
         } else if let Some(labels) = &args.restrict {
-            Selection::from(&labels, ALL_TAGS)
+            Selection::from(labels, ALL_TAGS)
         } else {
             Selection::empty()
         }

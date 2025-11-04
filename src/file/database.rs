@@ -412,7 +412,7 @@ impl Database {
                                 HashSet::new()
                             };
                             let parent_dir = parent_directory(file_path).unwrap();
-                            let mut new_image_data = ImageData {
+                            let new_image_data = ImageData {
                                 tags: new_tags.clone(),
                                 cover: match image_data.clone().cover {
                                     None => None,
@@ -499,7 +499,7 @@ impl Database {
                         if let Some(directory) =
                             parent_directory(&file_path_as_retrieved(&file_path))
                         {
-                            if let Some(mut pair) = map.get_mut(&directory) {
+                            if let Some(pair) = map.get_mut(&directory) {
                                 let count = pair.0;
                                 let covers = pair.1;
                                 *pair = (count+1, if cover { covers + 1 } else { covers });

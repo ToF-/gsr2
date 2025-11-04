@@ -146,8 +146,14 @@ pub fn get_data_from_picture_file(file_path: &str) -> IOResult<PictureFileData> 
 
 fn move_file(source: &str, target: &str) {
     if file_exists(source) {
-        copy(PathBuf::from(source), PathBuf::from(target));
-        remove_file(PathBuf::from(source));
+        match copy(PathBuf::from(source), PathBuf::from(target)) {
+            Ok(_) => {},
+            Err(e) => eprintln!("{}", e),
+        };
+        match remove_file(PathBuf::from(source)) {
+            Ok(_) => {},
+            Err(e) => eprintln!("{}", e),
+        }
     }
 }
 
