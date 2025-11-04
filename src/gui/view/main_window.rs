@@ -275,6 +275,7 @@ impl MainWindow {
             };
         let picture_frame = self.picture_frame();
         picture_frame.set_picture(controller, &gtk_picture);
+        self.set_title(controller);
     }
 
     pub fn set_pictures(&mut self, controller: &Controller) {
