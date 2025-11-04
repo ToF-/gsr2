@@ -272,7 +272,6 @@ impl Repository {
     }
 
     pub fn set_selection(&mut self, selection: Selection) {
-        self.set_selection(selection.clone());
         if let Ok(mut gallery) = self.gallery_rc.try_borrow_mut() {
             gallery.set_selection(selection.clone());
             self.len = gallery.len();
