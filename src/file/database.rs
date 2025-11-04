@@ -220,7 +220,7 @@ impl Database {
              FilePath                   \n\
              FROM Picture               \n\
              WHERE FilePath = ?1;",
-            params![file_path],
+            params![&file_path_as_stored(file_path)],
             |row| row.get(0),
         )
     }

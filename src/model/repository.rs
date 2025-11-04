@@ -154,21 +154,24 @@ impl Repository {
     }
 
     pub fn collect_data(&self) -> IOResult<()> {
+        println!("gallery count before collect:{}\n", self.len());
         if let Some(Command::Collect { directory }) = &self.args.command {
             match self.pictures_in_directory(&directory) {
                 Ok(dir_gallery) => {
+                    println!("pictures in directory {} : {}\n", &directory, dir_gallery.clone().len());
                     let total: usize = dir_gallery.len();
                     let mut count: usize = 0;
                     for picture in dir_gallery.pictures() {
+                        let mut already: bool;
                         match self.database.rusqlite_check_picture_with_file_path(&picture.file_path()) {
-                            Ok(file_path) => {
-                                println!("already in db: {}", file_path)
-                            }
+                            Ok(file_path) => { already = true }
                             Err(_) => {
+                                already = false;
                                 match collect_picture_data(&picture) {
                                     Ok(picture) => match self.database.insert_picture(&picture) {
                                         Ok(_) => {
-                                            println!("{:?}", picture);
+                                            count += 1;
+                                            println!("{}/{}:{}", count, total, &picture.file_path());
                                         }
                                         Err(err) => {
                                             eprintln!("{}:\n{}", picture.file_path(), err)
@@ -180,9 +183,8 @@ impl Repository {
                                 };
                             }
                         }
-                        count += 1;
-                        println!("{}/{}:{}", count, total, picture.file_path());
                     };
+                    println!("{} pictures added", count);
                     Ok(())
                 },
                 Err(e) => return Err(e),
