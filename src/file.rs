@@ -1,8 +1,5 @@
 use crate::file::database::Database;
-use crate::file::operation::execute;
-use crate::file::operation::move_picture;
 use crate::file::picture_file::delete_picture_files;
-use crate::model::selection::Selection;
 use std::io::Result as IOResult;
 pub mod database;
 pub mod operation;

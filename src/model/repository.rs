@@ -7,11 +7,7 @@ use crate::file::picture_file::collect_picture_data;
 use crate::file::paths::parent_directory;
 use crate::cli::args::Args;
 use crate::env::configuration::Configuration;
-use crate::env::default_values::THUMB_SUFFIX;
 use crate::file::database::Database;
-use crate::file::paths::check_path;
-use crate::file::paths::check_picture_path_extension;
-use crate::file::paths::file_path_to_string;
 use crate::file::picture_file::get_all_picture_file_paths;
 use crate::file::picture_file::get_picture_file_path;
 use crate::model::gallery::Gallery;
@@ -22,7 +18,6 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::io::Error as IOError;
 use std::io::Result as IOResult;
-use walkdir::WalkDir;
 
 #[derive(Debug, Clone)]
 pub struct Repository {
@@ -371,10 +366,16 @@ impl Repository {
                 let total = gallery.len();
                 for picture in gallery.pictures() {
                     if !file_exists(&picture.file_path()) {
-                        self.database
-                            .delete_picture_with_file_path(&picture.file_path());
-                        println!("deleted from database: {}", picture.file_path());
-                        deleted += 1;
+                        match self.database
+                            .delete_picture_with_file_path(&picture.file_path()) {
+                                Ok(_) => {
+                                    println!("deleted from database: {}", picture.file_path());
+                                    deleted += 1;
+                                },
+                                Err(e) => {
+                                    eprintln!("{}",e);
+                                },
+                            }
                     }
                     count += 1;
                     println!("{}/{}…", count, total);
@@ -414,7 +415,7 @@ impl Repository {
     }
 
 
-    pub fn move_picture_at_index(&self, index: usize, target_dir: &str) -> IOResult<(usize)> {
+    pub fn move_picture_at_index(&self, index: usize, target_dir: &str) -> IOResult<usize> {
         match self.gallery_rc().try_borrow() {
             Ok(gallery) => {
                 let picture = gallery.picture(index);

@@ -1,14 +1,10 @@
-use crate::file::operation::move_picture;
-use crate::file::operation::execute;
 use crate::cli::args::Args;
 use crate::cli::command::Command;
 use crate::cli::status::Status;
 use crate::env::configuration::{Configuration, get_configuration};
-use crate::env::environment::database_connection;
 use crate::file::database::*;
 use crate::file::paths::{check_collectable, file_exists, parent_directory};
 use crate::file::picture_file::{create_missing_thumbnails};
-use crate::file::{delete_picture};
 use crate::gui::control::{Control, Controls, default_controls};
 use crate::gui::direction::Direction;
 use crate::gui::editor::Editor;
@@ -24,18 +20,17 @@ use crate::model::order::Order;
 use crate::model::picture::Picture;
 use crate::model::rank::Rank;
 use crate::model::repository::Repository;
-use crate::model::selection::{ALL_TAGS, SOME_TAGS, Selection};
+use crate::model::selection::Selection;
 use gdk::{Key, ModifierType};
 use gtk::prelude::*;
 use gtk::{self, gdk};
 use rand::Rng;
 use rand::rng;
 use std::cell::RefCell;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 use std::io::Error as IOError;
 use std::io::Result as IOResult;
 use std::path::PathBuf;
-use std::process::exit;
 use std::rc::Rc;
 
 #[derive(Debug)]
@@ -57,7 +52,10 @@ impl Controller {
         let gallery = Gallery::new();
         let pictures_per_row = cli.pictures_per_row();
         let mut repository = Repository::new(config, cli.clone());
-        repository.initialize();
+        match repository.initialize() {
+            Ok(_) => {},
+            Err(e) => panic!("{}", e),
+        };
         println!("{} pictures", repository.len());
         Ok(Controller {
             repository: repository.clone(),
@@ -776,16 +774,20 @@ impl Controller {
                     ..self.args.clone()
                 };
                 self.args = new_args;
-                self.repository.initialize_for_args(&self.args);
-                self.reload()
+                match self.repository.initialize_for_args(&self.args) {
+                    Ok(_) => self.reload(),
+                    Err(e) => panic!("{}",e),
+                }
         } else if self.args.cover {
             let new_args = Args {
                 cover: false,
                 ..self.args.clone()
             };
             self.args = new_args;
-            self.repository.initialize_for_args(&self.args);
-            self.reload()
+            match self.repository.initialize_for_args(&self.args) {
+                Ok(_) => self.reload(),
+                Err(e) => panic!("{}",e),
+            }
         }
     }
 

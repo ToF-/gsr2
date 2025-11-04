@@ -1,5 +1,4 @@
 use crate::env::default_values::THUMB_SUFFIX;
-use crate::file::Database;
 use crate::file::paths::check_collectable;
 use crate::file::paths::thumbnail_name_from;
 use crate::file::paths::thumbnail_names_from;

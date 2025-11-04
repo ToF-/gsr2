@@ -1,6 +1,5 @@
 use crate::Args;
 use crate::file::database::Database;
-use crate::file::paths::parent_directory;
 use crate::file::picture_file::{get_all_picture_file_paths, get_picture_file_path};
 use crate::model::order::Order;
 use crate::model::picture::Picture;
@@ -9,7 +8,6 @@ use crate::model::tags::Tags;
 use rand::prelude::SliceRandom;
 use rand::rng;
 use std::cmp::Reverse;
-use std::collections::HashMap;
 use std::collections::HashSet;
 use std::io::{Error, Result};
 

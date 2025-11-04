@@ -198,7 +198,7 @@ impl Database {
             WHERE FilePath = ?1;",
                 params![file_path_as_stored(file_path)],
             )
-            .and_then(|count| {
+            .and_then(|_| {
                 self.connection().execute(
                     "DELETE FROM Tag        \n\
             WHERE FilePath = ?1;",
