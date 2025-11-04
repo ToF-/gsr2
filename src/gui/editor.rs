@@ -54,6 +54,7 @@ impl Editor {
             EntryKind::Find => "Enter a part of the picture file name",
             EntryKind::FindLabel => "Enter a part of the picture label",
             EntryKind::Information => "Current picture",
+            EntryKind::Help => "Keyboard shortcuts",
             EntryKind::SetSelection => "Enter tags to define the selection",
             EntryKind::SetRestriction => "Enter tags to define the restriction",
         };
@@ -200,7 +201,7 @@ impl Editor {
             EntryKind::SetSelection | EntryKind::SetRestriction => matches!(ch,
                 'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' ' | ',' ),
             EntryKind::Order => matches!(ch, 'c' | 'd' | 'p' | 'l' | 'n' | 'r' | 's' | 'v'),
-            EntryKind::Information => false,
+            EntryKind::Information | EntryKind::Help => false,
         };
         if ch_is_ok && self.input.len() < MAX_LABEL_LENGTH {
             self.convert_char(ch);

@@ -14,6 +14,7 @@ pub enum Control {
     CancelRange,
     RepeatRange,
     Jump,
+    Help,
     Left,
     Right,
     Up,
@@ -75,6 +76,17 @@ pub enum Control {
 pub type KeyAndMode = (String, Mode);
 pub type Controls = HashMap<KeyAndMode, Control>;
 
+pub fn help_on_controls() -> String {
+    format!("{}\n{}\n{}\n{}\n{}\n{}\n{}",
+        "n/p z/a Z/A: next/prev page, end/start of page, last/first page",
+        "return: set range start/end,  space: toggle in/out of range",
+        "esc $ !: cancel range, repeat range, whole range",
+        "f/F: find by pattern in name/label",
+        "i/I: toggle information display, display file path",
+        "O then c,d,n,p,r,s,v: pick view order",
+        "D then s,t: display size,modified time in title"
+    )
+}
 // these default controls are valid on my ergodox bepo modified
 pub fn default_controls() -> Controls {
     let controls: Controls = HashMap::from([
@@ -99,6 +111,7 @@ pub fn default_controls() -> Controls {
         ((String::from("i"), Mode::View), Control::ToggleInformation),
         ((String::from("I"), Mode::View), Control::Information),
         ((String::from("J"), Mode::View), Control::Jump),
+        ((String::from("H"), Mode::View), Control::Help),
         ((String::from("f"), Mode::View), Control::Find),
         ((String::from("F"), Mode::View), Control::FindLabel),
         ((String::from("n"), Mode::View), Control::MoveNext),

@@ -5,7 +5,7 @@ use crate::env::configuration::{Configuration, get_configuration};
 use crate::file::database::*;
 use crate::file::paths::{check_collectable, file_exists, parent_directory};
 use crate::file::picture_file::{create_missing_thumbnails};
-use crate::gui::control::{Control, Controls, default_controls};
+use crate::gui::control::{Control, Controls, default_controls, help_on_controls};
 use crate::gui::direction::Direction;
 use crate::gui::editor::Editor;
 use crate::gui::entry_kind::EntryKind;
@@ -49,7 +49,6 @@ pub type RcController = Rc<RefCell<Controller>>;
 
 impl Controller {
     pub fn new(config: Configuration, cli: Args) -> IOResult<Self> {
-        let gallery = Gallery::new();
         let pictures_per_row = cli.pictures_per_row();
         let mut repository = Repository::new(config, cli.clone());
         match repository.initialize() {
@@ -166,8 +165,8 @@ impl Controller {
                     println!("no pictures for this selection");
                     Ok(Status::Exit)
                 }
-                Ok(n) => {
-                    println!("{} pictures", &gallery.len());
+                Ok(count) => {
+                    println!("{} pictures", count);
                     if let Some(index) = args.index
                         && self.navigator().can_move(Direction::Index { value: index })
                     {
@@ -182,7 +181,7 @@ impl Controller {
                 println!("collecting data for picture files in the database…");
                 let path: PathBuf = PathBuf::from(directory);
                 match check_collectable(&path) {
-                    Ok(directory) => {
+                    Ok(_) => {
                         match self.repository.collect_data() {
                             Ok(_) => Ok(Status::Done),
                             Err(err) => Err(err),
@@ -440,6 +439,7 @@ impl Controller {
                             };
                         }
                         EntryKind::Information => {}
+                        EntryKind::Help => {}
                         EntryKind::SetSelection => {
                             if !self.editor.input().is_empty() {
                                 self.apply_selection(&self.editor.input())
@@ -655,6 +655,7 @@ impl Controller {
             Control::TogglePalette => self.toggle_palette(),
             Control::Jump => self.jump(),
             Control::Find => self.find(),
+            Control::Help => self.help(),
             Control::FindLabel => self.find_label(),
             Control::Information => self.information(),
             Control::ToggleInformation => self.toggle_information(),
@@ -901,6 +902,14 @@ impl Controller {
     pub fn jump(&mut self) {
         self.editor
             .begin(&self.main_window(), EntryKind::Number, None);
+        self.state.set_mode(Mode::Editing);
+    }
+
+    pub fn help(&mut self) {
+        self.editor
+            .begin(&self.main_window(), EntryKind::Help, None);
+        self.editor
+            .set_input(&help_on_controls());
         self.state.set_mode(Mode::Editing);
     }
 
@@ -1174,9 +1183,7 @@ impl Controller {
     }
 
     pub fn confirm_move_picture(&mut self) {
-        if let Some(target_dir) = &self.args.r#move {
-            self.move_selected_pictures()
-        }
+        self.move_selected_pictures()
     }
 
     pub fn cancel_move_picture(&mut self) {

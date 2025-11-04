@@ -10,6 +10,7 @@ pub enum EntryKind {
     Find,
     FindLabel,
     Information,
+    Help,
     SetRestriction,
     SetSelection,
 }
