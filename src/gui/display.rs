@@ -96,7 +96,7 @@ pub fn title_display(controller: &Controller) -> String {
     if controller.state().display_information_on() {
         format!("{}", controller.current_picture().file_path())
     } else {
-        let mut order: Order;
+        let order: Order;
         let current_picture = controller.current_picture();
         let selection: Selection = Selection::from_args(&controller.args());
 

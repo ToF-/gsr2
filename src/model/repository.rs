@@ -171,11 +171,9 @@ impl Repository {
                     let total: usize = dir_gallery.len();
                     let mut count: usize = 0;
                     for picture in dir_gallery.pictures() {
-                        let mut already: bool;
                         match self.database.rusqlite_check_picture_with_file_path(&picture.file_path()) {
-                            Ok(file_path) => { already = true }
+                            Ok(_) => { }
                             Err(_) => {
-                                already = false;
                                 match collect_picture_data(&picture) {
                                     Ok(picture) => match self.database.insert_picture(&picture) {
                                         Ok(_) => {

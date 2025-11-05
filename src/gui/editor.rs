@@ -130,7 +130,7 @@ impl Editor {
             0 => self.refresh_prompt(&self.prompt),
             1 => {
                 let words: Vec<&str> = self.input.split(',').collect();
-                let (last, firsts) = words.split_last().unwrap();
+                let (_, firsts) = words.split_last().unwrap();
                 let candidate = candidates[0].clone();
                 self.input = match firsts.len() {
                     0 => candidate,

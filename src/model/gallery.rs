@@ -102,7 +102,7 @@ impl Gallery {
         let regex: Option<Regex> = match args.clone().pattern {
             Some(pattern) => match Regex::new(&pattern) {
                 Ok(re) => Some(re),
-                Err(e) => None,
+                Err(_) => None,
             },
             None => None,
         };
