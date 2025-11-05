@@ -1,3 +1,4 @@
+use regex::Regex;
 use crate::Args;
 use crate::file::database::Database;
 use crate::file::picture_file::{get_all_picture_file_paths, get_picture_file_path};
@@ -98,9 +99,17 @@ impl Gallery {
         } else {
             Selection::empty()
         };
+        let regex: Option<Regex> = match args.clone().pattern {
+            Some(pattern) => match Regex::new(&pattern) {
+                Ok(re) => Some(re),
+                Err(e) => None,
+            },
+            None => None,
+        };
         match database.retrieve_all_pictures(
             selection,
             args.label.clone(),
+            regex,
             args.cover,
             args.directory.clone(),
         ) {

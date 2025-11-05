@@ -190,11 +190,14 @@ impl Editor {
             EntryKind::DeleteConfirmation | EntryKind::MoveConfirmation => {
                 matches!(ch, 'e' | 'n' | 'o' | 's' | 'y')
             }
-            EntryKind::Label
-            | EntryKind::AddTag
-            | EntryKind::RemoveTag
             | EntryKind::Find
             | EntryKind::FindLabel => {
+                matches!(ch,
+                    'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' ' | '^' | '$' | '.' | '*' | '{' | '}' | '[' | ']' | '(' | ')' | '\\' )
+            }
+            EntryKind::Label
+            | EntryKind::AddTag
+            | EntryKind::RemoveTag => {
                 matches!(ch,
                 'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' ')
             }

@@ -1,3 +1,4 @@
+use regex::Regex;
 use crate::file::paths::parent_directory;
 use crate::file::paths::{file_exists, file_path_as_retrieved, file_path_as_stored};
 use crate::model::cover::{bool_to_cover, cover_to_bool};
@@ -65,7 +66,7 @@ impl Database {
             Rank INTEGER,                              \n\
             Sample BLOB,                               \n\
             ColorCount INTEGER,                        \n\
-            Cover BOOLEAN);",
+            Cover BOOLEAN);",                          // ""
                 params![],
             )
             .and_then(|_| {
@@ -73,7 +74,7 @@ impl Database {
                     "CREATE TABLE IF NOT EXISTS Tag (    \n\
                     FilePath TEXT NOT NULL,              \n\
                     Label TEXT NOT NULL,                \n\
-                    PRIMARY KEY (FilePath, Label));",
+                    PRIMARY KEY (FilePath, Label));",    // ""
                     params![],
                 )
             });
@@ -96,7 +97,7 @@ impl Database {
              Sample,                      \n\
              ColorCount,                  \n\
              Cover)                       \n\
-             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8);",
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8);",    // ""
                 params![
                     file_path_as_stored(&picture.file_path()),
                     image_data.label(),
@@ -115,7 +116,7 @@ impl Database {
                         "INSERT INTO Tag(         \n\
                     FilePath,                 \n\
                     Label)                    \n\
-                    VALUES (?1, ?2);",
+                    VALUES (?1, ?2);",    // ""
                         params![file_path_as_stored(&picture.file_path()), tag],
                     ) {
                         Ok(n) => tag_count += n,
@@ -144,7 +145,7 @@ impl Database {
              Sample = ?6,                 \n\
              ColorCount =?7,              \n\
              Cover = ?8                   \n\
-               WHERE FilePath = ?1;",
+               WHERE FilePath = ?1;",    // ""
                 params![
                     file_path_as_stored(&picture.file_path()),
                     image_data.label(),
@@ -177,7 +178,7 @@ impl Database {
                 "INSERT INTO Tag(          \n\
                  FilePath,                 \n\
                  Label)                    \n\
-                 VALUES (?1, ?2);",
+                 VALUES (?1, ?2);",    // ""
                 params![file_path_as_stored(file_path), label,],
             ) {
                 Ok(n) => {
@@ -195,13 +196,13 @@ impl Database {
         self.connection()
             .execute(
                 "DELETE FROM Picture        \n\
-            WHERE FilePath = ?1;",
+            WHERE FilePath = ?1;",          // ""
                 params![file_path_as_stored(file_path)],
             )
             .and_then(|_| {
                 self.connection().execute(
                     "DELETE FROM Tag        \n\
-            WHERE FilePath = ?1;",
+            WHERE FilePath = ?1;",          // ""
                     params![file_path_as_stored(file_path)],
                 )
             })
@@ -219,7 +220,7 @@ impl Database {
             "SELECT                     \n\
              FilePath                   \n\
              FROM Picture               \n\
-             WHERE FilePath = ?1;",
+             WHERE FilePath = ?1;",          // ""
             params![&file_path_as_stored(file_path)],
             |row| row.get(0),
         )
@@ -271,7 +272,7 @@ impl Database {
                 FROM Picture WHERE Label <> '' \n\
                 UNION                          \n\
                 SELECT DISTINCT Label          \n\
-                FROM Tag WHERE Label <> '';",
+                FROM Tag WHERE Label <> '';",          // ""
             )
             .and_then(|mut statement| {
                 let mut map: HashSet<String> = HashSet::new();
@@ -327,7 +328,7 @@ impl Database {
              ColorCount,                \n\
              Cover                      \n\
              FROM Picture               \n\
-             WHERE FilePath = ?1;",
+             WHERE FilePath = ?1;",          // ""
                 params![file_path_as_stored(file_path)],
                 Self::rusqlite_row_to_picture,
             )
@@ -378,7 +379,7 @@ impl Database {
              Sample,                    \n\
              ColorCount,                \n\
              Cover                      \n\
-             FROM Picture              \n";
+             FROM Picture              \n"; // "
 
     const WHERE_COVER: &str = "WHERE Cover = true \n";
 
@@ -397,6 +398,7 @@ impl Database {
         &self,
         selection: Selection,
         label: Option<String>,
+        pattern: Option<Regex>,
         cover: bool,
         parent_opt: Option<String>,
     ) -> IOResult<Vec<Picture>> {
@@ -430,6 +432,8 @@ impl Database {
                             if (selection.is_empty() || selection.matches(new_tags.clone()))
                                 && (label.clone().is_none()
                                     || *label.as_ref().unwrap() == new_image_data.label())
+                                && (pattern.clone().is_none()
+                                    || pattern.as_ref().unwrap().is_match(&file_path))
                             {
                                 let picture =
                                     Picture::new_with_image_data(file_path, &new_image_data);
@@ -449,6 +453,7 @@ impl Database {
     pub fn retrieve_all_pictures_with_parent(&self, parent_dir: &str) -> IOResult<Vec<Picture>> {
         self.retrieve_all_pictures(
             Selection::empty(),
+            None,
             None,
             false,
             Some(parent_dir.to_string()),

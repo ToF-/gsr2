@@ -1,3 +1,4 @@
+use regex::Regex;
 use crate::cli::args::Args;
 use crate::cli::command::Command;
 use crate::cli::status::Status;
@@ -430,12 +431,12 @@ impl Controller {
                         }
                         EntryKind::Find => {
                             if !self.editor.input().is_empty() {
-                                self.find_pattern(&self.editor.input())
+                                self.find_pattern(&self.editor.input(), false)
                             };
                         }
                         EntryKind::FindLabel => {
                             if !self.editor.input().is_empty() {
-                                self.find_pattern_in_label(&self.editor.input())
+                                self.find_pattern(&self.editor.input(), true)
                             };
                         }
                         EntryKind::Information => {}
@@ -942,35 +943,30 @@ impl Controller {
         navigator.set_page_changed()
     }
 
-    pub fn find_pattern(&mut self, pattern: &str) {
-        if let Ok(gallery) = self.repository.gallery_rc().try_borrow() {
-            if let Some(index) = gallery
-                .pictures()
-                .iter()
-                .position(|picture| picture.file_path().contains(pattern))
-            {
-                let navigator = &mut self.navigator;
-                navigator.move_towards(Direction::Index { value: index });
-                navigator.set_page_changed()
+    pub fn find_pattern(&mut self, pattern: &str, in_label: bool) {
+        match Regex::new(pattern) {
+            Ok(re) => {
+                if let Ok(gallery) = self.repository.gallery_rc().try_borrow() {
+                    if let Some(index) = gallery
+                        .pictures()
+                            .iter()
+                            .position(|picture| {
+                                if in_label {
+                                    re.is_match(&picture.label())
+                                } else {
+                                    re.is_match(&picture.file_path())
+                                }
+                            })
+                    {
+                        let navigator = &mut self.navigator;
+                        navigator.move_towards(Direction::Index { value: index });
+                        navigator.set_page_changed()
+                    };
+                } else {
+                    panic!("can't borrow")
+                }
             }
-        } else {
-            panic!("can't borrow")
-        }
-    }
-
-    pub fn find_pattern_in_label(&mut self, pattern: &str) {
-        if let Ok(gallery) = self.repository.gallery_rc().try_borrow() {
-            if let Some(index) = gallery
-                .pictures()
-                .iter()
-                .position(|picture| picture.label().contains(pattern))
-            {
-                let navigator = &mut self.navigator;
-                navigator.move_towards(Direction::Index { value: index });
-                navigator.set_page_changed()
-            }
-        } else {
-            panic!("can't borrow")
+            Err(e) => { eprintln!("{}",e); }
         }
     }
 

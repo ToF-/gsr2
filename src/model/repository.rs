@@ -1,3 +1,4 @@
+use regex::Regex;
 use crate::file::picture_file::delete_picture_files;
 use crate::cli::command::Command;
 use crate::file::operation::execute;
@@ -63,9 +64,17 @@ impl Repository {
         let selection = Selection::from_args(args);
         match self.gallery_rc.try_borrow_mut() {
             Ok(mut gallery) => {
+                let regex: Option<Regex> = match args.clone().pattern {
+                    Some(pattern) => match Regex::new(&pattern) {
+                        Ok(re) => Some(re),
+                        Err(e) => { eprintln!("{}", e); None },
+                    },
+                    None => None,
+                };
                 *gallery = match self.database.retrieve_all_pictures(
                     selection.clone(),
                     args.label.clone(),
+                    regex,
                     args.cover,
                     args.directory.clone(),
                 ) {

@@ -1,3 +1,4 @@
+use regex::Regex;
 use crate::cli::command::Command;
 use crate::env::configuration::Configuration;
 use crate::env::default_values::{DEFAULT_HEIGHT, DEFAULT_SLIDESHOW_DELAY, DEFAULT_WIDTH};
@@ -61,6 +62,10 @@ pub struct Args {
     #[arg(short, long, value_name="ORDER", ignore_case(true), default_value_t = Order::Name)]
     pub order: Order,
 
+    /// display only pictures where file name matches PATTERN
+    #[arg(short, long, value_name="PATTERN")]
+    pub pattern: Option<String>,
+
     /// select only picture having at all their tags in TAGS (e.g "foo,bar")
     #[arg(short, long, value_name = "TAGS", conflicts_with = "select")]
     pub restrict: Option<String>,
@@ -95,6 +100,12 @@ impl Args {
             "height",
             DEFAULT_HEIGHT,
         );
+        if let Some(pattern) = args.clone().pattern {
+            match Regex::new(&pattern) {
+                Ok(_) => {},
+                Err(e) => return Err(Error::other(e)),
+            }
+        };
         args.slideshow =
             slideshow_delay(args.slideshow, "slideshow delay", DEFAULT_SLIDESHOW_DELAY);
         if let Some(Command::File { ref file_path }) = args.command {
