@@ -55,9 +55,8 @@ impl Database {
     }
 
     pub fn rusqlite_create_schema(&self) -> SqlResult<usize> {
-        let result = self
-            .connection()
-            .execute(
+        let connection = self.connection_rc.borrow();
+        connection.execute(
                 "CREATE TABLE IF NOT EXISTS Picture (      \n\
             FilePath TEXT NOT NULL PRIMARY KEY,        \n\
             Label TEXT NOT NULL,                       \n\
@@ -67,7 +66,7 @@ impl Database {
             Sample BLOB,                               \n\
             ColorCount INTEGER,                        \n\
             Cover BOOLEAN);",                          // ""
-                params![],
+            params![],
             )
             .and_then(|_| {
                 self.connection().execute(
@@ -77,18 +76,17 @@ impl Database {
                     PRIMARY KEY (FilePath, Label));",    // ""
                     params![],
                 )
-            });
-        result
+            })
     }
 
     fn rusqlite_insert_picture(&self, picture: &Picture) -> SqlResult<usize> {
+        let connection = self.connection_rc.borrow();
         let image_data = match picture.image_data() {
             Some(data) => data,
             None => ImageData::new(""),
         };
-        self.connection()
-            .execute(
-                "INSERT INTO Picture (        \n\
+        connection.execute(
+            "INSERT INTO Picture (    \n\
              FilePath,                    \n\
              Label,                       \n\
              FileSize,                    \n\
@@ -98,45 +96,43 @@ impl Database {
              ColorCount,                  \n\
              Cover)                       \n\
              VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8);",    // ""
-                params![
-                    file_path_as_stored(&picture.file_path()),
-                    image_data.label(),
-                    image_data.size(),
-                    image_data.modified_time(),
-                    <Rank as Into<i64>>::into(image_data.rank()),
-                    image_data.palette().sample_as_array(),
-                    image_data.palette.count(),
-                    cover_to_bool(image_data.cover()),
-                ],
-            )
-            .and_then(|count| {
-                let mut tag_count = 0;
-                for tag in image_data.tags() {
-                    match self.connection().execute(
-                        "INSERT INTO Tag(         \n\
-                    FilePath,                 \n\
-                    Label)                    \n\
-                    VALUES (?1, ?2);",    // ""
-                        params![file_path_as_stored(&picture.file_path()), tag],
-                    ) {
-                        Ok(n) => tag_count += n,
-                        Err(err) => {
-                            eprintln!("{}", err);
-                        }
+             params![
+             file_path_as_stored(&picture.file_path()),
+             image_data.label(),
+             image_data.size(),
+             image_data.modified_time(),
+             <Rank as Into<i64>>::into(image_data.rank()),
+             image_data.palette().sample_as_array(),
+             image_data.palette.count(),
+             cover_to_bool(image_data.cover()),
+             ],).and_then(|count| {
+            let mut tag_count = 0;
+            for tag in image_data.tags() {
+                match self.connection().execute(
+                    "INSERT INTO Tag(         \n\
+                         FilePath,                \n\
+                         Label)                   \n\
+                         VALUES (?1, ?2);",    // ""
+                         params![file_path_as_stored(&picture.file_path()), tag],
+                ) {
+                    Ok(n) => tag_count += n,
+                    Err(err) => {
+                        eprintln!("{}", err);
                     }
                 }
-                Ok(count + tag_count)
+            }
+            Ok(count + tag_count)
             })
     }
 
     fn rusqlite_update_picture(&self, picture: &Picture) -> SqlResult<usize> {
+        let connection = self.connection_rc.borrow();
         let image_data = match picture.image_data() {
             Some(data) => data,
             None => ImageData::new(""),
         };
-        self.connection()
-            .execute(
-                "UPDATE Picture               \n\
+        connection.execute(
+            "UPDATE Picture               \n\
              SET                          \n\
              Label = ?2,                  \n\
              FileSize = ?3,               \n\
@@ -146,21 +142,20 @@ impl Database {
              ColorCount =?7,              \n\
              Cover = ?8                   \n\
                WHERE FilePath = ?1;",    // ""
-                params![
-                    file_path_as_stored(&picture.file_path()),
-                    image_data.label(),
-                    image_data.size(),
-                    image_data.modified_time(),
-                    <Rank as Into<i64>>::into(image_data.rank()),
-                    image_data.palette().sample_as_array(),
-                    image_data.palette.count(),
-                    cover_to_bool(image_data.cover),
-                ],
-            )
-            .and_then(|_| {
-                self.rusqlite_delete_tags(&picture.file_path())
-                    .and_then(|_| self.rusqlite_add_tags(&picture.file_path(), &image_data.tags))
-            })
+               params![
+               file_path_as_stored(&picture.file_path()),
+               image_data.label(),
+               image_data.size(),
+               image_data.modified_time(),
+               <Rank as Into<i64>>::into(image_data.rank()),
+               image_data.palette().sample_as_array(),
+               image_data.palette.count(),
+               cover_to_bool(image_data.cover),
+               ],
+               ).and_then(|_| {
+                   self.rusqlite_delete_tags(&picture.file_path())
+                       .and_then(|_| self.rusqlite_add_tags(&picture.file_path(), &image_data.tags))
+               })
     }
 
     fn rusqlite_delete_tags(&self, file_path: &str) -> SqlResult<usize> {
