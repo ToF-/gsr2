@@ -33,14 +33,6 @@ impl Database {
         }
     }
 
-    pub fn connection(&self) -> Ref<Connection> {
-        if let Ok(connection) = self.connection_rc.try_borrow() {
-            connection
-        } else {
-            panic!("can't open database connection")
-        }
-    }
-
     fn rusqlite_from_connection(connection_string: &str, create: bool) -> SqlResult<Self> {
         if !file_exists(connection_string) && !create {
             return Err(InvalidPath(PathBuf::from(connection_string)));
@@ -69,7 +61,7 @@ impl Database {
             params![],
             )
             .and_then(|_| {
-                self.connection().execute(
+                connection.execute(
                     "CREATE TABLE IF NOT EXISTS Tag (    \n\
                     FilePath TEXT NOT NULL,              \n\
                     Label TEXT NOT NULL,                \n\
@@ -108,7 +100,7 @@ impl Database {
              ],).and_then(|count| {
             let mut tag_count = 0;
             for tag in image_data.tags() {
-                match self.connection().execute(
+                match connection.execute(
                     "INSERT INTO Tag(         \n\
                          FilePath,                \n\
                          Label)                   \n\
@@ -159,7 +151,8 @@ impl Database {
     }
 
     fn rusqlite_delete_tags(&self, file_path: &str) -> SqlResult<usize> {
-        self.connection().execute(
+        let connection = self.connection_rc.borrow();
+        connection.execute(
             "DELETE FROM Tag        \n\
             WHERE FilePath = ?1;",
             params![file_path_as_stored(file_path)],
@@ -169,7 +162,8 @@ impl Database {
     fn rusqlite_add_tags(&self, file_path: &str, tags: &Tags) -> SqlResult<usize> {
         let mut count: usize = 0;
         for label in tags.iter() {
-            match self.connection().execute(
+            let connection = self.connection_rc.borrow();
+            match connection.execute(
                 "INSERT INTO Tag(          \n\
                  FilePath,                 \n\
                  Label)                    \n\
@@ -188,14 +182,14 @@ impl Database {
     }
 
     fn rusqlite_delete_picture_with_file_path(&self, file_path: &str) -> SqlResult<usize> {
-        self.connection()
-            .execute(
+        let connection = self.connection_rc.borrow();
+        connection.execute(
                 "DELETE FROM Picture        \n\
             WHERE FilePath = ?1;",          // ""
                 params![file_path_as_stored(file_path)],
             )
             .and_then(|_| {
-                self.connection().execute(
+                connection.execute(
                     "DELETE FROM Tag        \n\
             WHERE FilePath = ?1;",          // ""
                     params![file_path_as_stored(file_path)],
@@ -211,7 +205,8 @@ impl Database {
     }
 
     pub fn rusqlite_check_picture_with_file_path(&self, file_path: &str) -> SqlResult<String> {
-        self.connection().query_one(
+        let connection = self.connection_rc.borrow();
+        connection.query_one(
             "SELECT                     \n\
              FilePath                   \n\
              FROM Picture               \n\
@@ -236,8 +231,8 @@ impl Database {
                 "true"
             }
         );
-        self.connection()
-            .prepare(&sql_query)
+        let connection = self.connection_rc.borrow();
+        connection.prepare(&sql_query)
             .and_then(|mut statement| {
                 let mut map: ImageDataMap = HashMap::new();
                 statement.query([]).and_then(|mut rows| {
@@ -261,8 +256,8 @@ impl Database {
     }
 
     pub fn rusqlite_retrieve_all_labels(&self) -> SqlResult<HashSet<String>> {
-        self.connection()
-            .prepare(
+        let connection = self.connection_rc.borrow();
+        connection.prepare(
                 "SELECT DISTINCT Label         \n\
                 FROM Picture WHERE Label <> '' \n\
                 UNION                          \n\
@@ -282,8 +277,8 @@ impl Database {
     }
 
     pub fn rusqlite_retrieve_all_tags(&self) -> SqlResult<HashMap<String, HashSet<String>>> {
-        self.connection()
-            .prepare(
+        let connection = self.connection_rc.borrow();
+        connection.prepare(
                 "SELECT                \n\
                 FilePath,              \n\
                 Label                  \n\
@@ -311,8 +306,8 @@ impl Database {
     }
 
     fn rusqlite_retrieve_picture_with_file_path(&self, file_path: &str) -> SqlResult<Picture> {
-        self.connection()
-            .query_row(
+        let connection = self.connection_rc.borrow();
+        connection.query_row(
                 "SELECT                     \n\
              FilePath,                  \n\
              Label,                     \n\
@@ -328,7 +323,6 @@ impl Database {
                 Self::rusqlite_row_to_picture,
             )
             .and_then(|mut picture| {
-                let connection = self.connection();
                 let mut statement = connection.prepare(
                     "SELECT                   \n\
                 Label                     \n\
@@ -488,8 +482,8 @@ impl Database {
     }
     fn rusqulite_retrieve_all_file_paths(&self) -> SqlResult<HashMap<String, (usize,usize)>> {
         let sql_query = "SELECT FilePath, Cover FROM Picture;";
-        self.connection()
-            .prepare(sql_query)
+        let connection = self.connection_rc.borrow();
+        connection.prepare(sql_query)
             .and_then(|mut statement| {
                 let mut map: HashMap<String, (usize, usize)> = HashMap::new();
                 statement.query([]).and_then(|mut rows| {
