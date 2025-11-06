@@ -51,6 +51,17 @@ pub fn parent_directory(file_path: &str) -> Option<String> {
         .map(|parent| parent.to_str().unwrap().to_string())
 }
 
+pub fn grand_parent_directory(file_path: &str) -> Option<String> {
+    let path = Path::new(file_path);
+    match path.parent() {
+        Some(parent) => match parent.parent() {
+                Some(grand_parent) => Some(grand_parent.to_str().unwrap().to_string()),
+                None => None,
+            },
+        None => None,
+    }
+}
+
 pub fn file_exists(file_path: &str) -> bool {
     let path = PathBuf::from(file_path);
     check_path_exists(&path).is_ok()
@@ -297,6 +308,16 @@ mod tests {
     fn has_parent_check_if_a_file_belongs_to_a_directory() {
         assert!(has_parent("testdata/subdir", "testdata/subdir/my_file.jpg"));
         assert!(!has_parent("testdata/subdir", "testdata/my_file.jpg"));
+    }
+    #[test]
+    fn having_parent_directory() {
+        assert_eq!(Some("testdata/subdir".to_string()), parent_directory("testdata/subdir/my_file.jpg"));
+        assert_eq!(Some("".to_string()), parent_directory(&format!("foo.jpg")))
+    }
+    #[test]
+    fn having_grand_parent_directory() {
+        assert_eq!(Some("testdata".to_string()), grand_parent_directory("testdata/subdir/my_file.jpg"));
+        assert_eq!(None, grand_parent_directory(&format!("foo.jpg")))
     }
 }
 

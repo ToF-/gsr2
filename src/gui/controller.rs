@@ -1,3 +1,5 @@
+use crate::file::paths::check_path_exists;
+use crate::file::paths::grand_parent_directory;
 use regex::Regex;
 use crate::cli::args::Args;
 use crate::cli::command::Command;
@@ -31,7 +33,7 @@ use std::cell::RefCell;
 use std::collections::HashSet;
 use std::io::Error as IOError;
 use std::io::Result as IOResult;
-use std::path::PathBuf;
+use std::path::{Path,PathBuf};
 use std::rc::Rc;
 
 #[derive(Debug)]
@@ -429,6 +431,13 @@ impl Controller {
                                 self.cancel_move_picture()
                             }
                         }
+                        EntryKind::MoveToLabelConfirmation(ref target) => {
+                            if &self.editor.input() == "yes" {
+                                self.confirm_move_picture_to_label(&target)
+                            } else {
+                                self.cancel_move_picture()
+                            }
+                        }
                         EntryKind::Find => {
                             if !self.editor.input().is_empty() {
                                 self.find_pattern(&self.editor.input(), false)
@@ -691,6 +700,7 @@ impl Controller {
             Control::CancelRange => self.cancel_range(),
             Control::DeletePicture => self.delete_picture(),
             Control::MovePicture => self.move_picture(),
+            Control::MovePictureToLabel => self.move_picture_to_label(),
             Control::RankNoStar => self.rank_selected_pictures(Rank::NoStar),
             Control::RankOneStar => self.rank_selected_pictures(Rank::OneStar),
             Control::RankTwoStars => self.rank_selected_pictures(Rank::TwoStars),
@@ -1144,26 +1154,29 @@ impl Controller {
         }
     }
 
+    fn move_selected_pictures_to_target(&mut self, target_dir: &str) {
+        let mut picture_count = 0;
+        let mut operation_count = 0;
+        for index in self.navigator.selection() {
+            match self.repository.move_picture_at_index(index, target_dir) {
+                Ok(count) => {
+                    picture_count += 1;
+                    operation_count += count;
+                },
+                Err(err) => {
+                    println!("{}", err);
+                },
+            }
+        };
+        println!(
+            "{} pictures moved to {}\n{} operations\nexiting gsr",
+            picture_count, target_dir, operation_count
+        );
+        self.reload()
+    }
     fn move_selected_pictures(&mut self) {
-        if let Some(target_dir) = &self.args.r#move {
-            let mut picture_count = 0;
-            let mut operation_count = 0;
-            for index in self.navigator.selection() {
-                match self.repository.move_picture_at_index(index, target_dir) {
-                    Ok(count) => {
-                        picture_count += 1;
-                        operation_count += count;
-                    },
-                    Err(err) => {
-                        println!("{}", err);
-                    },
-                }
-            };
-            println!(
-                "{} pictures moved to {}\n{} operations\nexiting gsr",
-                picture_count, target_dir, operation_count
-            );
-            self.reload()
+        if let Some(target_dir) = &self.args.clone().r#move {
+            self.move_selected_pictures_to_target(&target_dir);
         }
     }
     pub fn cancel_delete_picture(&mut self) {
@@ -1180,6 +1193,10 @@ impl Controller {
 
     pub fn confirm_move_picture(&mut self) {
         self.move_selected_pictures()
+    }
+
+    pub fn confirm_move_picture_to_label(&mut self, directory: &str) {
+        self.move_selected_pictures_to_target(directory);
     }
 
     pub fn cancel_move_picture(&mut self) {
@@ -1205,6 +1222,57 @@ impl Controller {
             self.state.set_mode(Mode::Editing);
         }
     }
+    fn check_move_destination_label(&self) -> Option<String> {
+        let mut label: Option<String> = None;
+        let mut grand_parent: Option<String> = None;
+
+        if let Ok(gallery) = self.repository.gallery_rc().try_borrow() {
+            if self.navigator.has_selected() {
+                for index in 0..self.navigator.limit() {
+                    if self.navigator.is_selected(index) {
+                        let picture = gallery.picture(index);
+                        let this_label = picture.label();
+                        if let Some(directory) = grand_parent_directory(&picture.file_path()) {
+                            if label == None {
+                                label = Some(this_label);
+                                grand_parent = Some(directory);
+                            } else if this_label != label.clone().unwrap() {
+                                return None
+                            } else if directory != grand_parent.clone().unwrap() {
+                                return None
+                            }
+                        } else {
+                            return None
+                        }
+                    }
+                };
+                let mut path = PathBuf::from(grand_parent.unwrap());
+                let addendum = PathBuf::from(label.clone().unwrap());
+                let candidate = path.join(addendum.clone());
+                let result = check_path_exists(&candidate);
+                match result {
+                    Ok(valid_path) => Some(valid_path.to_str().unwrap().to_string()),
+                    Err(e) => { 
+                        eprintln!("{}", e);
+                        None
+                    }
+                }
+            } else {
+                None
+            }
+        } else {
+            panic!("can't borrow");
+        }
+    }
+
+    pub fn move_picture_to_label(&mut self) {
+        if let Some(target_dir) = self.check_move_destination_label() {
+            self.editor
+                .begin(&self.main_window(), EntryKind::MoveToLabelConfirmation(target_dir), None);
+            self.state.set_mode(Mode::Editing);
+            }
+    }
+
     pub fn acknowledge_grid_size_change(&mut self) {
         self.state.acknowledge_grid_size_change();
     }

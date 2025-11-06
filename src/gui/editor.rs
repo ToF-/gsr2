@@ -51,6 +51,7 @@ impl Editor {
             }
             EntryKind::DeleteConfirmation => "Delete these pictures?",
             EntryKind::MoveConfirmation => "Move these pictures?",
+            EntryKind::MoveToLabelConfirmation(ref target) => &format!("Move these pictures to {} ?", target),
             EntryKind::Find => "Enter a part of the picture file name",
             EntryKind::FindLabel => "Enter a part of the picture label",
             EntryKind::Information => "Current picture",
@@ -187,7 +188,7 @@ impl Editor {
         };
         let ch_is_ok = match self.entry_kind {
             EntryKind::Number => ch.is_ascii_digit(),
-            EntryKind::DeleteConfirmation | EntryKind::MoveConfirmation => {
+            EntryKind::DeleteConfirmation | EntryKind::MoveConfirmation | EntryKind::MoveToLabelConfirmation(_) => {
                 matches!(ch, 'e' | 'n' | 'o' | 's' | 'y')
             }
             | EntryKind::Find

@@ -7,6 +7,7 @@ pub enum EntryKind {
     Order,
     DeleteConfirmation,
     MoveConfirmation,
+    MoveToLabelConfirmation(String),
     Find,
     FindLabel,
     Information,
