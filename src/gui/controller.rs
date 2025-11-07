@@ -638,19 +638,19 @@ impl Controller {
     }
 
     pub fn next_slide_delay(&mut self) {
-        self.move_next();
+        self.move_towards(Direction::NextPage);
         self.main_window().set_pictures(self)
     }
 
     pub fn process_control(&mut self, control: &Control) {
         match control {
-            Control::MoveNext => self.move_next(),
-            Control::MovePrev => self.move_prev(),
-            Control::MoveLast => self.move_last(),
-            Control::MoveFirst => self.move_first(),
-            Control::MoveStartPage => self.move_start(),
+            Control::MoveNext => self.move_towards(Direction::NextPage),
+            Control::MovePrev => self.move_towards(Direction::PrevPage),
+            Control::MoveLast => self.move_towards(Direction::Last),
+            Control::MoveFirst => self.move_towards(Direction::First),
+            Control::MoveStartPage => self.move_towards(Direction::PageStart),
             Control::MoveRandom => self.move_random(),
-            Control::MoveEndPage => self.move_end(),
+            Control::MoveEndPage => self.move_towards(Direction::PageEnd),
             Control::Left => self.arrow_move(Direction::Left),
             Control::Right => self.arrow_move(Direction::Right),
             Control::Up => self.arrow_move(Direction::Up),
@@ -992,7 +992,7 @@ impl Controller {
     pub fn reload(&mut self) {
         match self.load_gallery() {
             Ok(_) => {
-                self.move_first();
+                self.move_towards(Direction::First);
                 self.navigator.set_page_changed();
             }
             Err(e) => {
@@ -1306,51 +1306,24 @@ impl Controller {
         self.main_window().full_size_arrow_move(direction.clone())
     }
 
-    pub fn move_next(&mut self) {
-        let navigator = &mut self.navigator;
-        if !self.state.full_size_on() {
-            if self.state.single_view() {
-                if navigator.can_move(Direction::Right) {
-                    navigator.move_towards(Direction::Right);
-                }
-            } else if navigator.can_move_next_page() {
-                navigator.move_next_page();
+    fn can_move(&mut self, direction: Direction) -> bool {
+        !self.state.full_size_on() && self.navigator.can_move(direction)
+    }
+
+    fn move_towards(&mut self, direction: Direction) {
+        match direction {
+            Direction::NextPage if self.state.single_view() => self.move_towards(Direction::Right),
+            Direction::PrevPage if self.state.single_view() => self.move_towards(Direction::Left),
+            ref other => if self.can_move(other.clone()) {
+                self.navigator.move_towards(other.clone());
             }
-        }
-    }
-
-    pub fn move_prev(&mut self) {
-        let navigator = &mut self.navigator;
-        if !self.state.full_size_on() {
-            if self.state.single_view() {
-                if navigator.can_move(Direction::Left) {
-                    navigator.move_towards(Direction::Left);
-                }
-            } else if navigator.can_move_prev_page() {
-                navigator.move_prev_page();
-            }
-        }
-    }
-
-    pub fn move_first(&mut self) {
-        let navigator = &mut self.navigator;
-        if !self.state.full_size_on() {
-            navigator.move_towards(Direction::First);
-        }
-    }
-
-    pub fn move_last(&mut self) {
-        let navigator = &mut self.navigator;
-        if !self.state.full_size_on() {
-            navigator.move_towards(Direction::Last);
         }
     }
 
     pub fn move_random(&mut self) {
-        let navigator = &mut self.navigator;
-        let value: usize = rng().random_range(0..navigator.limit());
-        if navigator.can_move(Direction::Index { value }) {
-            navigator.move_towards(Direction::Index { value });
+        let value: usize = rng().random_range(0..self.navigator.limit());
+        if self.can_move(Direction::Index { value }) {
+            self.move_towards(Direction::Index { value });
         }
     }
 
