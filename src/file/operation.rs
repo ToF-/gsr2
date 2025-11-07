@@ -131,7 +131,8 @@ pub fn execute(database: &Database, operations: &Vec<Operation>) -> IOResult<()>
 mod test {
     use super::*;
     use crate::file::database::tests::my_db;
-    use crate::file::paths::{current_directory, home_directory};
+    use crate::file::paths::test::current_directory;
+    use crate::file::paths::home_directory;
     use crate::test_data::*;
     use serial_test::serial;
     use std::fs::{File, remove_file};

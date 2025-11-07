@@ -225,7 +225,7 @@ mod tests {
     use crate::env::default_values::TEST_DATABASE_FILE;
     use crate::file::database::Database;
     use crate::file::database::tests::{dummy_args, my_args, my_db};
-    use crate::file::paths::current_directory;
+    use crate::file::paths::test::current_directory;
     use crate::test_data;
     use crate::test_data::*;
     use serial_test::serial;

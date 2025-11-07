@@ -2,23 +2,11 @@ use crate::env::default_values::GARBAGE;
 use crate::env::default_values::THUMB_SUFFIX;
 use crate::env::default_values::VALID_EXTENSIONS;
 use crate::model::thumbnail::{thumbnail_size_display, thumbnail_size_for};
-use std::env::current_dir;
 use std::env::home_dir;
 use std::ffi::OsStr;
 use std::io::{Error, ErrorKind, Result};
 use std::path::{Path, PathBuf};
 
-pub fn file_path_to_string(path: &Path) -> String {
-    path.file_name()
-        .expect("can't convert path to file_name")
-        .to_str()
-        .expect("can't convert file_name to str")
-        .to_string()
-}
-
-pub fn current_directory() -> String {
-    current_dir().unwrap().display().to_string()
-}
 pub fn home_directory() -> String {
     home_dir()
         .map(|path| path.display().to_string())
@@ -323,7 +311,11 @@ mod tests {
 
 #[cfg(test)]
 
-mod test {
+pub mod test {
     use super::*;
     use std::env::current_dir;
+
+    pub fn current_directory() -> String {
+        current_dir().unwrap().display().to_string()
+    }
 }

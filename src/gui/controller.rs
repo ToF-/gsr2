@@ -30,10 +30,9 @@ use gtk::{self, gdk};
 use rand::Rng;
 use rand::rng;
 use std::cell::RefCell;
-use std::collections::HashSet;
 use std::io::Error as IOError;
 use std::io::Result as IOResult;
-use std::path::{Path,PathBuf};
+use std::path::PathBuf;
 use std::rc::Rc;
 
 #[derive(Debug)]
@@ -95,10 +94,6 @@ impl Controller {
 
     pub fn navigator(&self) -> Navigator {
         self.navigator.clone()
-    }
-
-    pub fn labels(&self) -> HashSet<String> {
-        self.repository.all_labels()
     }
 
     pub fn current_picture(&self) -> Picture {
@@ -649,7 +644,7 @@ impl Controller {
             Control::MoveLast => self.move_towards(Direction::Last),
             Control::MoveFirst => self.move_towards(Direction::First),
             Control::MoveStartPage => self.move_towards(Direction::PageStart),
-            Control::MoveRandom => self.move_random(),
+            Control::MoveRandom => self.move_towards(Direction::Index { value: rng().random_range(0..self.navigator.limit()) }),
             Control::MoveEndPage => self.move_towards(Direction::PageEnd),
             Control::Left => self.arrow_move(Direction::Left),
             Control::Right => self.arrow_move(Direction::Right),
@@ -1246,7 +1241,7 @@ impl Controller {
                         }
                     }
                 };
-                let mut path = PathBuf::from(grand_parent.unwrap());
+                let path = PathBuf::from(grand_parent.unwrap());
                 let addendum = PathBuf::from(label.clone().unwrap());
                 let candidate = path.join(addendum.clone());
                 let result = check_path_exists(&candidate);
@@ -1277,20 +1272,6 @@ impl Controller {
         self.state.acknowledge_grid_size_change();
     }
 
-    pub fn move_start(&mut self) {
-        let navigator = &mut self.navigator;
-        if navigator.can_move(Direction::PageStart) {
-            navigator.move_towards(Direction::PageStart);
-        }
-    }
-
-    pub fn move_end(&mut self) {
-        let navigator = &mut self.navigator;
-        if navigator.can_move(Direction::PageEnd) {
-            navigator.move_towards(Direction::PageEnd);
-        }
-    }
-
     pub fn arrow_move(&mut self, direction: Direction) {
         if self.state().single_view() && self.state().full_size_on() {
             self.full_size_arrow_move(direction)
@@ -1317,13 +1298,6 @@ impl Controller {
             ref other => if self.can_move(other.clone()) {
                 self.navigator.move_towards(other.clone());
             }
-        }
-    }
-
-    pub fn move_random(&mut self) {
-        let value: usize = rng().random_range(0..self.navigator.limit());
-        if self.can_move(Direction::Index { value }) {
-            self.move_towards(Direction::Index { value });
         }
     }
 

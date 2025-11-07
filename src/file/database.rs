@@ -10,7 +10,7 @@ use crate::model::selection::Selection;
 use crate::model::tags::Tags;
 use rusqlite::Error::InvalidPath;
 use rusqlite::{Connection, Result as SqlResult, Row, params};
-use std::cell::{Ref, RefCell};
+use std::cell::RefCell;
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::io::Error as IOError;
@@ -370,10 +370,6 @@ impl Database {
              Cover                      \n\
              FROM Picture              \n"; // "
 
-    const WHERE_COVER: &str = "WHERE Cover = true \n";
-
-    const ORDER_FILE_PATH: &str = "ORDER BY FilePath \n";
-
     // select * from picture where concat(substring(filepath,1,23), substring(filepath,24)) = filepath ;
     fn select_parent_dir(parent_dir: String) -> String {
         let parent = file_path_as_stored(&parent_dir);
@@ -529,7 +525,7 @@ pub mod tests {
     use crate::cli::args::Args;
     use crate::env::configuration::Configuration;
     use crate::env::default_values::TEST_DATABASE_FILE;
-    use crate::file::paths::current_directory;
+    use crate::file::paths::test::current_directory;
     use crate::file::picture_file::get_data_from_picture_file;
     use crate::get_configuration;
     use crate::model::image_data::TimeStamp;

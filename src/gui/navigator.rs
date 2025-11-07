@@ -210,7 +210,6 @@ impl Navigator {
     }
 
     pub fn move_towards(&mut self, direction: Direction) {
-        println!("navigator.move_towards({:?})", direction);
         self.old_position = self.position;
         match direction {
             Direction::Right => self.position += 1,

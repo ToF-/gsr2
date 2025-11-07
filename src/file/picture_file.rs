@@ -208,7 +208,7 @@ pub fn move_picture_files(file_path: &str, target_dir: &str) -> IOResult<u64> {
 pub mod test {
 
     use super::*;
-    use crate::file::paths::current_directory;
+    use crate::file::paths::test::current_directory;
     use crate::file::paths::thumbnail_name_from;
     use crate::test_data::*;
     use serial_test::serial;

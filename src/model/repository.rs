@@ -194,7 +194,7 @@ impl Repository {
                     println!("{} pictures added", count);
                     Ok(())
                 },
-                Err(e) => return Err(e),
+                Err(e) => Err(e),
             }
         } else {
             panic!("can't borrow mut")
@@ -455,7 +455,7 @@ impl Repository {
         use crate::env::configuration::tests::my_cfg;
         use crate::file::database::tests::my_args;
         use crate::file::database::tests::my_db;
-        use crate::file::paths::current_directory;
+        use crate::file::paths::test::current_directory;
         use crate::model::order::Order;
         use crate::test_data::NINE_COLORS;
         use crate::test_data::TEST_DATA_DIR;
