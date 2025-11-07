@@ -198,6 +198,7 @@ impl Database {
     }
 
     pub fn delete_picture_with_file_path(&self, file_path: &str) -> IOResult<usize> {
+        println!("DELETE {}", file_path_as_stored(file_path));
         match self.rusqlite_delete_picture_with_file_path(file_path) {
             Ok(n) => Ok(n),
             Err(err) => Err(std::io::Error::other(err)),

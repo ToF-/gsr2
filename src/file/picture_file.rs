@@ -110,6 +110,7 @@ pub fn collect_picture_data(picture: &Picture) -> IOResult<Picture> {
 pub fn delete_picture_file(file_path: &str) -> IOResult<()> {
     let path = Path::new(file_path);
     if path.exists() {
+        println!("delete {}", path.to_str().unwrap());
         let _ = remove_file(path);
         Ok(())
     } else {
