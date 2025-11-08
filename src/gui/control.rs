@@ -19,6 +19,8 @@ pub enum Control {
     Right,
     Up,
     Down,
+    MoveUndo,
+    MoveRedo,
     MoveNext,
     MovePrev,
     MoveLast,
@@ -133,6 +135,8 @@ pub fn default_controls() -> Controls {
         ((String::from("A"), Mode::View), Control::MoveFirst),
         ((String::from("a"), Mode::View), Control::MoveStartPage),
         ((String::from("z"), Mode::View), Control::MoveEndPage),
+        ((String::from("u"), Mode::View), Control::MoveUndo),
+        ((String::from("U"), Mode::View), Control::MoveRedo),
         ((String::from("c"), Mode::View), Control::ToggleCover),
         ((String::from("C"), Mode::View), Control::ToggleCoverSelection),
         ((String::from("e"), Mode::View), Control::ToggleExpand),
@@ -285,7 +289,7 @@ mod tests {
         );
         assert_eq!(
             Some(&Control::Quit),
-            default_controls().get(&(String::from("q"), V))
+            default_controls().get(&(String::from("Q"), V))
         );
         assert_eq!(
             Some(&Control::Label),

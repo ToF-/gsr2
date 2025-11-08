@@ -15,6 +15,8 @@ pub struct Navigator {
     range_end: Option<usize>,
     range_opt: Option<(usize, usize)>,
     selected_pictures: HashSet<usize>,
+    moves: Vec<usize>,
+    move_index: usize,
 }
 
 impl Navigator {
@@ -31,6 +33,8 @@ impl Navigator {
             range_end: None,
             range_opt: None,
             selected_pictures: HashSet::new(),
+            moves: vec![],
+            move_index: 0,
         };
         result.update_page_limits();
         result
@@ -224,7 +228,47 @@ impl Navigator {
             Direction::PrevPage => return self.move_towards(Direction::Index { value: self.prev_page_start() }),
             Direction::NextPage => return self.move_towards(Direction::Index { value: self.next_page_start() }),
         };
+        if self.position != self.old_position {
+            self.moves.push(self.old_position);
+            self.move_index += 1;
+        }
         self.update_page_limits();
+    }
+
+    pub fn move_undo(&mut self) -> Option<usize> {
+        if self.moves.len() > 0
+            && self.move_index > 0 {
+                Some(self.moves[self.move_index - 1])
+        } else {
+            None
+        }
+    }
+
+    pub fn move_redo(&mut self) -> Option<usize> {
+        if self.moves.len() > 0
+            && self.move_index < self.moves.len() - 1 {
+                Some(self.moves[self.move_index + 1])
+        } else {
+            None
+        }
+    }
+
+    pub fn undo_move(&mut self) {
+        if let Some(position) = self.move_undo() {
+            self.old_position = self.position;
+            self.move_index -= 1;
+            self.position = position;
+            self.update_page_limits()
+        }
+    }
+
+    pub fn redo_move(&mut self) {
+        if let Some(position) = self.move_redo() {
+            self.old_position = self.position;
+            self.move_index += 1;
+            self.position = position;
+            self.update_page_limits()
+        }
     }
 
     pub fn update_page_limits(&mut self) {
@@ -597,5 +641,41 @@ mod tests {
         navigator.set_range(6);
         navigator.set_range(2);
         assert_eq!(vec![2, 3, 4, 5, 6], navigator.selection());
+    }
+    #[test]
+    fn can_undo_moves() {
+        let mut navigator = Navigator::new(10, 2);
+        assert_eq!(None, navigator.move_undo());
+        navigator.move_towards(Direction::Index { value: 2 });
+        assert_eq!(Some(0), navigator.move_undo());
+        navigator.move_towards(Direction::Index { value: 6 });
+        assert_eq!(Some(2), navigator.move_undo());
+        navigator.move_towards(Direction::Index { value: 4 });
+        assert_eq!(Some(6), navigator.move_undo());
+        navigator.undo_move();
+        assert_eq!(6, navigator.position());
+        navigator.undo_move();
+        assert_eq!(2, navigator.position());
+    }
+    #[test]
+    fn can_redo_moves() {
+        let mut navigator = Navigator::new(10, 2);
+        assert_eq!(None, navigator.move_undo());
+        navigator.move_towards(Direction::Index { value: 2 });
+        navigator.move_towards(Direction::Index { value: 6 });
+        navigator.move_towards(Direction::Index { value: 4 });
+        navigator.undo_move();
+        navigator.undo_move();
+        navigator.undo_move();
+        assert_eq!(0, navigator.position());
+        println!("{:?}", navigator);
+        navigator.redo_move();
+        println!("{:?}", navigator);
+        assert_eq!(2, navigator.position());
+        navigator.redo_move();
+        println!("{:?}", navigator);
+        assert_eq!(6, navigator.position());
+        println!("{:?}", navigator);
+        assert_eq!(Some(4), navigator.move_redo());
     }
 }
