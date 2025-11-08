@@ -94,6 +94,7 @@ impl PictureGrid {
                 picture.rank(),
                 picture.cover(),
                 with_focus,
+                picture.image_data().map(|d| d.size()),
             ))
         }
     }

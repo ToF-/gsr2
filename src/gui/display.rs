@@ -1,5 +1,6 @@
+use crate::model::image_data::FileSize;
 use crate::env::default_values::{
-    COVER_SYMBOL, EXPAND_ON_SYMBOL, FULL_SIZE_ON_SYMBOL, ORDER_SYMBOL,
+    SMALL_PICTURE_SYMBOL, COVER_SYMBOL, EXPAND_ON_SYMBOL, FULL_SIZE_ON_SYMBOL, ORDER_SYMBOL, PICTURE_SIZE_THRESHOLD
 };
 use crate::gui::controller::Controller;
 use crate::model::cover::Cover;
@@ -44,9 +45,11 @@ pub fn picture_label_display(
     rank: Rank,
     cover: Cover,
     with_focus: Option<char>,
+    size_opt: Option<FileSize>,
 ) -> String {
     format!(
-        "{} {} {} {}",
+        "{}{} {} {} {}",
+        small_picture_display(size_opt),
         cover_display(cover),
         if let Some(symbol) = with_focus {
             symbol
@@ -92,6 +95,19 @@ fn tag_display(tags: Tags) -> String {
     }
 }
 
+pub fn small_picture_display(size_opt: Option<FileSize>) -> String {
+    format!("{}",
+        if let Some(size) = size_opt {
+            if size < PICTURE_SIZE_THRESHOLD {
+                SMALL_PICTURE_SYMBOL
+            } else {
+                '\0'
+            }
+        } else {
+            '?'
+        })
+}
+
 pub fn title_display(controller: &Controller) -> String {
     if controller.state().display_information_on() {
         format!("{}", controller.current_picture().file_path())
@@ -106,7 +122,8 @@ pub fn title_display(controller: &Controller) -> String {
             panic!("can't borrow")
         };
         format!(
-            "{} #{} {} {} {} {} {} {} {} {} {}{} {}",
+            "{}{} #{} {} {} {} {} {} {} {} {} {}{} {}",
+            small_picture_display(current_picture.image_data().map(|d| d.size())),
             cover_display(current_picture.cover()),
             controller.navigator().position(),
             page_display(controller),

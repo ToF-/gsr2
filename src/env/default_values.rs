@@ -1,7 +1,9 @@
+use crate::model::image_data::FileSize;
 pub const DEFAULT_HEIGHT: i32 = 1000;
 pub const DEFAULT_WIDTH: i32 = 1000;
 pub const ENTRY_WINDOW_WIDTH: i32 = 250;
 pub const ENTRY_WINDOW_HEIGHT: i32 = 100;
+pub const SMALL_PICTURE_SYMBOL: char = '․';
 pub const ENTRY_CURSOR_1: char = '▪';
 pub const ENTRY_CURSOR_2: char = '▫';
 pub const FOCUS_SYMBOL_1: char = '⭓'; // '◆';
@@ -39,6 +41,7 @@ pub const PALETTE_AREA_HEIGHT: i32 = 10;
 pub const PALETTE_AREA_WIDTH: i32 = 90;
 #[allow(dead_code)]
 pub const SCROLL_STEP: f64 = 100.0;
+pub const PICTURE_SIZE_THRESHOLD: FileSize = 20000;
 pub const THUMB_SUFFIX: &str = "THUMB";
 pub const VALID_EXTENSIONS: [&str; 6] = ["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"];
 pub const GARBAGE: &str = "!:";
