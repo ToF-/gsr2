@@ -101,10 +101,10 @@ pub fn small_picture_display(size_opt: Option<FileSize>) -> String {
             if size < PICTURE_SIZE_THRESHOLD {
                 SMALL_PICTURE_SYMBOL
             } else {
-                '\0'
+                " "
             }
         } else {
-            '?'
+            "?"
         })
 }
 
