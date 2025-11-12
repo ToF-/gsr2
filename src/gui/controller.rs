@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use crate::file::paths::check_path_exists;
 use crate::file::paths::grand_parent_directory;
 use regex::Regex;
@@ -45,6 +46,7 @@ pub struct Controller {
     main_window_opt: Option<MainWindow>,
     editor: Editor,
     last_action: Action,
+    marked: HashMap<char,String>,
 }
 
 pub type RcController = Rc<RefCell<Controller>>;
@@ -70,6 +72,7 @@ impl Controller {
             ),
             main_window_opt: None,
             last_action: Action::NoAction,
+            marked: HashMap::new(),
         })
     }
 
@@ -640,7 +643,9 @@ impl Controller {
     }
     
     pub fn set_mark(&mut self, mark: char) {
-        println!("now setting mark {} on current picture", mark);
+        let file_path = self.current_picture().file_path();
+        let _ = self.marked.insert(mark, file_path.clone());
+        println!("{}={}",mark, file_path);
     }
     pub fn setting_order(&mut self) {
         self.editor
@@ -976,7 +981,25 @@ impl Controller {
     }
 
     pub fn find_mark(&mut self, mark: char) {
-        println!("now finding picture with mark {}", mark);
+        if let Some(file_path) = self.marked.get(&mark) {
+            if let Ok(gallery) = self.repository.gallery_rc().try_borrow() {
+                if let Some(index) = gallery
+                    .pictures()
+                        .iter()
+                        .position(|picture| picture.file_path() == *file_path)
+                {
+                        let navigator = &mut self.navigator;
+                        navigator.move_towards(Direction::Index { value: index });
+                        navigator.set_page_changed()
+                } else {
+                    println!("mark: {} not found", mark);
+                }
+            } else {
+                panic!("can't borrow")
+            }
+        } else {
+            println!("no picture with mark {}", mark);
+        }
     }
 
     pub fn find_pattern(&mut self, pattern: &str, in_label: bool) {

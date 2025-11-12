@@ -2,6 +2,7 @@
 ## Gallery Show in Rust
 
 ## Todo
+- [X] set marks a,b,c,d,e and jump to these marks
 - [X] move a picture with filepath Y/X/Z and label A to Y/X/A
 - [X] a command can toggle covers / whole view
 - [X] when on a cover picture, title display the parent dir and length

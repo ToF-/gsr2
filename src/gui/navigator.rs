@@ -15,6 +15,7 @@ pub struct Navigator {
     range_end: Option<usize>,
     range_opt: Option<(usize, usize)>,
     selected_pictures: HashSet<usize>,
+
 }
 
 impl Navigator {
