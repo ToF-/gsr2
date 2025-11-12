@@ -646,8 +646,6 @@ impl Controller {
             Control::MoveStartPage => self.move_towards(Direction::PageStart),
             Control::MoveRandom => self.move_towards(Direction::Index { value: rng().random_range(0..self.navigator.limit()) }),
             Control::MoveEndPage => self.move_towards(Direction::PageEnd),
-            Control::MoveUndo => self.move_undo(),
-            Control::MoveRedo => self.move_redo(),
             Control::Left => self.arrow_move(Direction::Left),
             Control::Right => self.arrow_move(Direction::Right),
             Control::Up => self.arrow_move(Direction::Up),
@@ -1303,21 +1301,6 @@ impl Controller {
         }
     }
 
-    pub fn move_undo(&mut self) {
-        if let Some(position) = self.navigator.move_undo() {
-            if self.can_move(Direction::Index { value: position }) {
-                self.navigator.undo_move();
-            }
-        }
-    }
-
-    pub fn move_redo(&mut self) {
-        if let Some(position) = self.navigator.move_redo() {
-            if self.can_move(Direction::Index { value: position }) {
-                self.navigator.redo_move();
-            }
-        }
-    }
     pub fn repeat_last_action(&mut self) {
         let action = self.last_action.clone();
         match action {
