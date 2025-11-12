@@ -725,6 +725,7 @@ impl Controller {
             Control::RepeatRange => self.repeat_range(),
             Control::ToggleSelected => self.toggle_selected(),
             Control::CancelRange => self.cancel_range(),
+            Control::CopyTemp => self.copy_to_temp(),
             Control::DeletePicture => self.delete_picture(),
             Control::MovePicture => self.move_picture(),
             Control::MovePictureToLabel => self.move_picture_to_label(),
@@ -1252,6 +1253,15 @@ impl Controller {
         let navigator = &mut self.navigator;
         navigator.cancel_range();
         self.navigator.set_page_changed()
+    }
+
+    pub fn copy_to_temp(&mut self) {
+        match self.repository.copy_picture_at_index_to_temp_dir(self.navigator.position()) {
+            Ok(_) => {},
+            Err(e) => {
+                eprintln!("{}", e);
+            },
+        }
     }
 
     pub fn delete_picture(&mut self) {

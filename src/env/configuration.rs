@@ -11,6 +11,7 @@ pub struct Configuration {
     pub width: i32,
     pub height: i32,
     pub database_file: String,
+    pub temp_dir: String,
 }
 
 pub fn config_file_location() -> String {

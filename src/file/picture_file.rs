@@ -1,3 +1,4 @@
+use crate::file::paths::file_path_as_retrieved;
 use crate::env::default_values::THUMB_SUFFIX;
 use crate::file::paths::check_collectable;
 use crate::file::paths::thumbnail_name_from;
@@ -15,7 +16,7 @@ use crate::model::thumbnail::create_thumbnail_file;
 use std::collections::HashSet;
 use std::fs;
 use std::fs::{copy, remove_file};
-use std::io::Error;
+use std::io::Error as IOError;
 use std::io::Result as IOResult;
 use std::path::Path;
 use std::path::PathBuf;
@@ -42,6 +43,23 @@ pub fn get_all_picture_file_paths(path: &str) -> IOResult<Vec<String>> {
 
 pub fn get_picture_file_path(file_path: &str) -> IOResult<String> {
     check_picture_file(file_path)
+}
+
+pub fn copy_picture_file_to_directory(file_path: &str, target: &str) -> IOResult<()> {
+    let source: PathBuf = PathBuf::from(file_path_as_retrieved(file_path));
+    let mut target: PathBuf = PathBuf::from(target);
+    match source.file_name() {
+        Some(file_name) => {
+            target.push(file_name);
+            match copy(&source, &target) {
+                Ok(_) => Ok(()),
+                Err(e) => Err(IOError::other(e)),
+            }
+        },
+        None => {
+            Err(IOError::other(format!("can't extract file name of {}", file_path)))
+        },
+    }
 }
 
 pub fn create_missing_thumbnails(gallery: &Gallery, pictures_per_row: usize) {
@@ -188,13 +206,13 @@ pub fn move_picture_files(file_path: &str, target_dir: &str) -> IOResult<u64> {
                         );
                         Ok(1)
                     } else {
-                        Err(Error::other(format!(
+                        Err(IOError::other(format!(
                             "same source and target: {}",
                             source_file_path.display()
                         )))
                     }
                 } else {
-                    Err(Error::other(format!(
+                    Err(IOError::other(format!(
                         "can't file file name in {}",
                         file_path
                     )))

@@ -1,3 +1,4 @@
+use crate::file::picture_file::copy_picture_file_to_directory;
 use regex::Regex;
 use crate::file::picture_file::delete_picture_files;
 use crate::cli::command::Command;
@@ -30,6 +31,7 @@ pub struct Repository {
     parent_dirs: HashMap<String, (usize, usize)>,
     selection: Selection,
     len: usize,
+    temp_dir: String,
 }
 
 impl Repository {
@@ -44,6 +46,7 @@ impl Repository {
             parent_dirs: HashMap::new(),
             selection: Selection::from_args(&args),
             len: 0,
+            temp_dir: configuration.temp_dir,
         }
     }
 
@@ -443,6 +446,16 @@ impl Repository {
                         Err(err) => Err(err),
                     }
                 }
+            },
+            Err(e) => Err(IOError::other(e)),
+        }
+    }
+    pub fn copy_picture_at_index_to_temp_dir(&self, index: usize) -> IOResult<()> {
+        match self.gallery_rc().try_borrow() {
+            Ok(gallery) => {
+                let picture = gallery.picture(index);
+                println!("copying {} to {}", &picture.file_path(), &self.temp_dir);
+                copy_picture_file_to_directory(&picture.file_path(), &self.temp_dir)
             },
             Err(e) => Err(IOError::other(e)),
         }

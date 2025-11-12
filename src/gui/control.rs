@@ -3,6 +3,7 @@ use std::collections::HashMap;
 
 #[derive(PartialEq, Eq, Hash, Clone, Copy, Debug)]
 pub enum Control {
+    CopyTemp,
     ConfirmEdition,
     CancelEdition,
     Complete,
@@ -114,6 +115,7 @@ pub fn help_on_controls() -> String {
 // these default controls are valid on my ergodox bepo modified
 pub fn default_controls() -> Controls {
     let controls: Controls = HashMap::from([
+        ((String::from("question"), Mode::View), Control::CopyTemp),
         (
             (String::from("Escape"), Mode::Editing),
             Control::CancelEdition,

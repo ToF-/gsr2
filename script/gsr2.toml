@@ -1,4 +1,5 @@
 database_file = 'testdata/gsr2.db'
+temp_dir='testdata/subdir'
 width = 800
 height = 800
 cover = "🔺"
