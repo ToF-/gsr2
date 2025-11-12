@@ -601,6 +601,14 @@ impl Controller {
 
     pub fn set_setting(&mut self, setting: &Control, choice: &Control) {
         match setting {
+            Control::SetMark => match choice {
+                Control::SetMarkA
+                | Control::SetMarkB
+                | Control::SetMarkC
+                | Control::SetMarkD
+                | Control::SetMarkE => self.process_control(choice),
+                _ => println!("?"),
+            }
             Control::SetDisplay => match choice {
                 Control::DisplayDate | Control::DisplaySize => self.process_control(choice),
                 Control::DisplayFocus => self.toggle_display_focus_symbol_change(),
@@ -626,6 +634,14 @@ impl Controller {
         self.state.set_mode(Mode::Setting(Control::SetDisplay));
     }
 
+    pub fn setting_mark(&mut self) {
+        println!("Setting mark…");
+        self.state.set_mode(Mode::Setting(Control::SetMark));
+    }
+    
+    pub fn set_mark(&mut self, mark: char) {
+        println!("now setting mark {} on current picture", mark);
+    }
     pub fn setting_order(&mut self) {
         self.editor
             .begin(&self.main_window(), EntryKind::Order, None);
@@ -659,6 +675,11 @@ impl Controller {
             Control::ToggleSlideShow => self.toggle_slideshow(),
             Control::TogglePalette => self.toggle_palette(),
             Control::Jump => self.jump(),
+            Control::JumpMarkA => self.find_mark('A'),
+            Control::JumpMarkB => self.find_mark('B'),
+            Control::JumpMarkC => self.find_mark('C'),
+            Control::JumpMarkD => self.find_mark('D'),
+            Control::JumpMarkE => self.find_mark('E'),
             Control::Find => self.find(),
             Control::Help => self.help(),
             Control::FindLabel => self.find_label(),
@@ -674,6 +695,12 @@ impl Controller {
             Control::GridFive => self.change_grid_size(5),
             Control::GridTen => self.change_grid_size(10),
             Control::SetDisplay => self.setting_display(),
+            Control::SetMark => self.setting_mark(),
+            Control::SetMarkA => self.set_mark('A'),
+            Control::SetMarkB => self.set_mark('B'),
+            Control::SetMarkC => self.set_mark('C'),
+            Control::SetMarkD => self.set_mark('D'),
+            Control::SetMarkE => self.set_mark('E'),
             Control::SetOrder => self.setting_order(),
             Control::SetSelection => self.set_selection(),
             Control::SetRestriction => self.set_restriction(),
@@ -946,6 +973,10 @@ impl Controller {
         self.state.toggle_display_information_on();
         let navigator = &mut self.navigator;
         navigator.set_page_changed()
+    }
+
+    pub fn find_mark(&mut self, mark: char) {
+        println!("now finding picture with mark {}", mark);
     }
 
     pub fn find_pattern(&mut self, pattern: &str, in_label: bool) {
