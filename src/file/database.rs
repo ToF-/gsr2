@@ -97,7 +97,7 @@ impl Database {
              image_data.palette().sample_as_array(),
              image_data.palette.count(),
              cover_to_bool(image_data.cover()),
-             ],).and_then(|count| {
+             ],).map(|count| {
             let mut tag_count = 0;
             for tag in image_data.tags() {
                 match connection.execute(
@@ -113,7 +113,7 @@ impl Database {
                     }
                 }
             }
-            Ok(count + tag_count)
+            count + tag_count
             })
     }
 
@@ -267,12 +267,12 @@ impl Database {
             )
             .and_then(|mut statement| {
                 let mut map: HashSet<String> = HashSet::new();
-                statement.query([]).and_then(|mut rows| {
+                statement.query([]).map(|mut rows| {
                     while let Some(row) = rows.next().unwrap() {
                         let label: String = row.get(0).expect("can't access to column Label");
                         let _ = map.insert(label);
                     }
-                    Ok(map)
+                    map
                 })
             })
     }
@@ -287,7 +287,7 @@ impl Database {
             )
             .and_then(|mut statement| {
                 let mut map: HashMap<String, HashSet<String>> = HashMap::new();
-                statement.query([]).and_then(|mut rows| {
+                statement.query([]).map(|mut rows| {
                     while let Some(row) = rows.next().unwrap() {
                         let file_path: String =
                             row.get(0).expect("can't access to column FilePath");
@@ -301,7 +301,7 @@ impl Database {
                             map.insert(file_path_as_retrieved, tags);
                         };
                     }
-                    Ok(map)
+                    map
                 })
             })
     }
@@ -419,7 +419,7 @@ impl Database {
                                 && (label.clone().is_none()
                                     || *label.as_ref().unwrap() == new_image_data.label())
                                 && (pattern.clone().is_none()
-                                    || pattern.as_ref().unwrap().is_match(&file_path))
+                                    || pattern.as_ref().unwrap().is_match(file_path))
                             {
                                 let picture =
                                     Picture::new_with_image_data(file_path, &new_image_data);
@@ -483,7 +483,7 @@ impl Database {
         connection.prepare(sql_query)
             .and_then(|mut statement| {
                 let mut map: HashMap<String, (usize, usize)> = HashMap::new();
-                statement.query([]).and_then(|mut rows| {
+                statement.query([]).map(|mut rows| {
                     while let Some(row) = rows.next().unwrap() {
                         let file_path: String = row.get(0).unwrap();
                         let cover: bool = row.get(1).unwrap();
@@ -500,7 +500,7 @@ impl Database {
                             }
                         }
                     }
-                    Ok(map)
+                    map
                 })
             })
     }

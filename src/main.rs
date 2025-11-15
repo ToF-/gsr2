@@ -15,7 +15,6 @@ use std::cell::RefCell;
 use std::io::Error as IOError;
 use std::process::exit;
 use std::rc::Rc;
-
 mod cli;
 mod env;
 mod file;

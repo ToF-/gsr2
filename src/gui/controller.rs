@@ -71,7 +71,7 @@ impl Controller {
                 cli.slideshow().is_some(),
             ),
             main_window_opt: None,
-            last_action: Action::NoAction,
+            last_action: Action::Nothing,
             marked: HashMap::new(),
         })
     }
@@ -144,7 +144,7 @@ impl Controller {
             },
             Err(e) => Err(e),
             Ok(n) => {
-                self.navigator = Navigator::new(self.repository.len(), self.state.pictures_per_row() as usize);
+                self.navigator = Navigator::new(self.repository.len(), self.state.pictures_per_row());
                 Ok(n)
             }
 
@@ -225,10 +225,7 @@ impl Controller {
                 }
             }
             Some(Command::Initialize) => {
-                let config = match get_configuration() {
-                    Ok(config) => config,
-                    Err(e) => return Err(e),
-                };
+                let config = get_configuration()?;
                 println!("initializing database");
                 if !file_exists(&config.database_file) {
                     println!("creating new database file {}", config.database_file);
@@ -361,7 +358,7 @@ impl Controller {
 
     pub fn set_opacity_for_current_picture(&mut self, opacity: f64) {
         self.main_window()
-            .set_opacity_for_current_picture(&self, opacity)
+            .set_opacity_for_current_picture(self, opacity)
     }
 
     pub fn process_key(&mut self, key: Key) {
@@ -431,7 +428,7 @@ impl Controller {
                         }
                         EntryKind::MoveToLabelConfirmation(ref target) => {
                             if &self.editor.input() == "yes" {
-                                self.confirm_move_picture_to_label(&target)
+                                self.confirm_move_picture_to_label(target)
                             } else {
                                 self.cancel_move_picture()
                             }
@@ -971,7 +968,7 @@ impl Controller {
         self.editor
             .begin(&self.main_window(), EntryKind::Information, None);
         self.editor
-            .set_input(&format!("{}", self.current_picture().file_path()));
+            .set_input(&self.current_picture().file_path().to_string());
         self.state.set_mode(Mode::Editing);
     }
 
@@ -1226,7 +1223,7 @@ impl Controller {
     }
     fn move_selected_pictures(&mut self) {
         if let Some(target_dir) = &self.args.clone().r#move {
-            self.move_selected_pictures_to_target(&target_dir);
+            self.move_selected_pictures_to_target(target_dir);
         }
     }
     pub fn cancel_delete_picture(&mut self) {
@@ -1292,12 +1289,11 @@ impl Controller {
                         let picture = gallery.picture(index);
                         let this_label = picture.label();
                         if let Some(directory) = grand_parent_directory(&picture.file_path()) {
-                            if label == None {
+                            if label.is_none() {
                                 label = Some(this_label);
                                 grand_parent = Some(directory);
-                            } else if this_label != label.clone().unwrap() {
-                                return None
-                            } else if directory != grand_parent.clone().unwrap() {
+                            } else if this_label != label.clone().unwrap()
+                                || directory != grand_parent.clone().unwrap() {
                                 return None
                             }
                         } else {
@@ -1368,7 +1364,7 @@ impl Controller {
     pub fn repeat_last_action(&mut self) {
         let action = self.last_action.clone();
         match action {
-            Action::NoAction => {}
+            Action::Nothing => {}
             Action::Label(label) => self.label_selected_pictures(&label),
             Action::Unlabel => self.unlabel_selected_pictures(),
             Action::AddTag(label) => self.tag_selected_pictures(&label),

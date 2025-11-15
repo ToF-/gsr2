@@ -33,10 +33,7 @@ pub fn parent_directory(file_path: &str) -> Option<String> {
 pub fn grand_parent_directory(file_path: &str) -> Option<String> {
     let path = Path::new(file_path);
     match path.parent() {
-        Some(parent) => match parent.parent() {
-                Some(grand_parent) => Some(grand_parent.to_str().unwrap().to_string()),
-                None => None,
-            },
+        Some(parent) => parent.parent().map(|grand_parent| grand_parent.to_str().unwrap().to_string()),
         None => None,
     }
 }
@@ -47,7 +44,7 @@ pub fn file_exists(file_path: &str) -> bool {
 }
 
 pub fn check_collectable(path: &PathBuf) -> Result<&PathBuf> {
-    check_path_is_directory(&path).and_then(|path| {
+    check_path_is_directory(path).and_then(|path| {
         let home_dir = home_dir().unwrap_or("@".into());
         if path.starts_with(home_dir) || path.is_absolute() {
             Ok(path)
@@ -161,12 +158,10 @@ pub fn thumbnail_name_from(file_name: &str, pictures_per_row: usize) -> String {
 }
 
 pub fn thumbnail_names_from(file_name: &str) -> Vec<String> {
-    let mut result: Vec<String> = vec![];
-    result.push(thumbnail_name_from(file_name, 10));
-    result.push(thumbnail_name_from(file_name, 7));
-    result.push(thumbnail_name_from(file_name, 4));
-    result.push(thumbnail_name_from(file_name, 2));
-    result
+    vec![thumbnail_name_from(file_name, 10),
+    thumbnail_name_from(file_name, 7),
+    thumbnail_name_from(file_name, 4),
+    thumbnail_name_from(file_name, 2)]
 }
 
 pub fn file_path_as_stored(source: &str) -> String {
@@ -174,9 +169,9 @@ pub fn file_path_as_stored(source: &str) -> String {
     if !source.starts_with(&home) {
         return source.to_string();
     }
-    let mut home_iter = home.chars();
+    let home_iter = home.chars();
     let mut source_iter = source.chars();
-    while let Some(_) = home_iter.next() {
+    for _ in home_iter {
         source_iter.next();
     }
     format!("~{}", source_iter.as_str())

@@ -51,15 +51,13 @@ impl PictureGrid {
                 #[strong]
                 controller_rc,
                 move || {
-                    if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-                        if controller.state().change_focus_symbol_on() {
-                            if !controller.state().single_view()
-                                && controller.state().mode() == Mode::View
-                            {
-                                controller.set_label_text_for_current_picture()
-                            }
-                        };
-                    }
+                    if let Ok(mut controller) = controller_rc.try_borrow_mut() 
+                        && controller.state().change_focus_symbol_on()
+                            && !controller.state().single_view()
+                            && controller.state().mode() == Mode::View
+                    {
+                        controller.set_label_text_for_current_picture()
+                    };
                     ControlFlow::Continue
                 }
             ),

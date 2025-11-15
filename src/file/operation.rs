@@ -74,7 +74,7 @@ pub fn move_picture(file_path: &str, target_dir: &str) -> Vec<Operation> {
     let source_file = file_path_as_stored(file_path);
     let target_path = target_file_path(file_path, target_dir);
     let target_file =
-        file_path_as_stored(&target_path.into_os_string().to_str().unwrap().to_string());
+        file_path_as_stored(target_path.into_os_string().to_str().unwrap());
     if source_file == target_file {
         vec![]
     } else {

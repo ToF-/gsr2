@@ -59,7 +59,7 @@ impl Palette {
 pub fn get_palette(image: &DynamicImage) -> Vec<Color> {
     let pixels: &[u8] = image.as_bytes();
     let mut sample = get_palette_with_options(
-        &pixels,
+        pixels,
         PixelEncoding::Rgb,
         Quality::new(5),
         MaxColors::new(MAX_PALETTE_COLORS),

@@ -18,7 +18,7 @@ pub fn timestamp(system_time: SystemTime) -> TimeStamp {
     let duration = system_time
         .duration_since(UNIX_EPOCH)
         .expect("time went backwards");
-    duration.as_secs() * 1_000_000 + (duration.subsec_nanos() / 1_000) as u64
+    duration.as_secs() * 1_000_000 + (duration.subsec_micros()) as u64
 }
 
 pub fn datetime_from_time_stamp(timestamp: u64) -> DateTime<Local> {
@@ -53,16 +53,14 @@ impl ImageData {
     }
 
     pub fn from_file(file_path: &str) -> Result<Self> {
-        get_data_from_picture_file(file_path).and_then(|file_data| {
-            Ok(ImageData {
-                label: String::from(""),
-                size: file_data.0,
-                modified_time: file_data.1,
-                rank: Rank::NoStar,
-                palette: Palette::new(vec![], 0),
-                cover: None,
-                tags: HashSet::new(),
-            })
+        get_data_from_picture_file(file_path).map(|file_data| ImageData {
+            label: String::from(""),
+            size: file_data.0,
+            modified_time: file_data.1,
+            rank: Rank::NoStar,
+            palette: Palette::new(vec![], 0),
+            cover: None,
+            tags: HashSet::new(),
         })
     }
 

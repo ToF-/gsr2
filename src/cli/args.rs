@@ -118,7 +118,7 @@ impl Args {
                             "option --thumbnails not allowed with file command",
                         ));
                     } else {
-                        if let Some(_) = args.r#move {
+                        if args.r#move.is_some() {
                             return Err(Error::other(
                                 "option --move not allowed with file command",
                             ));
@@ -186,11 +186,7 @@ impl Args {
     }
 
     pub fn on_database(&self) -> bool {
-        match self.command {
-            Some(Command::File { file_path: _ }) => false,
-            Some(Command::Directory { directory: _ }) => false,
-            _ => true,
-        }
+        !matches!(self.command, Some(Command::File { file_path: _ }) | Some(Command::Directory { directory: _ }))
     }
 }
 

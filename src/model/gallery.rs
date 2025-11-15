@@ -80,7 +80,7 @@ impl Gallery {
                     self.pictures.push(picture);
                     Ok(1)
                 }
-                Err(err) => return Err(err),
+                Err(err) => Err(err),
             },
             Err(err) => Err(err),
         }

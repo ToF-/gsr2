@@ -14,7 +14,7 @@ pub fn make_palette_area(sample: Vec<Color>, width: i32, height: i32) -> gtk::Dr
     palette_area.set_draw_func(move |_, ctx, _, _| draw_palette(ctx, width, height, &sample));
     palette_area
 }
-fn draw_palette(ctx: &Context, width: i32, height: i32, sample: &Vec<Color>) {
+fn draw_palette(ctx: &Context, width: i32, height: i32, sample: &[Color]) {
     const COLOR_MAX: f64 = 9.0;
     let square_size: f64 = height as f64;
     let offset: f64 = (width as f64 - (COLOR_MAX * square_size)) / 2.0;

@@ -20,9 +20,9 @@ impl From<i64> for Rank {
     }
 }
 
-impl Into<i64> for Rank {
-    fn into(self) -> i64 {
-        match self {
+impl From<Rank> for i64 {
+    fn from(val: Rank) -> Self {
+        match val {
             Rank::ThreeStars => 0,
             Rank::TwoStars => 1,
             Rank::OneStar => 2,

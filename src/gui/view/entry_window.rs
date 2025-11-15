@@ -159,16 +159,16 @@ impl EntryWindow {
     }
 
     pub fn set_text(&self, text: &str) {
-        self.entry_text().set_text(&text);
+        self.entry_text().set_text(text);
         Self::append_cursor(&self.window);
     }
 
     pub fn set_prompt(&self, prompt: &str) {
-        Self::prompt_label(&self.window).set_text(&prompt);
+        Self::prompt_label(&self.window).set_text(prompt);
     }
 
     fn append_cursor(window: &gtk::Window) {
-        let label = Self::entry_text_label(&window);
+        let label = Self::entry_text_label(window);
         let mut content = label.text().to_string();
         let last_char = content.pop();
         match last_char {

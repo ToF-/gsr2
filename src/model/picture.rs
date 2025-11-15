@@ -42,14 +42,14 @@ impl Picture {
     }
 
     pub fn new_with_file_image_data(file_path: &str, label: &str) -> Result<Self> {
-        ImageData::from_file(file_path).and_then(|image_data| {
+        ImageData::from_file(file_path).map(|image_data| {
             let new_image_data = ImageData {
                 label: label.to_string(),
                 ..image_data
             };
             let mut picture: Picture = Self::new(file_path);
             picture.set_image_data(new_image_data);
-            Ok(picture)
+            picture
         })
     }
 

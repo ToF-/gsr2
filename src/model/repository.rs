@@ -55,7 +55,7 @@ impl Repository {
                     *tags = Tags::from(labels);
                     Ok(())
                 }
-                Err(e) => return Err(e),
+                Err(e) => Err(e),
             },
             Err(e) => Err(IOError::other(format!("{}", e))),
         }
@@ -111,7 +111,7 @@ impl Repository {
        match &self.args.command {
            Some(Command::File { file_path }) => {
                self.on_database = false;
-               match self.picture_from_file_path(&file_path) {
+               match self.picture_from_file_path(file_path) {
                    Ok(file_gallery) => match self.gallery_rc.try_borrow_mut() {
                        Ok(mut gallery) => {
                            *gallery = file_gallery.clone();
@@ -125,7 +125,7 @@ impl Repository {
            },
            Some(Command::Directory { directory }) => {
                self.on_database = false;
-               match self.pictures_in_directory(&directory) {
+               match self.pictures_in_directory(directory) {
                    Ok(dir_gallery) => match self.gallery_rc.try_borrow_mut() {
                        Ok(mut gallery) => {
                            *gallery = dir_gallery.clone();
@@ -166,7 +166,7 @@ impl Repository {
     pub fn collect_data(&self) -> IOResult<()> {
         println!("gallery count before collect:{}\n", self.len());
         if let Some(Command::Collect { directory }) = &self.args.command {
-            match self.pictures_in_directory(&directory) {
+            match self.pictures_in_directory(directory) {
                 Ok(dir_gallery) => {
                     println!("pictures in directory {} : {}\n", &directory, dir_gallery.clone().len());
                     let total: usize = dir_gallery.len();
@@ -175,7 +175,7 @@ impl Repository {
                         match self.database.rusqlite_check_picture_with_file_path(&picture.file_path()) {
                             Ok(_) => { }
                             Err(_) => {
-                                match collect_picture_data(&picture) {
+                                match collect_picture_data(picture) {
                                     Ok(picture) => match self.database.insert_picture(&picture) {
                                         Ok(_) => {
                                             count += 1;
@@ -251,7 +251,7 @@ impl Repository {
 
     pub fn covers(&self) -> usize {
         if let Ok(gallery) = self.gallery_rc.try_borrow() {
-            gallery.pictures().into_iter().map(|p| {
+            gallery.pictures().iter().map(|p| {
                 if p.cover().is_some() { 1 } else { 0 }
             }).sum()
         } else {
@@ -289,7 +289,7 @@ impl Repository {
                                 }
                             })
                 } else {
-                    match delete_picture_files(&&file_path) {
+                    match delete_picture_files(&file_path) {
                         Ok(_) => Ok(()),
                         Err(err) => Err(err),
                     }
@@ -420,7 +420,7 @@ impl Repository {
         match self.gallery_rc().try_borrow() {
             Ok(gallery) => {
                 let picture = gallery.picture(index);
-                let operations = move_picture(&picture.file_path(), &target_dir);
+                let operations = move_picture(&picture.file_path(), target_dir);
                 if operations.is_empty() {
                     println!(
                         "no operation for move of {} to {}",

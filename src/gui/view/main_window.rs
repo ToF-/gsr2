@@ -246,12 +246,11 @@ impl MainWindow {
                         {
                             if navigator.is_selected(position) {
                                 HALF_OPACITY
-                            } else if gallery.selection().is_empty() {
-                                FULL_OPACITY
-                            } else if gallery.selection().matches(picture.tags()) {
-                                FULL_OPACITY
-                            } else {
-                                QUARTER_OPACITY
+                            } else if gallery.selection().is_empty() 
+                                || gallery.selection().matches(picture.tags()) {
+                                    FULL_OPACITY
+                                } else {
+                                    QUARTER_OPACITY
                             }
                         } else {
                             FULL_OPACITY

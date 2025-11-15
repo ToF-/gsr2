@@ -148,12 +148,12 @@ impl Editor {
     }
 
     pub fn candidates(&self) -> Vec<String> {
-        let words = self.input.split(',');
-        if let Some(last) = words.last() {
+        let mut words = self.input.split(',');
+        if let Some(last) = words.next_back() {
             if !self.choice.is_empty() && last.len() >= 2 {
                 let mut result: Vec<String> = vec![];
                 for candidate in self.choice.clone() {
-                    if candidate.starts_with(&last) {
+                    if candidate.starts_with(last) {
                         result.push(candidate)
                     }
                 }

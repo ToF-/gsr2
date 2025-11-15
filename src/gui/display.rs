@@ -51,11 +51,7 @@ pub fn picture_label_display(
         "{}{} {} {} {}",
         small_picture_display(size_opt),
         cover_display(cover),
-        if let Some(symbol) = with_focus {
-            symbol
-        } else {
-            ' '
-        },
+        with_focus.unwrap_or(' '),
         label,
         rank,
     )
@@ -64,7 +60,7 @@ pub fn picture_label_display(
 fn cover_display(cover: Cover) -> String {
     match cover {
         None | Some(0) => "".to_string(),
-        Some(count) => format!("{} {} ", COVER_SYMBOL.to_string(), count),
+        Some(count) => format!("{} {} ", COVER_SYMBOL, count),
     }
 }
 
@@ -77,7 +73,7 @@ fn display_selection(selection: &Selection) -> String {
 }
 
 fn label_display(label: Label) -> String {
-    if label.len() > 0 {
+    if !label.is_empty() {
         format!("<{}>", label)
     } else {
         String::from("")
@@ -96,21 +92,20 @@ fn tag_display(tags: Tags) -> String {
 }
 
 pub fn small_picture_display(size_opt: Option<FileSize>) -> String {
-    format!("{}",
-        if let Some(size) = size_opt {
-            if size < PICTURE_SIZE_THRESHOLD {
-                SMALL_PICTURE_SYMBOL
-            } else {
-                " "
-            }
+    (if let Some(size) = size_opt {
+        if size < PICTURE_SIZE_THRESHOLD {
+            SMALL_PICTURE_SYMBOL
         } else {
-            "?"
-        })
+            " "
+        }
+    } else {
+        "?"
+    }).to_string()
 }
 
 pub fn title_display(controller: &Controller) -> String {
     if controller.state().display_information_on() {
-        format!("{}", controller.current_picture().file_path())
+        controller.current_picture().file_path().to_string()
     } else {
         let order: Order;
         let current_picture = controller.current_picture();

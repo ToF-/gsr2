@@ -3,7 +3,7 @@ use crate::model::rank::Rank;
 
 #[derive(Debug, Clone)]
 pub enum Action {
-    NoAction,
+    Nothing,
     Rank(Rank),
     Label(Label),
     Unlabel,

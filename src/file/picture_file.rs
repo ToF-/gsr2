@@ -93,7 +93,7 @@ pub fn create_missing_thumbnails(gallery: &Gallery, pictures_per_row: usize) {
 
 pub fn collect_picture_data(picture: &Picture) -> IOResult<Picture> {
     let image =
-        image::open(&picture.file_path()).expect(&format!("can't load {}", picture.file_path()));
+        image::open(picture.file_path()).unwrap_or_else(|_| panic!("can't load {}", picture.file_path()));
     let palette = Palette::from(&image);
     let new_image_data = match picture.image_data() {
         Some(image_data) => ImageData {
@@ -143,9 +143,7 @@ pub fn delete_picture_files(file_path: &str) -> IOResult<()> {
     delete_picture_file(file_path).and_then(|_| {
         let thumbnails = thumbnail_names_from(file_path);
         for thumbnail_file_path in thumbnails {
-            if let Err(err) = delete_picture_file(&thumbnail_file_path) {
-                return Err(err);
-            }
+            delete_picture_file(&thumbnail_file_path)?
         }
         Ok(())
     })
