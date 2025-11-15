@@ -1132,6 +1132,7 @@ impl Controller {
         if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut() {
             gallery.sort_by(order);
             new_position = gallery.find_file_path(&current_file_path);
+            self.args.order = order;
         } else {
             panic!("can't borrow mut")
         };
