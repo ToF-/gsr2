@@ -11,7 +11,6 @@ use std::io::Result;
 #[derive(Debug, Clone)]
 pub struct Picture {
     file_path: String,
-    thumbnail_small_file_path: String,
     image_data: Option<ImageData>,
 }
 
@@ -19,7 +18,6 @@ impl Picture {
     pub fn new(file_path: &str) -> Self {
         Picture {
             file_path: file_path.to_string(),
-            thumbnail_small_file_path: thumbnail_name_from(file_path, 10),
             image_data: None,
         }
     }
@@ -57,14 +55,6 @@ impl Picture {
 
     pub fn file_path(&self) -> String {
         self.file_path.clone()
-    }
-
-    pub fn file_size_display(&self) -> String {
-        if let Some(image_data) = &self.image_data {
-            format!("{}", image_data.size())
-        } else {
-            String::from("﹖")
-        }
     }
 
     pub fn modified_time_display(&self) -> String {
@@ -147,14 +137,6 @@ impl Picture {
         };
         let _ = new_image_data.tags.insert(label.to_string());
         self.image_data = Some(new_image_data.clone());
-    }
-
-    pub fn has_tag(&self, label: &str) -> bool {
-        if let Some(image_data) = &self.image_data {
-            image_data.tags.contains(label)
-        } else {
-            false
-        }
     }
 
     pub fn remove_tag(&mut self, label: &str) {

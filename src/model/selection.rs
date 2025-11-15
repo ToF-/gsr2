@@ -28,14 +28,6 @@ impl Selection {
         }
     }
 
-    pub fn from_opt(s_opt: &Option<String>, restrict: bool) -> Self {
-        if let Some(s) = s_opt {
-            Self::from(s, restrict)
-        } else {
-            Self::empty()
-        }
-    }
-
     pub fn empty() -> Self {
         Selection {
             tags: empty(),

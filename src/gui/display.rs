@@ -144,7 +144,10 @@ pub fn title_display(controller: &Controller) -> String {
                 String::from("")
             },
             if controller.state().display_size_on() {
-                current_picture.file_size_display()
+                match current_picture.file_size() {
+                    None => String::from("?"),
+                    Some(n) => format!("{}", n),
+                }
             } else {
                 String::from("")
             },

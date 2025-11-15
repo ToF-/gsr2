@@ -1,16 +1,11 @@
-use regex::Regex;
-use crate::Args;
-use crate::file::database::Database;
 use crate::file::picture_file::{get_all_picture_file_paths, get_picture_file_path};
 use crate::model::order::Order;
 use crate::model::picture::Picture;
-use crate::model::selection::{ALL_TAGS, SOME_TAGS, Selection};
-use crate::model::tags::Tags;
+use crate::model::selection::Selection;
 use rand::prelude::SliceRandom;
 use rand::rng;
 use std::cmp::Reverse;
-use std::collections::HashSet;
-use std::io::{Error, Result};
+use std::io::Result;
 
 #[derive(Debug, Clone)]
 pub struct Gallery {
@@ -23,18 +18,6 @@ impl Gallery {
     pub fn new() -> Self {
         Gallery {
             pictures: Vec::new(),
-            order: Order::Name,
-            selection: Selection::empty(),
-        }
-    }
-
-    pub fn from_file_paths(file_paths: Vec<String>) -> Self {
-        let mut pictures: Vec<Picture> = vec![];
-        for file_path in file_paths {
-            pictures.push(Picture::new(&file_path))
-        }
-        Gallery {
-            pictures,
             order: Order::Name,
             selection: Selection::empty(),
         }
@@ -87,37 +70,6 @@ impl Gallery {
                 Ok(self.pictures.len())
             }
             Err(err) => Err(err),
-        }
-    }
-
-    pub fn load_from_database(&mut self, database: &Database, args: &Args) -> Result<usize> {
-        println!("loading from database…");
-        let selection: Selection = if let Some(labels) = &args.select {
-            Selection::from(&labels, SOME_TAGS)
-        } else if let Some(labels) = &args.restrict {
-            Selection::from(&labels, ALL_TAGS)
-        } else {
-            Selection::empty()
-        };
-        let regex: Option<Regex> = match args.clone().pattern {
-            Some(pattern) => match Regex::new(&pattern) {
-                Ok(re) => Some(re),
-                Err(_) => None,
-            },
-            None => None,
-        };
-        match database.retrieve_all_pictures(
-            selection,
-            args.label.clone(),
-            regex,
-            args.cover,
-            args.directory.clone(),
-        ) {
-            Ok(pictures) => {
-                self.pictures = pictures;
-                Ok(self.len())
-            }
-            Err(_) => Err(Error::other("can't retrieve pictures from database")),
         }
     }
 
@@ -204,20 +156,7 @@ impl Gallery {
         }
     }
 
-    pub fn all_labels(&self) -> Tags {
-        let mut labels: HashSet<String> = HashSet::new();
-        for picture in &self.pictures {
-            if !picture.label().is_empty() {
-                let _ = labels.insert(picture.label());
-            }
-            for label in picture.tags().iter() {
-                let _ = labels.insert(label.clone());
-            }
-        }
-        labels
-    }
 }
-
 #[cfg(test)]
 mod tests {
 
@@ -269,18 +208,6 @@ mod tests {
         assert_eq!(1, gallery.len());
     }
 
-    #[test]
-    #[serial]
-    fn loading_from_database_collect_all_the_picture_file_paths_stored() {
-        let database: Database = my_db();
-        let mut gallery = Gallery::new();
-        let args = dummy_args();
-        gallery
-            .load_from_database(&database, &args)
-            .expect("can't load from database");
-        assert_eq!(4, gallery.len());
-    }
-
     fn sort_and_compare_lists() -> bool {
         let mut gallery = Gallery::new();
         gallery
@@ -313,43 +240,5 @@ mod tests {
             result |= sort_and_compare_lists()
         }
         assert!(result)
-    }
-    #[test]
-    #[serial]
-    fn getting_a_picture_by_its_index() {
-        let database: Database = my_db();
-        let mut gallery = Gallery::new();
-        let args = dummy_args();
-        gallery
-            .load_from_database(&database, &args)
-            .expect("can't load from database");
-        gallery.sort_by(Order::Name);
-        assert_eq!(large_picture_file_path(), gallery.picture(0).file_path());
-    }
-    #[test]
-    #[serial]
-    fn finding_a_picture_by_file_path() {
-        let database: Database = my_db();
-        let mut gallery = Gallery::new();
-        let args = dummy_args();
-        gallery
-            .load_from_database(&database, &args)
-            .expect("can't load from database");
-        assert!(gallery.find_file_path(&nine_colors_file_path()).is_some())
-    }
-    #[test]
-    #[serial]
-    fn changing_a_picture_by_its_index() {
-        let database: Database = my_db();
-        let mut gallery = Gallery::new();
-        let args = dummy_args();
-        gallery
-            .load_from_database(&database, &args)
-            .expect("can't load from database");
-        gallery.sort_by(Order::Name);
-        let mut picture = gallery.picture(0);
-        picture.set_label("some-label");
-        gallery.set_picture(0, picture);
-        assert_eq!(String::from("some-label"), gallery.picture(0).label());
     }
 }

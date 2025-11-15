@@ -29,7 +29,6 @@ pub struct Repository {
     tags_rc: RefCell<Tags>,
     gallery_rc: RefCell<Gallery>,
     parent_dirs: HashMap<String, (usize, usize)>,
-    selection: Selection,
     len: usize,
     temp_dir: String,
 }
@@ -44,7 +43,6 @@ impl Repository {
             tags_rc: RefCell::new(crate::model::tags::empty()),
             gallery_rc: RefCell::new(Gallery::new()),
             parent_dirs: HashMap::new(),
-            selection: Selection::from_args(&args),
             len: 0,
             temp_dir: configuration.temp_dir,
         }
@@ -258,15 +256,6 @@ impl Repository {
             }).sum()
         } else {
             panic!("can't borrow")
-        }
-    }
-    pub fn save_picture_at(&mut self, index: usize) {
-        if let Ok(gallery) = self.gallery_rc.try_borrow() {
-            println!(
-                "updating picture at index {}:{}",
-                index,
-                gallery.pictures()[index].rank()
-            )
         }
     }
 

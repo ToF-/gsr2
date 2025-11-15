@@ -9,17 +9,6 @@ pub enum Rank {
     NoStar,
 }
 
-impl Rank {
-    pub fn show(&self) -> String {
-        let limit = 3 - *self as usize;
-        if limit > 0 {
-            "☆".repeat(limit)
-        } else {
-            "".to_string()
-        }
-    }
-}
-
 impl From<i64> for Rank {
     fn from(n: i64) -> Self {
         match n {

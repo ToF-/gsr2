@@ -13,15 +13,6 @@ pub fn home_directory() -> String {
         .expect("can't access to home_dir")
 }
 
-pub fn has_parent(directory: &str, file_path: &str) -> bool {
-    let path = Path::new(file_path);
-    let dir = Path::new(directory);
-    if let Some(parent) = path.parent() {
-        parent == dir
-    } else {
-        false
-    }
-}
 pub fn check_path_exists(path: &PathBuf) -> Result<&PathBuf> {
     if path.exists() {
         Ok(path)
@@ -292,11 +283,6 @@ mod tests {
         }
     }
 
-    #[test]
-    fn has_parent_check_if_a_file_belongs_to_a_directory() {
-        assert!(has_parent("testdata/subdir", "testdata/subdir/my_file.jpg"));
-        assert!(!has_parent("testdata/subdir", "testdata/my_file.jpg"));
-    }
     #[test]
     fn having_parent_directory() {
         assert_eq!(Some("testdata/subdir".to_string()), parent_directory("testdata/subdir/my_file.jpg"));
