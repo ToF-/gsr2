@@ -120,8 +120,12 @@ impl MainWindow {
     }
 
     pub fn activate(application: &gtk::Application, args: &Args, controller_rc: &RcController) {
-        let pictures_per_row = args.pictures_per_row();
-        let picture_grid = PictureGrid::new(pictures_per_row, controller_rc);
+        let pictures_per_row = if let Ok(controller) = controller_rc.try_borrow() {
+            controller.state().pictures_per_row()
+        } else {
+            panic!("can't borrow")
+        };
+        let picture_grid = PictureGrid::new(pictures_per_row.try_into().unwrap(), controller_rc);
         let picture_frame = PictureFrame::new();
         let single_view_scrolled_window = make_scrolled_window();
         let multiple_view_scrolled_window = make_scrolled_window();

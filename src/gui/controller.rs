@@ -52,8 +52,19 @@ pub struct Controller {
 pub type RcController = Rc<RefCell<Controller>>;
 
 impl Controller {
-    pub fn new(config: Configuration, cli: Args) -> IOResult<Self> {
-        let pictures_per_row = cli.pictures_per_row();
+    pub fn new(config: Configuration, args: Args) -> IOResult<Self> {
+        let pictures_per_row = match args.pictures_per_row() {
+            1 => if let Some(n) = config.current_pictures_per_row {
+                n
+            } else {
+                1
+            },
+            n => n.try_into().unwrap(),
+        };
+        let mut cli = args.clone();
+        if let Some(order) = config.current_order {
+            cli.order = order
+        };
         let mut repository = Repository::new(config.clone(), cli.clone());
         match repository.initialize() {
             Ok(_) => {},
@@ -1045,10 +1056,16 @@ impl Controller {
             self.back_from_directory()
         } else {
             self.configuration.current_picture = Some(self.current_picture().file_path());
+            self.configuration.current_pictures_per_row = if self.state.single_view() {
+                Some(1) 
+            } else {
+                Some(self.state.pictures_per_row())
+            };
+            self.configuration.current_order = Some(self.repository.order());
             let _ = self.configuration.save();
             let application_window = self.main_window().application_window();
             application_window.close()
-        }
+    }
     }
 
     pub fn reload(&mut self) {

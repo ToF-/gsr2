@@ -1,3 +1,4 @@
+use crate::model::order::Order;
 use crate::env::default_values::{CONFIG_FILE_DEFAULT, CONFIG_FILE_VARIABLE};
 use crate::file::paths::home_directory;
 use crate::file_exists;
@@ -16,6 +17,8 @@ pub struct Configuration {
     pub temp_dir: String,
     pub marked: HashMap<char,String>,
     pub current_picture: Option<String>,
+    pub current_pictures_per_row: Option<usize>,
+    pub current_order:Option<Order>,
 }
 
 impl Configuration {
@@ -77,6 +80,7 @@ pub mod tests {
             database_file: format!("{}/{}/gsr2.db", current_directory(), TEST_DATA_DIR),
             temp_dir: format!("{}/{}/subdir", current_directory(), TEST_DATA_DIR),
             marked: HashMap::new(),
+            current_picture: None,
         }
     }
 }

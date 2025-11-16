@@ -555,6 +555,7 @@ pub mod tests {
             database_file: format!("{}/{}/gsr2.db", current_directory(), TEST_DATA_DIR),
             temp_dir: format!("{}/{}/subdir", current_directory(), TEST_DATA_DIR),
             marked: HashMap::new(),
+            current_picture: None,
         };
         Args::parse_and_check(cmd, &config)
     }

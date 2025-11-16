@@ -1,6 +1,7 @@
 use clap::builder::PossibleValue;
+use serde::{Serialize, Deserialize};
 
-#[derive(PartialEq, Clone, Copy, Debug)]
+#[derive(PartialEq, Clone, Copy, Debug, Deserialize, Serialize)]
 pub enum Order {
     ColorCount,
     Date,

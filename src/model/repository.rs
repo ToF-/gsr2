@@ -1,3 +1,4 @@
+use crate::model::order::Order;
 use crate::file::picture_file::copy_picture_file_to_directory;
 use regex::Regex;
 use crate::file::picture_file::delete_picture_files;
@@ -107,6 +108,13 @@ impl Repository {
         self.len
     }
 
+   pub fn order(&self) -> Order {
+       if let Ok(gallery) = self.gallery_rc.try_borrow() {
+           gallery.order()
+       } else {
+           panic!("can't borrow")
+       }
+   }
    pub fn initialize(&mut self) -> IOResult<()> {
        match &self.args.command {
            Some(Command::File { file_path }) => {
