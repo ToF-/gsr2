@@ -154,7 +154,7 @@ impl Controller {
     pub fn execute_command(&mut self) -> IOResult<Status> {
         let mut gallery = Gallery::new();
         let args = self.args.clone();
-        match args.command {
+        let result = match args.command {
             Some(Command::File { file_path }) => match gallery.load_from_file_path(&file_path) {
                 Err(e) => Err(e),
                 Ok(_) => Ok(Status::Ready),
@@ -244,7 +244,7 @@ impl Controller {
                 }
             }
 
-            None => match self.repository.gallery_rc().try_borrow() {
+            None => match self.repository.gallery_rc().try_borrow_mut() {
                 Ok(gallery) => {
                     if gallery.is_empty() {
                         println!("no pictures for this selection");
@@ -256,14 +256,21 @@ impl Controller {
                         {
                             self.navigator
                                 .move_towards(Direction::Index { value: index })
+                        } else if let Some(file_path) = self.configuration.clone().current_picture
+                            && let Some(index) = gallery.find_file_path(&file_path) 
+                                && self.navigator().can_move(Direction::Index { value: index }) {
+                                    self.navigator
+                                        .move_towards(Direction::Index { value: index })
+
                         };
                         self.navigator().set_page_changed();
                         Ok(Status::Ready)
                     }
-                }
+                },
                 Err(e) => Err(IOError::other(e)),
             },
-        }
+    };
+    result
     }
     
     pub fn move_towards_saved_current(&mut self) {
