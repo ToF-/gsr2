@@ -15,6 +15,7 @@ pub struct Configuration {
     pub database_file: String,
     pub temp_dir: String,
     pub marked: HashMap<char,String>,
+    pub current_picture: Option<String>,
 }
 
 impl Configuration {

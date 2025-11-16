@@ -145,6 +145,7 @@ impl MainWindow {
                 controller.set_main_window(main_window);
                 controller.main_window().set_pictures(&controller);
                 controller.main_window().set_title(&controller);
+                controller.move_towards_saved_current();
             }
         }
         attach_panel_event_handlers(&panel, controller_rc);

@@ -1,7 +1,7 @@
-database_file = 'testdata/gsr2.db'
-temp_dir='testdata/subdir'
 width = 800
 height = 800
-cover = "🔺"
-[marked]
+database_file = "testdata/gsr2.db"
+temp_dir = "testdata/subdir"
+current_picture = "/Users/tof/Coding/gsr2/testdata/nine_colors.png"
 
+[marked]

@@ -265,7 +265,12 @@ impl Controller {
             },
         }
     }
-
+    
+    pub fn move_towards_saved_current(&mut self) {
+        if let Some(file_path) = self.configuration.current_picture.clone() {
+            self.find_pattern(&file_path, false);
+        }
+    }
     pub fn process_event(&mut self, event: Event, controller_rc: &RcController) {
         match event {
             Event::KeyPressed {
@@ -643,7 +648,7 @@ impl Controller {
         let file_path = self.current_picture().file_path();
         let _ = self.configuration.marked.insert(mark, file_path.clone());
         println!("{}={}",mark, file_path);
-        self.configuration.save();
+        let _ = self.configuration.save();
     }
     pub fn setting_order(&mut self) {
         self.editor
@@ -1032,6 +1037,8 @@ impl Controller {
         if self.state.has_saved_args() {
             self.back_from_directory()
         } else {
+            self.configuration.current_picture = Some(self.current_picture().file_path());
+            let _ = self.configuration.save();
             let application_window = self.main_window().application_window();
             application_window.close()
         }
