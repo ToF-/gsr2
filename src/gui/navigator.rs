@@ -131,6 +131,16 @@ impl Navigator {
         }
     }
 
+    pub fn set_range_page(&mut self) {
+        let start = self.page_start;
+        let end = self.page_end;
+        self.range_start = Some(start);
+        self.range_end = Some(end);
+        self.range_opt = self.range();
+        for index in start..=end {
+            self.select(index)
+        }
+    }
     pub fn repeat_range(&mut self) {
         if let Some((start, end)) = self.range_opt {
             self.range_start = Some(start);

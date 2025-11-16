@@ -2,6 +2,8 @@ width = 800
 height = 800
 database_file = "testdata/gsr2.db"
 temp_dir = "testdata/subdir"
-current_picture = "/Users/christophethibaut/Coding/gsr2/testdata/nine_colors.png"
+current_picture = "/Users/tof/Coding/gsr2/testdata/single_dot.png"
+current_pictures_per_row = 10
+current_order = "Name"
 
 [marked]

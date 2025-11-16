@@ -385,6 +385,7 @@ impl Controller {
     }
 
     pub fn process_key(&mut self, key: Key) {
+        // println!("{:?}", key.name());
         let controls = self.controls.clone();
         match self.state().mode() {
             Mode::View => match key.name() {
@@ -743,6 +744,7 @@ impl Controller {
             Control::Randomize => self.order_by(Order::Random),
             Control::SetRange => self.set_range(),
             Control::SetRangeAll => self.set_range_all(),
+            Control::SetRangePage => self.set_range_page(),
             Control::RepeatRange => self.repeat_range(),
             Control::ToggleSelected => self.toggle_selected(),
             Control::CancelRange => self.cancel_range(),
@@ -1200,6 +1202,11 @@ impl Controller {
         self.navigator.set_page_changed()
     }
 
+    pub fn set_range_page(&mut self) {
+        let navigator = &mut self.navigator;
+        navigator.set_range_page();
+        self.navigator.set_page_changed()
+    }
     pub fn repeat_range(&mut self) {
         let navigator = &mut self.navigator;
         navigator.repeat_range();
