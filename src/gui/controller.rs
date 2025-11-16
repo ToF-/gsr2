@@ -5,7 +5,7 @@ use regex::Regex;
 use crate::cli::args::Args;
 use crate::cli::command::Command;
 use crate::cli::status::Status;
-use crate::env::configuration::{Configuration, get_configuration};
+use crate::env::configuration::Configuration;
 use crate::file::database::*;
 use crate::file::paths::{check_collectable, file_exists, parent_directory};
 use crate::file::picture_file::{create_missing_thumbnails};
@@ -38,6 +38,7 @@ use std::rc::Rc;
 
 #[derive(Debug)]
 pub struct Controller {
+    configuration: Configuration,
     repository: Repository,
     args: Args,
     navigator: Navigator,
@@ -46,7 +47,6 @@ pub struct Controller {
     main_window_opt: Option<MainWindow>,
     editor: Editor,
     last_action: Action,
-    marked: HashMap<char,String>,
 }
 
 pub type RcController = Rc<RefCell<Controller>>;
@@ -54,13 +54,14 @@ pub type RcController = Rc<RefCell<Controller>>;
 impl Controller {
     pub fn new(config: Configuration, cli: Args) -> IOResult<Self> {
         let pictures_per_row = cli.pictures_per_row();
-        let mut repository = Repository::new(config, cli.clone());
+        let mut repository = Repository::new(config.clone(), cli.clone());
         match repository.initialize() {
             Ok(_) => {},
             Err(e) => panic!("{}", e),
         };
         println!("{} pictures", repository.len());
         Ok(Controller {
+            configuration: config.clone(),
             repository: repository.clone(),
             args: cli.clone(),
             editor: Editor::new(),
@@ -72,7 +73,6 @@ impl Controller {
             ),
             main_window_opt: None,
             last_action: Action::Nothing,
-            marked: HashMap::new(),
         })
     }
 
@@ -225,7 +225,7 @@ impl Controller {
                 }
             }
             Some(Command::Initialize) => {
-                let config = get_configuration()?;
+                let config = Configuration::from_env()?;
                 println!("initializing database");
                 if !file_exists(&config.database_file) {
                     println!("creating new database file {}", config.database_file);
@@ -641,8 +641,9 @@ impl Controller {
     
     pub fn set_mark(&mut self, mark: char) {
         let file_path = self.current_picture().file_path();
-        let _ = self.marked.insert(mark, file_path.clone());
+        let _ = self.configuration.marked.insert(mark, file_path.clone());
         println!("{}={}",mark, file_path);
+        self.configuration.save();
     }
     pub fn setting_order(&mut self) {
         self.editor
@@ -979,7 +980,7 @@ impl Controller {
     }
 
     pub fn find_mark(&mut self, mark: char) {
-        if let Some(file_path) = self.marked.get(&mark) {
+        if let Some(file_path) = self.configuration.marked.get(&mark) {
             if let Ok(gallery) = self.repository.gallery_rc().try_borrow() {
                 if let Some(index) = gallery
                     .pictures()

@@ -528,7 +528,6 @@ pub mod tests {
     use crate::env::default_values::TEST_DATABASE_FILE;
     use crate::file::paths::test::current_directory;
     use crate::file::picture_file::get_data_from_picture_file;
-    use crate::get_configuration;
     use crate::model::image_data::TimeStamp;
     use crate::model::image_data::timestamp;
     use crate::model::order::Order;
@@ -555,6 +554,7 @@ pub mod tests {
             height: 1000,
             database_file: format!("{}/{}/gsr2.db", current_directory(), TEST_DATA_DIR),
             temp_dir: format!("{}/{}/subdir", current_directory(), TEST_DATA_DIR),
+            marked: HashMap::new(),
         };
         Args::parse_and_check(cmd, &config)
     }

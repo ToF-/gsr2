@@ -3,4 +3,5 @@ temp_dir='testdata/subdir'
 width = 800
 height = 800
 cover = "🔺"
+[marked]
 

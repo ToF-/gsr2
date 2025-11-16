@@ -196,12 +196,12 @@ mod tests {
     use crate::Command::Directory;
     use crate::Command::File;
     use crate::cli::command::Command;
-    use crate::get_configuration;
+    use crate::Configuration;
     use crate::test_data::*;
     use std::io::ErrorKind;
 
     fn config() -> Configuration {
-        get_configuration().unwrap()
+        Configuration::from_env().unwrap()
     }
     #[test]
     fn command_line_interface_with_command_file_with_adequate_argument() {

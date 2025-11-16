@@ -1,7 +1,7 @@
 use crate::cli::args::Args;
 use crate::cli::command::Command;
 use crate::cli::status::Status;
-use crate::env::configuration::get_configuration;
+use crate::env::configuration::Configuration;
 use crate::env::default_values::APPLICATION_ID;
 use crate::file::database::Database;
 use crate::file::paths::file_exists;
@@ -23,7 +23,7 @@ mod model;
 mod test_data;
 
 fn main() {
-    let config = match get_configuration() {
+    let config = match Configuration::from_env() {
         Ok(config) => config,
         Err(err) => {
             eprintln!("{}", err);
