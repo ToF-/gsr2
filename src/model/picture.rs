@@ -36,9 +36,10 @@ impl Picture {
     }
 
     pub fn new_with_image_data(file_path: &str, image_data: &ImageData) -> Self {
-        let mut picture: Picture = Self::new(file_path);
-        picture.set_image_data(image_data.clone());
-        picture
+        Picture {
+            file_path: file_path.to_string(),
+            image_data: Some(image_data.clone()),
+        }
     }
 
     pub fn new_with_file_image_data(file_path: &str, label: &str) -> Result<Self> {
@@ -47,9 +48,7 @@ impl Picture {
                 label: label.to_string(),
                 ..image_data
             };
-            let mut picture: Picture = Self::new(file_path);
-            picture.set_image_data(new_image_data);
-            picture
+            Self::new_with_image_data(file_path, &new_image_data)
         })
     }
 
@@ -216,7 +215,7 @@ mod tests {
         )
     }
     #[test]
-    fn mofiying_a_picture() {
+    fn modifiying_a_picture() {
         let mut picture = Picture::new("testdata/nine_colors.png");
         picture.set_label("foo");
         picture.set_rank(Rank::ThreeStars);
