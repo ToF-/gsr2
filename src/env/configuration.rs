@@ -19,6 +19,7 @@ pub struct Configuration {
     pub current_picture: Option<String>,
     pub current_pictures_per_row: Option<usize>,
     pub current_order:Option<Order>,
+    pub cover: bool,
 }
 
 impl Configuration {
