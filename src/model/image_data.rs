@@ -28,7 +28,7 @@ pub fn datetime_from_time_stamp(timestamp: u64) -> DateTime<Local> {
     DateTime::<Local>::from(system_time)
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct ImageData {
     pub label: Label,
     pub size: FileSize,
@@ -40,7 +40,18 @@ pub struct ImageData {
 }
 
 impl ImageData {
-    pub fn new(label: &str) -> Self {
+    pub fn default() -> Self {
+        ImageData {
+            label: "".to_string(),
+            size: 0,
+            rank: Rank::NoStar,
+            modified_time: timestamp(SystemTime::UNIX_EPOCH),
+            palette: Palette::new(vec![], 0),
+            cover: None,
+            tags: HashSet::new(),
+        }
+    }
+    pub fn new_with_label(label: &str) -> Self {
         ImageData {
             label: from(label),
             size: 0,
@@ -90,6 +101,30 @@ impl ImageData {
 
     pub fn tags(&self) -> Tags {
         self.tags.clone()
+    }
+
+    pub fn set_label(&mut self, label: &str) {
+        self.label = label.to_string()
+    }
+
+    pub fn set_rank(&mut self, rank: Rank) {
+        self.rank = rank
+    }
+
+    pub fn toggle_cover(&mut self, dir_count: usize) {
+        if self.cover().is_some() {
+            self.cover = None
+        } else {
+            self.cover = Some(dir_count)
+        }
+    }
+
+    pub fn add_tag(&mut self, label: &str) {
+        let _ = self.tags.insert(label.to_string());
+    }
+
+    pub fn remove_tag(&mut self, label: &str) {
+        let _ = self.tags.remove(label);
     }
 }
 

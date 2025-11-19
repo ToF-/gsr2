@@ -1,3 +1,4 @@
+use crate::model::label::sort_key;
 use crate::file::picture_file::{get_all_picture_file_paths, get_picture_file_path};
 use crate::model::order::Order;
 use crate::model::picture::Picture;
@@ -120,7 +121,7 @@ impl Gallery {
             }),
             Order::Label => self
                 .pictures
-                .sort_by_key(|picture| (!picture.selected(&selection), picture.label_sort_key())),
+                .sort_by_key(|picture| (!picture.selected(&selection), sort_key(&picture.label()))),
             Order::Value => self.pictures.sort_by_key(|picture| {
                 picture
                     .image_data()

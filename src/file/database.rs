@@ -75,7 +75,7 @@ impl Database {
         let connection = self.connection_rc.borrow();
         let image_data = match picture.image_data() {
             Some(data) => data,
-            None => ImageData::new(""),
+            None => ImageData::default(),
         };
         connection.execute(
             "INSERT INTO Picture (    \n\
@@ -121,7 +121,7 @@ impl Database {
         let connection = self.connection_rc.borrow();
         let image_data = match picture.image_data() {
             Some(data) => data,
-            None => ImageData::new(""),
+            None => ImageData::default(),
         };
         connection.execute(
             "UPDATE Picture               \n\

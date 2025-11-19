@@ -5,13 +5,20 @@ use palette_extract::Color;
 use palette_extract::{MaxColors, PixelEncoding, PixelFilter, Quality, get_palette_with_options};
 use std::collections::HashSet;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct Palette {
     sample: Vec<Color>,
     count: usize,
 }
 
 impl Palette {
+    pub fn default() -> Self {
+        Palette {
+            sample: vec![],
+            count: 0,
+        }
+    }
+
     pub fn new(sample: Vec<Color>, count: usize) -> Self {
         Palette { sample, count }
     }

@@ -31,7 +31,7 @@ impl Picture {
 
     pub fn new_with_label(file_path: &str, label: &str) -> Self {
         let mut picture: Picture = Self::new(file_path);
-        picture.set_image_data(ImageData::new(label));
+        picture.set_image_data(ImageData::new_with_label(label));
         picture
     }
 
@@ -87,102 +87,21 @@ impl Picture {
     }
 
     pub fn label(&self) -> String {
-        if let Some(image_data) = &self.image_data {
-            image_data.label()
-        } else {
-            String::from("")
-        }
-    }
-
-    pub fn label_sort_key(&self) -> String {
-        if let Some(image_data) = &self.image_data {
-            if !image_data.label().is_empty() {
-                image_data.label()
-            } else {
-                String::from("~")
-            }
-        } else {
-            String::from("~")
-        }
+        self.image_data.as_ref().map(|d| d.label()).unwrap_or_default()
     }
 
     pub fn selected(&self, selection: &Selection) -> bool {
-        if let Some(image_data) = &self.image_data {
-            selection.matches(image_data.tags.clone())
-        } else {
-            false
-        }
+        self.image_data.as_ref().map(|d|
+            selection.matches(d.tags.clone())
+        ).unwrap_or_default()
     }
 
     pub fn rank(&self) -> Rank {
-        if let Some(image_data) = &self.image_data {
-            image_data.rank()
-        } else {
-            Rank::NoStar
-        }
+        self.image_data.as_ref().map(|d| d.rank()).unwrap_or_default()
     }
 
     pub fn tags(&self) -> Tags {
-        if let Some(image_data) = &self.image_data {
-            image_data.tags.clone()
-        } else {
-            empty()
-        }
-    }
-    pub fn add_tag(&mut self, label: &str) {
-        let mut new_image_data: ImageData = match &self.image_data {
-            Some(image_data) => image_data.clone(),
-            None => ImageData::new(""),
-        };
-        let _ = new_image_data.tags.insert(label.to_string());
-        self.image_data = Some(new_image_data.clone());
-    }
-
-    pub fn remove_tag(&mut self, label: &str) {
-        let mut new_image_data: ImageData = match &self.image_data {
-            Some(image_data) => image_data.clone(),
-            None => ImageData::new(""),
-        };
-        let _ = new_image_data.tags.remove(label);
-        self.image_data = Some(new_image_data.clone());
-    }
-
-    pub fn set_label(&mut self, label: &str) {
-        let new_image_data = if let Some(image_data) = &self.image_data {
-            ImageData {
-                label: label.to_string(),
-                ..image_data.clone()
-            }
-        } else {
-            ImageData::new(label)
-        };
-        self.image_data = Some(new_image_data)
-    }
-
-    pub fn set_rank(&mut self, rank: Rank) {
-        let new_image_data = if let Some(image_data) = &self.image_data {
-            ImageData {
-                rank,
-                ..image_data.clone()
-            }
-        } else {
-            ImageData::new("")
-        };
-        self.image_data = Some(new_image_data)
-    }
-
-    pub fn toggle_cover(&mut self, dir_count: usize) {
-        let mut new_image_data = if let Some(image_data) = &self.image_data {
-            image_data.clone()
-        } else {
-            ImageData::new("")
-        };
-        if self.cover().is_some() {
-            new_image_data.cover = None;
-        } else {
-            new_image_data.cover = Some(dir_count)
-        }
-        self.image_data = Some(new_image_data);
+        self.image_data.as_ref().map(|d| d.tags.clone()).unwrap_or_default()
     }
 
     pub fn cover(&self) -> Cover {
@@ -193,13 +112,43 @@ impl Picture {
         }
     }
 
+    pub fn set_image_data(&mut self, image_data: ImageData) {
+        self.image_data = Some(image_data)
+    }
+    pub fn set_label(&mut self, label: &str) {
+        let mut new_image_data = self.image_data().unwrap_or_default();
+        new_image_data.set_label(label);
+        self.set_image_data(new_image_data);
+    }
+
+    pub fn set_rank(&mut self, rank: Rank) {
+        let mut new_image_data = self.image_data().unwrap_or_default();
+        new_image_data.set_rank(rank);
+        self.set_image_data(new_image_data);
+    }
+
+    pub fn toggle_cover(&mut self, dir_count: usize) {
+        let mut new_image_data = self.image_data().unwrap_or_default();
+        new_image_data.toggle_cover(dir_count);
+        self.set_image_data(new_image_data);
+    }
+
+    pub fn add_tag(&mut self, label: &str) {
+        let mut new_image_data = self.image_data().unwrap_or_default();
+        let _ = new_image_data.add_tag(label);
+        self.set_image_data(new_image_data);
+    }
+
+    pub fn remove_tag(&mut self, label: &str) {
+        let mut new_image_data = self.image_data().unwrap_or_default();
+        let _ = new_image_data.remove_tag(label);
+        self.set_image_data(new_image_data);
+    }
+
     pub fn thumbnail_file_path_for_size(&self, pictures_per_row: usize) -> String {
         thumbnail_name_from(&self.file_path, pictures_per_row)
     }
 
-    pub fn set_image_data(&mut self, image_data: ImageData) {
-        self.image_data = Some(image_data)
-    }
 }
 #[cfg(test)]
 mod tests {
