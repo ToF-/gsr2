@@ -34,6 +34,10 @@ pub struct Args {
     #[arg(short, long)]
     pub cover: bool,
 
+    /// display all pictures, not only cover pictures
+    #[arg(short, long)]
+    pub all: bool,
+
     /// select only picture data for pictures present on <DIRECTORY>
     #[arg(short, long, value_name = "DIRECTORY")]
     pub directory: Option<String>,
