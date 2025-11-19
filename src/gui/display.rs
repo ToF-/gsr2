@@ -103,6 +103,16 @@ pub fn small_picture_display(size_opt: Option<FileSize>) -> String {
     }).to_string()
 }
 
+fn selected_count_display(controller: &Controller) -> String {
+    let count = controller.navigator().selected_picture_count();
+    if count > 0 {
+        format!("[{}]", count)
+    } else {
+        "".to_string()
+    }
+    
+}
+
 pub fn title_display(controller: &Controller) -> String {
     if controller.state().display_information_on() {
         controller.current_picture().file_path().to_string()
@@ -117,11 +127,12 @@ pub fn title_display(controller: &Controller) -> String {
             panic!("can't borrow")
         };
         format!(
-            "{}{} #{} {} {} {} {} {} {} {} {} {}{} {}",
+            "{}{} #{} {} {} {} {} {} {} {} {} {} {}{} {}",
             small_picture_display(current_picture.image_data().map(|d| d.size())),
             cover_display(current_picture.cover()),
             controller.navigator().position(),
             page_display(controller),
+            selected_count_display(controller),
             order_display(order),
             current_picture.file_name(),
             label_display(current_picture.label()),

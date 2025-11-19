@@ -264,6 +264,10 @@ impl Navigator {
         self.cancel_range();
     }
 
+    pub fn selected_picture_count(&self) -> usize {
+        self.selected_pictures.len()
+    }
+
     pub fn selection(&mut self) -> Vec<usize> {
         let mut result: Vec<usize> = self.selected_pictures.clone().into_iter().collect();
         result.sort();

@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use crate::file::paths::check_path_exists;
 use crate::file::paths::grand_parent_directory;
 use regex::Regex;
@@ -306,11 +305,10 @@ impl Controller {
                 self.process_pane_clicked(button, pane_number);
                 self.set_slideshow_off()
             }
-            Event::PictureClicked { button, col, row } if button == 1 => {
+            Event::PictureClicked { button, col, row } => {
                 self.process_picture_clicked(button, col, row);
                 self.set_slideshow_off()
             }
-            _ => println!("{:?}", event),
         }
     }
 
@@ -320,7 +318,7 @@ impl Controller {
             self.state.set_slideshow_off();
         }
     }
-    pub fn process_picture_clicked(&mut self, _button: u32, col: i32, row: i32) {
+    pub fn process_picture_clicked(&mut self, button: u32, col: i32, row: i32) {
         self.main_window()
             .set_label_text_for_current_picture(self, None);
         if let Some(index) = self
@@ -330,8 +328,13 @@ impl Controller {
         {
             self.navigator
                 .move_towards(Direction::Index { value: index });
+            if button == 3 {
+                self.toggle_selected();
+                self.main_window().set_pictures(self);
+                self.main_window().set_title(self);
+            }
         }
-        self.set_label_text_for_current_picture()
+        self.set_label_text_for_current_picture();
     }
 
     pub fn process_pane_clicked(&mut self, _button: usize, pane_number: usize) {

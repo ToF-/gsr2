@@ -5,7 +5,7 @@ use crate::model::image_data::ImageData;
 use crate::model::image_data::datetime_from_time_stamp;
 use crate::model::rank::Rank;
 use crate::model::selection::Selection;
-use crate::model::tags::{Tags, empty};
+use crate::model::tags::Tags;
 use std::io::Result;
 
 #[derive(Debug, Clone)]
