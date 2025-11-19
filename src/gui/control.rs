@@ -71,6 +71,7 @@ pub enum Control {
     DisplayFocus,
     DisplaySize,
     OrderByName,
+    OrderByCover,
     OrderByDate,
     OrderBySize,
     OrderByValue,

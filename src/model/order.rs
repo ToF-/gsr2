@@ -4,6 +4,7 @@ use serde::{Serialize, Deserialize};
 #[derive(PartialEq, Clone, Copy, Debug, Deserialize, Serialize)]
 pub enum Order {
     ColorCount,
+    Cover,
     Date,
     Label,
     Name,
@@ -20,6 +21,7 @@ pub fn from(s: &str) -> Option<Order> {
         "d" => Some(Order::Date),
         "l" => Some(Order::Label),
         "n" => Some(Order::Name),
+        "o" => Some(Order::Cover),
         "p" => Some(Order::Palette),
         "r" => Some(Order::Random),
         "s" => Some(Order::Size),
@@ -38,6 +40,7 @@ impl clap::ValueEnum for Order {
     fn value_variants<'a>() -> &'a [Self] {
         &[
             Order::ColorCount,
+            Order::Cover,
             Order::Date,
             Order::Name,
             Order::Random,
@@ -51,6 +54,7 @@ impl clap::ValueEnum for Order {
     fn to_possible_value(&self) -> Option<PossibleValue> {
         Some(match self {
             Order::ColorCount => PossibleValue::new("Colors"),
+            Order::Cover => PossibleValue::new("Cover"),
             Order::Date => PossibleValue::new("Date"),
             Order::Name => PossibleValue::new("Name"),
             Order::Random => PossibleValue::new("Random"),

@@ -1,3 +1,4 @@
+use crate::model::cover::cover_sort_key;
 use crate::model::label::sort_key;
 use crate::file::picture_file::{get_all_picture_file_paths, get_picture_file_path};
 use crate::model::order::Order;
@@ -139,6 +140,9 @@ impl Gallery {
                         image_data.palette().sample_as_array(),
                     )
                 })
+            }),
+            Order::Cover => self.pictures.sort_by_key(|picture| {
+                    cover_sort_key(picture.cover())
             }),
             _ => self.pictures.shuffle(&mut rng()),
         }

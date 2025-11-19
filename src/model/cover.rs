@@ -10,3 +10,7 @@ pub fn bool_to_cover(value: bool) -> Cover {
 pub fn cover_to_bool(cover: Cover) -> bool {
     cover.is_some()
 }
+
+pub fn cover_sort_key(cover: Cover) -> usize {
+    std::usize::MAX - cover.unwrap_or_default()
+}
