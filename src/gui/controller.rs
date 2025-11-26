@@ -52,13 +52,17 @@ pub type RcController = Rc<RefCell<Controller>>;
 
 impl Controller {
     pub fn new(config: Configuration, args: Args) -> IOResult<Self> {
-        let pictures_per_row = match args.pictures_per_row() {
-            1 => if let Some(n) = config.current_pictures_per_row {
-                n
-            } else {
-                1
-            },
-            n => n.try_into().unwrap(),
+        let pictures_per_row = if let Some(grid) = args.grid {
+            grid
+        } else {
+            match args.pictures_per_row() {
+                1 => if let Some(n) = config.current_pictures_per_row {
+                    n
+                } else {
+                    1
+                },
+                    n => n.try_into().unwrap(),
+            }.try_into().unwrap()
         };
         let mut cli = args.clone();
         if let Some(order) = config.current_order {

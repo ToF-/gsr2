@@ -42,8 +42,8 @@ pub struct Args {
     #[arg(short, long, value_name = "DIRECTORY")]
     pub directory: Option<String>,
 
-    /// display N x N pictures per page (N in range [2..10[)
-    #[arg(short, long, value_name = "N",value_parser(clap::value_parser!(u8).range(2..=9)))]
+    /// display N x N pictures per page (N in range [1..10[)
+    #[arg(short, long, value_name = "N",value_parser(clap::value_parser!(u8).range(1..=9)))]
     pub grid: Option<u8>,
 
     /// window height
