@@ -65,8 +65,13 @@ impl Controller {
             }.try_into().unwrap()
         };
         let mut cli = args.clone();
-        if let Some(order) = config.current_order {
-            cli.order = order
+
+        if cli.order.is_none() {
+            if let Some(order) = config.current_order {
+                cli.order = Some(order)
+            } else {
+                cli.order = Some(Order::Name)
+            }
         };
         if config.cover {
             if args.all {
@@ -1183,7 +1188,7 @@ impl Controller {
         if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut() {
             gallery.sort_by(order);
             new_position = gallery.find_file_path(&current_file_path);
-            self.args.order = order;
+            self.args.order = Some(order);
         } else {
             panic!("can't borrow mut")
         };

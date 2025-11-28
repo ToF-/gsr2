@@ -82,7 +82,7 @@ impl Repository {
                 ) {
                     Ok(pictures) => {
                         let mut gallery = Gallery::new_with_pictures(pictures);
-                        gallery.sort_by(args.order);
+                        gallery.sort_by(args.order.unwrap_or(Order::Name));
                         self.len = gallery.len();
                         gallery
                     }

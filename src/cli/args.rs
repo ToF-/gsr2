@@ -63,8 +63,8 @@ pub struct Args {
     pub r#move: Option<String>,
 
     /// display pictures in order
-    #[arg(short, long, value_name="ORDER", ignore_case(true), default_value_t = Order::Name)]
-    pub order: Order,
+    #[arg(short, long, value_name="ORDER", ignore_case(true))]
+    pub order: Option<Order>,
 
     /// display only pictures where file name matches PATTERN
     #[arg(short, long, value_name="PATTERN")]
