@@ -1,3 +1,7 @@
+use std::io::Write;
+use std::fs::File;
+use std::io::BufWriter;
+use std::path::PathBuf;
 use crate::file::paths::timestamp_filename;
 use crate::model::order::Order;
 use crate::file::picture_file::copy_picture_file_to_directory;
@@ -467,9 +471,17 @@ impl Repository {
                 for index in indexes {
                     let picture = &gallery.picture(*index);
                     lines.push(picture.file_path());
-                    println!("copying {} to {}", &picture.file_path(), extract_file);
                 };
-                println!("{:?}", lines);
+                let mut path: PathBuf = PathBuf::from(&self.temp_dir);
+                path.push(extract_file);
+                println!("copying {} file names to {}", lines.len(), path.display());
+                let file = File::create(path)?;
+                let mut writer = BufWriter::new(file);
+                for line in lines {
+                    writer.write_all(line.as_bytes())?;
+                    writer.write_all(b"\n")?;
+                }
+                writer.flush()?;
                 Ok(())
             },
             Err(e) => Err(IOError::other(e)),
