@@ -1327,8 +1327,6 @@ impl Controller {
     pub fn extract_filenames(&mut self) {
         if self.navigator.has_selected() {
             self.repository.extract_file_names(&self.navigator.selection());
-        } else {
-            panic!("can't borrow");
         }
     }
 

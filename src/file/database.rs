@@ -384,6 +384,7 @@ impl Database {
         &self,
         selection: Selection,
         label: Option<String>,
+        extraction: Option<Vec<String>>,
         pattern: Option<Regex>,
         cover: bool,
         parent_opt: Option<String>,
@@ -392,6 +393,11 @@ impl Database {
             match self.rusqlite_retrieve_all_pictures(cover, parent_opt) {
                 Ok(picture_map) => match self.rusqlite_retrieve_all_tags() {
                     Ok(tag_map) => {
+                        let extraction: HashSet<String> = if let Some(list) = extraction {
+                            list.iter().cloned().collect()
+                        } else {
+                            HashSet::new()
+                        };
                         let mut pictures: Vec<Picture> = vec![];
                         for (file_path, image_data) in picture_map.iter() {
                             let new_tags = if let Some(tags) = tag_map.get(file_path) {
@@ -420,6 +426,8 @@ impl Database {
                                     || *label.as_ref().unwrap() == new_image_data.label())
                                 && (pattern.clone().is_none()
                                     || pattern.as_ref().unwrap().is_match(file_path))
+                                && (extraction.is_empty()
+                                    || extraction.contains(file_path))
                             {
                                 let picture =
                                     Picture::new_with_image_data(file_path, &new_image_data);
@@ -439,6 +447,7 @@ impl Database {
     pub fn retrieve_all_pictures_with_parent(&self, parent_dir: &str) -> IOResult<Vec<Picture>> {
         self.retrieve_all_pictures(
             Selection::empty(),
+            None,
             None,
             None,
             false,

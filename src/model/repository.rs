@@ -1,3 +1,5 @@
+use std::io::BufRead;
+use std::io::BufReader;
 use std::io::Write;
 use std::fs::File;
 use std::io::BufWriter;
@@ -78,9 +80,18 @@ impl Repository {
                     },
                     None => None,
                 };
+                let extraction: Option<Vec<String>> = if let Some(list_file) = &args.extraction {
+                    match self.retrieve_file_names(&list_file) {
+                        Ok(list) => Some(list),
+                        Err(e) => return Err(e),
+                    }
+                } else {
+                    None
+                };
                 *gallery = match self.database.retrieve_all_pictures(
                     selection.clone(),
                     args.label.clone(),
+                    extraction.clone(),
                     regex,
                     args.cover,
                     args.directory.clone(),
@@ -487,23 +498,15 @@ impl Repository {
             Err(e) => Err(IOError::other(e)),
         }
     }
+
+    pub fn retrieve_file_names(&self, extract_file: &str) -> IOResult<Vec<String>> {
+        File::open(extract_file)
+            .and_then(|file| {
+                let reader = BufReader::new(file);
+                reader.lines().collect()
+            })
+    }
 }
-// use std::fs::File;
-// use std::io::{Write, BufWriter};
-// use std::path::Path;
-// 
-// pub fn write_lines<P: AsRef<Path>>(path: P, lines: Vec<String>) -> std::io::Result<()> {
-//     let file = File::create(path)?;
-//     let mut writer = BufWriter::new(file);
-// 
-//     for line in lines {
-//         writer.write_all(line.as_bytes())?;
-//         writer.write_all(b"\n")?;
-//     }
-// 
-//     writer.flush()?;
-//     Ok(())
-// }
 
 #[cfg(test)]
     mod tests {
