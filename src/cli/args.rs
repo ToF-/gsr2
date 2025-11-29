@@ -121,6 +121,20 @@ impl Args {
         };
         args.slideshow =
             slideshow_delay(args.slideshow, "slideshow delay", DEFAULT_SLIDESHOW_DELAY);
+        if let Some(ref color_range_spec) = args.filter {
+            if ! args.command.is_some() {
+                match ColorRange::from_string(color_range_spec) {
+                    Ok(_) => {},
+                    Err(e) => {
+                        eprintln!("{} ??", color_range_spec);
+                        return Err(Error::other(e))
+                    },
+                }
+            } else {
+                return Err(Error::other(
+                        "option --filter not allowed with file, dir (or other) command"));
+            }
+        };
         if let Some(Command::File { ref file_path }) = args.command {
             match check_picture_file(file_path) {
                 Ok(_) => {
@@ -143,15 +157,6 @@ impl Args {
                 Err(e) => return Err(e),
             }
         }
-        if let Some(ref color_range_spec) = args.filter {
-            match ColorRange::from_string(color_range_spec) {
-                Ok(_) => {},
-                Err(e) => {
-                    eprintln!("{} ??", color_range_spec);
-                    return Err(Error::other(e))
-                },
-            }
-        };
         if let Some(ref target_dir) = args.r#move {
             let target_path = PathBuf::from(target_dir);
             match check_collectable(&target_path) {

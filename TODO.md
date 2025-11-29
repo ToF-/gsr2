@@ -2,6 +2,10 @@
 ## Gallery Show in Rust
 
 ## Todo
+- [ ] filter option analyse if colors in picture match the filter 
+- [X] filter option cannot be used with dir or file (or other) commands
+- [X] parse a filter on color range argument
+- [X] extract list of files in the selection
 - [X] copy current picture file on temporary directory
 - [X] set marks a,b,c,d,e and jump to these marks
 - [X] move a picture with filepath Y/X/Z and label A to Y/X/A
