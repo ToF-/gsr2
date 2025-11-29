@@ -1,3 +1,4 @@
+use image::{GenericImageView, Pixel};
 use crate::file::paths::file_path_as_retrieved;
 use crate::env::default_values::THUMB_SUFFIX;
 use crate::file::paths::check_collectable;
@@ -219,6 +220,17 @@ pub fn move_picture_files(file_path: &str, target_dir: &str) -> IOResult<u64> {
         })
     })
 }
+pub fn read_pixels(path: &str) -> image::ImageResult<Vec<[u8; 4]>> {
+    let img = image::open(path)?;
+    let mut out = Vec::new();
+
+    for (_, _, p) in img.pixels() {
+        let rgba = p.to_rgba();
+        out.push(rgba.0);
+    }
+    Ok(out)
+}
+
 
 #[allow(unused_imports)]
 #[cfg(test)]
@@ -336,4 +348,5 @@ pub mod test {
 
         move_picture_files(&target_file_path, &test_dir);
     }
+
 }

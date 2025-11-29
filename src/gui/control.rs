@@ -96,7 +96,7 @@ pub fn help_on_controls() -> String {
     format!("{}\n",
         "n/p z/a Z/A: next/prev page, end/start of page, last/first page \n\
         return: set range start/end,  space: toggle in/out of range \n\
-        esc $ !: cancel range, repeat range, whole range \n\
+        esc $ ! _: cancel range, repeat range, whole range, page range\n\
         f/F: find by pattern in name/label \n\
         J: jump to picture #… \n\
         i/I: toggle information display, display file path \n\
