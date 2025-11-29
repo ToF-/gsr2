@@ -1,3 +1,4 @@
+use chrono::{Local,SecondsFormat};
 use crate::env::default_values::GARBAGE;
 use crate::env::default_values::THUMB_SUFFIX;
 use crate::env::default_values::VALID_EXTENSIONS;
@@ -184,6 +185,13 @@ pub fn file_path_as_retrieved(source: &str) -> String {
     let mut source_iter = source.chars();
     source_iter.next();
     format!("{}{}", home_directory(), source_iter.as_str())
+}
+
+pub fn timestamp_filename(prefix: &str, ext: &str) -> String {
+    let now = Local::now();
+    let stamp = now.to_rfc3339_opts(SecondsFormat::Millis, true)
+                   .replace(':', "-");
+    format!("{}{}{}.{}", prefix, if prefix.is_empty() { "" } else { "-" }, stamp, ext)
 }
 
 #[cfg(test)]

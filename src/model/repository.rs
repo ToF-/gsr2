@@ -1,3 +1,4 @@
+use crate::file::paths::timestamp_filename;
 use crate::model::order::Order;
 use crate::file::picture_file::copy_picture_file_to_directory;
 use regex::Regex;
@@ -457,7 +458,40 @@ impl Repository {
             Err(e) => Err(IOError::other(e)),
         }
     }
+
+    pub fn extract_file_names(&self, indexes: &Vec<usize>) -> IOResult<()> {
+        let extract_file = timestamp_filename("selection","txt");
+        let mut lines: Vec<String> = vec![];
+        match self.gallery_rc().try_borrow() {
+            Ok(gallery) => {
+                for index in indexes {
+                    let picture = &gallery.picture(*index);
+                    lines.push(picture.file_path());
+                    println!("copying {} to {}", &picture.file_path(), extract_file);
+                };
+                println!("{:?}", lines);
+                Ok(())
+            },
+            Err(e) => Err(IOError::other(e)),
+        }
+    }
 }
+// use std::fs::File;
+// use std::io::{Write, BufWriter};
+// use std::path::Path;
+// 
+// pub fn write_lines<P: AsRef<Path>>(path: P, lines: Vec<String>) -> std::io::Result<()> {
+//     let file = File::create(path)?;
+//     let mut writer = BufWriter::new(file);
+// 
+//     for line in lines {
+//         writer.write_all(line.as_bytes())?;
+//         writer.write_all(b"\n")?;
+//     }
+// 
+//     writer.flush()?;
+//     Ok(())
+// }
 
 #[cfg(test)]
     mod tests {

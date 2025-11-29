@@ -770,6 +770,7 @@ impl Controller {
             Control::ToggleSelected => self.toggle_selected(),
             Control::CancelRange => self.cancel_range(),
             Control::CopyTemp => self.copy_to_temp(),
+            Control::ExtractFileNames => self.extract_filenames(),
             Control::DeletePicture => self.delete_picture(),
             Control::MovePicture => self.move_picture(),
             Control::MovePictureToLabel => self.move_picture_to_label(),
@@ -1320,6 +1321,14 @@ impl Controller {
             Err(e) => {
                 eprintln!("{}", e);
             },
+        }
+    }
+
+    pub fn extract_filenames(&mut self) {
+        if self.navigator.has_selected() {
+            self.repository.extract_file_names(&self.navigator.selection());
+        } else {
+            panic!("can't borrow");
         }
     }
 
