@@ -92,6 +92,7 @@ impl Repository {
                     selection.clone(),
                     args.label.clone(),
                     extraction.clone(),
+                    args.filter.clone(),
                     regex,
                     args.cover,
                     args.directory.clone(),

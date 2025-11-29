@@ -2,7 +2,7 @@
 ## Gallery Show in Rust
 
 ## Todo
-- [ ] filter option analyse if colors in picture match the filter 
+- [X] filter option analyse if colors in picture match the filter 
 - [X] filter option cannot be used with dir or file (or other) commands
 - [X] parse a filter on color range argument
 - [X] extract list of files in the selection

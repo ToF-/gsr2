@@ -1,3 +1,4 @@
+use crate::model::color_range::ColorRange;
 use regex::Regex;
 use crate::file::paths::parent_directory;
 use crate::file::paths::{file_exists, file_path_as_retrieved, file_path_as_stored};
@@ -385,6 +386,7 @@ impl Database {
         selection: Selection,
         label: Option<String>,
         extraction: Option<Vec<String>>,
+        filter: Option<String>,
         pattern: Option<Regex>,
         cover: bool,
         parent_opt: Option<String>,
@@ -399,6 +401,11 @@ impl Database {
                             HashSet::new()
                         };
                         let mut pictures: Vec<Picture> = vec![];
+                        let color_range_opt = filter.map(|spec| ColorRange::from_string(&spec));
+                        let color_range: ColorRange = match color_range_opt {
+                            Some(Ok(ref r)) => r.clone(),
+                            Some(Err(_)) | None => ColorRange::default(),
+                        };
                         for (file_path, image_data) in picture_map.iter() {
                             let new_tags = if let Some(tags) = tag_map.get(file_path) {
                                 tags.clone()
@@ -428,6 +435,8 @@ impl Database {
                                     || pattern.as_ref().unwrap().is_match(file_path))
                                 && (extraction.is_empty()
                                     || extraction.contains(file_path))
+                                && (color_range_opt.is_none()
+                                    || color_range.matches(file_path))
                             {
                                 let picture =
                                     Picture::new_with_image_data(file_path, &new_image_data);
@@ -447,6 +456,7 @@ impl Database {
     pub fn retrieve_all_pictures_with_parent(&self, parent_dir: &str) -> IOResult<Vec<Picture>> {
         self.retrieve_all_pictures(
             Selection::empty(),
+            None,
             None,
             None,
             None,
@@ -780,7 +790,7 @@ pub mod tests {
         assert!(map.get(&file_path).unwrap().contains("dot"));
         assert!(map.get(&file_path).unwrap().contains("bar"));
 
-        let result = database.retrieve_all_pictures(Selection::empty(), None, None, None, false, None);
+        let result = database.retrieve_all_pictures(Selection::empty(), None, None, None, None, false, None);
         assert!(result.is_ok());
         let pictures = result.unwrap();
         assert_eq!(nine_colors_file_path(), pictures[1].file_path());

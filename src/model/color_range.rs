@@ -1,3 +1,6 @@
+use image::DynamicImage;
+use image::GenericImageView;
+use crate::file::picture_file::get_image_from_picture_file;
 use std::num::ParseIntError;
 use crate::model::color::Color;
 use std::fmt;
@@ -51,6 +54,40 @@ impl ColorRange {
                 Err(_) => Err(ParseColorRangeError),
             },
             _ => Err(ParseColorRangeError),
+        }
+    }
+
+    pub fn matches(&self, file_path: &str) -> bool {
+        let red_range = self.color_min.r..=self.color_max.r;
+        let green_range = self.color_min.g..=self.color_max.g;
+        let blue_range = self.color_min.b..=self.color_max.b;
+        match get_image_from_picture_file(file_path) {
+            Ok(image) => {
+                let mut count: u32 = 0;
+                let total: u32 = image.width() * image.height();
+                for y in 0..image.height() {
+                    for x in 0..image.width() {
+                        let pixel = image.get_pixel(x, y);
+                        let r = pixel[0];
+                        let g = pixel[1];
+                        let b = pixel[2];
+                        if red_range.contains(&r)
+                            && green_range.contains(&g)
+                                && blue_range.contains(&b) {
+                                    count+= 1
+                        };
+                    }
+                }
+                let ratio: f64 = (count as f64) / (total as f64);
+                if ratio >= self.ratio {
+                    println!("{:.1}>={:.1}", ratio, self.ratio);
+                };
+                ratio >= self.ratio
+            },
+            Err(e) => {
+                eprintln!("{}",e);
+                false
+            },
         }
     }
 }
