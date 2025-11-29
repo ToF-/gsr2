@@ -1,3 +1,4 @@
+use crate::model::color_range::ColorRange;
 use regex::Regex;
 use crate::cli::command::Command;
 use crate::env::configuration::Configuration;
@@ -142,6 +143,15 @@ impl Args {
                 Err(e) => return Err(e),
             }
         }
+        if let Some(ref color_range_spec) = args.filter {
+            match ColorRange::from_string(color_range_spec) {
+                Ok(_) => {},
+                Err(e) => {
+                    eprintln!("{} ??", color_range_spec);
+                    return Err(Error::other(e))
+                },
+            }
+        };
         if let Some(ref target_dir) = args.r#move {
             let target_path = PathBuf::from(target_dir);
             match check_collectable(&target_path) {
