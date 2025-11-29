@@ -79,10 +79,21 @@ impl ColorRange {
                     }
                 }
                 let ratio: f64 = (count as f64) / (total as f64);
-                if ratio >= self.ratio {
-                    println!("{:.1}>={:.1} : {}", ratio, self.ratio, file_path);
-                };
-                ratio >= self.ratio
+                if self.ratio >= 0.0 {
+                    if ratio >= self.ratio {
+                        println!("{:.2} >= {:.2} {}", ratio, self.ratio, file_path);
+                            true
+                    } else {
+                        false
+                    }
+                } else {
+                    if ratio <= -self.ratio {
+                        println!("{:.2} < {:.2} {}", ratio, -self.ratio, file_path);
+                        true
+                    } else {
+                        false
+                    }
+                }
             },
             Err(e) => {
                 eprintln!("{}",e);
@@ -113,5 +124,13 @@ mod tests {
             format!("{:?}", color_range_opt.unwrap()));
     }
 
+    #[test]
+    fn color_range_can_a_minus_sign() {
+        let color_range_opt = ColorRange::from_string("0A20ff F04010 -0.2");
+        assert!(color_range_opt.is_ok());
+        assert_eq!(
+            "ColorRange { color_min: Color { r: 10, g: 32, b: 255 }, color_max: Color { r: 240, g: 64, b: 16 }, ratio: -0.2 }",
+            format!("{:?}", color_range_opt.unwrap()));
+    }
 
 }
