@@ -80,7 +80,7 @@ impl ColorRange {
                 }
                 let ratio: f64 = (count as f64) / (total as f64);
                 if ratio >= self.ratio {
-                    println!("{:.1}>={:.1}", ratio, self.ratio);
+                    println!("{:.1}>={:.1} : {}", ratio, self.ratio, file_path);
                 };
                 ratio >= self.ratio
             },

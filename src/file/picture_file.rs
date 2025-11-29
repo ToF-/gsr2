@@ -233,7 +233,6 @@ pub fn read_pixels(path: &str) -> image::ImageResult<Vec<[u8; 4]>> {
 }
 
     pub fn get_image_from_picture_file(file_path: &str) -> IOResult<DynamicImage> {
-        println!("scanning image for color filter match: {}", file_path);
         match image::open(file_path) {
             Ok(image) => Ok(image),
             Err(e) => Err(IOError::other(e)),
