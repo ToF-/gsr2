@@ -564,6 +564,7 @@ pub mod tests {
             database_file: format!("{}/{}/gsr2.db", current_directory(), TEST_DATA_DIR),
             temp_dir: format!("{}/{}/subdir", current_directory(), TEST_DATA_DIR),
             marked: HashMap::new(),
+            cover: false,
             current_picture: None,
             current_order: Some(Order::Name),
             current_pictures_per_row: Some(1),
@@ -575,12 +576,15 @@ pub mod tests {
         Args {
             command: None,
             directory: None,
+            all: false,
             grid: None,
             index: None,
             thumbnails: false,
-            order: Order::Name,
+            order: Some(Order::Name),
             r#move: None,
             label: None,
+            extraction: None,
+            filter: None,
             pattern: None,
             cover: false,
             height: None,
@@ -776,7 +780,7 @@ pub mod tests {
         assert!(map.get(&file_path).unwrap().contains("dot"));
         assert!(map.get(&file_path).unwrap().contains("bar"));
 
-        let result = database.retrieve_all_pictures(Selection::empty(), None, None, false, None);
+        let result = database.retrieve_all_pictures(Selection::empty(), None, None, None, false, None);
         assert!(result.is_ok());
         let pictures = result.unwrap();
         assert_eq!(nine_colors_file_path(), pictures[1].file_path());

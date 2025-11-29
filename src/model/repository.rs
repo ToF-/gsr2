@@ -546,7 +546,7 @@ impl Repository {
         #[serial]
         fn given_initial_args_it_provides_the_gallery_of_all_picture_matching_the_args() {
             let mut args = my_args().expect("can't access to test args");
-            args.order = Order::Size;
+            args.order = Some(Order::Size);
             let cfg = my_cfg();
             let mut repository = Repository::new(my_cfg(), args.clone());
             assert!(repository.initialize().is_ok());
@@ -564,7 +564,7 @@ impl Repository {
         #[serial]
         fn given_a_dir_it_provides_the_gallery_of_pictures_with_only_size_and_modified_time() {
             let mut args = my_args().expect("can't access to test args");
-            args.order = Order::Size;
+            args.order = Some(Order::Size);
             let mut repository = Repository::new(my_cfg(), args);
             assert!(repository.initialize().is_ok());
             let result = repository.pictures_in_directory("testdata");
@@ -576,7 +576,7 @@ impl Repository {
         #[serial]
         fn given_a_file_path_it_provides_the_picture_with_only_size_and_modified_time() {
             let mut args = my_args().expect("can't access to test args");
-            args.order = Order::Size;
+            args.order = Some(Order::Size);
             let mut repository = Repository::new(my_cfg(), args);
             assert!(repository.initialize().is_ok());
             let result = repository.picture_from_file_path(&format!("testdata/{}", NINE_COLORS));

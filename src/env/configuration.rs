@@ -82,6 +82,7 @@ pub mod tests {
             temp_dir: format!("{}/{}/subdir", current_directory(), TEST_DATA_DIR),
             marked: HashMap::new(),
             current_picture: None,
+            cover: false,
             current_order: Some(Order::Name),
             current_pictures_per_row: Some(1),
         }
