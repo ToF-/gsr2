@@ -406,7 +406,9 @@ impl Database {
                             Some(Ok(ref r)) => r.clone(),
                             Some(Err(_)) | None => ColorRange::default(),
                         };
+                        let mut count: usize = 0;
                         for (file_path, image_data) in picture_map.iter() {
+                            count += 1;
                             let new_tags = if let Some(tags) = tag_map.get(file_path) {
                                 tags.clone()
                             } else {
@@ -428,20 +430,24 @@ impl Database {
                                 },
                                 ..image_data.clone()
                             };
-                            if (selection.is_empty() || selection.matches(new_tags.clone()))
-                                && (label.clone().is_none()
-                                    || *label.as_ref().unwrap() == new_image_data.label())
-                                && (pattern.clone().is_none()
-                                    || pattern.as_ref().unwrap().is_match(file_path))
-                                && (extraction.is_empty()
-                                    || extraction.contains(file_path))
-                                && (color_range_opt.is_none()
-                                    || color_range.matches(file_path))
-                            {
-                                let picture =
-                                    Picture::new_with_image_data(file_path, &new_image_data);
-                                pictures.push(picture)
-                            }
+                            if ! selection.is_empty() && ! selection.matches(new_tags.clone()) {
+                                continue
+                            };
+                            if label.clone().is_some() && *label.as_ref().unwrap() != new_image_data.label() {
+                                continue
+                            };
+                            if pattern.clone().is_some() && ! pattern.as_ref().unwrap().is_match(file_path) {
+                                continue
+                            };
+                            if ! extraction.is_empty() && ! extraction.contains(file_path) {
+                                continue
+                            };
+                            if color_range_opt.is_some() && ! color_range.matches(count, file_path) {
+                                continue
+                            };
+                            let picture =
+                                Picture::new_with_image_data(file_path, &new_image_data);
+                            pictures.push(picture)
                         }
                         pictures.sort_by_key(|picture| picture.file_path());
                         Ok(pictures)

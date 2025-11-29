@@ -57,7 +57,7 @@ impl ColorRange {
         }
     }
 
-    pub fn matches(&self, file_path: &str) -> bool {
+    pub fn matches(&self, index: usize, file_path: &str) -> bool {
         let red_range = self.color_min.r..=self.color_max.r;
         let green_range = self.color_min.g..=self.color_max.g;
         let blue_range = self.color_min.b..=self.color_max.b;
@@ -81,14 +81,14 @@ impl ColorRange {
                 let ratio: f64 = (count as f64) / (total as f64);
                 if self.ratio >= 0.0 {
                     if ratio >= self.ratio {
-                        println!("{:.5} >= {:.5} {}", ratio, self.ratio, file_path);
+                        println!("{} {:.5} >= {:.5} {}", index, ratio, self.ratio, file_path);
                             true
                     } else {
                         false
                     }
                 } else {
                     if ratio <= -self.ratio {
-                        println!("{:.5} < {:.5} {}", ratio, -self.ratio, file_path);
+                        println!("{} {:.5} < {:.5} {}", index, ratio, -self.ratio, file_path);
                         true
                     } else {
                         false
