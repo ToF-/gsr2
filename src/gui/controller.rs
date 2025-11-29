@@ -1,4 +1,3 @@
-use crate::file::picture_file::read_pixels;
 use crate::file::paths::check_path_exists;
 use crate::file::paths::grand_parent_directory;
 use regex::Regex;

@@ -1,4 +1,5 @@
 pub mod action;
+pub mod color_range;
 pub mod cover;
 pub mod gallery;
 pub mod image_data;

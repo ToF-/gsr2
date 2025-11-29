@@ -46,6 +46,10 @@ pub struct Args {
     #[arg(short, long, value_name = "LIST")]
     pub extraction: Option<String>,
 
+    /// filter pictures having a percentage of pixel in the given range
+    #[arg(short, long, value_name = "COLOR_RANGE")]
+    pub filter: Option<String>,
+
     /// display N x N pictures per page (N in range [1..10[)
     #[arg(short, long, value_name = "N",value_parser(clap::value_parser!(u8).range(1..=9)))]
     pub grid: Option<u8>,
