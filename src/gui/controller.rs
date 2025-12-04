@@ -653,6 +653,14 @@ impl Controller {
                 | Control::SetMarkE => self.process_control(choice),
                 _ => println!("?"),
             }
+            Control::GotoMark => match choice {
+                Control::JumpMarkA
+                    | Control::JumpMarkB
+                    | Control::JumpMarkC
+                    | Control::JumpMarkD
+                    | Control::JumpMarkE => self.process_control(choice),
+                _ => println!("?"),
+            }
             Control::SetDisplay => match choice {
                 Control::DisplayDate | Control::DisplaySize => self.process_control(choice),
                 Control::DisplayFocus => self.toggle_display_focus_symbol_change(),
@@ -683,6 +691,11 @@ impl Controller {
         self.state.set_mode(Mode::Setting(Control::SetMark));
     }
     
+    pub fn jumping_mark(&mut self) {
+        println!("Jumping to mark…");
+        self.state.set_mode(Mode::Setting(Control::GotoMark));
+    }
+    
     pub fn set_mark(&mut self, mark: char) {
         let file_path = self.current_picture().file_path();
         let _ = self.configuration.marked.insert(mark, file_path.clone());
@@ -701,6 +714,7 @@ impl Controller {
     }
 
     pub fn process_control(&mut self, control: &Control) {
+        println!("{:?}", control);
         match control {
             Control::MoveNext => self.move_towards(Direction::NextPage),
             Control::MovePrev => self.move_towards(Direction::PrevPage),
@@ -743,6 +757,7 @@ impl Controller {
             Control::GridTen => self.change_grid_size(10),
             Control::SetDisplay => self.setting_display(),
             Control::SetMark => self.setting_mark(),
+            Control::GotoMark => self.jumping_mark(),
             Control::SetMarkA => self.set_mark('A'),
             Control::SetMarkB => self.set_mark('B'),
             Control::SetMarkC => self.set_mark('C'),

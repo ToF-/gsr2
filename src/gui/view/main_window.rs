@@ -198,6 +198,9 @@ impl MainWindow {
                 Control::SetMark => String::from(
                     "Mark current picture… (a | b | c | d | e)",
                 ),
+                Control::GotoMark => String::from(
+                    "Destination picture… (a | b | c | d | e)",
+                ),
                 _ => panic!("incorrect choice for setting: {:?}", choice),
             },
             Mode::Editing => String::from("Editing…"),
