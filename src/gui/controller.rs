@@ -452,7 +452,9 @@ impl Controller {
                             self.set_opacity_for_current_picture(1.00);
                         }
                         EntryKind::Number => {
-                            self.move_towards_index(self.editor.input().parse().unwrap())
+                            if !self.editor.input().is_empty() {
+                                self.move_towards_index(self.editor.input().parse().unwrap())
+                            };
                         }
                         EntryKind::Order => self.set_order(&self.editor.input()),
                         EntryKind::DeleteConfirmation => {

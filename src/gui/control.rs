@@ -101,6 +101,7 @@ pub fn help_on_controls() -> String {
         f/F: find by pattern in name/label \n\
         J: jump to picture #… \n\
         k then a,b,c,d,e : set mark A/B/C/D/E \n\
+        j then a,b,c,d,e : jump to mark A/B/C/D/E \n
         \",«,»,(,) : jump to mark A/B/C/D/E \n\
         i/I: toggle information display, display file path \n\
         O then c,d,n,p,r,s,v: pick view order \n\
@@ -151,7 +152,7 @@ pub fn default_controls() -> Controls {
         ((String::from("parenleft"), Mode::View), Control::JumpMarkD),
         ((String::from("parenright"), Mode::View), Control::JumpMarkE),
         ((String::from("k"), Mode::View), Control::SetMark),
-        ((String::from("K"), Mode::View), Control::GotoMark),
+        ((String::from("j"), Mode::View), Control::GotoMark),
         ((String::from("H"), Mode::View), Control::Help),
         ((String::from("f"), Mode::View), Control::Find),
         ((String::from("F"), Mode::View), Control::FindLabel),
