@@ -99,6 +99,8 @@ pub fn help_on_controls() -> String {
         esc $ ! _: cancel range, repeat range, whole range, page range\n\
         f/F: find by pattern in name/label \n\
         J: jump to picture #… \n\
+        k then a,b,c,d,e : set mark A/B/C/D/E \n\
+        \",«,»,(,) : jump to mark A/B/C/D/E \n\
         i/I: toggle information display, display file path \n\
         O then c,d,n,p,r,s,v: pick view order \n\
         D then s,t: display size,modified time in title \n\
