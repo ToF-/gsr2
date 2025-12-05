@@ -17,17 +17,9 @@ pub enum Control {
     CancelRange,
     RepeatRange,
     SetMark,
+    SetMarkChar(char),
     GotoMark,
-    SetMarkA,
-    SetMarkB,
-    SetMarkC,
-    SetMarkD,
-    SetMarkE,
-    JumpMarkA,
-    JumpMarkB,
-    JumpMarkC,
-    JumpMarkD,
-    JumpMarkE,
+    JumpMarkChar(char),
     Jump,
     Help,
     Left,
@@ -121,7 +113,7 @@ pub fn help_on_controls() -> String {
 }
 // these default controls are valid on my ergodox bepo modified
 pub fn default_controls() -> Controls {
-    let controls: Controls = HashMap::from([
+    let mut controls: Controls = HashMap::from([
         ((String::from("question"), Mode::View), Control::CopyTemp),
         (
             (String::from("Escape"), Mode::Editing),
@@ -146,11 +138,6 @@ pub fn default_controls() -> Controls {
         ((String::from("I"), Mode::View), Control::Information),
         ((String::from("E"), Mode::View), Control::ExtractFileNames),
         ((String::from("J"), Mode::View), Control::Jump),
-        ((String::from("quotedbl"), Mode::View), Control::JumpMarkA),
-        ((String::from("guillemotleft"), Mode::View), Control::JumpMarkB),
-        ((String::from("guillemotright"), Mode::View), Control::JumpMarkC),
-        ((String::from("parenleft"), Mode::View), Control::JumpMarkD),
-        ((String::from("parenright"), Mode::View), Control::JumpMarkE),
         ((String::from("k"), Mode::View), Control::SetMark),
         ((String::from("j"), Mode::View), Control::GotoMark),
         ((String::from("H"), Mode::View), Control::Help),
@@ -217,21 +204,6 @@ pub fn default_controls() -> Controls {
             (String::from("s"), Mode::Setting(Control::SetDisplay)),
             Control::DisplaySize,
         ),
-        ((String::from("a"), Mode::Setting(Control::SetMark)), Control::SetMarkA),
-        ((String::from("b"), Mode::Setting(Control::SetMark)), Control::SetMarkB),
-        ((String::from("c"), Mode::Setting(Control::SetMark)), Control::SetMarkC),
-        ((String::from("d"), Mode::Setting(Control::SetMark)), Control::SetMarkD),
-        ((String::from("e"), Mode::Setting(Control::SetMark)), Control::SetMarkE),
-        ((String::from("quotedbl"), Mode::Setting(Control::SetMark)), Control::SetMarkA),
-        ((String::from("a"), Mode::Setting(Control::GotoMark)), Control::JumpMarkA),
-        ((String::from("b"), Mode::Setting(Control::GotoMark)), Control::JumpMarkB),
-        ((String::from("c"), Mode::Setting(Control::GotoMark)), Control::JumpMarkC),
-        ((String::from("d"), Mode::Setting(Control::GotoMark)), Control::JumpMarkD),
-        ((String::from("e"), Mode::Setting(Control::GotoMark)), Control::JumpMarkE),
-        ((String::from("guillemotleft"), Mode::Setting(Control::SetMark)), Control::SetMarkB),
-        ((String::from("guillemotright"), Mode::Setting(Control::SetMark)), Control::SetMarkC),
-        ((String::from("parenleft"), Mode::Setting(Control::SetMark)), Control::SetMarkD),
-        ((String::from("parenright"), Mode::Setting(Control::SetMark)), Control::SetMarkE),
         (
             (String::from("f"), Mode::Setting(Control::SetOrder)),
             Control::DisplayFocus,
@@ -277,6 +249,10 @@ pub fn default_controls() -> Controls {
         ((String::from("G"), Mode::View), Control::BackFromDirectory),
         ((String::from("q"), Mode::View), Control::BackFromDirectory),
     ]);
+    for ch in 'a'..='z' {
+        controls.insert((ch.to_string(), Mode::Setting(Control::SetMark)), Control::SetMarkChar(ch));
+        controls.insert((ch.to_string(), Mode::Setting(Control::GotoMark)), Control::JumpMarkChar(ch));
+    }
     controls
 }
 

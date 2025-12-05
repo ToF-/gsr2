@@ -648,19 +648,11 @@ impl Controller {
     pub fn set_setting(&mut self, setting: &Control, choice: &Control) {
         match setting {
             Control::SetMark => match choice {
-                Control::SetMarkA
-                | Control::SetMarkB
-                | Control::SetMarkC
-                | Control::SetMarkD
-                | Control::SetMarkE => self.process_control(choice),
+                Control::SetMarkChar(ch) => self.process_control(choice),
                 _ => println!("?"),
             }
             Control::GotoMark => match choice {
-                Control::JumpMarkA
-                    | Control::JumpMarkB
-                    | Control::JumpMarkC
-                    | Control::JumpMarkD
-                    | Control::JumpMarkE => self.process_control(choice),
+                Control::JumpMarkChar(ch) => self.process_control(choice),
                 _ => println!("?"),
             }
             Control::SetDisplay => match choice {
@@ -738,11 +730,7 @@ impl Controller {
             Control::ToggleSlideShow => self.toggle_slideshow(),
             Control::TogglePalette => self.toggle_palette(),
             Control::Jump => self.jump(),
-            Control::JumpMarkA => self.find_mark('A'),
-            Control::JumpMarkB => self.find_mark('B'),
-            Control::JumpMarkC => self.find_mark('C'),
-            Control::JumpMarkD => self.find_mark('D'),
-            Control::JumpMarkE => self.find_mark('E'),
+            Control::JumpMarkChar(ch) => self.find_mark(*ch),
             Control::Find => self.find(),
             Control::Help => self.help(),
             Control::FindLabel => self.find_label(),
@@ -760,11 +748,7 @@ impl Controller {
             Control::SetDisplay => self.setting_display(),
             Control::SetMark => self.setting_mark(),
             Control::GotoMark => self.jumping_mark(),
-            Control::SetMarkA => self.set_mark('A'),
-            Control::SetMarkB => self.set_mark('B'),
-            Control::SetMarkC => self.set_mark('C'),
-            Control::SetMarkD => self.set_mark('D'),
-            Control::SetMarkE => self.set_mark('E'),
+            Control::SetMarkChar(ch) => self.set_mark(*ch),
             Control::SetOrder => self.setting_order(),
             Control::SetSelection => self.set_selection(),
             Control::SetRestriction => self.set_restriction(),
