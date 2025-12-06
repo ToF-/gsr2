@@ -404,7 +404,12 @@ impl Controller {
     }
 
     pub fn process_key(&mut self, key: Key) {
-        // println!("{:?}", key.name());
+        const SHIFT_L: &str = "Shift_L";
+        const SHIFT_R: &str = "Shift_R";
+        if let Some(name) = key.name() 
+            && (name == SHIFT_L || name == SHIFT_R) {
+            return
+        }
         let controls = self.controls.clone();
         match self.state().mode() {
             Mode::View => match key.name() {
@@ -651,6 +656,9 @@ impl Controller {
                 Control::SetMarkChar(ch) => self.process_control(choice),
                 _ => println!("?"),
             }
+            Control::SetGrid => match choice {
+                _ => self.process_control(choice),
+            },
             Control::GotoMark => match choice {
                 Control::JumpMarkChar(ch) => self.process_control(choice),
                 _ => println!("?"),
@@ -680,6 +688,10 @@ impl Controller {
         self.state.set_mode(Mode::Setting(Control::SetDisplay));
     }
 
+    pub fn setting_grid(&mut self) {
+        println!("Setting grid size…");
+        self.state.set_mode(Mode::Setting(Control::SetGrid));
+    }
     pub fn setting_mark(&mut self) {
         println!("Setting mark…");
         self.state.set_mode(Mode::Setting(Control::SetMark));
@@ -740,6 +752,7 @@ impl Controller {
             Control::RemoveTag => self.remove_tag(),
             Control::Label => self.label(),
             Control::Unlabel => self.unlabel_selected_pictures(),
+            Control::SetGrid => self.setting_grid(),
             Control::GridTwo => self.change_grid_size(2),
             Control::GridThree => self.change_grid_size(3),
             Control::GridFour => self.change_grid_size(4),

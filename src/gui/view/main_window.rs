@@ -198,6 +198,9 @@ impl MainWindow {
                 Control::SetMark => String::from(
                     "Mark current picture… (a | b | c | d | e)",
                 ),
+                Control::SetGrid => String::from(
+                    "Set grid size… (2 | 3 | 4 | 5 | t)",
+                ),
                 Control::GotoMark => String::from(
                     "Destination picture… (a | b | c | d | e)",
                 ),
