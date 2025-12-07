@@ -181,29 +181,6 @@ impl Controller {
         let mut gallery = Gallery::new();
         let args = self.args.clone();
         let result = match args.command {
-            Some(Command::File { file_path }) => match gallery.load_from_file_path(&file_path) {
-                Err(e) => Err(e),
-                Ok(_) => Ok(Status::Ready),
-            },
-            Some(Command::Directory { directory }) => match gallery.load_from_directory(&directory)
-            {
-                Err(e) => Err(e),
-                Ok(0) => {
-                    println!("no pictures for this selection");
-                    Ok(Status::Exit)
-                }
-                Ok(count) => {
-                    println!("{} pictures", count);
-                    if let Some(index) = args.index
-                        && self.navigator().can_move(Direction::Index { value: index })
-                    {
-                        self.navigator
-                            .move_towards(Direction::Index { value: index })
-                    };
-                    self.navigator().set_page_changed();
-                    Ok(Status::Ready)
-                }
-            },
             Some(Command::Collect { directory }) => {
                 println!("collecting data for picture files in the database…");
                 let path: PathBuf = PathBuf::from(directory);
@@ -270,6 +247,29 @@ impl Controller {
                 }
             }
 
+            Some(Command::File { file_path }) => match gallery.load_from_file_path(&file_path) {
+                Err(e) => Err(e),
+                Ok(_) => Ok(Status::Ready),
+            },
+            Some(Command::Directory { directory }) => match gallery.load_from_directory(&directory)
+            {
+                Err(e) => Err(e),
+                Ok(0) => {
+                    println!("no pictures for this selection");
+                    Ok(Status::Exit)
+                }
+                Ok(count) => {
+                    println!("{} pictures", count);
+                    if let Some(index) = args.index
+                        && self.navigator().can_move(Direction::Index { value: index })
+                    {
+                        self.navigator
+                            .move_towards(Direction::Index { value: index })
+                    };
+                    self.navigator().set_page_changed();
+                    Ok(Status::Ready)
+                }
+            },
             None => match self.repository.gallery_rc().try_borrow_mut() {
                 Ok(gallery) => {
                     if gallery.is_empty() {
@@ -328,13 +328,13 @@ impl Controller {
         }
     }
 
-    pub fn set_slideshow_off(&mut self) {
+    fn set_slideshow_off(&mut self) {
         if self.state().slideshow_on() {
             println!("setting slideshow off…");
             self.state.set_slideshow_off();
         }
     }
-    pub fn process_picture_clicked(&mut self, button: u32, col: i32, row: i32) {
+    fn process_picture_clicked(&mut self, button: u32, col: i32, row: i32) {
         self.main_window()
             .set_label_text_for_current_picture(self, None);
         if let Some(index) = self
@@ -353,7 +353,7 @@ impl Controller {
         self.set_label_text_for_current_picture();
     }
 
-    pub fn process_pane_clicked(&mut self, _button: usize, pane_number: usize) {
+    fn process_pane_clicked(&mut self, _button: usize, pane_number: usize) {
         self.process_control(if pane_number == LEFT_PANE {
             &Control::MovePrev
         } else {
@@ -364,7 +364,7 @@ impl Controller {
         }
     }
 
-    pub fn process_key_event(
+    fn process_key_event(
         &mut self,
         key: Key,
         _key_code: u32,
@@ -398,12 +398,12 @@ impl Controller {
             .set_label_text_for_current_picture(self, Some(self.state().focus_symbol()))
     }
 
-    pub fn set_opacity_for_current_picture(&mut self, opacity: f64) {
+    fn set_opacity_for_current_picture(&mut self, opacity: f64) {
         self.main_window()
             .set_opacity_for_current_picture(self, opacity)
     }
 
-    pub fn process_key(&mut self, key: Key) {
+    fn process_key(&mut self, key: Key) {
         const SHIFT_L: &str = "Shift_L";
         const SHIFT_R: &str = "Shift_R";
         if let Some(name) = key.name() 
@@ -546,7 +546,7 @@ impl Controller {
         }
     }
 
-    pub fn label_selected_pictures(&mut self, label: &str) {
+    fn label_selected_pictures(&mut self, label: &str) {
         self.repository.add_label(label);
         if self.navigator.has_selected() {
             for index in 0..self.navigator.limit() {
@@ -561,7 +561,7 @@ impl Controller {
         self.navigator.set_page_changed()
     }
 
-    pub fn unlabel_selected_pictures(&mut self) {
+    fn unlabel_selected_pictures(&mut self) {
         if self.navigator.has_selected() {
             for index in 0..self.navigator.limit() {
                 if self.navigator.is_selected(index) {
@@ -612,7 +612,7 @@ impl Controller {
         }
     }
 
-    pub fn tag_selected_pictures(&mut self, label: &str) {
+    fn tag_selected_pictures(&mut self, label: &str) {
         self.repository.add_label(label);
         if self.navigator.has_selected() {
             for index in 0..self.navigator.limit() {
@@ -628,7 +628,7 @@ impl Controller {
         self.last_action = Action::AddTag(label.to_string());
     }
 
-    pub fn untag_selected_pictures(&mut self, label: &str) {
+    fn untag_selected_pictures(&mut self, label: &str) {
         if self.navigator.has_selected() {
             for index in 0..self.navigator.limit() {
                 if self.navigator.is_selected(index) {
@@ -643,14 +643,14 @@ impl Controller {
         self.last_action = Action::RemoveTag(label.to_string());
     }
 
-    pub fn move_towards_index(&mut self, index: usize) {
+    fn move_towards_index(&mut self, index: usize) {
         let direction = Direction::Index { value: index };
         if self.navigator().can_move(direction.clone()) {
             self.navigator.move_towards(direction)
         }
     }
 
-    pub fn set_setting(&mut self, setting: &Control, choice: &Control) {
+    fn set_setting(&mut self, setting: &Control, choice: &Control) {
         match setting {
             Control::SetMark => match choice {
                 Control::SetMarkChar(ch) => self.process_control(choice),
@@ -683,43 +683,43 @@ impl Controller {
         }
     }
 
-    pub fn setting_display(&mut self) {
+    fn setting_display(&mut self) {
         println!("Setting display…");
         self.state.set_mode(Mode::Setting(Control::SetDisplay));
     }
 
-    pub fn setting_grid(&mut self) {
+    fn setting_grid(&mut self) {
         println!("Setting grid size…");
         self.state.set_mode(Mode::Setting(Control::SetGrid));
     }
-    pub fn setting_mark(&mut self) {
+    fn setting_mark(&mut self) {
         println!("Setting mark…");
         self.state.set_mode(Mode::Setting(Control::SetMark));
     }
     
-    pub fn jumping_mark(&mut self) {
+    fn jumping_mark(&mut self) {
         println!("Jumping to mark…");
         self.state.set_mode(Mode::Setting(Control::GotoMark));
     }
     
-    pub fn set_mark(&mut self, mark: char) {
+    fn set_mark(&mut self, mark: char) {
         let file_path = self.current_picture().file_path();
         let _ = self.configuration.marked.insert(mark, file_path.clone());
         println!("{}={}",mark, file_path);
         let _ = self.configuration.save();
     }
-    pub fn setting_order(&mut self) {
+    fn setting_order(&mut self) {
         self.editor
             .begin(&self.main_window(), EntryKind::Order, None);
         self.state.set_mode(Mode::Editing);
     }
 
-    pub fn next_slide_delay(&mut self) {
+    fn next_slide_delay(&mut self) {
         self.move_towards(Direction::NextPage);
         self.main_window().set_pictures(self)
     }
 
-    pub fn process_control(&mut self, control: &Control) {
+    fn process_control(&mut self, control: &Control) {
         println!("{:?}", control);
         match control {
             Control::MoveNext => self.move_towards(Direction::NextPage),
@@ -799,7 +799,7 @@ impl Controller {
         }
     }
 
-    pub fn go_to_directory(&mut self) {
+    fn go_to_directory(&mut self) {
         if let Some(directory) = parent_directory(&self.current_picture().file_path())
             && Some(directory.clone()) != self.args.directory
             && !self.state.single_view()
@@ -823,7 +823,7 @@ impl Controller {
         }
     }
 
-    pub fn back_from_directory(&mut self) {
+    fn back_from_directory(&mut self) {
         if let Some((pictures_per_row, single_view, old_args)) = self.state.pop_saved_args() {
             self.args = old_args.clone();
             match self.repository.initialize_for_args(&old_args) {
@@ -844,7 +844,7 @@ impl Controller {
         }
     }
 
-    pub fn toggle_cover(&mut self) {
+    fn toggle_cover(&mut self) {
 
         let index = self.navigator().position();
         let counts = self.repository.directory_count_at_index(index);
@@ -865,7 +865,7 @@ impl Controller {
         }
     }
 
-    pub fn toggle_cover_selection(&mut self) {
+    fn toggle_cover_selection(&mut self) {
         if !self.args.cover
             && self.repository.covers() > 0 {
                 let new_args = Args {
@@ -890,7 +890,7 @@ impl Controller {
         }
     }
 
-    pub fn set_selection(&mut self) {
+    fn set_selection(&mut self) {
         self.editor.begin(
             &self.main_window(),
             EntryKind::SetSelection,
@@ -899,7 +899,7 @@ impl Controller {
         self.state.set_mode(Mode::Editing);
     }
 
-    pub fn set_restriction(&mut self) {
+    fn set_restriction(&mut self) {
         self.editor.begin(
             &self.main_window(),
             EntryKind::SetRestriction,
@@ -908,7 +908,7 @@ impl Controller {
         self.state.set_mode(Mode::Editing);
     }
 
-    pub fn cancel_selection(&mut self) {
+    fn cancel_selection(&mut self) {
         let current_file_path = self.current_picture().file_path();
         self.repository.set_selection(Selection::empty());
         if let Some(index) = self.repository.find_index_for_file_path(&current_file_path) {
@@ -920,21 +920,21 @@ impl Controller {
         self.navigator.set_page_changed();
     }
 
-    pub fn apply_selection(&mut self, selection_str: &str) {
+    fn apply_selection(&mut self, selection_str: &str) {
         self.repository
             .set_selection(Selection::from(selection_str, false));
         self.navigator.move_towards(Direction::First);
         self.navigator.set_page_changed();
     }
 
-    pub fn apply_restriction(&mut self, selection_str: &str) {
+    fn apply_restriction(&mut self, selection_str: &str) {
         self.repository
             .set_selection(Selection::from(selection_str, true));
         self.navigator.move_towards(Direction::First);
         self.navigator.set_page_changed();
     }
 
-    pub fn add_tag(&mut self) {
+    fn add_tag(&mut self) {
         self.set_opacity_for_current_picture(0.25);
         self.editor.begin(
             &self.main_window(),
@@ -944,7 +944,7 @@ impl Controller {
         self.state.set_mode(Mode::Editing);
     }
 
-    pub fn remove_tag(&mut self) {
+    fn remove_tag(&mut self) {
         self.set_opacity_for_current_picture(0.25);
         self.editor.begin(
             &self.main_window(),
@@ -954,7 +954,7 @@ impl Controller {
         self.state.set_mode(Mode::Editing);
     }
 
-    pub fn label(&mut self) {
+    fn label(&mut self) {
         self.set_opacity_for_current_picture(0.25);
         self.editor.begin(
             &self.main_window(),
@@ -982,7 +982,7 @@ impl Controller {
         };
     }
 
-    pub fn rank_selected_pictures(&mut self, rank: Rank) {
+    fn rank_selected_pictures(&mut self, rank: Rank) {
         if self.navigator.has_selected() {
             for index in 0..self.navigator.limit() {
                 if self.navigator.is_selected(index) {
@@ -997,13 +997,13 @@ impl Controller {
         self.last_action = Action::Rank(rank);
     }
 
-    pub fn jump(&mut self) {
+    fn jump(&mut self) {
         self.editor
             .begin(&self.main_window(), EntryKind::Number, None);
         self.state.set_mode(Mode::Editing);
     }
 
-    pub fn help(&mut self) {
+    fn help(&mut self) {
         self.editor
             .begin(&self.main_window(), EntryKind::Help, None);
         self.editor
@@ -1011,13 +1011,13 @@ impl Controller {
         self.state.set_mode(Mode::Editing);
     }
 
-    pub fn find(&mut self) {
+    fn find(&mut self) {
         self.editor
             .begin(&self.main_window(), EntryKind::Find, None);
         self.state.set_mode(Mode::Editing);
     }
 
-    pub fn find_label(&mut self) {
+    fn find_label(&mut self) {
         self.editor.begin(
             &self.main_window(),
             EntryKind::FindLabel,
@@ -1026,7 +1026,7 @@ impl Controller {
         self.state.set_mode(Mode::Editing);
     }
 
-    pub fn information(&mut self) {
+    fn information(&mut self) {
         self.editor
             .begin(&self.main_window(), EntryKind::Information, None);
         self.editor
@@ -1034,13 +1034,13 @@ impl Controller {
         self.state.set_mode(Mode::Editing);
     }
 
-    pub fn toggle_information(&mut self) {
+    fn toggle_information(&mut self) {
         self.state.toggle_display_information_on();
         let navigator = &mut self.navigator;
         navigator.set_page_changed()
     }
 
-    pub fn find_mark(&mut self, mark: char) {
+    fn find_mark(&mut self, mark: char) {
         if let Some(file_path) = self.configuration.marked.get(&mark) {
             if let Ok(gallery) = self.repository.gallery_rc().try_borrow() {
                 if let Some(index) = gallery
@@ -1062,7 +1062,7 @@ impl Controller {
         }
     }
 
-    pub fn find_pattern(&mut self, pattern: &str, in_label: bool) {
+    fn find_pattern(&mut self, pattern: &str, in_label: bool) {
         match Regex::new(pattern) {
             Ok(re) => {
                 if let Ok(gallery) = self.repository.gallery_rc().try_borrow() {
@@ -1089,7 +1089,7 @@ impl Controller {
         }
     }
 
-    pub fn quit(&mut self) {
+    fn quit(&mut self) {
         if self.state.has_saved_args() {
             self.back_from_directory()
         } else {
@@ -1107,7 +1107,7 @@ impl Controller {
     }
     }
 
-    pub fn reload(&mut self) {
+    fn reload(&mut self) {
         match self.load_gallery() {
             Ok(_) => {
                 self.move_towards(Direction::First);
@@ -1120,7 +1120,7 @@ impl Controller {
         }
     }
 
-    pub fn toggle_single_view(&mut self) {
+    fn toggle_single_view(&mut self) {
         self.state.toggle_single_view();
         if self.state.full_size_on() {
             self.state.toggle_full_size()
@@ -1134,7 +1134,7 @@ impl Controller {
         navigator.set_page_changed();
     }
 
-    pub fn toggle_expand(&mut self) {
+    fn toggle_expand(&mut self) {
         if self.state.single_view() {
             self.state.toggle_expand();
             let navigator = &mut self.navigator;
@@ -1142,7 +1142,7 @@ impl Controller {
         }
     }
 
-    pub fn toggle_display_date(&mut self) {
+    fn toggle_display_date(&mut self) {
         self.state.toggle_display_date();
         self.main_window().set_title(self);
         println!(
@@ -1155,11 +1155,11 @@ impl Controller {
         );
     }
 
-    pub fn toggle_display_focus_symbol_change(&mut self) {
+    fn toggle_display_focus_symbol_change(&mut self) {
         self.state.toggle_change_focus_symbol()
     }
 
-    pub fn toggle_display_size(&mut self) {
+    fn toggle_display_size(&mut self) {
         self.state.toggle_display_size();
         self.main_window().set_title(self);
         println!(
@@ -1172,7 +1172,7 @@ impl Controller {
         );
     }
 
-    pub fn toggle_full_size(&mut self) {
+    fn toggle_full_size(&mut self) {
         if self.state.single_view() {
             self.state.toggle_full_size();
             let navigator = &mut self.navigator;
@@ -1180,13 +1180,13 @@ impl Controller {
         }
     }
 
-    pub fn toggle_palette(&mut self) {
+    fn toggle_palette(&mut self) {
         self.state.toggle_palette();
         let navigator = &mut self.navigator;
         navigator.set_page_changed()
     }
 
-    pub fn toggle_slideshow(&mut self) {
+    fn toggle_slideshow(&mut self) {
         if let Some(seconds) = self.args().slideshow() {
             self.state.toggle_slideshow();
             if self.state.slideshow_on() {
@@ -1197,7 +1197,7 @@ impl Controller {
         }
     }
 
-    pub fn order_by(&mut self, order: Order) {
+    fn order_by(&mut self, order: Order) {
         let new_position: Option<usize>;
         let current_file_path = self.current_picture().file_path();
         if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut() {
@@ -1216,7 +1216,7 @@ impl Controller {
         self.navigator.set_page_changed()
     }
 
-    pub fn change_grid_size(&mut self, pictures_per_row: usize) {
+    fn change_grid_size(&mut self, pictures_per_row: usize) {
         self.state.change_grid_size(pictures_per_row);
         self.main_window().change_grid_size(pictures_per_row);
         let navigator = &mut self.navigator;
@@ -1226,31 +1226,31 @@ impl Controller {
         self.acknowledge_grid_size_change();
     }
 
-    pub fn set_range(&mut self) {
+    fn set_range(&mut self) {
         let position = self.navigator.position();
         let navigator = &mut self.navigator;
         navigator.set_range(position);
         self.navigator.set_page_changed()
     }
 
-    pub fn set_range_all(&mut self) {
+    fn set_range_all(&mut self) {
         let navigator = &mut self.navigator;
         navigator.set_range_all();
         self.navigator.set_page_changed()
     }
 
-    pub fn set_range_page(&mut self) {
+    fn set_range_page(&mut self) {
         let navigator = &mut self.navigator;
         navigator.set_range_page();
         self.navigator.set_page_changed()
     }
-    pub fn repeat_range(&mut self) {
+    fn repeat_range(&mut self) {
         let navigator = &mut self.navigator;
         navigator.repeat_range();
         self.navigator.set_page_changed()
     }
 
-    pub fn toggle_selected(&mut self) {
+    fn toggle_selected(&mut self) {
         let position = self.navigator.position();
         let navigator = &mut self.navigator;
         if navigator.is_selected(position) {
@@ -1261,7 +1261,7 @@ impl Controller {
         self.navigator.set_page_changed()
     }
 
-    pub fn cancel_range(&mut self) {
+    fn cancel_range(&mut self) {
         let navigator = &mut self.navigator;
         navigator.cancel_range();
         self.navigator.set_page_changed()
@@ -1303,33 +1303,33 @@ impl Controller {
             self.move_selected_pictures_to_target(target_dir);
         }
     }
-    pub fn cancel_delete_picture(&mut self) {
+    fn cancel_delete_picture(&mut self) {
         let navigator = &mut self.navigator;
         navigator.cancel_range();
         self.navigator.set_page_changed()
     }
 
-    pub fn confirm_delete_picture(&mut self) {
+    fn confirm_delete_picture(&mut self) {
         self.delete_selected_pictures();
         self.reload();
         self.navigator.set_page_changed()
     }
 
-    pub fn confirm_move_picture(&mut self) {
+    fn confirm_move_picture(&mut self) {
         self.move_selected_pictures()
     }
 
-    pub fn confirm_move_picture_to_label(&mut self, directory: &str) {
+    fn confirm_move_picture_to_label(&mut self, directory: &str) {
         self.move_selected_pictures_to_target(directory);
     }
 
-    pub fn cancel_move_picture(&mut self) {
+    fn cancel_move_picture(&mut self) {
         let navigator = &mut self.navigator;
         navigator.cancel_range();
         self.navigator.set_page_changed()
     }
 
-    pub fn copy_to_temp(&mut self) {
+    fn copy_to_temp(&mut self) {
         match self.repository.copy_picture_at_index_to_temp_dir(self.navigator.position()) {
             Ok(_) => {},
             Err(e) => {
@@ -1338,13 +1338,13 @@ impl Controller {
         }
     }
 
-    pub fn extract_filenames(&mut self) {
+    fn extract_filenames(&mut self) {
         if self.navigator.has_selected() {
             self.repository.extract_file_names(&self.navigator.selection());
         }
     }
 
-    pub fn delete_picture(&mut self) {
+    fn delete_picture(&mut self) {
         if self.navigator.has_selected() {
             self.editor
                 .begin(&self.main_window(), EntryKind::DeleteConfirmation, None);
@@ -1352,7 +1352,7 @@ impl Controller {
         }
     }
 
-    pub fn move_picture(&mut self) {
+    fn move_picture(&mut self) {
         if let Some(target_dir) = &self.args.r#move {
             self.editor
                 .begin(&self.main_window(), EntryKind::MoveConfirmation, None);
@@ -1403,7 +1403,7 @@ impl Controller {
         }
     }
 
-    pub fn move_picture_to_label(&mut self) {
+    fn move_picture_to_label(&mut self) {
         if let Some(target_dir) = self.check_move_destination_label() {
             self.editor
                 .begin(&self.main_window(), EntryKind::MoveToLabelConfirmation(target_dir), None);
@@ -1411,11 +1411,11 @@ impl Controller {
             }
     }
 
-    pub fn acknowledge_grid_size_change(&mut self) {
+    fn acknowledge_grid_size_change(&mut self) {
         self.state.acknowledge_grid_size_change();
     }
 
-    pub fn arrow_move(&mut self, direction: Direction) {
+    fn arrow_move(&mut self, direction: Direction) {
         if self.state().single_view() && self.state().full_size_on() {
             self.full_size_arrow_move(direction)
         } else {
@@ -1426,7 +1426,7 @@ impl Controller {
         }
     }
 
-    pub fn full_size_arrow_move(&self, direction: Direction) {
+    fn full_size_arrow_move(&self, direction: Direction) {
         self.main_window().full_size_arrow_move(direction.clone())
     }
 
@@ -1444,7 +1444,7 @@ impl Controller {
         }
     }
 
-    pub fn repeat_last_action(&mut self) {
+    fn repeat_last_action(&mut self) {
         let action = self.last_action.clone();
         match action {
             Action::Nothing => {}
