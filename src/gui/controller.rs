@@ -52,6 +52,7 @@ pub type RcController = Rc<RefCell<Controller>>;
 
 impl Controller {
     pub fn new(config: Configuration, args: Args) -> IOResult<Self> {
+
         let pictures_per_row = if let Some(grid) = args.grid {
             grid
         } else {
@@ -126,40 +127,25 @@ impl Controller {
     }
 
     pub fn current_picture(&self) -> Picture {
-        let navigator = &self.navigator;
-        if let Ok(gallery) = self.repository.gallery_rc().try_borrow() {
-            gallery.picture(navigator.position())
-        } else {
-            panic!("can't borrow gallery");
-        }
+        self.repository.picture_at(self.navigator.position())
     }
 
-    fn load_gallery(&mut self) -> IOResult<usize> {
+    fn load_repository(&mut self) -> IOResult<usize> {
         let args = self.args.clone();
         let result = match args.command {
             Some(Command::File { file_path }) => {
                 match self.repository.picture_from_file_path(&file_path) {
-                    Ok(gallery) => {
-                        println!("{} pictures", gallery.len());
-                        Ok(gallery.len())
-                    }
+                    Ok(gallery) => Ok(gallery.len()),
                     Err(e) => Err(e),
                 }
             }
             Some(Command::Directory { directory }) => {
                 match self.repository.pictures_in_directory(&directory) {
-                    Ok(gallery) => {
-                        println!("{} pictures", gallery.len());
-                        Ok(gallery.len())
-                    }
+                    Ok(gallery) => Ok(gallery.len()),
                     Err(e) => Err(e),
                 }
             }
-            None => { 
-                let count = self.repository.len();
-                println!("{} pictures", count);
-                Ok(count)
-            },
+            None => Ok(self.repository.len()),
             _ => Ok(0),
         };
         match result {
@@ -169,9 +155,10 @@ impl Controller {
                 Ok(0)
             },
             Err(e) => Err(e),
-            Ok(n) => {
+            Ok(count) => {
+                println!("{} pictures", count);
                 self.navigator = Navigator::new(self.repository.len(), self.state.pictures_per_row());
-                Ok(n)
+                Ok(count)
             }
 
         }
@@ -528,22 +515,10 @@ impl Controller {
     }
 
     fn label_picture_at_index(&mut self, index: usize, label: &str) {
-        if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut() {
-            let mut picture = gallery.picture(index);
-            picture.set_label(label);
-            gallery.set_picture(index, picture.clone());
-            if self.args.on_database() {
-                match self.repository.update_picture(&picture) {
-                    Ok(_) => {}
-                    Err(err) => {
-                        println!("{}", err);
-                    }
-                }
-            };
-            self.last_action = Action::Label(label.to_string());
-        } else {
-            panic!("can't borrow");
-        }
+        let mut picture = self.repository.picture_at(index);
+        picture.set_label(label);
+        self.repository.set_picture_at(index, &picture);
+        self.last_action = Action::Label(label.to_string());
     }
 
     fn label_selected_pictures(&mut self, label: &str) {
@@ -577,39 +552,15 @@ impl Controller {
     }
 
     fn tag_picture_at_index(&mut self, index: usize, label: &str) {
-        if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut() {
-            let mut picture = gallery.picture(index);
-            picture.add_tag(label);
-            gallery.set_picture(index, picture.clone());
-            if self.args.on_database() {
-                match self.repository.update_picture(&picture) {
-                    Ok(_) => {}
-                    Err(err) => {
-                        println!("{}", err);
-                    }
-                }
-            }
-        } else {
-            panic!("can't borrow");
-        }
+        let mut picture = self.repository.picture_at(index);
+        picture.add_tag(label);
+        self.repository.set_picture_at(index, &picture);
     }
 
     fn untag_picture_at_index(&mut self, index: usize, label: &str) {
-        if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut() {
-            let mut picture = gallery.picture(index);
-            picture.remove_tag(label);
-            gallery.set_picture(index, picture.clone());
-            if self.args.on_database() {
-                match self.repository.update_picture(&picture) {
-                    Ok(_) => {}
-                    Err(err) => {
-                        println!("{}", err);
-                    }
-                }
-            } else {
-                panic!("can't borrow");
-            }
-        }
+        let mut picture = self.repository.picture_at(index);
+        picture.remove_tag(label);
+        self.repository.set_picture_at(index, &picture);
     }
 
     fn tag_selected_pictures(&mut self, label: &str) {
@@ -845,24 +796,19 @@ impl Controller {
     }
 
     fn toggle_cover(&mut self) {
-
         let index = self.navigator().position();
         let counts = self.repository.directory_count_at_index(index);
-        if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut() {
-            let mut picture = gallery.picture(index);
-            let count = counts.0;
-            picture.toggle_cover(count);
-            gallery.set_picture(index, picture.clone());
-            match self.repository.update_picture(&picture) {
-                Ok(_) => {}
-                Err(err) => {
-                    println!("{}", err);
-                }
-            }
-            self.navigator.set_page_changed()
-        } else {
-            panic!("can't borrow");
-        }
+        let mut picture = self.repository.picture_at(index);
+        picture.toggle_cover(counts.0);
+        self.repository.set_picture_at(index, &picture);
+        self.navigator.set_page_changed()
+    }
+
+    fn rank_picture_at_index(&mut self, index: usize, rank: Rank) {
+        let index = self.navigator().position();
+        let mut picture = self.repository.picture_at(index);
+        picture.set_rank(rank);
+        self.repository.set_picture_at(index, &picture);
     }
 
     fn toggle_cover_selection(&mut self) {
@@ -962,24 +908,6 @@ impl Controller {
             Some(self.repository.all_labels()),
         );
         self.state.set_mode(Mode::Editing);
-    }
-
-    fn rank_picture_at_index(&mut self, index: usize, rank: Rank) {
-        if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut() {
-            let mut picture = gallery.picture(index);
-            picture.set_rank(rank);
-            gallery.set_picture(index, picture.clone());
-            if self.args.on_database() {
-                match self.repository.update_picture(&picture) {
-                    Ok(_) => {}
-                    Err(err) => {
-                        println!("{}", err);
-                    }
-                }
-            }
-        } else {
-            panic!("can't borrow mut");
-        };
     }
 
     fn rank_selected_pictures(&mut self, rank: Rank) {
@@ -1108,7 +1036,7 @@ impl Controller {
     }
 
     fn reload(&mut self) {
-        match self.load_gallery() {
+        match self.load_repository() {
             Ok(_) => {
                 self.move_towards(Direction::First);
                 self.navigator.set_page_changed();
@@ -1365,41 +1293,37 @@ impl Controller {
         let mut label: Option<String> = None;
         let mut grand_parent: Option<String> = None;
 
-        if let Ok(gallery) = self.repository.gallery_rc().try_borrow() {
-            if self.navigator.has_selected() {
-                for index in 0..self.navigator.limit() {
-                    if self.navigator.is_selected(index) {
-                        let picture = gallery.picture(index);
-                        let this_label = picture.label();
-                        if let Some(directory) = grand_parent_directory(&picture.file_path()) {
-                            if label.is_none() {
-                                label = Some(this_label);
-                                grand_parent = Some(directory);
-                            } else if this_label != label.clone().unwrap()
-                                || directory != grand_parent.clone().unwrap() {
+        if self.navigator.has_selected() {
+            for index in 0..self.navigator.limit() {
+                if self.navigator.is_selected(index) {
+                    let picture = self.repository.picture_at(index);
+                    let this_label = picture.label();
+                    if let Some(directory) = grand_parent_directory(&picture.file_path()) {
+                        if label.is_none() {
+                            label = Some(this_label);
+                            grand_parent = Some(directory);
+                        } else if this_label != label.clone().unwrap()
+                            || directory != grand_parent.clone().unwrap() {
                                 return None
-                            }
-                        } else {
-                            return None
                         }
-                    }
-                };
-                let path = PathBuf::from(grand_parent.unwrap());
-                let addendum = PathBuf::from(label.clone().unwrap());
-                let candidate = path.join(addendum.clone());
-                let result = check_path_exists(&candidate);
-                match result {
-                    Ok(valid_path) => Some(valid_path.to_str().unwrap().to_string()),
-                    Err(e) => { 
-                        eprintln!("{}", e);
-                        None
+                    } else {
+                        return None
                     }
                 }
-            } else {
-                None
+            };
+            let path = PathBuf::from(grand_parent.unwrap());
+            let addendum = PathBuf::from(label.clone().unwrap());
+            let candidate = path.join(addendum.clone());
+            let result = check_path_exists(&candidate);
+            match result {
+                Ok(valid_path) => Some(valid_path.to_str().unwrap().to_string()),
+                Err(e) => { 
+                    eprintln!("{}", e);
+                    None
+                }
             }
         } else {
-            panic!("can't borrow");
+            None
         }
     }
 

@@ -233,6 +233,28 @@ impl Repository {
         })
     }
 
+    pub fn picture_at(&self, position: usize) -> Picture {
+        if let Ok(gallery) = self.gallery_rc().try_borrow() {
+            gallery.picture(position)
+        } else {
+            panic!("can't borrow gallery")
+        }
+    }
+
+    pub fn set_picture_at(&self, position: usize, picture: &Picture) {
+        if let Ok(mut gallery) = self.gallery_rc().try_borrow_mut() {
+            gallery.set_picture(position, picture.clone());
+            if self.args.on_database() {
+                match self.update_picture(picture) {
+                    Ok(_) => {},
+                    Err(e) => println!("{}", e),
+                }
+            }
+        } else {
+            panic!("can't borrow gallery")
+        }
+    }
+
     pub fn all_labels(&self) -> Tags {
         let tags = self
             .tags_rc
