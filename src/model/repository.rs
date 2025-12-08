@@ -42,8 +42,8 @@ pub struct Repository {
 }
 
 impl Repository {
-    pub fn new(configuration: Configuration, args: Args) -> Self {
-        let database = Database::from_connection(&configuration.database_file, false).unwrap();
+    pub fn new(configuration: Configuration, args: Args, create: bool) -> Self {
+        let database = Database::from_connection(&configuration.database_file, create).unwrap();
         Repository {
             args: args.clone(),
             on_database: true,
@@ -53,6 +53,17 @@ impl Repository {
             parent_dirs: HashMap::new(),
             len: 0,
             temp_dir: configuration.temp_dir,
+        }
+    }
+
+    pub fn create_database(configuration: Configuration) -> IOResult<()> {
+        println!("creating new database file {}", configuration.database_file);
+        match Database::from_connection(&configuration.database_file, true) {
+            Ok(database) => match database.rusqlite_create_schema() {
+                Ok(_) => Ok(()),
+                Err(e) => Err(IOError::other(format!("{}", e))),
+            },
+            Err(e) => Err(IOError::other(format!("{}", e))),
         }
     }
 

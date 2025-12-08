@@ -113,13 +113,10 @@ pub fn execute_command(
                     let config = Configuration::from_env()?;
                     println!("initializing database");
                     if !file_exists(&config.database_file) {
-                        println!("creating new database file {}", config.database_file);
-                        match Database::from_connection(&config.database_file, true) {
-                            Ok(database) => match database.rusqlite_create_schema() {
-                                Ok(_) => Ok(Status::Done),
-                                Err(e) => Err(IOError::other(e)),
-                            },
-                            Err(e) => Err(e),
+                        let repository = Repository::new(config.clone(), args, true);
+                        match Repository::create_database(config) {
+                            Ok(_) => Ok(Status::Done),
+                            Err(e) => Err(IOError::other(e)),
                         }
                     } else {
                         Err(IOError::other(format!(
@@ -128,7 +125,6 @@ pub fn execute_command(
                         )))
                     }
                 }
-
                 Some(Command::File { file_path }) => {
                     match gallery.load_from_file_path(&file_path) {
                         Err(e) => Err(e),

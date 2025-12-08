@@ -84,7 +84,7 @@ impl Controller {
                 cli.cover = true
             }
         };
-        let mut repository = Repository::new(config.clone(), cli.clone());
+        let mut repository = Repository::new(config.clone(), cli.clone(), false);
         match repository.initialize() {
             Ok(_) => {}
             Err(e) => panic!("{}", e),
