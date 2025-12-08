@@ -170,11 +170,6 @@ impl Controller {
     }
 
 
-    pub fn move_towards_saved_current(&mut self) {
-        if let Some(file_path) = self.configuration.current_picture.clone() {
-            self.find_pattern(&file_path, false);
-        }
-    }
     pub fn process_event(&mut self, event: Event, controller_rc: &RcController) {
         match event {
             Event::KeyPressed {

@@ -53,7 +53,7 @@ fn main() {
             let result = Controller::new(config.clone(), args.clone()).and_then(|controller| {
                 let repository = controller.repository();
                 let controller_rc: RcController = Rc::new(RefCell::new(controller));
-                let result = execute_command(controller_rc.clone(), repository, config.clone());
+                let result = execute_command(args.clone(), repository, config.clone());
                 if let Ok(Status::Ready(index)) = result {
                     build_and_run_app(args, controller_rc, index);
                     Ok(Status::Done)
