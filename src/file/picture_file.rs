@@ -1,8 +1,6 @@
-use image::DynamicImage;
-use image::{GenericImageView, Pixel};
-use crate::file::paths::file_path_as_retrieved;
 use crate::env::default_values::THUMB_SUFFIX;
 use crate::file::paths::check_collectable;
+use crate::file::paths::file_path_as_retrieved;
 use crate::file::paths::thumbnail_name_from;
 use crate::file::paths::thumbnail_names_from;
 use crate::file::paths::{check_path, check_picture_file, check_picture_path_extension};
@@ -15,6 +13,8 @@ use crate::model::palette::Palette;
 use crate::model::picture::Picture;
 use crate::model::rank::Rank;
 use crate::model::thumbnail::create_thumbnail_file;
+use image::DynamicImage;
+use image::{GenericImageView, Pixel};
 use std::collections::HashSet;
 use std::fs;
 use std::fs::{copy, remove_file};
@@ -57,10 +57,11 @@ pub fn copy_picture_file_to_directory(file_path: &str, target: &str) -> IOResult
                 Ok(_) => Ok(()),
                 Err(e) => Err(IOError::other(e)),
             }
-        },
-        None => {
-            Err(IOError::other(format!("can't extract file name of {}", file_path)))
-        },
+        }
+        None => Err(IOError::other(format!(
+            "can't extract file name of {}",
+            file_path
+        ))),
     }
 }
 
@@ -94,8 +95,8 @@ pub fn create_missing_thumbnails(gallery: &Gallery, pictures_per_row: usize) {
 }
 
 pub fn collect_picture_data(picture: &Picture) -> IOResult<Picture> {
-    let image =
-        image::open(picture.file_path()).unwrap_or_else(|_| panic!("can't load {}", picture.file_path()));
+    let image = image::open(picture.file_path())
+        .unwrap_or_else(|_| panic!("can't load {}", picture.file_path()));
     let palette = Palette::from(&image);
     let new_image_data = match picture.image_data() {
         Some(image_data) => ImageData {
@@ -125,7 +126,6 @@ pub fn collect_picture_data(picture: &Picture) -> IOResult<Picture> {
     new_picture.set_image_data(new_image_data);
     Ok(new_picture)
 }
-
 
 pub fn delete_picture_file(file_path: &str) -> IOResult<()> {
     let path = Path::new(file_path);
@@ -166,11 +166,11 @@ pub fn get_data_from_picture_file(file_path: &str) -> IOResult<PictureFileData> 
 fn move_file(source: &str, target: &str) {
     if file_exists(source) {
         match copy(PathBuf::from(source), PathBuf::from(target)) {
-            Ok(_) => {},
+            Ok(_) => {}
             Err(e) => eprintln!("{}", e),
         };
         match remove_file(PathBuf::from(source)) {
-            Ok(_) => {},
+            Ok(_) => {}
             Err(e) => eprintln!("{}", e),
         }
     }
@@ -232,13 +232,12 @@ pub fn read_pixels(path: &str) -> image::ImageResult<Vec<[u8; 4]>> {
     Ok(out)
 }
 
-    pub fn get_image_from_picture_file(file_path: &str) -> IOResult<DynamicImage> {
-        match image::open(file_path) {
-            Ok(image) => Ok(image),
-            Err(e) => Err(IOError::other(e)),
-        }
+pub fn get_image_from_picture_file(file_path: &str) -> IOResult<DynamicImage> {
+    match image::open(file_path) {
+        Ok(image) => Ok(image),
+        Err(e) => Err(IOError::other(e)),
     }
-
+}
 
 #[allow(unused_imports)]
 #[cfg(test)]
@@ -356,5 +355,4 @@ pub mod test {
 
         move_picture_files(&target_file_path, &test_dir);
     }
-
 }

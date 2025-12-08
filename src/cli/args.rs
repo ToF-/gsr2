@@ -1,13 +1,13 @@
-use crate::model::color_range::ColorRange;
-use regex::Regex;
 use crate::cli::command::Command;
 use crate::env::configuration::Configuration;
 use crate::env::default_values::{DEFAULT_HEIGHT, DEFAULT_SLIDESHOW_DELAY, DEFAULT_WIDTH};
 use crate::env::dimension::{dimension, slideshow_delay};
 use crate::file::paths::check_collectable;
 use crate::file::paths::{check_path, check_picture_file};
+use crate::model::color_range::ColorRange;
 use crate::model::order::Order;
 use clap::Parser;
+use regex::Regex;
 use std::io::{Error, Result};
 use std::path::PathBuf;
 
@@ -72,11 +72,11 @@ pub struct Args {
     pub r#move: Option<String>,
 
     /// display pictures in order
-    #[arg(short, long, value_name="ORDER", ignore_case(true))]
+    #[arg(short, long, value_name = "ORDER", ignore_case(true))]
     pub order: Option<Order>,
 
     /// display only pictures where file name matches PATTERN
-    #[arg(short, long, value_name="PATTERN")]
+    #[arg(short, long, value_name = "PATTERN")]
     pub pattern: Option<String>,
 
     /// select only picture having at all their tags in TAGS (e.g "foo,bar")
@@ -115,24 +115,25 @@ impl Args {
         );
         if let Some(pattern) = args.clone().pattern {
             match Regex::new(&pattern) {
-                Ok(_) => {},
+                Ok(_) => {}
                 Err(e) => return Err(Error::other(e)),
             }
         };
         args.slideshow =
             slideshow_delay(args.slideshow, "slideshow delay", DEFAULT_SLIDESHOW_DELAY);
         if let Some(ref color_range_spec) = args.filter {
-            if ! args.command.is_some() {
+            if !args.command.is_some() {
                 match ColorRange::from_string(color_range_spec) {
-                    Ok(_) => {},
+                    Ok(_) => {}
                     Err(e) => {
                         eprintln!("{} ??", color_range_spec);
-                        return Err(Error::other(e))
-                    },
+                        return Err(Error::other(e));
+                    }
                 }
             } else {
                 return Err(Error::other(
-                        "option --filter not allowed with file, dir (or other) command"));
+                    "option --filter not allowed with file, dir (or other) command",
+                ));
             }
         };
         if let Some(Command::File { ref file_path }) = args.command {
@@ -213,7 +214,10 @@ impl Args {
     }
 
     pub fn on_database(&self) -> bool {
-        !matches!(self.command, Some(Command::File { file_path: _ }) | Some(Command::Directory { directory: _ }))
+        !matches!(
+            self.command,
+            Some(Command::File { file_path: _ }) | Some(Command::Directory { directory: _ })
+        )
     }
 }
 
@@ -222,8 +226,8 @@ mod tests {
     use super::*;
     use crate::Command::Directory;
     use crate::Command::File;
-    use crate::cli::command::Command;
     use crate::Configuration;
+    use crate::cli::command::Command;
     use crate::test_data::*;
     use std::io::ErrorKind;
 

@@ -119,7 +119,7 @@ impl MainWindow {
         }
     }
 
-    pub fn activate(application: &gtk::Application, args: &Args, controller_rc: &RcController) {
+    pub fn activate(application: &gtk::Application, args: &Args, controller_rc: &RcController, position: usize) {
         let pictures_per_row = if let Ok(controller) = controller_rc.try_borrow() {
             controller.state().pictures_per_row()
         } else {
@@ -149,7 +149,12 @@ impl MainWindow {
                 controller.set_main_window(main_window);
                 controller.main_window().set_pictures(&controller);
                 controller.main_window().set_title(&controller);
-                controller.move_towards_saved_current();
+                let mut navigator = controller.navigator();
+                if navigator.can_move(Direction::Index { value: position }) {
+                    navigator.move_towards(Direction::Index { value: position });
+                    navigator.set_page_changed();
+                    controller.set_navigator(navigator);
+                }
             }
         }
         attach_panel_event_handlers(&panel, controller_rc);
@@ -195,15 +200,9 @@ impl MainWindow {
                 Control::SetOrder => String::from(
                     "Order… (c: by color count | d: by date | l: by label | p: by palette | n: by name | r: randomize | s: by size | v: by value)",
                 ),
-                Control::SetMark => String::from(
-                    "Mark current picture… (a | b | c | d | e)",
-                ),
-                Control::SetGrid => String::from(
-                    "Set grid size… (2 | 3 | 4 | 5 | t)",
-                ),
-                Control::GotoMark => String::from(
-                    "Destination picture… (a | b | c | d | e)",
-                ),
+                Control::SetMark => String::from("Mark current picture… (a | b | c | d | e)"),
+                Control::SetGrid => String::from("Set grid size… (2 | 3 | 4 | 5 | t)"),
+                Control::GotoMark => String::from("Destination picture… (a | b | c | d | e)"),
                 _ => panic!("incorrect choice for setting: {:?}", choice),
             },
             Mode::Editing => String::from("Editing…"),
@@ -257,11 +256,12 @@ impl MainWindow {
                         {
                             if navigator.is_selected(position) {
                                 HALF_OPACITY
-                            } else if gallery.selection().is_empty() 
-                                || gallery.selection().matches(picture.tags()) {
-                                    FULL_OPACITY
-                                } else {
-                                    QUARTER_OPACITY
+                            } else if gallery.selection().is_empty()
+                                || gallery.selection().matches(picture.tags())
+                            {
+                                FULL_OPACITY
+                            } else {
+                                QUARTER_OPACITY
                             }
                         } else {
                             FULL_OPACITY

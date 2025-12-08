@@ -48,13 +48,14 @@ impl PictureFrame {
         picture.set_can_shrink(!state.full_size_on());
         frame.append(picture);
         if controller.state().palette_on()
-            && let Some(image_data) = controller.current_picture().image_data() {
-                let palette_area = make_palette_area(
-                    image_data.palette().sample(),
-                    FRAME_PALETTE_AREA_WIDTH,
-                    FRAME_PALETTE_AREA_HEIGHT,
-                );
-                frame.append(&palette_area)
+            && let Some(image_data) = controller.current_picture().image_data()
+        {
+            let palette_area = make_palette_area(
+                image_data.palette().sample(),
+                FRAME_PALETTE_AREA_WIDTH,
+                FRAME_PALETTE_AREA_HEIGHT,
+            );
+            frame.append(&palette_area)
         }
     }
 }

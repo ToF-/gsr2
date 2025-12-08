@@ -15,7 +15,6 @@ pub struct Navigator {
     range_end: Option<usize>,
     range_opt: Option<(usize, usize)>,
     selected_pictures: HashSet<usize>,
-
 }
 
 impl Navigator {
@@ -210,8 +209,12 @@ impl Navigator {
             Direction::Up => self.position >= self.pictures_per_row,
             Direction::PageStart => true,
             Direction::PageEnd => true,
-            Direction::PrevPage => self.can_move(Direction::Index { value: self.prev_page_start() }),
-            Direction::NextPage => self.can_move(Direction::Index { value: self.next_page_start() }),
+            Direction::PrevPage => self.can_move(Direction::Index {
+                value: self.prev_page_start(),
+            }),
+            Direction::NextPage => self.can_move(Direction::Index {
+                value: self.next_page_start(),
+            }),
         };
         if !can_move {
             self.old_position = self.position;
@@ -232,8 +235,16 @@ impl Navigator {
             Direction::Up => self.position = self.position.saturating_sub(self.pictures_per_row),
             Direction::PageStart => self.position = self.page_start,
             Direction::PageEnd => self.position = self.page_end,
-            Direction::PrevPage => return self.move_towards(Direction::Index { value: self.prev_page_start() }),
-            Direction::NextPage => return self.move_towards(Direction::Index { value: self.next_page_start() }),
+            Direction::PrevPage => {
+                return self.move_towards(Direction::Index {
+                    value: self.prev_page_start(),
+                });
+            }
+            Direction::NextPage => {
+                return self.move_towards(Direction::Index {
+                    value: self.next_page_start(),
+                });
+            }
         };
         self.update_page_limits();
     }

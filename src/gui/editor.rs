@@ -51,7 +51,9 @@ impl Editor {
             }
             EntryKind::DeleteConfirmation => "Delete these pictures?",
             EntryKind::MoveConfirmation => "Move these pictures?",
-            EntryKind::MoveToLabelConfirmation(ref target) => &format!("Move these pictures to {} ?", target),
+            EntryKind::MoveToLabelConfirmation(ref target) => {
+                &format!("Move these pictures to {} ?", target)
+            }
             EntryKind::Find => "Enter a part of the picture file name",
             EntryKind::FindLabel => "Enter a part of the picture label",
             EntryKind::Information => "Current picture",
@@ -188,17 +190,16 @@ impl Editor {
         };
         let ch_is_ok = match self.entry_kind {
             EntryKind::Number => ch.is_ascii_digit(),
-            EntryKind::DeleteConfirmation | EntryKind::MoveConfirmation | EntryKind::MoveToLabelConfirmation(_) => {
+            EntryKind::DeleteConfirmation
+            | EntryKind::MoveConfirmation
+            | EntryKind::MoveToLabelConfirmation(_) => {
                 matches!(ch, 'e' | 'n' | 'o' | 's' | 'y')
             }
-            | EntryKind::Find
-            | EntryKind::FindLabel => {
+            EntryKind::Find | EntryKind::FindLabel => {
                 matches!(ch,
                     'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' ' | '^' | '$' | '.' | '*' | '/' | '{' | '}' | '[' | ']' | '(' | ')' | '\\' )
             }
-            EntryKind::Label
-            | EntryKind::AddTag
-            | EntryKind::RemoveTag => {
+            EntryKind::Label | EntryKind::AddTag | EntryKind::RemoveTag => {
                 matches!(ch,
                 'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' ')
             }

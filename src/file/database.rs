@@ -1,7 +1,6 @@
-use crate::model::color_range::ColorRange;
-use regex::Regex;
 use crate::file::paths::parent_directory;
 use crate::file::paths::{file_exists, file_path_as_retrieved, file_path_as_stored};
+use crate::model::color_range::ColorRange;
 use crate::model::cover::{bool_to_cover, cover_to_bool};
 use crate::model::image_data::ImageData;
 use crate::model::palette::Palette;
@@ -9,6 +8,7 @@ use crate::model::picture::Picture;
 use crate::model::rank::Rank;
 use crate::model::selection::Selection;
 use crate::model::tags::Tags;
+use regex::Regex;
 use rusqlite::Error::InvalidPath;
 use rusqlite::{Connection, Result as SqlResult, Row, params};
 use std::cell::RefCell;
@@ -49,7 +49,8 @@ impl Database {
 
     pub fn rusqlite_create_schema(&self) -> SqlResult<usize> {
         let connection = self.connection_rc.borrow();
-        connection.execute(
+        connection
+            .execute(
                 "CREATE TABLE IF NOT EXISTS Picture (      \n\
             FilePath TEXT NOT NULL PRIMARY KEY,        \n\
             Label TEXT NOT NULL,                       \n\
@@ -58,15 +59,15 @@ impl Database {
             Rank INTEGER,                              \n\
             Sample BLOB,                               \n\
             ColorCount INTEGER,                        \n\
-            Cover BOOLEAN);",                          // ""
-            params![],
+            Cover BOOLEAN);", // ""
+                params![],
             )
             .and_then(|_| {
                 connection.execute(
                     "CREATE TABLE IF NOT EXISTS Tag (    \n\
                     FilePath TEXT NOT NULL,              \n\
                     Label TEXT NOT NULL,                \n\
-                    PRIMARY KEY (FilePath, Label));",    // ""
+                    PRIMARY KEY (FilePath, Label));", // ""
                     params![],
                 )
             })
@@ -78,8 +79,9 @@ impl Database {
             Some(data) => data,
             None => ImageData::default(),
         };
-        connection.execute(
-            "INSERT INTO Picture (    \n\
+        connection
+            .execute(
+                "INSERT INTO Picture (    \n\
              FilePath,                    \n\
              Label,                       \n\
              FileSize,                    \n\
@@ -88,33 +90,35 @@ impl Database {
              Sample,                      \n\
              ColorCount,                  \n\
              Cover)                       \n\
-             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8);",    // ""
-             params![
-             file_path_as_stored(&picture.file_path()),
-             image_data.label(),
-             image_data.size(),
-             image_data.modified_time(),
-             <Rank as Into<i64>>::into(image_data.rank()),
-             image_data.palette().sample_as_array(),
-             image_data.palette.count(),
-             cover_to_bool(image_data.cover()),
-             ],).map(|count| {
-            let mut tag_count = 0;
-            for tag in image_data.tags() {
-                match connection.execute(
-                    "INSERT INTO Tag(         \n\
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8);", // ""
+                params![
+                    file_path_as_stored(&picture.file_path()),
+                    image_data.label(),
+                    image_data.size(),
+                    image_data.modified_time(),
+                    <Rank as Into<i64>>::into(image_data.rank()),
+                    image_data.palette().sample_as_array(),
+                    image_data.palette.count(),
+                    cover_to_bool(image_data.cover()),
+                ],
+            )
+            .map(|count| {
+                let mut tag_count = 0;
+                for tag in image_data.tags() {
+                    match connection.execute(
+                        "INSERT INTO Tag(         \n\
                          FilePath,                \n\
                          Label)                   \n\
-                         VALUES (?1, ?2);",    // ""
-                         params![file_path_as_stored(&picture.file_path()), tag],
-                ) {
-                    Ok(n) => tag_count += n,
-                    Err(err) => {
-                        eprintln!("{}", err);
+                         VALUES (?1, ?2);", // ""
+                        params![file_path_as_stored(&picture.file_path()), tag],
+                    ) {
+                        Ok(n) => tag_count += n,
+                        Err(err) => {
+                            eprintln!("{}", err);
+                        }
                     }
                 }
-            }
-            count + tag_count
+                count + tag_count
             })
     }
 
@@ -124,8 +128,9 @@ impl Database {
             Some(data) => data,
             None => ImageData::default(),
         };
-        connection.execute(
-            "UPDATE Picture               \n\
+        connection
+            .execute(
+                "UPDATE Picture               \n\
              SET                          \n\
              Label = ?2,                  \n\
              FileSize = ?3,               \n\
@@ -134,21 +139,22 @@ impl Database {
              Sample = ?6,                 \n\
              ColorCount =?7,              \n\
              Cover = ?8                   \n\
-               WHERE FilePath = ?1;",    // ""
-               params![
-               file_path_as_stored(&picture.file_path()),
-               image_data.label(),
-               image_data.size(),
-               image_data.modified_time(),
-               <Rank as Into<i64>>::into(image_data.rank()),
-               image_data.palette().sample_as_array(),
-               image_data.palette.count(),
-               cover_to_bool(image_data.cover),
-               ],
-               ).and_then(|_| {
-                   self.rusqlite_delete_tags(&picture.file_path())
-                       .and_then(|_| self.rusqlite_add_tags(&picture.file_path(), &image_data.tags))
-               })
+               WHERE FilePath = ?1;", // ""
+                params![
+                    file_path_as_stored(&picture.file_path()),
+                    image_data.label(),
+                    image_data.size(),
+                    image_data.modified_time(),
+                    <Rank as Into<i64>>::into(image_data.rank()),
+                    image_data.palette().sample_as_array(),
+                    image_data.palette.count(),
+                    cover_to_bool(image_data.cover),
+                ],
+            )
+            .and_then(|_| {
+                self.rusqlite_delete_tags(&picture.file_path())
+                    .and_then(|_| self.rusqlite_add_tags(&picture.file_path(), &image_data.tags))
+            })
     }
 
     fn rusqlite_delete_tags(&self, file_path: &str) -> SqlResult<usize> {
@@ -168,7 +174,7 @@ impl Database {
                 "INSERT INTO Tag(          \n\
                  FilePath,                 \n\
                  Label)                    \n\
-                 VALUES (?1, ?2);",    // ""
+                 VALUES (?1, ?2);", // ""
                 params![file_path_as_stored(file_path), label,],
             ) {
                 Ok(n) => {
@@ -184,15 +190,16 @@ impl Database {
 
     fn rusqlite_delete_picture_with_file_path(&self, file_path: &str) -> SqlResult<usize> {
         let connection = self.connection_rc.borrow();
-        connection.execute(
+        connection
+            .execute(
                 "DELETE FROM Picture        \n\
-            WHERE FilePath = ?1;",          // ""
+            WHERE FilePath = ?1;", // ""
                 params![file_path_as_stored(file_path)],
             )
             .and_then(|_| {
                 connection.execute(
                     "DELETE FROM Tag        \n\
-            WHERE FilePath = ?1;",          // ""
+            WHERE FilePath = ?1;", // ""
                     params![file_path_as_stored(file_path)],
                 )
             })
@@ -212,7 +219,7 @@ impl Database {
             "SELECT                     \n\
              FilePath                   \n\
              FROM Picture               \n\
-             WHERE FilePath = ?1;",          // ""
+             WHERE FilePath = ?1;", // ""
             params![&file_path_as_stored(file_path)],
             |row| row.get(0),
         )
@@ -234,37 +241,37 @@ impl Database {
             }
         );
         let connection = self.connection_rc.borrow();
-        connection.prepare(&sql_query)
-            .and_then(|mut statement| {
-                let mut map: ImageDataMap = HashMap::new();
-                statement.query([]).and_then(|mut rows| {
-                    while let Some(row) = rows.next().unwrap() {
-                        match Self::rusqlite_row_to_picture(row) {
-                            Ok(picture) => {
-                                let _ = map.insert(
-                                    file_path_as_retrieved(&picture.file_path()),
-                                    picture.image_data().unwrap(),
-                                );
-                            }
-                            Err(err) => {
-                                eprintln!("{}", err);
-                                return Err(err);
-                            }
+        connection.prepare(&sql_query).and_then(|mut statement| {
+            let mut map: ImageDataMap = HashMap::new();
+            statement.query([]).and_then(|mut rows| {
+                while let Some(row) = rows.next().unwrap() {
+                    match Self::rusqlite_row_to_picture(row) {
+                        Ok(picture) => {
+                            let _ = map.insert(
+                                file_path_as_retrieved(&picture.file_path()),
+                                picture.image_data().unwrap(),
+                            );
+                        }
+                        Err(err) => {
+                            eprintln!("{}", err);
+                            return Err(err);
                         }
                     }
-                    Ok(map)
-                })
+                }
+                Ok(map)
             })
+        })
     }
 
     pub fn rusqlite_retrieve_all_labels(&self) -> SqlResult<HashSet<String>> {
         let connection = self.connection_rc.borrow();
-        connection.prepare(
+        connection
+            .prepare(
                 "SELECT DISTINCT Label         \n\
                 FROM Picture WHERE Label <> '' \n\
                 UNION                          \n\
                 SELECT DISTINCT Label          \n\
-                FROM Tag WHERE Label <> '';",          // ""
+                FROM Tag WHERE Label <> '';", // ""
             )
             .and_then(|mut statement| {
                 let mut map: HashSet<String> = HashSet::new();
@@ -280,7 +287,8 @@ impl Database {
 
     pub fn rusqlite_retrieve_all_tags(&self) -> SqlResult<HashMap<String, HashSet<String>>> {
         let connection = self.connection_rc.borrow();
-        connection.prepare(
+        connection
+            .prepare(
                 "SELECT                \n\
                 FilePath,              \n\
                 Label                  \n\
@@ -309,7 +317,8 @@ impl Database {
 
     fn rusqlite_retrieve_picture_with_file_path(&self, file_path: &str) -> SqlResult<Picture> {
         let connection = self.connection_rc.borrow();
-        connection.query_row(
+        connection
+            .query_row(
                 "SELECT                     \n\
              FilePath,                  \n\
              Label,                     \n\
@@ -320,7 +329,7 @@ impl Database {
              ColorCount,                \n\
              Cover                      \n\
              FROM Picture               \n\
-             WHERE FilePath = ?1;",          // ""
+             WHERE FilePath = ?1;", // ""
                 params![file_path_as_stored(file_path)],
                 Self::rusqlite_row_to_picture,
             )
@@ -421,7 +430,7 @@ impl Database {
                                     None => None,
                                     Some(_) => {
                                         if let Some(pair) = parent_dirs.get(&parent_dir) {
-                                        let count = pair.0;
+                                            let count = pair.0;
                                             Some(count)
                                         } else {
                                             Some(0)
@@ -430,23 +439,26 @@ impl Database {
                                 },
                                 ..image_data.clone()
                             };
-                            if ! selection.is_empty() && ! selection.matches(new_tags.clone()) {
-                                continue
+                            if !selection.is_empty() && !selection.matches(new_tags.clone()) {
+                                continue;
                             };
-                            if label.clone().is_some() && *label.as_ref().unwrap() != new_image_data.label() {
-                                continue
+                            if label.clone().is_some()
+                                && *label.as_ref().unwrap() != new_image_data.label()
+                            {
+                                continue;
                             };
-                            if pattern.clone().is_some() && ! pattern.as_ref().unwrap().is_match(file_path) {
-                                continue
+                            if pattern.clone().is_some()
+                                && !pattern.as_ref().unwrap().is_match(file_path)
+                            {
+                                continue;
                             };
-                            if ! extraction.is_empty() && ! extraction.contains(file_path) {
-                                continue
+                            if !extraction.is_empty() && !extraction.contains(file_path) {
+                                continue;
                             };
-                            if color_range_opt.is_some() && ! color_range.matches(count, file_path) {
-                                continue
+                            if color_range_opt.is_some() && !color_range.matches(count, file_path) {
+                                continue;
                             };
-                            let picture =
-                                Picture::new_with_image_data(file_path, &new_image_data);
+                            let picture = Picture::new_with_image_data(file_path, &new_image_data);
                             pictures.push(picture)
                         }
                         pictures.sort_by_key(|picture| picture.file_path());
@@ -502,35 +514,32 @@ impl Database {
         picture.set_image_data(image_data);
         Ok(picture)
     }
-    fn rusqulite_retrieve_all_file_paths(&self) -> SqlResult<HashMap<String, (usize,usize)>> {
+    fn rusqulite_retrieve_all_file_paths(&self) -> SqlResult<HashMap<String, (usize, usize)>> {
         let sql_query = "SELECT FilePath, Cover FROM Picture;";
         let connection = self.connection_rc.borrow();
-        connection.prepare(sql_query)
-            .and_then(|mut statement| {
-                let mut map: HashMap<String, (usize, usize)> = HashMap::new();
-                statement.query([]).map(|mut rows| {
-                    while let Some(row) = rows.next().unwrap() {
-                        let file_path: String = row.get(0).unwrap();
-                        let cover: bool = row.get(1).unwrap();
-                        if let Some(directory) =
-                            parent_directory(&file_path_as_retrieved(&file_path))
-                        {
-                            if let Some(pair) = map.get_mut(&directory) {
-                                let count = pair.0;
-                                let covers = pair.1;
-                                *pair = (count+1, if cover { covers + 1 } else { covers });
-                            } else {
-                                let pair = (1, if cover { 1 } else { 0 });
-                                let _ = map.insert(directory, pair);
-                            }
+        connection.prepare(sql_query).and_then(|mut statement| {
+            let mut map: HashMap<String, (usize, usize)> = HashMap::new();
+            statement.query([]).map(|mut rows| {
+                while let Some(row) = rows.next().unwrap() {
+                    let file_path: String = row.get(0).unwrap();
+                    let cover: bool = row.get(1).unwrap();
+                    if let Some(directory) = parent_directory(&file_path_as_retrieved(&file_path)) {
+                        if let Some(pair) = map.get_mut(&directory) {
+                            let count = pair.0;
+                            let covers = pair.1;
+                            *pair = (count + 1, if cover { covers + 1 } else { covers });
+                        } else {
+                            let pair = (1, if cover { 1 } else { 0 });
+                            let _ = map.insert(directory, pair);
                         }
                     }
-                    map
-                })
+                }
+                map
             })
+        })
     }
 
-    pub fn retrieve_all_parent_dirs(&self) -> IOResult<HashMap<String, (usize,usize)>> {
+    pub fn retrieve_all_parent_dirs(&self) -> IOResult<HashMap<String, (usize, usize)>> {
         match self.rusqulite_retrieve_all_file_paths() {
             Ok(result) => Ok(result),
             Err(e) => Err(IOError::other(e)),
@@ -796,7 +805,8 @@ pub mod tests {
         assert!(map.get(&file_path).unwrap().contains("dot"));
         assert!(map.get(&file_path).unwrap().contains("bar"));
 
-        let result = database.retrieve_all_pictures(Selection::empty(), None, None, None, None, false, None);
+        let result =
+            database.retrieve_all_pictures(Selection::empty(), None, None, None, None, false, None);
         assert!(result.is_ok());
         let pictures = result.unwrap();
         assert_eq!(nine_colors_file_path(), pictures[1].file_path());

@@ -1,9 +1,10 @@
-use crate::model::image_data::FileSize;
 use crate::env::default_values::{
-    SMALL_PICTURE_SYMBOL, COVER_SYMBOL, EXPAND_ON_SYMBOL, FULL_SIZE_ON_SYMBOL, ORDER_SYMBOL, PICTURE_SIZE_THRESHOLD
+    COVER_SYMBOL, EXPAND_ON_SYMBOL, FULL_SIZE_ON_SYMBOL, ORDER_SYMBOL, PICTURE_SIZE_THRESHOLD,
+    SMALL_PICTURE_SYMBOL,
 };
 use crate::gui::controller::Controller;
 use crate::model::cover::Cover;
+use crate::model::image_data::FileSize;
 use crate::model::label::Label;
 use crate::model::order::Order;
 use crate::model::rank::Rank;
@@ -100,7 +101,8 @@ pub fn small_picture_display(size_opt: Option<FileSize>) -> String {
         }
     } else {
         "?"
-    }).to_string()
+    })
+    .to_string()
 }
 
 fn selected_count_display(controller: &Controller) -> String {
@@ -110,7 +112,6 @@ fn selected_count_display(controller: &Controller) -> String {
     } else {
         "".to_string()
     }
-    
 }
 
 pub fn title_display(controller: &Controller) -> String {
@@ -160,6 +161,6 @@ pub fn title_display(controller: &Controller) -> String {
             expand_display(controller.state().expand_on()),
             full_size_display(controller.state().full_size_on()),
             display_selection(&selection),
-            )
+        )
     }
 }

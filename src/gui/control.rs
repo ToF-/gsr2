@@ -87,7 +87,8 @@ pub type KeyAndMode = (String, Mode);
 pub type Controls = HashMap<KeyAndMode, Control>;
 
 pub fn help_on_controls() -> String {
-    format!("{}\n",
+    format!(
+        "{}\n",
         "n/p z/a Z/A: next/prev page, end/start of page, last/first page \n\
         return: set range start/end,  space: toggle in/out of range \n\
         esc $ ! _: cancel range, repeat range, whole range, page range\n\
@@ -127,7 +128,10 @@ pub fn default_controls() -> Controls {
         ((String::from("Tab"), Mode::Editing), Control::Complete),
         ((String::from("Return"), Mode::View), Control::SetRange),
         ((String::from("exclam"), Mode::View), Control::SetRangeAll),
-        ((String::from("nobreakspace"), Mode::View), Control::SetRangePage),
+        (
+            (String::from("nobreakspace"), Mode::View),
+            Control::SetRangePage,
+        ),
         ((String::from("Escape"), Mode::View), Control::CancelRange),
         ((String::from("dollar"), Mode::View), Control::RepeatRange),
         ((String::from("space"), Mode::View), Control::ToggleSelected),
@@ -151,7 +155,10 @@ pub fn default_controls() -> Controls {
         ((String::from("a"), Mode::View), Control::MoveStartPage),
         ((String::from("z"), Mode::View), Control::MoveEndPage),
         ((String::from("c"), Mode::View), Control::ToggleCover),
-        ((String::from("C"), Mode::View), Control::ToggleCoverSelection),
+        (
+            (String::from("C"), Mode::View),
+            Control::ToggleCoverSelection,
+        ),
         ((String::from("e"), Mode::View), Control::ToggleExpand),
         (
             (String::from("percent"), Mode::View),
@@ -191,11 +198,26 @@ pub fn default_controls() -> Controls {
         ((String::from("M"), Mode::View), Control::MovePicture),
         ((String::from("m"), Mode::View), Control::MovePictureToLabel),
         ((String::from("y"), Mode::View), Control::SetGrid),
-        ((String::from("2"), Mode::Setting(Control::SetGrid)), Control::GridTwo),
-        ((String::from("3"), Mode::Setting(Control::SetGrid)), Control::GridThree),
-        ((String::from("4"), Mode::Setting(Control::SetGrid)), Control::GridFour),
-        ((String::from("5"), Mode::Setting(Control::SetGrid)), Control::GridFive),
-        ((String::from("t"), Mode::Setting(Control::SetGrid)), Control::GridTen),
+        (
+            (String::from("2"), Mode::Setting(Control::SetGrid)),
+            Control::GridTwo,
+        ),
+        (
+            (String::from("3"), Mode::Setting(Control::SetGrid)),
+            Control::GridThree,
+        ),
+        (
+            (String::from("4"), Mode::Setting(Control::SetGrid)),
+            Control::GridFour,
+        ),
+        (
+            (String::from("5"), Mode::Setting(Control::SetGrid)),
+            Control::GridFive,
+        ),
+        (
+            (String::from("t"), Mode::Setting(Control::SetGrid)),
+            Control::GridTen,
+        ),
         ((String::from("b"), Mode::View), Control::GridTwo),
         ((String::from("egrave"), Mode::View), Control::GridTen),
         ((String::from("ccedilla"), Mode::View), Control::GridThree),
@@ -257,8 +279,14 @@ pub fn default_controls() -> Controls {
         ((String::from("q"), Mode::View), Control::BackFromDirectory),
     ]);
     for ch in 'a'..='z' {
-        controls.insert((ch.to_string(), Mode::Setting(Control::SetMark)), Control::SetMarkChar(ch));
-        controls.insert((ch.to_string(), Mode::Setting(Control::GotoMark)), Control::JumpMarkChar(ch));
+        controls.insert(
+            (ch.to_string(), Mode::Setting(Control::SetMark)),
+            Control::SetMarkChar(ch),
+        );
+        controls.insert(
+            (ch.to_string(), Mode::Setting(Control::GotoMark)),
+            Control::JumpMarkChar(ch),
+        );
     }
     controls
 }

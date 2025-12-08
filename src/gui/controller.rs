@@ -1,13 +1,12 @@
-use crate::file::paths::check_path_exists;
-use crate::file::paths::grand_parent_directory;
-use regex::Regex;
 use crate::cli::args::Args;
 use crate::cli::command::Command;
 use crate::cli::status::Status;
 use crate::env::configuration::Configuration;
 use crate::file::database::*;
+use crate::file::paths::check_path_exists;
+use crate::file::paths::grand_parent_directory;
 use crate::file::paths::{check_collectable, file_exists, parent_directory};
-use crate::file::picture_file::{create_missing_thumbnails};
+use crate::file::picture_file::create_missing_thumbnails;
 use crate::gui::control::{Control, Controls, default_controls, help_on_controls};
 use crate::gui::direction::Direction;
 use crate::gui::editor::Editor;
@@ -29,6 +28,7 @@ use gtk::prelude::*;
 use gtk::{self, gdk};
 use rand::Rng;
 use rand::rng;
+use regex::Regex;
 use std::cell::RefCell;
 use std::io::Error as IOError;
 use std::io::Result as IOResult;
@@ -52,18 +52,21 @@ pub type RcController = Rc<RefCell<Controller>>;
 
 impl Controller {
     pub fn new(config: Configuration, args: Args) -> IOResult<Self> {
-
         let pictures_per_row = if let Some(grid) = args.grid {
             grid
         } else {
             match args.pictures_per_row() {
-                1 => if let Some(n) = config.current_pictures_per_row {
-                    n
-                } else {
-                    1
-                },
-                    n => n.try_into().unwrap(),
-            }.try_into().unwrap()
+                1 => {
+                    if let Some(n) = config.current_pictures_per_row {
+                        n
+                    } else {
+                        1
+                    }
+                }
+                n => n.try_into().unwrap(),
+            }
+            .try_into()
+            .unwrap()
         };
         let mut cli = args.clone();
 
@@ -77,16 +80,17 @@ impl Controller {
         if config.cover {
             if args.all {
                 cli.cover = false
-            } else  {
+            } else {
                 cli.cover = true
             }
         };
         let mut repository = Repository::new(config.clone(), cli.clone());
         match repository.initialize() {
-            Ok(_) => {},
+            Ok(_) => {}
             Err(e) => panic!("{}", e),
         };
         println!("{} pictures", repository.len());
+
         Ok(Controller {
             configuration: config.clone(),
             repository: repository.clone(),
@@ -94,10 +98,7 @@ impl Controller {
             editor: Editor::new(),
             navigator: Navigator::new(repository.len(), pictures_per_row as usize),
             controls: default_controls(),
-            state: State::new(
-                pictures_per_row as usize,
-                cli.slideshow().is_some(),
-            ),
+            state: State::new(pictures_per_row as usize, cli.slideshow().is_some()),
             main_window_opt: None,
             last_action: Action::Nothing,
         })
@@ -124,6 +125,10 @@ impl Controller {
 
     pub fn navigator(&self) -> Navigator {
         self.navigator.clone()
+    }
+
+    pub fn set_navigator(&mut self, navigator: Navigator) {
+        self.navigator = navigator;
     }
 
     pub fn current_picture(&self) -> Picture {
@@ -153,139 +158,18 @@ impl Controller {
                 println!("no pictures\nquitting");
                 self.quit();
                 Ok(0)
-            },
+            }
             Err(e) => Err(e),
             Ok(count) => {
                 println!("{} pictures", count);
-                self.navigator = Navigator::new(self.repository.len(), self.state.pictures_per_row());
+                self.navigator =
+                    Navigator::new(self.repository.len(), self.state.pictures_per_row());
                 Ok(count)
             }
-
         }
     }
 
-    pub fn execute_command(&mut self) -> IOResult<Status> {
-        let mut gallery = Gallery::new();
-        let args = self.args.clone();
-        let result = match args.command {
-            Some(Command::Collect { directory }) => {
-                println!("collecting data for picture files in the database…");
-                let path: PathBuf = PathBuf::from(directory);
-                match check_collectable(&path) {
-                    Ok(_) => {
-                        match self.repository.collect_data() {
-                            Ok(_) => Ok(Status::Done),
-                            Err(err) => Err(err),
-                        }
-                    }
-                    Err(err) => Err(err),
-                }
-            }
-            Some(Command::Thumbnails { pictures_per_row }) => {
-                match self.repository.gallery_rc().try_borrow() {
-                    Ok(gallery) => {
-                        create_missing_thumbnails(&gallery, pictures_per_row as usize);
-                        Ok(Status::Done)
-                    },
-                    Err(e) => Err(IOError::other(e)),
-                }
-            }
-            Some(Command::List { directory }) => {
-                match self.repository.list(directory) {
-                    Ok(_) => Ok(Status::Done),
-                    Err(err) => Err(err),
-                }
-            }
-            Some(Command::Check) => {
-                match self.repository.check() {
-                    Ok(_) => Ok(Status::Done),
-                    Err(err) => Err(err),
-                }
-            }
-            Some(Command::Clean) => {
-                match self.repository.clean() {
-                    Ok(_) => Ok(Status::Done),
-                    Err(err) => Err(err),
-                }
-            }
-            Some(Command::Move { source, target }) => {
-                match self.repository.move_pictures(&source, &target) {
-                    Ok(_) => Ok(Status::Exit),
-                    Err(err) => Err(err),
-                }
-            }
-            Some(Command::Initialize) => {
-                let config = Configuration::from_env()?;
-                println!("initializing database");
-                if !file_exists(&config.database_file) {
-                    println!("creating new database file {}", config.database_file);
-                    match Database::from_connection(&config.database_file, true) {
-                        Ok(database) => match database.rusqlite_create_schema() {
-                            Ok(_) => Ok(Status::Done),
-                            Err(e) => Err(IOError::other(e)),
-                        },
-                        Err(e) => Err(e),
-                    }
-                } else {
-                    Err(IOError::other(format!(
-                        "{} already exists",
-                        &config.database_file
-                    )))
-                }
-            }
 
-            Some(Command::File { file_path }) => match gallery.load_from_file_path(&file_path) {
-                Err(e) => Err(e),
-                Ok(_) => Ok(Status::Ready),
-            },
-            Some(Command::Directory { directory }) => match gallery.load_from_directory(&directory)
-            {
-                Err(e) => Err(e),
-                Ok(0) => {
-                    println!("no pictures for this selection");
-                    Ok(Status::Exit)
-                }
-                Ok(count) => {
-                    println!("{} pictures", count);
-                    if let Some(index) = args.index
-                        && self.navigator().can_move(Direction::Index { value: index })
-                    {
-                        self.navigator
-                            .move_towards(Direction::Index { value: index })
-                    };
-                    self.navigator().set_page_changed();
-                    Ok(Status::Ready)
-                }
-            },
-            None => match self.repository.gallery_rc().try_borrow_mut() {
-                Ok(gallery) => {
-                    if gallery.is_empty() {
-                        println!("no pictures for this selection");
-                        Ok(Status::Exit)
-                    } else {
-                        println!("{} pictures", &gallery.len());
-                        if let Some(index) = args.index
-                            && self.navigator().can_move(Direction::Index { value: index })
-                        {
-                            self.navigator
-                                .move_towards(Direction::Index { value: index })
-                        } else if let Some(file_path) = self.configuration.clone().current_picture
-                            && let Some(index) = gallery.find_file_path(&file_path) 
-                                && self.navigator().can_move(Direction::Index { value: index }) {
-                                    self.navigator
-                                        .move_towards(Direction::Index { value: index })
-
-                        };
-                        self.navigator().set_page_changed();
-                        Ok(Status::Ready)
-                    }
-                },
-                Err(e) => Err(IOError::other(e)),
-            },
-    };
-    result
-    }
-    
     pub fn move_towards_saved_current(&mut self) {
         if let Some(file_path) = self.configuration.current_picture.clone() {
             self.find_pattern(&file_path, false);
@@ -393,9 +277,10 @@ impl Controller {
     fn process_key(&mut self, key: Key) {
         const SHIFT_L: &str = "Shift_L";
         const SHIFT_R: &str = "Shift_R";
-        if let Some(name) = key.name() 
-            && (name == SHIFT_L || name == SHIFT_R) {
-            return
+        if let Some(name) = key.name()
+            && (name == SHIFT_L || name == SHIFT_R)
+        {
+            return;
         }
         let controls = self.controls.clone();
         match self.state().mode() {
@@ -606,14 +491,14 @@ impl Controller {
             Control::SetMark => match choice {
                 Control::SetMarkChar(ch) => self.process_control(choice),
                 _ => println!("?"),
-            }
+            },
             Control::SetGrid => match choice {
                 _ => self.process_control(choice),
             },
             Control::GotoMark => match choice {
                 Control::JumpMarkChar(ch) => self.process_control(choice),
                 _ => println!("?"),
-            }
+            },
             Control::SetDisplay => match choice {
                 Control::DisplayDate | Control::DisplaySize => self.process_control(choice),
                 Control::DisplayFocus => self.toggle_display_focus_symbol_change(),
@@ -647,16 +532,16 @@ impl Controller {
         println!("Setting mark…");
         self.state.set_mode(Mode::Setting(Control::SetMark));
     }
-    
+
     fn jumping_mark(&mut self) {
         println!("Jumping to mark…");
         self.state.set_mode(Mode::Setting(Control::GotoMark));
     }
-    
+
     fn set_mark(&mut self, mark: char) {
         let file_path = self.current_picture().file_path();
         let _ = self.configuration.marked.insert(mark, file_path.clone());
-        println!("{}={}",mark, file_path);
+        println!("{}={}", mark, file_path);
         let _ = self.configuration.save();
     }
     fn setting_order(&mut self) {
@@ -678,7 +563,9 @@ impl Controller {
             Control::MoveLast => self.move_towards(Direction::Last),
             Control::MoveFirst => self.move_towards(Direction::First),
             Control::MoveStartPage => self.move_towards(Direction::PageStart),
-            Control::MoveRandom => self.move_towards(Direction::Index { value: rng().random_range(0..self.navigator.limit()) }),
+            Control::MoveRandom => self.move_towards(Direction::Index {
+                value: rng().random_range(0..self.navigator.limit()),
+            }),
             Control::MoveEndPage => self.move_towards(Direction::PageEnd),
             Control::Left => self.arrow_move(Direction::Left),
             Control::Right => self.arrow_move(Direction::Right),
@@ -768,8 +655,8 @@ impl Controller {
                 Ok(()) => {
                     self.reload();
                     self.navigator.set_page_changed();
-                },
-                Err(e) => eprintln!("{}",e),
+                }
+                Err(e) => eprintln!("{}", e),
             }
         }
     }
@@ -778,7 +665,7 @@ impl Controller {
         if let Some((pictures_per_row, single_view, old_args)) = self.state.pop_saved_args() {
             self.args = old_args.clone();
             match self.repository.initialize_for_args(&old_args) {
-                Ok(()) => { 
+                Ok(()) => {
                     self.state.set_single_view(single_view);
                     self.change_grid_size(pictures_per_row);
                     self.reload();
@@ -789,8 +676,8 @@ impl Controller {
                             .move_towards(Direction::Index { value: index })
                     };
                     self.navigator.set_page_changed()
-                },
-                Err(e) => eprintln!("{}",e),
+                }
+                Err(e) => eprintln!("{}", e),
             }
         }
     }
@@ -812,17 +699,16 @@ impl Controller {
     }
 
     fn toggle_cover_selection(&mut self) {
-        if !self.args.cover
-            && self.repository.covers() > 0 {
-                let new_args = Args {
-                    cover: true,
-                    ..self.args.clone()
-                };
-                self.args = new_args;
-                match self.repository.initialize_for_args(&self.args) {
-                    Ok(_) => self.reload(),
-                    Err(e) => panic!("{}",e),
-                }
+        if !self.args.cover && self.repository.covers() > 0 {
+            let new_args = Args {
+                cover: true,
+                ..self.args.clone()
+            };
+            self.args = new_args;
+            match self.repository.initialize_for_args(&self.args) {
+                Ok(_) => self.reload(),
+                Err(e) => panic!("{}", e),
+            }
         } else if self.args.cover {
             let new_args = Args {
                 cover: false,
@@ -831,7 +717,7 @@ impl Controller {
             self.args = new_args;
             match self.repository.initialize_for_args(&self.args) {
                 Ok(_) => self.reload(),
-                Err(e) => panic!("{}",e),
+                Err(e) => panic!("{}", e),
             }
         }
     }
@@ -934,8 +820,7 @@ impl Controller {
     fn help(&mut self) {
         self.editor
             .begin(&self.main_window(), EntryKind::Help, None);
-        self.editor
-            .set_input(&help_on_controls());
+        self.editor.set_input(&help_on_controls());
         self.state.set_mode(Mode::Editing);
     }
 
@@ -973,12 +858,12 @@ impl Controller {
             if let Ok(gallery) = self.repository.gallery_rc().try_borrow() {
                 if let Some(index) = gallery
                     .pictures()
-                        .iter()
-                        .position(|picture| picture.file_path() == *file_path)
+                    .iter()
+                    .position(|picture| picture.file_path() == *file_path)
                 {
-                        let navigator = &mut self.navigator;
-                        navigator.move_towards(Direction::Index { value: index });
-                        navigator.set_page_changed()
+                    let navigator = &mut self.navigator;
+                    navigator.move_towards(Direction::Index { value: index });
+                    navigator.set_page_changed()
                 } else {
                     println!("mark: {} not found", mark);
                 }
@@ -994,17 +879,13 @@ impl Controller {
         match Regex::new(pattern) {
             Ok(re) => {
                 if let Ok(gallery) = self.repository.gallery_rc().try_borrow() {
-                    if let Some(index) = gallery
-                        .pictures()
-                            .iter()
-                            .position(|picture| {
-                                if in_label {
-                                    re.is_match(&picture.label())
-                                } else {
-                                    re.is_match(&picture.file_path())
-                                }
-                            })
-                    {
+                    if let Some(index) = gallery.pictures().iter().position(|picture| {
+                        if in_label {
+                            re.is_match(&picture.label())
+                        } else {
+                            re.is_match(&picture.file_path())
+                        }
+                    }) {
                         let navigator = &mut self.navigator;
                         navigator.move_towards(Direction::Index { value: index });
                         navigator.set_page_changed()
@@ -1013,7 +894,9 @@ impl Controller {
                     panic!("can't borrow")
                 }
             }
-            Err(e) => { eprintln!("{}",e); }
+            Err(e) => {
+                eprintln!("{}", e);
+            }
         }
     }
 
@@ -1024,7 +907,7 @@ impl Controller {
             self.configuration.current_picture = Some(self.current_picture().file_path());
             self.configuration.cover = self.args.cover;
             self.configuration.current_pictures_per_row = if self.state.single_view() {
-                Some(1) 
+                Some(1)
             } else {
                 Some(self.state.pictures_per_row())
             };
@@ -1032,7 +915,7 @@ impl Controller {
             let _ = self.configuration.save();
             let application_window = self.main_window().application_window();
             application_window.close()
-    }
+        }
     }
 
     fn reload(&mut self) {
@@ -1214,12 +1097,12 @@ impl Controller {
                 Ok(count) => {
                     picture_count += 1;
                     operation_count += count;
-                },
+                }
                 Err(err) => {
                     println!("{}", err);
-                },
+                }
             }
-        };
+        }
         println!(
             "{} pictures moved to {}\n{} operations\nexiting gsr",
             picture_count, target_dir, operation_count
@@ -1258,17 +1141,21 @@ impl Controller {
     }
 
     fn copy_to_temp(&mut self) {
-        match self.repository.copy_picture_at_index_to_temp_dir(self.navigator.position()) {
-            Ok(_) => {},
+        match self
+            .repository
+            .copy_picture_at_index_to_temp_dir(self.navigator.position())
+        {
+            Ok(_) => {}
             Err(e) => {
                 eprintln!("{}", e);
-            },
+            }
         }
     }
 
     fn extract_filenames(&mut self) {
         if self.navigator.has_selected() {
-            self.repository.extract_file_names(&self.navigator.selection());
+            self.repository
+                .extract_file_names(&self.navigator.selection());
         }
     }
 
@@ -1303,21 +1190,22 @@ impl Controller {
                             label = Some(this_label);
                             grand_parent = Some(directory);
                         } else if this_label != label.clone().unwrap()
-                            || directory != grand_parent.clone().unwrap() {
-                                return None
+                            || directory != grand_parent.clone().unwrap()
+                        {
+                            return None;
                         }
                     } else {
-                        return None
+                        return None;
                     }
                 }
-            };
+            }
             let path = PathBuf::from(grand_parent.unwrap());
             let addendum = PathBuf::from(label.clone().unwrap());
             let candidate = path.join(addendum.clone());
             let result = check_path_exists(&candidate);
             match result {
                 Ok(valid_path) => Some(valid_path.to_str().unwrap().to_string()),
-                Err(e) => { 
+                Err(e) => {
                     eprintln!("{}", e);
                     None
                 }
@@ -1329,10 +1217,13 @@ impl Controller {
 
     fn move_picture_to_label(&mut self) {
         if let Some(target_dir) = self.check_move_destination_label() {
-            self.editor
-                .begin(&self.main_window(), EntryKind::MoveToLabelConfirmation(target_dir), None);
+            self.editor.begin(
+                &self.main_window(),
+                EntryKind::MoveToLabelConfirmation(target_dir),
+                None,
+            );
             self.state.set_mode(Mode::Editing);
-            }
+        }
     }
 
     fn acknowledge_grid_size_change(&mut self) {
@@ -1362,8 +1253,10 @@ impl Controller {
         match direction {
             Direction::NextPage if self.state.single_view() => self.move_towards(Direction::Right),
             Direction::PrevPage if self.state.single_view() => self.move_towards(Direction::Left),
-            ref other => if self.can_move(other.clone()) {
-                self.navigator.move_towards(other.clone());
+            ref other => {
+                if self.can_move(other.clone()) {
+                    self.navigator.move_towards(other.clone());
+                }
             }
         }
     }

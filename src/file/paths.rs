@@ -1,8 +1,8 @@
-use chrono::{Local,SecondsFormat};
 use crate::env::default_values::GARBAGE;
 use crate::env::default_values::THUMB_SUFFIX;
 use crate::env::default_values::VALID_EXTENSIONS;
 use crate::model::thumbnail::{thumbnail_size_display, thumbnail_size_for};
+use chrono::{Local, SecondsFormat};
 use std::env::home_dir;
 use std::ffi::OsStr;
 use std::io::{Error, ErrorKind, Result};
@@ -34,7 +34,9 @@ pub fn parent_directory(file_path: &str) -> Option<String> {
 pub fn grand_parent_directory(file_path: &str) -> Option<String> {
     let path = Path::new(file_path);
     match path.parent() {
-        Some(parent) => parent.parent().map(|grand_parent| grand_parent.to_str().unwrap().to_string()),
+        Some(parent) => parent
+            .parent()
+            .map(|grand_parent| grand_parent.to_str().unwrap().to_string()),
         None => None,
     }
 }
@@ -159,10 +161,12 @@ pub fn thumbnail_name_from(file_name: &str, pictures_per_row: usize) -> String {
 }
 
 pub fn thumbnail_names_from(file_name: &str) -> Vec<String> {
-    vec![thumbnail_name_from(file_name, 10),
-    thumbnail_name_from(file_name, 7),
-    thumbnail_name_from(file_name, 4),
-    thumbnail_name_from(file_name, 2)]
+    vec![
+        thumbnail_name_from(file_name, 10),
+        thumbnail_name_from(file_name, 7),
+        thumbnail_name_from(file_name, 4),
+        thumbnail_name_from(file_name, 2),
+    ]
 }
 
 pub fn file_path_as_stored(source: &str) -> String {
@@ -189,9 +193,16 @@ pub fn file_path_as_retrieved(source: &str) -> String {
 
 pub fn timestamp_filename(prefix: &str, ext: &str) -> String {
     let now = Local::now();
-    let stamp = now.to_rfc3339_opts(SecondsFormat::Millis, true)
-                   .replace(':', "-");
-    format!("{}{}{}.{}", prefix, if prefix.is_empty() { "" } else { "-" }, stamp, ext)
+    let stamp = now
+        .to_rfc3339_opts(SecondsFormat::Millis, true)
+        .replace(':', "-");
+    format!(
+        "{}{}{}.{}",
+        prefix,
+        if prefix.is_empty() { "" } else { "-" },
+        stamp,
+        ext
+    )
 }
 
 #[cfg(test)]
@@ -288,12 +299,18 @@ mod tests {
 
     #[test]
     fn having_parent_directory() {
-        assert_eq!(Some("testdata/subdir".to_string()), parent_directory("testdata/subdir/my_file.jpg"));
+        assert_eq!(
+            Some("testdata/subdir".to_string()),
+            parent_directory("testdata/subdir/my_file.jpg")
+        );
         assert_eq!(Some("".to_string()), parent_directory(&format!("foo.jpg")))
     }
     #[test]
     fn having_grand_parent_directory() {
-        assert_eq!(Some("testdata".to_string()), grand_parent_directory("testdata/subdir/my_file.jpg"));
+        assert_eq!(
+            Some("testdata".to_string()),
+            grand_parent_directory("testdata/subdir/my_file.jpg")
+        );
         assert_eq!(None, grand_parent_directory(&format!("foo.jpg")))
     }
 }

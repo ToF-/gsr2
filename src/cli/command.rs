@@ -1,4 +1,19 @@
+use crate::model::repository::Repository;
+use crate::Configuration;
+use crate::Controller;
+use crate::Database;
+use crate::IOError;
+use crate::Status;
+use crate::file::paths::check_collectable;
+use crate::file::picture_file::create_missing_thumbnails;
+use crate::file_exists;
+use crate::gui::direction::Direction;
+use crate::model::gallery::Gallery;
 use clap::Subcommand;
+use std::cell::RefCell;
+use std::io::Result as IOResult;
+use std::path::PathBuf;
+use std::rc::Rc;
 
 #[derive(Subcommand, Clone, Debug, PartialEq)]
 /// Command
@@ -42,4 +57,120 @@ pub enum Command {
         #[arg(value_name = "N", value_parser(clap::value_parser!(u8).range(2..=10)))]
         pictures_per_row: u8,
     },
+}
+
+pub fn execute_command(
+    controller_rc: Rc<RefCell<Controller>>,
+    repository: Repository,
+    config: Configuration,
+) -> IOResult<Status> {
+    let mut gallery = Gallery::new();
+    match controller_rc.try_borrow() {
+        Ok(controller) => {
+            let args = controller.args().clone();
+            let result = match args.command {
+                Some(Command::Collect { directory }) => {
+                    println!("collecting data for picture files in the database…");
+                    let path: PathBuf = PathBuf::from(directory);
+                    match check_collectable(&path) {
+                        Ok(_) => match repository.collect_data() {
+                            Ok(_) => Ok(Status::Done),
+                            Err(err) => Err(err),
+                        },
+                        Err(err) => Err(err),
+                    }
+                }
+                Some(Command::Thumbnails { pictures_per_row }) => {
+                    match repository.gallery_rc().try_borrow() {
+                        Ok(gallery) => {
+                            create_missing_thumbnails(&gallery, pictures_per_row as usize);
+                            Ok(Status::Done)
+                        }
+                        Err(e) => Err(IOError::other(e)),
+                    }
+                }
+                Some(Command::List { directory }) => {
+                    match repository.list(directory) {
+                        Ok(_) => Ok(Status::Done),
+                        Err(err) => Err(err),
+                    }
+                }
+                Some(Command::Check) => match repository.check() {
+                    Ok(_) => Ok(Status::Done),
+                    Err(err) => Err(err),
+                },
+                Some(Command::Clean) => match repository.clean() {
+                    Ok(_) => Ok(Status::Done),
+                    Err(err) => Err(err),
+                },
+                Some(Command::Move { source, target }) => {
+                    match repository.move_pictures(&source, &target) {
+                        Ok(_) => Ok(Status::Exit),
+                        Err(err) => Err(err),
+                    }
+                }
+                Some(Command::Initialize) => {
+                    let config = Configuration::from_env()?;
+                    println!("initializing database");
+                    if !file_exists(&config.database_file) {
+                        println!("creating new database file {}", config.database_file);
+                        match Database::from_connection(&config.database_file, true) {
+                            Ok(database) => match database.rusqlite_create_schema() {
+                                Ok(_) => Ok(Status::Done),
+                                Err(e) => Err(IOError::other(e)),
+                            },
+                            Err(e) => Err(e),
+                        }
+                    } else {
+                        Err(IOError::other(format!(
+                                    "{} already exists",
+                                    &config.database_file
+                        )))
+                    }
+                }
+
+                Some(Command::File { file_path }) => {
+                    match gallery.load_from_file_path(&file_path) {
+                        Err(e) => Err(e),
+                        Ok(_) => Ok(Status::Ready(0)),
+                    }
+                }
+                Some(Command::Directory { directory }) => {
+                    match gallery.load_from_directory(&directory) {
+                        Err(e) => Err(e),
+                        Ok(0) => {
+                            println!("no pictures for this selection");
+                            Ok(Status::Exit)
+                        }
+                        Ok(count) => {
+                            println!("{} pictures", count);
+                            Ok(Status::Ready(0))
+                        }
+                    }
+                }
+                None => match repository.gallery_rc().try_borrow_mut() {
+                    Ok(gallery) => {
+                        if gallery.is_empty() {
+                            println!("no pictures for this selection");
+                            Ok(Status::Exit)
+                        } else {
+                            println!("{} pictures", &gallery.len());
+                            if let Some(index) = args.index {
+                                Ok(Status::Ready(index))
+                            } else if let Some(file_path) = config.current_picture 
+                                && let Some(index) = gallery.find_file_path(&file_path)
+                                    && controller.navigator().can_move(Direction::Index { value: index }) {
+                                        Ok(Status::Ready(index))
+                            } else {
+                                Ok(Status::Ready(0))
+                            }
+                        }
+                    },
+                    Err(e) => Err(IOError::other(e)),
+                }
+            };
+            result
+        },
+        Err(e) => Err(IOError::other(e)),
+    }
 }

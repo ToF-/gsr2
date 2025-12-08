@@ -1,9 +1,9 @@
+use crate::file::picture_file::get_image_from_picture_file;
+use crate::model::color::Color;
 use image::DynamicImage;
 use image::GenericImageView;
-use crate::file::picture_file::get_image_from_picture_file;
-use std::num::ParseIntError;
-use crate::model::color::Color;
 use std::fmt;
+use std::num::ParseIntError;
 
 #[derive(Debug)]
 pub struct ParseColorRangeError;
@@ -41,7 +41,7 @@ impl ColorRange {
         match parts.len() {
             3 => match Color::from_string(parts[0]) {
                 Ok(color_min) => match Color::from_string(parts[1]) {
-                    Ok(color_max) => match parts[2].parse::<f64> () {
+                    Ok(color_max) => match parts[2].parse::<f64>() {
                         Ok(ratio) => Ok(ColorRange {
                             color_min,
                             color_max,
@@ -73,8 +73,9 @@ impl ColorRange {
                         let b = pixel[2];
                         if red_range.contains(&r)
                             && green_range.contains(&g)
-                                && blue_range.contains(&b) {
-                                    count+= 1
+                            && blue_range.contains(&b)
+                        {
+                            count += 1
                         };
                     }
                 }
@@ -82,7 +83,7 @@ impl ColorRange {
                 if self.ratio >= 0.0 {
                     if ratio >= self.ratio {
                         println!("{} {:.5} >= {:.5} {}", index, ratio, self.ratio, file_path);
-                            true
+                        true
                     } else {
                         false
                     }
@@ -94,11 +95,11 @@ impl ColorRange {
                         false
                     }
                 }
-            },
+            }
             Err(e) => {
-                eprintln!("{}",e);
+                eprintln!("{}", e);
                 false
-            },
+            }
         }
     }
 }
@@ -112,7 +113,8 @@ mod tests {
         let color_range = ColorRange::default();
         assert_eq!(
             "ColorRange { color_min: Color { r: 0, g: 0, b: 0 }, color_max: Color { r: 255, g: 255, b: 255 }, ratio: 1.0 }",
-            format!("{:?}", color_range));
+            format!("{:?}", color_range)
+        );
     }
 
     #[test]
@@ -121,7 +123,8 @@ mod tests {
         assert!(color_range_opt.is_ok());
         assert_eq!(
             "ColorRange { color_min: Color { r: 10, g: 32, b: 255 }, color_max: Color { r: 240, g: 64, b: 16 }, ratio: 0.8 }",
-            format!("{:?}", color_range_opt.unwrap()));
+            format!("{:?}", color_range_opt.unwrap())
+        );
     }
 
     #[test]
@@ -130,7 +133,7 @@ mod tests {
         assert!(color_range_opt.is_ok());
         assert_eq!(
             "ColorRange { color_min: Color { r: 10, g: 32, b: 255 }, color_max: Color { r: 240, g: 64, b: 16 }, ratio: -0.2 }",
-            format!("{:?}", color_range_opt.unwrap()));
+            format!("{:?}", color_range_opt.unwrap())
+        );
     }
-
 }

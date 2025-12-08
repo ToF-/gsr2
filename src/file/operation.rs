@@ -73,8 +73,7 @@ pub fn move_operations(file_path: &str, target_dir: &str) -> Vec<Operation> {
 pub fn move_picture(file_path: &str, target_dir: &str) -> Vec<Operation> {
     let source_file = file_path_as_stored(file_path);
     let target_path = target_file_path(file_path, target_dir);
-    let target_file =
-        file_path_as_stored(target_path.into_os_string().to_str().unwrap());
+    let target_file = file_path_as_stored(target_path.into_os_string().to_str().unwrap());
     if source_file == target_file {
         vec![]
     } else {
@@ -131,8 +130,8 @@ pub fn execute(database: &Database, operations: &Vec<Operation>) -> IOResult<()>
 mod test {
     use super::*;
     use crate::file::database::tests::my_db;
-    use crate::file::paths::test::current_directory;
     use crate::file::paths::home_directory;
+    use crate::file::paths::test::current_directory;
     use crate::test_data::*;
     use serial_test::serial;
     use std::fs::{File, remove_file};

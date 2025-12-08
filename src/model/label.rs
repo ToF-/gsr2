@@ -7,7 +7,7 @@ pub fn from(s: &str) -> Label {
 }
 
 pub fn sort_key(s: &str) -> String {
-    if ! s.is_empty() {
+    if !s.is_empty() {
         s.to_string()
     } else {
         LAST_ASCII.to_string()

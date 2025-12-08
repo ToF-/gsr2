@@ -87,21 +87,31 @@ impl Picture {
     }
 
     pub fn label(&self) -> String {
-        self.image_data.as_ref().map(|d| d.label()).unwrap_or_default()
+        self.image_data
+            .as_ref()
+            .map(|d| d.label())
+            .unwrap_or_default()
     }
 
     pub fn selected(&self, selection: &Selection) -> bool {
-        self.image_data.as_ref().map(|d|
-            selection.matches(d.tags.clone())
-        ).unwrap_or_default()
+        self.image_data
+            .as_ref()
+            .map(|d| selection.matches(d.tags.clone()))
+            .unwrap_or_default()
     }
 
     pub fn rank(&self) -> Rank {
-        self.image_data.as_ref().map(|d| d.rank()).unwrap_or_default()
+        self.image_data
+            .as_ref()
+            .map(|d| d.rank())
+            .unwrap_or_default()
     }
 
     pub fn tags(&self) -> Tags {
-        self.image_data.as_ref().map(|d| d.tags.clone()).unwrap_or_default()
+        self.image_data
+            .as_ref()
+            .map(|d| d.tags.clone())
+            .unwrap_or_default()
     }
 
     pub fn cover(&self) -> Cover {
@@ -148,7 +158,6 @@ impl Picture {
     pub fn thumbnail_file_path_for_size(&self, pictures_per_row: usize) -> String {
         thumbnail_name_from(&self.file_path, pictures_per_row)
     }
-
 }
 #[cfg(test)]
 mod tests {

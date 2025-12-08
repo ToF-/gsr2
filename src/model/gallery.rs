@@ -1,6 +1,6 @@
+use crate::file::picture_file::{get_all_picture_file_paths, get_picture_file_path};
 use crate::model::cover::cover_sort_key;
 use crate::model::label::sort_key;
-use crate::file::picture_file::{get_all_picture_file_paths, get_picture_file_path};
 use crate::model::order::Order;
 use crate::model::picture::Picture;
 use crate::model::selection::Selection;
@@ -141,8 +141,9 @@ impl Gallery {
                     )
                 })
             }),
-            Order::Cover => self.pictures.sort_by_key(|picture| 
-                (cover_sort_key(picture.cover()), picture.file_path())),
+            Order::Cover => self
+                .pictures
+                .sort_by_key(|picture| (cover_sort_key(picture.cover()), picture.file_path())),
             _ => self.pictures.shuffle(&mut rng()),
         }
     }
@@ -159,7 +160,6 @@ impl Gallery {
             println!("{}", picture.file_path())
         }
     }
-
 }
 #[cfg(test)]
 mod tests {

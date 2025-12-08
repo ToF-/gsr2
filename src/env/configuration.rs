@@ -1,13 +1,13 @@
-use crate::model::order::Order;
 use crate::env::default_values::{CONFIG_FILE_DEFAULT, CONFIG_FILE_VARIABLE};
 use crate::file::paths::home_directory;
 use crate::file_exists;
+use crate::model::order::Order;
 use serde::Deserialize;
 use serde::Serialize;
+use std::collections::HashMap;
 use std::env;
 use std::fs;
 use std::io::Result;
-use std::collections::HashMap;
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Configuration {
@@ -15,10 +15,10 @@ pub struct Configuration {
     pub height: i32,
     pub database_file: String,
     pub temp_dir: String,
-    pub marked: HashMap<char,String>,
+    pub marked: HashMap<char, String>,
     pub current_picture: Option<String>,
     pub current_pictures_per_row: Option<usize>,
-    pub current_order:Option<Order>,
+    pub current_order: Option<Order>,
     pub cover: bool,
 }
 
@@ -31,8 +31,8 @@ impl Configuration {
         let content = toml::to_string(self).unwrap();
         if !file_exists(&config_file_location()) {
             return Err(std::io::Error::other(format!(
-                        "configuration file {} does not exist",
-                        config_file_location()
+                "configuration file {} does not exist",
+                config_file_location()
             )));
         };
         match fs::write(config_file_location(), content) {
@@ -66,13 +66,12 @@ fn get_configuration() -> Result<Configuration> {
     }
 }
 
-
 #[cfg(test)]
 
 pub mod tests {
     use super::*;
-    use crate::test_data::TEST_DATA_DIR;
     use crate::file::paths::test::current_directory;
+    use crate::test_data::TEST_DATA_DIR;
 
     pub fn my_cfg() -> Configuration {
         Configuration {

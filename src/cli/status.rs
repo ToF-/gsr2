@@ -1,5 +1,5 @@
 pub enum Status {
     Done,
     Exit,
-    Ready,
+    Ready(usize),
 }
