@@ -147,14 +147,14 @@ impl MainWindow {
             if let Ok(mut controller) = controller_rc.try_borrow_mut() {
                 let main_window = MainWindow::new_from_application(application, controller_rc);
                 controller.set_main_window(main_window);
-                controller.main_window().set_pictures(&controller);
-                controller.main_window().set_title(&controller);
                 let mut navigator = controller.navigator();
                 if navigator.can_move(Direction::Index { value: position }) {
                     navigator.move_towards(Direction::Index { value: position });
                     navigator.set_page_changed();
                     controller.set_navigator(navigator);
                 }
+                controller.main_window().set_pictures(&controller);
+                controller.main_window().set_title(&controller);
             }
         }
         attach_panel_event_handlers(&panel, controller_rc);

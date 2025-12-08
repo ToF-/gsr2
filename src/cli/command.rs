@@ -158,9 +158,8 @@ pub fn execute_command(
                             if let Some(index) = args.index {
                                 Ok(Status::Ready(index))
                             } else if let Some(file_path) = config.current_picture 
-                                && let Some(index) = gallery.find_file_path(&file_path)
-                                    && controller.navigator().can_move(Direction::Index { value: index }) {
-                                        Ok(Status::Ready(index))
+                                && let Some(index) = gallery.find_file_path(&file_path) {
+                                    Ok(Status::Ready(index))
                             } else {
                                 Ok(Status::Ready(0))
                             }
