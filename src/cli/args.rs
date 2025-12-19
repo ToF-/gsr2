@@ -48,7 +48,7 @@ pub struct Args {
     pub extraction: Option<String>,
 
     /// filter pictures having a percentage of pixel in the given range
-    #[arg(short, long, value_name = "COLOR_RANGE")]
+    #[arg(short, long, value_name = "COLOR_RANGE", long_help = "example: gsr --filter 'c0c0c0 ffffff 0.5' filters the pictures that have more than half their pixel in the range CCC FFF")]
     pub filter: Option<String>,
 
     /// display N x N pictures per page (N in range [1..10[)
