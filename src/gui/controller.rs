@@ -687,7 +687,6 @@ impl Controller {
     }
 
     fn rank_picture_at_index(&mut self, index: usize, rank: Rank) {
-        let index = self.navigator().position();
         let mut picture = self.repository.picture_at(index);
         picture.set_rank(rank);
         self.repository.set_picture_at(index, &picture);

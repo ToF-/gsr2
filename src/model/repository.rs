@@ -549,6 +549,31 @@ impl Repository {
         }
     }
 
+    pub fn extract_all_file_names(&self) -> IOResult<()> {
+        let extract_file = timestamp_filename("selection", "txt");
+        let mut lines: Vec<String> = vec![];
+        match self.gallery_rc().try_borrow() {
+            Ok(gallery) => {
+                for index in 0..self.len() {
+                    let picture = &gallery.picture(index);
+                    lines.push(picture.file_path());
+                }
+                let mut path: PathBuf = PathBuf::from(&self.temp_dir);
+                path.push(extract_file);
+                println!("copying {} file names to {}", lines.len(), path.display());
+                let file = File::create(path)?;
+                let mut writer = BufWriter::new(file);
+                for line in lines {
+                    writer.write_all(line.as_bytes())?;
+                    writer.write_all(b"\n")?;
+                }
+                writer.flush()?;
+                Ok(())
+            }
+            Err(e) => Err(IOError::other(e)),
+        }
+    }
+
     pub fn retrieve_file_names(&self, extract_file: &str) -> IOResult<Vec<String>> {
         File::open(extract_file).and_then(|file| {
             let reader = BufReader::new(file);

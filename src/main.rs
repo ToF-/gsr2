@@ -70,6 +70,13 @@ fn main() {
             }
         }
     });
+    match result {
+        Ok(_) => {},
+                Err(e) => {
+                    eprintln!("{}", e);
+                    exit(1)
+                }
+    }
 }
 
 fn build_and_run_app(args: Args, controller_rc: RcController, position: usize) {

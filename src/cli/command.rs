@@ -37,6 +37,8 @@ pub enum Command {
         directory: String,
     },
 
+    /// extract files names matching the selection
+    Extract,
     /// initialize a new database set in the config file is not existing
     Initialize,
 
@@ -89,6 +91,13 @@ pub fn execute_command(
         }
         Some(Command::List { directory }) => {
             match repository.list(directory) {
+                Ok(_) => Ok(Status::Done),
+                Err(err) => Err(err),
+            }
+        }
+        Some(Command::Extract) => {
+            println!("extract!");
+            match repository.extract_all_file_names() {
                 Ok(_) => Ok(Status::Done),
                 Err(err) => Err(err),
             }
