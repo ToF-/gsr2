@@ -602,7 +602,7 @@ mod tests {
     #[serial]
     fn given_a_db_once_initialized_it_provides_the_set_of_all_labels() {
         let args = my_args().expect("can't access to test args");
-        let mut repository = Repository::new(my_cfg(), args);
+        let mut repository = Repository::new(my_cfg(), args, false);
         repository.initialize().expect("can't initialize");
         assert!(repository.all_labels().contains("a_rather_long_tag"));
         assert!(repository.all_labels().contains("white_square"));
@@ -613,7 +613,7 @@ mod tests {
     fn after_adding_a_label_the_set_includes_this_label() {
         let args = my_args().expect("can't access to test args");
         let cfg = my_cfg();
-        let mut repository = Repository::new(my_cfg(), args);
+        let mut repository = Repository::new(my_cfg(), args, false);
         repository.initialize().expect("can't initialize");
         assert!(!repository.all_labels().contains("a-new-label"));
         repository.add_label("a-new-label");
@@ -626,7 +626,7 @@ mod tests {
         let mut args = my_args().expect("can't access to test args");
         args.order = Some(Order::Size);
         let cfg = my_cfg();
-        let mut repository = Repository::new(my_cfg(), args.clone());
+        let mut repository = Repository::new(my_cfg(), args.clone(), false);
         assert!(repository.initialize().is_ok());
         let gallery_rc = repository.gallery_rc();
         let gallery = gallery_rc
@@ -643,7 +643,7 @@ mod tests {
     fn given_a_dir_it_provides_the_gallery_of_pictures_with_only_size_and_modified_time() {
         let mut args = my_args().expect("can't access to test args");
         args.order = Some(Order::Size);
-        let mut repository = Repository::new(my_cfg(), args);
+        let mut repository = Repository::new(my_cfg(), args, false);
         assert!(repository.initialize().is_ok());
         let result = repository.pictures_in_directory("testdata");
         assert!(result.is_ok());
@@ -655,7 +655,7 @@ mod tests {
     fn given_a_file_path_it_provides_the_picture_with_only_size_and_modified_time() {
         let mut args = my_args().expect("can't access to test args");
         args.order = Some(Order::Size);
-        let mut repository = Repository::new(my_cfg(), args);
+        let mut repository = Repository::new(my_cfg(), args, false);
         assert!(repository.initialize().is_ok());
         let result = repository.picture_from_file_path(&format!("testdata/{}", NINE_COLORS));
         assert!(result.is_ok());
@@ -668,7 +668,7 @@ mod tests {
     fn given_a_restriction_in_initial_args_it_provides_only_the_matching_pictures() {
         let mut args = my_args().expect("can't access to test args");
         args.restrict = Some("foo,bar".to_string());
-        let mut repository = Repository::new(my_cfg(), args.clone());
+        let mut repository = Repository::new(my_cfg(), args.clone(), false);
         assert!(repository.initialize().is_ok());
         let gallery_rc = repository.gallery_rc();
         let gallery = gallery_rc
@@ -678,7 +678,7 @@ mod tests {
 
         args.restrict = None;
         args.label = Some("dot".to_string());
-        let mut repository = Repository::new(my_cfg(), args.clone());
+        let mut repository = Repository::new(my_cfg(), args.clone(), false);
         assert!(repository.initialize().is_ok());
         let gallery_rc = repository.gallery_rc();
         let gallery = gallery_rc
@@ -687,7 +687,7 @@ mod tests {
         assert_eq!(1, gallery.len()); // only 1 pic has label "dot"
         args.label = None;
         args.cover = true;
-        let mut repository = Repository::new(my_cfg(), args.clone());
+        let mut repository = Repository::new(my_cfg(), args.clone(), false);
         assert!(repository.initialize().is_ok());
         let gallery_rc = repository.gallery_rc();
         let gallery = gallery_rc
@@ -700,7 +700,7 @@ mod tests {
     #[serial]
     fn a_picture_that_is_a_cover_has_the_len_of_its_parent_dir() {
         let mut args = my_args().expect("can't access to test args");
-        let mut repository = Repository::new(my_cfg(), args.clone());
+        let mut repository = Repository::new(my_cfg(), args.clone(), false);
         assert!(repository.initialize().is_ok());
         let gallery_rc = repository.gallery_rc();
         let gallery = gallery_rc
@@ -716,7 +716,7 @@ mod tests {
     #[serial]
     fn provides_the_list_of_all_parent_dirs() {
         let mut args = my_args().expect("can't access to test args");
-        let mut repository = Repository::new(my_cfg(), args.clone());
+        let mut repository = Repository::new(my_cfg(), args.clone(), false);
         assert!(repository.initialize().is_ok());
         let map = repository.parent_dirs();
         let counts: (usize, usize) = *map
@@ -728,7 +728,7 @@ mod tests {
     #[serial]
     fn can_tell_if_selection_has_covers() {
         let mut args = my_args().expect("can't access to test args");
-        let mut repository = Repository::new(my_cfg(), args.clone());
+        let mut repository = Repository::new(my_cfg(), args.clone(), false);
         assert!(repository.initialize().is_ok());
         assert_eq!(1, repository.covers());
     }
@@ -738,6 +738,6 @@ mod tests {
         let cfg = my_cfg();
         let cmd: Option<Vec<&str>> = Some(vec!["dir", "testdata"]);
         let my_args = Args::parse_and_check(cmd, &cfg).unwrap();
-        let mut repository = Repository::new(my_cfg(), my_args);
+        let mut repository = Repository::new(my_cfg(), my_args, false);
     }
 }
