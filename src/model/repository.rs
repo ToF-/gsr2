@@ -549,8 +549,12 @@ impl Repository {
         }
     }
 
-    pub fn extract_all_file_names(&self) -> IOResult<()> {
-        let extract_file = timestamp_filename("selection", "txt");
+    pub fn extract_all_file_names(&self, extraction_file: Option<String>) -> IOResult<()> {
+        let extract_file = if let Some(file_name) = extraction_file {
+            file_name
+        } else {
+            timestamp_filename("selection", "txt")
+        };
         let mut lines: Vec<String> = vec![];
         match self.gallery_rc().try_borrow() {
             Ok(gallery) => {

@@ -122,7 +122,7 @@ impl Args {
         args.slideshow =
             slideshow_delay(args.slideshow, "slideshow delay", DEFAULT_SLIDESHOW_DELAY);
 
-        if let Some(Command::Extract) = args.command.clone() {
+        if let Some(Command::Extract { extract_name: _ }) = args.command.clone() {
             match args.filter {
                 Some(ref color_range_spec) => match ColorRange::from_string(color_range_spec) {
                     Ok(_) => {}
@@ -135,7 +135,15 @@ impl Args {
             }
         };
         if let Some(ref color_range_spec) = args.filter {
-            if args.command.is_none() || args.command.clone().unwrap() == Command::Extract {
+            if args.command.is_none() {
+                match ColorRange::from_string(color_range_spec) {
+                    Ok(_) => {}
+                    Err(e) => {
+                        eprintln!("{} ??", color_range_spec);
+                        return Err(Error::other(e));
+                    }
+                }
+            } else if let Some(Command::Extract { extract_name: _}) = args.command.clone() {
                 match ColorRange::from_string(color_range_spec) {
                     Ok(_) => {}
                     Err(e) => {
@@ -148,7 +156,7 @@ impl Args {
                         "option --filter not allowed with file or dir, only with extract command or no command",
                 ));
             }
-        }
+        };
         if let Some(Command::File { ref file_path }) = args.command {
             match check_picture_file(file_path) {
                 Ok(_) => {
@@ -194,7 +202,7 @@ impl Args {
                 Err(e) => return Err(e),
             }
         }
-        if let Some(Command::Extract) = args.command {
+        if let Some(Command::Extract { extract_name: _ }) = args.command {
             return Ok(args.clone())
         }
         if let Some(Command::Move {
