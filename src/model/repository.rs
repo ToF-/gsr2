@@ -15,7 +15,7 @@ use crate::file_exists;
 use crate::model::gallery::Gallery;
 use crate::model::order::Order;
 use crate::model::picture::Picture;
-use crate::model::selection::Selection;
+use crate::model::selection_criteria::SelectionCriteria;
 use crate::model::tags::Tags;
 use regex::Regex;
 use std::cell::RefCell;
@@ -81,7 +81,7 @@ impl Repository {
     }
 
     fn retrieve_all_pictures(&mut self, args: &Args) -> IOResult<()> {
-        let selection = Selection::from_args(args);
+        let selection_criteria = SelectionCriteria::from_args(args);
         match self.gallery_rc.try_borrow_mut() {
             Ok(mut gallery) => {
                 let regex: Option<Regex> = match args.clone().pattern {
@@ -103,7 +103,7 @@ impl Repository {
                     None
                 };
                 *gallery = match self.database.retrieve_all_pictures(
-                    selection.clone(),
+                    selection_criteria.clone(),
                     args.label.clone(),
                     extraction.clone(),
                     args.filter.clone(),
@@ -342,9 +342,9 @@ impl Repository {
         }
     }
 
-    pub fn set_selection(&mut self, selection: Selection) {
+    pub fn set_selection_criteria(&mut self, selection_criteria: SelectionCriteria) {
         if let Ok(mut gallery) = self.gallery_rc.try_borrow_mut() {
-            gallery.set_selection(selection.clone());
+            gallery.set_selection_criteria(selection_criteria.clone());
             self.len = gallery.len();
         } else {
             panic!("can't borrow mut")

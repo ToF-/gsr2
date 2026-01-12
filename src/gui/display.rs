@@ -8,7 +8,7 @@ use crate::model::image_data::FileSize;
 use crate::model::label::Label;
 use crate::model::order::Order;
 use crate::model::rank::Rank;
-use crate::model::selection::Selection;
+use crate::model::selection_criteria::SelectionCriteria;
 use crate::model::tags::Tags;
 use itertools::Itertools;
 
@@ -65,7 +65,7 @@ fn cover_display(cover: Cover) -> String {
     }
 }
 
-fn display_selection(selection: &Selection) -> String {
+fn display_selection(selection: &SelectionCriteria) -> String {
     if !selection.is_empty() {
         format!("=[{}]", selection.tags().into_iter().join("|"))
     } else {
@@ -120,7 +120,7 @@ pub fn title_display(controller: &Controller) -> String {
     } else {
         let order: Order;
         let current_picture = controller.current_picture();
-        let selection: Selection = Selection::from_args(&controller.args());
+        let selection_criteria: SelectionCriteria = SelectionCriteria::from_args(&controller.args());
 
         if let Ok(gallery) = controller.repository().gallery_rc().try_borrow() {
             order = gallery.order();
@@ -160,7 +160,7 @@ pub fn title_display(controller: &Controller) -> String {
             },
             expand_display(controller.state().expand_on()),
             full_size_display(controller.state().full_size_on()),
-            display_selection(&selection),
+            display_selection(&selection_criteria),
         )
     }
 }

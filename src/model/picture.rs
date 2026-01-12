@@ -4,7 +4,7 @@ use crate::model::image_data::FileSize;
 use crate::model::image_data::ImageData;
 use crate::model::image_data::datetime_from_time_stamp;
 use crate::model::rank::Rank;
-use crate::model::selection::Selection;
+use crate::model::selection_criteria::SelectionCriteria;
 use crate::model::tags::Tags;
 use std::io::Result;
 
@@ -93,10 +93,10 @@ impl Picture {
             .unwrap_or_default()
     }
 
-    pub fn selected(&self, selection: &Selection) -> bool {
+    pub fn selected(&self, selection_criteria: &SelectionCriteria) -> bool {
         self.image_data
             .as_ref()
-            .map(|d| selection.matches(d.tags.clone()))
+            .map(|d| selection_criteria.matches(d.tags.clone()))
             .unwrap_or_default()
     }
 

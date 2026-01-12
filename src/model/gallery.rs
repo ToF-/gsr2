@@ -3,7 +3,7 @@ use crate::model::cover::cover_sort_key;
 use crate::model::label::sort_key;
 use crate::model::order::Order;
 use crate::model::picture::Picture;
-use crate::model::selection::Selection;
+use crate::model::selection_criteria::SelectionCriteria;
 use rand::prelude::SliceRandom;
 use rand::rng;
 use std::cmp::Reverse;
@@ -13,7 +13,7 @@ use std::io::Result;
 pub struct Gallery {
     pictures: Vec<Picture>,
     order: Order,
-    selection: Selection,
+    selection_criteria: SelectionCriteria,
 }
 
 impl Gallery {
@@ -21,7 +21,7 @@ impl Gallery {
         Gallery {
             pictures: Vec::new(),
             order: Order::Name,
-            selection: Selection::empty(),
+            selection_criteria: SelectionCriteria::empty(),
         }
     }
 
@@ -30,7 +30,7 @@ impl Gallery {
         Gallery {
             pictures,
             order: Order::Name,
-            selection: Selection::empty(),
+            selection_criteria: SelectionCriteria::empty(),
         }
     }
 
@@ -88,26 +88,26 @@ impl Gallery {
         }
     }
 
-    pub fn set_selection(&mut self, selection: Selection) {
-        self.selection = selection.clone();
+    pub fn set_selection_criteria(&mut self, selection_criteria: SelectionCriteria) {
+        self.selection_criteria = selection_criteria.clone();
         self.sort_by(self.order)
     }
 
-    pub fn selection(&self) -> Selection {
-        self.selection.clone()
+    pub fn selection_criteria(&self) -> SelectionCriteria {
+        self.selection_criteria.clone()
     }
 
     pub fn sort_by(&mut self, order: Order) {
         self.order = order;
-        let selection = self.selection.clone();
+        let selection_criteria = self.selection_criteria.clone();
         match order {
             Order::Name => self
                 .pictures
-                .sort_by_key(|picture| (!picture.selected(&selection), picture.file_path())),
+                .sort_by_key(|picture| (!picture.selected(&selection_criteria), picture.file_path())),
 
             Order::Size => self.pictures.sort_by_key(|picture| {
                 (
-                    !picture.selected(&selection),
+                    !picture.selected(&selection_criteria),
                     picture.image_data().map(|image_data| image_data.size()),
                 )
             }),
@@ -115,28 +115,28 @@ impl Gallery {
             Order::Date => self.pictures.sort_by_key(|picture| {
                 picture.image_data().map(|image_data| {
                     (
-                        !picture.selected(&selection),
+                        !picture.selected(&selection_criteria),
                         (true, Reverse(image_data.modified_time())),
                     )
                 })
             }),
             Order::Label => self
                 .pictures
-                .sort_by_key(|picture| (!picture.selected(&selection), sort_key(&picture.label()))),
+                .sort_by_key(|picture| (!picture.selected(&selection_criteria), sort_key(&picture.label()))),
             Order::Value => self.pictures.sort_by_key(|picture| {
                 picture
                     .image_data()
-                    .map(|image_data| (!picture.selected(&selection), image_data.rank()))
+                    .map(|image_data| (!picture.selected(&selection_criteria), image_data.rank()))
             }),
             Order::ColorCount => self.pictures.sort_by_key(|picture| {
                 picture
                     .image_data()
-                    .map(|image_data| (!picture.selected(&selection), image_data.palette().count()))
+                    .map(|image_data| (!picture.selected(&selection_criteria), image_data.palette().count()))
             }),
             Order::Palette => self.pictures.sort_by_key(|picture| {
                 picture.image_data().map(|image_data| {
                     (
-                        !picture.selected(&selection),
+                        !picture.selected(&selection_criteria),
                         image_data.palette().sample_as_array(),
                     )
                 })

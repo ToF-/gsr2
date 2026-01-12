@@ -22,7 +22,7 @@ use crate::model::order::Order;
 use crate::model::picture::Picture;
 use crate::model::rank::Rank;
 use crate::model::repository::Repository;
-use crate::model::selection::Selection;
+use crate::model::selection_criteria::SelectionCriteria;
 use gdk::{Key, ModifierType};
 use gtk::prelude::*;
 use gtk::{self, gdk};
@@ -364,12 +364,12 @@ impl Controller {
                         EntryKind::Help => {}
                         EntryKind::SetSelection => {
                             if !self.editor.input().is_empty() {
-                                self.apply_selection(&self.editor.input())
+                                self.apply_selection_criteria(&self.editor.input())
                             }
                         }
                         EntryKind::SetRestriction => {
                             if !self.editor.input().is_empty() {
-                                self.apply_restriction(&self.editor.input())
+                                self.apply_restriction_criteria(&self.editor.input())
                             }
                         }
                     }
@@ -598,7 +598,7 @@ impl Controller {
             Control::SetOrder => self.setting_order(),
             Control::SetSelection => self.set_selection(),
             Control::SetRestriction => self.set_restriction(),
-            Control::CancelSelection => self.cancel_selection(),
+            Control::CancelSelection => self.cancel_selection_criteria(),
             Control::DisplayDate => self.toggle_display_date(),
             Control::DisplaySize => self.toggle_display_size(),
             Control::OrderByName => self.order_by(Order::Name),
@@ -734,9 +734,9 @@ impl Controller {
         self.state.set_mode(Mode::Editing);
     }
 
-    fn cancel_selection(&mut self) {
+    fn cancel_selection_criteria(&mut self) {
         let current_file_path = self.current_picture().file_path();
-        self.repository.set_selection(Selection::empty());
+        self.repository.set_selection_criteria(SelectionCriteria::empty());
         if let Some(index) = self.repository.find_index_for_file_path(&current_file_path) {
             self.navigator
                 .move_towards(Direction::Index { value: index })
@@ -746,16 +746,16 @@ impl Controller {
         self.navigator.set_page_changed();
     }
 
-    fn apply_selection(&mut self, selection_str: &str) {
+    fn apply_selection_criteria(&mut self, selection_str: &str) {
         self.repository
-            .set_selection(Selection::from(selection_str, false));
+            .set_selection_criteria(SelectionCriteria::from(selection_str, false));
         self.navigator.move_towards(Direction::First);
         self.navigator.set_page_changed();
     }
 
-    fn apply_restriction(&mut self, selection_str: &str) {
+    fn apply_restriction_criteria(&mut self, selection_str: &str) {
         self.repository
-            .set_selection(Selection::from(selection_str, true));
+            .set_selection_criteria(SelectionCriteria::from(selection_str, true));
         self.navigator.move_towards(Direction::First);
         self.navigator.set_page_changed();
     }

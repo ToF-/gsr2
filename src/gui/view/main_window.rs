@@ -256,8 +256,8 @@ impl MainWindow {
                         {
                             if navigator.is_selected(position) {
                                 HALF_OPACITY
-                            } else if gallery.selection().is_empty()
-                                || gallery.selection().matches(picture.tags())
+                            } else if gallery.selection_criteria().is_empty()
+                                || gallery.selection_criteria().matches(picture.tags())
                             {
                                 FULL_OPACITY
                             } else {

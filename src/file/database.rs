@@ -6,7 +6,7 @@ use crate::model::image_data::ImageData;
 use crate::model::palette::Palette;
 use crate::model::picture::Picture;
 use crate::model::rank::Rank;
-use crate::model::selection::Selection;
+use crate::model::selection_criteria::SelectionCriteria;
 use crate::model::tags::Tags;
 use regex::Regex;
 use rusqlite::Error::InvalidPath;
@@ -392,7 +392,7 @@ impl Database {
     }
     pub fn retrieve_all_pictures(
         &self,
-        selection: Selection,
+        selection_criteria: SelectionCriteria,
         label: Option<String>,
         extraction: Option<Vec<String>>,
         filter: Option<String>,
@@ -439,7 +439,7 @@ impl Database {
                                 },
                                 ..image_data.clone()
                             };
-                            if !selection.is_empty() && !selection.matches(new_tags.clone()) {
+                            if !selection_criteria.is_empty() && !selection_criteria.matches(new_tags.clone()) {
                                 continue;
                             };
                             if label.clone().is_some()
@@ -473,7 +473,7 @@ impl Database {
 
     pub fn retrieve_all_pictures_with_parent(&self, parent_dir: &str) -> IOResult<Vec<Picture>> {
         self.retrieve_all_pictures(
-            Selection::empty(),
+            SelectionCriteria::empty(),
             None,
             None,
             None,
@@ -806,7 +806,7 @@ pub mod tests {
         assert!(map.get(&file_path).unwrap().contains("bar"));
 
         let result =
-            database.retrieve_all_pictures(Selection::empty(), None, None, None, None, false, None);
+            database.retrieve_all_pictures(SelectionCriteria::empty(), None, None, None, None, false, None);
         assert!(result.is_ok());
         let pictures = result.unwrap();
         assert_eq!(nine_colors_file_path(), pictures[1].file_path());
