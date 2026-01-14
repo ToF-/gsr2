@@ -562,8 +562,7 @@ impl Repository {
                     let picture = &gallery.picture(index);
                     lines.push(picture.file_path());
                 }
-                let mut path: PathBuf = PathBuf::from(&self.temp_dir);
-                path.push(extract_file);
+                let mut path: PathBuf = PathBuf::from(&extract_file);
                 println!("copying {} file names to {}", lines.len(), path.display());
                 let file = File::create(path)?;
                 let mut writer = BufWriter::new(file);
