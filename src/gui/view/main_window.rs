@@ -153,7 +153,7 @@ impl MainWindow {
                     navigator.set_page_changed();
                     controller.set_navigator(navigator);
                 }
-                controller.main_window().set_pictures(&controller);
+                controller.main_window().set_pictures(&mut controller);
                 controller.main_window().set_title(&controller);
             }
         }
@@ -277,21 +277,22 @@ impl MainWindow {
         }
     }
 
-    pub fn set_picture_for_single_view(&self, controller: &Controller) {
+    pub fn set_picture_for_single_view(&mut self, controller: &mut Controller) {
         let picture: Picture = controller.current_picture();
         let picture_file_path = picture.file_path();
         let gtk_picture =
-            if let Ok(file_path) = check_path_exists(&PathBuf::from(picture_file_path)) {
+            if let Ok(file_path) = check_path_exists(&PathBuf::from(picture_file_path.clone())) {
                 gtk_picture_from_file_path(file_path)
             } else {
                 no_thumbnail_picture()
             };
         let picture_frame = self.picture_frame();
         picture_frame.set_picture(controller, &gtk_picture);
+        controller.increment_picture_score(&picture_file_path);
         self.set_title(controller);
     }
 
-    pub fn set_pictures(&mut self, controller: &Controller) {
+    pub fn set_pictures(&mut self, controller: &mut Controller) {
         if controller.state().single_view() {
             self.set_picture_for_single_view(controller)
         } else {
