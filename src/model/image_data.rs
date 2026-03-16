@@ -37,6 +37,7 @@ pub struct ImageData {
     pub palette: Palette,
     pub cover: Cover,
     pub tags: Tags,
+    pub score: u32,
 }
 
 impl ImageData {
@@ -49,6 +50,7 @@ impl ImageData {
             palette: Palette::new(vec![], 0),
             cover: None,
             tags: HashSet::new(),
+            score: 0,
         }
     }
     pub fn new_with_label(label: &str) -> Self {
@@ -60,6 +62,7 @@ impl ImageData {
             palette: Palette::new(vec![], 0),
             cover: None,
             tags: HashSet::new(),
+            score: 0,
         }
     }
 
@@ -72,6 +75,7 @@ impl ImageData {
             palette: Palette::new(vec![], 0),
             cover: None,
             tags: HashSet::new(),
+            score: 0,
         })
     }
 
@@ -109,6 +113,10 @@ impl ImageData {
 
     pub fn set_rank(&mut self, rank: Rank) {
         self.rank = rank
+    }
+
+    pub fn increment_score(&mut self, score: u32) {
+        self.score += score
     }
 
     pub fn toggle_cover(&mut self, dir_count: usize) {

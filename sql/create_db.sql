@@ -6,7 +6,8 @@ CREATE TABLE IF NOT EXISTS Picture (
     Rank INTEGER,
     Sample BLOB,
     ColorCount INTEGER,
-    Cover BOOLEAN);
+    Cover BOOLEAN,
+    Score INTEGER NOT NULL DEFAULT 0);
 
 CREATE TABLE IF NOT EXISTS Tag (
     FilePath TEXT NOT NULL,

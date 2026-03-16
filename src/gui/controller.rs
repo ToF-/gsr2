@@ -911,7 +911,7 @@ impl Controller {
             self.configuration.current_order = Some(self.repository.order());
             let _ = self.configuration.save();
             let application_window = self.main_window().application_window();
-            println!("{:?}", self.scores);
+            self.repository.update_picture_scores(self.scores.clone());
             application_window.close()
         }
     }

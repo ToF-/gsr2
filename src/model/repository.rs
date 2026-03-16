@@ -334,6 +334,23 @@ impl Repository {
         }
     }
 
+    pub fn update_picture_scores(&mut self, scores: HashMap<String, u32>) {
+        println!("updating picture scores");
+        if let Ok(gallery) = self.gallery_rc.try_borrow() {
+            scores.into_iter()
+                .for_each(|(file_path, score)| {
+                    if let Some(index) = self.find_index_for_file_path(&file_path) {
+                        let mut picture = gallery.pictures()[index].clone();
+                        picture.increment_score(score);
+                        match self.update_picture(&picture) {
+                            Ok(_) => {}
+                            Err(e) => println!("{}", e),
+                        }
+                    }
+                })
+        }
+    }
+
     pub fn find_index_for_file_path(&self, file_path: &str) -> Option<usize> {
         if let Ok(gallery) = self.gallery_rc.try_borrow() {
             gallery.find_file_path(file_path)

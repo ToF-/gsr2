@@ -114,6 +114,11 @@ impl Picture {
             .unwrap_or_default()
     }
 
+    pub fn increment_score(&mut self, score: u32) {
+        let mut new_image_data = self.image_data().unwrap_or_default();
+        new_image_data.increment_score(score);
+        self.set_image_data(new_image_data);
+    }
     pub fn cover(&self) -> Cover {
         if let Some(image_data) = &self.image_data {
             image_data.cover

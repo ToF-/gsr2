@@ -59,7 +59,8 @@ impl Database {
             Rank INTEGER,                              \n\
             Sample BLOB,                               \n\
             ColorCount INTEGER,                        \n\
-            Cover BOOLEAN);", // ""
+            Cover BOOLEAN,
+            Score INTEGER NOT NULL DEFAULT 0);", // ""
                 params![],
             )
             .and_then(|_| {
@@ -89,8 +90,9 @@ impl Database {
              Rank,                        \n\
              Sample,                      \n\
              ColorCount,                  \n\
-             Cover)                       \n\
-             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8);", // ""
+             Cover,                       \n\
+             Score)                       \n\
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9);", // ""
                 params![
                     file_path_as_stored(&picture.file_path()),
                     image_data.label(),
@@ -100,6 +102,7 @@ impl Database {
                     image_data.palette().sample_as_array(),
                     image_data.palette.count(),
                     cover_to_bool(image_data.cover()),
+                    image_data.score,
                 ],
             )
             .map(|count| {
@@ -138,7 +141,8 @@ impl Database {
              Rank = ?5,                   \n\
              Sample = ?6,                 \n\
              ColorCount =?7,              \n\
-             Cover = ?8                   \n\
+             Cover = ?8,                  \n\
+             Score = ?9                   \n\
                WHERE FilePath = ?1;", // ""
                 params![
                     file_path_as_stored(&picture.file_path()),
@@ -149,6 +153,7 @@ impl Database {
                     image_data.palette().sample_as_array(),
                     image_data.palette.count(),
                     cover_to_bool(image_data.cover),
+                    image_data.score,
                 ],
             )
             .and_then(|_| {
@@ -327,7 +332,8 @@ impl Database {
              Rank,                      \n\
              Sample,                    \n\
              ColorCount,                \n\
-             Cover                      \n\
+             Cover,                     \n\
+             Score,                     \n\
              FROM Picture               \n\
              WHERE FilePath = ?1;", // ""
                 params![file_path_as_stored(file_path)],
@@ -378,7 +384,8 @@ impl Database {
              Rank,                      \n\
              Sample,                    \n\
              ColorCount,                \n\
-             Cover                      \n\
+             Cover,                     \n\
+             Score                      \n\
              FROM Picture              \n"; // "
 
     // select * from picture where concat(substring(filepath,1,23), substring(filepath,24)) = filepath ;
@@ -483,7 +490,7 @@ impl Database {
         )
     }
 
-    fn rusqlite_row_to_picture(row: &Row) -> SqlResult<Picture, rusqlite::Error> {
+     fn rusqlite_row_to_picture(row: &Row) -> SqlResult<Picture, rusqlite::Error> {
         let file_path: String = row.get(0).expect("can't get column FilePath");
         let file_path_as_retrieved = file_path_as_retrieved(&file_path);
         let label: String = row.get(1).expect("can't get column Label");
@@ -499,6 +506,7 @@ impl Database {
         let sample_array = row.get(5).expect("can't get column Sample");
         let color_count: usize = row.get(6).expect("can't get column ColorCount");
         let cover = row.get(7).expect("can't get column Cover");
+        let score = row.get(8).expect("can't get column Score");
         let mut picture = Picture::new_with_label(&file_path_as_retrieved, &label);
         let mut palette = Palette::new(vec![], color_count);
         palette.set_sample_from_array(sample_array);
@@ -510,6 +518,7 @@ impl Database {
             palette,
             tags: HashSet::new(),
             cover: bool_to_cover(cover),
+            score,
         };
         picture.set_image_data(image_data);
         Ok(picture)
@@ -552,6 +561,7 @@ impl Database {
             Err(e) => Err(IOError::other(e)),
         }
     }
+
 }
 // ""
 #[cfg(test)]
