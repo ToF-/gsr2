@@ -111,6 +111,12 @@ impl Gallery {
                     picture.image_data().map(|image_data| image_data.size()),
                 )
             }),
+            Order::Score => self.pictures.sort_by_key(|picture| {
+                (
+                    picture.image_data().map(|image_data| -(image_data.score() as i64 as i64)),
+                    picture.file_path()
+                )
+            }),
 
             Order::Date => self.pictures.sort_by_key(|picture| {
                 picture.image_data().map(|image_data| {

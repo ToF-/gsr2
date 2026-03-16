@@ -87,6 +87,10 @@ impl ImageData {
         self.modified_time
     }
 
+    pub fn score(&self) -> u32 {
+        self.score
+    }
+
     pub fn size(&self) -> u64 {
         self.size
     }
