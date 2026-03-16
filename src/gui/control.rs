@@ -65,6 +65,7 @@ pub enum Control {
     DisplayDate,
     DisplayFocus,
     DisplaySize,
+    OrderByScore,
     OrderByName,
     OrderByCover,
     OrderByDate,
@@ -252,6 +253,10 @@ pub fn default_controls() -> Controls {
         (
             (String::from("r"), Mode::Setting(Control::SetOrder)),
             Control::Randomize,
+        ),
+        (
+            (String::from("m"), Mode::Setting(Control::SetOrder)),
+            Control::OrderByScore,
         ),
         (
             (String::from("v"), Mode::Setting(Control::SetOrder)),

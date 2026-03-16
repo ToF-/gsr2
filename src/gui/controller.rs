@@ -391,6 +391,7 @@ impl Controller {
             "Palette" => Control::OrderByPalette,
             "Random" => Control::Randomize,
             "Size" => Control::OrderBySize,
+            "Score" => Control::OrderByScore,
             "Value" => Control::OrderByValue,
             &_ => Control::CancelEdition,
         };
@@ -510,6 +511,7 @@ impl Controller {
                 | Control::OrderByLabel
                 | Control::OrderByColorCount
                 | Control::OrderByPalette
+                | Control::OrderByScore
                 | Control::Randomize => self.process_control(choice),
                 _ => println!("?"),
             },
@@ -608,6 +610,7 @@ impl Controller {
             Control::OrderByCover => self.order_by(Order::Cover),
             Control::OrderByDate => self.order_by(Order::Date),
             Control::OrderBySize => self.order_by(Order::Size),
+            Control::OrderByScore => self.order_by(Order::Score),
             Control::OrderByValue => self.order_by(Order::Value),
             Control::OrderByLabel => self.order_by(Order::Label),
             Control::OrderByColorCount => self.order_by(Order::ColorCount),

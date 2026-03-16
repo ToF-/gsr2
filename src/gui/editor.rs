@@ -47,7 +47,7 @@ impl Editor {
             EntryKind::RemoveTag => "Enter a tag to remove",
             EntryKind::Number => "Enter a number",
             EntryKind::Order => {
-                "Enter a sorting criteria: c)olors d)ate l)abel n)ame p)alette co)ver r)andom s)ize v)alue "
+                "Enter a sorting criteria: c)olors d)ate l)abel m)ost views n)ame p)alette co)ver r)andom s)ize v)alue "
             }
             EntryKind::DeleteConfirmation => "Delete these pictures?",
             EntryKind::MoveConfirmation => "Move these pictures?",
@@ -205,7 +205,7 @@ impl Editor {
             }
             EntryKind::SetSelection | EntryKind::SetRestriction => matches!(ch,
                 'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' ' | ',' ),
-            EntryKind::Order => matches!(ch, 'c' | 'd' | 'p' | 'l' | 'n' | 'o' | 'r' | 's' | 'v'),
+            EntryKind::Order => matches!(ch, 'c' | 'd' | 'p' | 'm' | 'l' | 'n' | 'o' | 'r' | 's' | 'v'),
             EntryKind::Information | EntryKind::Help => false,
         };
         if ch_is_ok && self.input.len() < MAX_LABEL_LENGTH {
@@ -227,6 +227,7 @@ impl Editor {
                     'l' => Order::Label,
                     'n' => Order::Name,
                     'o' => Order::Cover,
+                    'm' => Order::Score,
                     'p' => Order::Palette,
                     'r' => Order::Random,
                     's' => Order::Size,
