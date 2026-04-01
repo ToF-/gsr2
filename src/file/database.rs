@@ -161,6 +161,32 @@ impl Database {
                     .and_then(|_| self.rusqlite_add_tags(&picture.file_path(), &image_data.tags))
             })
     }
+    fn rusqlite_update_picture_name(&self, file_path: &str, new_file_path: &str) -> SqlResult<usize> {
+        let connection = self.connection_rc.borrow();
+        connection
+            .execute(
+                "UPDATE Picture        \n\
+                SET FilePath = ?2      \n\
+                WHERE FilePath = ?1;",
+                params![
+                    file_path_as_stored(file_path),
+                    file_path_as_stored(new_file_path),
+                ],
+            )
+            .and_then(|_| {
+                connection
+                    .execute(
+                        "UPDATE Tag         \n\
+                        SET FilePath = ?2   \n\
+                        WHERE FilePath = ?1;",
+                params![
+                    file_path_as_stored(file_path),
+                    file_path_as_stored(new_file_path),
+                ],
+                    )
+            })
+    }
+
 
     fn rusqlite_delete_tags(&self, file_path: &str) -> SqlResult<usize> {
         let connection = self.connection_rc.borrow();
@@ -333,7 +359,7 @@ impl Database {
              Sample,                    \n\
              ColorCount,                \n\
              Cover,                     \n\
-             Score,                     \n\
+             Score                      \n\
              FROM Picture               \n\
              WHERE FilePath = ?1;", // ""
                 params![file_path_as_stored(file_path)],
@@ -344,7 +370,7 @@ impl Database {
                     "SELECT                   \n\
                 Label                     \n\
                 FROM Tag                  \n\
-                WHERE FilePath = ?1;",
+                WHERE FilePath = ?1;", // "
                 )?;
                 let rows = statement.query_map(params![file_path_as_stored(file_path)], |row| {
                     Ok(row.get(0).expect("can't get column Label"))
@@ -376,6 +402,14 @@ impl Database {
             Err(err) => Err(std::io::Error::other(err)),
         }
     }
+
+    pub fn update_picture_name(&self, file_path: &str, new_file_path: &str) -> IOResult<usize> {
+        match self.rusqlite_update_picture_name(file_path, new_file_path) {
+            Ok(n) => Ok(n),
+            Err(err) => Err(std::io::Error::other(err)),
+        }
+    }
+
     const SELECT_STAR_FROM_PICTURE: &str = "SELECT                     \n\
              FilePath,                  \n\
              Label,                     \n\
@@ -653,6 +687,7 @@ pub mod tests {
             size: picture_file_data.0,
             modified_time: picture_file_data.1,
             rank: Rank::ThreeStars,
+            score: 0,
             palette: Palette::new(
                 [
                     Color { r: 4, g: 4, b: 4 },
@@ -849,5 +884,32 @@ pub mod tests {
         assert!(result.is_ok());
         let pictures = result.unwrap();
         assert_eq!(0, pictures.len());
+    }
+
+    #[test]
+    #[serial]
+    fn after_updating_the_picture_name_the_tags_can_still_be_found() {
+        let database = my_db();
+        let mut picture = database
+            .rusqlite_retrieve_picture_with_file_path(&nine_colors_file_path())
+            .unwrap();
+        let mut image_data = picture
+            .image_data()
+            .expect("can't access picture image data");
+        picture.add_tag("foo");
+        picture.add_tag("bar");
+        assert!(database.rusqlite_update_picture(&picture).is_ok());
+        let new_name = "altered_".to_owned() + NINE_COLORS; 
+        let new_path = current_directory() + "/" + TEST_DATA_DIR + "/" + &new_name;
+
+        let result = database.update_picture_name(&nine_colors_file_path(), &new_path);
+        let result = database.rusqlite_retrieve_picture_with_file_path(&new_path);
+        assert!(result.is_ok(), "could not retrieve picture in db");
+        let retrieved_picture = result.unwrap();
+        assert_eq!(new_path, retrieved_picture.file_path());
+        assert_eq!(2, retrieved_picture.image_data().unwrap().tags.len());
+        assert!(retrieved_picture.image_data().unwrap().tags.contains("foo"));
+        assert!(retrieved_picture.image_data().unwrap().tags.contains("bar"));
+        let result = database.update_picture_name(&new_path, &nine_colors_file_path());
     }
 }
