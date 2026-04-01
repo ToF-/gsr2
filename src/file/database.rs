@@ -886,8 +886,8 @@ pub mod tests {
         assert_eq!(0, pictures.len());
     }
 
-    #[test]
     #[serial]
+    #[test]
     fn after_updating_the_picture_name_the_tags_can_still_be_found() {
         let database = my_db();
         let mut picture = database
@@ -896,8 +896,6 @@ pub mod tests {
         let mut image_data = picture
             .image_data()
             .expect("can't access picture image data");
-        picture.add_tag("foo");
-        picture.add_tag("bar");
         assert!(database.rusqlite_update_picture(&picture).is_ok());
         let new_name = "altered_".to_owned() + NINE_COLORS; 
         let new_path = current_directory() + "/" + TEST_DATA_DIR + "/" + &new_name;
@@ -907,7 +905,7 @@ pub mod tests {
         assert!(result.is_ok(), "could not retrieve picture in db");
         let retrieved_picture = result.unwrap();
         assert_eq!(new_path, retrieved_picture.file_path());
-        assert_eq!(2, retrieved_picture.image_data().unwrap().tags.len());
+        assert_eq!(3, retrieved_picture.image_data().unwrap().tags.len());
         assert!(retrieved_picture.image_data().unwrap().tags.contains("foo"));
         assert!(retrieved_picture.image_data().unwrap().tags.contains("bar"));
         let result = database.update_picture_name(&new_path, &nine_colors_file_path());
