@@ -55,6 +55,7 @@ pub enum Control {
     Unlabel,
     AddTag,
     RemoveTag,
+    Rename,
     Quit,
     SetGrid,
     GridTwo,
@@ -107,6 +108,7 @@ pub fn help_on_controls() -> String {
         R go to random picture  S: resume slide show\n\
         X/M delete or move (selected) picture(s)\n\
         l/L : label/unlabel picture\n\
+        N : rename picture\n\
         *: add tag, /: remove tag\n\
         =/-/#: select pictures having some/all tags, cancel selection\n\
         b,ç,é,à,è: grid size of 4,9,16,25 or 100 pictures per page\n\
@@ -171,6 +173,7 @@ pub fn default_controls() -> Controls {
         ((String::from("S"), Mode::View), Control::ToggleSlideShow),
         ((String::from("l"), Mode::View), Control::Label),
         ((String::from("L"), Mode::View), Control::Unlabel),
+        ((String::from("N"), Mode::View), Control::Rename),
         ((String::from("asterisk"), Mode::View), Control::AddTag),
         ((String::from("slash"), Mode::View), Control::RemoveTag),
         ((String::from("Q"), Mode::View), Control::Quit),

@@ -1,5 +1,6 @@
 use crate::MainWindow;
 use crate::env::default_values::MAX_LABEL_LENGTH;
+use crate::env::default_values::MAX_NAME_LENGTH;
 use crate::gui::control::{Control, Controls, default_controls};
 use crate::gui::entry_kind::EntryKind;
 use crate::gui::mode::Mode;
@@ -43,6 +44,7 @@ impl Editor {
     ) {
         let prompt: &str = match entry_kind {
             EntryKind::Label => "Enter a label",
+            EntryKind::Rename => "Enter a new name",
             EntryKind::AddTag => "Enter a new tag to add",
             EntryKind::RemoveTag => "Enter a tag to remove",
             EntryKind::Number => "Enter a number",
@@ -199,7 +201,7 @@ impl Editor {
                 matches!(ch,
                     'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' ' | '^' | '$' | '.' | '*' | '/' | '{' | '}' | '[' | ']' | '(' | ')' | '\\' )
             }
-            EntryKind::Label | EntryKind::AddTag | EntryKind::RemoveTag => {
+            EntryKind::Label | EntryKind::Rename | EntryKind::AddTag | EntryKind::RemoveTag => {
                 matches!(ch,
                 'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' ')
             }
@@ -208,7 +210,7 @@ impl Editor {
             EntryKind::Order => matches!(ch, 'c' | 'd' | 'p' | 'm' | 'l' | 'n' | 'o' | 'r' | 's' | 'v'),
             EntryKind::Information | EntryKind::Help => false,
         };
-        if ch_is_ok && self.input.len() < MAX_LABEL_LENGTH {
+        if ch_is_ok && self.input.len() < self.max_edit_length() {
             self.convert_char(ch);
             self.refresh_view();
             self.refresh_prompt(&self.prompt);
@@ -264,6 +266,15 @@ impl Editor {
         if let Some(window) = &self.entry_window_opt {
             window.set_text(&self.input);
         }
+    }
+    fn max_edit_length(&self) -> usize {
+        if self.entry_kind == EntryKind::Rename {
+            MAX_NAME_LENGTH
+        } else {
+            MAX_LABEL_LENGTH
+        }
+
+
     }
 }
 #[cfg(test)]

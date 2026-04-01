@@ -17,6 +17,7 @@ pub const NO_STAR: &str = "";
 pub const FULL_OPACITY: f64 = 1.0;
 pub const HALF_OPACITY: f64 = 0.5;
 pub const QUARTER_OPACITY: f64 = 0.1;
+pub const MAX_NAME_LENGTH: usize = 128;
 pub const MAX_LABEL_LENGTH: usize = 20;
 pub const DIMENSION_MIN: i32 = 100;
 pub const DIMENSION_MAX: i32 = 5000;

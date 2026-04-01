@@ -308,6 +308,12 @@ impl Controller {
                 if !self.editor.editing() {
                     self.state.set_mode(Mode::View);
                     match self.editor.entry_kind() {
+                        EntryKind::Rename => {
+                            if !self.editor.input().is_empty() {
+                                self.rename_selected_picture(&self.editor.input())
+                            };
+                            self.set_opacity_for_current_picture(1.00);
+                        }
                         EntryKind::Label => {
                             if !self.editor.input().is_empty() {
                                 self.label_selected_pictures(&self.editor.input())
@@ -396,6 +402,10 @@ impl Controller {
             &_ => Control::CancelEdition,
         };
         self.process_control(&choice)
+    }
+
+    fn rename_selected_picture(&mut self, name: &str) {
+        println!("applying {}", name);
     }
 
     fn label_picture_at_index(&mut self, index: usize, label: &str) {
@@ -590,6 +600,7 @@ impl Controller {
             Control::RemoveTag => self.remove_tag(),
             Control::Label => self.label(),
             Control::Unlabel => self.unlabel_selected_pictures(),
+            Control::Rename => self.rename(),
             Control::SetGrid => self.setting_grid(),
             Control::GridTwo => self.change_grid_size(2),
             Control::GridThree => self.change_grid_size(3),
@@ -796,6 +807,14 @@ impl Controller {
         self.state.set_mode(Mode::Editing);
     }
 
+    fn rename(&mut self) {
+        self.set_opacity_for_current_picture(0.25);
+        self.editor.begin(
+            &self.main_window(),
+            EntryKind::Rename,
+            None);
+        self.state.set_mode(Mode::Editing);
+    }
     fn rank_selected_pictures(&mut self, rank: Rank) {
         if self.navigator.has_selected() {
             for index in 0..self.navigator.limit() {
