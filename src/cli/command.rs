@@ -1,5 +1,4 @@
 use crate::Args;
-use crate::model::repository::Repository;
 use crate::Configuration;
 use crate::Controller;
 use crate::Database;
@@ -10,6 +9,7 @@ use crate::file::picture_file::create_missing_thumbnails;
 use crate::file_exists;
 use crate::gui::direction::Direction;
 use crate::model::gallery::Gallery;
+use crate::model::repository::Repository;
 use clap::Subcommand;
 use std::cell::RefCell;
 use std::io::Result as IOResult;
@@ -92,18 +92,16 @@ pub fn execute_command(
                 Err(e) => Err(IOError::other(e)),
             }
         }
-        Some(Command::List { directory }) => {
-            match repository.list(directory) {
-                Ok(_) => Ok(Status::Done),
-                Err(err) => Err(err),
-            }
-        }
-        Some(Command::Extract { extract_name: extraction_file }) => {
-            match repository.extract_all_file_names(Some(extraction_file)) {
-                Ok(_) => Ok(Status::Done),
-                Err(err) => Err(err),
-            }
-        }
+        Some(Command::List { directory }) => match repository.list(directory) {
+            Ok(_) => Ok(Status::Done),
+            Err(err) => Err(err),
+        },
+        Some(Command::Extract {
+            extract_name: extraction_file,
+        }) => match repository.extract_all_file_names(Some(extraction_file)) {
+            Ok(_) => Ok(Status::Done),
+            Err(err) => Err(err),
+        },
         Some(Command::Check) => match repository.check() {
             Ok(_) => Ok(Status::Done),
             Err(err) => Err(err),
@@ -129,30 +127,26 @@ pub fn execute_command(
                 }
             } else {
                 Err(IOError::other(format!(
-                            "{} already exists",
-                            &config.database_file
+                    "{} already exists",
+                    &config.database_file
                 )))
             }
         }
-        Some(Command::File { file_path }) => {
-            match gallery.load_from_file_path(&file_path) {
-                Err(e) => Err(e),
-                Ok(_) => Ok(Status::Ready(0)),
+        Some(Command::File { file_path }) => match gallery.load_from_file_path(&file_path) {
+            Err(e) => Err(e),
+            Ok(_) => Ok(Status::Ready(0)),
+        },
+        Some(Command::Directory { directory }) => match gallery.load_from_directory(&directory) {
+            Err(e) => Err(e),
+            Ok(0) => {
+                println!("no pictures for this selection");
+                Ok(Status::Exit)
             }
-        }
-        Some(Command::Directory { directory }) => {
-            match gallery.load_from_directory(&directory) {
-                Err(e) => Err(e),
-                Ok(0) => {
-                    println!("no pictures for this selection");
-                    Ok(Status::Exit)
-                }
-                Ok(count) => {
-                    println!("{} pictures", count);
-                    Ok(Status::Ready(0))
-                }
+            Ok(count) => {
+                println!("{} pictures", count);
+                Ok(Status::Ready(0))
             }
-        }
+        },
         None => match repository.gallery_rc().try_borrow_mut() {
             Ok(gallery) => {
                 if gallery.is_empty() {
@@ -162,16 +156,17 @@ pub fn execute_command(
                     println!("{} pictures", &gallery.len());
                     if let Some(initial_position) = args.index {
                         Ok(Status::Ready(initial_position))
-                    } else if let Some(file_path) = config.current_picture 
-                        && let Some(initial_position) = gallery.find_file_path(&file_path) {
-                            Ok(Status::Ready(initial_position))
-                        } else {
-                            Ok(Status::Ready(0))
+                    } else if let Some(file_path) = config.current_picture
+                        && let Some(initial_position) = gallery.find_file_path(&file_path)
+                    {
+                        Ok(Status::Ready(initial_position))
+                    } else {
+                        Ok(Status::Ready(0))
                     }
                 }
-            },
+            }
             Err(e) => Err(IOError::other(e)),
-        }
+        },
     };
     result
 }

@@ -45,8 +45,8 @@ fn main() {
                 }
             } else {
                 Err(IOError::other(format!(
-                            "{} already exists",
-                            &config.database_file
+                    "{} already exists",
+                    &config.database_file
                 )))
             }
         } else {
@@ -71,11 +71,11 @@ fn main() {
         }
     });
     match result {
-        Ok(_) => {},
-                Err(e) => {
-                    eprintln!("{}", e);
-                    exit(1)
-                }
+        Ok(_) => {}
+        Err(e) => {
+            eprintln!("{}", e);
+            exit(1)
+        }
     }
 }
 

@@ -120,7 +120,8 @@ pub fn title_display(controller: &Controller) -> String {
     } else {
         let order: Order;
         let current_picture = controller.current_picture();
-        let selection_criteria: SelectionCriteria = SelectionCriteria::from_args(&controller.args());
+        let selection_criteria: SelectionCriteria =
+            SelectionCriteria::from_args(&controller.args());
 
         if let Ok(gallery) = controller.repository().gallery_rc().try_borrow() {
             order = gallery.order();

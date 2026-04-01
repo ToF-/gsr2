@@ -48,7 +48,12 @@ pub struct Args {
     pub extraction: Option<String>,
 
     /// filter pictures having a percentage of pixel in the given range
-    #[arg(short, long, value_name = "COLOR_RANGE", long_help = "example: gsr --filter 'c0c0c0 ffffff 0.5' filters the pictures that have more than half their pixel in the range CCC FFF")]
+    #[arg(
+        short,
+        long,
+        value_name = "COLOR_RANGE",
+        long_help = "example: gsr --filter 'c0c0c0 ffffff 0.5' filters the pictures that have more than half their pixel in the range CCC FFF"
+    )]
     pub filter: Option<String>,
 
     /// display N x N pictures per page (N in range [1..10[)
@@ -131,7 +136,7 @@ impl Args {
                         return Err(Error::other(e));
                     }
                 },
-                None => {},
+                None => {}
             }
         };
         if let Some(ref color_range_spec) = args.filter {
@@ -143,7 +148,7 @@ impl Args {
                         return Err(Error::other(e));
                     }
                 }
-            } else if let Some(Command::Extract { extract_name: _}) = args.command.clone() {
+            } else if let Some(Command::Extract { extract_name: _ }) = args.command.clone() {
                 match ColorRange::from_string(color_range_spec) {
                     Ok(_) => {}
                     Err(e) => {
@@ -153,7 +158,7 @@ impl Args {
                 }
             } else {
                 return Err(Error::other(
-                        "option --filter not allowed with file or dir, only with extract command or no command",
+                    "option --filter not allowed with file or dir, only with extract command or no command",
                 ));
             }
         };
@@ -203,7 +208,7 @@ impl Args {
             }
         }
         if let Some(Command::Extract { extract_name: _ }) = args.command {
-            return Ok(args.clone())
+            return Ok(args.clone());
         }
         if let Some(Command::Move {
             ref source,

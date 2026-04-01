@@ -267,6 +267,19 @@ impl Repository {
         }
     }
 
+    pub fn update_picture_name(&self, file_path: &str, name: &str) -> IOResult<usize> {
+
+        if self.args.on_database() {
+            match self.database.update_picture_name(file_path, name) {
+                Ok(n) => Ok(n),
+                Err(e) => Err(e),
+            }
+        }
+        else {
+            Ok(0)
+        }
+    } 
+
     pub fn set_picture_at(&self, position: usize, picture: &Picture) {
         if let Ok(mut gallery) = self.gallery_rc().try_borrow_mut() {
             gallery.set_picture(position, picture.clone());
@@ -337,17 +350,16 @@ impl Repository {
     pub fn update_picture_scores(&mut self, scores: HashMap<String, u32>) {
         println!("updating picture scores");
         if let Ok(gallery) = self.gallery_rc.try_borrow() {
-            scores.into_iter()
-                .for_each(|(file_path, score)| {
-                    if let Some(index) = self.find_index_for_file_path(&file_path) {
-                        let mut picture = gallery.pictures()[index].clone();
-                        picture.increment_score(score);
-                        match self.update_picture(&picture) {
-                            Ok(_) => {}
-                            Err(e) => println!("{}", e),
-                        }
+            scores.into_iter().for_each(|(file_path, score)| {
+                if let Some(index) = self.find_index_for_file_path(&file_path) {
+                    let mut picture = gallery.pictures()[index].clone();
+                    picture.increment_score(score);
+                    match self.update_picture(&picture) {
+                        Ok(_) => {}
+                        Err(e) => println!("{}", e),
                     }
-                })
+                }
+            })
         }
     }
 

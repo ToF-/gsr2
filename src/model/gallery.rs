@@ -101,9 +101,9 @@ impl Gallery {
         self.order = order;
         let selection_criteria = self.selection_criteria.clone();
         match order {
-            Order::Name => self
-                .pictures
-                .sort_by_key(|picture| (!picture.selected(&selection_criteria), picture.file_path())),
+            Order::Name => self.pictures.sort_by_key(|picture| {
+                (!picture.selected(&selection_criteria), picture.file_path())
+            }),
 
             Order::Size => self.pictures.sort_by_key(|picture| {
                 (
@@ -113,8 +113,10 @@ impl Gallery {
             }),
             Order::Score => self.pictures.sort_by_key(|picture| {
                 (
-                    picture.image_data().map(|image_data| -(image_data.score() as i64 as i64)),
-                    picture.file_path()
+                    picture
+                        .image_data()
+                        .map(|image_data| -(image_data.score() as i64 as i64)),
+                    picture.file_path(),
                 )
             }),
 
@@ -126,18 +128,24 @@ impl Gallery {
                     )
                 })
             }),
-            Order::Label => self
-                .pictures
-                .sort_by_key(|picture| (!picture.selected(&selection_criteria), sort_key(&picture.label()))),
+            Order::Label => self.pictures.sort_by_key(|picture| {
+                (
+                    !picture.selected(&selection_criteria),
+                    sort_key(&picture.label()),
+                )
+            }),
             Order::Value => self.pictures.sort_by_key(|picture| {
                 picture
                     .image_data()
                     .map(|image_data| (!picture.selected(&selection_criteria), image_data.rank()))
             }),
             Order::ColorCount => self.pictures.sort_by_key(|picture| {
-                picture
-                    .image_data()
-                    .map(|image_data| (!picture.selected(&selection_criteria), image_data.palette().count()))
+                picture.image_data().map(|image_data| {
+                    (
+                        !picture.selected(&selection_criteria),
+                        image_data.palette().count(),
+                    )
+                })
             }),
             Order::Palette => self.pictures.sort_by_key(|picture| {
                 picture.image_data().map(|image_data| {

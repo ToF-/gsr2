@@ -1,3 +1,4 @@
+use std::error::Error;
 use crate::file::paths::parent_directory;
 use crate::file::paths::{file_exists, file_path_as_retrieved, file_path_as_stored};
 use crate::model::color_range::ColorRange;
@@ -161,7 +162,11 @@ impl Database {
                     .and_then(|_| self.rusqlite_add_tags(&picture.file_path(), &image_data.tags))
             })
     }
-    fn rusqlite_update_picture_name(&self, file_path: &str, new_file_path: &str) -> SqlResult<usize> {
+    fn rusqlite_update_picture_name(
+        &self,
+        file_path: &str,
+        new_file_path: &str,
+    ) -> SqlResult<usize> {
         let connection = self.connection_rc.borrow();
         connection
             .execute(
@@ -174,19 +179,17 @@ impl Database {
                 ],
             )
             .and_then(|_| {
-                connection
-                    .execute(
-                        "UPDATE Tag         \n\
+                connection.execute(
+                    "UPDATE Tag         \n\
                         SET FilePath = ?2   \n\
                         WHERE FilePath = ?1;",
-                params![
-                    file_path_as_stored(file_path),
-                    file_path_as_stored(new_file_path),
-                ],
-                    )
+                    params![
+                        file_path_as_stored(file_path),
+                        file_path_as_stored(new_file_path),
+                    ],
+                )
             })
     }
-
 
     fn rusqlite_delete_tags(&self, file_path: &str) -> SqlResult<usize> {
         let connection = self.connection_rc.borrow();
@@ -480,7 +483,9 @@ impl Database {
                                 },
                                 ..image_data.clone()
                             };
-                            if !selection_criteria.is_empty() && !selection_criteria.matches(new_tags.clone()) {
+                            if !selection_criteria.is_empty()
+                                && !selection_criteria.matches(new_tags.clone())
+                            {
                                 continue;
                             };
                             if label.clone().is_some()
@@ -524,7 +529,7 @@ impl Database {
         )
     }
 
-     fn rusqlite_row_to_picture(row: &Row) -> SqlResult<Picture, rusqlite::Error> {
+    fn rusqlite_row_to_picture(row: &Row) -> SqlResult<Picture, rusqlite::Error> {
         let file_path: String = row.get(0).expect("can't get column FilePath");
         let file_path_as_retrieved = file_path_as_retrieved(&file_path);
         let label: String = row.get(1).expect("can't get column Label");
@@ -595,7 +600,6 @@ impl Database {
             Err(e) => Err(IOError::other(e)),
         }
     }
-
 }
 // ""
 #[cfg(test)]
@@ -850,8 +854,15 @@ pub mod tests {
         assert!(map.get(&file_path).unwrap().contains("dot"));
         assert!(map.get(&file_path).unwrap().contains("bar"));
 
-        let result =
-            database.retrieve_all_pictures(SelectionCriteria::empty(), None, None, None, None, false, None);
+        let result = database.retrieve_all_pictures(
+            SelectionCriteria::empty(),
+            None,
+            None,
+            None,
+            None,
+            false,
+            None,
+        );
         assert!(result.is_ok());
         let pictures = result.unwrap();
         assert_eq!(nine_colors_file_path(), pictures[1].file_path());
@@ -886,18 +897,11 @@ pub mod tests {
         assert_eq!(0, pictures.len());
     }
 
-    #[serial]
     #[test]
+    #[serial]
     fn after_updating_the_picture_name_the_tags_can_still_be_found() {
         let database = my_db();
-        let mut picture = database
-            .rusqlite_retrieve_picture_with_file_path(&nine_colors_file_path())
-            .unwrap();
-        let mut image_data = picture
-            .image_data()
-            .expect("can't access picture image data");
-        assert!(database.rusqlite_update_picture(&picture).is_ok());
-        let new_name = "altered_".to_owned() + NINE_COLORS; 
+        let new_name = "altered_".to_owned() + NINE_COLORS;
         let new_path = current_directory() + "/" + TEST_DATA_DIR + "/" + &new_name;
 
         let result = database.update_picture_name(&nine_colors_file_path(), &new_path);
@@ -909,5 +913,14 @@ pub mod tests {
         assert!(retrieved_picture.image_data().unwrap().tags.contains("foo"));
         assert!(retrieved_picture.image_data().unwrap().tags.contains("bar"));
         let result = database.update_picture_name(&new_path, &nine_colors_file_path());
+    }
+
+    #[test]
+    #[serial]
+    fn renaming_the_picture_is_impossible_if_it_creates_a_duplicate() {
+        let database = my_db();
+        let new_path = single_dot_file_path(); 
+        let result = database.update_picture_name(&nine_colors_file_path(), &new_path);
+        assert!(result.is_err());
     }
 }

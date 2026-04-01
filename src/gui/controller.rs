@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use crate::cli::args::Args;
 use crate::cli::command::Command;
 use crate::cli::status::Status;
@@ -31,6 +30,7 @@ use rand::Rng;
 use rand::rng;
 use regex::Regex;
 use std::cell::RefCell;
+use std::collections::HashMap;
 use std::io::Error as IOError;
 use std::io::Result as IOResult;
 use std::path::PathBuf;
@@ -171,7 +171,6 @@ impl Controller {
             }
         }
     }
-
 
     pub fn process_event(&mut self, event: Event, controller_rc: &RcController) {
         match event {
@@ -405,7 +404,21 @@ impl Controller {
     }
 
     fn rename_selected_picture(&mut self, name: &str) {
-        println!("applying {}", name);
+        let file_path = self.current_picture().file_path();
+        match self.repository.update_picture_name(&file_path, name) {
+            Ok(_) => {
+                match self.repository.initialize_for_args(&self.args) {
+                    Ok(()) => {
+                        self.reload();
+                        self.navigator.set_page_changed();
+                    }
+                    Err(e) => eprintln!("{}", e),
+                }
+            },
+            Err(_) => {
+                eprintln!("the name {} can't be applied (duplicate)", name);
+            }
+        }
     }
 
     fn label_picture_at_index(&mut self, index: usize, label: &str) {
@@ -753,7 +766,8 @@ impl Controller {
 
     fn cancel_selection_criteria(&mut self) {
         let current_file_path = self.current_picture().file_path();
-        self.repository.set_selection_criteria(SelectionCriteria::empty());
+        self.repository
+            .set_selection_criteria(SelectionCriteria::empty());
         if let Some(index) = self.repository.find_index_for_file_path(&current_file_path) {
             self.navigator
                 .move_towards(Direction::Index { value: index })
@@ -808,13 +822,14 @@ impl Controller {
     }
 
     fn rename(&mut self) {
-        self.set_opacity_for_current_picture(0.25);
-        self.editor.begin(
-            &self.main_window(),
-            EntryKind::Rename,
-            None);
-        self.state.set_mode(Mode::Editing);
+        if self.navigator.has_selected() && self.navigator.selected_picture_count() == 1 {
+            self.set_opacity_for_current_picture(0.25);
+            self.editor
+                .begin(&self.main_window(), EntryKind::Rename, None);
+            self.state.set_mode(Mode::Editing);
+        }
     }
+
     fn rank_selected_pictures(&mut self, rank: Rank) {
         if self.navigator.has_selected() {
             for index in 0..self.navigator.limit() {

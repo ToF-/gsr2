@@ -191,6 +191,17 @@ pub fn file_path_as_retrieved(source: &str) -> String {
     format!("{}{}", home_directory(), source_iter.as_str())
 }
 
+pub fn renamed_file_path(file_path: &str, name: &str) -> String {
+    let mut path: PathBuf = PathBuf::from(file_path);
+    let binding = path.clone();
+    let ext_opt = binding.extension();
+    path.set_file_name(name);
+    if let Some(ext) = ext_opt {
+        path.set_extension(ext);
+    }
+    path.display().to_string()
+
+}
 pub fn timestamp_filename(prefix: &str, ext: &str) -> String {
     let now = Local::now();
     let stamp = now
@@ -261,6 +272,12 @@ mod tests {
         )
     }
 
+    #[test]
+    fn chaning_the_file_name_of_a_file_path() {
+        let file_path = "my/long/path/foo.ext";
+        let new_name = "bar";
+        assert_eq!("my/long/path/bar.ext", renamed_file_path(&file_path, &new_name));
+    }
     #[test]
     fn file_path_starting_with_home_dir_are_tilded_as_stored() {
         if let Some(home_dir) = env::home_dir() {

@@ -119,7 +119,12 @@ impl MainWindow {
         }
     }
 
-    pub fn activate(application: &gtk::Application, args: &Args, controller_rc: &RcController, position: usize) {
+    pub fn activate(
+        application: &gtk::Application,
+        args: &Args,
+        controller_rc: &RcController,
+        position: usize,
+    ) {
         let pictures_per_row = if let Ok(controller) = controller_rc.try_borrow() {
             controller.state().pictures_per_row()
         } else {

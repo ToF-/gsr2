@@ -207,7 +207,10 @@ impl Editor {
             }
             EntryKind::SetSelection | EntryKind::SetRestriction => matches!(ch,
                 'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' ' | ',' ),
-            EntryKind::Order => matches!(ch, 'c' | 'd' | 'p' | 'm' | 'l' | 'n' | 'o' | 'r' | 's' | 'v'),
+            EntryKind::Order => matches!(
+                ch,
+                'c' | 'd' | 'p' | 'm' | 'l' | 'n' | 'o' | 'r' | 's' | 'v'
+            ),
             EntryKind::Information | EntryKind::Help => false,
         };
         if ch_is_ok && self.input.len() < self.max_edit_length() {
@@ -273,8 +276,6 @@ impl Editor {
         } else {
             MAX_LABEL_LENGTH
         }
-
-
     }
 }
 #[cfg(test)]
