@@ -37,11 +37,15 @@ pub fn copy_at_operation(file_path: &str, target_dir: &str) -> Operation {
     Operation::Copy(source_path, target_path)
 }
 
-pub fn copy_to_operation(file_path: &str, target_name: &str) -> Operation {
+pub fn copy_to_operation(file_path: &str, target_file_path: &str) -> Operation {
     let source_path = PathBuf::from(file_path_as_retrieved(file_path));
-    let target_path = PathBuf::from(file_path_as_retrieved(&renamed_file_path(file_path, target_name)));
+    let target_path = PathBuf::from(file_path_as_retrieved(&target_file_path));
     Operation::Copy(source_path, target_path)
 }
+pub fn copy_to_renamed_operation(file_path: &str, target_name: &str) -> Operation {
+    copy_to_operation(file_path, &renamed_file_path(file_path, target_name))
+}
+
 
 pub fn delete_operations(file_path: &str) -> Vec<Operation> {
     let mut operations: Vec<Operation> = vec![];
@@ -57,15 +61,30 @@ pub fn delete_operations(file_path: &str) -> Vec<Operation> {
 }
 
 pub fn copy_at_operations(file_path: &str, target_dir: &str) -> Vec<Operation> {
+    let as_retrieved = file_path_as_retrieved(file_path);
     let mut operations: Vec<Operation> = vec![];
     for size in [10, 7, 4, 2] {
-        let as_retrieved = file_path_as_retrieved(file_path);
         let file_path_to_copy = thumbnail_name_from(&as_retrieved, size);
         if file_exists(&file_path_to_copy) {
             operations.push(copy_at_operation(&file_path_to_copy, target_dir))
         }
     }
     operations.push(copy_at_operation(file_path, target_dir));
+    operations
+}
+
+pub fn copy_to_operations(file_path: &str, target_name: &str) -> Vec<Operation> {
+    let as_retrieved = file_path_as_retrieved(file_path);
+    let target_as_retrieved = file_path_as_retrieved(&renamed_file_path(file_path, target_name));
+    let mut operations: Vec<Operation> = vec![];
+    for size in [10, 7, 4, 2] {
+        let file_path_to_copy = thumbnail_name_from(&as_retrieved, size);
+        let target_file_path = thumbnail_name_from(&target_as_retrieved, size);
+        if file_exists(&file_path_to_copy) {
+            operations.push(copy_to_operation(&file_path_to_copy, &target_file_path))
+        }
+    }
+    operations.push(copy_to_renamed_operation(file_path, target_name));
     operations
 }
 
@@ -276,6 +295,48 @@ mod test {
         );
         assert_eq!(
             copy_at_operation(&file_path_to_copy, &target_dir),
+            operations[1]
+        );
+        remove_dummy_file(&file_path_to_copy);
+        remove_dummy_file(&other_file_path_to_copy);
+    }
+    #[test]
+    #[serial]
+    fn batch_copy_to_operation_for_thumbnails_if_existing() {
+        let file_path_to_copy = format!(
+            "{}/{}/{}",
+            current_directory(),
+            TEST_DATA_DIR,
+            "foo.jpg"
+        );
+        let target_file_path = format!(
+            "{}/{}/{}",
+            current_directory(),
+            TEST_DATA_DIR,
+            "bar.jpg"
+        );
+        let other_file_path_to_copy = format!(
+            "{}/{}/{}",
+            current_directory(),
+            TEST_DATA_DIR,
+            "fooTHUMBLarge.jpg"
+        );
+        let other_target_file = format!(
+            "{}/{}/{}",
+            current_directory(),
+            TEST_DATA_DIR,
+            "barTHUMBLarge.jpg"
+        );
+        create_dummy_file(&file_path_to_copy);
+        create_dummy_file(&other_file_path_to_copy);
+        let operations = copy_to_operations(&file_path_to_copy, "bar");
+        assert_eq!(2, operations.len());
+        assert_eq!(
+            copy_to_operation(&thumbnail_name_from(&file_path_to_copy, 4), &thumbnail_name_from(&target_file_path, 4)),
+            operations[0]
+        );
+        assert_eq!(
+            copy_to_operation(&file_path_to_copy, &target_file_path),
             operations[1]
         );
         remove_dummy_file(&file_path_to_copy);
