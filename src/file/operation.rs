@@ -1,5 +1,5 @@
-use crate::file::paths::renamed_file_path;
 use crate::Database;
+use crate::file::paths::renamed_file_path;
 use crate::file::paths::{
     file_exists, file_path_as_retrieved, file_path_as_stored, thumbnail_name_from,
 };
@@ -45,7 +45,6 @@ pub fn copy_to_operation(file_path: &str, target_file_path: &str) -> Operation {
 pub fn copy_to_renamed_operation(file_path: &str, target_name: &str) -> Operation {
     copy_to_operation(file_path, &renamed_file_path(file_path, target_name))
 }
-
 
 pub fn delete_operations(file_path: &str) -> Vec<Operation> {
     let mut operations: Vec<Operation> = vec![];
@@ -101,30 +100,43 @@ pub fn move_picture(file_path: &str, target_dir: &str) -> Vec<Operation> {
     let target_path = target_file_path(file_path, target_dir);
     let target_file = file_path_as_stored(target_path.into_os_string().to_str().unwrap());
     if source_file == target_file {
+        println!(
+            "same source and target: {}, move cancelled",
+            file_path_as_stored(&source_file)
+        );
         vec![]
     } else {
         let mut operations: Vec<Operation> = vec![];
         let mut moves = move_operations(file_path, target_dir);
         operations.append(&mut moves);
-        if source_file == target_file {
-            println!(
-                "same source and target: {}, move cancelled",
-                file_path_as_stored(&source_file)
-            )
-        } else {
-            operations.push(Operation::MovePictureData(
+        operations.push(Operation::MovePictureData(
                 file_path_as_stored(file_path),
                 target_file,
-            ))
-        };
+        ));
         operations
     }
 }
 
 pub fn rename_picture(file_path: &str, target_name: &str) -> Vec<Operation> {
+    let source_file = file_path_as_stored(file_path);
+    let target_file = file_path_as_stored(&renamed_file_path(file_path, target_name));
     let mut operations: Vec<Operation> = vec![];
-
-    operations
+    if source_file == target_file {
+        println!(
+            "same source and target: {}, rename cancelled",
+            file_path_as_stored(&source_file)
+        );
+        vec![]
+    } else {
+        let mut copies = copy_to_operations(file_path, target_name);
+        let mut deletions = delete_operations(file_path);
+        operations.append(&mut copies);
+        operations.append(&mut deletions);
+        operations.push(Operation::MovePictureData(
+                file_path_as_stored(file_path),
+                target_file));
+            operations
+    }
 }
 
 fn execute_operation(database: &Database, operation: &Operation) -> IOResult<usize> {
@@ -210,8 +222,9 @@ mod test {
         assert_eq!(
             Operation::Copy(
                 source_file_path_as_retrieved.into(),
-                target_file_path_as_retrieved.into()),
-                copy_to_operation("~/foo/bar.jpg","qux")
+                target_file_path_as_retrieved.into()
+            ),
+            copy_to_renamed_operation("~/foo/bar.jpg", "qux")
         )
     }
 
@@ -303,18 +316,8 @@ mod test {
     #[test]
     #[serial]
     fn batch_copy_to_operation_for_thumbnails_if_existing() {
-        let file_path_to_copy = format!(
-            "{}/{}/{}",
-            current_directory(),
-            TEST_DATA_DIR,
-            "foo.jpg"
-        );
-        let target_file_path = format!(
-            "{}/{}/{}",
-            current_directory(),
-            TEST_DATA_DIR,
-            "bar.jpg"
-        );
+        let file_path_to_copy = format!("{}/{}/{}", current_directory(), TEST_DATA_DIR, "foo.jpg");
+        let target_file_path = format!("{}/{}/{}", current_directory(), TEST_DATA_DIR, "bar.jpg");
         let other_file_path_to_copy = format!(
             "{}/{}/{}",
             current_directory(),
@@ -332,7 +335,10 @@ mod test {
         let operations = copy_to_operations(&file_path_to_copy, "bar");
         assert_eq!(2, operations.len());
         assert_eq!(
-            copy_to_operation(&thumbnail_name_from(&file_path_to_copy, 4), &thumbnail_name_from(&target_file_path, 4)),
+            copy_to_operation(
+                &thumbnail_name_from(&file_path_to_copy, 4),
+                &thumbnail_name_from(&target_file_path, 4)
+            ),
             operations[0]
         );
         assert_eq!(
@@ -399,8 +405,7 @@ mod test {
         assert_eq!(
             Operation::Copy(
                 file_path_as_retrieved(&format!("{}nine_colorsTHUMBSmall.png", source_dir)).into(),
-                file_path_as_retrieved(&format!("{}/nine_colorsTHUMBSmall.png", target_dir))
-                    .into()
+                file_path_as_retrieved(&format!("{}/nine_colorsTHUMBSmall.png", target_dir)).into()
             ),
             operations[0]
         );
@@ -415,8 +420,7 @@ mod test {
         assert_eq!(
             Operation::Copy(
                 file_path_as_retrieved(&format!("{}nine_colorsTHUMBLarge.png", source_dir)).into(),
-                file_path_as_retrieved(&format!("{}/nine_colorsTHUMBLarge.png", target_dir))
-                    .into()
+                file_path_as_retrieved(&format!("{}/nine_colorsTHUMBLarge.png", target_dir)).into()
             ),
             operations[2]
         );
@@ -469,7 +473,7 @@ mod test {
         );
     }
 
-    // #[test]
+    #[test]
     fn renaming_a_picture_takes_all_necessary_operations() {
         let source_dir = format!("{}/{}/", current_directory(), TEST_DATA_DIR);
         let picture: Picture = Picture::new(&nine_colors_file_path());
@@ -489,6 +493,30 @@ mod test {
                     .into()
             ),
             operations[0]
+        );
+        assert_eq!(
+            Operation::Copy(
+                file_path_as_retrieved(&format!("{}nine_colorsTHUMBMedium.png", source_dir)).into(),
+                file_path_as_retrieved(&format!("{}nine_colors_fooTHUMBMedium.png", source_dir))
+                    .into()
+            ),
+            operations[1]
+        );
+        assert_eq!(
+            Operation::Copy(
+                file_path_as_retrieved(&format!("{}nine_colorsTHUMBLarge.png", source_dir)).into(),
+                file_path_as_retrieved(&format!("{}nine_colors_fooTHUMBLarge.png", source_dir))
+                    .into()
+            ),
+            operations[2]
+        );
+        assert_eq!(
+            Operation::Copy(
+                file_path_as_retrieved(&format!("{}nine_colorsTHUMBLarger.png", source_dir)).into(),
+                file_path_as_retrieved(&format!("{}nine_colors_fooTHUMBLarger.png", source_dir))
+                    .into()
+            ),
+            operations[3]
         );
         assert_eq!(
             Operation::Copy(
