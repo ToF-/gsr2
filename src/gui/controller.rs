@@ -139,6 +139,7 @@ impl Controller {
     }
 
     fn load_repository(&mut self) -> IOResult<usize> {
+        println!("loading directory");
         let args = self.args.clone();
         let result = match args.command {
             Some(Command::File { file_path }) => {
@@ -404,18 +405,22 @@ impl Controller {
     }
 
     fn rename_selected_picture(&mut self, name: &str) {
-        let file_path = self.current_picture().file_path();
-        match self.repository.update_picture_name(&file_path, name) {
-            Ok(_) => match self.repository.initialize_for_args(&self.args) {
-                Ok(()) => {
-                    self.reload();
-                    self.navigator.set_page_changed();
+        for index in self.navigator.selection() {
+            match self.repository.rename_picture_at_index(index, name) {
+                Ok(count) => {
+                    println!("{} picture renamed", count);
                 }
-                Err(e) => eprintln!("{}", e),
-            },
-            Err(_) => {
-                eprintln!("the name {} can't be applied (duplicate)", name);
+                Err(err) => {
+                    println!("{}", err);
+                }
             }
+        };
+        match self.repository.initialize_for_args(&self.args) {
+            Ok(()) => {
+                self.reload();
+                self.navigator.set_page_changed();
+            }
+            Err(e) => eprintln!("{}", e),
         }
     }
 
@@ -1140,7 +1145,8 @@ impl Controller {
             "{} pictures moved to {}\n{} operations\nexiting gsr",
             picture_count, target_dir, operation_count
         );
-        self.reload()
+        self.reload();
+        self.navigator.set_page_changed();
     }
     fn move_selected_pictures(&mut self) {
         if let Some(target_dir) = &self.args.clone().r#move {
@@ -1159,6 +1165,9 @@ impl Controller {
         self.navigator.set_page_changed()
     }
 
+    fn confirm_rename_picture(&mut self, target_name: &str) {
+        self.rename_selected_picture(target_name)
+    }
     fn confirm_move_picture(&mut self) {
         self.move_selected_pictures()
     }

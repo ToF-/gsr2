@@ -1,3 +1,4 @@
+use crate::file::operation::rename_picture;
 use crate::cli::args::Args;
 use crate::cli::command::Command;
 use crate::env::configuration::Configuration;
@@ -517,6 +518,28 @@ impl Repository {
         }
     }
 
+    pub fn rename_picture_at_index(&self, index: usize, target_name: &str) -> IOResult<usize> {
+        match self.gallery_rc().try_borrow() {
+            Ok(gallery) => {
+                let picture = gallery.picture(index);
+                let operations = rename_picture(&picture.file_path(), target_name);
+                if operations.is_empty() {
+                    println!("no operation for rename of {} to {}",
+                        picture.file_path(),
+                        target_name
+                    );
+                    Ok(0)
+                } else {
+                    let count = operations.len();
+                    match execute(&self.database, &operations) {
+                        Ok(_) => Ok(count),
+                        Err(err) => Err(err),
+                    }
+                }
+            }
+            Err(e) => Err(IOError::other(e)),
+        }
+    }
     pub fn move_picture_at_index(&self, index: usize, target_dir: &str) -> IOResult<usize> {
         match self.gallery_rc().try_borrow() {
             Ok(gallery) => {
