@@ -200,7 +200,6 @@ pub fn renamed_file_path(file_path: &str, name: &str) -> String {
         path.set_extension(ext);
     }
     path.display().to_string()
-
 }
 pub fn timestamp_filename(prefix: &str, ext: &str) -> String {
     let now = Local::now();
@@ -273,10 +272,13 @@ mod tests {
     }
 
     #[test]
-    fn chaning_the_file_name_of_a_file_path() {
+    fn changing_the_file_name_of_a_file_path() {
         let file_path = "my/long/path/foo.ext";
         let new_name = "bar";
-        assert_eq!("my/long/path/bar.ext", renamed_file_path(&file_path, &new_name));
+        assert_eq!(
+            "my/long/path/bar.ext",
+            renamed_file_path(&file_path, &new_name)
+        );
     }
     #[test]
     fn file_path_starting_with_home_dir_are_tilded_as_stored() {

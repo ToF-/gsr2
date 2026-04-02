@@ -406,14 +406,12 @@ impl Controller {
     fn rename_selected_picture(&mut self, name: &str) {
         let file_path = self.current_picture().file_path();
         match self.repository.update_picture_name(&file_path, name) {
-            Ok(_) => {
-                match self.repository.initialize_for_args(&self.args) {
-                    Ok(()) => {
-                        self.reload();
-                        self.navigator.set_page_changed();
-                    }
-                    Err(e) => eprintln!("{}", e),
+            Ok(_) => match self.repository.initialize_for_args(&self.args) {
+                Ok(()) => {
+                    self.reload();
+                    self.navigator.set_page_changed();
                 }
+                Err(e) => eprintln!("{}", e),
             },
             Err(_) => {
                 eprintln!("the name {} can't be applied (duplicate)", name);

@@ -268,17 +268,15 @@ impl Repository {
     }
 
     pub fn update_picture_name(&self, file_path: &str, name: &str) -> IOResult<usize> {
-
         if self.args.on_database() {
             match self.database.update_picture_name(file_path, name) {
                 Ok(n) => Ok(n),
                 Err(e) => Err(e),
             }
-        }
-        else {
+        } else {
             Ok(0)
         }
-    } 
+    }
 
     pub fn set_picture_at(&self, position: usize, picture: &Picture) {
         if let Ok(mut gallery) = self.gallery_rc().try_borrow_mut() {

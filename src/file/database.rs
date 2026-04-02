@@ -1,4 +1,3 @@
-use std::error::Error;
 use crate::file::paths::parent_directory;
 use crate::file::paths::{file_exists, file_path_as_retrieved, file_path_as_stored};
 use crate::model::color_range::ColorRange;
@@ -15,6 +14,7 @@ use rusqlite::{Connection, Result as SqlResult, Row, params};
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::collections::HashSet;
+use std::error::Error;
 use std::io::Error as IOError;
 use std::io::Result as IOResult;
 use std::path::PathBuf;
@@ -919,7 +919,7 @@ pub mod tests {
     #[serial]
     fn renaming_the_picture_is_impossible_if_it_creates_a_duplicate() {
         let database = my_db();
-        let new_path = single_dot_file_path(); 
+        let new_path = single_dot_file_path();
         let result = database.update_picture_name(&nine_colors_file_path(), &new_path);
         assert!(result.is_err());
     }
