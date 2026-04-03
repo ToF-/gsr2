@@ -127,18 +127,16 @@ impl Args {
         args.slideshow =
             slideshow_delay(args.slideshow, "slideshow delay", DEFAULT_SLIDESHOW_DELAY);
 
-        if let Some(Command::Extract { extract_name: _ }) = args.command.clone() {
-            match args.filter {
-                Some(ref color_range_spec) => match ColorRange::from_string(color_range_spec) {
+        if let Some(Command::Extract { extract_name: _ }) = args.command.clone()
+            && let Some(ref color_range_spec) = args.filter {
+                match ColorRange::from_string(color_range_spec) {
                     Ok(_) => {}
                     Err(e) => {
                         eprintln!("{} ??", color_range_spec);
                         return Err(Error::other(e));
                     }
-                },
-                None => {}
-            }
-        };
+                }
+            };
         if let Some(ref color_range_spec) = args.filter {
             if args.command.is_none() {
                 match ColorRange::from_string(color_range_spec) {

@@ -115,7 +115,7 @@ impl Gallery {
                 (
                     picture
                         .image_data()
-                        .map(|image_data| -(image_data.score() as i64 as i64)),
+                        .map(|image_data| -(image_data.score() as i64)),
                     picture.file_path(),
                 )
             }),

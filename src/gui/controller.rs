@@ -1,12 +1,9 @@
 use crate::cli::args::Args;
 use crate::cli::command::Command;
-use crate::cli::status::Status;
 use crate::env::configuration::Configuration;
-use crate::file::database::*;
 use crate::file::paths::check_path_exists;
 use crate::file::paths::grand_parent_directory;
-use crate::file::paths::{check_collectable, file_exists, parent_directory};
-use crate::file::picture_file::create_missing_thumbnails;
+use crate::file::paths::parent_directory;
 use crate::gui::control::{Control, Controls, default_controls, help_on_controls};
 use crate::gui::direction::Direction;
 use crate::gui::editor::Editor;
@@ -17,7 +14,6 @@ use crate::gui::navigator::Navigator;
 use crate::gui::state::State;
 use crate::gui::view::main_window::{LEFT_PANE, MainWindow};
 use crate::model::action::Action;
-use crate::model::gallery::Gallery;
 use crate::model::order::Order;
 use crate::model::picture::Picture;
 use crate::model::rank::Rank;
@@ -31,7 +27,6 @@ use rand::rng;
 use regex::Regex;
 use std::cell::RefCell;
 use std::collections::HashMap;
-use std::io::Error as IOError;
 use std::io::Result as IOResult;
 use std::path::PathBuf;
 use std::rc::Rc;
@@ -58,13 +53,7 @@ impl Controller {
             grid
         } else {
             match args.pictures_per_row() {
-                1 => {
-                    if let Some(n) = config.current_pictures_per_row {
-                        n
-                    } else {
-                        1
-                    }
-                }
+                1 => config.current_pictures_per_row.unwrap_or(1),
                 n => n.try_into().unwrap(),
             }
             .try_into()
@@ -79,13 +68,7 @@ impl Controller {
                 cli.order = Some(Order::Name)
             }
         };
-        if config.cover {
-            if args.all {
-                cli.cover = false
-            } else {
-                cli.cover = true
-            }
-        };
+        cli.cover = !args.all;
         let mut repository = Repository::new(config.clone(), cli.clone(), false);
         match repository.initialize() {
             Ok(_) => {}
@@ -514,14 +497,12 @@ impl Controller {
     fn set_setting(&mut self, setting: &Control, choice: &Control) {
         match setting {
             Control::SetMark => match choice {
-                Control::SetMarkChar(ch) => self.process_control(choice),
+                Control::SetMarkChar(_) => self.process_control(choice),
                 _ => println!("?"),
             },
-            Control::SetGrid => match choice {
-                _ => self.process_control(choice),
-            },
+            Control::SetGrid => self.process_control(choice),
             Control::GotoMark => match choice {
-                Control::JumpMarkChar(ch) => self.process_control(choice),
+                Control::JumpMarkChar(_) => self.process_control(choice),
                 _ => println!("?"),
             },
             Control::SetDisplay => match choice {
@@ -1165,9 +1146,6 @@ impl Controller {
         self.navigator.set_page_changed()
     }
 
-    fn confirm_rename_picture(&mut self, target_name: &str) {
-        self.rename_selected_picture(target_name)
-    }
     fn confirm_move_picture(&mut self) {
         self.move_selected_pictures()
     }
@@ -1196,7 +1174,7 @@ impl Controller {
 
     fn extract_filenames(&mut self) {
         if self.navigator.has_selected() {
-            self.repository
+            let _ = self.repository
                 .extract_file_names(&self.navigator.selection());
         }
     }
@@ -1316,8 +1294,8 @@ impl Controller {
     }
 
     pub fn increment_picture_score(&mut self, file_path: &str) {
-        if let Some(mut score) = self.scores.get_mut(file_path) {
-            *score = *score + 1;
+        if let Some(score) = self.scores.get_mut(file_path) {
+            *score += 1;
         } else {
             _ = self.scores.insert(file_path.to_string(), 1);
         };

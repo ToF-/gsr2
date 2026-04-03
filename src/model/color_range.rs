@@ -1,9 +1,7 @@
 use crate::file::picture_file::get_image_from_picture_file;
 use crate::model::color::Color;
-use image::DynamicImage;
 use image::GenericImageView;
 use std::fmt;
-use std::num::ParseIntError;
 
 #[derive(Debug)]
 pub struct ParseColorRangeError;
@@ -87,14 +85,12 @@ impl ColorRange {
                     } else {
                         false
                     }
-                } else {
-                    if ratio <= -self.ratio {
+                } else if ratio <= -self.ratio {
                         println!("{} {:.5} < {:.5} {}", index, ratio, -self.ratio, file_path);
                         true
                     } else {
                         false
                     }
-                }
             }
             Err(e) => {
                 eprintln!("{}", e);

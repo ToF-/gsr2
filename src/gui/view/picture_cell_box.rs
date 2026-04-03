@@ -38,7 +38,7 @@ fn make_gesture_click(
             if let Ok(mut controller) = controller_rc.try_borrow_mut() {
                 controller.process_event(
                     PictureClicked {
-                        button: button,
+                        button,
                         col,
                         row,
                     },

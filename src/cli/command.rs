@@ -1,20 +1,15 @@
 use crate::Args;
 use crate::Configuration;
-use crate::Controller;
-use crate::Database;
 use crate::IOError;
 use crate::Status;
 use crate::file::paths::check_collectable;
 use crate::file::picture_file::create_missing_thumbnails;
 use crate::file_exists;
-use crate::gui::direction::Direction;
 use crate::model::gallery::Gallery;
 use crate::model::repository::Repository;
 use clap::Subcommand;
-use std::cell::RefCell;
 use std::io::Result as IOResult;
 use std::path::PathBuf;
-use std::rc::Rc;
 
 #[derive(Subcommand, Clone, Debug, PartialEq)]
 /// Command
@@ -71,7 +66,7 @@ pub fn execute_command(
     config: Configuration,
 ) -> IOResult<Status> {
     let mut gallery = Gallery::new();
-    let result = match args.command {
+    match args.command {
         Some(Command::Collect { directory }) => {
             println!("collecting data for picture files in the database…");
             let path: PathBuf = PathBuf::from(directory);
@@ -120,7 +115,6 @@ pub fn execute_command(
             let config = Configuration::from_env()?;
             println!("initializing database");
             if !file_exists(&config.database_file) {
-                let repository = Repository::new(config.clone(), args, true);
                 match Repository::create_database(config) {
                     Ok(_) => Ok(Status::Done),
                     Err(e) => Err(IOError::other(e)),
@@ -167,6 +161,5 @@ pub fn execute_command(
             }
             Err(e) => Err(IOError::other(e)),
         },
-    };
-    result
+    }
 }

@@ -12,5 +12,5 @@ pub fn cover_to_bool(cover: Cover) -> bool {
 }
 
 pub fn cover_sort_key(cover: Cover) -> usize {
-    std::usize::MAX - cover.unwrap_or_default()
+    usize::MAX - cover.unwrap_or_default()
 }

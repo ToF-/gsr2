@@ -150,13 +150,13 @@ impl Picture {
 
     pub fn add_tag(&mut self, label: &str) {
         let mut new_image_data = self.image_data().unwrap_or_default();
-        let _ = new_image_data.add_tag(label);
+        new_image_data.add_tag(label);
         self.set_image_data(new_image_data);
     }
 
     pub fn remove_tag(&mut self, label: &str) {
         let mut new_image_data = self.image_data().unwrap_or_default();
-        let _ = new_image_data.remove_tag(label);
+        new_image_data.remove_tag(label);
         self.set_image_data(new_image_data);
     }
 

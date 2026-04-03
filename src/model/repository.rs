@@ -1,3 +1,4 @@
+use crate::file::database::RetrieveCriteria;
 use crate::file::operation::rename_picture;
 use crate::cli::args::Args;
 use crate::cli::command::Command;
@@ -96,22 +97,23 @@ impl Repository {
                     None => None,
                 };
                 let extraction: Option<Vec<String>> = if let Some(list_file) = &args.extraction {
-                    match self.retrieve_file_names(&list_file) {
+                    match self.retrieve_file_names(list_file) {
                         Ok(list) => Some(list),
                         Err(e) => return Err(e),
                     }
                 } else {
                     None
                 };
-                *gallery = match self.database.retrieve_all_pictures(
-                    selection_criteria.clone(),
-                    args.label.clone(),
-                    extraction.clone(),
-                    args.filter.clone(),
-                    regex,
-                    args.cover,
-                    args.directory.clone(),
-                ) {
+                let retrieve_criteria = RetrieveCriteria {
+                    selection_criteria: selection_criteria.clone(),
+                    label: args.label.clone(),
+                    extraction: extraction.clone(),
+                    filter: args.filter.clone(),
+                    pattern: regex,
+                    cover: args.cover,
+                    parent_opt: args.directory.clone(),
+                };
+                *gallery = match self.database.retrieve_all_pictures(retrieve_criteria) {
                     Ok(pictures) => {
                         let mut gallery = Gallery::new_with_pictures(pictures);
                         gallery.sort_by(args.order.unwrap_or(Order::Name));
@@ -265,17 +267,6 @@ impl Repository {
             gallery.picture(position)
         } else {
             panic!("can't borrow gallery")
-        }
-    }
-
-    pub fn update_picture_name(&self, file_path: &str, name: &str) -> IOResult<usize> {
-        if self.args.on_database() {
-            match self.database.update_picture_name(file_path, name) {
-                Ok(n) => Ok(n),
-                Err(e) => Err(e),
-            }
-        } else {
-            Ok(0)
         }
     }
 
@@ -612,7 +603,7 @@ impl Repository {
                     let picture = &gallery.picture(index);
                     lines.push(picture.file_path());
                 }
-                let mut path: PathBuf = PathBuf::from(&extract_file);
+                let path: PathBuf = PathBuf::from(&extract_file);
                 println!("copying {} file names to {}", lines.len(), path.display());
                 let file = File::create(path)?;
                 let mut writer = BufWriter::new(file);

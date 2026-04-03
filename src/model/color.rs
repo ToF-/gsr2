@@ -10,7 +10,7 @@ impl Color {
     pub fn from_string(s: &str) -> Result<Self, ParseIntError> {
         u8::from_str_radix(&s[0..2], 16).and_then(|r| {
             u8::from_str_radix(&s[2..4], 16)
-                .and_then(|g| u8::from_str_radix(&s[4..6], 16).and_then(|b| Ok(Color { r, g, b })))
+                .and_then(|g| u8::from_str_radix(&s[4..6], 16).map(|b| Color { r, g, b }))
         })
     }
 }

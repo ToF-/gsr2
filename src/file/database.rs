@@ -14,7 +14,6 @@ use rusqlite::{Connection, Result as SqlResult, Row, params};
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::collections::HashSet;
-use std::error::Error;
 use std::io::Error as IOError;
 use std::io::Result as IOResult;
 use std::path::PathBuf;
@@ -25,6 +24,16 @@ pub type ImageDataMap = HashMap<String, ImageData>;
 #[derive(Debug, Clone)]
 pub struct Database {
     connection_rc: Rc<RefCell<Connection>>,
+}
+
+pub struct RetrieveCriteria {
+        pub selection_criteria: SelectionCriteria,
+        pub label: Option<String>,
+        pub extraction: Option<Vec<String>>,
+        pub filter: Option<String>,
+        pub pattern: Option<Regex>,
+        pub cover: bool,
+        pub parent_opt: Option<String>,
 }
 
 impl Database {
@@ -162,34 +171,6 @@ impl Database {
                     .and_then(|_| self.rusqlite_add_tags(&picture.file_path(), &image_data.tags))
             })
     }
-    fn rusqlite_update_picture_name(
-        &self,
-        file_path: &str,
-        new_file_path: &str,
-    ) -> SqlResult<usize> {
-        let connection = self.connection_rc.borrow();
-        connection
-            .execute(
-                "UPDATE Picture        \n\
-                SET FilePath = ?2      \n\
-                WHERE FilePath = ?1;",
-                params![
-                    file_path_as_stored(file_path),
-                    file_path_as_stored(new_file_path),
-                ],
-            )
-            .and_then(|_| {
-                connection.execute(
-                    "UPDATE Tag         \n\
-                        SET FilePath = ?2   \n\
-                        WHERE FilePath = ?1;",
-                    params![
-                        file_path_as_stored(file_path),
-                        file_path_as_stored(new_file_path),
-                    ],
-                )
-            })
-    }
 
     fn rusqlite_delete_tags(&self, file_path: &str) -> SqlResult<usize> {
         let connection = self.connection_rc.borrow();
@@ -269,9 +250,9 @@ impl Database {
             Self::SELECT_STAR_FROM_PICTURE,
             if cover { "Cover = true" } else { "true" },
             if let Some(parent) = parent_opt {
-                &Self::select_parent_dir(parent)
+                Self::select_parent_dir(parent)
             } else {
-                "true"
+                "true".to_string()
             }
         );
         let connection = self.connection_rc.borrow();
@@ -406,13 +387,6 @@ impl Database {
         }
     }
 
-    pub fn update_picture_name(&self, file_path: &str, new_file_path: &str) -> IOResult<usize> {
-        match self.rusqlite_update_picture_name(file_path, new_file_path) {
-            Ok(n) => Ok(n),
-            Err(err) => Err(std::io::Error::other(err)),
-        }
-    }
-
     const SELECT_STAR_FROM_PICTURE: &str = "SELECT                     \n\
              FilePath,                  \n\
              Label,                     \n\
@@ -434,27 +408,22 @@ impl Database {
             parent, file_name_start
         )
     }
+
     pub fn retrieve_all_pictures(
         &self,
-        selection_criteria: SelectionCriteria,
-        label: Option<String>,
-        extraction: Option<Vec<String>>,
-        filter: Option<String>,
-        pattern: Option<Regex>,
-        cover: bool,
-        parent_opt: Option<String>,
+        retrieve_criteria: RetrieveCriteria,
     ) -> IOResult<Vec<Picture>> {
         self.retrieve_all_parent_dirs().and_then(|parent_dirs| {
-            match self.rusqlite_retrieve_all_pictures(cover, parent_opt) {
+            match self.rusqlite_retrieve_all_pictures(retrieve_criteria.cover, retrieve_criteria.parent_opt) {
                 Ok(picture_map) => match self.rusqlite_retrieve_all_tags() {
                     Ok(tag_map) => {
-                        let extraction: HashSet<String> = if let Some(list) = extraction {
+                        let extraction: HashSet<String> = if let Some(list) = retrieve_criteria.extraction {
                             list.iter().cloned().collect()
                         } else {
                             HashSet::new()
                         };
                         let mut pictures: Vec<Picture> = vec![];
-                        let color_range_opt = filter.map(|spec| ColorRange::from_string(&spec));
+                        let color_range_opt = retrieve_criteria.filter.map(|spec| ColorRange::from_string(&spec));
                         let color_range: ColorRange = match color_range_opt {
                             Some(Ok(ref r)) => r.clone(),
                             Some(Err(_)) | None => ColorRange::default(),
@@ -483,18 +452,18 @@ impl Database {
                                 },
                                 ..image_data.clone()
                             };
-                            if !selection_criteria.is_empty()
-                                && !selection_criteria.matches(new_tags.clone())
+                            if !retrieve_criteria.selection_criteria.is_empty()
+                                && !retrieve_criteria.selection_criteria.matches(new_tags.clone())
                             {
                                 continue;
                             };
-                            if label.clone().is_some()
-                                && *label.as_ref().unwrap() != new_image_data.label()
+                            if retrieve_criteria.label.clone().is_some()
+                                && *retrieve_criteria.label.as_ref().unwrap() != new_image_data.label()
                             {
                                 continue;
                             };
-                            if pattern.clone().is_some()
-                                && !pattern.as_ref().unwrap().is_match(file_path)
+                            if retrieve_criteria.pattern.clone().is_some()
+                                && !retrieve_criteria.pattern.as_ref().unwrap().is_match(file_path)
                             {
                                 continue;
                             };
@@ -518,15 +487,16 @@ impl Database {
     }
 
     pub fn retrieve_all_pictures_with_parent(&self, parent_dir: &str) -> IOResult<Vec<Picture>> {
-        self.retrieve_all_pictures(
-            SelectionCriteria::empty(),
-            None,
-            None,
-            None,
-            None,
-            false,
-            Some(parent_dir.to_string()),
-        )
+        let retrieve_criteria = RetrieveCriteria {
+            selection_criteria: SelectionCriteria::empty(),
+        label: None,
+        extraction: None,
+        filter: None,
+        pattern: None,
+        cover: false,
+        parent_opt: Some(parent_dir.to_string()),
+        };
+        self.retrieve_all_pictures(retrieve_criteria)
     }
 
     fn rusqlite_row_to_picture(row: &Row) -> SqlResult<Picture, rusqlite::Error> {
@@ -854,15 +824,16 @@ pub mod tests {
         assert!(map.get(&file_path).unwrap().contains("dot"));
         assert!(map.get(&file_path).unwrap().contains("bar"));
 
-        let result = database.retrieve_all_pictures(
-            SelectionCriteria::empty(),
-            None,
-            None,
-            None,
-            None,
-            false,
-            None,
-        );
+        let criteria = RetrieveCriteria {
+            selection_criteria: SelectionCriteria::empty(),
+            label: None,
+            extraction: None,
+            filter: None,
+            pattern: None,
+            cover: false,
+            parent_opt: None,
+        };
+        let result = database.retrieve_all_pictures(criteria);
         assert!(result.is_ok());
         let pictures = result.unwrap();
         assert_eq!(nine_colors_file_path(), pictures[1].file_path());
@@ -895,32 +866,5 @@ pub mod tests {
         assert!(result.is_ok());
         let pictures = result.unwrap();
         assert_eq!(0, pictures.len());
-    }
-
-    #[test]
-    #[serial]
-    fn after_updating_the_picture_name_the_tags_can_still_be_found() {
-        let database = my_db();
-        let new_name = "altered_".to_owned() + NINE_COLORS;
-        let new_path = current_directory() + "/" + TEST_DATA_DIR + "/" + &new_name;
-
-        let result = database.update_picture_name(&nine_colors_file_path(), &new_path);
-        let result = database.rusqlite_retrieve_picture_with_file_path(&new_path);
-        assert!(result.is_ok(), "could not retrieve picture in db");
-        let retrieved_picture = result.unwrap();
-        assert_eq!(new_path, retrieved_picture.file_path());
-        assert_eq!(3, retrieved_picture.image_data().unwrap().tags.len());
-        assert!(retrieved_picture.image_data().unwrap().tags.contains("foo"));
-        assert!(retrieved_picture.image_data().unwrap().tags.contains("bar"));
-        let result = database.update_picture_name(&new_path, &nine_colors_file_path());
-    }
-
-    #[test]
-    #[serial]
-    fn renaming_the_picture_is_impossible_if_it_creates_a_duplicate() {
-        let database = my_db();
-        let new_path = single_dot_file_path();
-        let result = database.update_picture_name(&nine_colors_file_path(), &new_path);
-        assert!(result.is_err());
     }
 }

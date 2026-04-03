@@ -39,7 +39,7 @@ pub fn copy_at_operation(file_path: &str, target_dir: &str) -> Operation {
 
 pub fn copy_to_operation(file_path: &str, target_file_path: &str) -> Operation {
     let source_path = PathBuf::from(file_path_as_retrieved(file_path));
-    let target_path = PathBuf::from(file_path_as_retrieved(&target_file_path));
+    let target_path = PathBuf::from(file_path_as_retrieved(target_file_path));
     Operation::Copy(source_path, target_path)
 }
 pub fn copy_to_renamed_operation(file_path: &str, target_name: &str) -> Operation {

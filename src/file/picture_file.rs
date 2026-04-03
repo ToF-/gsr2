@@ -14,7 +14,6 @@ use crate::model::picture::Picture;
 use crate::model::rank::Rank;
 use crate::model::thumbnail::create_thumbnail_file;
 use image::DynamicImage;
-use image::{GenericImageView, Pixel};
 use std::collections::HashSet;
 use std::fs;
 use std::fs::{copy, remove_file};
@@ -221,16 +220,6 @@ pub fn move_picture_files(file_path: &str, target_dir: &str) -> IOResult<u64> {
             })
         })
     })
-}
-pub fn read_pixels(path: &str) -> image::ImageResult<Vec<[u8; 4]>> {
-    let img = image::open(path)?;
-    let mut out = Vec::new();
-
-    for (_, _, p) in img.pixels() {
-        let rgba = p.to_rgba();
-        out.push(rgba.0);
-    }
-    Ok(out)
 }
 
 pub fn get_image_from_picture_file(file_path: &str) -> IOResult<DynamicImage> {
