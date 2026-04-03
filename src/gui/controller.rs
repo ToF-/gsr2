@@ -68,7 +68,13 @@ impl Controller {
                 cli.order = Some(Order::Name)
             }
         };
-        cli.cover = !args.all;
+        if config.cover {
+            if args.all {
+                cli.cover = false
+            } else {
+                cli.cover = true
+            }
+        };
         let mut repository = Repository::new(config.clone(), cli.clone(), false);
         match repository.initialize() {
             Ok(_) => {}
