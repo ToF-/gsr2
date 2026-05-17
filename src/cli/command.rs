@@ -147,15 +147,21 @@ pub fn execute_command(
                     println!("no pictures for this selection");
                     Ok(Status::Exit)
                 } else {
-                    println!("{} pictures", &gallery.len());
-                    if let Some(initial_position) = args.index {
-                        Ok(Status::Ready(initial_position))
-                    } else if let Some(file_path) = config.current_picture
-                        && let Some(initial_position) = gallery.find_file_path(&file_path)
-                    {
-                        Ok(Status::Ready(initial_position))
+                    if args.names {
+                        gallery.print();
+                        println!("{} pictures", &gallery.len());
+                        Ok(Status::Exit)
                     } else {
-                        Ok(Status::Ready(0))
+                        println!("{} pictures", &gallery.len());
+                        if let Some(initial_position) = args.index {
+                            Ok(Status::Ready(initial_position))
+                        } else if let Some(file_path) = config.current_picture
+                            && let Some(initial_position) = gallery.find_file_path(&file_path)
+                        {
+                            Ok(Status::Ready(initial_position))
+                        } else {
+                            Ok(Status::Ready(0))
+                        }
                     }
                 }
             }

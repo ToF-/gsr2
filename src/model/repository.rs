@@ -1,11 +1,11 @@
-use crate::file::database::RetrieveCriteria;
-use crate::file::operation::rename_picture;
 use crate::cli::args::Args;
 use crate::cli::command::Command;
 use crate::env::configuration::Configuration;
 use crate::file::database::Database;
+use crate::file::database::RetrieveCriteria;
 use crate::file::operation::execute;
 use crate::file::operation::move_picture;
+use crate::file::operation::rename_picture;
 use crate::file::paths::parent_directory;
 use crate::file::paths::timestamp_filename;
 use crate::file::picture_file::collect_picture_data;
@@ -515,7 +515,8 @@ impl Repository {
                 let picture = gallery.picture(index);
                 let operations = rename_picture(&picture.file_path(), target_name);
                 if operations.is_empty() {
-                    println!("no operation for rename of {} to {}",
+                    println!(
+                        "no operation for rename of {} to {}",
                         picture.file_path(),
                         target_name
                     );

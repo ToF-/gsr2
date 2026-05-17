@@ -12,7 +12,6 @@ pub struct Palette {
 }
 
 impl Palette {
-
     pub fn new(sample: Vec<Color>, count: usize) -> Self {
         Palette { sample, count }
     }

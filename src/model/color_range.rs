@@ -86,11 +86,11 @@ impl ColorRange {
                         false
                     }
                 } else if ratio <= -self.ratio {
-                        println!("{} {:.5} < {:.5} {}", index, ratio, -self.ratio, file_path);
-                        true
-                    } else {
-                        false
-                    }
+                    println!("{} {:.5} < {:.5} {}", index, ratio, -self.ratio, file_path);
+                    true
+                } else {
+                    false
+                }
             }
             Err(e) => {
                 eprintln!("{}", e);

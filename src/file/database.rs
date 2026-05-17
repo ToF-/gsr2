@@ -27,13 +27,13 @@ pub struct Database {
 }
 
 pub struct RetrieveCriteria {
-        pub selection_criteria: SelectionCriteria,
-        pub label: Option<String>,
-        pub extraction: Option<Vec<String>>,
-        pub filter: Option<String>,
-        pub pattern: Option<Regex>,
-        pub cover: bool,
-        pub parent_opt: Option<String>,
+    pub selection_criteria: SelectionCriteria,
+    pub label: Option<String>,
+    pub extraction: Option<Vec<String>>,
+    pub filter: Option<String>,
+    pub pattern: Option<Regex>,
+    pub cover: bool,
+    pub parent_opt: Option<String>,
 }
 
 impl Database {
@@ -414,16 +414,22 @@ impl Database {
         retrieve_criteria: RetrieveCriteria,
     ) -> IOResult<Vec<Picture>> {
         self.retrieve_all_parent_dirs().and_then(|parent_dirs| {
-            match self.rusqlite_retrieve_all_pictures(retrieve_criteria.cover, retrieve_criteria.parent_opt) {
+            match self.rusqlite_retrieve_all_pictures(
+                retrieve_criteria.cover,
+                retrieve_criteria.parent_opt,
+            ) {
                 Ok(picture_map) => match self.rusqlite_retrieve_all_tags() {
                     Ok(tag_map) => {
-                        let extraction: HashSet<String> = if let Some(list) = retrieve_criteria.extraction {
-                            list.iter().cloned().collect()
-                        } else {
-                            HashSet::new()
-                        };
+                        let extraction: HashSet<String> =
+                            if let Some(list) = retrieve_criteria.extraction {
+                                list.iter().cloned().collect()
+                            } else {
+                                HashSet::new()
+                            };
                         let mut pictures: Vec<Picture> = vec![];
-                        let color_range_opt = retrieve_criteria.filter.map(|spec| ColorRange::from_string(&spec));
+                        let color_range_opt = retrieve_criteria
+                            .filter
+                            .map(|spec| ColorRange::from_string(&spec));
                         let color_range: ColorRange = match color_range_opt {
                             Some(Ok(ref r)) => r.clone(),
                             Some(Err(_)) | None => ColorRange::default(),
@@ -453,17 +459,24 @@ impl Database {
                                 ..image_data.clone()
                             };
                             if !retrieve_criteria.selection_criteria.is_empty()
-                                && !retrieve_criteria.selection_criteria.matches(new_tags.clone())
+                                && !retrieve_criteria
+                                    .selection_criteria
+                                    .matches(new_tags.clone())
                             {
                                 continue;
                             };
                             if retrieve_criteria.label.clone().is_some()
-                                && *retrieve_criteria.label.as_ref().unwrap() != new_image_data.label()
+                                && *retrieve_criteria.label.as_ref().unwrap()
+                                    != new_image_data.label()
                             {
                                 continue;
                             };
                             if retrieve_criteria.pattern.clone().is_some()
-                                && !retrieve_criteria.pattern.as_ref().unwrap().is_match(file_path)
+                                && !retrieve_criteria
+                                    .pattern
+                                    .as_ref()
+                                    .unwrap()
+                                    .is_match(file_path)
                             {
                                 continue;
                             };
@@ -489,12 +502,12 @@ impl Database {
     pub fn retrieve_all_pictures_with_parent(&self, parent_dir: &str) -> IOResult<Vec<Picture>> {
         let retrieve_criteria = RetrieveCriteria {
             selection_criteria: SelectionCriteria::empty(),
-        label: None,
-        extraction: None,
-        filter: None,
-        pattern: None,
-        cover: false,
-        parent_opt: Some(parent_dir.to_string()),
+            label: None,
+            extraction: None,
+            filter: None,
+            pattern: None,
+            cover: false,
+            parent_opt: Some(parent_dir.to_string()),
         };
         self.retrieve_all_pictures(retrieve_criteria)
     }
@@ -624,6 +637,7 @@ pub mod tests {
             index: None,
             thumbnails: false,
             order: Some(Order::Name),
+            names: false,
             r#move: None,
             label: None,
             extraction: None,

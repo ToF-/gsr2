@@ -183,6 +183,10 @@ impl Controller {
                 self.process_picture_clicked(button, col, row);
                 self.set_slideshow_off()
             }
+            Event::PictureDoubleClicked { button, col, row } => {
+                self.process_picture_double_clicked(button, col, row);
+                self.set_slideshow_off()
+            }
         }
     }
 
@@ -203,6 +207,42 @@ impl Controller {
             self.navigator
                 .move_towards(Direction::Index { value: index });
             if button == 3 {
+                self.toggle_selected();
+                self.main_window().set_pictures(self);
+                self.main_window().set_title(self);
+            }
+        }
+        self.set_label_text_for_current_picture();
+    }
+
+    fn process_picture_double_clicked(&mut self, button: u32, col: i32, row: i32) {
+        self.main_window()
+            .set_label_text_for_current_picture(self, None);
+        if let Some(index) = self
+            .navigator
+            .position_from_coords(row as usize, col as usize)
+            && self.navigator.can_move(Direction::Index { value: index })
+        {
+            self.navigator
+                .move_towards(Direction::Index { value: index });
+            if button == 1 {
+                let main_window = self.main_window();
+                main_window.set_label_text_for_current_picture(self, None);
+                let old_slideshow_on = self.state().slideshow_on();
+                self.process_control(&Control::SetRange);
+                if self.state.slideshow_on() == old_slideshow_on {
+                    self.set_slideshow_off();
+                    if self.state().single_view() != self.main_window().single_view() {
+                        main_window.toggle_view_stack(self);
+                    };
+                    if self.navigator.page_changed() {
+                        self.main_window().set_pictures(self);
+                        self.navigator.set_page_unchanged();
+                    };
+                    self.set_label_text_for_current_picture();
+                    self.main_window().set_title(self);
+                }
+            } else if button == 3 {
                 self.toggle_selected();
                 self.main_window().set_pictures(self);
                 self.main_window().set_title(self);
@@ -403,7 +443,7 @@ impl Controller {
                     println!("{}", err);
                 }
             }
-        };
+        }
         match self.repository.initialize_for_args(&self.args) {
             Ok(()) => {
                 self.reload();
@@ -1180,7 +1220,8 @@ impl Controller {
 
     fn extract_filenames(&mut self) {
         if self.navigator.has_selected() {
-            let _ = self.repository
+            let _ = self
+                .repository
                 .extract_file_names(&self.navigator.selection());
         }
     }

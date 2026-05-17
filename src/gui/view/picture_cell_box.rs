@@ -1,5 +1,5 @@
 use crate::gui::controller::RcController;
-use crate::gui::event::Event::PictureClicked;
+use crate::gui::event::Event::{PictureClicked, PictureDoubleClicked};
 use gtk::Align;
 use gtk::Orientation;
 use gtk::glib::clone;
@@ -34,16 +34,16 @@ fn make_gesture_click(
         row,
         #[strong]
         controller_rc,
-        move |_, _, _, _| {
-            if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-                controller.process_event(
-                    PictureClicked {
-                        button,
-                        col,
-                        row,
-                    },
-                    &controller_rc,
-                );
+        move |_, n_pressed, _, _| {
+            if n_pressed == 1 {
+                if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+                    controller.process_event(PictureClicked { button, col, row }, &controller_rc);
+                }
+            } else if n_pressed == 2 {
+                if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+                    controller
+                        .process_event(PictureDoubleClicked { button, col, row }, &controller_rc);
+                }
             }
         }
     ));

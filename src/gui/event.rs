@@ -17,4 +17,9 @@ pub enum Event {
         col: i32,
         row: i32,
     },
+    PictureDoubleClicked {
+        button: u32,
+        col: i32,
+        row: i32,
+    },
 }

@@ -76,6 +76,10 @@ pub struct Args {
     #[arg(long, value_name = "DIRECTORY")]
     pub r#move: Option<String>,
 
+    /// only display picture names
+    #[arg(short, long)]
+    pub names: bool,
+
     /// display pictures in order
     #[arg(short, long, value_name = "ORDER", ignore_case(true))]
     pub order: Option<Order>,
@@ -84,7 +88,7 @@ pub struct Args {
     #[arg(short, long, value_name = "PATTERN")]
     pub pattern: Option<String>,
 
-    /// select only picture having at all their tags in TAGS (e.g "foo,bar")
+    /// select only picture having all their tags in TAGS (e.g "foo,bar")
     #[arg(short, long, value_name = "TAGS", conflicts_with = "select")]
     pub restrict: Option<String>,
 
@@ -128,15 +132,16 @@ impl Args {
             slideshow_delay(args.slideshow, "slideshow delay", DEFAULT_SLIDESHOW_DELAY);
 
         if let Some(Command::Extract { extract_name: _ }) = args.command.clone()
-            && let Some(ref color_range_spec) = args.filter {
-                match ColorRange::from_string(color_range_spec) {
-                    Ok(_) => {}
-                    Err(e) => {
-                        eprintln!("{} ??", color_range_spec);
-                        return Err(Error::other(e));
-                    }
+            && let Some(ref color_range_spec) = args.filter
+        {
+            match ColorRange::from_string(color_range_spec) {
+                Ok(_) => {}
+                Err(e) => {
+                    eprintln!("{} ??", color_range_spec);
+                    return Err(Error::other(e));
                 }
-            };
+            }
+        };
         if let Some(ref color_range_spec) = args.filter {
             if args.command.is_none() {
                 match ColorRange::from_string(color_range_spec) {

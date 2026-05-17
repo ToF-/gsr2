@@ -110,8 +110,8 @@ pub fn move_picture(file_path: &str, target_dir: &str) -> Vec<Operation> {
         let mut moves = move_operations(file_path, target_dir);
         operations.append(&mut moves);
         operations.push(Operation::MovePictureData(
-                file_path_as_stored(file_path),
-                target_file,
+            file_path_as_stored(file_path),
+            target_file,
         ));
         operations
     }
@@ -133,9 +133,10 @@ pub fn rename_picture(file_path: &str, target_name: &str) -> Vec<Operation> {
         operations.append(&mut copies);
         operations.append(&mut deletions);
         operations.push(Operation::MovePictureData(
-                file_path_as_stored(file_path),
-                target_file));
-            operations
+            file_path_as_stored(file_path),
+            target_file,
+        ));
+        operations
     }
 }
 
