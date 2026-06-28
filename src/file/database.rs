@@ -638,6 +638,7 @@ pub mod tests {
             thumbnails: false,
             order: Some(Order::Name),
             names: false,
+            folders: false,
             r#move: None,
             label: None,
             extraction: None,

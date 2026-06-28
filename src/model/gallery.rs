@@ -1,3 +1,4 @@
+use crate::file::paths::parent_directory;
 use crate::file::picture_file::{get_all_picture_file_paths, get_picture_file_path};
 use crate::model::cover::cover_sort_key;
 use crate::model::label::sort_key;
@@ -7,6 +8,7 @@ use crate::model::selection_criteria::SelectionCriteria;
 use rand::prelude::SliceRandom;
 use rand::rng;
 use std::cmp::Reverse;
+use std::collections::BTreeSet;
 use std::io::Result;
 
 #[derive(Debug, Clone)]
@@ -169,9 +171,19 @@ impl Gallery {
             .position(|picture| picture.file_path() == file_path)
     }
 
-    pub fn print(&self) {
-        for picture in self.pictures.clone() {
-            println!("{}", picture.file_path())
+    pub fn print(&self, folders_only: bool) {
+        if folders_only {
+            let folders: BTreeSet<String> = self
+                .pictures
+                .clone()
+                .iter()
+                .map(|picture| parent_directory(&picture.file_path()).unwrap())
+                .collect();
+            folders.iter().for_each(|name| println!("{name}"));
+        } else {
+            for picture in self.pictures.clone() {
+                println!("{}", picture.file_path())
+            }
         }
     }
 }
@@ -196,7 +208,7 @@ mod tests {
             .load_from_directory(&test_directory())
             .expect("can't load from directory");
         gallery.sort_by(Order::Name);
-        gallery.print();
+        gallery.print(false);
         assert_eq!(4, gallery.len());
         assert_eq!(
             String::from(&large_picture_file_path()),

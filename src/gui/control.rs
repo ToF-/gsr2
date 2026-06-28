@@ -195,10 +195,7 @@ pub fn default_controls() -> Controls {
             (String::from("period"), Mode::View),
             Control::ToggleSingleView,
         ),
-        (
-            (String::from("h"), Mode::View),
-            Control::ToggleSingleView,
-        ),
+        ((String::from("h"), Mode::View), Control::ToggleSingleView),
         (
             (String::from("dead_circumflex"), Mode::View),
             Control::ToggleSingleView,

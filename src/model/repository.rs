@@ -396,14 +396,14 @@ impl Repository {
         let result = match directory {
             Some(path) => match self.pictures_in_directory(&path) {
                 Ok(gallery) => {
-                    gallery.print();
+                    gallery.print(false);
                     Ok(())
                 }
                 Err(e) => Err(e),
             },
             None => match self.gallery_rc.try_borrow() {
                 Ok(gallery) => {
-                    gallery.print();
+                    gallery.print(false);
                     Ok(())
                 }
                 Err(e) => Err(IOError::other(e)),

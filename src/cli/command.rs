@@ -148,8 +148,10 @@ pub fn execute_command(
                     Ok(Status::Exit)
                 } else {
                     if args.names {
-                        gallery.print();
-                        println!("{} pictures", &gallery.len());
+                        gallery.print(false);
+                        Ok(Status::Exit)
+                    } else if args.folders {
+                        gallery.print(true);
                         Ok(Status::Exit)
                     } else {
                         println!("{} pictures", &gallery.len());
