@@ -1,3 +1,5 @@
+use std::cmp::Ordering;
+use std::collections::HashMap;
 use crate::file::paths::parent_directory;
 use crate::file::picture_file::{get_all_picture_file_paths, get_picture_file_path};
 use crate::model::cover::cover_sort_key;
@@ -185,6 +187,40 @@ impl Gallery {
                 println!("{}", picture.file_path())
             }
         }
+    }
+
+    pub fn print_tags(&self) {
+        let mut tags: HashMap<(String, String), usize> = HashMap::new();
+        for picture in self.pictures.clone() {
+            let parent_dir = parent_directory(&picture.file_path()).unwrap();
+            for tag in picture.tags() {
+                let key = (parent_dir.clone(), tag);
+                tags.entry(key).and_modify(|count| *count += 1).or_insert(1);
+            }
+        };
+        let mut tags_rel: Vec<(String, String, usize)> = Vec::new();
+        for ((parent_dir, tag), val) in tags.iter() {
+            let tuple = (parent_dir.to_string(), tag.to_string(), *val);
+            tags_rel.push(tuple);
+        }
+        tags_rel.sort_by(|(p_a, t_a, v_a), (p_b, t_b, v_b)|
+            match p_a.cmp(p_b) {
+                Ordering::Equal => match v_b.cmp(v_a) {
+                    Ordering::Equal => t_a.cmp(t_b),
+                    ord => ord,
+                },
+                ord => ord,
+            });
+        let mut current_dir: String = String::new();
+        for (parent_dir, tag, count) in tags_rel {
+            if current_dir != parent_dir {
+                print!("\n{} {}:{}", parent_dir, tag, count);
+                current_dir = parent_dir;
+            } else {
+                print!(" {}:{}", tag, count);
+            }
+        }
+        println!();
     }
 }
 #[cfg(test)]

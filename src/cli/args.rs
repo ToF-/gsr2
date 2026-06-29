@@ -84,6 +84,10 @@ pub struct Args {
     #[arg(long)]
     pub folders: bool,
 
+    /// only display folder tags
+    #[arg(long)]
+    pub tags: bool,
+
     /// display pictures in order
     #[arg(short, long, value_name = "ORDER", ignore_case(true))]
     pub order: Option<Order>,

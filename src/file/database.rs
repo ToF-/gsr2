@@ -639,6 +639,7 @@ pub mod tests {
             order: Some(Order::Name),
             names: false,
             folders: false,
+            tags: false,
             r#move: None,
             label: None,
             extraction: None,

@@ -153,6 +153,9 @@ pub fn execute_command(
                     } else if args.folders {
                         gallery.print(true);
                         Ok(Status::Exit)
+                    } else if args.tags {
+                        gallery.print_tags();
+                        Ok(Status::Exit)
                     } else {
                         println!("{} pictures", &gallery.len());
                         if let Some(initial_position) = args.index {
