@@ -146,31 +146,29 @@ pub fn execute_command(
                 if gallery.is_empty() {
                     println!("no pictures for this selection");
                     Ok(Status::Exit)
+                } else if args.names {
+                    gallery.print(false);
+                    Ok(Status::Exit)
+                } else if args.folders {
+                    gallery.print(true);
+                    Ok(Status::Exit)
+                } else if args.tags {
+                    gallery.print_tags();
+                    Ok(Status::Exit)
                 } else {
-                    if args.names {
-                        gallery.print(false);
-                        Ok(Status::Exit)
-                    } else if args.folders {
-                        gallery.print(true);
-                        Ok(Status::Exit)
-                    } else if args.tags {
-                        gallery.print_tags();
-                        Ok(Status::Exit)
+                    println!("{} pictures", &gallery.len());
+                    if let Some(initial_position) = args.index {
+                        Ok(Status::Ready(initial_position))
+                    } else if let Some(file_path) = config.current_picture
+                        && let Some(initial_position) = gallery.find_file_path(&file_path)
+                    {
+                        Ok(Status::Ready(initial_position))
                     } else {
-                        println!("{} pictures", &gallery.len());
-                        if let Some(initial_position) = args.index {
-                            Ok(Status::Ready(initial_position))
-                        } else if let Some(file_path) = config.current_picture
-                            && let Some(initial_position) = gallery.find_file_path(&file_path)
-                        {
-                            Ok(Status::Ready(initial_position))
-                        } else {
-                            Ok(Status::Ready(0))
-                        }
+                        Ok(Status::Ready(0))
                     }
                 }
-            }
-            Err(e) => Err(IOError::other(e)),
-        },
-    }
+        }
+        Err(e) => Err(IOError::other(e)),
+    },
+}
 }

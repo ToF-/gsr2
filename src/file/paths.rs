@@ -7,6 +7,7 @@ use std::env::home_dir;
 use std::ffi::OsStr;
 use std::io::{Error, ErrorKind, Result};
 use std::path::{Path, PathBuf};
+use crate::env::configuration::CONFIGURATION;
 
 pub fn home_directory() -> String {
     home_dir()
@@ -14,6 +15,12 @@ pub fn home_directory() -> String {
         .expect("can't access to home_dir")
 }
 
+pub fn base_directory() -> String {
+    match CONFIGURATION.get() {
+        None  => "CONFIG_FILE_NOT_READ".to_string(),
+        Some(configuration) => configuration.base_dir.clone(),
+    }
+}
 pub fn check_path_exists(path: &PathBuf) -> Result<&PathBuf> {
     if path.exists() {
         Ok(path)
@@ -170,25 +177,39 @@ pub fn thumbnail_names_from(file_name: &str) -> Vec<String> {
 }
 
 pub fn file_path_as_stored(source: &str) -> String {
+    let base = base_directory();
     let home = home_directory();
-    if !source.starts_with(&home) {
-        return source.to_string();
+    if source.starts_with(&home) {
+        let home_iter = home.chars();
+        let mut source_iter = source.chars();
+        for _ in home_iter {
+            source_iter.next();
+        }
+        format!("~{}", source_iter.as_str())
+    } else if source.starts_with(&base) {
+        let base_iter = base.chars();
+        let mut source_iter = source.chars();
+        for _ in base_iter {
+            source_iter.next();
+        }
+        format!("%{}", source_iter.as_str())
+    } else {
+        source.to_string()
     }
-    let home_iter = home.chars();
-    let mut source_iter = source.chars();
-    for _ in home_iter {
-        source_iter.next();
-    }
-    format!("~{}", source_iter.as_str())
 }
 
 pub fn file_path_as_retrieved(source: &str) -> String {
-    if !source.starts_with("~") {
-        return source.to_string();
+    if source.starts_with("~") {
+        let mut source_iter = source.chars();
+        source_iter.next();
+        format!("{}{}", home_directory(), source_iter.as_str())
+    } else if source.starts_with("%") {
+        let mut source_iter = source.chars();
+        source_iter.next();
+        format!("{}{}", base_directory(), source_iter.as_str())
+    } else {
+        source.to_string()
     }
-    let mut source_iter = source.chars();
-    source_iter.next();
-    format!("{}{}", home_directory(), source_iter.as_str())
 }
 
 pub fn renamed_file_path(file_path: &str, name: &str) -> String {
@@ -299,7 +320,14 @@ mod tests {
     }
 
     #[test]
-    fn file_path_starting_with_tilde_are_developped_as_retrieved() {
+    fn file_path_starting_with_base_dir_are_percented_as_stored() {
+            let base = base_directory();
+            let file_path = format!("{base}/file.jpg");
+            let expected = format!("%/file.jpg");
+            assert_eq!(expected, file_path_as_stored(&file_path))
+    }
+    #[test]
+    fn file_path_starting_with_tilde_are_developped_from_home_dir_as_retrieved() {
         if let Some(home_dir) = env::home_dir() {
             let home = home_dir.display().to_string();
             let file_path = "~/test_file/~/.jpg";
@@ -309,13 +337,20 @@ mod tests {
     }
 
     #[test]
-    fn file_path_not_starting_with_tilde_are_not_developped_as_retrieved() {
-        if let Some(home) = env::home_dir() {
+    fn file_path_starting_with_percent_are_developped_from_base_dir_as_retrieved() {
+        let base = base_directory();
+        let file_path = "%/test_file/foo.jpg";
+        let expected = format!("{base}/test_file/foo.jpg");
+        assert_eq!(expected, file_path_as_retrieved(&file_path));
+    }
+
+    #[test]
+    fn file_path_not_starting_with_tilde_nor_percent_are_not_developped_as_retrieved() {
+        if let Some(_home) = env::home_dir() {
             let file_path = "/other/~/test_file.jpg";
             assert_eq!(file_path, file_path_as_retrieved(&file_path));
         }
     }
-
     #[test]
     fn having_parent_directory() {
         assert_eq!(
@@ -332,12 +367,17 @@ mod tests {
         );
         assert_eq!(None, grand_parent_directory(&format!("foo.jpg")))
     }
+    #[test]
+    fn base_directory_should_be_set_via_config_file() {
+        assert!("CONFIG_FILE_NOT_READ".to_string() != base_directory());
+        assert_eq!("testdata", base_directory());
+    }
 }
 
 #[cfg(test)]
 
 pub mod test {
-    use super::*;
+    
     use std::env::current_dir;
 
     pub fn current_directory() -> String {

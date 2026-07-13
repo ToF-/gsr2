@@ -1,3 +1,4 @@
+use std::sync::OnceLock;
 use crate::env::default_values::{CONFIG_FILE_DEFAULT, CONFIG_FILE_VARIABLE};
 use crate::file::paths::home_directory;
 use crate::file_exists;
@@ -20,7 +21,10 @@ pub struct Configuration {
     pub current_pictures_per_row: Option<usize>,
     pub current_order: Option<Order>,
     pub cover: bool,
+    pub base_dir: String,
 }
+
+pub static CONFIGURATION: OnceLock<Configuration> = OnceLock::new();
 
 impl Configuration {
     pub fn from_env() -> Result<Self> {
@@ -58,8 +62,11 @@ fn get_configuration() -> Result<Configuration> {
     };
     println!("configuration: {}", config_file_location());
     match fs::read_to_string(config_file_location()) {
-        Ok(content) => match toml::from_str(&content) {
-            Ok(config) => Ok(config),
+        Ok(content) => match toml::from_str::<Configuration>(&content) {
+            Ok(config) => {
+                CONFIGURATION.set(config.clone());
+                Ok(config)
+            },
             Err(err) => Err(std::io::Error::other(err)),
         },
         Err(err) => Err(err),
@@ -84,6 +91,7 @@ pub mod tests {
             cover: false,
             current_order: Some(Order::Name),
             current_pictures_per_row: Some(1),
+            base_dir: format!("{}/{}", current_directory(), TEST_DATA_DIR),
         }
     }
 }

@@ -624,6 +624,7 @@ pub mod tests {
             current_picture: None,
             current_order: Some(Order::Name),
             current_pictures_per_row: Some(1),
+            base_dir: format!("{}/{}", current_directory(), TEST_DATA_DIR),
         };
         Args::parse_and_check(cmd, &config)
     }
