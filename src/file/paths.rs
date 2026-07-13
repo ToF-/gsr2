@@ -179,20 +179,20 @@ pub fn thumbnail_names_from(file_name: &str) -> Vec<String> {
 pub fn file_path_as_stored(source: &str) -> String {
     let base = base_directory();
     let home = home_directory();
-    if source.starts_with(&home) {
-        let home_iter = home.chars();
-        let mut source_iter = source.chars();
-        for _ in home_iter {
-            source_iter.next();
-        }
-        format!("~{}", source_iter.as_str())
-    } else if source.starts_with(&base) {
+    if source.starts_with(&base) {
         let base_iter = base.chars();
         let mut source_iter = source.chars();
         for _ in base_iter {
             source_iter.next();
         }
         format!("%{}", source_iter.as_str())
+    } else if source.starts_with(&home) {
+        let home_iter = home.chars();
+        let mut source_iter = source.chars();
+        for _ in home_iter {
+            source_iter.next();
+        }
+        format!("~{}", source_iter.as_str())
     } else {
         source.to_string()
     }
