@@ -70,7 +70,8 @@ impl Database {
             Sample BLOB,                               \n\
             ColorCount INTEGER,                        \n\
             Cover BOOLEAN,
-            Score INTEGER NOT NULL DEFAULT 0);", // ""
+            Score INTEGER NOT NULL DEFAULT 0,          \n\
+            Category TEXT );", // ""
                 params![],
             )
             .and_then(|_| {
@@ -101,8 +102,9 @@ impl Database {
              Sample,                      \n\
              ColorCount,                  \n\
              Cover,                       \n\
-             Score)                       \n\
-             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9);", // ""
+             Score,                       \n\
+             Category)                    \n\
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10);", // ""
                 params![
                     file_path_as_stored(&picture.file_path()),
                     image_data.label(),
@@ -113,6 +115,7 @@ impl Database {
                     image_data.palette.count(),
                     cover_to_bool(image_data.cover()),
                     image_data.score,
+                    image_data.category,
                 ],
             )
             .map(|count| {
@@ -152,7 +155,8 @@ impl Database {
              Sample = ?6,                 \n\
              ColorCount =?7,              \n\
              Cover = ?8,                  \n\
-             Score = ?9                   \n\
+             Score = ?9,                  \n\
+             Category = ?10               \n\
                WHERE FilePath = ?1;", // ""
                 params![
                     file_path_as_stored(&picture.file_path()),
@@ -164,6 +168,7 @@ impl Database {
                     image_data.palette.count(),
                     cover_to_bool(image_data.cover),
                     image_data.score,
+                    image_data.category,
                 ],
             )
             .and_then(|_| {
@@ -343,7 +348,8 @@ impl Database {
              Sample,                    \n\
              ColorCount,                \n\
              Cover,                     \n\
-             Score                      \n\
+             Score,                     \n\
+             Category                   \n\
              FROM Picture               \n\
              WHERE FilePath = ?1;", // ""
                 params![file_path_as_stored(file_path)],
@@ -396,7 +402,8 @@ impl Database {
              Sample,                    \n\
              ColorCount,                \n\
              Cover,                     \n\
-             Score                      \n\
+             Score,                     \n\
+             Category                   \n\
              FROM Picture              \n"; // "
 
     // select * from picture where concat(substring(filepath,1,23), substring(filepath,24)) = filepath ;
@@ -529,6 +536,7 @@ impl Database {
         let color_count: usize = row.get(6).expect("can't get column ColorCount");
         let cover = row.get(7).expect("can't get column Cover");
         let score = row.get(8).expect("can't get column Score");
+        let category: Option<String> = row.get(9).expect("can't get column Category");
         let mut picture = Picture::new_with_label(&file_path_as_retrieved, &label);
         let mut palette = Palette::new(vec![], color_count);
         palette.set_sample_from_array(sample_array);
@@ -541,6 +549,7 @@ impl Database {
             tags: HashSet::new(),
             cover: bool_to_cover(cover),
             score,
+            category,
         };
         picture.set_image_data(image_data);
         Ok(picture)
@@ -720,6 +729,7 @@ pub mod tests {
             ),
             cover: None,
             tags: HashSet::from([String::from("foo"), String::from("bar")]),
+            category: Some(String::from("foobar")),
         };
         picture.set_image_data(image_data.clone());
         assert_eq!(100, picture.image_data().unwrap().palette().count());

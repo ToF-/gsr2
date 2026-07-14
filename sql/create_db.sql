@@ -7,7 +7,8 @@ CREATE TABLE IF NOT EXISTS Picture (
     Sample BLOB,
     ColorCount INTEGER,
     Cover BOOLEAN,
-    Score INTEGER NOT NULL DEFAULT 0);
+    Score INTEGER NOT NULL DEFAULT 0,
+    Category TEXT);
 
 CREATE TABLE IF NOT EXISTS Tag (
     FilePath TEXT NOT NULL,

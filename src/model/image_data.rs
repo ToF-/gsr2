@@ -38,6 +38,7 @@ pub struct ImageData {
     pub cover: Cover,
     pub tags: Tags,
     pub score: u32,
+    pub category: Option<String>,
 }
 
 impl ImageData {
@@ -51,6 +52,7 @@ impl ImageData {
             cover: None,
             tags: HashSet::new(),
             score: 0,
+            category: None,
         }
     }
     pub fn new_with_label(label: &str) -> Self {
@@ -63,6 +65,7 @@ impl ImageData {
             cover: None,
             tags: HashSet::new(),
             score: 0,
+            category: None,
         }
     }
 
@@ -76,6 +79,7 @@ impl ImageData {
             cover: None,
             tags: HashSet::new(),
             score: 0,
+            category: None,
         })
     }
 

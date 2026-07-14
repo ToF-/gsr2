@@ -1,0 +1,1 @@
+ALTER TABLE Picture ADD COLUMN Category TEXT ;
