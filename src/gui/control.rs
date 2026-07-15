@@ -3,6 +3,7 @@ use std::collections::HashMap;
 
 #[derive(PartialEq, Eq, Hash, Clone, Copy, Debug)]
 pub enum Control {
+    Categorize,
     CopyTemp,
     ConfirmEdition,
     CancelEdition,
@@ -53,6 +54,7 @@ pub enum Control {
     MovePictureToLabel,
     Label,
     Unlabel,
+    Uncategorize,
     AddTag,
     RemoveTag,
     Rename,
@@ -172,7 +174,9 @@ pub fn default_controls() -> Controls {
         ((String::from("X"), Mode::View), Control::DeletePicture),
         ((String::from("S"), Mode::View), Control::ToggleSlideShow),
         ((String::from("l"), Mode::View), Control::Label),
+        ((String::from("c"), Mode::View), Control::Categorize),
         ((String::from("L"), Mode::View), Control::Unlabel),
+        ((String::from("C"), Mode::View), Control::Uncategorize),
         ((String::from("N"), Mode::View), Control::Rename),
         ((String::from("asterisk"), Mode::View), Control::AddTag),
         ((String::from("slash"), Mode::View), Control::RemoveTag),

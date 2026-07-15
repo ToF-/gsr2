@@ -642,6 +642,8 @@ impl Controller {
             Control::Information => self.information(),
             Control::ToggleInformation => self.toggle_information(),
             Control::AddTag => self.add_tag(),
+            Control::Categorize => self.categorize(),
+            Control::Uncategorize => self.uncategorize_selected_pictures(),
             Control::RemoveTag => self.remove_tag(),
             Control::Label => self.label(),
             Control::Unlabel => self.unlabel_selected_pictures(),
@@ -863,6 +865,18 @@ impl Controller {
     }
 
     fn categorize_selected_picture(&mut self, category: &str) {
+        if self.navigator.has_selected() {
+            for index in 0..self.navigator.limit() {
+                if self.navigator.is_selected(index) {
+                    self.categorize_picture_at_index(index, Some(category.to_string()));
+                }
+            }
+            self.navigator.unselect_all();
+        } else {
+            self.categorize_picture_at_index(self.navigator().position(), Some(category.to_string()));
+        };
+        self.navigator.set_page_changed();
+        self.last_action = Action::Unlabel;
     }
 
     fn categorize(&mut self) {
@@ -870,6 +884,21 @@ impl Controller {
             self.editor.begin(&self.main_window(), EntryKind::Categorize, None);
             self.state.set_mode(Mode::Editing);
         }
+    }
+
+    fn uncategorize_selected_pictures(&mut self) {
+        if self.navigator.has_selected() {
+            for index in 0..self.navigator.limit() {
+                if self.navigator.is_selected(index) {
+                    self.categorize_picture_at_index(index, None);
+                }
+            }
+            self.navigator.unselect_all();
+        } else {
+            self.categorize_picture_at_index(self.navigator().position(), None)
+        };
+        self.navigator.set_page_changed();
+        self.last_action = Action::Unlabel;
     }
     fn rank_selected_pictures(&mut self, rank: Rank) {
         if self.navigator.has_selected() {
@@ -1357,5 +1386,9 @@ impl Controller {
         } else {
             _ = self.scores.insert(file_path.to_string(), 1);
         };
+    }
+
+    fn categorize_picture_at_index(&mut self, index: usize, category_opt: Option<String>) {
+        println!("categorized {:?}", category_opt);
     }
 }
