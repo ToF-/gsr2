@@ -1,4 +1,3 @@
-use crate::gui::selector::Selector;
 use crate::cli::args::Args;
 use crate::cli::command::Command;
 use crate::env::configuration::Configuration;
@@ -12,6 +11,7 @@ use crate::gui::entry_kind::EntryKind;
 use crate::gui::event::Event;
 use crate::gui::mode::Mode;
 use crate::gui::navigator::Navigator;
+use crate::gui::selector::Selector;
 use crate::gui::state::State;
 use crate::gui::view::main_window::{LEFT_PANE, MainWindow};
 use crate::model::action::Action;
@@ -342,7 +342,6 @@ impl Controller {
                     }
                     self.set_opacity_for_current_picture(1.00);
                 }
-
             }
             Mode::Editing => {
                 self.editor.process(key);

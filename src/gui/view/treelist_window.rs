@@ -1,16 +1,16 @@
-use gtk::Align;
-use gtk::CssProvider;
-use gtk::prelude::BoxExt;
-#[allow(deprecated)]
-use gtk::prelude::StyleContextExt;
-use crate::env::default_values::{TREELIST_WINDOW_HEIGHT, TREELIST_WINDOW_WIDTH};
-use gtk::glib::Propagation;
 use crate::RcController;
 use crate::clone;
+use crate::env::default_values::{TREELIST_WINDOW_HEIGHT, TREELIST_WINDOW_WIDTH};
 use crate::gui::event::Event;
-use gtk::prelude::GtkWindowExt;
-use gtk::prelude::WidgetExt;
+use gtk::Align;
+use gtk::CssProvider;
 use gtk::Orientation;
+use gtk::glib::Propagation;
+use gtk::prelude::BoxExt;
+use gtk::prelude::GtkWindowExt;
+#[allow(deprecated)]
+use gtk::prelude::StyleContextExt;
+use gtk::prelude::WidgetExt;
 
 #[derive(Clone, Debug)]
 pub struct TreeListWindow {
@@ -65,11 +65,9 @@ impl TreeListWindow {
             .default_height(TREELIST_WINDOW_HEIGHT)
             .transient_for(application_window)
             .build();
-            window.set_child(Some(&selector_box));
+        window.set_child(Some(&selector_box));
         Self::attach_key_pressed_event_handler(&scrolled_window, controller_rc);
-        TreeListWindow {
-            window: window,
-        }
+        TreeListWindow { window: window }
     }
     pub fn popup(&self) {
         self.window.present()

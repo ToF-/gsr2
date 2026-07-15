@@ -1,6 +1,6 @@
 pub mod action;
-pub mod category;
 pub mod catalog;
+pub mod category;
 pub mod color;
 pub mod color_range;
 pub mod cover;

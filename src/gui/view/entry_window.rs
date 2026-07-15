@@ -6,6 +6,7 @@ use crate::gui::event::Event;
 use crate::gui::mode::Mode;
 use gtk::Align;
 use gtk::CssProvider;
+use gtk::Orientation;
 use gtk::glib::timeout_add_local;
 use gtk::glib::{ControlFlow, Propagation};
 use gtk::prelude::BoxExt;
@@ -15,7 +16,6 @@ use gtk::prelude::GtkWindowExt;
 use gtk::prelude::StyleContextExt;
 use gtk::prelude::WidgetExt;
 use std::time::Duration;
-use gtk::Orientation;
 
 #[derive(Clone, Debug)]
 pub struct EntryWindow {

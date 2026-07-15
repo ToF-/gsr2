@@ -1,10 +1,10 @@
-use crate::gui::control::Control;
-use crate::gui::control::default_controls;
-use crate::gui::control::Controls;
-use gtk::gdk::Key;
-use crate::gui::mode::Mode;
 use crate::MainWindow;
+use crate::gui::control::Control;
+use crate::gui::control::Controls;
+use crate::gui::control::default_controls;
+use crate::gui::mode::Mode;
 use crate::gui::view::treelist_window::TreeListWindow;
+use gtk::gdk::Key;
 
 #[derive(Clone, Debug)]
 pub struct Selector {
@@ -38,7 +38,7 @@ impl Selector {
             Some(key_name) => match self.controls.get(&(key_name.to_string(), Mode::Selecting)) {
                 Some(Control::CancelSelection) => self.cancel(),
                 Some(Control::ConfirmSelection) => self.enter(),
-                Some(_) | None => {},
+                Some(_) | None => {}
             },
         }
     }
