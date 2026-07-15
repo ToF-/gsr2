@@ -142,6 +142,12 @@ impl Picture {
         self.set_image_data(new_image_data);
     }
 
+    pub fn set_category(&mut self, category_opt: Option<String>) {
+        let mut new_image_data = self.image_data().unwrap_or_default();
+        new_image_data.set_category(category_opt);
+        self.set_image_data(new_image_data);
+    }
+
     pub fn toggle_cover(&mut self, dir_count: usize) {
         let mut new_image_data = self.image_data().unwrap_or_default();
         new_image_data.toggle_cover(dir_count);

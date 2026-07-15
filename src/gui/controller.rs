@@ -1,3 +1,4 @@
+use crate::model::category::Category;
 use crate::cli::args::Args;
 use crate::cli::command::Command;
 use crate::env::configuration::Configuration;
@@ -341,7 +342,7 @@ impl Controller {
                         }
                         EntryKind::Categorize => {
                             if !self.editor.input().is_empty() {
-                                self.categorize_selected_picture(&self.editor.input())
+                                self.categorize_selected_pictures(Some(self.editor.input()))
                             };
                             self.set_opacity_for_current_picture(1.00);
                         }
@@ -756,6 +757,12 @@ impl Controller {
         self.repository.set_picture_at(index, &picture);
     }
 
+    fn categorize_picture_at_index(&mut self, index: usize, category_opt: Category) {
+        let mut picture = self.repository.picture_at(index);
+        picture.set_category(category_opt.clone());
+        self.repository.set_picture_at(index, &picture);
+    }
+
     fn toggle_cover_selection(&mut self) {
         if !self.args.cover && self.repository.covers() > 0 {
             let new_args = Args {
@@ -864,26 +871,25 @@ impl Controller {
         }
     }
 
-    fn categorize_selected_picture(&mut self, category: &str) {
+    fn categorize_selected_pictures(&mut self, category: Category) {
         if self.navigator.has_selected() {
             for index in 0..self.navigator.limit() {
                 if self.navigator.is_selected(index) {
-                    self.categorize_picture_at_index(index, Some(category.to_string()));
+                    self.categorize_picture_at_index(index, category.clone());
                 }
             }
             self.navigator.unselect_all();
         } else {
-            self.categorize_picture_at_index(self.navigator().position(), Some(category.to_string()));
+            self.categorize_picture_at_index(self.navigator().position(), category.clone());
         };
         self.navigator.set_page_changed();
-        self.last_action = Action::Unlabel;
+        self.last_action = Action::Categorize(category);
     }
 
     fn categorize(&mut self) {
-        if self.navigator.has_selected() {
-            self.editor.begin(&self.main_window(), EntryKind::Categorize, None);
-            self.state.set_mode(Mode::Editing);
-        }
+        self.set_opacity_for_current_picture(0.25);
+        self.editor.begin(&self.main_window(), EntryKind::Categorize, None);
+        self.state.set_mode(Mode::Editing);
     }
 
     fn uncategorize_selected_pictures(&mut self) {
@@ -1373,6 +1379,7 @@ impl Controller {
         match action {
             Action::Nothing => {}
             Action::Label(label) => self.label_selected_pictures(&label),
+            Action::Categorize(category) => self.categorize_selected_pictures(category),
             Action::Unlabel => self.unlabel_selected_pictures(),
             Action::AddTag(label) => self.tag_selected_pictures(&label),
             Action::RemoveTag(label) => self.untag_selected_pictures(&label),
@@ -1388,7 +1395,4 @@ impl Controller {
         };
     }
 
-    fn categorize_picture_at_index(&mut self, index: usize, category_opt: Option<String>) {
-        println!("categorized {:?}", category_opt);
-    }
 }

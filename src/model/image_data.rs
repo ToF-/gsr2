@@ -123,6 +123,10 @@ impl ImageData {
         self.rank = rank
     }
 
+    pub fn set_category(&mut self, category: Option<String>) {
+        self.category = category
+    }
+
     pub fn increment_score(&mut self, score: u32) {
         self.score += score
     }

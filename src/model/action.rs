@@ -1,5 +1,6 @@
 use crate::model::label::Label;
 use crate::model::rank::Rank;
+use crate::model::category::Category;
 
 #[derive(Debug, Clone)]
 pub enum Action {
@@ -9,4 +10,5 @@ pub enum Action {
     Unlabel,
     AddTag(Label),
     RemoveTag(Label),
+    Categorize(Category),
 }

@@ -81,6 +81,13 @@ fn label_display(label: Label) -> String {
     }
 }
 
+fn category_display(category_opt: Option<String>) -> String {
+    match category_opt {
+        None => String::from(""),
+        Some(category) => format!("({})", category),
+    }
+}
+
 fn tag_display(tags: Tags) -> String {
     match tags.len() {
         0 => String::from(""),
@@ -129,7 +136,7 @@ pub fn title_display(controller: &Controller) -> String {
             panic!("can't borrow")
         };
         format!(
-            "{}{} #{} {} {} {} {} {} {} {} {} {} {}{} {}",
+            "{}{} #{} {} {} {} {} {} {} {} cat {} {} {} {}{} {}",
             small_picture_display(current_picture.image_data().map(|d| d.size())),
             cover_display(current_picture.cover()),
             controller.navigator().position(),
@@ -141,6 +148,10 @@ pub fn title_display(controller: &Controller) -> String {
             match current_picture.image_data() {
                 Some(image_data) => image_data.rank(),
                 None => Rank::NoStar,
+            },
+            match current_picture.image_data() {
+                Some(image_data) => category_display(image_data.category),
+                None => "".to_string(),
             },
             match current_picture.image_data() {
                 Some(image_data) => tag_display(image_data.tags),
