@@ -7,5 +7,6 @@ pub mod entry_kind;
 pub mod event;
 pub mod mode;
 pub mod navigator;
+pub mod selector;
 pub mod state;
 pub mod view;

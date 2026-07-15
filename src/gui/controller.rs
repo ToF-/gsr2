@@ -1,4 +1,4 @@
-use crate::model::category::Category;
+use crate::gui::selector::Selector;
 use crate::cli::args::Args;
 use crate::cli::command::Command;
 use crate::env::configuration::Configuration;
@@ -15,6 +15,7 @@ use crate::gui::navigator::Navigator;
 use crate::gui::state::State;
 use crate::gui::view::main_window::{LEFT_PANE, MainWindow};
 use crate::model::action::Action;
+use crate::model::category::Category;
 use crate::model::order::Order;
 use crate::model::picture::Picture;
 use crate::model::rank::Rank;
@@ -42,6 +43,7 @@ pub struct Controller {
     state: State,
     main_window_opt: Option<MainWindow>,
     editor: Editor,
+    selector: Selector,
     last_action: Action,
     scores: HashMap<String, u32>,
 }
@@ -70,8 +72,8 @@ impl Controller {
             }
         };
         if config.cover {
-                cli.cover = !args.all;
-            }
+            cli.cover = !args.all;
+        }
         let mut repository = Repository::new(config.clone(), cli.clone(), false);
         match repository.initialize() {
             Ok(_) => {}
@@ -84,6 +86,7 @@ impl Controller {
             repository: repository.clone(),
             args: cli.clone(),
             editor: Editor::new(),
+            selector: Selector::new(),
             navigator: Navigator::new(repository.len(), pictures_per_row as usize),
             controls: default_controls(),
             state: State::new(pictures_per_row as usize, cli.slideshow().is_some()),
@@ -328,6 +331,8 @@ impl Controller {
                     }
                 };
                 self.state.set_mode(Mode::View)
+            }
+            Mode::Selecting => {
             }
             Mode::Editing => {
                 self.editor.process(key);
@@ -888,8 +893,10 @@ impl Controller {
 
     fn categorize(&mut self) {
         self.set_opacity_for_current_picture(0.25);
-        self.editor.begin(&self.main_window(), EntryKind::Categorize, None);
-        self.state.set_mode(Mode::Editing);
+        self.selector.begin(&self.main_window());
+        self.state.set_mode(Mode::Selecting);
+        // self.editor .begin(&self.main_window(), EntryKind::Categorize, None);
+        // self.state.set_mode(Mode::Editing);
     }
 
     fn uncategorize_selected_pictures(&mut self) {
@@ -1394,5 +1401,4 @@ impl Controller {
             _ = self.scores.insert(file_path.to_string(), 1);
         };
     }
-
 }

@@ -1,4 +1,3 @@
-use std::sync::OnceLock;
 use crate::env::default_values::{CONFIG_FILE_DEFAULT, CONFIG_FILE_VARIABLE};
 use crate::file::paths::home_directory;
 use crate::file_exists;
@@ -9,6 +8,7 @@ use std::collections::HashMap;
 use std::env;
 use std::fs;
 use std::io::Result;
+use std::sync::OnceLock;
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Configuration {
@@ -66,7 +66,7 @@ fn get_configuration() -> Result<Configuration> {
             Ok(config) => {
                 CONFIGURATION.set(config.clone());
                 Ok(config)
-            },
+            }
             Err(err) => Err(std::io::Error::other(err)),
         },
         Err(err) => Err(err),

@@ -5,4 +5,5 @@ pub enum Mode {
     Setting(Control),
     View,
     Editing,
+    Selecting,
 }

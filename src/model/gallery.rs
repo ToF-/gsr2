@@ -1,5 +1,3 @@
-use std::cmp::Ordering;
-use std::collections::HashMap;
 use crate::file::paths::parent_directory;
 use crate::file::picture_file::{get_all_picture_file_paths, get_picture_file_path};
 use crate::model::cover::cover_sort_key;
@@ -9,8 +7,10 @@ use crate::model::picture::Picture;
 use crate::model::selection_criteria::SelectionCriteria;
 use rand::prelude::SliceRandom;
 use rand::rng;
+use std::cmp::Ordering;
 use std::cmp::Reverse;
 use std::collections::BTreeSet;
+use std::collections::HashMap;
 use std::io::Result;
 
 #[derive(Debug, Clone)]
@@ -197,20 +197,19 @@ impl Gallery {
                 let key = (parent_dir.clone(), tag);
                 tags.entry(key).and_modify(|count| *count += 1).or_insert(1);
             }
-        };
+        }
         let mut tags_rel: Vec<(String, String, usize)> = Vec::new();
         for ((parent_dir, tag), val) in tags.iter() {
             let tuple = (parent_dir.to_string(), tag.to_string(), *val);
             tags_rel.push(tuple);
         }
-        tags_rel.sort_by(|(p_a, t_a, v_a), (p_b, t_b, v_b)|
-            match p_a.cmp(p_b) {
-                Ordering::Equal => match v_b.cmp(v_a) {
-                    Ordering::Equal => t_a.cmp(t_b),
-                    ord => ord,
-                },
+        tags_rel.sort_by(|(p_a, t_a, v_a), (p_b, t_b, v_b)| match p_a.cmp(p_b) {
+            Ordering::Equal => match v_b.cmp(v_a) {
+                Ordering::Equal => t_a.cmp(t_b),
                 ord => ord,
-            });
+            },
+            ord => ord,
+        });
         let mut current_dir: String = String::new();
         for (parent_dir, tag, count) in tags_rel {
             if current_dir != parent_dir {

@@ -1,6 +1,6 @@
+use crate::model::category::Category;
 use crate::model::label::Label;
 use crate::model::rank::Rank;
-use crate::model::category::Category;
 
 #[derive(Debug, Clone)]
 pub enum Action {

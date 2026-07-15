@@ -1,3 +1,4 @@
+use crate::env::configuration::CONFIGURATION;
 use crate::env::default_values::GARBAGE;
 use crate::env::default_values::THUMB_SUFFIX;
 use crate::env::default_values::VALID_EXTENSIONS;
@@ -7,7 +8,6 @@ use std::env::home_dir;
 use std::ffi::OsStr;
 use std::io::{Error, ErrorKind, Result};
 use std::path::{Path, PathBuf};
-use crate::env::configuration::CONFIGURATION;
 
 pub fn home_directory() -> String {
     home_dir()
@@ -17,7 +17,7 @@ pub fn home_directory() -> String {
 
 pub fn base_directory() -> String {
     match CONFIGURATION.get() {
-        None  => "CONFIG_FILE_NOT_READ".to_string(),
+        None => "CONFIG_FILE_NOT_READ".to_string(),
         Some(configuration) => configuration.base_dir.clone(),
     }
 }
@@ -321,10 +321,10 @@ mod tests {
 
     #[test]
     fn file_path_starting_with_base_dir_are_percented_as_stored() {
-            let base = base_directory();
-            let file_path = format!("{base}/file.jpg");
-            let expected = format!("%/file.jpg");
-            assert_eq!(expected, file_path_as_stored(&file_path))
+        let base = base_directory();
+        let file_path = format!("{base}/file.jpg");
+        let expected = format!("%/file.jpg");
+        assert_eq!(expected, file_path_as_stored(&file_path))
     }
     #[test]
     fn file_path_starting_with_tilde_are_developped_from_home_dir_as_retrieved() {
@@ -377,7 +377,7 @@ mod tests {
 #[cfg(test)]
 
 pub mod test {
-    
+
     use std::env::current_dir;
 
     pub fn current_directory() -> String {

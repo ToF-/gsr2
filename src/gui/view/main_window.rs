@@ -12,6 +12,7 @@ use crate::gui::view::entry_window::EntryWindow;
 use crate::gui::view::picture_cell_box::make_picture_cell_box;
 use crate::gui::view::picture_frame::PictureFrame;
 use crate::gui::view::picture_grid::PictureGrid;
+use crate::gui::view::treelist_window::TreeListWindow;
 use crate::model::picture::Picture;
 use crate::model::thumbnail::no_thumbnail_picture;
 use crate::{Controller, RcController};
@@ -211,6 +212,7 @@ impl MainWindow {
                 _ => panic!("incorrect choice for setting: {:?}", choice),
             },
             Mode::Editing => String::from("Editing…"),
+            Mode::Selecting => String::from("Selecting…"),
         };
         self.application_window().set_title(Some(&title));
     }
@@ -349,6 +351,12 @@ impl MainWindow {
         entry_window
     }
 
+    pub fn popup_treelist_window(&self, prompt: &str) -> TreeListWindow {
+        let treelist_window =
+            TreeListWindow::new(&self.application_window(), prompt, "", &self.controller_rc);
+        treelist_window.popup();
+        treelist_window
+    }
     pub fn change_grid_size(&mut self, pictures_per_row: usize) {
         self.picture_grid.change_dimension(pictures_per_row as i32)
     }

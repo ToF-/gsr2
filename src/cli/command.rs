@@ -167,8 +167,8 @@ pub fn execute_command(
                         Ok(Status::Ready(0))
                     }
                 }
-        }
-        Err(e) => Err(IOError::other(e)),
-    },
-}
+            }
+            Err(e) => Err(IOError::other(e)),
+        },
+    }
 }
