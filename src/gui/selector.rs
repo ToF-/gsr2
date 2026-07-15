@@ -9,6 +9,7 @@ use crate::gui::view::treelist_window::TreeListWindow;
 #[derive(Clone, Debug)]
 pub struct Selector {
     prompt: String,
+    selecting: bool,
     selected: String,
     controls: Controls,
     treelist_window_opt: Option<TreeListWindow>,
@@ -18,6 +19,7 @@ impl Selector {
     pub fn new() -> Selector {
         Selector {
             prompt: "".to_string(),
+            selecting: false,
             controls: default_controls(),
             selected: "".to_string(),
             treelist_window_opt: None,
@@ -28,26 +30,36 @@ impl Selector {
         let prompt = "select a category";
         self.prompt = prompt.to_string();
         self.treelist_window_opt = Some(main_window.popup_treelist_window(&self.prompt));
+        self.selecting = true;
     }
     pub fn process(&mut self, key: Key) {
         match key.name() {
             None => {}
-            Some(key_name) => match self.controls.get(&(key_name.to_string(), Mode::Editing)) {
-                Some(Control::CancelEdition) => self.cancel(),
-                Some(Control::ConfirmEdition) => self.enter(),
+            Some(key_name) => match self.controls.get(&(key_name.to_string(), Mode::Selecting)) {
+                Some(Control::CancelSelection) => self.cancel(),
+                Some(Control::ConfirmSelection) => self.enter(),
                 Some(_) | None => {},
             },
         }
     }
 
+    pub fn selected(&self) -> String {
+        self.selected.clone()
+    }
+
     pub fn cancel(&mut self) {
         self.selected = String::from("");
         self.treelist_window_opt.clone().unwrap().close();
+        self.selecting = false;
     }
 
     pub fn enter(&mut self) {
         self.selected = String::from("foo");
         self.treelist_window_opt.clone().unwrap().close();
+        self.selecting = false;
     }
 
+    pub fn selecting(&self) -> bool {
+        self.selecting
+    }
 }

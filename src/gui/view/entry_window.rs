@@ -15,8 +15,8 @@ use gtk::prelude::GtkWindowExt;
 use gtk::prelude::StyleContextExt;
 use gtk::prelude::WidgetExt;
 use std::time::Duration;
-
 use gtk::Orientation;
+
 #[derive(Clone, Debug)]
 pub struct EntryWindow {
     window: gtk::Window,

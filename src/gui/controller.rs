@@ -333,6 +333,16 @@ impl Controller {
                 self.state.set_mode(Mode::View)
             }
             Mode::Selecting => {
+                self.selector.process(key);
+                if !self.selector.selecting() {
+                    self.state.set_mode(Mode::View);
+                    if !self.selector.selected().is_empty() {
+                        let category: Category = Some(self.selector.selected());
+                        self.categorize_selected_pictures(category)
+                    }
+                    self.set_opacity_for_current_picture(1.00);
+                }
+
             }
             Mode::Editing => {
                 self.editor.process(key);
@@ -895,8 +905,6 @@ impl Controller {
         self.set_opacity_for_current_picture(0.25);
         self.selector.begin(&self.main_window());
         self.state.set_mode(Mode::Selecting);
-        // self.editor .begin(&self.main_window(), EntryKind::Categorize, None);
-        // self.state.set_mode(Mode::Editing);
     }
 
     fn uncategorize_selected_pictures(&mut self) {

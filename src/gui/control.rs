@@ -7,6 +7,7 @@ pub enum Control {
     CopyTemp,
     ConfirmEdition,
     CancelEdition,
+    ConfirmSelection,
     Complete,
     DeleteChar,
     DeletePicture,
@@ -129,6 +130,14 @@ pub fn default_controls() -> Controls {
         (
             (String::from("Return"), Mode::Editing),
             Control::ConfirmEdition,
+        ),
+        (
+            (String::from("Escape"), Mode::Selecting),
+            Control::CancelSelection,
+        ),
+        (
+            (String::from("Return"), Mode::Selecting),
+            Control::ConfirmSelection,
         ),
         ((String::from("Tab"), Mode::Editing), Control::Complete),
         ((String::from("Return"), Mode::View), Control::SetRange),
