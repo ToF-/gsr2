@@ -46,6 +46,7 @@ impl Editor {
             EntryKind::Label => "Enter a label",
             EntryKind::Rename => "Enter a new name",
             EntryKind::AddTag => "Enter a new tag to add",
+            EntryKind::Categorize => "Enter a category",
             EntryKind::RemoveTag => "Enter a tag to remove",
             EntryKind::Number => "Enter a number",
             EntryKind::Order => {
@@ -204,6 +205,10 @@ impl Editor {
             EntryKind::Label | EntryKind::Rename | EntryKind::AddTag | EntryKind::RemoveTag => {
                 matches!(ch,
                 'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' ')
+            }
+            EntryKind::Categorize => {
+                matches!(ch,
+                'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ':')
             }
             EntryKind::SetSelection | EntryKind::SetRestriction => matches!(ch,
                 'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' ' | ',' ),

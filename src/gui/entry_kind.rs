@@ -2,6 +2,7 @@
 pub enum EntryKind {
     Label,
     AddTag,
+    Categorize,
     RemoveTag,
     Number,
     Order,

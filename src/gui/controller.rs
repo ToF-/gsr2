@@ -339,6 +339,12 @@ impl Controller {
                             };
                             self.set_opacity_for_current_picture(1.00);
                         }
+                        EntryKind::Categorize => {
+                            if !self.editor.input().is_empty() {
+                                self.categorize_selected_picture(&self.editor.input())
+                            };
+                            self.set_opacity_for_current_picture(1.00);
+                        }
                         EntryKind::Label => {
                             if !self.editor.input().is_empty() {
                                 self.label_selected_pictures(&self.editor.input())
@@ -856,6 +862,15 @@ impl Controller {
         }
     }
 
+    fn categorize_selected_picture(&mut self, category: &str) {
+    }
+
+    fn categorize(&mut self) {
+        if self.navigator.has_selected() {
+            self.editor.begin(&self.main_window(), EntryKind::Categorize, None);
+            self.state.set_mode(Mode::Editing);
+        }
+    }
     fn rank_selected_pictures(&mut self, rank: Rank) {
         if self.navigator.has_selected() {
             for index in 0..self.navigator.limit() {

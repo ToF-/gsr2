@@ -102,7 +102,7 @@ pub fn help_on_controls() -> String {
         i/I: toggle information display, display file path \n\
         O then c,d,n,p,r,s,v: pick view order \n\
         D then s,t: display size,modified time in title \n\
-        c: set/unset cover, C: see all covers \n\
+        v: set/unset cover, V: see all covers \n\
         P: display palette sample \n\
         . or ^ : single view, e: expand, %: full size \n\
         R go to random picture  S: resume slide show\n\
@@ -157,9 +157,9 @@ pub fn default_controls() -> Controls {
         ((String::from("A"), Mode::View), Control::MoveFirst),
         ((String::from("a"), Mode::View), Control::MoveStartPage),
         ((String::from("z"), Mode::View), Control::MoveEndPage),
-        ((String::from("c"), Mode::View), Control::ToggleCover),
+        ((String::from("v"), Mode::View), Control::ToggleCover),
         (
-            (String::from("C"), Mode::View),
+            (String::from("V"), Mode::View),
             Control::ToggleCoverSelection,
         ),
         ((String::from("e"), Mode::View), Control::ToggleExpand),
