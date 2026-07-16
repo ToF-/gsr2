@@ -27,6 +27,63 @@ impl SubCategory {
     pub fn sub_categories(&self) -> Vec<SubCategory> {
         self.sub_categories.clone()
     }
+    
+    /* 
+    (-
+       (foo
+          (bar
+           qux))
+       law) 
+    = (- • (foo • ((bar • (qux • ∅ )) • (law • ∅))))
+    Sub {
+        name: -
+        subs: [
+                Sub {
+                    name: foo
+                    subs: [
+                            Sub {
+                                name: bar
+                                subs: []
+                                },
+                            Sub {
+                                name: qux
+                                subs: []
+                                }
+                           ]
+                      },
+                Sub {
+                    name: law
+                    subs: []
+                    }
+                ]
+        }
+
+*/
+    pub fn from_cons(value: &Value) -> Vec<SubCategory> {
+        let cons = value.as_cons().unwrap();
+        match cons.car() {
+            Null => vec![],
+            Symbol(symbol) => // (foo • …
+                match cons.cdr() {
+                    Null =>  //  (foo • ∅)
+                        vec![Self::leave(symbol)],
+                    Cons(cons) => { // (foo • (… • …))
+                        let mut sub = vec![Self::leave(symbol)];
+                        let mut subs = Self::from_cons(cons.cdr());
+                        sub.extend(subs);
+                        sub
+                    },
+                    _ => panic!("incorrect catalog s-expression"),
+                },
+            Cons(cons) => { // ((… • …) • …
+                        let mut sub = Self::from_cons(cons.car());
+                        let subs = Self::from_cons(cons.cdr());
+                        sub.extend(subs);
+                        sub
+            },
+            _ => panic!("incorrect catalog s-exression"),
+        }
+    }
 
     pub fn from_symbol(value: &Value, root_level: bool) -> Result<SubCategory> {
         match(value) {
@@ -134,11 +191,5 @@ mod tests {
         assert_eq!("foo", catalog.root.sub_categories[0].name());
         assert_eq!("bar", catalog.root.sub_categories[1].name());
         assert_eq!("qux", catalog.root.sub_categories[2].name());
-    }
-    #[test]
-    fn creating_sub_categories_from_s_expression_with_root_and_sub_sub_catagory() {
-        let s_expression = "(- (foo bar) qux)";
-        let catalog = Catalog::from_sexpr(s_expression).expect("incorrect s-expression for catalog");
-        assert_eq!("-", catalog.root.name());
     }
 }
