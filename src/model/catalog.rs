@@ -58,64 +58,92 @@ impl SubCategory {
                 ]
         }
 
+(-) → (- • ∅)
+(- foo) → (- • (foo • ∅))
+(- foo bar) → (- • (foo • (bar • ∅)))
+(- foo bar qux) → (- • (foo • (bar • (qux • ∅))))
+(- foo (bar bog bug)) → (- • (foo • ((bar • (bog • (bug • ∅))) • ∅)))
+(- (foo phi pho fux) (bar bog bug)) → (- • ((foo • (phi • (pho • (fux • ∅)))) • ((bar • (bog • (bug • ∅))) • ∅)))
+(- (ill) (legal)) → (- • ((ill • ∅) • ((legal • ∅) • ∅)))
 */
-    pub fn from_cons(value: &Value) -> Vec<SubCategory> {
+    pub fn from_cons(value: &Value) -> Result<Vec<SubCategory>> {
         println!("from_cons: {:?}", value);
         if value.is_null() {
-            return vec![]
+          return Ok(vec![])  
         };
         let cons = value.as_cons().unwrap();
         match cons.car() {
-            Null => vec![],
-            Symbol(symbol) => // (foo • …
+            Symbol(symbol) => { // (foo • …
+                println!("into symbol: {:?} with cdr: {:?}", cons.car(), cons.cdr());
                 match cons.cdr() {
                     Null =>  //  (foo • ∅)
-                        vec![Self::leave(symbol)],
-                    Cons(cons) => { // (foo • (… • …))
-                        let mut sub = Self::leave(symbol);
-                        let subs = Self::from_cons(cons.cdr());
-                        sub.sub_categories.extend(subs);
-                        vec![sub]
+                        Ok(vec![Self::leave(symbol)]),
+                    Cons(_) => { // (foo • (… • …))
+                        let mut subs = vec![Self::leave(symbol)];
+                        match Self::from_cons(cons.cdr()) {
+                            Ok(next) => {
+                                subs.extend(next);
+                                Ok(subs)
+                            },
+                            _ => Err(Error::other(format!("incorrect s_expression value for cdr: {:?}", cons.cdr()))),
+                        }
                     },
-                    _ => panic!("incorrect catalog s-expression"),
-                },
-            Cons(cons) => { // ((… • …) • …
-                        let mut sub = Self::from_cons(cons.car());
-                        let subs = Self::from_cons(cons.cdr());
-                        sub.extend(subs);
-                        sub
-            },
-            _ => panic!("incorrect catalog s-exression"),
-        }
-    }
-
-    pub fn from_symbol(value: &Value, root_level: bool) -> Result<SubCategory> {
-        match(value) {
-            Symbol(symbol) => { 
-                if root_level && symbol.to_string() != "-" {
-                    Err(Error::other(format!("incorrect s_expression value: missing root symbol in {:?}", value)))
-                } else {
-                    Ok( SubCategory {
-                        name: symbol.to_string(),
-                        sub_categories: vec![],
-                    })
+                    _ => Err(Error::other(format!("incorrect s_expression value for cdr: {:?}", cons.cdr()))),
                 }
             },
-            _ => Err(Error::other(format!("incorrect s_expression value, symbol expected: {:?}", value))),
+            Cons(outer) => {
+                println!("into Cons(Cons {:?}•{:?}", cons.car(), cons.cdr());
+                match Self::from_value(cons.car()) {
+                    Ok(sub1) => match Self::from_cons(cons.cdr()) {
+                        Ok(subs2) => {
+                            let mut result = vec![sub1];
+                            result.extend(subs2);
+                            Ok(result)
+                        },
+                        Err(e) => Err(Error::other(e)),
+                    },
+                    Err(e) => Err(Error::other(e)),
+                }
+            },
+            _ => Err(Error::other(format!("incorrect s_expression value for car: {:?}", cons.car()))),
         }
     }
 
-    pub fn from_value(value: &Value, root_level: bool) -> Result<SubCategory> {
-        println!("{:?}", value);
+
+    pub fn from_value(value: &Value) -> Result<SubCategory> {
+        println!("from_value: {:?}", value);
         match value {
-            Symbol(symbol) => Self::from_symbol(value, root_level),
             Cons(cons) => {
-                let subs = Self::from_cons(value);
-                let sub = <SubCategory as Clone>::clone(&subs[0]);
-                if sub.name == "-" {
-                    Ok(sub)
+                let car = cons.car();
+                let cdr = cons.cdr();
+                if car.is_symbol() {
+                    let symbol = car.as_symbol().unwrap();
+                    if cdr.is_null() {
+                        Ok(Self::leave(symbol))
+                    } else {
+                        Self::from_cons(cdr)
+                            .and_then(|subs| {
+                                println!("subs: {:?}", subs);
+                                Ok( SubCategory {
+                                    name: symbol.to_string(),
+                                    sub_categories: subs,
+                                })
+                            })
+                    }
+                } else if car.is_cons() {
+                    if cdr.is_cons() {
+                        println!("in cons cons {:?}•{:?}", car, cdr);
+                        match Self::from_value(cdr) {
+                            Ok(sub) => {
+                                Ok(sub)
+                            },
+                            e => e,
+                        }
+                    } else {
+                        Err(Error::other(format!("incorrect s_expression value: {:?}", value)))
+                    }
                 } else {
-                    Err(Error::other(format!("incorrect s_expression value: missing root symbol in {:?}", value)))
+                    Err(Error::other(format!("incorrect s_expression value: {:?}", value)))
                 }
             },
             _ => Err(Error::other(format!("incorrect s_expression value: {:?}", value))),
@@ -133,10 +161,13 @@ impl Catalog {
     pub fn from_sexpr(source: &str) -> Result<Self> {
         match lexpr::from_str(source) {
             Ok(value) => {
-                match SubCategory::from_value(&value, true) {
-                    Ok(root) => Ok(
-                        Catalog { root }
-                    ),
+                match SubCategory::from_value(&value) {
+                    Ok(root) => {
+                    if root.name == "-" {
+                        Ok( Catalog { root })
+                    } else {
+                        Err(Error::other(format!("incorrect s_expression value: missing root symbol in {:?}", value)))
+                    }},
                     Err(err) => Err(Error::other(err)),
                 }
             },
@@ -151,37 +182,36 @@ mod tests {
 
     #[test]
     fn creating_sub_categories_from_a_s_expression_with_only_root() {
-        let catalog = Catalog::from_sexpr("(-)").expect("incorrect s-expression for catalog");
+        let catalog = Catalog::from_sexpr("(-)").expect("incorrect sexpr");
         assert_eq!("-".to_string(), catalog.root.name())
     }
     #[test]
-    fn root_subcategorys_should_be_dash() {
+    fn root_subcategory_name__should_be_dash() {
         assert!(Catalog::from_sexpr("(meh)").is_err());
     }
 
     #[test]
     fn creating_sub_categories_from_a_s_expression_with_root_and_a_sub() {
-        let catalog = Catalog::from_sexpr("(- foo)").expect("incorrect s-expression for catalog");
+        let catalog = Catalog::from_sexpr("(- foo)").expect("incorrect sexpr");
         assert_eq!("-", catalog.root.name());
-   //     assert_eq!(1, catalog.root.sub_categories().len());
-   //     assert_eq!("foo", catalog.root.sub_categories[0].name());
+        assert_eq!(1, catalog.root.sub_categories().len());
+        assert_eq!("foo", catalog.root.sub_categories[0].name());
     }
-  //  #[test]
-    fn creating_sub_categories_from_a_s_expression_with_root_and_two_subs() {
-        let s_expression = "(- foo bar)";
-        let catalog = Catalog::from_sexpr("(- foo bar)").expect("incorrect s-expression for catalog");
+    #[test]
+    fn creating_sub_categories_from_a_s_expression_with_root_and_three_subs() {
+        let catalog = Catalog::from_sexpr("(- foo bar qux)").expect("incorrect sexpr");
         assert_eq!("-", catalog.root.name());
-        assert_eq!(2, catalog.root.sub_categories().len());
+        assert_eq!(3, catalog.root.sub_categories().len());
         assert_eq!("foo", catalog.root.sub_categories[0].name());
         assert_eq!("bar", catalog.root.sub_categories[1].name());
+        assert_eq!("qux", catalog.root.sub_categories[2].name());
     }
-   #[test]
-    fn creating_sub_categories_from_s_expression_with_root_and_several_subs() {
-        let s_expression = "(- foo bar qux)";
-        let catalog = Catalog::from_sexpr(s_expression).expect("incorrect s-expression for catalog");
+    #[test]
+    fn creating_sub_categories_from_s_expression_with_root_and_sub_subs() {
+        let catalog = Catalog::from_sexpr("(- (foo bar) (qux law))").expect("incorrect sexpr");
         assert_eq!("-", catalog.root.name());
         println!("{:?}", catalog);
-        assert_eq!(3, catalog.root.sub_categories().len());
+        assert_eq!(2, catalog.root.sub_categories().len());
         // assert_eq!("foo", catalog.root.sub_categories[0].name());
         // assert_eq!("bar", catalog.root.sub_categories[1].name());
         // assert_eq!("qux", catalog.root.sub_categories[2].name());
