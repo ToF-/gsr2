@@ -1,3 +1,4 @@
+use std::fs;
 use std::io::{Error, Result};
 use lexpr::parse::{Result as ParseResult};
 use lexpr::Value;
@@ -139,6 +140,16 @@ impl Catalog {
             Err(err) => Err(Error::other(err)),
         }
     }
+
+    pub fn from_file(file_path: &str) -> Result<Self> {
+        match fs::read_to_string(file_path) {
+            Ok(content) => {
+                Self::from_sexpr(&content)
+            },
+            Err(e) => Err(Error::other(e)),
+        }
+
+    }
 }
 
 pub fn format_value(v: &Value) -> String {
@@ -149,9 +160,23 @@ pub fn format_value(v: &Value) -> String {
         _ => "…".to_string(),
     }
 }
+
+pub fn format_sub_category(s: &SubCategory) -> String {
+    if s.sub_categories.is_empty() {
+        format!("{}", s.name)
+    } else {
+        let items: Vec<String> = s.sub_categories.iter().map(format_sub_category).collect();
+        let ssubs: String = items.join(", ");
+        format!("{} [{}]", s.name, ssubs)
+    }
+}
+pub fn format_catalog(c: &Catalog) -> String {
+    format!("Cat {}", format_sub_category(&c.root))
+}
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::fs::read_to_string;
 
     #[test]
     fn creating_sub_categories_from_a_s_expression_with_only_root() {
@@ -198,5 +223,14 @@ mod tests {
         assert!(Catalog::from_sexpr("(- (foo bar) (qux (law)))").is_err());
         assert!(Catalog::from_sexpr("(- ((((foo)))))").is_err());
         assert!(Catalog::from_sexpr("((-))").is_err());
+    }
+    #[test]
+    fn catalog_can_be_read_from_a_file() {
+        let catalog = Catalog::from_file("testdata/catalog.sexp").expect("incorrect catalog or I/O");
+        let content = read_to_string("testdata/catalog.sexp").expect("I/O");
+        let value =  lexpr::from_str(&content).expect("incorrect sexp");
+        println!("{}", format_value(&value));
+        let expected = "\"Cat - [foo [bar, qux], bog [gap], pat [jxs [lam, lom, lum], zzz [tic, tac, toe], pin [blo]]]\"";
+        assert_eq!(expected, format!("{:?}", format_catalog(&catalog)));
     }
 }
