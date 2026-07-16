@@ -28,53 +28,14 @@ impl SubCategory {
         self.sub_categories.clone()
     }
     
-    /* 
-    (-
-       (foo
-          (bar
-           qux))
-       law) 
-    = (- • (foo • ((bar • (qux • ∅ )) • (law • ∅))))
-    Sub {
-        name: -
-        subs: [
-                Sub {
-                    name: foo
-                    subs: [
-                            Sub {
-                                name: bar
-                                subs: []
-                                },
-                            Sub {
-                                name: qux
-                                subs: []
-                                }
-                           ]
-                      },
-                Sub {
-                    name: law
-                    subs: []
-                    }
-                ]
-        }
-
-(-) → (- • ∅)
-(- foo) → (- • (foo • ∅))
-(- foo bar) → (- • (foo • (bar • ∅)))
-(- foo bar qux) → (- • (foo • (bar • (qux • ∅))))
-(- foo (bar bog bug)) → (- • (foo • ((bar • (bog • (bug • ∅))) • ∅)))
-(- (foo phi pho fux) (bar bog bug)) → (- • ((foo • (phi • (pho • (fux • ∅)))) • ((bar • (bog • (bug • ∅))) • ∅)))
-(- (ill) (legal)) → (- • ((ill • ∅) • ((legal • ∅) • ∅)))
-*/
     pub fn from_cons(value: &Value) -> Result<Vec<SubCategory>> {
-        println!("from_cons: {:?}", value);
+        println!("from_cons: {}", format_value(value));
         if value.is_null() {
           return Ok(vec![])  
         };
         let cons = value.as_cons().unwrap();
         match cons.car() {
             Symbol(symbol) => { // (foo • …
-                println!("into symbol: {:?} with cdr: {:?}", cons.car(), cons.cdr());
                 match cons.cdr() {
                     Null =>  //  (foo • ∅)
                         Ok(vec![Self::leave(symbol)]),
@@ -91,8 +52,12 @@ impl SubCategory {
                     _ => Err(Error::other(format!("incorrect s_expression value for cdr: {:?}", cons.cdr()))),
                 }
             },
-            Cons(outer) => {
-                println!("into Cons(Cons {:?}•{:?}", cons.car(), cons.cdr());
+            Cons(_) => {
+                println!("special:{}", format_value(value));
+                let inner = cons.car().as_cons().unwrap();
+                if inner.car().is_symbol() && inner.cdr().is_null() {
+                    return Err(Error::other(format!("incorrect s_expression value with singleton: {:?}", value)))
+                };
                 match Self::from_value(cons.car()) {
                     Ok(sub1) => match Self::from_cons(cons.cdr()) {
                         Ok(subs2) => {
@@ -111,7 +76,7 @@ impl SubCategory {
 
 
     pub fn from_value(value: &Value) -> Result<SubCategory> {
-        println!("from_value: {:?}", value);
+        println!("from_value: {}", format_value(value));
         match value {
             Cons(cons) => {
                 let car = cons.car();
@@ -176,6 +141,14 @@ impl Catalog {
     }
 }
 
+pub fn format_value(v: &Value) -> String {
+    match v {
+        Null => "∅".to_string(),
+        Cons(c) => format!("({} • {})", format_value(c.car()), format_value(c.cdr())),
+        Symbol(s) => s.to_string(),
+        _ => "…".to_string(),
+    }
+}
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -186,7 +159,7 @@ mod tests {
         assert_eq!("-".to_string(), catalog.root.name())
     }
     #[test]
-    fn root_subcategory_name__should_be_dash() {
+    fn root_subcategory_name_should_be_dash() {
         assert!(Catalog::from_sexpr("(meh)").is_err());
     }
 
@@ -212,8 +185,18 @@ mod tests {
         assert_eq!("-", catalog.root.name());
         println!("{:?}", catalog);
         assert_eq!(2, catalog.root.sub_categories().len());
-        // assert_eq!("foo", catalog.root.sub_categories[0].name());
-        // assert_eq!("bar", catalog.root.sub_categories[1].name());
-        // assert_eq!("qux", catalog.root.sub_categories[2].name());
+        assert_eq!("foo", catalog.root.sub_categories[0].name());
+        assert_eq!("bar", catalog.root.sub_categories[0].sub_categories[0].name());
+        assert_eq!("qux", catalog.root.sub_categories[1].name());
+        assert_eq!("law", catalog.root.sub_categories[1].sub_categories[0].name());
+    }
+    #[test]
+    fn singleton_sub_categories_are_not_allowed() {
+        assert!(Catalog::from_sexpr("(- foo (bar))").is_err());
+        assert!(Catalog::from_sexpr("(- (foo) bar)").is_err());
+        assert!(Catalog::from_sexpr("(- ((foo bar))").is_err());
+        assert!(Catalog::from_sexpr("(- (foo bar) (qux (law)))").is_err());
+        assert!(Catalog::from_sexpr("(- ((((foo)))))").is_err());
+        assert!(Catalog::from_sexpr("((-))").is_err());
     }
 }
