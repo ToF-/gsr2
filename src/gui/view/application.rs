@@ -27,7 +27,15 @@ pub fn startup_gui() {
         label.entry {
             padding: 10px;
             font-size: 32px;
-        }",
+        }
+        listview.catalog {
+            background-color:black;
+            }
+        listview.catalog treeexpander expander {
+            color: white;
+        }
+        ",
+
     );
     gtk::style_context_add_provider_for_display(&Display::default().unwrap(), &css_provider, 1000);
 }

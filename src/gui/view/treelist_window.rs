@@ -1,3 +1,9 @@
+use gtk::gdk::Display;
+use gtk::prelude::ListItemExt;
+use gtk::glib::object::Cast;
+use gtk::gio;
+use crate::model::catalog::SubCategory;
+use glib::BoxedAnyObject;
 use crate::model::catalog::Catalog;
 use crate::RcController;
 use crate::clone;
@@ -12,6 +18,7 @@ use gtk::prelude::GtkWindowExt;
 #[allow(deprecated)]
 use gtk::prelude::StyleContextExt;
 use gtk::prelude::WidgetExt;
+use gtk::{glib, Label, ListItem, ListView, ScrolledWindow, SignalListItemFactory, SingleSelection, TreeExpander, TreeListModel};
 
 #[derive(Clone, Debug)]
 pub struct TreeListWindow {
@@ -27,13 +34,6 @@ impl TreeListWindow {
         catalog: &Catalog,
         controller_rc: &RcController,
     ) -> Self {
-        println!("{:?}", catalog);
-        /* let catalog: Catalog = if let Ok(controller) = controller_rc.try_borrow() {
-            controller.selector().catalog()
-        } else {
-            panic!("can't access to controller");
-        };
-        */
         let prompt_label = gtk::Label::builder()
             .valign(Align::Center)
             .halign(Align::Center)
@@ -65,8 +65,16 @@ impl TreeListWindow {
             .vexpand(true)
             .homogeneous(false)
             .build();
+        let window_css_provider = CssProvider::new();
+            scrolled_window.add_css_class("tree-list");
+        window_css_provider.load_from_string(
+        "window.tree-list { background-color:black;}");
+        let list_view = build_list_view(catalog.root());
+
+        scrolled_window.set_child(Some(&list_view));
         selector_box.append(&prompt_label);
         selector_box.append(&scrolled_window);
+        selector_box.add_css_class("tree-list");
         let window = gtk::Window::builder()
             .decorated(false)
             .modal(true)
@@ -74,8 +82,14 @@ impl TreeListWindow {
             .default_height(TREELIST_WINDOW_HEIGHT)
             .transient_for(application_window)
             .build();
+        window.style_context().add_provider(&window_css_provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
         window.set_child(Some(&selector_box));
         Self::attach_key_pressed_event_handler(&scrolled_window, controller_rc);
+         gtk::style_context_add_provider_for_display(
+        &Display::default().unwrap(),
+        &window_css_provider,
+        gtk::STYLE_PROVIDER_PRIORITY_APPLICATION,
+    );
         TreeListWindow { window: window }
     }
     pub fn popup(&self) {
@@ -110,4 +124,48 @@ impl TreeListWindow {
         ));
         window.add_controller(event_controller_key);
     }
+}
+
+const WRAP_IN_TREELISTROWS: bool = false;
+const DONT_AUTOEXPAND: bool = false;
+const AUTOEXPAND: bool = true;
+
+fn build_list_view(root: SubCategory) -> gtk::ListView {
+    let store = gio::ListStore::new::<BoxedAnyObject>();
+    store.append(&BoxedAnyObject::new(root));
+    let tree_list_model: TreeListModel = TreeListModel::new(store, WRAP_IN_TREELISTROWS, AUTOEXPAND, |obj| {
+        let boxed = obj.downcast_ref::<glib::BoxedAnyObject>().unwrap();
+        let root = boxed.borrow::<SubCategory>();
+        if root.sub_categories().is_empty() {
+            return None;
+        }
+        let sub_categories = gio::ListStore::new::<BoxedAnyObject>();
+        for child in &root.sub_categories() {
+            sub_categories.append(&BoxedAnyObject::new(child.clone()));
+        }
+        Some(sub_categories.upcast())
+    });
+    let signal_list_item_factory = SignalListItemFactory::new();
+    signal_list_item_factory.connect_setup(|_, item| {
+        let expander = TreeExpander::new();
+        let label = Label::new(None);
+        expander.set_child(Some(&label));
+        item.downcast_ref::<gtk::ListItem>()
+            .unwrap()
+            .set_child(Some(&expander));
+    });
+    signal_list_item_factory.connect_bind(|_, item| {
+        let item = item.downcast_ref::<ListItem>().unwrap();
+        let row = item.item().unwrap().downcast::<gtk::TreeListRow>().unwrap();
+        let expander = item.child().unwrap().downcast::<gtk::TreeExpander>().unwrap();
+        expander.set_list_row(Some(&row));
+        let label = expander.child().unwrap().downcast::<Label>().unwrap();
+        let boxed = row.item().unwrap().downcast::<glib::BoxedAnyObject>().unwrap();
+        let node = boxed.borrow::<SubCategory>();
+        label.set_text(&node.name());
+    });
+    let selection = SingleSelection::new(Some(tree_list_model));
+    let view = ListView::new(Some(selection), Some(signal_list_item_factory));
+    view.add_css_class("catalog");
+    view
 }

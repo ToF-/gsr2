@@ -145,6 +145,9 @@ impl Catalog {
         }
 
     }
+    pub fn root(&self) -> SubCategory {
+        self.root.clone()
+    }
 }
 
 pub fn format_value(v: &Value) -> String {
