@@ -1,3 +1,7 @@
+use gdk::{Key, ModifierType};
+use gtk::prelude::*;
+use gtk::{self, gdk};
+use gtk::EventControllerKey;
 use gtk::gdk::Display;
 use gtk::prelude::ListItemExt;
 use gtk::glib::object::Cast;
@@ -165,7 +169,21 @@ fn build_list_view(root: SubCategory) -> gtk::ListView {
         label.set_text(&node.name());
     });
     let selection = SingleSelection::new(Some(tree_list_model));
+    let event_controller_key = EventControllerKey::new();
+    event_controller_key.connect_key_pressed(clone!( #[strong] selection, move  |_, key, _, _| {
+        println!("tree list event$ controller key: {:?}", key);
+        if key == gdk::Key::Return {
+            let pos = selection.selected();
+            if pos != gtk::INVALID_LIST_POSITION {
+                println!("Return row {pos}");
+            }
+            return true.into();
+        }
+        false.into()
+    }));
     let view = ListView::new(Some(selection), Some(signal_list_item_factory));
+    view.add_controller(event_controller_key);
     view.add_css_class("catalog");
+
     view
 }
