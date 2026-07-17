@@ -1,3 +1,4 @@
+use crate::model::catalog::Catalog;
 use crate::cli::args::Args;
 use crate::cli::command::Command;
 use crate::env::configuration::Configuration;
@@ -80,13 +81,16 @@ impl Controller {
             Err(e) => panic!("{}", e),
         };
         println!("{} pictures", repository.len());
-
+        let catalog: Catalog = match Catalog::from_file(&config.catalog) {
+            Ok(cat) => cat,
+            Err(e) => panic!("cannot log catalog file {} {}",config.catalog, e),
+        };
         Ok(Controller {
             configuration: config.clone(),
             repository: repository.clone(),
             args: cli.clone(),
             editor: Editor::new(),
-            selector: Selector::new(),
+            selector: Selector::new(&catalog),
             navigator: Navigator::new(repository.len(), pictures_per_row as usize),
             controls: default_controls(),
             state: State::new(pictures_per_row as usize, cli.slideshow().is_some()),
@@ -102,6 +106,9 @@ impl Controller {
 
     pub fn repository(&self) -> Repository {
         self.repository.clone()
+    }
+    pub fn selector(&self) -> Selector {
+        self.selector.clone()
     }
 
     pub fn main_window(&self) -> MainWindow {

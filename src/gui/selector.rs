@@ -1,3 +1,4 @@
+use crate::model::catalog::Catalog;
 use crate::MainWindow;
 use crate::gui::control::Control;
 use crate::gui::control::Controls;
@@ -13,16 +14,18 @@ pub struct Selector {
     selected: String,
     controls: Controls,
     treelist_window_opt: Option<TreeListWindow>,
+    catalog: Catalog,
 }
 
 impl Selector {
-    pub fn new() -> Selector {
+    pub fn new(catalog: &Catalog) -> Selector {
         Selector {
             prompt: "".to_string(),
             selecting: false,
             controls: default_controls(),
             selected: "".to_string(),
             treelist_window_opt: None,
+            catalog: catalog.clone(),
         }
     }
 
@@ -32,6 +35,11 @@ impl Selector {
         self.treelist_window_opt = Some(main_window.popup_treelist_window(&self.prompt));
         self.selecting = true;
     }
+
+    pub fn catalog(&self) -> Catalog {
+        self.catalog.clone()
+    }
+
     pub fn process(&mut self, key: Key) {
         match key.name() {
             None => {}

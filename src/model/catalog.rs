@@ -30,7 +30,6 @@ impl SubCategory {
     }
     
     pub fn from_cons(value: &Value) -> Result<Vec<SubCategory>> {
-        println!("from_cons: {}", format_value(value));
         if value.is_null() {
           return Ok(vec![])  
         };
@@ -54,7 +53,6 @@ impl SubCategory {
                 }
             },
             Cons(_) => {
-                println!("special:{}", format_value(value));
                 let inner = cons.car().as_cons().unwrap();
                 if inner.car().is_symbol() && inner.cdr().is_null() {
                     return Err(Error::other(format!("incorrect s_expression value with singleton: {:?}", value)))
@@ -77,7 +75,6 @@ impl SubCategory {
 
 
     pub fn from_value(value: &Value) -> Result<SubCategory> {
-        println!("from_value: {}", format_value(value));
         match value {
             Cons(cons) => {
                 let car = cons.car();
@@ -89,7 +86,6 @@ impl SubCategory {
                     } else {
                         Self::from_cons(cdr)
                             .and_then(|subs| {
-                                println!("subs: {:?}", subs);
                                 Ok( SubCategory {
                                     name: symbol.to_string(),
                                     sub_categories: subs,
@@ -98,7 +94,6 @@ impl SubCategory {
                     }
                 } else if car.is_cons() {
                     if cdr.is_cons() {
-                        println!("in cons cons {:?}•{:?}", car, cdr);
                         match Self::from_value(cdr) {
                             Ok(sub) => {
                                 Ok(sub)

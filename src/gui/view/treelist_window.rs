@@ -1,3 +1,4 @@
+use crate::model::catalog::Catalog;
 use crate::RcController;
 use crate::clone;
 use crate::env::default_values::{TREELIST_WINDOW_HEIGHT, TREELIST_WINDOW_WIDTH};
@@ -25,6 +26,11 @@ impl TreeListWindow {
         selected: &str,
         controller_rc: &RcController,
     ) -> Self {
+        let catalog: Catalog = if let Ok(controller) = controller_rc.try_borrow() {
+            controller.selector().catalog()
+        } else {
+            panic!("can't access to controller");
+        };
         let prompt_label = gtk::Label::builder()
             .valign(Align::Center)
             .halign(Align::Center)
