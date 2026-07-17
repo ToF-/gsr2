@@ -136,7 +136,7 @@ pub fn title_display(controller: &Controller) -> String {
             panic!("can't borrow")
         };
         format!(
-            "{}{} #{} {} {} {} {} {} {} {} cat {} {} {} {}{} {}",
+            "{}{} #{} {} {} {} {} {} {} {} {} {} {} {}{} {}",
             small_picture_display(current_picture.image_data().map(|d| d.size())),
             cover_display(current_picture.cover()),
             controller.navigator().position(),
