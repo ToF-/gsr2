@@ -23,14 +23,17 @@ impl TreeListWindow {
     pub fn new(
         application_window: &gtk::ApplicationWindow,
         prompt: &str,
-        selected: &str,
+        _selected: &str,
+        catalog: &Catalog,
         controller_rc: &RcController,
     ) -> Self {
-        let catalog: Catalog = if let Ok(controller) = controller_rc.try_borrow() {
+        println!("{:?}", catalog);
+        /* let catalog: Catalog = if let Ok(controller) = controller_rc.try_borrow() {
             controller.selector().catalog()
         } else {
             panic!("can't access to controller");
         };
+        */
         let prompt_label = gtk::Label::builder()
             .valign(Align::Center)
             .halign(Align::Center)

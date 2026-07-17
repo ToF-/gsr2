@@ -1,3 +1,4 @@
+use crate::model::catalog::Catalog;
 use crate::Args;
 use crate::env::default_values::FOCUS_SYMBOL_1;
 use crate::env::default_values::QUARTER_OPACITY;
@@ -351,9 +352,9 @@ impl MainWindow {
         entry_window
     }
 
-    pub fn popup_treelist_window(&self, prompt: &str) -> TreeListWindow {
+    pub fn popup_treelist_window(&self, prompt: &str, catalog: &Catalog) -> TreeListWindow {
         let treelist_window =
-            TreeListWindow::new(&self.application_window(), prompt, "", &self.controller_rc);
+            TreeListWindow::new(&self.application_window(), prompt, "", catalog, &self.controller_rc);
         treelist_window.popup();
         treelist_window
     }
