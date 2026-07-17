@@ -41,6 +41,7 @@ impl Selector {
     }
 
     pub fn process(&mut self, key: Key) {
+        println!("processing key: {:?} from selector", key);
         match key.name() {
             None => {}
             Some(key_name) => match self.controls.get(&(key_name.to_string(), Mode::Selecting)) {
@@ -63,6 +64,7 @@ impl Selector {
 
     pub fn enter(&mut self) {
         self.selected = String::from("foo");
+        println!("treelist_window_opt:{:?}", self.treelist_window_opt);
         self.treelist_window_opt.clone().unwrap().close();
         self.selecting = false;
     }
