@@ -53,16 +53,26 @@ impl Catalog {
         self.root.clone()
     }
 
-    pub fn is_a(&self, sub_category_name: &str, target_category_name: &str) -> bool {
-        if sub_category_name == sub_category_name {
-            return true
-        };
-        return false
+    pub fn is_a(&self, target_category_name: &str, sub_category_name: &str) -> bool {
+        if self.reverse_tree.get(target_category_name).is_none() {
+            return false;
+        }
+        if self.reverse_tree.get(sub_category_name).is_none() {
+            return false;
+        }
+        if sub_category_name == target_category_name {
+            true
+        } else {
+            if let Some(parent_category_name) = self.reverse_tree.get(sub_category_name) {
+                parent_category_name == target_category_name || self.is_a(target_category_name, parent_category_name)
+            } else {
+                false
+            }
+        }
     }
 }
 
 fn make_reverse_tree(tree: &mut ReverseTree, parent: &SubCategory) -> Result<()> {
-    println!("make_reverse_tree for parent:{:?}", parent);
     let mut result: Result<()> = Ok(());
     parent.sub_categories().iter().for_each( |child| {
         if result.is_ok() {
@@ -74,7 +84,6 @@ fn make_reverse_tree(tree: &mut ReverseTree, parent: &SubCategory) -> Result<()>
         if result.is_ok() {
             let key: String = child.name();
             let value: String = parent.name();
-            println!("insert {} → {}", key, value);
             match tree.entry(key) {
                 Entry::Vacant(entry) => {
                     entry.insert(value);
@@ -85,8 +94,6 @@ fn make_reverse_tree(tree: &mut ReverseTree, parent: &SubCategory) -> Result<()>
             };
         };
     });
-    println!("result: {:?}", result);
-    println!("updated tree:{:?}", tree);
     result
 }
 
@@ -165,6 +172,7 @@ mod tests {
     #[test]
     fn duplicate_categories_are_not_allowed() {
         assert!(Catalog::from_sexpr("(- (foo bar) (gus bin (pog (qux bar))))").is_err());
+        assert!(Catalog::from_sexpr("(- (foo foo))").is_err());
     }
     #[test]
     fn catalog_can_be_read_from_a_file() {
@@ -175,16 +183,34 @@ mod tests {
         let expected = "\"Cat - [foo [bar, qux], bog [gap], pat [jxs [lam, lom, lum], zzz [tic, tac, toe], pin [blo]]]\"";
         assert_eq!(expected, format!("{:?}", format_catalog(&catalog)));
     }
-    //#[test]
+    #[test]
     fn is_a_sub_category_relationship_equality_case() {
         let catalog = Catalog::from_sexpr("(- (foo bar) (qux law))").expect("incorrect sexpr");
         assert!(catalog.is_a("bar","bar"));
-        assert!(!catalog.is_a("bug","bar"));
     }
-    //#[test]
+    #[test]
     fn is_a_sub_category_relationship_sub_category_case() {
         let catalog = Catalog::from_sexpr("(- (foo bar) (qux law))").expect("incorrect sexpr");
-        assert!(catalog.is_a("bar","foo"));
-        assert!(!catalog.is_a("foo","bar"));
+        assert!(catalog.is_a("foo","bar"));
+        assert!(catalog.is_a("qux","law"));
+        assert!(!catalog.is_a("foo","qux"));
+    }
+    #[test]
+    fn is_a_sub_category_relationship_sub_sub_category_case() {
+        let catalog = Catalog::from_sexpr("(- (foo bar) (qux (law bug)))").expect("incorrect sexpr");
+        assert!(catalog.is_a("qux","bug"));
+        assert!(!catalog.is_a("foo","bug"));
+    }
+    #[test]
+    fn is_a_sub_category_relationship_inexistent_sub_category_case() {
+        let catalog = Catalog::from_sexpr("(- (foo bar) (qux (law bug)))").expect("incorrect sexpr");
+        assert!(!catalog.is_a("-","paw"));
+        assert!(!catalog.is_a("paw","bar"));
+        assert!(!catalog.is_a("paw","paw"));
+    }
+    #[test]
+    fn is_a_sub_category_relationship_root_target_sub_category_case() {
+        let catalog = Catalog::from_sexpr("(- (foo bar) (qux (law bug)))").expect("incorrect sexpr");
+        assert!(!catalog.is_a("-","bug"));
     }
 }
