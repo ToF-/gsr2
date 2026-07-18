@@ -111,6 +111,10 @@ impl ImageData {
         self.cover
     }
 
+    pub fn category(&self) -> Option<String> {
+        self.category.clone()
+    }
+
     pub fn tags(&self) -> Tags {
         self.tags.clone()
     }

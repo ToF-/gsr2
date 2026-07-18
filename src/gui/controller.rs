@@ -445,6 +445,7 @@ impl Controller {
 
     fn set_order(&mut self, input: &str) {
         let choice: Control = match input {
+            "Category" => Control::OrderByCategory,
             "ColorCount" => Control::OrderByColorCount,
             "Date" => Control::OrderByDate,
             "Label" => Control::OrderByLabel,
@@ -584,7 +585,8 @@ impl Controller {
                 _ => println!("?"),
             },
             Control::SetOrder => match choice {
-                Control::OrderByName
+                | Control::OrderByCategory
+                | Control::OrderByName
                 | Control::OrderByDate
                 | Control::OrderBySize
                 | Control::OrderByValue
@@ -636,6 +638,7 @@ impl Controller {
     }
 
     fn process_control(&mut self, control: &Control) {
+        println!("process_control({:?})", control);
         match control {
             Control::MoveNext => self.move_towards(Direction::NextPage),
             Control::MovePrev => self.move_towards(Direction::PrevPage),
@@ -688,6 +691,7 @@ impl Controller {
             Control::CancelSelection => self.cancel_selection_criteria(),
             Control::DisplayDate => self.toggle_display_date(),
             Control::DisplaySize => self.toggle_display_size(),
+            Control::OrderByCategory => self.order_by(Order::Category),
             Control::OrderByName => self.order_by(Order::Name),
             Control::OrderByCover => self.order_by(Order::Cover),
             Control::OrderByDate => self.order_by(Order::Date),

@@ -163,6 +163,19 @@ impl Gallery {
                 .pictures
                 .sort_by_key(|picture| (cover_sort_key(picture.cover()), picture.file_path())),
             _ => self.pictures.shuffle(&mut rng()),
+
+            Order::Category => self.pictures.sort_by_key(|picture| {
+                picture.image_data().map(|image_data| {
+                    (
+                        !picture.selected(&selection_criteria),
+                        if image_data.category().is_none() {
+                            "~".to_string()
+                        } else {
+                            image_data.category().unwrap().clone()
+                        }
+                    )
+                })
+            }),
         }
     }
 

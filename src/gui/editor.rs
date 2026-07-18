@@ -50,7 +50,7 @@ impl Editor {
             EntryKind::RemoveTag => "Enter a tag to remove",
             EntryKind::Number => "Enter a number",
             EntryKind::Order => {
-                "Enter a sorting criteria: c)olors d)ate l)abel m)ost views n)ame p)alette co)ver r)andom s)ize v)alue "
+                "Enter a sorting criteria: c(a)tegory (c)olors (d)ate (l)abel (m)ost views (n)ame (p)alette c(o)ver (r)andom (s)ize (v)alue "
             }
             EntryKind::DeleteConfirmation => "Delete these pictures?",
             EntryKind::MoveConfirmation => "Move these pictures?",
@@ -72,7 +72,7 @@ impl Editor {
     pub fn begin_input(&mut self, kind: EntryKind, choice_opt: Option<Tags>) {
         self.entry_kind = kind;
         if let Some(choice) = choice_opt {
-            self.choice = choice.clone()
+            self.choice = choice.clone();
         };
         self.editing = true;
         self.input = String::from("");
@@ -126,6 +126,7 @@ impl Editor {
     }
 
     pub fn enter(&mut self) {
+        println!("editor.enter self.input={:?}", self.input);
         self.entry_window_opt.clone().unwrap().close();
         self.editing = false
     }
@@ -214,7 +215,7 @@ impl Editor {
                 'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' ' | ',' ),
             EntryKind::Order => matches!(
                 ch,
-                'c' | 'd' | 'p' | 'm' | 'l' | 'n' | 'o' | 'r' | 's' | 'v'
+                'a' | 'c' | 'd' | 'p' | 'm' | 'l' | 'n' | 'o' | 'r' | 's' | 'v'
             ),
             EntryKind::Information | EntryKind::Help => false,
         };
@@ -232,6 +233,7 @@ impl Editor {
             ' ' => self.input.push('-'),
             c if self.entry_kind == EntryKind::Order => {
                 let order: Order = match c {
+                    'a' => Order::Category,
                     'c' => Order::ColorCount,
                     'd' => Order::Date,
                     'l' => Order::Label,

@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(PartialEq, Clone, Copy, Debug, Deserialize, Serialize)]
 pub enum Order {
+    Category,
     ColorCount,
     Cover,
     Date,
@@ -18,6 +19,7 @@ pub enum Order {
 #[allow(dead_code)]
 pub fn from(s: &str) -> Option<Order> {
     match s {
+        "a" => Some(Order::Category),
         "c" => Some(Order::ColorCount),
         "d" => Some(Order::Date),
         "l" => Some(Order::Label),
@@ -41,6 +43,7 @@ impl std::fmt::Display for Order {
 impl clap::ValueEnum for Order {
     fn value_variants<'a>() -> &'a [Self] {
         &[
+            Order::Category,
             Order::ColorCount,
             Order::Cover,
             Order::Date,
@@ -56,6 +59,7 @@ impl clap::ValueEnum for Order {
 
     fn to_possible_value(&self) -> Option<PossibleValue> {
         Some(match self {
+            Order::Category => PossibleValue::new("Category"),
             Order::ColorCount => PossibleValue::new("Colors"),
             Order::Cover => PossibleValue::new("Cover"),
             Order::Date => PossibleValue::new("Date"),

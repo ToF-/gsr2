@@ -69,6 +69,7 @@ pub enum Control {
     DisplayDate,
     DisplayFocus,
     DisplaySize,
+    OrderByCategory,
     OrderByScore,
     OrderByName,
     OrderByCover,
@@ -103,7 +104,7 @@ pub fn help_on_controls() -> String {
         j then a,b,c,d,e : jump to mark A/B/C/D/E \n
         \",«,»,(,) : jump to mark A/B/C/D/E \n\
         i/I: toggle information display, display file path \n\
-        O then c,d,n,p,r,s,v: pick view order \n\
+        O then a,c,d,n,p,r,s,v: pick view order \n\
         D then s,t: display size,modified time in title \n\
         v: set/unset cover, V: see all covers \n\
         P: display palette sample \n\
@@ -254,6 +255,10 @@ pub fn default_controls() -> Controls {
         (
             (String::from("f"), Mode::Setting(Control::SetOrder)),
             Control::DisplayFocus,
+        ),
+        (
+            (String::from("a"), Mode::Setting(Control::SetOrder)),
+            Control::OrderByCategory,
         ),
         (
             (String::from("n"), Mode::Setting(Control::SetOrder)),
