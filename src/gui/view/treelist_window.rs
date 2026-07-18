@@ -6,7 +6,7 @@ use gtk::gdk::Display;
 use gtk::prelude::ListItemExt;
 use gtk::glib::object::Cast;
 use gtk::gio;
-use crate::model::catalog::SubCategory;
+use crate::model::sub_category::SubCategory;
 use glib::BoxedAnyObject;
 use crate::model::catalog::Catalog;
 use crate::RcController;

@@ -18,6 +18,7 @@ use std::io::Error as IOError;
 use std::io::Result as IOResult;
 use std::path::PathBuf;
 use std::rc::Rc;
+use crate::model::categories::Categories;
 
 pub type ImageDataMap = HashMap<String, ImageData>;
 
@@ -28,6 +29,7 @@ pub struct Database {
 
 pub struct RetrieveCriteria {
     pub selection_criteria: SelectionCriteria,
+    pub categories: Option<Categories>,
     pub label: Option<String>,
     pub extraction: Option<Vec<String>>,
     pub filter: Option<String>,
@@ -509,6 +511,7 @@ impl Database {
     pub fn retrieve_all_pictures_with_parent(&self, parent_dir: &str) -> IOResult<Vec<Picture>> {
         let retrieve_criteria = RetrieveCriteria {
             selection_criteria: SelectionCriteria::empty(),
+            categories: None,
             label: None,
             extraction: None,
             filter: None,
@@ -642,6 +645,7 @@ pub mod tests {
     pub fn dummy_args() -> Args {
         Args {
             command: None,
+            categories: None,
             directory: None,
             all: false,
             grid: None,
@@ -854,6 +858,7 @@ pub mod tests {
 
         let criteria = RetrieveCriteria {
             selection_criteria: SelectionCriteria::empty(),
+            categories: None,
             label: None,
             extraction: None,
             filter: None,

@@ -1,3 +1,4 @@
+use crate::model::categories::Categories;
 use crate::cli::args::Args;
 use crate::cli::command::Command;
 use crate::env::configuration::Configuration;
@@ -106,6 +107,7 @@ impl Repository {
                 };
                 let retrieve_criteria = RetrieveCriteria {
                     selection_criteria: selection_criteria.clone(),
+                    categories: args.categories.clone().map(Categories::from_string),
                     label: args.label.clone(),
                     extraction: extraction.clone(),
                     filter: args.filter.clone(),

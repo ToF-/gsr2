@@ -31,6 +31,10 @@ pub struct Args {
     #[command(subcommand)]
     pub command: Option<Command>,
 
+    /// display only pictures in categorie <CATEGORIES> (e.g "foo bar")
+    #[arg(long, value_name="CATEGORIES")]
+    pub categories: Option<String>,
+
     /// display only pictures which are selected as cover
     #[arg(short, long)]
     pub cover: bool,
