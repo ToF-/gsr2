@@ -638,7 +638,6 @@ impl Controller {
     }
 
     fn process_control(&mut self, control: &Control) {
-        println!("process_control({:?})", control);
         match control {
             Control::MoveNext => self.move_towards(Direction::NextPage),
             Control::MovePrev => self.move_towards(Direction::PrevPage),

@@ -126,7 +126,6 @@ impl Editor {
     }
 
     pub fn enter(&mut self) {
-        println!("editor.enter self.input={:?}", self.input);
         self.entry_window_opt.clone().unwrap().close();
         self.editing = false
     }

@@ -162,7 +162,6 @@ impl Gallery {
             Order::Cover => self
                 .pictures
                 .sort_by_key(|picture| (cover_sort_key(picture.cover()), picture.file_path())),
-            _ => self.pictures.shuffle(&mut rng()),
 
             Order::Category => self.pictures.sort_by_key(|picture| {
                 picture.image_data().map(|image_data| {
@@ -176,6 +175,7 @@ impl Gallery {
                     )
                 })
             }),
+            _ => self.pictures.shuffle(&mut rng()),
         }
     }
 
