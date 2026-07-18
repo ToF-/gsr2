@@ -1,3 +1,4 @@
+ use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use crate::model::sub_category::SubCategory;
 use std::fs;
@@ -8,10 +9,12 @@ use lexpr::Value::Cons;
 use lexpr::Value::Symbol;
 use lexpr::Value::Null;
 
+type ReverseTree = HashMap<String, String>;
+
 #[derive(Debug, Clone)]
 pub struct Catalog {
     root: SubCategory,
-    reverse_tree: HashMap<String,String>,
+    reverse_tree: ReverseTree,
 }
 
 impl Catalog {
@@ -22,7 +25,11 @@ impl Catalog {
                 match SubCategory::from_value(&value) {
                     Ok(root) => {
                     if root.name() == "-" {
-                        Ok( Catalog { root, reverse_tree: HashMap::new(), })
+                        let mut tree: ReverseTree = ReverseTree::new();
+                        match make_reverse_tree(&mut tree, &root) {
+                            Ok(_) => Ok( Catalog { root, reverse_tree: tree, }),
+                            Err(err) => Err(Error::other(err)),
+                        }
                     } else {
                         Err(Error::other(format!("incorrect s_expression value: missing root symbol in {:?}", value)))
                     }},
@@ -46,13 +53,48 @@ impl Catalog {
         self.root.clone()
     }
 
-    pub fn is_a(&self, sub_category_name: &str, category_name: &str) -> bool {
-        if sub_category_name == category_name {
+    pub fn is_a(&self, sub_category_name: &str, target_category_name: &str) -> bool {
+        if sub_category_name == sub_category_name {
             return true
+        };
+        let mut current_sub_category_name = sub_category_name;
+        while let Some(parent_category_name) = self.reverse_tree.get(current_sub_category_name) {
+            if parent_category_name == target_category_name {
+                return true
+            };
+            if parent_category_name == "-" {
+                return false
+            };
+            current_sub_category_name = parent_category_name
         };
         return false
     }
 }
+
+fn make_reverse_tree(tree: &mut ReverseTree, root: &SubCategory) -> Result<()> {
+    let mut parent = root;
+    while !parent.sub_categories().is_empty() {
+        parent.sub_categories().iter().for_each( |child| {
+            let key: String = child.name();
+            let value: String = parent.name();
+            match tree.entry(key) {
+                Entry::Vacant(entry) => {
+                    entry.insert(value);
+                    match make_reverse_tree(tree, child) {
+                        Ok(_) => {},
+                        Err(err) => { 
+                            return Err(err);
+                        },
+                    }
+                },
+                Entry::Occupied(entry) => {
+                    return Err(Error::other(format!("duplicate subcategory:{}", child.name())));
+                },
+            }
+        })
+    };
+}
+
 
 pub fn format_value(v: &Value) -> String {
     match v {
@@ -141,7 +183,7 @@ mod tests {
         assert!(catalog.is_a("bar","bar"));
         assert!(!catalog.is_a("bug","bar"));
     }
-//    #[test]
+    #[test]
     fn is_a_sub_category_relationship_sub_category_case() {
         let catalog = Catalog::from_sexpr("(- (foo bar) (qux law))").expect("incorrect sexpr");
         assert!(catalog.is_a("bar","foo"));
