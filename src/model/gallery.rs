@@ -175,7 +175,7 @@ impl Gallery {
                     )
                 })
             }),
-            _ => self.pictures.shuffle(&mut rng()),
+            Order::Random => self.pictures.shuffle(&mut rng()),
         }
     }
 
