@@ -111,6 +111,9 @@ impl Controller {
         self.selector.clone()
     }
 
+    pub fn set_selected(&mut self, selected: &str) {
+        self.selector.set_selected(&selected);
+    } 
     pub fn main_window(&self) -> MainWindow {
         self.main_window_opt.clone().unwrap()
     }
@@ -633,7 +636,6 @@ impl Controller {
     }
 
     fn process_control(&mut self, control: &Control) {
-        println!("{:?}", control);
         match control {
             Control::MoveNext => self.move_towards(Direction::NextPage),
             Control::MovePrev => self.move_towards(Direction::PrevPage),
