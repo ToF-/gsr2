@@ -1,4 +1,5 @@
- use std::collections::hash_map::Entry;
+ use crate::model::categories::Categories;
+use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use crate::model::sub_category::SubCategory;
 use std::fs;
@@ -69,6 +70,10 @@ impl Catalog {
                 false
             }
         }
+    }
+
+    pub fn is_one_of(&self, categories: Categories, category_name: &str) -> bool {
+        todo!()
     }
 }
 

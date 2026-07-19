@@ -1,3 +1,4 @@
+use crate::model::catalog::Catalog;
 use crate::file::paths::parent_directory;
 use crate::file::paths::{file_exists, file_path_as_retrieved, file_path_as_stored};
 use crate::model::color_range::ColorRange;
@@ -421,6 +422,7 @@ impl Database {
     pub fn retrieve_all_pictures(
         &self,
         retrieve_criteria: RetrieveCriteria,
+        catalog_opt: Option<Catalog>,
     ) -> IOResult<Vec<Picture>> {
         self.retrieve_all_parent_dirs().and_then(|parent_dirs| {
             match self.rusqlite_retrieve_all_pictures(
@@ -466,6 +468,17 @@ impl Database {
                                     }
                                 },
                                 ..image_data.clone()
+                            };
+                            if let Some(ref catalog) = catalog_opt {
+                                if let Some(categories) = retrieve_criteria.categories.clone() {
+                                    if let Some(category) = image_data.category() {
+                                        if !catalog.is_one_of(categories, &category) {
+                                            continue
+                                        };
+                                    } else {
+                                        continue;
+                                    }
+                                }
                             };
                             if !retrieve_criteria.selection_criteria.is_empty()
                                 && !retrieve_criteria
@@ -519,7 +532,7 @@ impl Database {
             cover: false,
             parent_opt: Some(parent_dir.to_string()),
         };
-        self.retrieve_all_pictures(retrieve_criteria)
+        self.retrieve_all_pictures(retrieve_criteria, None)
     }
 
     fn rusqlite_row_to_picture(row: &Row) -> SqlResult<Picture, rusqlite::Error> {

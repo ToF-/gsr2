@@ -82,9 +82,9 @@ impl Controller {
             Err(e) => panic!("{}", e),
         };
         println!("{} pictures", repository.len());
-        let catalog: Catalog = match Catalog::from_file(&config.catalog) {
+        let catalog: Catalog = match Catalog::from_file(&config.catalog_filepath) {
             Ok(cat) => cat,
-            Err(e) => return Err(Error::other(format!("cannot log catalog file {} {}",config.catalog, e))),
+            Err(e) => return Err(Error::other(format!("cannot log catalog file {} {}",config.catalog_filepath, e))),
         };
         Ok(Controller {
             configuration: config.clone(),

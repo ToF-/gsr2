@@ -6,7 +6,7 @@ use crate::gui::entry_kind::EntryKind;
 use crate::gui::mode::Mode;
 use crate::gui::view::entry_window::EntryWindow;
 use crate::model::order::Order;
-use crate::model::tags::{Tags, empty};
+use crate::model::tags::{Tags, empty_tags};
 use gdk::Key;
 use gtk::{self, gdk};
 use itertools::Itertools;
@@ -32,7 +32,7 @@ impl Editor {
             input: String::from(""),
             entry_kind: EntryKind::Label,
             entry_window_opt: None,
-            choice: empty(),
+            choice: empty_tags(),
         }
     }
 

@@ -1,3 +1,4 @@
+use crate::model::catalog::Catalog;
 use crate::model::categories::Categories;
 use crate::cli::args::Args;
 use crate::cli::command::Command;
@@ -42,6 +43,7 @@ pub struct Repository {
     parent_dirs: HashMap<String, (usize, usize)>,
     len: usize,
     temp_dir: String,
+    catalog_filepath: String,
 }
 
 impl Repository {
@@ -51,11 +53,12 @@ impl Repository {
             args: args.clone(),
             on_database: true,
             database,
-            tags_rc: RefCell::new(crate::model::tags::empty()),
+            tags_rc: RefCell::new(crate::model::tags::empty_tags()),
             gallery_rc: RefCell::new(Gallery::new()),
             parent_dirs: HashMap::new(),
             len: 0,
             temp_dir: configuration.temp_dir,
+            catalog_filepath: configuration.catalog_filepath,
         }
     }
 
@@ -84,6 +87,11 @@ impl Repository {
     }
 
     fn retrieve_all_pictures(&mut self, args: &Args) -> IOResult<()> {
+        let catalog_result = Catalog::from_file(&self.catalog_filepath);
+        let catalog: Catalog = match catalog_result {
+            Ok(catalog) => catalog,
+            Err(err) => return Err(err),
+        };
         let selection_criteria = SelectionCriteria::from_args(args);
         match self.gallery_rc.try_borrow_mut() {
             Ok(mut gallery) => {
@@ -107,7 +115,9 @@ impl Repository {
                 };
                 let retrieve_criteria = RetrieveCriteria {
                     selection_criteria: selection_criteria.clone(),
-                    categories: args.categories.clone().map(Categories::from_string),
+                    categories: args.categories.clone().as_ref().map(|s| {
+                        Categories::from_string(s)
+                    }),
                     label: args.label.clone(),
                     extraction: extraction.clone(),
                     filter: args.filter.clone(),
@@ -115,7 +125,7 @@ impl Repository {
                     cover: args.cover,
                     parent_opt: args.directory.clone(),
                 };
-                *gallery = match self.database.retrieve_all_pictures(retrieve_criteria) {
+                *gallery = match self.database.retrieve_all_pictures(retrieve_criteria, Some(catalog)) {
                     Ok(pictures) => {
                         let mut gallery = Gallery::new_with_pictures(pictures);
                         gallery.sort_by(args.order.unwrap_or(Order::Name));

@@ -8,6 +8,6 @@ pub fn tags_from_str(s: &str) -> Tags {
     set
 }
 
-pub fn empty() -> Tags {
+pub fn empty_tags() -> Tags {
     HashSet::new()
 }

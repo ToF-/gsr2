@@ -1,5 +1,5 @@
 use crate::cli::args::Args;
-use crate::model::tags::{Tags, empty, tags_from_str};
+use crate::model::tags::{Tags, empty_tags, tags_from_str};
 
 pub const SOME_TAGS: bool = false;
 pub const ALL_TAGS: bool = true;
@@ -30,7 +30,7 @@ impl SelectionCriteria {
 
     pub fn empty() -> Self {
         SelectionCriteria {
-            tags: empty(),
+            tags: empty_tags(),
             restrict: ALL_TAGS,
         }
     }

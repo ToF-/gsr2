@@ -22,7 +22,7 @@ pub struct Configuration {
     pub current_order: Option<Order>,
     pub cover: bool,
     pub base_dir: String,
-    pub catalog: String,
+    pub catalog_filepath: String,
 }
 
 pub static CONFIGURATION: OnceLock<Configuration> = OnceLock::new();
