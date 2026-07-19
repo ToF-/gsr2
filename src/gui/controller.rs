@@ -1,3 +1,4 @@
+use std::io::Error;
 use crate::model::catalog::Catalog;
 use crate::cli::args::Args;
 use crate::cli::command::Command;
@@ -83,7 +84,7 @@ impl Controller {
         println!("{} pictures", repository.len());
         let catalog: Catalog = match Catalog::from_file(&config.catalog) {
             Ok(cat) => cat,
-            Err(e) => panic!("cannot log catalog file {} {}",config.catalog, e),
+            Err(e) => return Err(Error::other(format!("cannot log catalog file {} {}",config.catalog, e))),
         };
         Ok(Controller {
             configuration: config.clone(),
