@@ -79,7 +79,7 @@ impl Controller {
         let mut repository = Repository::new(config.clone(), cli.clone(), false);
         match repository.initialize() {
             Ok(_) => {}
-            Err(e) => panic!("{}", e),
+            Err(e) => panic!("c'est bien moi qui panic {}", e),
         };
         println!("{} pictures", repository.len());
         let catalog: Catalog = match Catalog::from_file(&config.catalog_filepath) {

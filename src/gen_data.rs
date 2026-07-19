@@ -1,8 +1,6 @@
 extern crate image;
 use crate::test_data::*;
 
-mod test_data;
-
 pub fn save_large_picture() {
     let image = large_picture();
     image.save(large_picture_file_path()).unwrap();

@@ -1,3 +1,4 @@
+use crate::file::paths::file_exists;
 use crate::model::catalog::Catalog;
 use crate::model::categories::Categories;
 use crate::cli::args::Args;
@@ -15,7 +16,6 @@ use crate::file::picture_file::copy_picture_file_to_directory;
 use crate::file::picture_file::delete_picture_files;
 use crate::file::picture_file::get_all_picture_file_paths;
 use crate::file::picture_file::get_picture_file_path;
-use crate::file_exists;
 use crate::model::gallery::Gallery;
 use crate::model::order::Order;
 use crate::model::picture::Picture;
@@ -172,9 +172,9 @@ impl Repository {
                             self.len = file_gallery.len();
                             Ok(())
                         }
-                        Err(e) => Err(IOError::other(e)),
+                        Err(e) => Err(IOError::other(dbg!(e))),
                     },
-                    Err(e) => Err(e),
+                    Err(e) => Err(dbg!(e)),
                 }
             }
             Some(Command::Directory { directory }) => {
@@ -186,17 +186,17 @@ impl Repository {
                             self.len = dir_gallery.len();
                             Ok(())
                         }
-                        Err(e) => Err(IOError::other(e)),
+                        Err(e) => Err(IOError::other(dbg!(e))),
                     },
-                    Err(e) => Err(e),
+                    Err(e) => Err(dbg!(e)),
                 }
             }
             _ => {
                 self.on_database = true;
-                self.retrieve_all_labels().and_then(|()| {
-                    self.retrieve_all_parent_dirs()
-                        .and_then(|()| self.retrieve_all_pictures(&self.args.clone()))
-                })
+                dbg!(dbg!(self.retrieve_all_labels()).and_then(|()| {
+                    dbg!(self.retrieve_all_parent_dirs())
+                        .and_then(|()| dbg!(self.retrieve_all_pictures(&self.args.clone())))
+                }))
             }
         }
     }
