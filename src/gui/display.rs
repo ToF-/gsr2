@@ -150,7 +150,7 @@ pub fn title_display(controller: &Controller) -> String {
                 None => Rank::NoStar,
             },
             match current_picture.image_data() {
-                Some(image_data) => category_display(image_data.category),
+                Some(image_data) => category_display(image_data.category_name()),
                 None => "".to_string(),
             },
             match current_picture.image_data() {

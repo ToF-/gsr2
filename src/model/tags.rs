@@ -8,6 +8,10 @@ pub fn tags_from_str(s: &str) -> Tags {
     set
 }
 
+pub fn tags_as_vec(tags: Tags) -> Vec<String> {
+    tags.iter().cloned().collect()
+}
+
 pub fn empty_tags() -> Tags {
     HashSet::new()
 }

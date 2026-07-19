@@ -113,7 +113,7 @@ pub fn collect_picture_data(picture: &Picture) -> IOResult<Picture> {
                     tags: HashSet::new(),
                     cover: None,
                     score: 0,
-                    category: None,
+                    category_name: None,
                 }
             } else {
                 return Err(std::io::Error::other(format!(

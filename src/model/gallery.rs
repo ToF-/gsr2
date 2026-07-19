@@ -167,10 +167,10 @@ impl Gallery {
                 picture.image_data().map(|image_data| {
                     (
                         !picture.selected(&selection_criteria),
-                        if image_data.category().is_none() {
+                        if image_data.category_name().is_none() {
                             "~".to_string()
                         } else {
-                            image_data.category().unwrap().clone()
+                            image_data.category_name().unwrap().clone()
                         }
                     )
                 })

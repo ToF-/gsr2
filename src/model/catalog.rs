@@ -72,8 +72,13 @@ impl Catalog {
         }
     }
 
-    pub fn is_one_of(&self, categories: Categories, category_name: &str) -> bool {
-        todo!()
+    pub fn is_one_of(&self, categories: &Categories, category_name: &str) -> bool {
+        for selected_category_name in categories.names() {
+            if self.is_a(&selected_category_name, category_name) {
+                return true
+            }
+        }
+        return false
     }
 }
 
@@ -217,5 +222,15 @@ mod tests {
     fn is_a_sub_category_relationship_root_target_sub_category_case() {
         let catalog = Catalog::from_sexpr("(- (foo bar) (qux (law bug)))").expect("incorrect sexpr");
         assert!(!catalog.is_a("-","bug"));
+    }
+    #[test]
+    fn is_one_of_categories_from_a_catalog() {
+        let categories = Categories::from_string("bam,foo");
+        let catalog = Catalog::from_sexpr("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
+        assert!(catalog.is_one_of(&categories, "gus"));
+        assert!(!catalog.is_one_of(&categories, "bap"));
+        assert!(catalog.is_one_of(&categories, "bol"));
+        assert!(catalog.is_one_of(&categories, "foo"));
+        assert!(!catalog.is_one_of(&categories, "qux"));
     }
 }

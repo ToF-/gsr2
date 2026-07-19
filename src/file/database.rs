@@ -118,7 +118,7 @@ impl Database {
                     image_data.palette.count(),
                     cover_to_bool(image_data.cover()),
                     image_data.score,
-                    image_data.category,
+                    image_data.category_name,
                 ],
             )
             .map(|count| {
@@ -171,7 +171,7 @@ impl Database {
                     image_data.palette.count(),
                     cover_to_bool(image_data.cover),
                     image_data.score,
-                    image_data.category,
+                    image_data.category_name,
                 ],
             )
             .and_then(|_| {
@@ -471,12 +471,13 @@ impl Database {
                             };
                             if let Some(ref catalog) = catalog_opt {
                                 if let Some(categories) = retrieve_criteria.categories.clone() {
-                                    if let Some(category) = image_data.category() {
-                                        if !catalog.is_one_of(categories, &category) {
+                                    if let Some(category_name) = image_data.category_name() {
+                                        if !catalog.is_one_of(&categories, &category_name) {
                                             continue
-                                        };
+                                        } else {
+                                        }
                                     } else {
-                                        continue;
+                                        continue
                                     }
                                 }
                             };
@@ -521,6 +522,7 @@ impl Database {
         })
     }
 
+
     pub fn retrieve_all_pictures_with_parent(&self, parent_dir: &str) -> IOResult<Vec<Picture>> {
         let retrieve_criteria = RetrieveCriteria {
             selection_criteria: SelectionCriteria::empty(),
@@ -552,7 +554,7 @@ impl Database {
         let color_count: usize = row.get(6).expect("can't get column ColorCount");
         let cover = row.get(7).expect("can't get column Cover");
         let score = row.get(8).expect("can't get column Score");
-        let category: Option<String> = row.get(9).expect("can't get column Category");
+        let category_name: Option<String> = row.get(9).expect("can't get column Category");
         let mut picture = Picture::new_with_label(&file_path_as_retrieved, &label);
         let mut palette = Palette::new(vec![], color_count);
         palette.set_sample_from_array(sample_array);
@@ -565,7 +567,7 @@ impl Database {
             tags: HashSet::new(),
             cover: bool_to_cover(cover),
             score,
-            category,
+            category_name,
         };
         picture.set_image_data(image_data);
         Ok(picture)
@@ -650,7 +652,7 @@ pub mod tests {
             current_order: Some(Order::Name),
             current_pictures_per_row: Some(1),
             base_dir: format!("{}/{}", current_directory(), TEST_DATA_DIR),
-            catalog: "".to_string(),
+            catalog_filepath: "".to_string(),
         };
         Args::parse_and_check(cmd, &config)
     }
@@ -879,7 +881,7 @@ pub mod tests {
             cover: false,
             parent_opt: None,
         };
-        let result = database.retrieve_all_pictures(criteria);
+        let result = database.retrieve_all_pictures(criteria, None);
         assert!(result.is_ok());
         let pictures = result.unwrap();
         assert_eq!(nine_colors_file_path(), pictures[1].file_path());

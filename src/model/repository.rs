@@ -680,7 +680,7 @@ mod tests {
         args.order = Some(Order::Size);
         let cfg = my_cfg();
         let mut repository = Repository::new(my_cfg(), args.clone(), false);
-        assert!(repository.initialize().is_ok());
+        repository.initialize().expect("can't initialize repository");
         let gallery_rc = repository.gallery_rc();
         let gallery = gallery_rc
             .try_borrow()

@@ -38,7 +38,7 @@ pub struct ImageData {
     pub cover: Cover,
     pub tags: Tags,
     pub score: u32,
-    pub category: Option<String>,
+    pub category_name: Option<String>,
 }
 
 impl ImageData {
@@ -52,7 +52,7 @@ impl ImageData {
             cover: None,
             tags: HashSet::new(),
             score: 0,
-            category: None,
+            category_name: None,
         }
     }
     pub fn new_with_label(label: &str) -> Self {
@@ -65,7 +65,7 @@ impl ImageData {
             cover: None,
             tags: HashSet::new(),
             score: 0,
-            category: None,
+            category_name: None,
         }
     }
 
@@ -79,7 +79,7 @@ impl ImageData {
             cover: None,
             tags: HashSet::new(),
             score: 0,
-            category: None,
+            category_name: None,
         })
     }
 
@@ -111,8 +111,8 @@ impl ImageData {
         self.cover
     }
 
-    pub fn category(&self) -> Option<String> {
-        self.category.clone()
+    pub fn category_name(&self) -> Option<String> {
+        self.category_name.clone()
     }
 
     pub fn tags(&self) -> Tags {
@@ -127,8 +127,8 @@ impl ImageData {
         self.rank = rank
     }
 
-    pub fn set_category(&mut self, category: Option<String>) {
-        self.category = category
+    pub fn set_category_name(&mut self, category_name: Option<String>) {
+        self.category_name = category_name
     }
 
     pub fn increment_score(&mut self, score: u32) {

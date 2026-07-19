@@ -1,3 +1,4 @@
+use crate::model::tags::tags_as_vec;
 use crate::model::tags::empty_tags;
 use crate::model::tags::Tags;
 use crate::model::tags::tags_from_str;
@@ -12,11 +13,15 @@ impl Categories {
         Self {
             names: empty_tags(),
         }
-}
+    }
+    pub fn from_string(s: &str) -> Self {
+        Self {
+            names: tags_from_str(s)
+        }
+    }
 
-pub fn from_string(s: &str) -> Self {
-    Self {
-        names: tags_from_str(s)
+    pub fn names(&self) -> Vec<String> {
+        tags_as_vec(self.names.clone())
     }
 }
-}
+
