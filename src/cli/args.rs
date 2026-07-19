@@ -268,9 +268,6 @@ impl Args {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::Command::Directory;
-    use crate::Command::File;
-    use crate::Configuration;
     use crate::cli::command::Command;
     use crate::test_data::*;
     use std::io::ErrorKind;

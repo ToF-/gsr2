@@ -1,4 +1,4 @@
-use crate::Database;
+use crate::file::database::Database;
 use crate::file::paths::renamed_file_path;
 use crate::file::paths::{
     file_exists, file_path_as_retrieved, file_path_as_stored, thumbnail_name_from,

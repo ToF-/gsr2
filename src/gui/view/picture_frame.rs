@@ -1,5 +1,5 @@
-use crate::Controller;
 use crate::env::default_values::{FRAME_PALETTE_AREA_HEIGHT, FRAME_PALETTE_AREA_WIDTH};
+use crate::gui::controller::Controller;
 use crate::gui::view::palette_area::make_palette_area;
 use gtk::Align;
 use gtk::Orientation;

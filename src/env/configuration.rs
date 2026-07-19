@@ -1,6 +1,5 @@
 use crate::env::default_values::{CONFIG_FILE_DEFAULT, CONFIG_FILE_VARIABLE};
-use crate::file::paths::home_directory;
-use crate::file_exists;
+use crate::file::paths::{file_exists, home_directory};
 use crate::model::order::Order;
 use serde::Deserialize;
 use serde::Serialize;
