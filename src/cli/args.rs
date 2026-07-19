@@ -32,15 +32,15 @@ pub struct Args {
     pub command: Option<Command>,
 
     /// display only pictures in categorie <CATEGORIES> (e.g "foo bar")
-    #[arg(long, value_name="CATEGORIES")]
+    #[arg(short, long, value_name="CATEGORIES")]
     pub categories: Option<String>,
 
     /// display only pictures which are selected as cover
-    #[arg(short, long)]
+    #[arg(long)]
     pub cover: bool,
 
     /// display all pictures, not only cover pictures
-    #[arg(short, long)]
+    #[arg(long)]
     pub all: bool,
 
     /// select only picture data for pictures present on <DIRECTORY>
