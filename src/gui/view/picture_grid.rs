@@ -1,4 +1,3 @@
-use crate::clone;
 use crate::env::default_values::{
     GRID_PALETTE_AREA_HEIGHT, GRID_PALETTE_AREA_WIDTH, MAX_PICTURES_PER_ROW,
 };
@@ -9,7 +8,7 @@ use crate::gui::view::palette_area::make_palette_area;
 use crate::gui::view::picture_cell_box::make_picture_cell_box;
 use crate::gui::view::picture_frame::make_label;
 use crate::model::picture::Picture;
-use gtk::glib::ControlFlow;
+use gtk::glib::{ControlFlow, clone};
 use gtk::glib::timeout_add_local;
 use gtk::prelude::BoxExt;
 use gtk::prelude::Cast;

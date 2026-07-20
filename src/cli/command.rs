@@ -1,15 +1,15 @@
-use crate::Args;
-use crate::Configuration;
-use crate::IOError;
-use crate::Status;
-use crate::file::paths::check_collectable;
+use clap::Subcommand;
+use std::io::{ Result as IOResult};
+use std::path::PathBuf;
+
+use crate::cli::args::Args;
+use crate::cli::status::Status;
+use crate::env::configuration::Configuration;
+use crate::file::paths::{check_collectable, file_exists};
 use crate::file::picture_file::create_missing_thumbnails;
-use crate::file_exists;
+use std::io::Error as IOError;
 use crate::model::gallery::Gallery;
 use crate::model::repository::Repository;
-use clap::Subcommand;
-use std::io::Result as IOResult;
-use std::path::PathBuf;
 
 #[derive(Subcommand, Clone, Debug, PartialEq)]
 /// Command

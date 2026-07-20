@@ -1,5 +1,7 @@
+use crate::cli::args::Args;
+use crate::gui::controller::Controller;
+use crate::gui::controller::RcController;
 use crate::model::catalog::Catalog;
-use crate::Args;
 use crate::env::default_values::FOCUS_SYMBOL_1;
 use crate::env::default_values::QUARTER_OPACITY;
 use crate::env::default_values::{FULL_OPACITY, HALF_OPACITY};
@@ -16,7 +18,6 @@ use crate::gui::view::picture_grid::PictureGrid;
 use crate::gui::view::treelist_window::TreeListWindow;
 use crate::model::picture::Picture;
 use crate::model::thumbnail::no_thumbnail_picture;
-use crate::{Controller, RcController};
 use gtk::gio::File as GtkFile;
 use gtk::glib::clone;
 use gtk::glib::timeout_add_local;

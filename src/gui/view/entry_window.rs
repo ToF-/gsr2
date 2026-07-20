@@ -1,13 +1,12 @@
-use crate::RcController;
-use crate::clone;
 use crate::env::default_values::{ENTRY_CURSOR_1, ENTRY_CURSOR_2};
 use crate::env::default_values::{ENTRY_WINDOW_HEIGHT, ENTRY_WINDOW_WIDTH};
+use crate::gui::controller::RcController;
 use crate::gui::event::Event;
 use crate::gui::mode::Mode;
 use gtk::Align;
 use gtk::CssProvider;
 use gtk::Orientation;
-use gtk::glib::timeout_add_local;
+use gtk::glib::{clone, timeout_add_local};
 use gtk::glib::{ControlFlow, Propagation};
 use gtk::prelude::BoxExt;
 use gtk::prelude::Cast;

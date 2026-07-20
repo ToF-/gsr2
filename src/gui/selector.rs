@@ -1,5 +1,5 @@
+use crate::gui::view::main_window::MainWindow;
 use crate::model::catalog::Catalog;
-use crate::MainWindow;
 use crate::gui::control::Control;
 use crate::gui::control::Controls;
 use crate::gui::control::default_controls;

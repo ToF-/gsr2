@@ -1,7 +1,5 @@
 extern crate image;
-use crate::test_data::*;
-
-mod test_data;
+use gsr::test_data::*;
 
 pub fn save_large_picture() {
     let image = large_picture();

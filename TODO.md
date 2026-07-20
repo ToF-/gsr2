@@ -2,6 +2,7 @@
 ## Gallery Show in Rust
 
 ## Todo
+- [ ] use template and `sed` to get portable configuration and testdata
 - [X] extract file names to a extraction file giving it a name
 - [X] the ratio cutoff in color filter has a minus sign to mean : ratio must be lower 
 - [X] filter option analyse if colors in picture match the filter 

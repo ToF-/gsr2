@@ -1,27 +1,21 @@
-use crate::cli::args::Args;
-use crate::cli::command::Command;
-use crate::cli::command::execute_command;
-use crate::cli::status::Status;
-use crate::env::configuration::Configuration;
-use crate::env::default_values::APPLICATION_ID;
-use crate::file::database::Database;
-use crate::file::paths::file_exists;
-use crate::gui::controller::Controller;
-use crate::gui::controller::RcController;
-use crate::gui::view::application::make_application;
-use crate::gui::view::main_window::MainWindow;
+use gsr::cli::args::Args;
+use gsr::cli::command::Command;
+use gsr::cli::command::execute_command;
+use gsr::cli::status::Status;
+use gsr::env::configuration::Configuration;
+use gsr::env::default_values::APPLICATION_ID;
+use gsr::file::database::Database;
+use gsr::file::paths::file_exists;
+use gsr::gui::controller::Controller;
+use gsr::gui::controller::RcController;
+use gsr::gui::view::application::make_application;
+use gsr::gui::view::main_window::MainWindow;
 use gtk::glib::clone;
 use gtk::prelude::ApplicationExt;
 use std::cell::RefCell;
 use std::io::Error as IOError;
 use std::process::exit;
 use std::rc::Rc;
-mod cli;
-mod env;
-mod file;
-mod gui;
-mod model;
-mod test_data;
 
 fn main() {
     let config = match Configuration::from_env() {
