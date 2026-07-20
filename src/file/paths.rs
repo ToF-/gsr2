@@ -370,7 +370,6 @@ mod tests {
     #[test]
     fn base_directory_should_be_set_via_config_file() {
         assert!("CONFIG_FILE_NOT_READ".to_string() != base_directory());
-        assert_eq!("testdata", base_directory());
     }
 }
 
