@@ -1,4 +1,0 @@
-base_dir = "/Users/tof/Coding/gsr2/testdata"
-database_file = "/Users/tof/Coding/gsr2/testdata/gsr2.db"
-catalog_filepath = "/Users/tof/Coding/gsr2/testdata/catalog.sexp"
-temp_dir = "/Users/tof/Coding/gsr2/testdata/subdir"
