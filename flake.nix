@@ -17,7 +17,7 @@
         pkgs = nixpkgs.legacyPackages."${system}";
       in
       {
-        devShells.default = pkgs.mkShellNoCC {
+        devShells.default = pkgs.mkShell {
           packages = [
             pkgs.rustup
             pkgs.clang
