@@ -11,6 +11,10 @@ name = "gen_data"
 path = "src/bin/gen_data.rs"
 
 [[bin]]
+name = "ctlg"
+path = "src/bin/ctlg.rs"
+
+[[bin]]
 name = "gsr"
 path = "src/bin/gsr.rs"
 

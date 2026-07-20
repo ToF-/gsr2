@@ -1,4 +1,6 @@
- use crate::model::categories::Categories;
+use lexpr::print::Options;
+use lexpr::to_string_custom;
+use crate::model::categories::Categories;
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use crate::model::sub_category::SubCategory;
@@ -16,6 +18,7 @@ type ReverseTree = HashMap<String, String>;
 pub struct Catalog {
     root: SubCategory,
     reverse_tree: ReverseTree,
+    s_expression: Value,
 }
 
 impl Catalog {
@@ -28,7 +31,7 @@ impl Catalog {
                     if root.name() == "-" {
                         let mut tree: ReverseTree = ReverseTree::new();
                         match make_reverse_tree(&mut tree, &root) {
-                            Ok(_) => Ok( Catalog { root, reverse_tree: tree, }),
+                            Ok(_) => Ok( Catalog { root, reverse_tree: tree, s_expression: value, }),
                             Err(err) => Err(Error::other(err)),
                         }
                     } else {
@@ -52,6 +55,10 @@ impl Catalog {
     }
     pub fn root(&self) -> SubCategory {
         self.root.clone()
+    }
+
+    pub fn s_expression(&self) -> String {
+        to_string_custom(&self.s_expression, Options::elisp()).expect("can't pretty print catalog")
     }
 
     pub fn is_a(&self, target_category_name: &str, sub_category_name: &str) -> bool {
