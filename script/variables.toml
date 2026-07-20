@@ -1,4 +1,4 @@
-base_dir = "/Users/christophethibaut/Coding/gsr2/testdata"
-database_file = "/Users/christophethibaut/Coding/gsr2/testdata/gsr2.db"
-catalog_filepath = "/Users/christophethibaut/Coding/gsr2/testdata/catalog.sexp"
-temp_dir = "/Users/christophethibaut/Coding/gsr2/testdata/subdir"
+base_dir = "/Users/tof/Coding/gsr2/testdata"
+database_file = "/Users/tof/Coding/gsr2/testdata/gsr2.db"
+catalog_filepath = "/Users/tof/Coding/gsr2/testdata/catalog.sexp"
+temp_dir = "/Users/tof/Coding/gsr2/testdata/subdir"

@@ -1,12 +1,9 @@
-use lexpr::print::Options;
-use lexpr::to_string_custom;
 use crate::model::categories::Categories;
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use crate::model::sub_category::SubCategory;
 use std::fs;
 use std::io::{Error, Result};
-use lexpr::parse::{Result as ParseResult};
 use lexpr::Value;
 use lexpr::Value::Cons;
 use lexpr::Value::Symbol;
@@ -18,7 +15,6 @@ type ReverseTree = HashMap<String, String>;
 pub struct Catalog {
     root: SubCategory,
     reverse_tree: ReverseTree,
-    s_expression: Value,
 }
 
 impl Catalog {
@@ -31,7 +27,7 @@ impl Catalog {
                     if root.name() == "-" {
                         let mut tree: ReverseTree = ReverseTree::new();
                         match make_reverse_tree(&mut tree, &root) {
-                            Ok(_) => Ok( Catalog { root, reverse_tree: tree, s_expression: value, }),
+                            Ok(_) => Ok( Catalog { root, reverse_tree: tree, }),
                             Err(err) => Err(Error::other(err)),
                         }
                     } else {
@@ -53,12 +49,24 @@ impl Catalog {
         }
 
     }
+
+    pub fn save_to_file(&self, file_path: &str) -> Result<()> {
+        let content: String = self.root.format_at_level(0);
+        fs::write(file_path, content)
+    }
     pub fn root(&self) -> SubCategory {
         self.root.clone()
     }
 
-    pub fn s_expression(&self) -> String {
-        to_string_custom(&self.s_expression, Options::elisp()).expect("can't pretty print catalog")
+    pub fn add_sub_category(&mut self, sub_category_name: &str, category_name: &str) -> Result<()> {
+        Err(Error::other(format!("not done yet!")))
+    }
+
+    pub fn remove_category(&mut self, category_name: &str) -> Result<()> {
+        Err(Error::other(format!("not done yet!")))
+    }
+    pub fn s_expression(&self, level: usize) -> String {
+        self.root.format_at_level(0)
     }
 
     pub fn is_a(&self, target_category_name: &str, sub_category_name: &str) -> bool {

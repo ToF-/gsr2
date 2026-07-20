@@ -26,6 +26,18 @@ impl SubCategory {
     pub fn sub_categories(&self) -> Vec<SubCategory> {
         self.sub_categories.clone()
     }
+
+    pub fn format_at_level(&self, level: usize) -> String {
+        let indent: String = " ".repeat(level * 2);
+        if self.sub_categories.is_empty() {
+            format!("{}{}", indent, self.name)
+        } else {
+            let children_string: String = self.sub_categories.iter().map(|child| {
+                format!("\n{}{}",indent, child.format_at_level(level + 1))
+            }).collect::<Vec<String>>().join("");
+            format!("{}({}{})", indent, self.name, children_string)
+        }
+    }
     
     pub fn from_cons(value: &Value) -> Result<Vec<SubCategory>> {
         if value.is_null() {
@@ -69,6 +81,7 @@ impl SubCategory {
             },
             _ => Err(Error::other(format!("incorrect s_expression value for car: {:?}", cons.car()))),
         }
+
     }
 
 
@@ -108,5 +121,6 @@ impl SubCategory {
             _ => Err(Error::other(format!("incorrect s_expression value: {:?}", value))),
         }
     }
+
 }
 
