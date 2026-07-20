@@ -1,3 +1,4 @@
+use itertools::Itertools;
 use std::io::{Error, Result};
 use lexpr::parse::{Result as ParseResult};
 use lexpr::Value;
@@ -36,6 +37,25 @@ impl SubCategory {
                 format!("\n{}{}",indent, child.format_at_level(level + 1))
             }).collect::<Vec<String>>().join("");
             format!("{}({}{})", indent, self.name, children_string)
+        }
+    }
+
+    pub fn add_sub_category(&mut self, sub_category_name: &str, category_name: &str) -> Result<()> {
+        println!("add_sub_category({},{},{})", self.name, sub_category_name, category_name);
+        if self.name == category_name {
+            println!("adding {} to {}", sub_category_name, self.name);
+            self.sub_categories.push(Self::leave(sub_category_name));
+            Ok(())
+        } else {
+            let mut result: Result<()> = Ok(());
+            for mut sub_category in self.sub_categories.iter_mut() {
+                let sub_result = sub_category.add_sub_category(sub_category_name, category_name);
+                if sub_result.is_err() {
+                    result = sub_result;
+                    break
+                };
+            };
+            result
         }
     }
     
@@ -118,7 +138,7 @@ impl SubCategory {
                     Err(Error::other(format!("incorrect s_expression value: {:?}", value)))
                 }
             },
-            _ => Err(Error::other(format!("incorrect s_expression value: {:?}", value))),
+        _ => Err(Error::other(format!("incorrect s_expression value: {:?}", value))),
         }
     }
 

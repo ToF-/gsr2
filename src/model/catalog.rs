@@ -59,7 +59,19 @@ impl Catalog {
     }
 
     pub fn add_sub_category(&mut self, sub_category_name: &str, category_name: &str) -> Result<()> {
-        Err(Error::other(format!("not done yet!")))
+        if self.reverse_tree.get(category_name).is_none() {
+            Err(Error::other(format!("unknown category:{}", category_name)))
+        } else {
+            self.root.add_sub_category(sub_category_name, category_name).and_then(|()| {
+                let mut tree: ReverseTree = ReverseTree::new();
+                match make_reverse_tree(&mut tree, &self.root) {
+                    Ok(_) => {
+                        self.reverse_tree = tree;
+                        Ok(())
+                    },
+                    Err(err) => Err(Error::other(err)),
+                }})
+        }
     }
 
     pub fn remove_category(&mut self, category_name: &str) -> Result<()> {
@@ -247,5 +259,25 @@ mod tests {
         assert!(catalog.is_one_of(&categories, "bol"));
         assert!(catalog.is_one_of(&categories, "foo"));
         assert!(!catalog.is_one_of(&categories, "qux"));
+    }
+    #[test]
+    fn adding_a_sub_category() {
+        let mut catalog = Catalog::from_sexpr("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
+        assert!(catalog.add_sub_category("law","gus").is_ok());
+        assert!(catalog.add_sub_category("bru","qux").is_ok());
+        assert!(catalog.is_a("gus", "law"));
+        assert!(catalog.is_a("qux", "bru"));
+    }
+    #[test]
+    fn adding_a_sub_category_is_not_allowed_if_that_sub_category_already_exists() {
+        let mut catalog = Catalog::from_sexpr("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
+        let result = catalog.add_sub_category("foo","gus");
+        assert_eq!("Err(Custom { kind: Other, error: Custom { kind: Other, error: \"duplicate subcategory:foo\" } })", format!("{:?}", result));
+    }
+    #[test]
+    fn adding_a_sub_category_is_not_allowed_if_the_category_does_not_exist() {
+        let mut catalog = Catalog::from_sexpr("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
+        let result = catalog.add_sub_category("bal","sch");
+        assert_eq!("Err(Custom { kind: Other, error: \"unknown category:sch\" })", format!("{:?}", result));
     }
 }
