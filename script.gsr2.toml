@@ -1,0 +1,12 @@
+base_dir = "/Users/tof/Coding/gsr2/testdata"
+width = 800
+height = 800
+database_file = "testdata/gsr2.db"
+temp_dir = "testdata/subdir"
+current_picture = ""
+current_pictures_per_row = 10
+current_order = "Name"
+cover = false
+catalog_filepath = "testdata/catalog.sexp"
+
+[marked]
