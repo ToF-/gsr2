@@ -1,4 +1,5 @@
 {
+
   description = "Rust with formatting, linting and test";
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
