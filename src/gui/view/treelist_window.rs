@@ -1,27 +1,30 @@
-use gdk::{Key, ModifierType};
-use gtk::prelude::*;
-use gtk::{self, gdk};
-use gtk::EventControllerKey;
-use gtk::gdk::Display;
-use gtk::prelude::ListItemExt;
-use gtk::glib::object::Cast;
-use gtk::gio;
-use crate::gui::controller::RcController;
-use crate::model::sub_category::SubCategory;
-use glib::BoxedAnyObject;
-use crate::model::catalog::Catalog;
 use crate::env::default_values::{TREELIST_WINDOW_HEIGHT, TREELIST_WINDOW_WIDTH};
+use crate::gui::controller::RcController;
 use crate::gui::event::Event;
+use crate::model::catalog::Catalog;
+use crate::model::sub_category::SubCategory;
+use gdk::{Key, ModifierType};
+use glib::BoxedAnyObject;
 use gtk::Align;
 use gtk::CssProvider;
+use gtk::EventControllerKey;
 use gtk::Orientation;
+use gtk::gdk::Display;
+use gtk::gio;
+use gtk::glib::object::Cast;
 use gtk::glib::{Propagation, clone};
 use gtk::prelude::BoxExt;
 use gtk::prelude::GtkWindowExt;
+use gtk::prelude::ListItemExt;
 #[allow(deprecated)]
 use gtk::prelude::StyleContextExt;
 use gtk::prelude::WidgetExt;
-use gtk::{glib, Label, ListItem, ListView, ScrolledWindow, SignalListItemFactory, SingleSelection, TreeExpander, TreeListModel};
+use gtk::prelude::*;
+use gtk::{self, gdk};
+use gtk::{
+    Label, ListItem, ListView, ScrolledWindow, SignalListItemFactory, SingleSelection,
+    TreeExpander, TreeListModel, glib,
+};
 
 #[derive(Clone, Debug)]
 pub struct TreeListWindow {
@@ -71,8 +74,7 @@ impl TreeListWindow {
             .build();
         let window_css_provider = CssProvider::new();
         scrolled_window.add_css_class("tree-list");
-        window_css_provider.load_from_string(
-            "window.tree-list { background-color:black;}");
+        window_css_provider.load_from_string("window.tree-list { background-color:black;}");
         let list_view = build_list_view(catalog.root(), controller_rc);
 
         scrolled_window.set_child(Some(&list_view));
@@ -86,7 +88,10 @@ impl TreeListWindow {
             .default_height(TREELIST_WINDOW_HEIGHT)
             .transient_for(application_window)
             .build();
-        window.style_context().add_provider(&window_css_provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
+        window.style_context().add_provider(
+            &window_css_provider,
+            gtk::STYLE_PROVIDER_PRIORITY_APPLICATION,
+        );
         window.set_child(Some(&selector_box));
         Self::attach_key_pressed_event_handler(&scrolled_window, controller_rc);
         gtk::style_context_add_provider_for_display(
@@ -94,7 +99,10 @@ impl TreeListWindow {
             &window_css_provider,
             gtk::STYLE_PROVIDER_PRIORITY_APPLICATION,
         );
-        TreeListWindow { window: window, selected: "".to_string(), }
+        TreeListWindow {
+            window: window,
+            selected: "".to_string(),
+        }
     }
     pub fn popup(&self) {
         self.window.present()
@@ -110,21 +118,21 @@ impl TreeListWindow {
     ) {
         let event_controller_key = gtk::EventControllerKey::new();
         event_controller_key.connect_key_pressed(clone!(
-                #[strong]
-                controller_rc,
-                move |_, key, key_code, modifier_type| {
-                    if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-                        controller.process_event(
-                            Event::KeyPressed {
-                                key,
-                                key_code,
-                                modifier_type,
-                            },
-                            &controller_rc,
-                        );
-                    };
-                    Propagation::Stop
-                }
+            #[strong]
+            controller_rc,
+            move |_, key, key_code, modifier_type| {
+                if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+                    controller.process_event(
+                        Event::KeyPressed {
+                            key,
+                            key_code,
+                            modifier_type,
+                        },
+                        &controller_rc,
+                    );
+                };
+                Propagation::Stop
+            }
         ));
         window.add_controller(event_controller_key);
     }
@@ -137,18 +145,19 @@ const AUTOEXPAND: bool = true;
 fn build_list_view(root: SubCategory, controller_rc: &RcController) -> gtk::ListView {
     let store = gio::ListStore::new::<BoxedAnyObject>();
     store.append(&BoxedAnyObject::new(root));
-    let tree_list_model: TreeListModel = TreeListModel::new(store, WRAP_IN_TREELISTROWS, AUTOEXPAND, |obj| {
-        let boxed = obj.downcast_ref::<glib::BoxedAnyObject>().unwrap();
-        let root = boxed.borrow::<SubCategory>();
-        if root.sub_categories().is_empty() {
-            return None;
-        }
-        let sub_categories = gio::ListStore::new::<BoxedAnyObject>();
-        for child in &root.sub_categories() {
-            sub_categories.append(&BoxedAnyObject::new(child.clone()));
-        }
-        Some(sub_categories.upcast())
-    });
+    let tree_list_model: TreeListModel =
+        TreeListModel::new(store, WRAP_IN_TREELISTROWS, AUTOEXPAND, |obj| {
+            let boxed = obj.downcast_ref::<glib::BoxedAnyObject>().unwrap();
+            let root = boxed.borrow::<SubCategory>();
+            if root.sub_categories().is_empty() {
+                return None;
+            }
+            let sub_categories = gio::ListStore::new::<BoxedAnyObject>();
+            for child in &root.sub_categories() {
+                sub_categories.append(&BoxedAnyObject::new(child.clone()));
+            }
+            Some(sub_categories.upcast())
+        });
     let signal_list_item_factory = SignalListItemFactory::new();
     signal_list_item_factory.connect_setup(|_, item| {
         let expander = TreeExpander::new();
@@ -157,49 +166,64 @@ fn build_list_view(root: SubCategory, controller_rc: &RcController) -> gtk::List
         item.downcast_ref::<gtk::ListItem>()
             .unwrap()
             .set_child(Some(&expander));
-        });
+    });
     signal_list_item_factory.connect_bind(|_, item| {
         let item = item.downcast_ref::<ListItem>().unwrap();
         let row = item.item().unwrap().downcast::<gtk::TreeListRow>().unwrap();
-        let expander = item.child().unwrap().downcast::<gtk::TreeExpander>().unwrap();
+        let expander = item
+            .child()
+            .unwrap()
+            .downcast::<gtk::TreeExpander>()
+            .unwrap();
         expander.set_list_row(Some(&row));
         let label = expander.child().unwrap().downcast::<Label>().unwrap();
-        let boxed = row.item().unwrap().downcast::<glib::BoxedAnyObject>().unwrap();
+        let boxed = row
+            .item()
+            .unwrap()
+            .downcast::<glib::BoxedAnyObject>()
+            .unwrap();
         let node = boxed.borrow::<SubCategory>();
         label.set_text(&node.name());
     });
     let selection = SingleSelection::new(Some(tree_list_model));
     let event_controller_key = EventControllerKey::new();
-    event_controller_key.connect_key_pressed(clone!( #[strong] controller_rc, #[strong] selection, move  |_, key, key_code, modifier_type| {
-        let selected: String = if let Some(row_object) = selection.selected_item() {
-            let row = row_object
-                .downcast::<gtk::TreeListRow>()
-                .unwrap();
-            if let Some(item) = row.item() {
-                let boxed = row.item().unwrap().downcast::<glib::BoxedAnyObject>().unwrap();
-                let sub_category = boxed.borrow::<SubCategory>();
-                sub_category.name()
+    event_controller_key.connect_key_pressed(clone!(
+        #[strong]
+        controller_rc,
+        #[strong]
+        selection,
+        move |_, key, key_code, modifier_type| {
+            let selected: String = if let Some(row_object) = selection.selected_item() {
+                let row = row_object.downcast::<gtk::TreeListRow>().unwrap();
+                if let Some(item) = row.item() {
+                    let boxed = row
+                        .item()
+                        .unwrap()
+                        .downcast::<glib::BoxedAnyObject>()
+                        .unwrap();
+                    let sub_category = boxed.borrow::<SubCategory>();
+                    sub_category.name()
+                } else {
+                    "".to_string()
+                }
             } else {
                 "".to_string()
+            };
+            if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+                controller.set_selected(&selected);
             }
-        } else {
-            "".to_string()
-        };
-        if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-            controller.set_selected(&selected);
+            if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+                controller.process_event(
+                    Event::KeyPressed {
+                        key,
+                        key_code,
+                        modifier_type,
+                    },
+                    &controller_rc,
+                );
+            };
+            Propagation::Proceed
         }
-        if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-            controller.process_event(
-                Event::KeyPressed {
-                    key,
-                    key_code,
-                    modifier_type,
-                },
-                &controller_rc,
-            );
-        };
-        Propagation::Proceed
-    }
     ));
     let view = ListView::new(Some(selection), Some(signal_list_item_factory));
     view.add_controller(event_controller_key);

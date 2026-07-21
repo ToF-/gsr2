@@ -1,8 +1,8 @@
-use clap::Subcommand;
 use clap::Parser;
-use std::process::exit;
+use clap::Subcommand;
 use gsr::env::configuration::Configuration;
 use gsr::model::catalog::Catalog;
+use std::process::exit;
 
 #[derive(Parser, Clone, Debug, PartialEq)]
 /// Catalog
@@ -31,7 +31,7 @@ pub struct Command {
 pub enum Commands {
     /// add <SUB_CATEGORY> to <CATEGORY>
     Add {
-        #[arg(short,long, value_name = "SUB_CATEGORY")]
+        #[arg(short, long, value_name = "SUB_CATEGORY")]
         sub_category: String,
 
         #[arg(short, long)]
@@ -39,11 +39,14 @@ pub enum Commands {
     },
     /// list all categories (default)
     List,
-    /// remove <CATEGORY>
+    /// remove <CATEGORY> [--force]
     Remove {
         #[arg(short, long)]
         category: String,
-    }
+
+        #[arg(short, long, default_value="false")]
+        force: bool,
+    },
 }
 
 pub fn list(catalog: &Catalog) {
@@ -63,38 +66,41 @@ pub fn main() {
         if let Some(command) = command.commands {
             match command {
                 Commands::List => list(&catalog),
-                Commands::Add { sub_category, category } => {
-                    match catalog.add_sub_category(&sub_category, &category) {
-                        Ok(_) => {
-                            let new_catalog = catalog.clone();
-                            match new_catalog.save_to_file(&config.catalog_filepath) {
-                                Ok(_) => {
-                                    println!("adding sub category {} to category {}", sub_category, category);
-                                },
-                                Err(err) => eprintln!("error: {}", err),
+                Commands::Add {
+                    sub_category,
+                    category,
+                } => match catalog.add_sub_category(&sub_category, &category) {
+                    Ok(_) => {
+                        let new_catalog = catalog.clone();
+                        match new_catalog.save_to_file(&config.catalog_filepath) {
+                            Ok(_) => {
+                                println!(
+                                    "adding sub category {} to category {}",
+                                    sub_category, category
+                                );
                             }
-                        },
-                        Err(err) => eprintln!("error: {}", err),
+                            Err(err) => eprintln!("error: {}", err),
+                        }
                     }
+                    Err(err) => eprintln!("error: {}", err),
                 },
-                Commands::Remove { category } => {
-                    match catalog.remove_category(&category) {
+                Commands::Remove { category, force } => {
+                    match catalog.remove_category(&category, force) {
                         Ok(_) => {
                             let new_catalog = catalog.clone();
                             match new_catalog.save_to_file(&config.catalog_filepath) {
                                 Ok(_) => println!("removing category {}", category),
                                 Err(err) => eprintln!("error: {}", err),
                             };
-                        },
+                        }
                         Err(err) => eprintln!("error: {}", err),
                     }
-                },
+                }
             }
         } else {
             list(&catalog)
         }
-
     } else {
         println!("can't open file {}", config.catalog_filepath);
-    } 
+    }
 }

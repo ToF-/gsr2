@@ -35,7 +35,6 @@ pub fn startup_gui() {
             color: white;
         }
         ",
-
     );
     gtk::style_context_add_provider_for_display(&Display::default().unwrap(), &css_provider, 1000);
 }

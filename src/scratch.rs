@@ -1,7 +1,7 @@
+use chrono::{DateTime, Local};
 use std::env;
 use std::fs;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
-use chrono::{DateTime, Local};
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -12,14 +12,23 @@ fn main() {
 
     let path = &args[1];
     let metadata = fs::metadata(path).expect("Failed to read file metadata");
-    let modified = metadata.modified().expect("Failed to get modification time");
+    let modified = metadata
+        .modified()
+        .expect("Failed to get modification time");
 
-    let duration = modified.duration_since(UNIX_EPOCH).expect("Time went backwards");
-    let timestamp_us: u64 = duration.as_secs() * 1_000_000 + (duration.subsec_nanos() / 1_000) as u64;
+    let duration = modified
+        .duration_since(UNIX_EPOCH)
+        .expect("Time went backwards");
+    let timestamp_us: u64 =
+        duration.as_secs() * 1_000_000 + (duration.subsec_nanos() / 1_000) as u64;
 
     let datetime: DateTime<Local> = DateTime::from(modified);
 
-    println!("{} ({})", datetime.format("%Y-%m-%d %H:%M:%S%.f"), timestamp_us);
+    println!(
+        "{} ({})",
+        datetime.format("%Y-%m-%d %H:%M:%S%.f"),
+        timestamp_us
+    );
 }
 
 fn datetime_from_timestamp_us(timestamp_us: u64) -> DateTime<Local> {
@@ -28,4 +37,3 @@ fn datetime_from_timestamp_us(timestamp_us: u64) -> DateTime<Local> {
     let system_time = UNIX_EPOCH + Duration::new(secs, nanos as u32);
     DateTime::<Local>::from(system_time)
 }
-

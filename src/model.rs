@@ -1,8 +1,7 @@
 pub mod action;
 pub mod catalog;
-pub mod category;
 pub mod categories;
-pub mod sub_category;
+pub mod category;
 pub mod color;
 pub mod color_range;
 pub mod cover;
@@ -15,5 +14,6 @@ pub mod picture;
 pub mod rank;
 pub mod repository;
 pub mod selection_criteria;
+pub mod sub_category;
 pub mod tags;
 pub mod thumbnail;

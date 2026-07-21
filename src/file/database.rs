@@ -1,6 +1,7 @@
-use crate::model::catalog::Catalog;
 use crate::file::paths::parent_directory;
 use crate::file::paths::{file_exists, file_path_as_retrieved, file_path_as_stored};
+use crate::model::catalog::Catalog;
+use crate::model::categories::Categories;
 use crate::model::color_range::ColorRange;
 use crate::model::cover::{bool_to_cover, cover_to_bool};
 use crate::model::image_data::ImageData;
@@ -19,7 +20,6 @@ use std::io::Error as IOError;
 use std::io::Result as IOResult;
 use std::path::PathBuf;
 use std::rc::Rc;
-use crate::model::categories::Categories;
 
 pub type ImageDataMap = HashMap<String, ImageData>;
 
@@ -473,11 +473,11 @@ impl Database {
                                 if let Some(categories) = retrieve_criteria.categories.clone() {
                                     if let Some(category_name) = image_data.category_name() {
                                         if !catalog.is_one_of(&categories, &category_name) {
-                                            continue
+                                            continue;
                                         } else {
                                         }
                                     } else {
-                                        continue
+                                        continue;
                                     }
                                 }
                             };
@@ -521,7 +521,6 @@ impl Database {
             }
         })
     }
-
 
     pub fn retrieve_all_pictures_with_parent(&self, parent_dir: &str) -> IOResult<Vec<Picture>> {
         let retrieve_criteria = RetrieveCriteria {

@@ -1,5 +1,3 @@
-use std::io::Error;
-use crate::model::catalog::Catalog;
 use crate::cli::args::Args;
 use crate::cli::command::Command;
 use crate::env::configuration::Configuration;
@@ -17,6 +15,7 @@ use crate::gui::selector::Selector;
 use crate::gui::state::State;
 use crate::gui::view::main_window::{LEFT_PANE, MainWindow};
 use crate::model::action::Action;
+use crate::model::catalog::Catalog;
 use crate::model::category::Category;
 use crate::model::order::Order;
 use crate::model::picture::Picture;
@@ -31,6 +30,7 @@ use rand::rng;
 use regex::Regex;
 use std::cell::RefCell;
 use std::collections::HashMap;
+use std::io::Error;
 use std::io::Result as IOResult;
 use std::path::PathBuf;
 use std::rc::Rc;
@@ -84,7 +84,12 @@ impl Controller {
         println!("{} pictures", repository.len());
         let catalog: Catalog = match Catalog::from_file(&config.catalog_filepath) {
             Ok(cat) => cat,
-            Err(e) => return Err(Error::other(format!("cannot log catalog file {} {}",config.catalog_filepath, e))),
+            Err(e) => {
+                return Err(Error::other(format!(
+                    "cannot log catalog file {} {}",
+                    config.catalog_filepath, e
+                )));
+            }
         };
         Ok(Controller {
             configuration: config.clone(),
@@ -114,7 +119,7 @@ impl Controller {
 
     pub fn set_selected(&mut self, selected: &str) {
         self.selector.set_selected(&selected);
-    } 
+    }
     pub fn main_window(&self) -> MainWindow {
         self.main_window_opt.clone().unwrap()
     }
@@ -586,7 +591,7 @@ impl Controller {
                 _ => println!("?"),
             },
             Control::SetOrder => match choice {
-                | Control::OrderByCategory
+                Control::OrderByCategory
                 | Control::OrderByName
                 | Control::OrderByDate
                 | Control::OrderBySize

@@ -1,10 +1,10 @@
-use crate::gui::view::main_window::MainWindow;
-use crate::model::catalog::Catalog;
 use crate::gui::control::Control;
 use crate::gui::control::Controls;
 use crate::gui::control::default_controls;
 use crate::gui::mode::Mode;
+use crate::gui::view::main_window::MainWindow;
 use crate::gui::view::treelist_window::TreeListWindow;
+use crate::model::catalog::Catalog;
 use gtk::gdk::Key;
 
 #[derive(Clone, Debug)]
@@ -32,7 +32,8 @@ impl Selector {
     pub fn begin(&mut self, main_window: &MainWindow) {
         let prompt = "select a category";
         self.prompt = prompt.to_string();
-        self.treelist_window_opt = Some(main_window.popup_treelist_window(&self.prompt, &self.catalog));
+        self.treelist_window_opt =
+            Some(main_window.popup_treelist_window(&self.prompt, &self.catalog));
         self.selecting = true;
     }
 

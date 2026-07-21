@@ -1,6 +1,3 @@
-use crate::file::paths::file_exists;
-use crate::model::catalog::Catalog;
-use crate::model::categories::Categories;
 use crate::cli::args::Args;
 use crate::cli::command::Command;
 use crate::env::configuration::Configuration;
@@ -9,6 +6,7 @@ use crate::file::database::RetrieveCriteria;
 use crate::file::operation::execute;
 use crate::file::operation::move_picture;
 use crate::file::operation::rename_picture;
+use crate::file::paths::file_exists;
 use crate::file::paths::parent_directory;
 use crate::file::paths::timestamp_filename;
 use crate::file::picture_file::collect_picture_data;
@@ -16,6 +14,8 @@ use crate::file::picture_file::copy_picture_file_to_directory;
 use crate::file::picture_file::delete_picture_files;
 use crate::file::picture_file::get_all_picture_file_paths;
 use crate::file::picture_file::get_picture_file_path;
+use crate::model::catalog::Catalog;
+use crate::model::categories::Categories;
 use crate::model::gallery::Gallery;
 use crate::model::order::Order;
 use crate::model::picture::Picture;
@@ -115,9 +115,11 @@ impl Repository {
                 };
                 let retrieve_criteria = RetrieveCriteria {
                     selection_criteria: selection_criteria.clone(),
-                    categories: args.categories.clone().as_ref().map(|s| {
-                        Categories::from_string(s)
-                    }),
+                    categories: args
+                        .categories
+                        .clone()
+                        .as_ref()
+                        .map(|s| Categories::from_string(s)),
                     label: args.label.clone(),
                     extraction: extraction.clone(),
                     filter: args.filter.clone(),
@@ -125,7 +127,10 @@ impl Repository {
                     cover: args.cover,
                     parent_opt: args.directory.clone(),
                 };
-                *gallery = match self.database.retrieve_all_pictures(retrieve_criteria, Some(catalog)) {
+                *gallery = match self
+                    .database
+                    .retrieve_all_pictures(retrieve_criteria, Some(catalog))
+                {
                     Ok(pictures) => {
                         let mut gallery = Gallery::new_with_pictures(pictures);
                         gallery.sort_by(args.order.unwrap_or(Order::Name));
@@ -680,7 +685,9 @@ mod tests {
         args.order = Some(Order::Size);
         let cfg = my_cfg();
         let mut repository = Repository::new(my_cfg(), args.clone(), false);
-        repository.initialize().expect("can't initialize repository");
+        repository
+            .initialize()
+            .expect("can't initialize repository");
         let gallery_rc = repository.gallery_rc();
         let gallery = gallery_rc
             .try_borrow()

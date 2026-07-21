@@ -171,7 +171,7 @@ impl Gallery {
                             "~".to_string()
                         } else {
                             image_data.category_name().unwrap().clone()
-                        }
+                        },
                     )
                 })
             }),

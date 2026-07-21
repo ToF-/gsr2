@@ -1,12 +1,11 @@
 use crate::cli::args::Args;
-use crate::gui::controller::Controller;
-use crate::gui::controller::RcController;
-use crate::model::catalog::Catalog;
 use crate::env::default_values::FOCUS_SYMBOL_1;
 use crate::env::default_values::QUARTER_OPACITY;
 use crate::env::default_values::{FULL_OPACITY, HALF_OPACITY};
 use crate::file::paths::check_path_exists;
 use crate::gui::control::Control;
+use crate::gui::controller::Controller;
+use crate::gui::controller::RcController;
 use crate::gui::direction::Direction;
 use crate::gui::display::title_display;
 use crate::gui::event::Event::{KeyPressed, NextSlideDelay, PaneClicked};
@@ -16,6 +15,7 @@ use crate::gui::view::picture_cell_box::make_picture_cell_box;
 use crate::gui::view::picture_frame::PictureFrame;
 use crate::gui::view::picture_grid::PictureGrid;
 use crate::gui::view::treelist_window::TreeListWindow;
+use crate::model::catalog::Catalog;
 use crate::model::picture::Picture;
 use crate::model::thumbnail::no_thumbnail_picture;
 use gtk::gio::File as GtkFile;
@@ -354,8 +354,13 @@ impl MainWindow {
     }
 
     pub fn popup_treelist_window(&self, prompt: &str, catalog: &Catalog) -> TreeListWindow {
-        let treelist_window =
-            TreeListWindow::new(&self.application_window(), prompt, "", catalog, &self.controller_rc);
+        let treelist_window = TreeListWindow::new(
+            &self.application_window(),
+            prompt,
+            "",
+            catalog,
+            &self.controller_rc,
+        );
         treelist_window.popup();
         treelist_window
     }
