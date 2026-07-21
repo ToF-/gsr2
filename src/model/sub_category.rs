@@ -5,6 +5,9 @@ use lexpr::Value::Null;
 use lexpr::Value::Symbol;
 use lexpr::parse::Result as ParseResult;
 use std::io::{Error, Result};
+
+pub const TOP_CATEGORY: &str = "-";
+
 #[derive(Debug, Clone)]
 pub struct SubCategory {
     name: String,

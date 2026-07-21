@@ -1,3 +1,5 @@
+use regex::Regex;
+use crate::model::sub_category::TOP_CATEGORY;
 use crate::model::categories::Categories;
 use crate::model::sub_category::SubCategory;
 use lexpr::Value;
@@ -8,6 +10,7 @@ use std::collections::HashMap;
 use std::collections::hash_map::Entry;
 use std::fs;
 use std::io::{Error, Result};
+
 
 type ReverseTree = HashMap<String, String>;
 
@@ -22,7 +25,7 @@ impl Catalog {
         match lexpr::from_str(source) {
             Ok(value) => match SubCategory::from_value(&value) {
                 Ok(root) => {
-                    if root.name() == "-" {
+                    if root.name() == TOP_CATEGORY {
                         let mut tree: ReverseTree = ReverseTree::new();
                         match make_reverse_tree(&mut tree, &root) {
                             Ok(_) => Ok(Catalog {
@@ -60,7 +63,12 @@ impl Catalog {
     }
 
     pub fn add_sub_category(&mut self, sub_category_name: &str, category_name: &str) -> Result<()> {
-        if self.reverse_tree.get(category_name).is_none() {
+        let re = Regex::new("^[a-z0-9_-]+$").unwrap();
+        if !re.is_match(sub_category_name) {
+            Err(Error::other(format!("illegal characters in name:{}", sub_category_name)))
+        } else if sub_category_name == TOP_CATEGORY {
+            Err(Error::other(format!("category {} already exists", sub_category_name)))
+        } else if category_name != TOP_CATEGORY && self.reverse_tree.get(category_name).is_none() {
             Err(Error::other(format!("unknown category:{}", category_name)))
         } else {
             self.root
@@ -188,7 +196,7 @@ mod tests {
     #[test]
     fn creating_sub_categories_from_a_s_expression_with_only_root() {
         let catalog = Catalog::from_sexpr("(-)").expect("incorrect sexpr");
-        assert_eq!("-".to_string(), catalog.root.name())
+        assert_eq!(TOP_CATEGORY.to_string(), catalog.root.name())
     }
     #[test]
     fn root_subcategory_name_should_be_dash() {
@@ -197,14 +205,14 @@ mod tests {
     #[test]
     fn creating_sub_categories_from_a_s_expression_with_root_and_a_sub() {
         let catalog = Catalog::from_sexpr("(- foo)").expect("incorrect sexpr");
-        assert_eq!("-", catalog.root.name());
+        assert_eq!(TOP_CATEGORY, catalog.root.name());
         assert_eq!(1, catalog.root.sub_categories().len());
         assert_eq!("foo", catalog.root.sub_categories()[0].name());
     }
     #[test]
     fn creating_sub_categories_from_a_s_expression_with_root_and_three_subs() {
         let catalog = Catalog::from_sexpr("(- foo bar qux)").expect("incorrect sexpr");
-        assert_eq!("-", catalog.root.name());
+        assert_eq!(TOP_CATEGORY, catalog.root.name());
         assert_eq!(3, catalog.root.sub_categories().len());
         assert_eq!("foo", catalog.root.sub_categories()[0].name());
         assert_eq!("bar", catalog.root.sub_categories()[1].name());
@@ -213,7 +221,7 @@ mod tests {
     #[test]
     fn creating_sub_categories_from_s_expression_with_root_and_sub_subs() {
         let catalog = Catalog::from_sexpr("(- (foo bar) (qux law))").expect("incorrect sexpr");
-        assert_eq!("-", catalog.root.name());
+        assert_eq!(TOP_CATEGORY, catalog.root.name());
         println!("{:?}", catalog);
         assert_eq!(2, catalog.root.sub_categories().len());
         assert_eq!("foo", catalog.root.sub_categories()[0].name());
@@ -274,7 +282,7 @@ mod tests {
     fn is_a_sub_category_relationship_inexistent_sub_category_case() {
         let catalog =
             Catalog::from_sexpr("(- (foo bar) (qux (law bug)))").expect("incorrect sexpr");
-        assert!(!catalog.is_a("-", "paw"));
+        assert!(!catalog.is_a(TOP_CATEGORY, "paw"));
         assert!(!catalog.is_a("paw", "bar"));
         assert!(!catalog.is_a("paw", "paw"));
     }
@@ -282,7 +290,7 @@ mod tests {
     fn is_a_sub_category_relationship_root_target_sub_category_case() {
         let catalog =
             Catalog::from_sexpr("(- (foo bar) (qux (law bug)))").expect("incorrect sexpr");
-        assert!(!catalog.is_a("-", "bug"));
+        assert!(!catalog.is_a(TOP_CATEGORY, "bug"));
     }
     #[test]
     fn is_one_of_categories_from_a_catalog() {
@@ -323,6 +331,7 @@ mod tests {
             "Err(Custom { kind: Other, error: \"unknown category:sch\" })",
             format!("{:?}", result)
         );
+        assert!(catalog.add_sub_category("bal",TOP_CATEGORY).is_ok());
     }
     #[test]
     fn removing_a_sub_category() {
@@ -343,5 +352,12 @@ mod tests {
         let mut catalog =
             Catalog::from_sexpr("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
         assert!(catalog.remove_category("zzz", true).is_err());
+    }
+    #[test]
+    fn adding_a_sub_category_with_illegal_chars_is_not_allowed() {
+        let mut catalog =
+            Catalog::from_sexpr("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
+        assert!(catalog.add_sub_category("!ag","-").is_err());
+        assert!(catalog.add_sub_category("-","foo").is_err());
     }
 }
