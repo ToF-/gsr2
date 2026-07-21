@@ -14,7 +14,7 @@ impl fmt::Display for ParseColorRangeError {
 
 impl std::error::Error for ParseColorRangeError {}
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone)]
 pub struct ColorRange {
     pub color_min: Color,
     pub color_max: Color,
@@ -22,7 +22,7 @@ pub struct ColorRange {
 }
 
 impl ColorRange {
-    pub fn default() -> Self {
+    pub fn new() -> Self {
         ColorRange {
             color_min: Color::default(),
             color_max: Color {
@@ -100,6 +100,11 @@ impl ColorRange {
     }
 }
 
+impl Default for ColorRange {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 #[cfg(test)]
 mod tests {
     use super::*;

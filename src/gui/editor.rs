@@ -24,6 +24,7 @@ pub struct Editor {
 
 #[allow(dead_code)]
 impl Editor {
+    
     pub fn new() -> Editor {
         Editor {
             prompt: "".to_string(),
@@ -282,6 +283,12 @@ impl Editor {
         } else {
             MAX_LABEL_LENGTH
         }
+    }
+}
+
+impl Default for Editor {
+    fn default() -> Self {
+        Self::new()
     }
 }
 #[cfg(test)]

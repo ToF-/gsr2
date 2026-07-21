@@ -68,7 +68,7 @@ impl Catalog {
             Err(Error::other(format!("illegal characters in name:{}", sub_category_name)))
         } else if sub_category_name == TOP_CATEGORY {
             Err(Error::other(format!("category {} already exists", sub_category_name)))
-        } else if category_name != TOP_CATEGORY && self.reverse_tree.get(category_name).is_none() {
+        } else if category_name != TOP_CATEGORY && !self.reverse_tree.contains_key(category_name) {
             Err(Error::other(format!("unknown category:{}", category_name)))
         } else {
             self.root
@@ -87,7 +87,7 @@ impl Catalog {
     }
 
     pub fn remove_category(&mut self, category_name: &str, force: bool) -> Result<()> {
-        if self.reverse_tree.get(category_name).is_none() {
+        if !self.reverse_tree.contains_key(category_name) {
             Err(Error::other(format!("unknown category:{}", category_name)))
         } else {
             self.root
@@ -109,10 +109,10 @@ impl Catalog {
     }
 
     pub fn is_a(&self, target_category_name: &str, sub_category_name: &str) -> bool {
-        if self.reverse_tree.get(target_category_name).is_none() {
+        if !self.reverse_tree.contains_key(target_category_name) {
             return false;
         }
-        if self.reverse_tree.get(sub_category_name).is_none() {
+        if !self.reverse_tree.contains_key(sub_category_name) {
             return false;
         }
         if sub_category_name == target_category_name {
@@ -133,7 +133,7 @@ impl Catalog {
                 return true;
             }
         }
-        return false;
+        false
     }
 }
 
@@ -178,7 +178,7 @@ pub fn format_value(v: &Value) -> String {
 
 pub fn format_sub_category(s: &SubCategory) -> String {
     if s.sub_categories().is_empty() {
-        format!("{}", s.name())
+        s.name()
     } else {
         let items: Vec<String> = s.sub_categories().iter().map(format_sub_category).collect();
         let ssubs: String = items.join(", ");

@@ -20,7 +20,6 @@ use std::process::exit;
 "
     )
 )]
-
 /// list, add or remove categories
 pub struct Command {
     #[command(subcommand)]

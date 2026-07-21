@@ -90,10 +90,7 @@ impl Database {
 
     fn rusqlite_insert_picture(&self, picture: &Picture) -> SqlResult<usize> {
         let connection = self.connection_rc.borrow();
-        let image_data = match picture.image_data() {
-            Some(data) => data,
-            None => ImageData::default(),
-        };
+        let image_data = picture.image_data().unwrap_or_default();
         connection
             .execute(
                 "INSERT INTO Picture (    \n\
@@ -143,10 +140,7 @@ impl Database {
 
     fn rusqlite_update_picture(&self, picture: &Picture) -> SqlResult<usize> {
         let connection = self.connection_rc.borrow();
-        let image_data = match picture.image_data() {
-            Some(data) => data,
-            None => ImageData::default(),
-        };
+        let image_data = picture.image_data().unwrap_or_default();
         connection
             .execute(
                 "UPDATE Picture               \n\
@@ -469,8 +463,8 @@ impl Database {
                                 },
                                 ..image_data.clone()
                             };
-                            if let Some(ref catalog) = catalog_opt {
-                                if let Some(categories) = retrieve_criteria.categories.clone() {
+                            if let Some(ref catalog) = catalog_opt 
+                                && let Some(categories) = retrieve_criteria.categories.clone() {
                                     if let Some(category_name) = image_data.category_name() {
                                         if !catalog.is_one_of(&categories, &category_name) {
                                             continue;
@@ -478,7 +472,6 @@ impl Database {
                                     } else {
                                         continue;
                                     }
-                                }
                             };
                             if !retrieve_criteria.selection_criteria.is_empty()
                                 && !retrieve_criteria

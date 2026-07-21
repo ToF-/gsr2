@@ -88,10 +88,7 @@ impl Repository {
 
     fn retrieve_all_pictures(&mut self, args: &Args) -> IOResult<()> {
         let catalog_result = Catalog::from_file(&self.catalog_filepath);
-        let catalog: Catalog = match catalog_result {
-            Ok(catalog) => catalog,
-            Err(err) => return Err(err),
-        };
+        let catalog: Catalog = catalog_result?;
         let selection_criteria = SelectionCriteria::from_args(args);
         match self.gallery_rc.try_borrow_mut() {
             Ok(mut gallery) => {
@@ -157,6 +154,10 @@ impl Repository {
 
     pub fn len(&self) -> usize {
         self.len
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.len == 0
     }
 
     pub fn order(&self) -> Order {

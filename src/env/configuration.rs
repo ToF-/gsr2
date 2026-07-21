@@ -64,7 +64,7 @@ fn get_configuration() -> Result<Configuration> {
     match fs::read_to_string(config_file_location()) {
         Ok(content) => match toml::from_str::<Configuration>(&content) {
             Ok(config) => {
-                CONFIGURATION.set(config.clone());
+                let _ = CONFIGURATION.set(config.clone());
                 Ok(config)
             }
             Err(err) => Err(std::io::Error::other(err)),

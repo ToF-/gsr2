@@ -119,7 +119,7 @@ impl Controller {
     }
 
     pub fn set_selected(&mut self, selected: &str) {
-        self.selector.set_selected(&selected);
+        self.selector.set_selected(selected);
     }
     pub fn main_window(&self) -> MainWindow {
         self.main_window_opt.clone().unwrap()
@@ -490,7 +490,7 @@ impl Controller {
         }
         match self.repository.initialize_for_args(&self.args) {
             Ok(()) => {
-                self.reload();
+                let _ = self.reload();
                 self.navigator.set_page_changed();
             }
             Err(e) => eprintln!("{}", e),
@@ -756,7 +756,7 @@ impl Controller {
             self.args = new_args.clone();
             match self.repository.initialize_for_args(&new_args) {
                 Ok(()) => {
-                    self.reload();
+                    let _ = self.reload();
                     self.navigator.set_page_changed();
                 }
                 Err(e) => eprintln!("{}", e),
@@ -771,7 +771,7 @@ impl Controller {
                 Ok(()) => {
                     self.state.set_single_view(single_view);
                     self.change_grid_size(pictures_per_row);
-                    self.reload();
+                    let _ = self.reload();
                     if let Some(index) = self.args.index
                         && self.navigator.can_move(Direction::Index { value: index })
                     {
@@ -1312,7 +1312,7 @@ impl Controller {
             "{} pictures moved to {}\n{} operations\nexiting gsr",
             picture_count, target_dir, operation_count
         );
-        self.reload();
+        let _ = self.reload();
         self.navigator.set_page_changed();
     }
     fn move_selected_pictures(&mut self) {
@@ -1328,7 +1328,7 @@ impl Controller {
 
     fn confirm_delete_picture(&mut self) {
         self.delete_selected_pictures();
-        self.reload();
+        let _ = self.reload();
         self.navigator.set_page_changed()
     }
 

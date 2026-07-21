@@ -72,17 +72,17 @@ impl SubCategory {
             .find(|(_, sub_category)| sub_category.name == sub_category_name)
         {
             if !sub_category.sub_categories.is_empty() && !remove_subs {
-                return Err(Error::other(format!(
+                Err(Error::other(format!(
                     "category: {} has subcategories and cannot be deleted",
                     sub_category_name
-                )));
+                )))
             } else {
                 self.sub_categories.remove(index);
                 Ok(())
             }
         } else {
             let mut result: Result<()> = Ok(());
-            for mut sub_category in self.sub_categories.iter_mut() {
+            for sub_category in self.sub_categories.iter_mut() {
                 let sub_result = sub_category.remove_sub_category(sub_category_name, remove_subs);
                 if sub_result.is_err() {
                     result = sub_result;
@@ -164,12 +164,10 @@ impl SubCategory {
                     if cdr.is_null() {
                         Ok(Self::leave(symbol))
                     } else {
-                        Self::from_cons(cdr).and_then(|subs| {
-                            Ok(SubCategory {
-                                name: symbol.to_string(),
-                                sub_categories: subs,
-                            })
-                        })
+                         Self::from_cons(cdr).map(|subs| SubCategory {
+                                 name: symbol.to_string(),
+                                 sub_categories: subs,
+                             })
                     }
                 } else if car.is_cons() {
                     if cdr.is_cons() {

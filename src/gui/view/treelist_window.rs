@@ -27,7 +27,6 @@ use gtk::{
 #[derive(Clone, Debug)]
 pub struct TreeListWindow {
     window: gtk::Window,
-    selected: String,
 }
 
 #[allow(deprecated)]
@@ -99,7 +98,6 @@ impl TreeListWindow {
         );
         TreeListWindow {
             window,
-            selected: "".to_string(),
         }
     }
     pub fn popup(&self) {
@@ -137,7 +135,6 @@ impl TreeListWindow {
 }
 
 const WRAP_IN_TREELISTROWS: bool = false;
-const DONT_AUTOEXPAND: bool = false;
 const AUTOEXPAND: bool = true;
 
 fn build_list_view(root: SubCategory, controller_rc: &RcController) -> gtk::ListView {
@@ -193,7 +190,7 @@ fn build_list_view(root: SubCategory, controller_rc: &RcController) -> gtk::List
         move |_, key, key_code, modifier_type| {
             let selected: String = if let Some(row_object) = selection.selected_item() {
                 let row = row_object.downcast::<gtk::TreeListRow>().unwrap();
-                if let Some(_) = row.item() {
+                if row.item().is_some() {
                     let boxed = row
                         .item()
                         .unwrap()

@@ -28,7 +28,7 @@ pub fn datetime_from_time_stamp(timestamp: u64) -> DateTime<Local> {
     DateTime::<Local>::from(system_time)
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone)]
 pub struct ImageData {
     pub label: Label,
     pub size: FileSize,
@@ -42,7 +42,7 @@ pub struct ImageData {
 }
 
 impl ImageData {
-    pub fn default() -> Self {
+    pub fn new() -> Self {
         ImageData {
             label: "".to_string(),
             size: 0,
@@ -149,6 +149,12 @@ impl ImageData {
 
     pub fn remove_tag(&mut self, label: &str) {
         let _ = self.tags.remove(label);
+    }
+}
+
+impl Default for ImageData {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

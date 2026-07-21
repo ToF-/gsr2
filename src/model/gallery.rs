@@ -235,6 +235,12 @@ impl Gallery {
         println!();
     }
 }
+
+impl Default for Gallery {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 #[cfg(test)]
 mod tests {
 

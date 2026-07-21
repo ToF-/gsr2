@@ -60,6 +60,12 @@ impl PictureFrame {
     }
 }
 
+impl Default for PictureFrame {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 fn make_frame() -> gtk::Box {
     gtk::Box::builder()
         .orientation(Orientation::Vertical)
