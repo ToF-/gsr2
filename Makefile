@@ -20,7 +20,7 @@ info:
 reinit_sql:
 	sqlite3 $(DATABASE) <sql/create_db.sql
 	sqlite3 $(DATABASE) $(SQLITE_PARAM) ".read sql/update_test_data.sql" 
-	sqlite3 $(DATABASE) "SELECT RowId, FilePath, Label, FileSize, ModifiedTime, Rank, ColorCount, Cover FROM Picture;"
+	sqlite3 $(DATABASE) "SELECT RowId, FilePath, Label, FileSize, ModifiedTime, Rank, ColorCount, Cover, Score, Category  FROM Picture;"
 	sqlite3 $(DATABASE) "SELECT RowId, FilePath, Label FROM Tag;"
 
 show_sql:
@@ -42,7 +42,7 @@ reinit_data:
 	cargo run -- collect $(TEST_DIR)
 	cp test_thumbs/* testdata/.
 	sqlite3 $(DATABASE) $(SQLITE_PARAM) ".read sql/update_test_data.sql"
-	sqlite3 $(DATABASE) "SELECT RowId, FilePath, Label, FileSize, ModifiedTime, Rank, ColorCount, Cover FROM Picture;"
+	sqlite3 $(DATABASE) "SELECT RowId, FilePath, Label, FileSize, ModifiedTime, Rank, ColorCount, Cover, Score, Category  FROM Picture;"
 	sqlite3 $(DATABASE) "SELECT RowId, FilePath, Label FROM Tag;"
 	tree $(TEST_DIR)
 	

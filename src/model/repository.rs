@@ -177,9 +177,9 @@ impl Repository {
                             self.len = file_gallery.len();
                             Ok(())
                         }
-                        Err(e) => Err(IOError::other(dbg!(e))),
+                        Err(e) => Err(IOError::other(e)),
                     },
-                    Err(e) => Err(dbg!(e)),
+                    Err(e) => Err(e),
                 }
             }
             Some(Command::Directory { directory }) => {
@@ -191,17 +191,17 @@ impl Repository {
                             self.len = dir_gallery.len();
                             Ok(())
                         }
-                        Err(e) => Err(IOError::other(dbg!(e))),
+                        Err(e) => Err(IOError::other(e)),
                     },
-                    Err(e) => Err(dbg!(e)),
+                    Err(e) => Err(e),
                 }
             }
             _ => {
                 self.on_database = true;
-                dbg!(dbg!(self.retrieve_all_labels()).and_then(|()| {
-                    dbg!(self.retrieve_all_parent_dirs())
-                        .and_then(|()| dbg!(self.retrieve_all_pictures(&self.args.clone())))
-                }))
+                self.retrieve_all_labels().and_then(|()| {
+                    self.retrieve_all_parent_dirs()
+                        .and_then(|()| self.retrieve_all_pictures(&self.args.clone()))
+                })
             }
         }
     }
