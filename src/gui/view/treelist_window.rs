@@ -3,7 +3,6 @@ use crate::gui::controller::RcController;
 use crate::gui::event::Event;
 use crate::model::catalog::Catalog;
 use crate::model::sub_category::SubCategory;
-use gdk::{Key, ModifierType};
 use glib::BoxedAnyObject;
 use gtk::Align;
 use gtk::CssProvider;
@@ -19,10 +18,9 @@ use gtk::prelude::ListItemExt;
 #[allow(deprecated)]
 use gtk::prelude::StyleContextExt;
 use gtk::prelude::WidgetExt;
-use gtk::prelude::*;
-use gtk::{self, gdk};
+use gtk::{self};
 use gtk::{
-    Label, ListItem, ListView, ScrolledWindow, SignalListItemFactory, SingleSelection,
+    Label, ListItem, ListView, SignalListItemFactory, SingleSelection,
     TreeExpander, TreeListModel, glib,
 };
 
@@ -100,7 +98,7 @@ impl TreeListWindow {
             gtk::STYLE_PROVIDER_PRIORITY_APPLICATION,
         );
         TreeListWindow {
-            window: window,
+            window,
             selected: "".to_string(),
         }
     }
@@ -195,7 +193,7 @@ fn build_list_view(root: SubCategory, controller_rc: &RcController) -> gtk::List
         move |_, key, key_code, modifier_type| {
             let selected: String = if let Some(row_object) = selection.selected_item() {
                 let row = row_object.downcast::<gtk::TreeListRow>().unwrap();
-                if let Some(item) = row.item() {
+                if let Some(_) = row.item() {
                     let boxed = row
                         .item()
                         .unwrap()

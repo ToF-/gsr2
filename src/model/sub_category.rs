@@ -1,9 +1,7 @@
-use itertools::Itertools;
 use lexpr::Value;
 use lexpr::Value::Cons;
 use lexpr::Value::Null;
 use lexpr::Value::Symbol;
-use lexpr::parse::Result as ParseResult;
 use std::io::{Error, Result};
 
 pub const TOP_CATEGORY: &str = "-";
@@ -51,7 +49,7 @@ impl SubCategory {
             Ok(())
         } else {
             let mut result: Result<()> = Ok(());
-            for mut sub_category in self.sub_categories.iter_mut() {
+            for sub_category in self.sub_categories.iter_mut() {
                 let sub_result = sub_category.add_sub_category(sub_category_name, category_name);
                 if sub_result.is_err() {
                     result = sub_result;

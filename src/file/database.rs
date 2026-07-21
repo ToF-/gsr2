@@ -474,7 +474,6 @@ impl Database {
                                     if let Some(category_name) = image_data.category_name() {
                                         if !catalog.is_one_of(&categories, &category_name) {
                                             continue;
-                                        } else {
                                         }
                                     } else {
                                         continue;

@@ -104,7 +104,7 @@ impl Catalog {
                 })
         }
     }
-    pub fn s_expression(&self, level: usize) -> String {
+    pub fn s_expression(&self) -> String {
         self.root.format_at_level(0)
     }
 
@@ -155,7 +155,7 @@ fn make_reverse_tree(tree: &mut ReverseTree, parent: &SubCategory) -> Result<()>
                 Entry::Vacant(entry) => {
                     entry.insert(value);
                 }
-                Entry::Occupied(entry) => {
+                Entry::Occupied(_) => {
                     result = Err(Error::other(format!(
                         "duplicate subcategory:{}",
                         child.name()

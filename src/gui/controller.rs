@@ -816,7 +816,7 @@ impl Controller {
             match self.repository.initialize_for_args(&self.args) {
                 Ok(_) => match self.reload() {
                     Ok(0) => { self.toggle_cover_selection(); },
-                    Ok(n) => {},
+                    Ok(_) => {},
                     Err(e) => panic!("{}",e)
                 },
                 Err(e) => panic!("{}", e),
@@ -830,7 +830,7 @@ impl Controller {
             match self.repository.initialize_for_args(&self.args) {
                 Ok(_) => match self.reload() {
                     Ok(0) => { self.toggle_cover_selection(); },
-                    Ok(n) => {},
+                    Ok(_) => {},
                     Err(e) => panic!("{}",e)
                 },
                 Err(e) => panic!("{}", e),
@@ -969,7 +969,7 @@ impl Controller {
                         eprintln!("no pictures for this category");
                         self.set_filter_to_category(None);
                     },
-                    Ok(n) => {
+                    Ok(_) => {
                         self.navigator.move_towards(Direction::First);
                         self.navigator().set_page_changed();
                     },
@@ -978,6 +978,7 @@ impl Controller {
             },
             Err(e) => eprintln!("{}", e),
         }
+        self.navigator.set_page_changed();
     }
 
     fn uncategorize_selected_pictures(&mut self) {

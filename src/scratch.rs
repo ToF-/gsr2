@@ -1,7 +1,7 @@
 use chrono::{DateTime, Local};
 use std::env;
 use std::fs;
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use std::time::{Duration, UNIX_EPOCH};
 
 fn main() {
     let args: Vec<String> = env::args().collect();
