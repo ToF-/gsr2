@@ -165,8 +165,7 @@ impl Controller {
         };
         match result {
             Ok(0) => {
-                println!("no pictures\nquitting");
-                self.quit();
+                println!("no pictures\n");
                 Ok(0)
             }
             Err(e) => Err(e),
@@ -815,7 +814,11 @@ impl Controller {
             };
             self.args = new_args;
             match self.repository.initialize_for_args(&self.args) {
-                Ok(_) => self.reload(),
+                Ok(_) => match self.reload() {
+                    Ok(0) => { self.toggle_cover_selection(); },
+                    Ok(n) => {},
+                    Err(e) => panic!("{}",e)
+                },
                 Err(e) => panic!("{}", e),
             }
         } else if self.args.cover {
@@ -825,7 +828,11 @@ impl Controller {
             };
             self.args = new_args;
             match self.repository.initialize_for_args(&self.args) {
-                Ok(_) => self.reload(),
+                Ok(_) => match self.reload() {
+                    Ok(0) => { self.toggle_cover_selection(); },
+                    Ok(n) => {},
+                    Err(e) => panic!("{}",e)
+                },
                 Err(e) => panic!("{}", e),
             }
         }
@@ -956,10 +963,21 @@ impl Controller {
         };
         self.args = new_args;
         match self.repository.initialize_for_args(&self.args) {
-            Ok(_) => self.reload(),
-            Err(e) => panic!("{}", e),
+            Ok(_) => { 
+                match self.reload() {
+                    Ok(0) => {
+                        eprintln!("no pictures for this category");
+                        self.set_filter_to_category(None);
+                    },
+                    Ok(n) => {
+                        self.navigator.move_towards(Direction::First);
+                        self.navigator().set_page_changed();
+                    },
+                    Err(e) => eprintln!("{}", e),
+                }
+            },
+            Err(e) => eprintln!("{}", e),
         }
-        println!("set filter to category {:?}", category);
     }
 
     fn uncategorize_selected_pictures(&mut self) {
@@ -1099,15 +1117,20 @@ impl Controller {
         }
     }
 
-    fn reload(&mut self) {
+    fn reload(&mut self) -> Result<usize,Error> {
         match self.load_repository() {
-            Ok(_) => {
+            Ok(0) => {
+                Ok(0)
+            }
+            Ok(n) => {
                 self.move_towards(Direction::First);
                 self.navigator.set_page_changed();
+                Ok(n)
             }
             Err(e) => {
                 eprintln!("{}", e);
-                self.quit()
+                self.quit();
+                Err(e)
             }
         }
     }
