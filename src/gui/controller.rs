@@ -1,3 +1,4 @@
+use crate::model::sub_category::TOP_CATEGORY;
 use crate::cli::args::Args;
 use crate::cli::command::Command;
 use crate::env::configuration::Configuration;
@@ -941,6 +942,23 @@ impl Controller {
     }
 
     fn set_filter_to_category(&mut self, category: Category) {
+        let new_args = if category.is_none() || category.as_ref().unwrap() == TOP_CATEGORY {
+            Args {
+                categories: None,
+                ..self.args.clone()
+            }
+        }
+        else {
+            Args {
+                categories: category.clone(), 
+                ..self.args.clone()
+            }
+        };
+        self.args = new_args;
+        match self.repository.initialize_for_args(&self.args) {
+            Ok(_) => self.reload(),
+            Err(e) => panic!("{}", e),
+        }
         println!("set filter to category {:?}", category);
     }
 
