@@ -68,33 +68,14 @@ pub fn main() {
                 Commands::Add {
                     sub_category,
                     category,
-                } => match catalog.add_sub_category(&sub_category, &category) {
-                    Ok(_) => {
-                        let new_catalog = catalog.clone();
-                        match new_catalog.save_to_file(&config.catalog_filepath) {
-                            Ok(_) => {
-                                println!(
-                                    "adding sub category {} to category {}",
-                                    sub_category, category
-                                );
-                            }
-                            Err(err) => eprintln!("error: {}", err),
-                        }
-                    }
+                } => match catalog.add_and_save(&sub_category, &category) {
+                    Ok(_) => {},
                     Err(err) => eprintln!("error: {}", err),
                 },
-                Commands::Remove { category, force } => {
-                    match catalog.remove_category(&category, force) {
-                        Ok(_) => {
-                            let new_catalog = catalog.clone();
-                            match new_catalog.save_to_file(&config.catalog_filepath) {
-                                Ok(_) => println!("removing category {}", category),
-                                Err(err) => eprintln!("error: {}", err),
-                            };
-                        }
-                        Err(err) => eprintln!("error: {}", err),
-                    }
-                }
+                Commands::Remove { category, force } => match catalog.remove_and_save(&category, force) {
+                    Ok(_) => {},
+                    Err(err) => eprintln!("error: {}", err),
+                },
             }
         } else {
             list(&catalog)

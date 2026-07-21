@@ -1,3 +1,4 @@
+use crate::env::configuration::Configuration;
 use regex::Regex;
 use crate::model::sub_category::TOP_CATEGORY;
 use crate::model::categories::Categories;
@@ -54,12 +55,48 @@ impl Catalog {
         }
     }
 
-    pub fn save_to_file(&self, file_path: &str) -> Result<()> {
+    fn sort(&mut self) {
+        self.root.sort();
+    }
+    pub fn save_to_file(&mut self, file_path: &str) -> Result<()> {
+        self.sort();
         let content: String = self.root.format_at_level(0);
         fs::write(file_path, content)
     }
     pub fn root(&self) -> SubCategory {
         self.root.clone()
+    }
+
+    pub fn add_and_save(&mut self, sub_category_name: &str, category_name: &str) -> Result<()> {
+        let config = match Configuration::from_env() {
+            Ok(config) => config,
+            Err(err) => {
+                eprintln!("{}", err);
+                return Err(err);
+            },
+        };
+        match self.add_sub_category(sub_category_name, category_name) {
+            Ok(_) => {
+                let mut new_catalog = self.clone();
+                match new_catalog.save_to_file(&config.catalog_filepath) {
+                    Ok(_) => {
+                        println!(
+                            "adding sub category {} to category {}",
+                            sub_category_name, category_name
+                        );
+                        Ok(())
+                    }
+                    Err(err) => {
+                        eprintln!("error: {}", err);
+                        Err(err)
+                    }
+                }
+            }
+            Err(err) => {
+                eprintln!("error: {}", err);
+                Err(err)
+            }
+        }
     }
 
     pub fn add_sub_category(&mut self, sub_category_name: &str, category_name: &str) -> Result<()> {
@@ -86,6 +123,31 @@ impl Catalog {
         }
     }
 
+    pub fn remove_and_save(&mut self, category_name: &str, force: bool) -> Result<()> {
+        let config = match Configuration::from_env() {
+            Ok(config) => config,
+            Err(err) => {
+                eprintln!("{}", err);
+                return Err(err);
+            },
+        };
+        match self.remove_category(category_name, force) {
+            Ok(_) => {
+                let mut new_catalog = self.clone();
+                match new_catalog.save_to_file(&config.catalog_filepath) {
+                    Ok(_) => { println!("removing category {}", category_name);
+                        Ok(())
+                    },
+                    Err(err) => { eprintln!("error: {}", err);
+                        Err(err)
+                    },
+                }
+            },
+            Err(err) => { eprintln!("error: {}", err);
+                Err(err)
+            },
+        }
+    }
     pub fn remove_category(&mut self, category_name: &str, force: bool) -> Result<()> {
         if !self.reverse_tree.contains_key(category_name) {
             Err(Error::other(format!("unknown category:{}", category_name)))

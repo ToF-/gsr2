@@ -194,4 +194,11 @@ impl SubCategory {
             ))),
         }
     }
+
+    pub(crate) fn sort(&mut self) {
+        for sub_category in self.sub_categories.iter_mut() {
+            sub_category.sort()
+        };
+        self.sub_categories.sort_by(|a,b| a.name().cmp(&b.name()));
+    }
 }
