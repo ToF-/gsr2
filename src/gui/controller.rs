@@ -348,7 +348,7 @@ impl Controller {
                 };
                 self.state.set_mode(Mode::View)
             }
-            Mode::Selecting => {
+            Mode::Categorizing => {
                 self.selector.process(key);
                 if !self.selector.selecting() {
                     self.state.set_mode(Mode::View);
@@ -357,6 +357,16 @@ impl Controller {
                         self.categorize_selected_pictures(category)
                     }
                     self.set_opacity_for_current_picture(1.00);
+                }
+            }
+            Mode::SelectingCategory => {
+                self.selector.process(key);
+                if !self.selector.selecting() {
+                    self.state.set_mode(Mode::View);
+                    if !self.selector.selected().is_empty() {
+                        let category: Category = Some(self.selector.selected());
+                        self.set_filter_to_category(category)
+                    }
                 }
             }
             Mode::Editing => {
@@ -645,6 +655,7 @@ impl Controller {
 
     fn process_control(&mut self, control: &Control) {
         match control {
+            Control::SelectCategory => self.set_category_selection(),
             Control::MoveNext => self.move_towards(Direction::NextPage),
             Control::MovePrev => self.move_towards(Direction::PrevPage),
             Control::MoveLast => self.move_towards(Direction::Last),
@@ -921,7 +932,16 @@ impl Controller {
     fn categorize(&mut self) {
         self.set_opacity_for_current_picture(0.25);
         self.selector.begin(&self.main_window());
-        self.state.set_mode(Mode::Selecting);
+        self.state.set_mode(Mode::Categorizing);
+    }
+
+    fn set_category_selection(&mut self) {
+        self.selector.begin(&self.main_window());
+        self.state.set_mode(Mode::SelectingCategory);
+    }
+
+    fn set_filter_to_category(&mut self, category: Category) {
+        println!("set filter to category {:?}", category);
     }
 
     fn uncategorize_selected_pictures(&mut self) {

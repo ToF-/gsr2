@@ -47,6 +47,7 @@ pub enum Control {
     SetOrder,
     SetSelection,
     SetRestriction,
+    SelectCategory,
     CancelSelection,
     Information,
     Find,
@@ -123,6 +124,7 @@ pub fn help_on_controls() -> String {
 // these default controls are valid on my ergodox bepo modified
 pub fn default_controls() -> Controls {
     let mut controls: Controls = HashMap::from([
+        ((String::from("colon"), Mode::View), Control::SelectCategory),
         ((String::from("question"), Mode::View), Control::CopyTemp),
         (
             (String::from("Escape"), Mode::Editing),
@@ -133,11 +135,11 @@ pub fn default_controls() -> Controls {
             Control::ConfirmEdition,
         ),
         (
-            (String::from("Escape"), Mode::Selecting),
+            (String::from("Escape"), Mode::Categorizing),
             Control::CancelSelection,
         ),
         (
-            (String::from("Return"), Mode::Selecting),
+            (String::from("Return"), Mode::Categorizing),
             Control::ConfirmSelection,
         ),
         ((String::from("Tab"), Mode::Editing), Control::Complete),

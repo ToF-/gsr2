@@ -214,7 +214,8 @@ impl MainWindow {
                 _ => panic!("incorrect choice for setting: {:?}", choice),
             },
             Mode::Editing => String::from("Editing…"),
-            Mode::Selecting => String::from("Selecting…"),
+            Mode::Categorizing => String::from("Select a category to apply"),
+            Mode::SelectingCategory => String::from("Select category to view"),
         };
         self.application_window().set_title(Some(&title));
     }
