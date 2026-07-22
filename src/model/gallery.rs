@@ -56,6 +56,10 @@ impl Gallery {
         &self.pictures
     }
 
+    pub fn search_in_progress(&self) -> bool {
+        self.finder.search_in_progress()
+    }
+
     pub fn order(&self) -> Order {
         self.order
     }

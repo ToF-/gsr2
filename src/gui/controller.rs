@@ -450,7 +450,7 @@ impl Controller {
                         }
                         EntryKind::FindName => {
                             if !self.editor.input().is_empty() {
-                                self.find_pattern(&self.editor.input(), false)
+                                self.find_first(&self.editor.input(), Find::Name);
                             };
                         }
                         EntryKind::FindLabel => {
@@ -713,6 +713,7 @@ impl Controller {
             Control::TogglePalette => self.toggle_palette(),
             Control::Jump => self.jump(),
             Control::JumpMarkChar(ch) => self.find_mark(*ch),
+            Control::FindNext => self.find_next(),
             Control::FindFirstInName => self.find(),
             Control::Help => self.help(),
             Control::EnterFind => self.enter_find(),
@@ -1550,6 +1551,7 @@ impl Controller {
     }
 
     fn find_first(&mut self, pattern: &str, find: Find)  {
+        println!("find_first {}", pattern);
         match Regex::new(pattern) {
             Ok(re) => {
                 let predicate = match find {
@@ -1559,11 +1561,13 @@ impl Controller {
                     Find::Tags =>    Predicate { function: Arc::new(move |picture: &Picture| true ) }, // todo
                 };
                 if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut() {
-                    if let Some(index) = gallery.finder.first(predicate) {
+                    let mut finder = &mut gallery.finder;
+                    if let Some(index) = finder.first(predicate) {
                         let navigator = &mut self.navigator;
                         navigator.move_towards(Direction::Index { value: index });
-                        navigator.set_page_changed()
+                        navigator.set_page_changed();
                     };
+
                 } else {
                     panic!("can't borrow")
                 }
@@ -1574,4 +1578,18 @@ impl Controller {
         }
     }
 
+    fn find_next(&mut self) {
+        println!("find_next");
+        if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut() {
+            if let Some(index) = gallery.finder.next() {
+                let navigator = &mut self.navigator;
+                navigator.move_towards(Direction::Index { value: index });
+                navigator.set_page_changed()
+            } else {
+                println!("end of search");
+            }
+        } else {
+            panic!("can't borrow")
+        }
+    }
 }
