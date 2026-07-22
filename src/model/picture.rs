@@ -93,6 +93,12 @@ impl Picture {
             .unwrap_or_default()
     }
 
+    pub fn category_name(&self) -> String {
+        self.image_data
+            .as_ref()
+            .map(|d| d.category_name().unwrap_or_default())
+            .unwrap_or_default()
+    }
     pub fn selected(&self, selection_criteria: &SelectionCriteria) -> bool {
         self.image_data
             .as_ref()

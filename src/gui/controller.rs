@@ -1,3 +1,7 @@
+  use std::str::FromStr;
+use std::sync::Arc;
+use crate::model::finder::Predicate;
+use crate::model::find::Find;
 use crate::model::sub_category::TOP_CATEGORY;
 use crate::cli::args::Args;
 use crate::cli::command::Command;
@@ -387,7 +391,15 @@ impl Controller {
                             self.set_opacity_for_current_picture(1.00);
                         }
                         EntryKind::Find => {
-                            eprintln!("todo!: EntryKind::Find");
+                            if !self.editor.input().is_empty() {
+                                match Find::from_str(&self.editor.input()) {
+                                    Ok(Find::Label) => self.enter_find_label(),
+                                    Ok(Find::Name) => self.enter_find_name(),
+                                    Ok(Find::Category) => { eprintln!("todo:! Find::Category") },
+                                    Ok(Find::Tags) => { eprintln!("todo:! Find::Tags") },
+                                    _ => {},
+                                };
+                            }
                         }
                         EntryKind::Label => {
                             if !self.editor.input().is_empty() {
@@ -443,7 +455,7 @@ impl Controller {
                         }
                         EntryKind::FindLabel => {
                             if !self.editor.input().is_empty() {
-                                self.find_pattern(&self.editor.input(), true)
+                                self.find_first(&self.editor.input(), Find::Label);
                             };
                         }
                         EntryKind::Information => {}
@@ -639,6 +651,15 @@ impl Controller {
         self.state.set_mode(Mode::Editing);
     }
 
+    fn enter_find_label(&mut self) {
+        self.editor.begin(&self.main_window(), EntryKind::FindLabel, None);
+        self.state.set_mode(Mode::Editing);
+    }
+
+    fn enter_find_name(&mut self) {
+        self.editor.begin(&self.main_window(), EntryKind::FindName, None);
+        self.state.set_mode(Mode::Editing);
+    }
     fn setting_mark(&mut self) {
         println!("Setting mark…");
         self.state.set_mode(Mode::Setting(Control::SetMark));
@@ -1524,6 +1545,31 @@ impl Controller {
                     _ => { },
                 },
                 Err(e) => { eprintln!("{}", e); },
+            }
+        }
+    }
+
+    fn find_first(&mut self, pattern: &str, find: Find)  {
+        match Regex::new(pattern) {
+            Ok(re) => {
+                let predicate = match find {
+                    Find::Name => Predicate { function: Arc::new(move |picture: &Picture| re.is_match(&picture.file_name())) },
+                    Find::Label=> Predicate { function: Arc::new(move |picture: &Picture| re.is_match(&picture.label())) },
+                    Find::Category=> Predicate { function: Arc::new(move |picture: &Picture| re.is_match(&picture.category_name())) },
+                    Find::Tags =>    Predicate { function: Arc::new(move |picture: &Picture| true ) }, // todo
+                };
+                if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut() {
+                    if let Some(index) = gallery.finder.first(predicate) {
+                        let navigator = &mut self.navigator;
+                        navigator.move_towards(Direction::Index { value: index });
+                        navigator.set_page_changed()
+                    };
+                } else {
+                    panic!("can't borrow")
+                }
+            }
+            Err(e) => {
+                eprintln!("{}", e);
             }
         }
     }
