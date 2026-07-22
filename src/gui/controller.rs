@@ -410,6 +410,7 @@ impl Controller {
                             };
                         }
                         EntryKind::Order => self.set_order(&self.editor.input()),
+                        EntryKind::GridSize => self.setting_grid_size(&self.editor.input()),
                         EntryKind::DeleteConfirmation => {
                             if &self.editor.input() == "yes" {
                                 self.confirm_delete_picture()
@@ -613,6 +614,15 @@ impl Controller {
                 | Control::Randomize => self.process_control(choice),
                 _ => println!("?"),
             },
+            Control::SetGridSize => match choice {
+               |  Control::GridTwo
+               |  Control::GridThree
+               |  Control::GridFour
+               |  Control::GridFive
+               |  Control::GridTen
+               |  Control::ToggleSingleView => self.process_control(choice),
+               _ => println!("?"),
+            },
             _ => {}
         }
     }
@@ -623,8 +633,8 @@ impl Controller {
     }
 
     fn setting_grid(&mut self) {
-        println!("Setting grid size…");
-        self.state.set_mode(Mode::Setting(Control::SetGrid));
+        self.editor.begin(&self.main_window(), EntryKind::GridSize, None);
+        self.state.set_mode(Mode::Editing);
     }
     fn setting_mark(&mut self) {
         println!("Setting mark…");
@@ -692,6 +702,7 @@ impl Controller {
             Control::Unlabel => self.unlabel_selected_pictures(),
             Control::Rename => self.rename(),
             Control::SetGrid => self.setting_grid(),
+            Control::SetGridSize => self.set_grid_size(),
             Control::GridTwo => self.change_grid_size(2),
             Control::GridThree => self.change_grid_size(3),
             Control::GridFour => self.change_grid_size(4),
@@ -1487,5 +1498,16 @@ impl Controller {
         } else {
             _ = self.scores.insert(file_path.to_string(), 1);
         };
+    }
+
+    fn set_grid_size(&mut self) {
+        self.setting_grid();
+    }
+
+    fn setting_grid_size(&mut self, input: &str) {
+        match input.parse() {
+            Ok(size) => self.change_grid_size(size),
+            Err(e) => { eprintln!("{}", e); },
+        }
     }
 }

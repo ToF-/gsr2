@@ -53,6 +53,9 @@ impl Editor {
             EntryKind::Order => {
                 "Enter a sorting criteria: c(a)tegory (c)olors (d)ate (l)abel (m)ost views (n)ame (p)alette c(o)ver (r)andom (s)ize (v)alue "
             }
+            EntryKind::GridSize => {
+                "Enter grid size: 1x1 2x2 3x3 4x4 5x5 TenxTen"
+            },
             EntryKind::DeleteConfirmation => "Delete these pictures?",
             EntryKind::MoveConfirmation => "Move these pictures?",
             EntryKind::MoveToLabelConfirmation(ref target) => {
@@ -217,6 +220,7 @@ impl Editor {
                 ch,
                 'a' | 'c' | 'd' | 'p' | 'm' | 'l' | 'n' | 'o' | 'r' | 's' | 'v'
             ),
+            EntryKind::GridSize => matches!( ch, '1' | '2' | '3' | '4' | '5' | 't' ),
             EntryKind::Information | EntryKind::Help => false,
         };
         if ch_is_ok && self.input.len() < self.max_edit_length() {
@@ -247,6 +251,18 @@ impl Editor {
                     _ => todo!(),
                 };
                 self.input = format!("{}", order);
+            }
+            c if self.entry_kind == EntryKind::GridSize => {
+                let size: usize = match c {
+                    '1' => 1,
+                    '2' => 2,
+                    '3' => 3,
+                    '4' => 4,
+                    '5' => 5,
+                    't' => 10,
+                    _ => todo!(),
+                };
+                self.input = format!("{}", size);
             }
             other if other.is_ascii() => self.input.push(other.to_lowercase().next().unwrap()),
             other => self.input.push(other),
