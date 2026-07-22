@@ -1,3 +1,5 @@
+use std::sync::Arc;
+use crate::model::finder::Predicate;
 use crate::model::finder::Finder;
 use crate::file::paths::parent_directory;
 use crate::file::picture_file::{get_all_picture_file_paths, get_picture_file_path};
@@ -14,12 +16,12 @@ use std::collections::BTreeSet;
 use std::collections::HashMap;
 use std::io::Result;
 
-#[derive(Debug, Clone)]
+#[derive(Debug,Clone)]
 pub struct Gallery {
     pictures: Vec<Picture>,
     order: Order,
     selection_criteria: SelectionCriteria,
-    pub finder: Finder<Picture>,
+    pub finder: Finder,
 }
 
 impl Gallery {
@@ -340,17 +342,18 @@ mod tests {
             .expect("can't load from directory");
         gallery.sort_by(Order::Name);
         let ch = 'l';
-        let predicate = |picture: &Picture| picture.file_name().contains(ch) ;
+
+        let predicate:Predicate = Predicate { function: Arc::new(move |picture: &Picture| picture.file_name().contains(ch)) } ;
         let p = gallery.finder.first(predicate);
         assert!(p.is_some());
         assert_eq!("large_picture.png", gallery.pictures()[p.unwrap()].file_name());
-        let p = gallery.finder.next(predicate);
+        let p = gallery.finder.next();
         assert!(p.is_some());
         assert_eq!("nine_colors.png", gallery.pictures()[p.unwrap()].file_name());
-        let p = gallery.finder.next(predicate);
+        let p = gallery.finder.next();
         assert!(p.is_some());
         assert_eq!("single_dot.png", gallery.pictures()[p.unwrap()].file_name());
-        let p = gallery.finder.next(predicate);
+        let p = gallery.finder.next();
         assert!(p.is_none());
     }
 }

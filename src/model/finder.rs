@@ -1,39 +1,54 @@
-#[derive(Debug, Clone)]
-pub struct Finder<T> {
-    items: Vec<T>,
-    pos: usize,
+use crate::model::picture::Picture;
+use std::sync::Arc;
+
+
+#[derive(Clone)]
+pub struct Predicate {
+    pub function: Arc<dyn Fn(&Picture) -> bool>,
 }
 
-impl<T> Finder<T> {
-    pub fn new(items: Vec<T>) -> Self {
-        Self { items, pos: 0 }
+impl std::fmt::Debug for Predicate {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "<predicate>")
+    }
+}
+
+#[derive(Debug,Clone)]
+pub struct Finder { 
+
+    items: Vec<Picture>,
+    predicate: Option<Predicate>,
+    position: usize,
+}
+
+impl Finder {
+    pub fn new(items: Vec<Picture>) -> Self {
+            Self { items: items.clone(), position: 0, predicate: None, }
+        }
+
+    pub fn first(&mut self, predicate: Predicate) -> Option<usize> 
+    {
+        self.predicate = Some(predicate);
+        self.first_from_index(0)
     }
 
-    pub fn first<P>(&mut self, pred: P) -> Option<usize>
-    where
-        P: Fn(&T) -> bool,
+    pub fn first_from_index(&mut self, start: usize) -> Option<usize>
     {
-        self.first_from_index(0, pred)
+        self.position = start;
+        self.next()
     }
 
-    pub fn first_from_index<P>(&mut self, start: usize, pred: P) -> Option<usize>
-    where
-        P: Fn(&T) -> bool,
+    pub fn next(&mut self) -> Option<usize>
     {
-        self.pos = start;
-        self.next(pred)
-    }
 
-    pub fn next<P>(&mut self, pred: P) -> Option<usize>
-    where
-        P: Fn(&T) -> bool,
-    {
-        let index = self.items[self.pos..]
+        let predicate = &<std::option::Option<Predicate> as Clone>::clone(&self.predicate).unwrap();
+        let function = &predicate.function;
+        let index = self.items[self.position..]
             .iter()
-            .position(pred)
-            .map(|i| self.pos + i)?;
+            .position(|item| function(&item))
+            .map(|i| self.position + i)?;
 
-        self.pos = index + 1;
+        self.position = index + 1;
         Some(index)
     }
 }

@@ -43,7 +43,7 @@ pub enum Commands {
         #[arg(short, long)]
         category: String,
 
-        #[arg(short, long, default_value="false")]
+        #[arg(short, long, default_value = "false")]
         force: bool,
     },
 }
@@ -69,13 +69,15 @@ pub fn main() {
                     sub_category,
                     category,
                 } => match catalog.add_and_save(&sub_category, &category) {
-                    Ok(_) => {},
+                    Ok(_) => {}
                     Err(err) => eprintln!("error: {}", err),
                 },
-                Commands::Remove { category, force } => match catalog.remove_and_save(&category, force) {
-                    Ok(_) => {},
-                    Err(err) => eprintln!("error: {}", err),
-                },
+                Commands::Remove { category, force } => {
+                    match catalog.remove_and_save(&category, force) {
+                        Ok(_) => {}
+                        Err(err) => eprintln!("error: {}", err),
+                    }
+                }
             }
         } else {
             list(&catalog)
