@@ -5,6 +5,7 @@ pub mod category;
 pub mod color;
 pub mod color_range;
 pub mod cover;
+pub mod finder;
 pub mod gallery;
 pub mod image_data;
 pub mod label;

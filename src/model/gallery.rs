@@ -1,3 +1,4 @@
+use crate::model::finder::Finder;
 use crate::file::paths::parent_directory;
 use crate::file::picture_file::{get_all_picture_file_paths, get_picture_file_path};
 use crate::model::cover::cover_sort_key;
@@ -18,6 +19,7 @@ pub struct Gallery {
     pictures: Vec<Picture>,
     order: Order,
     selection_criteria: SelectionCriteria,
+    pub finder: Finder<Picture>,
 }
 
 impl Gallery {
@@ -26,15 +28,17 @@ impl Gallery {
             pictures: Vec::new(),
             order: Order::Name,
             selection_criteria: SelectionCriteria::empty(),
+            finder: Finder::new(Vec::new()),
         }
     }
 
     #[allow(dead_code)]
     pub fn new_with_pictures(pictures: Vec<Picture>) -> Self {
         Gallery {
-            pictures,
+            pictures: pictures.clone(),
             order: Order::Name,
             selection_criteria: SelectionCriteria::empty(),
+            finder: Finder::new(pictures),
         }
     }
 
@@ -72,7 +76,8 @@ impl Gallery {
                         Ok(picture) => self.pictures.push(picture),
                         Err(err) => return Err(err),
                     }
-                }
+                };
+                self.finder = Finder::new(self.pictures.clone());
                 Ok(self.pictures.len())
             }
             Err(err) => Err(err),
@@ -176,7 +181,8 @@ impl Gallery {
                 })
             }),
             Order::Random => self.pictures.shuffle(&mut rng()),
-        }
+        };
+        self.finder = Finder::new(self.pictures.clone());
     }
 
     pub fn find_file_path(&self, file_path: &str) -> Option<usize> {
@@ -324,5 +330,27 @@ mod tests {
             result |= sort_and_compare_lists()
         }
         assert!(result)
+    }
+    #[test]
+    #[serial]
+    fn finding_the_first_picture_for_a_given_predicate() {
+        let mut gallery = Gallery::new();
+        gallery
+            .load_from_directory(&test_directory())
+            .expect("can't load from directory");
+        gallery.sort_by(Order::Name);
+        let ch = 'l';
+        let predicate = |picture: &Picture| picture.file_name().contains(ch) ;
+        let p = gallery.finder.first(predicate);
+        assert!(p.is_some());
+        assert_eq!("large_picture.png", gallery.pictures()[p.unwrap()].file_name());
+        let p = gallery.finder.next(predicate);
+        assert!(p.is_some());
+        assert_eq!("nine_colors.png", gallery.pictures()[p.unwrap()].file_name());
+        let p = gallery.finder.next(predicate);
+        assert!(p.is_some());
+        assert_eq!("single_dot.png", gallery.pictures()[p.unwrap()].file_name());
+        let p = gallery.finder.next(predicate);
+        assert!(p.is_none());
     }
 }
