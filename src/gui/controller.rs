@@ -410,7 +410,8 @@ impl Controller {
                             };
                         }
                         EntryKind::Order => self.set_order(&self.editor.input()),
-                        EntryKind::GridSize => self.setting_grid_size(&self.editor.input()),
+                        EntryKind::Rank => self.confirm_rank(&self.editor.input()),
+                        EntryKind::GridSize => self.confirm_grid_size(&self.editor.input()),
                         EntryKind::DeleteConfirmation => {
                             if &self.editor.input() == "yes" {
                                 self.confirm_delete_picture()
@@ -622,8 +623,12 @@ impl Controller {
         self.state.set_mode(Mode::Setting(Control::SetDisplay));
     }
 
-    fn setting_grid(&mut self) {
+    fn enter_grid_size(&mut self) {
         self.editor.begin(&self.main_window(), EntryKind::GridSize, None);
+        self.state.set_mode(Mode::Editing);
+    }
+    fn enter_rank(&mut self) {
+        self.editor.begin(&self.main_window(), EntryKind::Rank, None);
         self.state.set_mode(Mode::Editing);
     }
     fn setting_mark(&mut self) {
@@ -691,7 +696,8 @@ impl Controller {
             Control::Label => self.label(),
             Control::Unlabel => self.unlabel_selected_pictures(),
             Control::Rename => self.rename(),
-            Control::SetGridSize => self.set_grid_size(),
+            Control::EnterGridSize => self.enter_grid_size(),
+            Control::EnterRank => self.enter_rank(),
             Control::SetDisplay => self.setting_display(),
             Control::SetMark => self.setting_mark(),
             Control::GotoMark => self.jumping_mark(),
@@ -714,6 +720,7 @@ impl Controller {
             Control::OrderByPalette => self.order_by(Order::Palette),
             Control::Randomize => self.order_by(Order::Random),
             Control::SetRange => self.set_range(),
+            Control::SetRank => self.enter_rank(),
             Control::SetRangeAll => self.set_range_all(),
             Control::SetRangePage => self.set_range_page(),
             Control::RepeatRange => self.repeat_range(),
@@ -1484,11 +1491,7 @@ impl Controller {
         };
     }
 
-    fn set_grid_size(&mut self) {
-        self.setting_grid();
-    }
-
-    fn setting_grid_size(&mut self, input: &str) {
+    fn confirm_grid_size(&mut self, input: &str) {
         if !input.is_empty() {
             match input.parse() {
                 Ok(size) => self.change_grid_size(size),
@@ -1496,4 +1499,24 @@ impl Controller {
             }
         }
     }
+
+    fn setting_rank(&self) {
+        todo!()
+    }
+
+    fn confirm_rank(&mut self, input: &str) {
+        if !input.is_empty() {
+            match input.parse() {
+                Ok(level) => match level {
+                    0 => self.rank_selected_pictures(Rank::NoStar),
+                    1 => self.rank_selected_pictures(Rank::OneStar),
+                    2 => self.rank_selected_pictures(Rank::TwoStars),
+                    3 => self.rank_selected_pictures(Rank::ThreeStars),
+                    _ => { },
+                },
+                Err(e) => { eprintln!("{}", e); },
+            }
+        }
+    }
+
 }

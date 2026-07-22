@@ -12,6 +12,7 @@ pub enum Control {
     DeleteChar,
     DeletePicture,
     ExtractFileNames,
+    EnterRank,
     SetRange,
     SetRangeAll,
     SetRangePage,
@@ -61,7 +62,8 @@ pub enum Control {
     RemoveTag,
     Rename,
     Quit,
-    SetGridSize,
+    SetRank,
+    EnterGridSize,
     DisplayDate,
     DisplayFocus,
     DisplaySize,
@@ -112,6 +114,7 @@ pub fn help_on_controls() -> String {
         *: add tag, /: remove tag\n\
         =/-/#: select pictures having some/all tags, cancel selection\n\
         y: set grid size of 1,4,9,16,25 or 100 pictures per page\n\
+        0,1,2,3: set rank, 4: enter rank\n\
         g: view this cover subgroup, G/q: back from subgroup\n\
         q: quit  H:help"
     )
@@ -213,7 +216,8 @@ pub fn default_controls() -> Controls {
         ),
         ((String::from("M"), Mode::View), Control::MovePicture),
         ((String::from("m"), Mode::View), Control::MovePictureToLabel),
-        ((String::from("y"), Mode::View), Control::SetGridSize),
+        ((String::from("y"), Mode::View), Control::EnterGridSize),
+        ((String::from("4"), Mode::View), Control::EnterRank),
         ((String::from("D"), Mode::View), Control::SetDisplay),
         ((String::from("O"), Mode::View), Control::SetOrder),
         (
@@ -268,6 +272,7 @@ pub fn default_controls() -> Controls {
             (String::from("p"), Mode::Setting(Control::SetOrder)),
             Control::OrderByPalette,
         ),
+        ((String::from("4"), Mode::View), Control::SetRank),
         ((String::from("0"), Mode::View), Control::RankNoStar),
         ((String::from("1"), Mode::View), Control::RankOneStar),
         ((String::from("2"), Mode::View), Control::RankTwoStars),

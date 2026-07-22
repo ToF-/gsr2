@@ -12,6 +12,7 @@ pub enum EntryKind {
     MoveToLabelConfirmation(String),
     Number,
     Order,
+    Rank,
     RemoveTag,
     Rename,
     SetRestriction,

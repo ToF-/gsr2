@@ -56,6 +56,9 @@ impl Editor {
             EntryKind::GridSize => {
                 "Enter grid size: 1x1 2x2 3x3 4x4 5x5 TenxTen"
             },
+            EntryKind::Rank => {
+                "Enter a rank level: 0 1 2 3"
+            },
             EntryKind::DeleteConfirmation => "Delete these pictures?",
             EntryKind::MoveConfirmation => "Move these pictures?",
             EntryKind::MoveToLabelConfirmation(ref target) => {
@@ -221,6 +224,7 @@ impl Editor {
                 'a' | 'c' | 'd' | 'p' | 'm' | 'l' | 'n' | 'o' | 'r' | 's' | 'v'
             ),
             EntryKind::GridSize => matches!( ch, '1' | '2' | '3' | '4' | '5' | 't' ),
+            EntryKind::Rank => matches!( ch, '0' | '1' | '2' | '3' ),
             EntryKind::Information | EntryKind::Help => false,
         };
         if ch_is_ok && self.input.len() < self.max_edit_length() {
