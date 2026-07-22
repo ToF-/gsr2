@@ -63,8 +63,9 @@ impl Editor {
             EntryKind::MoveConfirmation => "Move these pictures?",
             EntryKind::MoveToLabelConfirmation(ref target) => {
                 &format!("Move these pictures to {} ?", target)
-            }
-            EntryKind::Find => "Enter a part of the picture file name",
+            },
+            EntryKind::Find => "Select on what criteria to find: c(a)tegory (l)abel (n)ame (t)ags",
+            EntryKind::FindName => "Enter a part of the picture file name",
             EntryKind::FindLabel => "Enter a part of the picture label",
             EntryKind::Information => "Current picture",
             EntryKind::Help => "Keyboard shortcuts",
@@ -205,7 +206,10 @@ impl Editor {
             | EntryKind::MoveToLabelConfirmation(_) => {
                 matches!(ch, 'e' | 'n' | 'o' | 's' | 'y')
             }
-            EntryKind::Find | EntryKind::FindLabel => {
+            EntryKind::Find => {
+                matches!(ch, 'a' | 'l' | 'n' | 't' )
+            }
+            EntryKind::FindName | EntryKind::FindLabel => {
                 matches!(ch,
                     'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' ' | '^' | '$' | '.' | '*' | '/' | '{' | '}' | '[' | ']' | '(' | ')' | '\\' )
             }
@@ -256,6 +260,16 @@ impl Editor {
                 };
                 self.input = format!("{}", order);
             }
+            c if self.entry_kind == EntryKind::Find => {
+                let criterion = match c {
+                    'a' => "Category",
+                    'l' => "Label",
+                    'n' => "Name",
+                    't' => "Tags",
+                    _ => todo!(),
+                };
+                self.input = format!("{}", criterion);
+            }
             c if self.entry_kind == EntryKind::GridSize => {
                 let size: usize = match c {
                     '1' => 1,
@@ -277,7 +291,7 @@ impl Editor {
         if self.entry_kind == EntryKind::Information {
             return;
         };
-        if self.entry_kind == EntryKind::Order {
+        if self.entry_kind == EntryKind::Order || self.entry_kind == EntryKind::Find {
             self.input = String::from("");
         } else {
             let _ = self.input.pop();

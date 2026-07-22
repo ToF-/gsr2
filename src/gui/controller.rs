@@ -386,6 +386,9 @@ impl Controller {
                             };
                             self.set_opacity_for_current_picture(1.00);
                         }
+                        EntryKind::Find => {
+                            eprintln!("todo!: EntryKind::Find");
+                        }
                         EntryKind::Label => {
                             if !self.editor.input().is_empty() {
                                 self.label_selected_pictures(&self.editor.input())
@@ -433,7 +436,7 @@ impl Controller {
                                 self.cancel_move_picture()
                             }
                         }
-                        EntryKind::Find => {
+                        EntryKind::FindName => {
                             if !self.editor.input().is_empty() {
                                 self.find_pattern(&self.editor.input(), false)
                             };
@@ -631,6 +634,11 @@ impl Controller {
         self.editor.begin(&self.main_window(), EntryKind::Rank, None);
         self.state.set_mode(Mode::Editing);
     }
+    fn enter_find(&mut self) {
+        self.editor.begin(&self.main_window(), EntryKind::Find, None);
+        self.state.set_mode(Mode::Editing);
+    }
+
     fn setting_mark(&mut self) {
         println!("Setting mark…");
         self.state.set_mode(Mode::Setting(Control::SetMark));
@@ -684,9 +692,10 @@ impl Controller {
             Control::TogglePalette => self.toggle_palette(),
             Control::Jump => self.jump(),
             Control::JumpMarkChar(ch) => self.find_mark(*ch),
-            Control::Find => self.find(),
+            Control::FindFirstInName => self.find(),
             Control::Help => self.help(),
-            Control::FindLabel => self.find_label(),
+            Control::EnterFind => self.enter_find(),
+            Control::FindFirstInLabel => self.find_label(),
             Control::Information => self.information(),
             Control::ToggleInformation => self.toggle_information(),
             Control::AddTag => self.add_tag(),

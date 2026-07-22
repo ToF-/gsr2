@@ -4,6 +4,7 @@ pub enum EntryKind {
     Categorize,
     DeleteConfirmation,
     Find,
+    FindName,
     FindLabel,
     Help,
     Information,
