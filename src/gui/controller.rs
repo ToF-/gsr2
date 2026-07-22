@@ -591,7 +591,6 @@ impl Controller {
                 Control::SetMarkChar(_) => self.process_control(choice),
                 _ => println!("?"),
             },
-            Control::SetGrid => self.process_control(choice),
             Control::GotoMark => match choice {
                 Control::JumpMarkChar(_) => self.process_control(choice),
                 _ => println!("?"),
@@ -613,15 +612,6 @@ impl Controller {
                 | Control::OrderByScore
                 | Control::Randomize => self.process_control(choice),
                 _ => println!("?"),
-            },
-            Control::SetGridSize => match choice {
-               |  Control::GridTwo
-               |  Control::GridThree
-               |  Control::GridFour
-               |  Control::GridFive
-               |  Control::GridTen
-               |  Control::ToggleSingleView => self.process_control(choice),
-               _ => println!("?"),
             },
             _ => {}
         }
@@ -701,13 +691,7 @@ impl Controller {
             Control::Label => self.label(),
             Control::Unlabel => self.unlabel_selected_pictures(),
             Control::Rename => self.rename(),
-            Control::SetGrid => self.setting_grid(),
             Control::SetGridSize => self.set_grid_size(),
-            Control::GridTwo => self.change_grid_size(2),
-            Control::GridThree => self.change_grid_size(3),
-            Control::GridFour => self.change_grid_size(4),
-            Control::GridFive => self.change_grid_size(5),
-            Control::GridTen => self.change_grid_size(10),
             Control::SetDisplay => self.setting_display(),
             Control::SetMark => self.setting_mark(),
             Control::GotoMark => self.jumping_mark(),
@@ -1505,9 +1489,11 @@ impl Controller {
     }
 
     fn setting_grid_size(&mut self, input: &str) {
-        match input.parse() {
-            Ok(size) => self.change_grid_size(size),
-            Err(e) => { eprintln!("{}", e); },
+        if !input.is_empty() {
+            match input.parse() {
+                Ok(size) => self.change_grid_size(size),
+                Err(e) => { eprintln!("{}", e); },
+            }
         }
     }
 }

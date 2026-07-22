@@ -209,7 +209,6 @@ impl MainWindow {
                     "Order… (c: by color count | d: by date | l: by label | p: by palette | n: by name | r: randomize | s: by size | v: by value)",
                 ),
                 Control::SetMark => String::from("Mark current picture… (a | b | c | d | e)"),
-                Control::SetGrid => String::from("Set grid size… (2 | 3 | 4 | 5 | t)"),
                 Control::GotoMark => String::from("Destination picture… (a | b | c | d | e)"),
                 _ => panic!("incorrect choice for setting: {:?}", choice),
             },

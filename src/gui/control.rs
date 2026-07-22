@@ -61,13 +61,7 @@ pub enum Control {
     RemoveTag,
     Rename,
     Quit,
-    SetGrid,
     SetGridSize,
-    GridTwo,
-    GridThree,
-    GridFour,
-    GridFive,
-    GridTen,
     DisplayDate,
     DisplayFocus,
     DisplaySize,
@@ -117,7 +111,7 @@ pub fn help_on_controls() -> String {
         N : rename picture\n\
         *: add tag, /: remove tag\n\
         =/-/#: select pictures having some/all tags, cancel selection\n\
-        b,ç,é,à,è: grid size of 4,9,16,25 or 100 pictures per page\n\
+        y: set grid size of 1,4,9,16,25 or 100 pictures per page\n\
         g: view this cover subgroup, G/q: back from subgroup\n\
         q: quit  H:help"
     )
@@ -219,32 +213,7 @@ pub fn default_controls() -> Controls {
         ),
         ((String::from("M"), Mode::View), Control::MovePicture),
         ((String::from("m"), Mode::View), Control::MovePictureToLabel),
-        ((String::from("y"), Mode::View), Control::SetGrid),
-        (
-            (String::from("2"), Mode::Setting(Control::SetGrid)),
-            Control::GridTwo,
-        ),
-        (
-            (String::from("3"), Mode::Setting(Control::SetGrid)),
-            Control::GridThree,
-        ),
-        (
-            (String::from("4"), Mode::Setting(Control::SetGrid)),
-            Control::GridFour,
-        ),
-        (
-            (String::from("5"), Mode::Setting(Control::SetGrid)),
-            Control::GridFive,
-        ),
-        (
-            (String::from("t"), Mode::Setting(Control::SetGrid)),
-            Control::GridTen,
-        ),
-        ((String::from("b"), Mode::View), Control::GridTwo),
-        ((String::from("egrave"), Mode::View), Control::SetGridSize),
-        ((String::from("ccedilla"), Mode::View), Control::GridThree),
-        ((String::from("eacute"), Mode::View), Control::GridFour),
-        ((String::from("agrave"), Mode::View), Control::GridFive),
+        ((String::from("y"), Mode::View), Control::SetGridSize),
         ((String::from("D"), Mode::View), Control::SetDisplay),
         ((String::from("O"), Mode::View), Control::SetOrder),
         (
