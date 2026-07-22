@@ -4,8 +4,10 @@ pub enum EntryKind {
     Categorize,
     DeleteConfirmation,
     Find,
-    FindName,
+    FindCategory,
     FindLabel,
+    FindName,
+    GridSize,
     Help,
     Information,
     Label,
@@ -18,5 +20,4 @@ pub enum EntryKind {
     Rename,
     SetRestriction,
     SetSelection,
-    GridSize,
 }

@@ -65,6 +65,7 @@ impl Editor {
                 &format!("Move these pictures to {} ?", target)
             },
             EntryKind::Find => "Select on what criteria to find: c(a)tegory (l)abel (n)ame (t)ags",
+            EntryKind::FindCategory => "Enter a part of the category",
             EntryKind::FindName => "Enter a part of the picture file name",
             EntryKind::FindLabel => "Enter a part of the picture label",
             EntryKind::Information => "Current picture",
@@ -209,7 +210,7 @@ impl Editor {
             EntryKind::Find => {
                 matches!(ch, 'a' | 'l' | 'n' | 't' )
             }
-            EntryKind::FindName | EntryKind::FindLabel => {
+            EntryKind::FindName | EntryKind::FindLabel | EntryKind::FindCategory => {
                 matches!(ch,
                     'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' ' | '^' | '$' | '.' | '*' | '/' | '{' | '}' | '[' | ']' | '(' | ')' | '\\' )
             }

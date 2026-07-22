@@ -395,7 +395,7 @@ impl Controller {
                                 match Find::from_str(&self.editor.input()) {
                                     Ok(Find::Label) => self.enter_find_label(),
                                     Ok(Find::Name) => self.enter_find_name(),
-                                    Ok(Find::Category) => { eprintln!("todo:! Find::Category") },
+                                    Ok(Find::Category) => self.enter_find_category(),
                                     Ok(Find::Tags) => { eprintln!("todo:! Find::Tags") },
                                     _ => {},
                                 };
@@ -456,6 +456,11 @@ impl Controller {
                         EntryKind::FindLabel => {
                             if !self.editor.input().is_empty() {
                                 self.find_first(&self.editor.input(), Find::Label);
+                            };
+                        }
+                        EntryKind::FindCategory => {
+                            if !self.editor.input().is_empty() {
+                                self.find_first(&self.editor.input(), Find::Category);
                             };
                         }
                         EntryKind::Information => {}
@@ -660,6 +665,12 @@ impl Controller {
         self.editor.begin(&self.main_window(), EntryKind::FindName, None);
         self.state.set_mode(Mode::Editing);
     }
+
+    fn enter_find_category(&mut self) {
+        self.editor.begin(&self.main_window(), EntryKind::FindCategory, None); 
+        self.state.set_mode(Mode::Editing);
+    }
+
     fn setting_mark(&mut self) {
         println!("Setting mark…");
         self.state.set_mode(Mode::Setting(Control::SetMark));
@@ -1551,14 +1562,14 @@ impl Controller {
     }
 
     fn find_first(&mut self, pattern: &str, find: Find)  {
-        println!("find_first {}", pattern);
+        println!("find_first {:?} for {}", find, pattern);
         match Regex::new(pattern) {
             Ok(re) => {
                 let predicate = match find {
                     Find::Name => Predicate { function: Arc::new(move |picture: &Picture| re.is_match(&picture.file_name())) },
                     Find::Label=> Predicate { function: Arc::new(move |picture: &Picture| re.is_match(&picture.label())) },
                     Find::Category=> Predicate { function: Arc::new(move |picture: &Picture| re.is_match(&picture.category_name())) },
-                    Find::Tags =>    Predicate { function: Arc::new(move |picture: &Picture| true ) }, // todo
+                    Find::Tags =>    Predicate { function: Arc::new(move |_picture: &Picture| true ) }, // todo
                 };
                 if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut() {
                     let mut finder = &mut gallery.finder;
