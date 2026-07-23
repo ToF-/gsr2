@@ -270,6 +270,7 @@ impl Editor {
                     _ => todo!(),
                 };
                 self.input = format!("{}", criterion);
+                let _ = self.enter();
             }
             c if self.entry_kind == EntryKind::GridSize => {
                 let size: usize = match c {
@@ -282,6 +283,7 @@ impl Editor {
                     _ => todo!(),
                 };
                 self.input = format!("{}", size);
+                let _ = self.enter();
             }
             other if other.is_ascii() => self.input.push(other.to_lowercase().next().unwrap()),
             other => self.input.push(other),
