@@ -1,7 +1,6 @@
 use crate::model::picture::Picture;
 use std::sync::Arc;
 
-
 #[derive(Clone)]
 pub struct Predicate {
     pub function: Arc<dyn Fn(&Picture) -> bool>,
@@ -13,9 +12,8 @@ impl std::fmt::Debug for Predicate {
     }
 }
 
-#[derive(Debug,Clone)]
-pub struct Finder { 
-
+#[derive(Debug, Clone)]
+pub struct Finder {
     items: Vec<Picture>,
     predicate: Option<Predicate>,
     position: usize,
@@ -23,27 +21,28 @@ pub struct Finder {
 
 impl Finder {
     pub fn new(items: Vec<Picture>) -> Self {
-            Self { items: items.clone(), position: 0, predicate: None, }
+        Self {
+            items: items.clone(),
+            position: 0,
+            predicate: None,
         }
+    }
 
     pub fn search_in_progress(&self) -> bool {
         self.predicate.is_some()
     }
 
-    pub fn first(&mut self, predicate: Predicate) -> Option<usize> 
-    {
+    pub fn first(&mut self, predicate: Predicate) -> Option<usize> {
         self.predicate = Some(predicate);
         self.first_from_index(0)
     }
 
-    pub fn first_from_index(&mut self, start: usize) -> Option<usize>
-    {
+    pub fn first_from_index(&mut self, start: usize) -> Option<usize> {
         self.position = start;
         self.next()
     }
 
-    pub fn next(&mut self) -> Option<usize>
-    {
+    pub fn next(&mut self) -> Option<usize> {
         let predicate_opt = &<std::option::Option<Predicate> as Clone>::clone(&self.predicate);
         match predicate_opt {
             Some(predicate) => {
@@ -67,4 +66,3 @@ impl Finder {
         }
     }
 }
-

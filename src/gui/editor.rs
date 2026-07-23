@@ -24,7 +24,6 @@ pub struct Editor {
 
 #[allow(dead_code)]
 impl Editor {
-    
     pub fn new() -> Editor {
         Editor {
             prompt: "".to_string(),
@@ -51,27 +50,23 @@ impl Editor {
             EntryKind::RemoveTag => "Enter a tag to remove",
             EntryKind::Number => "Enter a number",
             EntryKind::Order => {
-                "Enter a sorting criteria: c(a)tegory (c)olors (d)ate (l)abel (m)ost views (n)ame (p)alette c(o)ver (r)andom (s)ize (v)alue "
+                "Enter a sorting criteria: c(A)tegory (C)olors (D)ate (L)abel (M)ost views (N)ame (P)alette c(O)ver (R)andom (S)ize (V)alue "
             }
-            EntryKind::GridSize => {
-                "Enter grid size: 1x1 2x2 3x3 4x4 5x5 TenxTen"
-            },
-            EntryKind::Rank => {
-                "Enter a rank level: 0 1 2 3"
-            },
+            EntryKind::GridSize => "Enter grid size: 1x1 2x2 3x3 4x4 5x5 TenxTen Covers",
+            EntryKind::Rank => "Enter a rank level: 0 1 2 3",
             EntryKind::DeleteConfirmation => "Delete these pictures?",
             EntryKind::MoveConfirmation => "Move these pictures?",
             EntryKind::MoveToLabelConfirmation(ref target) => {
                 &format!("Move these pictures to {} ?", target)
-            },
-            EntryKind::Find => "Select on what criteria to find: c(a)tegory (l)abel (n)ame (t)ags",
+            }
+            EntryKind::Find => "Select on what criteria to find: C)ategory (L)abel (N)ame (T)ags",
             EntryKind::FindCategory => "Enter a part of the category",
             EntryKind::FindName => "Enter a part of the picture file name",
             EntryKind::FindLabel => "Enter a part of the picture label",
             EntryKind::Information => "Current picture",
             EntryKind::Help => "Keyboard shortcuts",
-            EntryKind::SetSelection => "Enter tags to define the selection",
-            EntryKind::SetRestriction => "Enter tags to define the restriction",
+            EntryKind::SetSelection => "Enter tags to define the selection (1 or more tag match)",
+            EntryKind::SetRestriction => "Enter tags to define the restriction (all tags match)",
         };
         self.prompt = prompt.to_string();
         self.begin_input(entry_kind, choice_opt);
@@ -208,7 +203,7 @@ impl Editor {
                 matches!(ch, 'e' | 'n' | 'o' | 's' | 'y')
             }
             EntryKind::Find => {
-                matches!(ch, 'a' | 'l' | 'n' | 't' )
+                matches!(ch, 'c' | 'l' | 'n' | 't')
             }
             EntryKind::FindName | EntryKind::FindLabel | EntryKind::FindCategory => {
                 matches!(ch,
@@ -228,8 +223,8 @@ impl Editor {
                 ch,
                 'a' | 'c' | 'd' | 'p' | 'm' | 'l' | 'n' | 'o' | 'r' | 's' | 'v'
             ),
-            EntryKind::GridSize => matches!( ch, '1' | '2' | '3' | '4' | '5' | 't' ),
-            EntryKind::Rank => matches!( ch, '0' | '1' | '2' | '3' ),
+            EntryKind::GridSize => matches!(ch, '1' | '2' | '3' | '4' | '5' | 't' | 'c'),
+            EntryKind::Rank => matches!(ch, '0' | '1' | '2' | '3'),
             EntryKind::Information | EntryKind::Help => false,
         };
         if ch_is_ok && self.input.len() < self.max_edit_length() {
@@ -260,10 +255,11 @@ impl Editor {
                     _ => todo!(),
                 };
                 self.input = format!("{}", order);
+                let _ = self.enter();
             }
             c if self.entry_kind == EntryKind::Find => {
                 let criterion = match c {
-                    'a' => "Category",
+                    'c' => "Category",
                     'l' => "Label",
                     'n' => "Name",
                     't' => "Tags",
@@ -280,6 +276,7 @@ impl Editor {
                     '4' => 4,
                     '5' => 5,
                     't' => 10,
+                    'c' => 0,
                     _ => todo!(),
                 };
                 self.input = format!("{}", size);

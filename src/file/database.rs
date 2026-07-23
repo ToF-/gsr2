@@ -463,15 +463,16 @@ impl Database {
                                 },
                                 ..image_data.clone()
                             };
-                            if let Some(ref catalog) = catalog_opt 
-                                && let Some(categories) = retrieve_criteria.categories.clone() {
-                                    if let Some(category_name) = image_data.category_name() {
-                                        if !catalog.is_one_of(&categories, &category_name) {
-                                            continue;
-                                        }
-                                    } else {
+                            if let Some(ref catalog) = catalog_opt
+                                && let Some(categories) = retrieve_criteria.categories.clone()
+                            {
+                                if let Some(category_name) = image_data.category_name() {
+                                    if !catalog.is_one_of(&categories, &category_name) {
                                         continue;
                                     }
+                                } else {
+                                    continue;
+                                }
                             };
                             if !retrieve_criteria.selection_criteria.is_empty()
                                 && !retrieve_criteria

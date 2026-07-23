@@ -35,14 +35,15 @@ fn make_gesture_click(
         #[strong]
         controller_rc,
         move |_, n_pressed, _, _| {
-            if n_pressed == 1 
-                && let Ok(mut controller) = controller_rc.try_borrow_mut() {
-                    controller.process_event(PictureClicked { button, col, row }, &controller_rc);
-            } else if n_pressed == 2 
-                && let Ok(mut controller) = controller_rc.try_borrow_mut() {
-                    controller
-                        .process_event(PictureDoubleClicked { button, col, row }, &controller_rc);
-                }
+            if n_pressed == 1
+                && let Ok(mut controller) = controller_rc.try_borrow_mut()
+            {
+                controller.process_event(PictureClicked { button, col, row }, &controller_rc);
+            } else if n_pressed == 2
+                && let Ok(mut controller) = controller_rc.try_borrow_mut()
+            {
+                controller.process_event(PictureDoubleClicked { button, col, row }, &controller_rc);
+            }
         }
     ));
     gesture_click

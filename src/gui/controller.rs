@@ -1,8 +1,4 @@
-  use std::str::FromStr;
-use std::sync::Arc;
-use crate::model::finder::Predicate;
-use crate::model::find::Find;
-use crate::model::sub_category::TOP_CATEGORY;
+
 use crate::cli::args::Args;
 use crate::cli::command::Command;
 use crate::env::configuration::Configuration;
@@ -22,11 +18,14 @@ use crate::gui::view::main_window::{LEFT_PANE, MainWindow};
 use crate::model::action::Action;
 use crate::model::catalog::Catalog;
 use crate::model::category::Category;
+use crate::model::find::Find;
+use crate::model::finder::Predicate;
 use crate::model::order::Order;
 use crate::model::picture::Picture;
 use crate::model::rank::Rank;
 use crate::model::repository::Repository;
 use crate::model::selection_criteria::SelectionCriteria;
+use crate::model::sub_category::TOP_CATEGORY;
 use gdk::{Key, ModifierType};
 use gtk::prelude::*;
 use gtk::{self, gdk};
@@ -39,6 +38,8 @@ use std::io::Error;
 use std::io::Result as IOResult;
 use std::path::PathBuf;
 use std::rc::Rc;
+use std::str::FromStr;
+use std::sync::Arc;
 
 #[derive(Debug)]
 pub struct Controller {
@@ -396,8 +397,10 @@ impl Controller {
                                     Ok(Find::Label) => self.enter_find_label(),
                                     Ok(Find::Name) => self.enter_find_name(),
                                     Ok(Find::Category) => self.enter_find_category(),
-                                    Ok(Find::Tags) => { eprintln!("todo:! Find::Tags") },
-                                    _ => {},
+                                    Ok(Find::Tags) => {
+                                        eprintln!("todo:! Find::Tags")
+                                    }
+                                    _ => {}
                                 };
                             }
                         }
@@ -644,30 +647,36 @@ impl Controller {
     }
 
     fn enter_grid_size(&mut self) {
-        self.editor.begin(&self.main_window(), EntryKind::GridSize, None);
+        self.editor
+            .begin(&self.main_window(), EntryKind::GridSize, None);
         self.state.set_mode(Mode::Editing);
     }
     fn enter_rank(&mut self) {
-        self.editor.begin(&self.main_window(), EntryKind::Rank, None);
+        self.editor
+            .begin(&self.main_window(), EntryKind::Rank, None);
         self.state.set_mode(Mode::Editing);
     }
     fn enter_find(&mut self) {
-        self.editor.begin(&self.main_window(), EntryKind::Find, None);
+        self.editor
+            .begin(&self.main_window(), EntryKind::Find, None);
         self.state.set_mode(Mode::Editing);
     }
 
     fn enter_find_label(&mut self) {
-        self.editor.begin(&self.main_window(), EntryKind::FindLabel, None);
+        self.editor
+            .begin(&self.main_window(), EntryKind::FindLabel, None);
         self.state.set_mode(Mode::Editing);
     }
 
     fn enter_find_name(&mut self) {
-        self.editor.begin(&self.main_window(), EntryKind::FindName, None);
+        self.editor
+            .begin(&self.main_window(), EntryKind::FindName, None);
         self.state.set_mode(Mode::Editing);
     }
 
     fn enter_find_category(&mut self) {
-        self.editor.begin(&self.main_window(), EntryKind::FindCategory, None); 
+        self.editor
+            .begin(&self.main_window(), EntryKind::FindCategory, None);
         self.state.set_mode(Mode::Editing);
     }
 
@@ -830,6 +839,7 @@ impl Controller {
     }
 
     fn toggle_cover(&mut self) {
+        println!("toggle cover");
         let index = self.navigator().position();
         let counts = self.repository.directory_count_at_index(index);
         let mut picture = self.repository.picture_at(index);
@@ -851,6 +861,7 @@ impl Controller {
     }
 
     fn toggle_cover_selection(&mut self) {
+        println!("toggle cover selection");
         if !self.args.cover && self.repository.covers() > 0 {
             let new_args = Args {
                 cover: true,
@@ -859,9 +870,11 @@ impl Controller {
             self.args = new_args;
             match self.repository.initialize_for_args(&self.args) {
                 Ok(_) => match self.reload() {
-                    Ok(0) => { self.toggle_cover_selection(); },
-                    Ok(_) => {},
-                    Err(e) => panic!("{}",e)
+                    Ok(0) => {
+                        self.toggle_cover_selection();
+                    }
+                    Ok(_) => {}
+                    Err(e) => panic!("{}", e),
                 },
                 Err(e) => panic!("{}", e),
             }
@@ -873,9 +886,11 @@ impl Controller {
             self.args = new_args;
             match self.repository.initialize_for_args(&self.args) {
                 Ok(_) => match self.reload() {
-                    Ok(0) => { self.toggle_cover_selection(); },
-                    Ok(_) => {},
-                    Err(e) => panic!("{}",e)
+                    Ok(0) => {
+                        self.toggle_cover_selection();
+                    }
+                    Ok(_) => {}
+                    Err(e) => panic!("{}", e),
                 },
                 Err(e) => panic!("{}", e),
             }
@@ -998,27 +1013,24 @@ impl Controller {
                 categories: None,
                 ..self.args.clone()
             }
-        }
-        else {
+        } else {
             Args {
-                categories: category.clone(), 
+                categories: category.clone(),
                 ..self.args.clone()
             }
         };
         self.args = new_args;
         match self.repository.initialize_for_args(&self.args) {
-            Ok(_) => { 
-                match self.reload() {
-                    Ok(0) => {
-                        eprintln!("no pictures for this category");
-                        self.set_filter_to_category(None);
-                    },
-                    Ok(_) => {
-                        self.navigator.move_towards(Direction::First);
-                        self.navigator().set_page_changed();
-                    },
-                    Err(e) => eprintln!("{}", e),
+            Ok(_) => match self.reload() {
+                Ok(0) => {
+                    eprintln!("no pictures for this category");
+                    self.set_filter_to_category(None);
                 }
+                Ok(_) => {
+                    self.navigator.move_towards(Direction::First);
+                    self.navigator().set_page_changed();
+                }
+                Err(e) => eprintln!("{}", e),
             },
             Err(e) => eprintln!("{}", e),
         }
@@ -1162,11 +1174,9 @@ impl Controller {
         }
     }
 
-    fn reload(&mut self) -> Result<usize,Error> {
+    fn reload(&mut self) -> Result<usize, Error> {
         match self.load_repository() {
-            Ok(0) => {
-                Ok(0)
-            }
+            Ok(0) => Ok(0),
             Ok(n) => {
                 self.move_towards(Direction::First);
                 self.navigator.set_page_changed();
@@ -1277,13 +1287,17 @@ impl Controller {
     }
 
     fn change_grid_size(&mut self, pictures_per_row: usize) {
-        self.state.change_grid_size(pictures_per_row);
-        self.main_window().change_grid_size(pictures_per_row);
-        let navigator = &mut self.navigator;
-        navigator.set_pictures_per_row(self.state.pictures_per_row());
-        navigator.update_page_limits();
-        navigator.set_page_changed();
-        self.acknowledge_grid_size_change();
+        if pictures_per_row == 0 {
+            self.toggle_cover_selection()
+        } else {
+            self.state.change_grid_size(pictures_per_row);
+            self.main_window().change_grid_size(pictures_per_row);
+            let navigator = &mut self.navigator;
+            navigator.set_pictures_per_row(self.state.pictures_per_row());
+            navigator.update_page_limits();
+            navigator.set_page_changed();
+            self.acknowledge_grid_size_change();
+        }
     }
 
     fn set_range(&mut self) {
@@ -1537,7 +1551,9 @@ impl Controller {
         if !input.is_empty() {
             match input.parse() {
                 Ok(size) => self.change_grid_size(size),
-                Err(e) => { eprintln!("{}", e); },
+                Err(e) => {
+                    eprintln!("{}", e);
+                }
             }
         }
     }
@@ -1554,22 +1570,36 @@ impl Controller {
                     1 => self.rank_selected_pictures(Rank::OneStar),
                     2 => self.rank_selected_pictures(Rank::TwoStars),
                     3 => self.rank_selected_pictures(Rank::ThreeStars),
-                    _ => { },
+                    _ => {}
                 },
-                Err(e) => { eprintln!("{}", e); },
+                Err(e) => {
+                    eprintln!("{}", e);
+                }
             }
         }
     }
 
-    fn find_first(&mut self, pattern: &str, find: Find)  {
+    fn find_first(&mut self, pattern: &str, find: Find) {
         println!("find_first {:?} for {}", find, pattern);
         match Regex::new(pattern) {
             Ok(re) => {
                 let predicate = match find {
-                    Find::Name => Predicate { function: Arc::new(move |picture: &Picture| re.is_match(&picture.file_name())) },
-                    Find::Label=> Predicate { function: Arc::new(move |picture: &Picture| re.is_match(&picture.label())) },
-                    Find::Category=> Predicate { function: Arc::new(move |picture: &Picture| re.is_match(&picture.category_name())) },
-                    Find::Tags =>    Predicate { function: Arc::new(move |_picture: &Picture| true ) }, // todo
+                    Find::Name => Predicate {
+                        function: Arc::new(move |picture: &Picture| {
+                            re.is_match(&picture.file_name())
+                        }),
+                    },
+                    Find::Label => Predicate {
+                        function: Arc::new(move |picture: &Picture| re.is_match(&picture.label())),
+                    },
+                    Find::Category => Predicate {
+                        function: Arc::new(move |picture: &Picture| {
+                            re.is_match(&picture.category_name())
+                        }),
+                    },
+                    Find::Tags => Predicate {
+                        function: Arc::new(move |_picture: &Picture| true),
+                    }, // todo
                 };
                 if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut() {
                     let mut finder = &mut gallery.finder;
@@ -1577,8 +1607,9 @@ impl Controller {
                         let navigator = &mut self.navigator;
                         navigator.move_towards(Direction::Index { value: index });
                         navigator.set_page_changed();
-                    };
-
+                    } else {
+                        eprintln!("not found");
+                    }
                 } else {
                     panic!("can't borrow")
                 }

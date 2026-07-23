@@ -44,7 +44,10 @@ impl Selector {
     pub fn process(&mut self, key: Key) {
         match key.name() {
             None => {}
-            Some(key_name) => match self.controls.get(&(key_name.to_string(), Mode::Categorizing)) {
+            Some(key_name) => match self
+                .controls
+                .get(&(key_name.to_string(), Mode::Categorizing))
+            {
                 Some(Control::CancelSelection) => self.cancel(),
                 Some(Control::ConfirmSelection) => self.enter(),
                 Some(_) | None => {}

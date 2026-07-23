@@ -20,8 +20,8 @@ use gtk::prelude::StyleContextExt;
 use gtk::prelude::WidgetExt;
 use gtk::{self};
 use gtk::{
-    Label, ListItem, ListView, SignalListItemFactory, SingleSelection,
-    TreeExpander, TreeListModel, glib,
+    Label, ListItem, ListView, SignalListItemFactory, SingleSelection, TreeExpander, TreeListModel,
+    glib,
 };
 
 #[derive(Clone, Debug)]
@@ -96,9 +96,7 @@ impl TreeListWindow {
             &window_css_provider,
             gtk::STYLE_PROVIDER_PRIORITY_APPLICATION,
         );
-        TreeListWindow {
-            window,
-        }
+        TreeListWindow { window }
     }
     pub fn popup(&self) {
         self.window.present()

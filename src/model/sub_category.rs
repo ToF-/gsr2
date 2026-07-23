@@ -164,10 +164,10 @@ impl SubCategory {
                     if cdr.is_null() {
                         Ok(Self::leave(symbol))
                     } else {
-                         Self::from_cons(cdr).map(|subs| SubCategory {
-                                 name: symbol.to_string(),
-                                 sub_categories: subs,
-                             })
+                        Self::from_cons(cdr).map(|subs| SubCategory {
+                            name: symbol.to_string(),
+                            sub_categories: subs,
+                        })
                     }
                 } else if car.is_cons() {
                     if cdr.is_cons() {
@@ -198,7 +198,7 @@ impl SubCategory {
     pub(crate) fn sort(&mut self) {
         for sub_category in self.sub_categories.iter_mut() {
             sub_category.sort()
-        };
-        self.sub_categories.sort_by(|a,b| a.name().cmp(&b.name()));
+        }
+        self.sub_categories.sort_by(|a, b| a.name().cmp(&b.name()));
     }
 }

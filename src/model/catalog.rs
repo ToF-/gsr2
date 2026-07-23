@@ -1,17 +1,16 @@
 use crate::env::configuration::Configuration;
-use regex::Regex;
-use crate::model::sub_category::TOP_CATEGORY;
 use crate::model::categories::Categories;
 use crate::model::sub_category::SubCategory;
+use crate::model::sub_category::TOP_CATEGORY;
 use lexpr::Value;
 use lexpr::Value::Cons;
 use lexpr::Value::Null;
 use lexpr::Value::Symbol;
+use regex::Regex;
 use std::collections::HashMap;
 use std::collections::hash_map::Entry;
 use std::fs;
 use std::io::{Error, Result};
-
 
 type ReverseTree = HashMap<String, String>;
 
@@ -73,7 +72,7 @@ impl Catalog {
             Err(err) => {
                 eprintln!("{}", err);
                 return Err(err);
-            },
+            }
         };
         match self.add_sub_category(sub_category_name, category_name) {
             Ok(_) => {
@@ -102,9 +101,15 @@ impl Catalog {
     pub fn add_sub_category(&mut self, sub_category_name: &str, category_name: &str) -> Result<()> {
         let re = Regex::new("^[a-z0-9_-]+$").unwrap();
         if !re.is_match(sub_category_name) {
-            Err(Error::other(format!("illegal characters in name:{}", sub_category_name)))
+            Err(Error::other(format!(
+                "illegal characters in name:{}",
+                sub_category_name
+            )))
         } else if sub_category_name == TOP_CATEGORY {
-            Err(Error::other(format!("category {} already exists", sub_category_name)))
+            Err(Error::other(format!(
+                "category {} already exists",
+                sub_category_name
+            )))
         } else if category_name != TOP_CATEGORY && !self.reverse_tree.contains_key(category_name) {
             Err(Error::other(format!("unknown category:{}", category_name)))
         } else {
@@ -129,23 +134,26 @@ impl Catalog {
             Err(err) => {
                 eprintln!("{}", err);
                 return Err(err);
-            },
+            }
         };
         match self.remove_category(category_name, force) {
             Ok(_) => {
                 let mut new_catalog = self.clone();
                 match new_catalog.save_to_file(&config.catalog_filepath) {
-                    Ok(_) => { println!("removing category {}", category_name);
+                    Ok(_) => {
+                        println!("removing category {}", category_name);
                         Ok(())
-                    },
-                    Err(err) => { eprintln!("error: {}", err);
+                    }
+                    Err(err) => {
+                        eprintln!("error: {}", err);
                         Err(err)
-                    },
+                    }
                 }
-            },
-            Err(err) => { eprintln!("error: {}", err);
+            }
+            Err(err) => {
+                eprintln!("error: {}", err);
                 Err(err)
-            },
+            }
         }
     }
     pub fn remove_category(&mut self, category_name: &str, force: bool) -> Result<()> {
@@ -393,7 +401,7 @@ mod tests {
             "Err(Custom { kind: Other, error: \"unknown category:sch\" })",
             format!("{:?}", result)
         );
-        assert!(catalog.add_sub_category("bal",TOP_CATEGORY).is_ok());
+        assert!(catalog.add_sub_category("bal", TOP_CATEGORY).is_ok());
     }
     #[test]
     fn removing_a_sub_category() {
@@ -419,7 +427,7 @@ mod tests {
     fn adding_a_sub_category_with_illegal_chars_is_not_allowed() {
         let mut catalog =
             Catalog::from_sexpr("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
-        assert!(catalog.add_sub_category("!ag","-").is_err());
-        assert!(catalog.add_sub_category("-","foo").is_err());
+        assert!(catalog.add_sub_category("!ag", "-").is_err());
+        assert!(catalog.add_sub_category("-", "foo").is_err());
     }
 }
