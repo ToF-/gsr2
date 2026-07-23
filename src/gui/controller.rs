@@ -1,3 +1,6 @@
+  use crate::model::tags::tags_from_str;
+  use crate::model::tags::Tags;
+   use crate::model::categories::Categories;
 
 use crate::cli::args::Args;
 use crate::cli::command::Command;
@@ -47,6 +50,7 @@ pub struct Controller {
     repository: Repository,
     args: Args,
     navigator: Navigator,
+    search_in_progress: bool,
     controls: Controls,
     state: State,
     main_window_opt: Option<MainWindow>,
@@ -100,6 +104,7 @@ impl Controller {
         Ok(Controller {
             configuration: config.clone(),
             repository: repository.clone(),
+            search_in_progress: false,
             args: cli.clone(),
             editor: Editor::new(),
             selector: Selector::new(&catalog),
@@ -331,6 +336,7 @@ impl Controller {
             return;
         }
         let controls = self.controls.clone();
+        println!("state.mode:{:?}", self.state().mode());
         match self.state().mode() {
             Mode::View => match key.name() {
                 None => {}
@@ -374,6 +380,16 @@ impl Controller {
                     }
                 }
             }
+            Mode::FindingCategory => {
+                self.selector.process(key);
+                if !self.selector.selecting() {
+                    self.state.set_mode(Mode::View);
+                    if !self.selector.selected().is_empty() {
+                        let category: Category = Some(self.selector.selected());
+                        self.find_first(&category.unwrap(), Find::SubCategory)
+                    }
+                }
+            }
             Mode::Editing => {
                 self.editor.process(key);
                 if !self.editor.editing() {
@@ -397,6 +413,7 @@ impl Controller {
                                     Ok(Find::Label) => self.enter_find_label(),
                                     Ok(Find::Name) => self.enter_find_name(),
                                     Ok(Find::Category) => self.enter_find_category(),
+                                    Ok(Find::SubCategory) => self.enter_find_sub_category(),
                                     Ok(Find::Tags) => {
                                         eprintln!("todo:! Find::Tags")
                                     }
@@ -464,6 +481,11 @@ impl Controller {
                         EntryKind::FindCategory => {
                             if !self.editor.input().is_empty() {
                                 self.find_first(&self.editor.input(), Find::Category);
+                            };
+                        }
+                        EntryKind::FindSubCategory => {
+                            if !self.editor.input().is_empty() {
+                                self.find_first(&self.editor.input(), Find::SubCategory);
                             };
                         }
                         EntryKind::Information => {}
@@ -680,6 +702,11 @@ impl Controller {
         self.state.set_mode(Mode::Editing);
     }
 
+    fn enter_find_sub_category(&mut self) {
+        self.set_category_selection();
+        self.state.set_mode(Mode::FindingCategory);
+    }
+
     fn setting_mark(&mut self) {
         println!("Setting mark…");
         self.state.set_mode(Mode::Setting(Control::SetMark));
@@ -710,7 +737,13 @@ impl Controller {
     fn process_control(&mut self, control: &Control) {
         match control {
             Control::SelectCategory => self.set_category_selection(),
-            Control::MoveNext => self.move_towards(Direction::NextPage),
+            Control::MoveNext => {
+                if self.search_in_progress {
+                    self.find_next()
+                } else {
+                    self.move_towards(Direction::NextPage)
+                };
+            },
             Control::MovePrev => self.move_towards(Direction::PrevPage),
             Control::MoveLast => self.move_towards(Direction::Last),
             Control::MoveFirst => self.move_towards(Direction::First),
@@ -1597,9 +1630,18 @@ impl Controller {
                             re.is_match(&picture.category_name())
                         }),
                     },
+                    Find::SubCategory => {
+                        let categories: Categories = Categories::from_string(pattern);
+                        let catalog: Catalog = self.selector().catalog().clone();
+                        Predicate {
+                        function: Arc::new(move |picture: &Picture| {
+                            catalog.is_one_of(&categories, &picture.category_name())
+                        }),
+                    }},
                     Find::Tags => Predicate {
                         function: Arc::new(move |_picture: &Picture| true),
                     }, // todo
+                       // }
                 };
                 if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut() {
                     let mut finder = &mut gallery.finder;
@@ -1607,6 +1649,7 @@ impl Controller {
                         let navigator = &mut self.navigator;
                         navigator.move_towards(Direction::Index { value: index });
                         navigator.set_page_changed();
+                        self.search_in_progress = true;
                     } else {
                         eprintln!("not found");
                     }
@@ -1628,6 +1671,7 @@ impl Controller {
                 navigator.move_towards(Direction::Index { value: index });
                 navigator.set_page_changed()
             } else {
+                self.search_in_progress = false;
                 println!("end of search");
             }
         } else {

@@ -56,6 +56,7 @@ impl Finder {
                 self.position = index + 1;
                 if self.position == old_position {
                     eprintln!("end of search");
+                    self.predicate = None;
                 }
                 Some(index)
             }

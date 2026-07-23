@@ -59,8 +59,9 @@ impl Editor {
             EntryKind::MoveToLabelConfirmation(ref target) => {
                 &format!("Move these pictures to {} ?", target)
             }
-            EntryKind::Find => "Select on what criteria to find: C)ategory (L)abel (N)ame (T)ags",
+            EntryKind::Find => "Select criteria C)ategory (L)abel (N)ame (S)ubCategories (T)ags ",
             EntryKind::FindCategory => "Enter a part of the category",
+            EntryKind::FindSubCategory => "Enter categories to match",
             EntryKind::FindName => "Enter a part of the picture file name",
             EntryKind::FindLabel => "Enter a part of the picture label",
             EntryKind::Information => "Current picture",
@@ -203,9 +204,9 @@ impl Editor {
                 matches!(ch, 'e' | 'n' | 'o' | 's' | 'y')
             }
             EntryKind::Find => {
-                matches!(ch, 'c' | 'l' | 'n' | 't')
+                matches!(ch, 'c' | 'l' | 'n' | 's' | 't')
             }
-            EntryKind::FindName | EntryKind::FindLabel | EntryKind::FindCategory => {
+            EntryKind::FindName | EntryKind::FindLabel | EntryKind::FindCategory | EntryKind::FindSubCategory => {
                 matches!(ch,
                     'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' ' | '^' | '$' | '.' | '*' | '/' | '{' | '}' | '[' | ']' | '(' | ')' | '\\' )
             }
@@ -238,6 +239,7 @@ impl Editor {
         match ch {
             ' ' if self.entry_kind == EntryKind::SetSelection => self.input.push(','),
             ' ' if self.entry_kind == EntryKind::SetRestriction => self.input.push(','),
+            ' ' if self.entry_kind == EntryKind::FindSubCategory => self.input.push(','),
             ' ' => self.input.push('-'),
             c if self.entry_kind == EntryKind::Order => {
                 let order: Order = match c {
@@ -262,6 +264,7 @@ impl Editor {
                     'c' => "Category",
                     'l' => "Label",
                     'n' => "Name",
+                    's' => "SubCategory",
                     't' => "Tags",
                     _ => todo!(),
                 };

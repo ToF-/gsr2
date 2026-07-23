@@ -215,6 +215,7 @@ impl MainWindow {
             Mode::Editing => String::from("Editing…"),
             Mode::Categorizing => String::from("Select a category to apply"),
             Mode::SelectingCategory => String::from("Select category to view"),
+            Mode::FindingCategory => String::from("Select category to search"),
         };
         self.application_window().set_title(Some(&title));
     }

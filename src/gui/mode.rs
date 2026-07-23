@@ -7,4 +7,5 @@ pub enum Mode {
     Editing,
     Categorizing,
     SelectingCategory,
+    FindingCategory,
 }

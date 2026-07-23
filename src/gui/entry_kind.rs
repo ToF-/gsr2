@@ -7,6 +7,7 @@ pub enum EntryKind {
     FindCategory,
     FindLabel,
     FindName,
+    FindSubCategory,
     GridSize,
     Help,
     Information,
