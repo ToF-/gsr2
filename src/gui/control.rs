@@ -104,18 +104,20 @@ pub fn help_on_controls() -> String {
         j then a,b,c,d,e : jump to mark A/B/C/D/E \n
         \",«,»,(,) : jump to mark A/B/C/D/E \n\
         i/I: toggle information display, display file path \n\
-        O then a,c,d,n,p,r,s,v: pick view order \n\
+        o then a,c,d,n,p,r,s,v: pick view order \n\
         D then s,t: display size,modified time in title \n\
         v: set/unset cover, V: see all covers \n\
         P: display palette sample \n\
         . or ^ : single view, e: expand, %: full size \n\
         R go to random picture  S: resume slide show\n\
+        m: move selected pictures to target dir set by label\n\
+        M: move selected pictures to target dir set with option --move\n
         X/M delete or move (selected) picture(s)\n\
         l/L : label/unlabel picture\n\
         N : rename picture\n\
         *: add tag, /: remove tag\n\
         =/-/#: select pictures having some/all tags, cancel selection\n\
-        y: set grid size of 1,4,9,16,25 or 100 pictures per page\n\
+        d: set display grid size of 1,4,9,16,25 or 100 pictures per page\n\
         0,1,2,3: set rank, 4: enter rank\n\
         g: view this cover subgroup, G/q: back from subgroup\n\
         q: quit  H:help"
@@ -218,10 +220,10 @@ pub fn default_controls() -> Controls {
         ),
         ((String::from("M"), Mode::View), Control::MovePicture),
         ((String::from("m"), Mode::View), Control::MovePictureToLabel),
-        ((String::from("y"), Mode::View), Control::EnterGridSize),
+        ((String::from("d"), Mode::View), Control::EnterGridSize),
         ((String::from("4"), Mode::View), Control::EnterRank),
         ((String::from("D"), Mode::View), Control::SetDisplay),
-        ((String::from("O"), Mode::View), Control::SetOrder),
+        ((String::from("o"), Mode::View), Control::SetOrder),
         (
             (String::from("d"), Mode::Setting(Control::SetDisplay)),
             Control::DisplayDate,
