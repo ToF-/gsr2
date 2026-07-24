@@ -98,7 +98,7 @@ pub fn help_on_controls() -> String {
         "n/p z/a Z/A: next/prev page, end/start of page, last/first page \n\
         return: set range start/end,  space: toggle in/out of range \n\
         esc $ ! _: cancel range, repeat range, whole range, page range\n\
-        f/F: find by pattern in name/label \n\
+        f: find by pattern in name/label/category/tags n:find next \n\
         J: jump to picture #… \n\
         k then a,b,c,d,e : set mark A/B/C/D/E \n\
         j then a,b,c,d,e : jump to mark A/B/C/D/E \n
