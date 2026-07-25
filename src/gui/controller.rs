@@ -761,7 +761,7 @@ impl Controller {
             Control::Down => self.arrow_move(Direction::Down),
             Control::EnterChange => self.enter_editing(EntryKind::Change, None),
             Control::EnterFind => self.enter_editing(EntryKind::Find, None),
-            Control::EnterGridSize => self.enter_editing(EntryKind::GridSize, None),
+            Control::SetView => self.enter_editing(EntryKind::GridSize, None),
             Control::EnterRank => self.enter_editing(EntryKind::Rank, None),
             Control::ExtractFileNames => self.extract_filenames(),
             Control::FindNext => self.find_next(),

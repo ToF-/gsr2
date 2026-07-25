@@ -21,7 +21,7 @@ pub enum Control {
     Down,
     EnterChange,
     EnterFind,
-    EnterGridSize,
+    SetView,
     EnterRank,
     ExtractFileNames,
     FindNext,
@@ -103,17 +103,16 @@ pub fn help_on_controls() -> String {
         i/I: toggle information display, display file path \n\
         o then a,c,d,n,p,r,s,v: pick view order \n\
         D then s,t: display size,modified time in title \n\
-        v: set/unset cover, V: see all covers \n\
         P: display palette sample \n\
         . or ^ : single view, e: expand, %: full size \n\
         R go to random picture  S: resume slide show\n\
         m: move selected pictures to target dir set by label\n\
         M: move selected pictures to target dir set with option --move\n
         X/M delete or move (selected) picture(s)\n\
-        c: change tags / category / label
+        c: change tags / category / label / cover
         N : rename picture\n\
         =/-/#: select pictures having some/all tags, cancel selection\n\
-        d: set display grid size of 1,4,9,16,25 or 100 pictures per page\n\
+        v: set view grid size of 1,4,9,16,25 or 100 pictures per page, covers\n\
         0,1,2,3: set rank, 4: enter rank\n\
         g: view this cover subgroup, G/q: back from subgroup\n\
         q: quit  H:help"
@@ -170,10 +169,6 @@ pub fn default_controls() -> Controls {
         ((String::from("a"), Mode::View), Control::MoveStartPage),
         ((String::from("z"), Mode::View), Control::MoveEndPage),
         ((String::from("v"), Mode::View), Control::ToggleCover),
-        (
-            (String::from("V"), Mode::View),
-            Control::ToggleCoverSelection,
-        ),
         ((String::from("e"), Mode::View), Control::ToggleExpand),
         (
             (String::from("percent"), Mode::View),
@@ -209,7 +204,7 @@ pub fn default_controls() -> Controls {
         ),
         ((String::from("M"), Mode::View), Control::MovePicture),
         ((String::from("m"), Mode::View), Control::MovePictureToLabel),
-        ((String::from("V"), Mode::View), Control::EnterGridSize),
+        ((String::from("v"), Mode::View), Control::SetView),
         ((String::from("4"), Mode::View), Control::EnterRank),
         ((String::from("D"), Mode::View), Control::SetDisplay),
         ((String::from("o"), Mode::View), Control::SetOrder),
