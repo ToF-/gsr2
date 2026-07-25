@@ -122,7 +122,7 @@ fn selected_count_display(controller: &Controller) -> String {
 }
 
 pub fn title_display(controller: &Controller) -> String {
-    if controller.state().display_information_on() {
+    if controller.state().display_path_on() {
         controller.current_picture().file_path().to_string()
     } else {
         let order: Order;
@@ -163,10 +163,7 @@ pub fn title_display(controller: &Controller) -> String {
                 String::from("")
             },
             if controller.state().display_size_on() {
-                match current_picture.file_size() {
-                    None => String::from("?"),
-                    Some(n) => format!("{}", n),
-                }
+                current_picture.file_size_display()
             } else {
                 String::from("")
             },

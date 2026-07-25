@@ -460,7 +460,7 @@ impl Controller {
                         }
                         EntryKind::Order => self.set_order(&self.editor.input()),
                         EntryKind::Rank => self.confirm_rank(&self.editor.input()),
-                        EntryKind::GridSize => self.confirm_grid_size(&self.editor.input()),
+                        EntryKind::View => self.confirm_view(&self.editor.input()),
                         EntryKind::DeleteConfirmation => {
                             if &self.editor.input() == "yes" {
                                 self.confirm_delete_picture()
@@ -761,7 +761,7 @@ impl Controller {
             Control::Down => self.arrow_move(Direction::Down),
             Control::EnterChange => self.enter_editing(EntryKind::Change, None),
             Control::EnterFind => self.enter_editing(EntryKind::Find, None),
-            Control::SetView => self.enter_editing(EntryKind::GridSize, None),
+            Control::SetView => self.enter_editing(EntryKind::View, None),
             Control::EnterRank => self.enter_editing(EntryKind::Rank, None),
             Control::ExtractFileNames => self.extract_filenames(),
             Control::FindNext => self.find_next(),
@@ -829,7 +829,7 @@ impl Controller {
             Control::ToggleCoverSelection => self.toggle_cover_selection(),
             Control::ToggleExpand => self.toggle_expand(),
             Control::ToggleFullSize => self.toggle_full_size(),
-            Control::ToggleInformation => self.toggle_information(),
+            Control::DisplayPath => self.toggle_display_path(),
             Control::TogglePalette => self.toggle_palette(),
             Control::ToggleSelected => self.toggle_selected(),
             Control::ToggleSingleView => self.toggle_single_view(),
@@ -1127,8 +1127,8 @@ impl Controller {
         self.state.set_mode(Mode::Editing);
     }
 
-    fn toggle_information(&mut self) {
-        self.state.toggle_display_information_on();
+    fn toggle_display_path(&mut self) {
+        self.state.toggle_display_path();
         let navigator = &mut self.navigator;
         navigator.set_page_changed()
     }
@@ -1238,6 +1238,9 @@ impl Controller {
     }
 
     fn toggle_display_date(&mut self) {
+        if self.state.display_path_on() {
+            self.state.toggle_display_path();
+        };
         self.state.toggle_display_date();
         self.main_window().set_title(self);
         println!(
@@ -1255,6 +1258,9 @@ impl Controller {
     }
 
     fn toggle_display_size(&mut self) {
+        if self.state.display_path_on() {
+            self.state.toggle_display_path();
+        };
         self.state.toggle_display_size();
         self.main_window().set_title(self);
         println!(
@@ -1312,9 +1318,6 @@ impl Controller {
     }
 
     fn change_grid_size(&mut self, pictures_per_row: usize) {
-        if pictures_per_row == 0 {
-            self.toggle_cover_selection()
-        } else {
             self.state.change_grid_size(pictures_per_row);
             self.main_window().change_grid_size(pictures_per_row);
             let navigator = &mut self.navigator;
@@ -1322,7 +1325,6 @@ impl Controller {
             navigator.update_page_limits();
             navigator.set_page_changed();
             self.acknowledge_grid_size_change();
-        }
     }
 
     fn set_range(&mut self) {
@@ -1572,12 +1574,17 @@ impl Controller {
         };
     }
 
-    fn confirm_grid_size(&mut self, input: &str) {
+    fn confirm_view(&mut self, input: &str) {
         if !input.is_empty() {
-            match input.parse() {
-                Ok(size) => self.change_grid_size(size),
-                Err(e) => {
-                    eprintln!("{}", e);
+            match input {
+                "1"|"2"|"3"|"4"|"5" => self.change_grid_size(input.parse().unwrap()),
+                "Thumbs" => self.change_grid_size(10),
+                "Cover" => self.toggle_cover_selection(),
+                "Date" => self.process_control(&Control::DisplayDate),
+                "Path" => self.process_control(&Control::DisplayPath),
+                "Size" => self.process_control(&Control::DisplaySize),
+                _ => {
+                    eprintln!("not implemented");
                 }
             }
         }

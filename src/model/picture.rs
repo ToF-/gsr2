@@ -59,13 +59,25 @@ impl Picture {
     pub fn modified_time_display(&self) -> String {
         if let Some(image_data) = &self.image_data {
             datetime_from_time_stamp(image_data.modified_time())
-                .format("%Y-%m-%d %H:%M:%S%.f")
+                .format("%Y-%m-%d %H:%M:%S")
                 .to_string()
         } else {
             String::from("…/…")
         }
     }
 
+   pub fn file_size_display(&self) -> String {
+       match self.file_size() {
+           None => String::from("?"),
+           Some(n) => {
+               if n < 1_024 { format!("{}", n) }
+               else if n < 1_048_576 { format!("{}K", n / 1_024) }
+               else if n < 1_073_741_824 { format!("{}K", n / 1_024) }
+               else { "".to_string() }
+           }
+       }
+
+   }
     pub fn view_file_path(&self, pictures_per_row: usize) -> String {
         if pictures_per_row > 1 {
             self.thumbnail_file_path_for_size(pictures_per_row)

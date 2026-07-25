@@ -11,7 +11,7 @@ pub enum EntryKind {
     FindSubCategory,
     FindAllTags,
     FindSomeTags,
-    GridSize,
+    View,
     Help,
     Information,
     Label,

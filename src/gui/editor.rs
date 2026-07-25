@@ -55,7 +55,7 @@ impl Editor {
             EntryKind::Order => {
                 "Enter a sorting criteria: c(A)tegory (C)olors (D)ate (L)abel (M)ost views (N)ame (P)alette c(O)ver (R)andom (S)ize (V)alue "
             }
-            EntryKind::GridSize => "Enter grid size: 1x1 2x2 3x3 4x4 5x5 TenxTen Covers",
+            EntryKind::View => "View: 1x1 2x2 3x3 4x4 5x5 Thumbs Covers Date Path Size",
             EntryKind::Rank => "Enter a rank level: 0 1 2 3",
             EntryKind::DeleteConfirmation => "Delete these pictures?",
             EntryKind::MoveConfirmation => "Move these pictures?",
@@ -235,7 +235,7 @@ impl Editor {
                 ch,
                 'a' | 'c' | 'd' | 'p' | 'm' | 'l' | 'n' | 'o' | 'r' | 's' | 'v'
             ),
-            EntryKind::GridSize => matches!(ch, '1' | '2' | '3' | '4' | '5' | 't' | 'c'),
+            EntryKind::View => matches!(ch, '1' | '2' | '3' | '4' | '5' | 't' | 'c' | 'd' | 'p' | 's' ),
             EntryKind::Rank => matches!(ch, '0' | '1' | '2' | '3'),
             EntryKind::Information | EntryKind::Help => false,
         };
@@ -297,18 +297,22 @@ impl Editor {
                 self.input = format!("{}", change);
                 let _ = self.enter();
             }
-            c if self.entry_kind == EntryKind::GridSize => {
-                let size: usize = match c {
-                    '1' => 1,
-                    '2' => 2,
-                    '3' => 3,
-                    '4' => 4,
-                    '5' => 5,
-                    't' => 10,
-                    'c' => 0,
+            c if self.entry_kind == EntryKind::View => {
+                let view = match c {
+                    '1' => "1",
+                    '2' => "2",
+                    '3' => "3",
+                    '4' => "4",
+                    '5' => "5",
+                    't' => "Thumbs",
+                    'c' => "Covers",
+                    'p' => "Path",
+                    'd' => "Date",
+                    's' => "Size",
+
                     _ => todo!(),
                 };
-                self.input = format!("{}", size);
+                self.input = view.to_string();
                 let _ = self.enter();
             }
             other if other.is_ascii() => self.input.push(other.to_lowercase().next().unwrap()),
