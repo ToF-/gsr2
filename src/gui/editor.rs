@@ -43,11 +43,11 @@ impl Editor {
         choice_opt: Option<Tags>,
     ) {
         let prompt: &str = match entry_kind {
+            EntryKind::Rename => { "Enter a name for the selected picture" }
             EntryKind::Change => {
-                "Enter what to change: A)dd tag C)ategory L)abel N)ame R)emove tag U)nlabel"
+                "Enter what to change: A)dd tag C)ategory L)abel R)emove tag U)nlabel co(V)er on"
             }
             EntryKind::Label => "Enter a label",
-            EntryKind::Rename => "Enter a new name",
             EntryKind::AddTag => "Enter a new tag to add",
             EntryKind::Categorize => "Enter a category",
             EntryKind::RemoveTag => "Enter a tag to remove",
@@ -69,7 +69,7 @@ impl Editor {
             EntryKind::FindLabel => "Enter a part of the picture label",
             EntryKind::Information => "Current picture",
             EntryKind::Help => "Keyboard shortcuts",
-            EntryKind::SetSelection => "Enter tags to define the selection (1 or more tag match)",
+            EntryKind::FindTags => "Enter tags to define the selection (1 or more tag match)",
             EntryKind::SetRestriction => "Enter tags to define the restriction (all tags match)",
         };
         self.prompt = prompt.to_string();
@@ -201,7 +201,7 @@ impl Editor {
         };
         let ch_is_ok = match self.entry_kind {
             EntryKind::Change => {
-                matches!(ch, 'a' | 'c' | 'l' | 'n' | 'r' | 'u')
+                matches!(ch, 'a' | 'c' | 'l' | 'r' | 'u' | 'v' )
             }
             EntryKind::Number => ch.is_ascii_digit(),
             EntryKind::DeleteConfirmation
@@ -227,7 +227,7 @@ impl Editor {
                 matches!(ch,
                 'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ':')
             }
-            EntryKind::SetSelection | EntryKind::SetRestriction => matches!(ch,
+            EntryKind::FindTags | EntryKind::SetRestriction => matches!(ch,
                 'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' ' | ',' ),
             EntryKind::Order => matches!(
                 ch,
@@ -246,7 +246,7 @@ impl Editor {
 
     fn convert_char(&mut self, ch: char) {
         match ch {
-            ' ' if self.entry_kind == EntryKind::SetSelection => self.input.push(','),
+            ' ' if self.entry_kind == EntryKind::FindTags => self.input.push(','),
             ' ' if self.entry_kind == EntryKind::SetRestriction => self.input.push(','),
             ' ' if self.entry_kind == EntryKind::FindSubCategory => self.input.push(','),
             ' ' => self.input.push('-'),
@@ -288,6 +288,7 @@ impl Editor {
                     'n' => "Name",
                     'r' => "RemoveTag",
                     'u' => "Unlabel",
+                    'v' => "Cover",
                     _ => todo!(),
                 };
                 self.input = format!("{}", change);
@@ -507,7 +508,7 @@ mod tests {
      {
         let mut editor = Editor::new();
         editor.begin_input(
-            EntryKind::SetSelection,
+            EntryKind::FindTags,
             Some(tags_from_str("bar,foo,qux,zone,zoo")),
         );
         editor.append('b');

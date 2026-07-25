@@ -9,6 +9,7 @@ pub enum EntryKind {
     FindLabel,
     FindName,
     FindSubCategory,
+    FindTags,
     GridSize,
     Help,
     Information,
@@ -21,5 +22,4 @@ pub enum EntryKind {
     RemoveTag,
     Rename,
     SetRestriction,
-    SetSelection,
 }

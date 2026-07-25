@@ -3,6 +3,7 @@ use std::str::FromStr;
 pub enum Change {
     AddTag,
     Category,
+    Cover,
     Name,
     Label,
     RemoveTag,
@@ -16,6 +17,7 @@ impl FromStr for Change {
         match s {
             "AddTag" => Ok(Change::AddTag),
             "Category" => Ok(Change::Category),
+            "Cover" => Ok(Change::Cover),
             "Name" => Ok(Change::Name),
             "Label" => Ok(Change::Label),
             "RemoveTag" => Ok(Change::RemoveTag),

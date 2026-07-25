@@ -112,9 +112,8 @@ pub fn help_on_controls() -> String {
         m: move selected pictures to target dir set by label\n\
         M: move selected pictures to target dir set with option --move\n
         X/M delete or move (selected) picture(s)\n\
-        l/L : label/unlabel picture\n\
+        c: change tags / category / label
         N : rename picture\n\
-        *: add tag, /: remove tag\n\
         =/-/#: select pictures having some/all tags, cancel selection\n\
         d: set display grid size of 1,4,9,16,25 or 100 pictures per page\n\
         0,1,2,3: set rank, 4: enter rank\n\
@@ -186,13 +185,8 @@ pub fn default_controls() -> Controls {
         ((String::from("R"), Mode::View), Control::MoveRandom),
         ((String::from("X"), Mode::View), Control::DeletePicture),
         ((String::from("S"), Mode::View), Control::ToggleSlideShow),
-        ((String::from("l"), Mode::View), Control::Label),
         ((String::from("c"), Mode::View), Control::EnterChange),
-        ((String::from("L"), Mode::View), Control::Unlabel),
-        ((String::from("C"), Mode::View), Control::Uncategorize),
         ((String::from("N"), Mode::View), Control::Rename),
-        ((String::from("asterisk"), Mode::View), Control::AddTag),
-        ((String::from("slash"), Mode::View), Control::RemoveTag),
         ((String::from("Q"), Mode::View), Control::Quit),
         ((String::from("Left"), Mode::View), Control::Left),
         ((String::from("t"), Mode::View), Control::Left),

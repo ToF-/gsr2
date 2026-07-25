@@ -339,7 +339,6 @@ impl Controller {
             return;
         }
         let controls = self.controls.clone();
-        println!("state.mode:{:?}", self.state().mode());
         match self.state().mode() {
             Mode::View => match key.name() {
                 None => {}
@@ -403,6 +402,7 @@ impl Controller {
                                 match Change::from_str(&self.editor.input()) {
                                     Ok(Change::AddTag) => self.add_tag(),
                                     Ok(Change::Category) => self.categorize(),
+                                    Ok(Change::Cover) => self.toggle_cover(),
                                     Ok(Change::Label) => self.label(),
                                     Ok(Change::Name) => self.rename(),
                                     Ok(Change::RemoveTag) => self.remove_tag(),
@@ -430,9 +430,7 @@ impl Controller {
                                     Ok(Find::Name) => self.enter_find_name(),
                                     Ok(Find::Category) => self.enter_find_category(),
                                     Ok(Find::SubCategory) => self.enter_find_sub_category(),
-                                    Ok(Find::Tags) => {
-                                        eprintln!("todo:! Find::Tags")
-                                    }
+                                    Ok(Find::Tags) => self.enter_find_tags(),
                                     _ => {}
                                 };
                             }
@@ -504,9 +502,14 @@ impl Controller {
                                 self.find_first(&self.editor.input(), Find::SubCategory);
                             };
                         }
+                        EntryKind::FindTags => {
+                            if !self.editor.input().is_empty() {
+                                self.find_first(&self.editor.input(), Find::Tags)
+                            };
+                        }
                         EntryKind::Information => {}
                         EntryKind::Help => {}
-                        EntryKind::SetSelection => {
+                        EntryKind::FindTags => {
                             if !self.editor.input().is_empty() {
                                 self.apply_selection_criteria(&self.editor.input())
                             }
@@ -708,6 +711,10 @@ impl Controller {
         self.state.set_mode(Mode::Editing);
     }
 
+    fn enter_find_tags(&mut self) {
+        self.editor.begin(&self.main_window(), EntryKind::FindTags, None);
+        self.state.set_mode(Mode::Editing);
+    }
     fn enter_find_sub_category(&mut self) {
         self.set_category_selection();
         self.state.set_mode(Mode::FindingCategory);
@@ -800,7 +807,7 @@ impl Controller {
             Control::RankThreeStars => self.rank_selected_pictures(Rank::ThreeStars),
             Control::RankTwoStars => self.rank_selected_pictures(Rank::TwoStars),
             Control::RemoveTag => self.remove_tag(),
-            Control::Rename => self.rename(),
+            Control::Rename => if self.navigator.has_selected() && self.navigator.selected_picture_count() == 1 { self.enter_editing(EntryKind::Rename, None) } else { eprintln!("select the picture to rename first") },
             Control::RepeatLastAction => self.repeat_last_action(),
             Control::RepeatRange => self.repeat_range(),
             Control::Right => self.arrow_move(Direction::Right),
@@ -813,7 +820,6 @@ impl Controller {
             Control::SetRangeAll => self.set_range_all(),
             Control::SetRangePage => self.set_range_page(),
             Control::SetRestriction => self.set_restriction(),
-            Control::SetSelection => self.set_selection(),
             Control::ToggleCover => self.toggle_cover(),
             Control::ToggleCoverSelection => self.toggle_cover_selection(),
             Control::ToggleExpand => self.toggle_expand(),
@@ -934,15 +940,6 @@ impl Controller {
         }
     }
 
-    fn set_selection(&mut self) {
-        self.editor.begin(
-            &self.main_window(),
-            EntryKind::SetSelection,
-            Some(self.repository.all_labels()),
-        );
-        self.state.set_mode(Mode::Editing);
-    }
-
     fn set_restriction(&mut self) {
         self.editor.begin(
             &self.main_window(),
@@ -1016,6 +1013,7 @@ impl Controller {
                 .begin(&self.main_window(), EntryKind::Rename, None);
             self.state.set_mode(Mode::Editing);
         }
+
     }
 
     fn categorize_selected_pictures(&mut self, category: Category) {
