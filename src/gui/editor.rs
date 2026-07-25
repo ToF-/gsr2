@@ -43,7 +43,7 @@ impl Editor {
         choice_opt: Option<Tags>,
     ) {
         let prompt: &str = match entry_kind {
-            EntryKind::Rename => { "Enter a name for the selected picture" }
+            EntryKind::Rename => "Enter a name for the selected picture",
             EntryKind::Change => {
                 "Enter what to change: C)ategory L)abel R)emove T)ag U)nlabel co(V)er on"
             }
@@ -62,15 +62,17 @@ impl Editor {
             EntryKind::MoveToLabelConfirmation(ref target) => {
                 &format!("Move these pictures to {} ?", target)
             }
-            EntryKind::Find => "Select criteria C)ategory (L)abel (N)ame (S)ubCategories (T)ags ",
+            EntryKind::Find => {
+                "Select criteria C)ategory (B)elongs (L)abel (N)ame (S)ome Tags (A)ll tags "
+            }
             EntryKind::FindCategory => "Enter a part of the category",
-            EntryKind::FindSubCategory => "Enter categories to match",
+            EntryKind::FindSubCategory => "Enter category or super-category",
             EntryKind::FindName => "Enter a part of the picture file name",
             EntryKind::FindLabel => "Enter a part of the picture label",
             EntryKind::Information => "Current picture",
             EntryKind::Help => "Keyboard shortcuts",
-            EntryKind::FindTags => "Enter tags to define the selection (1 or more tag match)",
-            EntryKind::SetRestriction => "Enter tags to define the restriction (all tags match)",
+            EntryKind::FindSomeTags => "Enter tags to define the selection (1 or more tag match)",
+            EntryKind::FindAllTags => "Enter tags to define the restriction (all tags match)",
         };
         self.prompt = prompt.to_string();
         self.begin_input(entry_kind, choice_opt);
@@ -201,7 +203,7 @@ impl Editor {
         };
         let ch_is_ok = match self.entry_kind {
             EntryKind::Change => {
-                matches!(ch, 'c' | 'l' | 'r' | 't' | 'u' | 'v' )
+                matches!(ch, 'c' | 'l' | 'r' | 't' | 'u' | 'v')
             }
             EntryKind::Number => ch.is_ascii_digit(),
             EntryKind::DeleteConfirmation
@@ -210,7 +212,7 @@ impl Editor {
                 matches!(ch, 'e' | 'n' | 'o' | 's' | 'y')
             }
             EntryKind::Find => {
-                matches!(ch, 'c' | 'l' | 'n' | 's' | 't')
+                matches!(ch, 'a' | 'b' | 'c' | 'l' | 'n' | 's' )
             }
             EntryKind::FindName
             | EntryKind::FindLabel
@@ -227,7 +229,7 @@ impl Editor {
                 matches!(ch,
                 'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ':')
             }
-            EntryKind::FindTags | EntryKind::SetRestriction => matches!(ch,
+            EntryKind::FindAllTags | EntryKind::FindSomeTags => matches!(ch,
                 'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' ' | ',' ),
             EntryKind::Order => matches!(
                 ch,
@@ -246,8 +248,8 @@ impl Editor {
 
     fn convert_char(&mut self, ch: char) {
         match ch {
-            ' ' if self.entry_kind == EntryKind::FindTags => self.input.push(','),
-            ' ' if self.entry_kind == EntryKind::SetRestriction => self.input.push(','),
+            ' ' if self.entry_kind == EntryKind::FindAllTags => self.input.push(','),
+            ' ' if self.entry_kind == EntryKind::FindSomeTags => self.input.push(','),
             ' ' if self.entry_kind == EntryKind::FindSubCategory => self.input.push(','),
             ' ' => self.input.push('-'),
             c if self.entry_kind == EntryKind::Order => {
@@ -270,11 +272,12 @@ impl Editor {
             }
             c if self.entry_kind == EntryKind::Find => {
                 let criterion = match c {
+                    'a' => "AllTags",
+                    'b' => "SubCategory",
                     'c' => "Category",
                     'l' => "Label",
                     'n' => "Name",
-                    's' => "SubCategory",
-                    't' => "Tags",
+                    's' => "SomeTags",
                     _ => todo!(),
                 };
                 self.input = format!("{}", criterion);

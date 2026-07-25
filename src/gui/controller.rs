@@ -1,4 +1,3 @@
-
 use crate::model::categories::Categories;
 use crate::model::category::category_from_string;
 use crate::model::change::Change;
@@ -407,7 +406,7 @@ impl Controller {
                                     Ok(Change::Name) => self.rename(),
                                     Ok(Change::RemoveTag) => self.remove_tag(),
                                     Ok(Change::Unlabel) => self.unlabel_selected_pictures(),
-                                _ => {}
+                                    _ => {}
                                 }
                             };
                         }
@@ -430,7 +429,8 @@ impl Controller {
                                     Ok(Find::Name) => self.enter_find_name(),
                                     Ok(Find::Category) => self.enter_find_category(),
                                     Ok(Find::SubCategory) => self.enter_find_sub_category(),
-                                    Ok(Find::Tags) => self.enter_find_tags(),
+                                    Ok(Find::SomeTags) => self.enter_find_tags(false),
+                                    Ok(Find::AllTags) => self.enter_find_tags(true),
                                     _ => {}
                                 };
                             }
@@ -502,23 +502,18 @@ impl Controller {
                                 self.find_first(&self.editor.input(), Find::SubCategory);
                             };
                         }
-                        EntryKind::FindTags => {
+                        EntryKind::FindSomeTags => {
                             if !self.editor.input().is_empty() {
-                                self.find_first(&self.editor.input(), Find::Tags)
+                                self.find_first(&self.editor.input(), Find::AllTags)
+                            }
+                        }
+                        EntryKind::FindAllTags => {
+                            if !self.editor.input().is_empty() {
+                                self.find_first(&self.editor.input(), Find::AllTags)
                             };
                         }
                         EntryKind::Information => {}
                         EntryKind::Help => {}
-                        EntryKind::FindTags => {
-                            if !self.editor.input().is_empty() {
-                                self.apply_selection_criteria(&self.editor.input())
-                            }
-                        }
-                        EntryKind::SetRestriction => {
-                            if !self.editor.input().is_empty() {
-                                self.apply_restriction_criteria(&self.editor.input())
-                            }
-                        }
                     }
                 }
             }
@@ -711,8 +706,13 @@ impl Controller {
         self.state.set_mode(Mode::Editing);
     }
 
-    fn enter_find_tags(&mut self) {
-        self.editor.begin(&self.main_window(), EntryKind::FindTags, None);
+    fn enter_find_tags(&mut self, all_match: bool) {
+        let kind = if all_match {
+            EntryKind::FindAllTags
+        } else {
+            EntryKind::FindSomeTags
+        };
+        self.editor.begin(&self.main_window(), kind, None);
         self.state.set_mode(Mode::Editing);
     }
     fn enter_find_sub_category(&mut self) {
@@ -807,7 +807,13 @@ impl Controller {
             Control::RankThreeStars => self.rank_selected_pictures(Rank::ThreeStars),
             Control::RankTwoStars => self.rank_selected_pictures(Rank::TwoStars),
             Control::RemoveTag => self.remove_tag(),
-            Control::Rename => if self.navigator.has_selected() && self.navigator.selected_picture_count() == 1 { self.enter_editing(EntryKind::Rename, None) } else { eprintln!("select the picture to rename first") },
+            Control::Rename => {
+                if self.navigator.has_selected() && self.navigator.selected_picture_count() == 1 {
+                    self.enter_editing(EntryKind::Rename, None)
+                } else {
+                    eprintln!("select the picture to rename first")
+                }
+            }
             Control::RepeatLastAction => self.repeat_last_action(),
             Control::RepeatRange => self.repeat_range(),
             Control::Right => self.arrow_move(Direction::Right),
@@ -819,7 +825,6 @@ impl Controller {
             Control::SetRange => self.set_range(),
             Control::SetRangeAll => self.set_range_all(),
             Control::SetRangePage => self.set_range_page(),
-            Control::SetRestriction => self.set_restriction(),
             Control::ToggleCover => self.toggle_cover(),
             Control::ToggleCoverSelection => self.toggle_cover_selection(),
             Control::ToggleExpand => self.toggle_expand(),
@@ -940,14 +945,6 @@ impl Controller {
         }
     }
 
-    fn set_restriction(&mut self) {
-        self.editor.begin(
-            &self.main_window(),
-            EntryKind::SetRestriction,
-            Some(self.repository.all_labels()),
-        );
-        self.state.set_mode(Mode::Editing);
-    }
 
     fn cancel_selection_criteria(&mut self) {
         let current_file_path = self.current_picture().file_path();
@@ -1013,7 +1010,6 @@ impl Controller {
                 .begin(&self.main_window(), EntryKind::Rename, None);
             self.state.set_mode(Mode::Editing);
         }
-
     }
 
     fn categorize_selected_pictures(&mut self, category: Category) {
@@ -1635,16 +1631,22 @@ impl Controller {
                             }),
                         }
                     }
-                    Find::Tags => {
+                    Find::SomeTags => {
                         let tags = tags_from_str(pattern);
-                        println!("{:?}", tags);
                         Predicate {
                             function: Arc::new(move |picture: &Picture| {
-                                println!("{:?} ^ {:?} = {:?}", picture.tags(), tags, picture.tags().intersection(&tags).count());
                                 picture.tags().intersection(&tags).count() > 0
                             }),
                         }
-                    },
+                    }
+                    Find::AllTags => {
+                        let tags = tags_from_str(pattern);
+                        Predicate {
+                            function: Arc::new(move |picture: &Picture| {
+                                tags.is_subset(&picture.tags())
+                            }),
+                        }
+                    }
                 };
                 if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut() {
                     let mut finder = &mut gallery.finder;

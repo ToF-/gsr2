@@ -5,7 +5,8 @@ pub enum Find {
     Name,
     Label,
     SubCategory,
-    Tags,
+    SomeTags,
+    AllTags,
 }
 
 impl FromStr for Find {
@@ -17,7 +18,8 @@ impl FromStr for Find {
             "Label" => Ok(Find::Label),
             "Name" => Ok(Find::Name),
             "SubCategory" => Ok(Find::SubCategory),
-            "Tags" => Ok(Find::Tags),
+            "SomeTags" => Ok(Find::SomeTags),
+            "AllTags" => Ok(Find::AllTags),
             _ => Err(format!("unknown find: {s}")),
         }
     }
