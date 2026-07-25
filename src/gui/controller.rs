@@ -1635,10 +1635,16 @@ impl Controller {
                             }),
                         }
                     }
-                    Find::Tags => Predicate {
-                        function: Arc::new(move |_picture: &Picture| true),
-                    }, // todo
-                       // }
+                    Find::Tags => {
+                        let tags = tags_from_str(pattern);
+                        println!("{:?}", tags);
+                        Predicate {
+                            function: Arc::new(move |picture: &Picture| {
+                                println!("{:?} ^ {:?} = {:?}", picture.tags(), tags, picture.tags().intersection(&tags).count());
+                                picture.tags().intersection(&tags).count() > 0
+                            }),
+                        }
+                    },
                 };
                 if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut() {
                     let mut finder = &mut gallery.finder;
