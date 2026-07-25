@@ -1,6 +1,9 @@
-  use crate::model::tags::tags_from_str;
-  use crate::model::tags::Tags;
-   use crate::model::categories::Categories;
+
+use crate::model::categories::Categories;
+use crate::model::category::category_from_string;
+use crate::model::change::Change;
+use crate::model::tags::Tags;
+use crate::model::tags::tags_from_str;
 
 use crate::cli::args::Args;
 use crate::cli::command::Command;
@@ -364,7 +367,7 @@ impl Controller {
                 if !self.selector.selecting() {
                     self.state.set_mode(Mode::View);
                     if !self.selector.selected().is_empty() {
-                        let category: Category = Some(self.selector.selected());
+                        let category: Category = category_from_string(&self.selector.selected());
                         self.categorize_selected_pictures(category)
                     }
                     self.set_opacity_for_current_picture(1.00);
@@ -395,6 +398,19 @@ impl Controller {
                 if !self.editor.editing() {
                     self.state.set_mode(Mode::View);
                     match self.editor.entry_kind() {
+                        EntryKind::Change => {
+                            if !self.editor.input().is_empty() {
+                                match Change::from_str(&self.editor.input()) {
+                                    Ok(Change::AddTag) => self.add_tag(),
+                                    Ok(Change::Category) => self.categorize(),
+                                    Ok(Change::Label) => self.label(),
+                                    Ok(Change::Name) => self.rename(),
+                                    Ok(Change::RemoveTag) => self.remove_tag(),
+                                    Ok(Change::Unlabel) => self.unlabel_selected_pictures(),
+                                _ => {}
+                                }
+                            };
+                        }
                         EntryKind::Rename => {
                             if !self.editor.input().is_empty() {
                                 self.rename_selected_picture(&self.editor.input())
@@ -668,19 +684,9 @@ impl Controller {
         self.state.set_mode(Mode::Setting(Control::SetDisplay));
     }
 
-    fn enter_grid_size(&mut self) {
+    fn enter_editing(&mut self, entry_kind: EntryKind, choice_opt: Option<Tags>) {
         self.editor
-            .begin(&self.main_window(), EntryKind::GridSize, None);
-        self.state.set_mode(Mode::Editing);
-    }
-    fn enter_rank(&mut self) {
-        self.editor
-            .begin(&self.main_window(), EntryKind::Rank, None);
-        self.state.set_mode(Mode::Editing);
-    }
-    fn enter_find(&mut self) {
-        self.editor
-            .begin(&self.main_window(), EntryKind::Find, None);
+            .begin(&self.main_window(), entry_kind, choice_opt);
         self.state.set_mode(Mode::Editing);
     }
 
@@ -736,92 +742,90 @@ impl Controller {
 
     fn process_control(&mut self, control: &Control) {
         match control {
-            Control::SelectCategory => self.set_category_selection(),
+            Control::AddTag => self.add_tag(),
+            Control::BackFromDirectory => self.back_from_directory(),
+            Control::CancelRange => self.cancel_range(),
+            Control::CancelSelection => self.cancel_selection_criteria(),
+            Control::Categorize => self.categorize(),
+            Control::CopyTemp => self.copy_to_temp(),
+            Control::DeletePicture => self.delete_picture(),
+            Control::DisplayDate => self.toggle_display_date(),
+            Control::DisplaySize => self.toggle_display_size(),
+            Control::Down => self.arrow_move(Direction::Down),
+            Control::EnterChange => self.enter_editing(EntryKind::Change, None),
+            Control::EnterFind => self.enter_editing(EntryKind::Find, None),
+            Control::EnterGridSize => self.enter_editing(EntryKind::GridSize, None),
+            Control::EnterRank => self.enter_editing(EntryKind::Rank, None),
+            Control::ExtractFileNames => self.extract_filenames(),
+            Control::FindNext => self.find_next(),
+            Control::GotoDirectory => self.go_to_directory(),
+            Control::GotoMark => self.jumping_mark(),
+            Control::Help => self.help(),
+            Control::Information => self.information(),
+            Control::Jump => self.jump(),
+            Control::JumpMarkChar(ch) => self.find_mark(*ch),
+            Control::Label => self.label(),
+            Control::Left => self.arrow_move(Direction::Left),
+            Control::MoveEndPage => self.move_towards(Direction::PageEnd),
+            Control::MoveFirst => self.move_towards(Direction::First),
+            Control::MoveLast => self.move_towards(Direction::Last),
             Control::MoveNext => {
                 if self.search_in_progress {
                     self.find_next()
                 } else {
                     self.move_towards(Direction::NextPage)
                 };
-            },
+            }
+            Control::MovePicture => self.move_picture(),
+            Control::MovePictureToLabel => self.move_picture_to_label(),
             Control::MovePrev => self.move_towards(Direction::PrevPage),
-            Control::MoveLast => self.move_towards(Direction::Last),
-            Control::MoveFirst => self.move_towards(Direction::First),
-            Control::MoveStartPage => self.move_towards(Direction::PageStart),
             Control::MoveRandom => self.move_towards(Direction::Index {
                 value: rng().random_range(0..self.navigator.limit()),
             }),
-            Control::MoveEndPage => self.move_towards(Direction::PageEnd),
-            Control::Left => self.arrow_move(Direction::Left),
-            Control::Right => self.arrow_move(Direction::Right),
-            Control::Up => self.arrow_move(Direction::Up),
-            Control::Down => self.arrow_move(Direction::Down),
+            Control::MoveStartPage => self.move_towards(Direction::PageStart),
+            Control::OrderByCategory => self.order_by(Order::Category),
+            Control::OrderByColorCount => self.order_by(Order::ColorCount),
+            Control::OrderByCover => self.order_by(Order::Cover),
+            Control::OrderByDate => self.order_by(Order::Date),
+            Control::OrderByLabel => self.order_by(Order::Label),
+            Control::OrderByName => self.order_by(Order::Name),
+            Control::OrderByPalette => self.order_by(Order::Palette),
+            Control::OrderByScore => self.order_by(Order::Score),
+            Control::OrderBySize => self.order_by(Order::Size),
+            Control::OrderByValue => self.order_by(Order::Value),
             Control::Quit => self.quit(),
-            Control::ToggleSingleView => self.toggle_single_view(),
+            Control::Randomize => self.order_by(Order::Random),
+            Control::RankNoStar => self.rank_selected_pictures(Rank::NoStar),
+            Control::RankOneStar => self.rank_selected_pictures(Rank::OneStar),
+            Control::RankThreeStars => self.rank_selected_pictures(Rank::ThreeStars),
+            Control::RankTwoStars => self.rank_selected_pictures(Rank::TwoStars),
+            Control::RemoveTag => self.remove_tag(),
+            Control::Rename => self.rename(),
+            Control::RepeatLastAction => self.repeat_last_action(),
+            Control::RepeatRange => self.repeat_range(),
+            Control::Right => self.arrow_move(Direction::Right),
+            Control::SelectCategory => self.set_category_selection(),
+            Control::SetDisplay => self.setting_display(),
+            Control::SetMark => self.setting_mark(),
+            Control::SetMarkChar(ch) => self.set_mark(*ch),
+            Control::SetOrder => self.setting_order(),
+            Control::SetRange => self.set_range(),
+            Control::SetRangeAll => self.set_range_all(),
+            Control::SetRangePage => self.set_range_page(),
+            Control::SetRestriction => self.set_restriction(),
+            Control::SetSelection => self.set_selection(),
             Control::ToggleCover => self.toggle_cover(),
             Control::ToggleCoverSelection => self.toggle_cover_selection(),
             Control::ToggleExpand => self.toggle_expand(),
             Control::ToggleFullSize => self.toggle_full_size(),
-            Control::ToggleSlideShow => self.toggle_slideshow(),
-            Control::TogglePalette => self.toggle_palette(),
-            Control::Jump => self.jump(),
-            Control::JumpMarkChar(ch) => self.find_mark(*ch),
-            Control::FindNext => self.find_next(),
-            Control::FindFirstInName => self.find(),
-            Control::Help => self.help(),
-            Control::EnterFind => self.enter_find(),
-            Control::FindFirstInLabel => self.find_label(),
-            Control::Information => self.information(),
             Control::ToggleInformation => self.toggle_information(),
-            Control::AddTag => self.add_tag(),
-            Control::Categorize => self.categorize(),
-            Control::Uncategorize => self.uncategorize_selected_pictures(),
-            Control::RemoveTag => self.remove_tag(),
-            Control::Label => self.label(),
-            Control::Unlabel => self.unlabel_selected_pictures(),
-            Control::Rename => self.rename(),
-            Control::EnterGridSize => self.enter_grid_size(),
-            Control::EnterRank => self.enter_rank(),
-            Control::SetDisplay => self.setting_display(),
-            Control::SetMark => self.setting_mark(),
-            Control::GotoMark => self.jumping_mark(),
-            Control::SetMarkChar(ch) => self.set_mark(*ch),
-            Control::SetOrder => self.setting_order(),
-            Control::SetSelection => self.set_selection(),
-            Control::SetRestriction => self.set_restriction(),
-            Control::CancelSelection => self.cancel_selection_criteria(),
-            Control::DisplayDate => self.toggle_display_date(),
-            Control::DisplaySize => self.toggle_display_size(),
-            Control::OrderByCategory => self.order_by(Order::Category),
-            Control::OrderByName => self.order_by(Order::Name),
-            Control::OrderByCover => self.order_by(Order::Cover),
-            Control::OrderByDate => self.order_by(Order::Date),
-            Control::OrderBySize => self.order_by(Order::Size),
-            Control::OrderByScore => self.order_by(Order::Score),
-            Control::OrderByValue => self.order_by(Order::Value),
-            Control::OrderByLabel => self.order_by(Order::Label),
-            Control::OrderByColorCount => self.order_by(Order::ColorCount),
-            Control::OrderByPalette => self.order_by(Order::Palette),
-            Control::Randomize => self.order_by(Order::Random),
-            Control::SetRange => self.set_range(),
-            Control::SetRank => self.enter_rank(),
-            Control::SetRangeAll => self.set_range_all(),
-            Control::SetRangePage => self.set_range_page(),
-            Control::RepeatRange => self.repeat_range(),
+            Control::TogglePalette => self.toggle_palette(),
             Control::ToggleSelected => self.toggle_selected(),
-            Control::CancelRange => self.cancel_range(),
-            Control::CopyTemp => self.copy_to_temp(),
-            Control::ExtractFileNames => self.extract_filenames(),
-            Control::DeletePicture => self.delete_picture(),
-            Control::MovePicture => self.move_picture(),
-            Control::MovePictureToLabel => self.move_picture_to_label(),
-            Control::RankNoStar => self.rank_selected_pictures(Rank::NoStar),
-            Control::RankOneStar => self.rank_selected_pictures(Rank::OneStar),
-            Control::RankTwoStars => self.rank_selected_pictures(Rank::TwoStars),
-            Control::RankThreeStars => self.rank_selected_pictures(Rank::ThreeStars),
-            Control::RepeatLastAction => self.repeat_last_action(),
-            Control::GotoDirectory => self.go_to_directory(),
-            Control::BackFromDirectory => self.back_from_directory(),
+            Control::ToggleSingleView => self.toggle_single_view(),
+            Control::ToggleSlideShow => self.toggle_slideshow(),
+            Control::Uncategorize => self.uncategorize_selected_pictures(),
+            Control::Unlabel => self.unlabel_selected_pictures(),
+            Control::Up => self.arrow_move(Direction::Up),
             _ => {}
         }
     }
@@ -1109,12 +1113,6 @@ impl Controller {
         self.editor
             .begin(&self.main_window(), EntryKind::Help, None);
         self.editor.set_input(&help_on_controls());
-        self.state.set_mode(Mode::Editing);
-    }
-
-    fn find(&mut self) {
-        self.editor
-            .begin(&self.main_window(), EntryKind::Find, None);
         self.state.set_mode(Mode::Editing);
     }
 
@@ -1634,10 +1632,11 @@ impl Controller {
                         let categories: Categories = Categories::from_string(pattern);
                         let catalog: Catalog = self.selector().catalog().clone();
                         Predicate {
-                        function: Arc::new(move |picture: &Picture| {
-                            catalog.is_one_of(&categories, &picture.category_name())
-                        }),
-                    }},
+                            function: Arc::new(move |picture: &Picture| {
+                                catalog.is_one_of(&categories, &picture.category_name())
+                            }),
+                        }
+                    }
                     Find::Tags => Predicate {
                         function: Arc::new(move |_picture: &Picture| true),
                     }, // todo

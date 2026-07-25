@@ -44,7 +44,7 @@ impl EntryWindow {
         prompt_css_provider.load_from_string(
             "
             label {
-                padding: 1px;
+                padding: 10px;
                 font-size: 16px;
             }
         ",

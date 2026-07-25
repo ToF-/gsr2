@@ -2,6 +2,7 @@
 pub enum EntryKind {
     AddTag,
     Categorize,
+    Change,
     DeleteConfirmation,
     Find,
     FindCategory,

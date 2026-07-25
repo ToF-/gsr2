@@ -2,6 +2,7 @@ pub mod action;
 pub mod catalog;
 pub mod categories;
 pub mod category;
+pub mod change;
 pub mod color;
 pub mod color_range;
 pub mod cover;

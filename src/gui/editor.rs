@@ -43,6 +43,9 @@ impl Editor {
         choice_opt: Option<Tags>,
     ) {
         let prompt: &str = match entry_kind {
+            EntryKind::Change => {
+                "Enter what to change: A)dd tag C)ategory L)abel N)ame R)emove tag U)nlabel"
+            }
             EntryKind::Label => "Enter a label",
             EntryKind::Rename => "Enter a new name",
             EntryKind::AddTag => "Enter a new tag to add",
@@ -197,6 +200,9 @@ impl Editor {
             return;
         };
         let ch_is_ok = match self.entry_kind {
+            EntryKind::Change => {
+                matches!(ch, 'a' | 'c' | 'l' | 'n' | 'r' | 'u')
+            }
             EntryKind::Number => ch.is_ascii_digit(),
             EntryKind::DeleteConfirmation
             | EntryKind::MoveConfirmation
@@ -206,7 +212,10 @@ impl Editor {
             EntryKind::Find => {
                 matches!(ch, 'c' | 'l' | 'n' | 's' | 't')
             }
-            EntryKind::FindName | EntryKind::FindLabel | EntryKind::FindCategory | EntryKind::FindSubCategory => {
+            EntryKind::FindName
+            | EntryKind::FindLabel
+            | EntryKind::FindCategory
+            | EntryKind::FindSubCategory => {
                 matches!(ch,
                     'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' ' | '^' | '$' | '.' | '*' | '/' | '{' | '}' | '[' | ']' | '(' | ')' | '\\' )
             }
@@ -269,6 +278,19 @@ impl Editor {
                     _ => todo!(),
                 };
                 self.input = format!("{}", criterion);
+                let _ = self.enter();
+            }
+            c if self.entry_kind == EntryKind::Change => {
+                let change = match c {
+                    'a' => "AddTag",
+                    'c' => "Category",
+                    'l' => "Label",
+                    'n' => "Name",
+                    'r' => "RemoveTag",
+                    'u' => "Unlabel",
+                    _ => todo!(),
+                };
+                self.input = format!("{}", change);
                 let _ = self.enter();
             }
             c if self.entry_kind == EntryKind::GridSize => {

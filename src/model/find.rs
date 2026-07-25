@@ -1,4 +1,3 @@
-
 use std::str::FromStr;
 #[derive(PartialEq, Eq, Copy, Clone, Debug)]
 pub enum Find {
