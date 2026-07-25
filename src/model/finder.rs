@@ -28,6 +28,20 @@ impl Finder {
         }
     }
 
+    pub fn set_items(&mut self, items: Vec<Picture>) {
+        self.items = items.clone();
+        let len = self.items.len();
+        // a change in items len might have occured while a search was on
+        if len > 0 {
+            if self.position >= len {
+                self.position = len - 1
+            };
+        } else {
+            self.position = 0;
+            self.predicate = None;
+        }
+    }
+
     pub fn search_in_progress(&self) -> bool {
         self.predicate.is_some()
     }

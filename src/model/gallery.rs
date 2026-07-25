@@ -70,7 +70,8 @@ impl Gallery {
     }
 
     pub fn set_picture(&mut self, index: usize, picture: Picture) {
-        self.pictures[index] = picture
+        self.pictures[index] = picture;
+        self.finder.set_items(self.pictures.clone());
     }
 
     pub fn load_from_directory(&mut self, path: &str) -> Result<usize> {
