@@ -1,3 +1,4 @@
+   use gtk::prelude::ObjectExt;
 use crate::env::default_values::{TREELIST_WINDOW_HEIGHT, TREELIST_WINDOW_WIDTH};
 use crate::gui::controller::RcController;
 use crate::gui::event::Event;
@@ -206,6 +207,10 @@ fn build_list_view(root: SubCategory, controller_rc: &RcController) -> gtk::List
                 controller.set_selected(&selected);
             }
             if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+                if key == gtk::gdk::Key::KP_Enter {
+                    println!("Enter");
+                    return glib::Propagation::Stop;
+                };
                 controller.process_event(
                     Event::KeyPressed {
                         key,
