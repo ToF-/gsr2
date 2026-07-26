@@ -1579,7 +1579,7 @@ impl Controller {
             match input {
                 "1"|"2"|"3"|"4"|"5" => self.change_grid_size(input.parse().unwrap()),
                 "Thumbs" => self.change_grid_size(10),
-                "Cover" => self.toggle_cover_selection(),
+                "Covers" => self.toggle_cover_selection(),
                 "Date" => self.process_control(&Control::DisplayDate),
                 "Path" => self.process_control(&Control::DisplayPath),
                 "Size" => self.process_control(&Control::DisplaySize),
