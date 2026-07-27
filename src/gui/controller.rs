@@ -1030,7 +1030,7 @@ impl Controller {
             self.state.set_mode(Mode::Editing);
         } else {
             self.editor
-                .begin(&self.main_window(), EntryKind::Help, None);
+                .begin(&self.main_window(), EntryKind::Information, None);
             self.editor
                 .set_input("Select the picture you want to rename first");
             self.state.set_mode(Mode::Editing);
