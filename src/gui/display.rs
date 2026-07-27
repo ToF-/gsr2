@@ -1,3 +1,4 @@
+ use crate::file::paths::parent_directory;
 use crate::env::default_values::{
     COVER_SYMBOL, EXPAND_ON_SYMBOL, FULL_SIZE_ON_SYMBOL, ORDER_SYMBOL, PICTURE_SIZE_THRESHOLD,
     SMALL_PICTURE_SYMBOL,
@@ -58,6 +59,13 @@ pub fn picture_label_display(
     )
 }
 
+fn directory_display(controller: &Controller) -> String {
+    if controller.state().has_saved_args() {
+        format!("[{}]", parent_directory(&controller.current_picture().file_path()).unwrap())
+    } else {
+        "".to_string()
+    }
+}
 fn cover_display(cover: Cover) -> String {
     match cover {
         None | Some(0) => "".to_string(),
@@ -136,7 +144,8 @@ pub fn title_display(controller: &Controller) -> String {
             panic!("can't borrow")
         };
         format!(
-            "{}{} #{} {} {} {} {} {} {} {} {} {} {} {}{} {}",
+            "{}{}{} #{} {} {} {} {} {} {} {} {} {} {} {}{} {}",
+            directory_display(&controller),
             small_picture_display(current_picture.image_data().map(|d| d.size())),
             cover_display(current_picture.cover()),
             controller.navigator().position(),

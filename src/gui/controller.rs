@@ -846,8 +846,7 @@ impl Controller {
         if self.args.cover
             && let Some(directory) = parent_directory(&self.current_picture().file_path())
             && Some(directory.clone()) != self.args.directory
-            && !self.state.single_view()
-        {
+            && !self.state.single_view() {
             self.args.index = Some(self.navigator.position());
             let args = self.args.clone();
             self.state.push_current_args(args.clone());
@@ -864,6 +863,8 @@ impl Controller {
                 }
                 Err(e) => eprintln!("{}", e),
             }
+        } else {
+            eprintln!("cannot go to a directory when not in covers view")
         }
     }
 
