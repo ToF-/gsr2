@@ -62,17 +62,23 @@ impl Editor {
             EntryKind::MoveToLabelConfirmation(ref target) => {
                 &format!("Move these pictures to {} ?", target)
             }
-            EntryKind::Find => {
+            EntryKind::Find | EntryKind::Select => {
                 "Select criteria C)ategory (B)elongs (L)abel (N)ame (S)ome Tags (A)ll tags "
             }
-            EntryKind::FindCategory => "Enter a part of the category",
-            EntryKind::FindSubCategory => "Enter category or super-category",
-            EntryKind::FindName => "Enter a part of the picture file name",
-            EntryKind::FindLabel => "Enter a part of the picture label",
+            EntryKind::FindCategory => "Enter a part of the category to find",
+            EntryKind::SelectCategory => "Enter a part of the category to select on",
+            EntryKind::FindSubCategory => "Enter category or super-category to find",
+            EntryKind::SelectSubCategory => "Enter category or super-category to select on",
+            EntryKind::FindName => "Enter a part of the picture file name to find",
+            EntryKind::SelectName => "Enter a part of the picture file name to select on",
+            EntryKind::FindLabel => "Enter a part of the picture label to find",
+            EntryKind::SelectLabel => "Enter a part of the picture label to select on",
             EntryKind::Information => "Current picture",
             EntryKind::Help => "Keyboard shortcuts",
-            EntryKind::FindSomeTags => "Enter tags to define the selection (1 or more tag match)",
-            EntryKind::FindAllTags => "Enter tags to define the restriction (all tags match)",
+            EntryKind::FindSomeTags => "Enter tags to define the find (1 or more tags match)",
+            EntryKind::SelectSomeTags => "Enter tags to define the selection (1 or more tag match)",
+            EntryKind::FindAllTags => "Enter tags to define the find (all tags matcth)",
+            EntryKind::SelectAllTags => "Enter tags to define the restriction (all tags match)",
         };
         self.prompt = prompt.to_string();
         self.begin_input(entry_kind, choice_opt);
@@ -211,13 +217,17 @@ impl Editor {
             | EntryKind::MoveToLabelConfirmation(_) => {
                 matches!(ch, 'e' | 'n' | 'o' | 's' | 'y')
             }
-            EntryKind::Find => {
+            EntryKind::Find | EntryKind::Select => {
                 matches!(ch, 'a' | 'b' | 'c' | 'l' | 'n' | 's')
             }
             EntryKind::FindName
             | EntryKind::FindLabel
             | EntryKind::FindCategory
-            | EntryKind::FindSubCategory => {
+            | EntryKind::FindSubCategory 
+            | EntryKind::SelectName 
+            | EntryKind::SelectLabel
+            | EntryKind::SelectCategory
+            | EntryKind::SelectSubCategory => {
                 matches!(ch,
                     'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' ' | '^' | '$' | '.' | '*' | '/' | '{' | '}' | '[' | ']' | '(' | ')' | '\\' )
             }
@@ -229,7 +239,10 @@ impl Editor {
                 matches!(ch,
                 'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ':')
             }
-            EntryKind::FindAllTags | EntryKind::FindSomeTags => matches!(ch,
+            EntryKind::FindAllTags
+                | EntryKind::FindSomeTags 
+                | EntryKind::SelectAllTags
+                | EntryKind::SelectSomeTags => matches!(ch,
                 'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' ' | ',' ),
             EntryKind::Order => matches!(
                 ch,
@@ -254,6 +267,9 @@ impl Editor {
             ' ' if self.entry_kind == EntryKind::FindAllTags => self.input.push(','),
             ' ' if self.entry_kind == EntryKind::FindSomeTags => self.input.push(','),
             ' ' if self.entry_kind == EntryKind::FindSubCategory => self.input.push(','),
+            ' ' if self.entry_kind == EntryKind::SelectAllTags => self.input.push(','),
+            ' ' if self.entry_kind == EntryKind::SelectSomeTags => self.input.push(','),
+            ' ' if self.entry_kind == EntryKind::SelectSubCategory => self.input.push(','),
             ' ' => self.input.push('-'),
             c if self.entry_kind == EntryKind::Order => {
                 let order: Order = match c {
@@ -274,6 +290,19 @@ impl Editor {
                 self.enter();
             }
             c if self.entry_kind == EntryKind::Find => {
+                let criterion = match c {
+                    'a' => "AllTags",
+                    'b' => "SubCategory",
+                    'c' => "Category",
+                    'l' => "Label",
+                    'n' => "Name",
+                    's' => "SomeTags",
+                    _ => todo!(),
+                };
+                self.input = criterion.to_string();
+                self.enter();
+            }
+            c if self.entry_kind == EntryKind::Select => {
                 let criterion = match c {
                     'a' => "AllTags",
                     'b' => "SubCategory",

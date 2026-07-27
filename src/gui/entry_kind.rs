@@ -22,4 +22,11 @@ pub enum EntryKind {
     Rank,
     RemoveTag,
     Rename,
+    Select,
+    SelectCategory,
+    SelectLabel,
+    SelectName,
+    SelectSubCategory,
+    SelectAllTags,
+    SelectSomeTags,
 }

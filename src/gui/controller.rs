@@ -422,6 +422,19 @@ impl Controller {
                             };
                             self.set_opacity_for_current_picture(1.00);
                         }
+                        EntryKind::Select => {
+                            if !self.editor.input().is_empty() {
+                                match Find::from_str(&self.editor.input()) {
+                                    Ok(Find::Label) => self.enter_select_label(),
+                                    Ok(Find::Name) => self.enter_select_name(),
+                                    Ok(Find::Category) => self.enter_select_category(),
+                                    Ok(Find::SubCategory) => self.enter_select_sub_category(),
+                                    Ok(Find::SomeTags) => self.enter_select_tags(false),
+                                    Ok(Find::AllTags) => self.enter_select_tags(true),
+                                    _ => {}
+                                };
+                            }
+                        }
                         EntryKind::Find => {
                             if !self.editor.input().is_empty() {
                                 match Find::from_str(&self.editor.input()) {
@@ -508,6 +521,37 @@ impl Controller {
                             }
                         }
                         EntryKind::FindAllTags => {
+                            if !self.editor.input().is_empty() {
+                                self.find_first(&self.editor.input(), Find::AllTags)
+                            };
+                        }
+                        EntryKind::SelectName => {
+                            println!("foo");
+                            if !self.editor.input().is_empty() {
+                                self.select(&self.editor.input(), Find::Name);
+                            };
+                        }
+                        EntryKind::SelectLabel => {
+                            if !self.editor.input().is_empty() {
+                                self.select(&self.editor.input(), Find::Label);
+                            };
+                        }
+                        EntryKind::SelectCategory => {
+                            if !self.editor.input().is_empty() {
+                                self.select(&self.editor.input(), Find::Category);
+                            };
+                        }
+                        EntryKind::SelectSubCategory => {
+                            if !self.editor.input().is_empty() {
+                                self.select(&self.editor.input(), Find::SubCategory);
+                            };
+                        }
+                        EntryKind::SelectSomeTags => {
+                            if !self.editor.input().is_empty() {
+                                self.select(&self.editor.input(), Find::AllTags)
+                            }
+                        }
+                        EntryKind::SelectAllTags => {
                             if !self.editor.input().is_empty() {
                                 self.find_first(&self.editor.input(), Find::AllTags)
                             };
@@ -720,6 +764,37 @@ impl Controller {
         self.state.set_mode(Mode::FindingCategory);
     }
 
+    fn enter_select_label(&mut self) {
+        self.editor
+            .begin(&self.main_window(), EntryKind::SelectLabel, None);
+        self.state.set_mode(Mode::Editing);
+    }
+
+    fn enter_select_name(&mut self) {
+        self.editor
+            .begin(&self.main_window(), EntryKind::SelectName, None);
+        self.state.set_mode(Mode::Editing);
+    }
+
+    fn enter_select_category(&mut self) {
+        self.editor
+            .begin(&self.main_window(), EntryKind::SelectCategory, None);
+        self.state.set_mode(Mode::Editing);
+    }
+
+    fn enter_select_tags(&mut self, all_match: bool) {
+        let kind = if all_match {
+            EntryKind::SelectAllTags
+        } else {
+            EntryKind::SelectSomeTags
+        };
+        self.editor.begin(&self.main_window(), kind, None);
+        self.state.set_mode(Mode::Editing);
+    }
+    fn enter_select_sub_category(&mut self) {
+        self.set_category_selection();
+        self.state.set_mode(Mode::SelectingCategory);
+    }
     fn setting_mark(&mut self) {
         println!("Setting mark…");
         self.state.set_mode(Mode::Setting(Control::SetMark));
@@ -761,6 +836,7 @@ impl Controller {
             Control::Down => self.arrow_move(Direction::Down),
             Control::EnterChange => self.enter_editing(EntryKind::Change, None),
             Control::EnterFind => self.enter_editing(EntryKind::Find, None),
+            Control::EnterSelect => self.enter_editing(EntryKind::Select, None),
             Control::SetView => self.enter_editing(EntryKind::View, None),
             Control::EnterRank => self.enter_editing(EntryKind::Rank, None),
             Control::ExtractFileNames => self.extract_filenames(),
@@ -1570,6 +1646,10 @@ impl Controller {
                 }
             }
         }
+    }
+
+    fn select(&mut self, pattern: &str, find: Find) {
+        eprintln!("now selecting {} for {:?}", pattern, find)
     }
 
     fn find_first(&mut self, pattern: &str, find: Find) {

@@ -1,4 +1,3 @@
- use crate::file::paths::parent_directory;
 use crate::env::default_values::{
     COVER_SYMBOL, EXPAND_ON_SYMBOL, FULL_SIZE_ON_SYMBOL, ORDER_SYMBOL, PICTURE_SIZE_THRESHOLD,
     SMALL_PICTURE_SYMBOL,

@@ -21,6 +21,7 @@ pub enum Control {
     Down,
     EnterChange,
     EnterFind,
+    EnterSelect,
     SetView,
     EnterRank,
     ExtractFileNames,
@@ -96,7 +97,7 @@ pub fn help_on_controls() -> String {
         "n/p z/a Z/A: next/prev page, end/start of page, last/first page \n\
         return: set range start/end,  space: toggle in/out of range \n\
         esc $ ! _: cancel range, repeat range, whole range, page range\n\
-        f: find by pattern in name/label/category/tags n:find next \n\
+        /: find by pattern in name/label/category/tags n:find next \n\
         J: jump to picture #… \n\
         k then a,b,c,d,e : set mark A/B/C/D/E \n\
         j then a,b,c,d,e : jump to mark A/B/C/D/E \n
@@ -165,7 +166,8 @@ pub fn default_controls() -> Controls {
         ((String::from("k"), Mode::View), Control::SetMark),
         ((String::from("j"), Mode::View), Control::GotoMark),
         ((String::from("H"), Mode::View), Control::Help),
-        ((String::from("f"), Mode::View), Control::EnterFind),
+        ((String::from("slash"), Mode::View), Control::EnterFind),
+        ((String::from("asterisk"), Mode::View), Control::EnterSelect),
         ((String::from("F"), Mode::View), Control::FindNext),
         ((String::from("n"), Mode::View), Control::MoveNext),
         ((String::from("p"), Mode::View), Control::MovePrev),
