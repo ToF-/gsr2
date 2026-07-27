@@ -45,7 +45,7 @@ impl Editor {
         let prompt: &str = match entry_kind {
             EntryKind::Rename => "Enter a name for the selected picture",
             EntryKind::Change => {
-                "Enter what to change: C)ategory L)abel R)emove T)ag U)nlabel co(V)er on"
+                "Enter what to change: C)ategory L)abel N)ameR)emove T)ag U)nlabel co(V)er on"
             }
             EntryKind::Label => "Enter a label",
             EntryKind::AddTag => "Enter a new tag to add",
@@ -203,7 +203,7 @@ impl Editor {
         };
         let ch_is_ok = match self.entry_kind {
             EntryKind::Change => {
-                matches!(ch, 'c' | 'l' | 'r' | 't' | 'u' | 'v')
+                matches!(ch, 'c' | 'l' | 'n' | 'r' | 't' | 'u' | 'v')
             }
             EntryKind::Number => ch.is_ascii_digit(),
             EntryKind::DeleteConfirmation
