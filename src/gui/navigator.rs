@@ -11,9 +11,9 @@ pub struct Navigator {
     page_start: usize,
     page_end: usize,
     page_changed: bool,
-    range_start: Option<usize>,
-    range_end: Option<usize>,
-    range_opt: Option<(usize, usize)>,
+    selection_range_start: Option<usize>,
+    selection_range_end: Option<usize>,
+    selection_range_opt: Option<(usize, usize)>,
     selected_pictures: HashSet<usize>,
 }
 
@@ -27,9 +27,9 @@ impl Navigator {
             page_start: 0,
             page_end: 0,
             page_changed: false,
-            range_start: None,
-            range_end: None,
-            range_opt: None,
+            selection_range_start: None,
+            selection_range_end: None,
+            selection_range_opt: None,
             selected_pictures: HashSet::new(),
         };
         result.update_page_limits();
@@ -57,8 +57,8 @@ impl Navigator {
     }
 
     pub fn range(&self) -> Option<(usize, usize)> {
-        if let Some(start) = self.range_start()
-            && let Some(end) = self.range_end()
+        if let Some(start) = self.selection_range_start()
+            && let Some(end) = self.selection_range_end()
         {
             Some((start, end))
         } else {
@@ -89,29 +89,29 @@ impl Navigator {
         }
     }
 
-    pub fn range_start(&self) -> Option<usize> {
-        self.range_start
+    pub fn selection_range_start(&self) -> Option<usize> {
+        self.selection_range_start
     }
 
-    pub fn range_end(&self) -> Option<usize> {
-        self.range_end
+    pub fn selection_range_end(&self) -> Option<usize> {
+        self.selection_range_end
     }
 
-    pub fn set_range(&mut self, index: usize) {
+    pub fn set_selection_range(&mut self, index: usize) {
         if self.range().is_some() {
             self.cancel_range();
         }
-        if self.range_start.is_none() {
-            self.range_start = Some(index);
+        if self.selection_range_start.is_none() {
+            self.selection_range_start = Some(index);
             self.select(index);
         } else {
-            self.range_end = Some(index);
-            if self.range_end < self.range_start {
-                mem::swap(&mut self.range_start, &mut self.range_end)
+            self.selection_range_end = Some(index);
+            if self.selection_range_end < self.selection_range_start {
+                mem::swap(&mut self.selection_range_start, &mut self.selection_range_end)
             }
         };
         if let Some((start, end)) = self.range() {
-            self.range_opt = self.range();
+            self.selection_range_opt = self.range();
             self.selected_pictures.clear();
             for index in start..=end {
                 self.select(index)
@@ -119,31 +119,31 @@ impl Navigator {
         }
     }
 
-    pub fn set_range_all(&mut self) {
+    pub fn set_selection_range_all(&mut self) {
         let start = 0;
         let end = self.limit - 1;
-        self.range_start = Some(start);
-        self.range_end = Some(end);
-        self.range_opt = self.range();
+        self.selection_range_start = Some(start);
+        self.selection_range_end = Some(end);
+        self.selection_range_opt = self.range();
         for index in start..=end {
             self.select(index)
         }
     }
 
-    pub fn set_range_page(&mut self) {
+    pub fn set_selection_range_page(&mut self) {
         let start = self.page_start;
         let end = self.page_end;
-        self.range_start = Some(start);
-        self.range_end = Some(end);
-        self.range_opt = self.range();
+        self.selection_range_start = Some(start);
+        self.selection_range_end = Some(end);
+        self.selection_range_opt = self.range();
         for index in start..=end {
             self.select(index)
         }
     }
     pub fn repeat_range(&mut self) {
-        if let Some((start, end)) = self.range_opt {
-            self.range_start = Some(start);
-            self.range_end = Some(end);
+        if let Some((start, end)) = self.selection_range_opt {
+            self.selection_range_start = Some(start);
+            self.selection_range_end = Some(end);
             self.selected_pictures.clear();
             for index in start..=end {
                 self.select(index)
@@ -153,8 +153,8 @@ impl Navigator {
 
     pub fn cancel_range(&mut self) {
         self.selected_pictures.clear();
-        self.range_start = None;
-        self.range_end = None
+        self.selection_range_start = None;
+        self.selection_range_end = None
     }
 
     pub fn has_moved(&self) -> bool {
@@ -520,53 +520,53 @@ mod tests {
     #[test]
     fn navigator_can_define_a_range() {
         let mut navigator = Navigator::new(10, 2);
-        assert_eq!(None, navigator.range_start());
-        assert_eq!(None, navigator.range_end());
-        navigator.set_range(2);
-        assert_eq!(Some(2), navigator.range_start());
-        navigator.set_range(6);
-        assert_eq!(Some(6), navigator.range_end());
+        assert_eq!(None, navigator.selection_range_start());
+        assert_eq!(None, navigator.selection_range_end());
+        navigator.set_selection_range(2);
+        assert_eq!(Some(2), navigator.selection_range_start());
+        navigator.set_selection_range(6);
+        assert_eq!(Some(6), navigator.selection_range_end());
     }
 
     #[test]
     fn navigator_can_define_a_range_backwards() {
         let mut navigator = Navigator::new(10, 2);
-        assert_eq!(None, navigator.range_start());
-        assert_eq!(None, navigator.range_end());
-        navigator.set_range(6);
-        navigator.set_range(2);
-        assert_eq!(Some(2), navigator.range_start());
-        assert_eq!(Some(6), navigator.range_end());
+        assert_eq!(None, navigator.selection_range_start());
+        assert_eq!(None, navigator.selection_range_end());
+        navigator.set_selection_range(6);
+        navigator.set_selection_range(2);
+        assert_eq!(Some(2), navigator.selection_range_start());
+        assert_eq!(Some(6), navigator.selection_range_end());
     }
     #[test]
-    fn has_a_range_if_range_start_and_range_end_are_set() {
+    fn has_a_range_if_selection_range_start_and_selection_range_end_are_set() {
         let mut navigator = Navigator::new(10, 2);
         assert_eq!(None, navigator.range());
-        navigator.set_range(2);
+        navigator.set_selection_range(2);
         assert_eq!(None, navigator.range());
-        navigator.set_range(6);
+        navigator.set_selection_range(6);
         assert_eq!(Some((2, 6)), navigator.range());
     }
     #[test]
     fn starting_a_new_range_cancels_current_range() {
         let mut navigator = Navigator::new(10, 2);
-        assert_eq!(None, navigator.range_start());
-        assert_eq!(None, navigator.range_end());
-        navigator.set_range(6);
-        navigator.set_range(2);
+        assert_eq!(None, navigator.selection_range_start());
+        assert_eq!(None, navigator.selection_range_end());
+        navigator.set_selection_range(6);
+        navigator.set_selection_range(2);
         assert_eq!(Some((2, 6)), navigator.range());
-        navigator.set_range(4);
+        navigator.set_selection_range(4);
         assert_eq!(None, navigator.range());
     }
     #[test]
     fn can_cancel_a_range() {
         let mut navigator = Navigator::new(10, 2);
-        navigator.set_range(6);
-        navigator.set_range(2);
+        navigator.set_selection_range(6);
+        navigator.set_selection_range(2);
         assert_eq!(Some((2, 6)), navigator.range());
         navigator.cancel_range();
-        assert_eq!(None, navigator.range_start());
-        assert_eq!(None, navigator.range_end());
+        assert_eq!(None, navigator.selection_range_start());
+        assert_eq!(None, navigator.selection_range_end());
     }
 
     #[test]
@@ -582,9 +582,9 @@ mod tests {
     #[test]
     fn setting_a_range_selects_included_pictures() {
         let mut navigator = Navigator::new(10, 2);
-        navigator.set_range(6);
+        navigator.set_selection_range(6);
         assert!(navigator.is_selected(6));
-        navigator.set_range(2);
+        navigator.set_selection_range(2);
         navigator.select(9);
         assert!(!navigator.is_selected(1));
         assert!(navigator.is_selected(2));
@@ -598,8 +598,8 @@ mod tests {
     #[test]
     fn cancelling_a_range_unselects_included_pictures() {
         let mut navigator = Navigator::new(10, 2);
-        navigator.set_range(6);
-        navigator.set_range(2);
+        navigator.set_selection_range(6);
+        navigator.set_selection_range(2);
         navigator.cancel_range();
         assert!(!navigator.is_selected(2));
         assert!(!navigator.is_selected(3));
@@ -610,8 +610,8 @@ mod tests {
     #[test]
     fn unselect_all_cancel_ranges_and_selected_pictures() {
         let mut navigator = Navigator::new(10, 2);
-        navigator.set_range(6);
-        navigator.set_range(2);
+        navigator.set_selection_range(6);
+        navigator.set_selection_range(2);
         navigator.select(9);
         navigator.unselect_all();
         assert_eq!(None, navigator.range());
@@ -620,8 +620,8 @@ mod tests {
     #[test]
     fn can_yield_an_ordered_list_of_selected_pictures() {
         let mut navigator = Navigator::new(10, 2);
-        navigator.set_range(6);
-        navigator.set_range(2);
+        navigator.set_selection_range(6);
+        navigator.set_selection_range(2);
         assert_eq!(vec![2, 3, 4, 5, 6], navigator.selection());
     }
 }

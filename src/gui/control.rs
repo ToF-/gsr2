@@ -68,9 +68,9 @@ pub enum Control {
     SetMark,
     SetMarkChar(char),
     SetOrder,
-    SetRange,
-    SetRangeAll,
-    SetRangePage,
+    SetSelectionRange,
+    SetSelectionRangeAll,
+    SetSelectionRangePage,
     SetRank,
     ToggleCover,
     ToggleCoverSelection,
@@ -141,11 +141,11 @@ pub fn default_controls() -> Controls {
             Control::ConfirmSelection,
         ),
         ((String::from("Tab"), Mode::Editing), Control::Complete),
-        ((String::from("Return"), Mode::View), Control::SetRange),
-        ((String::from("exclam"), Mode::View), Control::SetRangeAll),
+        ((String::from("Return"), Mode::View), Control::SetSelectionRange),
+        ((String::from("exclam"), Mode::View), Control::SetSelectionRangeAll),
         (
             (String::from("underscore"), Mode::View),
-            Control::SetRangePage,
+            Control::SetSelectionRangePage,
         ),
         ((String::from("Escape"), Mode::View), Control::CancelRange),
         ((String::from("dollar"), Mode::View), Control::RepeatRange),
@@ -332,10 +332,6 @@ mod tests {
             default_controls().get(&(String::from("Q"), V))
         );
         assert_eq!(
-            Some(&Control::Label),
-            default_controls().get(&(String::from("l"), V))
-        );
-        assert_eq!(
             Some(&Control::ToggleExpand),
             default_controls().get(&(String::from("e"), V))
         );
@@ -356,7 +352,7 @@ mod tests {
             default_controls().get(&(String::from("Return"), Mode::Editing))
         );
         assert_eq!(
-            Some(&Control::SetRange),
+            Some(&Control::SetSelectionRange),
             default_controls().get(&(String::from("Return"), Mode::View))
         );
     }

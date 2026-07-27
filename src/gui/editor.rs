@@ -518,7 +518,7 @@ mod tests {
      {
         let mut editor = Editor::new();
         editor.begin_input(
-            EntryKind::FindTags,
+            EntryKind::FindAllTags,
             Some(tags_from_str("bar,foo,qux,zone,zoo")),
         );
         editor.append('b');
