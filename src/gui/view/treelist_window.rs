@@ -1,4 +1,4 @@
-   use gtk::prelude::ObjectExt;
+
 use crate::env::default_values::{TREELIST_WINDOW_HEIGHT, TREELIST_WINDOW_WIDTH};
 use crate::gui::controller::RcController;
 use crate::gui::event::Event;
@@ -16,6 +16,7 @@ use gtk::glib::{Propagation, clone};
 use gtk::prelude::BoxExt;
 use gtk::prelude::GtkWindowExt;
 use gtk::prelude::ListItemExt;
+use gtk::prelude::ObjectExt;
 #[allow(deprecated)]
 use gtk::prelude::StyleContextExt;
 use gtk::prelude::WidgetExt;

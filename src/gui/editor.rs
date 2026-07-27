@@ -212,7 +212,7 @@ impl Editor {
                 matches!(ch, 'e' | 'n' | 'o' | 's' | 'y')
             }
             EntryKind::Find => {
-                matches!(ch, 'a' | 'b' | 'c' | 'l' | 'n' | 's' )
+                matches!(ch, 'a' | 'b' | 'c' | 'l' | 'n' | 's')
             }
             EntryKind::FindName
             | EntryKind::FindLabel
@@ -235,7 +235,10 @@ impl Editor {
                 ch,
                 'a' | 'c' | 'd' | 'p' | 'm' | 'l' | 'n' | 'o' | 'r' | 's' | 'v'
             ),
-            EntryKind::View => matches!(ch, '1' | '2' | '3' | '4' | '5' | 't' | 'c' | 'd' | 'p' | 's' ),
+            EntryKind::View => matches!(
+                ch,
+                '1' | '2' | '3' | '4' | '5' | 't' | 'c' | 'd' | 'p' | 's'
+            ),
             EntryKind::Rank => matches!(ch, '0' | '1' | '2' | '3'),
             EntryKind::Information | EntryKind::Help => false,
         };

@@ -826,6 +826,7 @@ impl Controller {
             Control::SetRangeAll => self.set_range_all(),
             Control::SetRangePage => self.set_range_page(),
             Control::ToggleCover => self.toggle_cover(),
+            Control::ToggleThumbView => self.toggle_thumbview(),
             Control::ToggleCoverSelection => self.toggle_cover_selection(),
             Control::ToggleExpand => self.toggle_expand(),
             Control::ToggleFullSize => self.toggle_full_size(),
@@ -886,6 +887,14 @@ impl Controller {
         }
     }
 
+    fn toggle_thumbview(&mut self) {
+        println!("{:?}", self.state());
+        if self.state().pictures_per_row() != 10 {
+            self.change_grid_size(10)
+        } else {
+            self.toggle_back_grid_size()
+        }
+    }
     fn toggle_cover(&mut self) {
         println!("toggle cover");
         let index = self.navigator().position();
@@ -944,7 +953,6 @@ impl Controller {
             }
         }
     }
-
 
     fn cancel_selection_criteria(&mut self) {
         let current_file_path = self.current_picture().file_path();
@@ -1010,8 +1018,10 @@ impl Controller {
                 .begin(&self.main_window(), EntryKind::Rename, None);
             self.state.set_mode(Mode::Editing);
         } else {
-            self.editor.begin(&self.main_window(), EntryKind::Help, None);
-            self.editor.set_input("Select the picture you want to rename first");
+            self.editor
+                .begin(&self.main_window(), EntryKind::Help, None);
+            self.editor
+                .set_input("Select the picture you want to rename first");
             self.state.set_mode(Mode::Editing);
         }
     }
@@ -1322,13 +1332,27 @@ impl Controller {
     }
 
     fn change_grid_size(&mut self, pictures_per_row: usize) {
-            self.state.change_grid_size(pictures_per_row);
-            self.main_window().change_grid_size(pictures_per_row);
-            let navigator = &mut self.navigator;
-            navigator.set_pictures_per_row(self.state.pictures_per_row());
-            navigator.update_page_limits();
-            navigator.set_page_changed();
-            self.acknowledge_grid_size_change();
+        let mut state = self.state();
+        state.change_grid_size(pictures_per_row);
+        self.state = state;
+        self.main_window()
+            .change_grid_size(self.state().pictures_per_row());
+        let navigator = &mut self.navigator;
+        navigator.set_pictures_per_row(self.state.pictures_per_row());
+        navigator.update_page_limits();
+        navigator.set_page_changed();
+    }
+
+    fn toggle_back_grid_size(&mut self) {
+        let mut state = self.state();
+        state.toggle_back_grid_size();
+        self.state = state;
+        self.main_window()
+            .change_grid_size(self.state().pictures_per_row());
+        let navigator = &mut self.navigator;
+        navigator.set_pictures_per_row(self.state.pictures_per_row());
+        navigator.update_page_limits();
+        navigator.set_page_changed();
     }
 
     fn set_range(&mut self) {
@@ -1581,7 +1605,7 @@ impl Controller {
     fn confirm_view(&mut self, input: &str) {
         if !input.is_empty() {
             match input {
-                "1"|"2"|"3"|"4"|"5" => self.change_grid_size(input.parse().unwrap()),
+                "1" | "2" | "3" | "4" | "5" => self.change_grid_size(input.parse().unwrap()),
                 "Thumbs" => self.change_grid_size(10),
                 "Covers" => self.toggle_cover_selection(),
                 "Date" => self.process_control(&Control::DisplayDate),
