@@ -60,10 +60,9 @@ pub fn picture_label_display(
 }
 
 fn directory_display(controller: &Controller) -> String {
-    if controller.state().has_saved_args() {
-        format!("[{}]", parent_directory(&controller.current_picture().file_path()).unwrap())
-    } else {
-        "".to_string()
+    match controller.state().directory() {
+        Some(directory) => format!("[{}]", directory),
+            None => "".to_string(),
     }
 }
 fn cover_display(cover: Cover) -> String {

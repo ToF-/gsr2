@@ -849,7 +849,7 @@ impl Controller {
             && !self.state.single_view() {
             self.args.index = Some(self.navigator.position());
             let args = self.args.clone();
-            self.state.push_current_args(args.clone());
+            self.state.push_saved_args(args.clone(), &directory);
             let new_args = Args {
                 directory: Some(directory),
                 cover: false,

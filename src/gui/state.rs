@@ -17,6 +17,7 @@ pub struct State {
     focus_symbol: char,
     change_focus_symbol_on: bool,
     saved_args: Option<(usize, Args)>,
+    directory: Option<String>,
 }
 
 impl State {
@@ -35,19 +36,26 @@ impl State {
             focus_symbol: FOCUS_SYMBOL_1,
             change_focus_symbol_on: true,
             saved_args: None,
+            directory: None,
         }
     }
 
-    pub fn push_current_args(&mut self, args: Args) {
+    pub fn push_saved_args(&mut self, args: Args, directory: &str) {
         if self.saved_args.is_none() {
             self.saved_args = Some((self.pictures_per_row, args));
+            self.directory = Some(directory.to_string());
         }
     }
 
     pub fn pop_saved_args(&mut self) -> Option<(usize, Args)> {
         let result = self.saved_args.clone();
         self.saved_args = None;
+        self.directory = None;
         result
+    }
+    
+    pub fn directory(&self) -> Option<String> {
+        self.directory.clone()
     }
 
     pub fn has_saved_args(&self) -> bool {
