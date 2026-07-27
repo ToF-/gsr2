@@ -127,7 +127,12 @@ impl State {
     }
 
     pub fn toggle_single_view(&mut self) {
-        self.single_view = !self.single_view
+        self.single_view = !self.single_view;
+        if self.single_view {
+            self.change_grid_size(1)
+        } else {
+            self.toggle_back_grid_size()
+        };
     }
 
     pub fn toggle_slideshow(&mut self) {
@@ -149,7 +154,7 @@ impl State {
         let current = self.pictures_per_row;
         self.pictures_per_row = self.old_pictures_per_row;
         self.old_pictures_per_row = current;
-        self.single_view = false
+        self.single_view = self.pictures_per_row == 1;
     }
 
     pub fn change_grid_size(&mut self, pictures_per_row: usize) {
@@ -157,7 +162,7 @@ impl State {
             self.old_pictures_per_row = self.pictures_per_row;
             self.pictures_per_row = pictures_per_row
         };
-        self.single_view = false
+        self.single_view = pictures_per_row == 1;
     }
 
     pub fn display_date_on(&self) -> bool {

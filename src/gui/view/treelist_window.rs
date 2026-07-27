@@ -1,4 +1,3 @@
-
 use crate::env::default_values::{TREELIST_WINDOW_HEIGHT, TREELIST_WINDOW_WIDTH};
 use crate::gui::controller::RcController;
 use crate::gui::event::Event;

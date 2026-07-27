@@ -887,16 +887,27 @@ impl Controller {
         }
     }
 
-    fn toggle_thumbview(&mut self) {
-        println!("{:?}", self.state());
-        if self.state().pictures_per_row() != 10 {
-            self.change_grid_size(10)
-        } else {
-            self.toggle_back_grid_size()
+    fn toggle_single_view(&mut self) {
+        let mut state = self.state();
+        state.toggle_single_view();
+        if state.full_size_on() {
+            state.toggle_full_size()
         }
+        self.state = state;
+        self.change_grid_size(self.state().pictures_per_row());
+    }
+
+    fn toggle_thumbview(&mut self) {
+        let mut state = self.state();
+        if state.pictures_per_row() != 10 {
+            state.change_grid_size(10)
+        } else {
+            state.toggle_back_grid_size()
+        };
+        self.state = state;
+        self.change_grid_size(self.state().pictures_per_row());
     }
     fn toggle_cover(&mut self) {
-        println!("toggle cover");
         let index = self.navigator().position();
         let counts = self.repository.directory_count_at_index(index);
         let mut picture = self.repository.picture_at(index);
@@ -1229,20 +1240,6 @@ impl Controller {
         }
     }
 
-    fn toggle_single_view(&mut self) {
-        self.state.toggle_single_view();
-        if self.state.full_size_on() {
-            self.state.toggle_full_size()
-        }
-        let navigator = &mut self.navigator;
-        if self.state.single_view() {
-            navigator.set_pictures_per_row(1);
-        } else {
-            navigator.set_pictures_per_row(self.state.pictures_per_row());
-        }
-        navigator.set_page_changed();
-    }
-
     fn toggle_expand(&mut self) {
         if self.state.single_view() {
             self.state.toggle_expand();
@@ -1334,25 +1331,29 @@ impl Controller {
     fn change_grid_size(&mut self, pictures_per_row: usize) {
         let mut state = self.state();
         state.change_grid_size(pictures_per_row);
-        self.state = state;
-        self.main_window()
-            .change_grid_size(self.state().pictures_per_row());
+        self.state = state.clone();
+        self.apply_grid_size_change(state);
+    }
+
+    fn apply_grid_size_change(&mut self, state: State) {
+        {
         let navigator = &mut self.navigator;
         navigator.set_pictures_per_row(self.state.pictures_per_row());
         navigator.update_page_limits();
         navigator.set_page_changed();
+        self.navigator = navigator.clone();
+        let state = self.state.clone();
+        }
+        self.main_window().change_grid_size(state.pictures_per_row());
     }
 
     fn toggle_back_grid_size(&mut self) {
+        {
         let mut state = self.state();
         state.toggle_back_grid_size();
         self.state = state;
-        self.main_window()
-            .change_grid_size(self.state().pictures_per_row());
-        let navigator = &mut self.navigator;
-        navigator.set_pictures_per_row(self.state.pictures_per_row());
-        navigator.update_page_limits();
-        navigator.set_page_changed();
+        }
+        self.apply_grid_size_change(self.state.clone());
     }
 
     fn set_range(&mut self) {
