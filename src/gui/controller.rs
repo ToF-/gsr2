@@ -386,7 +386,7 @@ impl Controller {
                 if !self.selector.selecting() {
                     self.state.set_mode(Mode::View);
                     if !self.selector.selected().is_empty() {
-                        let category_name  = self.selector.selected();
+                        let category_name = self.selector.selected();
                         self.find_first(&category_name, Find::SubCategory)
                     }
                 }
@@ -843,7 +843,8 @@ impl Controller {
     }
 
     fn go_to_directory(&mut self) {
-        if let Some(directory) = parent_directory(&self.current_picture().file_path())
+        if self.args.cover
+            && let Some(directory) = parent_directory(&self.current_picture().file_path())
             && Some(directory.clone()) != self.args.directory
             && !self.state.single_view()
         {
@@ -928,38 +929,42 @@ impl Controller {
 
     fn toggle_cover_selection(&mut self) {
         println!("toggle cover selection");
-        if !self.args.cover && self.repository.covers() > 0 {
-            let new_args = Args {
-                cover: true,
-                ..self.args.clone()
-            };
-            self.args = new_args;
-            match self.repository.initialize_for_args(&self.args) {
-                Ok(_) => match self.reload() {
-                    Ok(0) => {
-                        self.toggle_cover_selection();
-                    }
-                    Ok(_) => {}
+        if !self.state.has_saved_args() {
+            if !self.args.cover && self.repository.covers() > 0 {
+                let new_args = Args {
+                    cover: true,
+                    ..self.args.clone()
+                };
+                self.args = new_args;
+                match self.repository.initialize_for_args(&self.args) {
+                    Ok(_) => match self.reload() {
+                        Ok(0) => {
+                            self.toggle_cover_selection();
+                        }
+                        Ok(_) => {}
+                        Err(e) => panic!("{}", e),
+                    },
                     Err(e) => panic!("{}", e),
-                },
-                Err(e) => panic!("{}", e),
-            }
-        } else if self.args.cover {
-            let new_args = Args {
-                cover: false,
-                ..self.args.clone()
-            };
-            self.args = new_args;
-            match self.repository.initialize_for_args(&self.args) {
-                Ok(_) => match self.reload() {
-                    Ok(0) => {
-                        self.toggle_cover_selection();
-                    }
-                    Ok(_) => {}
+                }
+            } else if self.args.cover {
+                let new_args = Args {
+                    cover: false,
+                    ..self.args.clone()
+                };
+                self.args = new_args;
+                match self.repository.initialize_for_args(&self.args) {
+                    Ok(_) => match self.reload() {
+                        Ok(0) => {
+                            self.toggle_cover_selection();
+                        }
+                        Ok(_) => {}
+                        Err(e) => panic!("{}", e),
+                    },
                     Err(e) => panic!("{}", e),
-                },
-                Err(e) => panic!("{}", e),
+                }
             }
+        } else {
+            eprintln!("cannot toggle cover selection while in a directory");
         }
     }
 
@@ -1154,7 +1159,6 @@ impl Controller {
             println!("no picture with mark {}", mark);
         }
     }
-
 
     fn quit(&mut self) {
         if self.state.has_saved_args() {

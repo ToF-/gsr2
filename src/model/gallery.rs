@@ -256,16 +256,16 @@ impl Default for Gallery {
 mod tests {
 
     use super::*;
-    use std::sync::Arc;
     use crate::env::default_values::TEST_DATABASE_FILE;
     use crate::file::database::Database;
     use crate::file::database::tests::{dummy_args, my_args, my_db};
     use crate::file::paths::test::current_directory;
+    use crate::model::finder::Predicate;
     use crate::test_data;
     use crate::test_data::*;
     use serial_test::serial;
     use std::env::current_dir;
-    use crate::model::finder::Predicate;
+    use std::sync::Arc;
 
     #[test]
     #[serial]

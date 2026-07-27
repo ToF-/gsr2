@@ -122,7 +122,7 @@ impl State {
     }
 
     pub fn toggle_single_view(&mut self) {
-        if self.pictures_per_row !=1 {
+        if self.pictures_per_row != 1 {
             self.change_grid_size(1)
         } else {
             self.toggle_back_grid_size()

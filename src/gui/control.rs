@@ -141,8 +141,14 @@ pub fn default_controls() -> Controls {
             Control::ConfirmSelection,
         ),
         ((String::from("Tab"), Mode::Editing), Control::Complete),
-        ((String::from("Return"), Mode::View), Control::SetSelectionRange),
-        ((String::from("exclam"), Mode::View), Control::SetSelectionRangeAll),
+        (
+            (String::from("Return"), Mode::View),
+            Control::SetSelectionRange,
+        ),
+        (
+            (String::from("exclam"), Mode::View),
+            Control::SetSelectionRangeAll,
+        ),
         (
             (String::from("underscore"), Mode::View),
             Control::SetSelectionRangePage,

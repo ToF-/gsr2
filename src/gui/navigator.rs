@@ -107,7 +107,10 @@ impl Navigator {
         } else {
             self.selection_range_end = Some(index);
             if self.selection_range_end < self.selection_range_start {
-                mem::swap(&mut self.selection_range_start, &mut self.selection_range_end)
+                mem::swap(
+                    &mut self.selection_range_start,
+                    &mut self.selection_range_end,
+                )
             }
         };
         if let Some((start, end)) = self.range() {
