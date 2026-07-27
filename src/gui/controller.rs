@@ -1648,12 +1648,15 @@ impl Controller {
         }
     }
 
-    fn select(&mut self, pattern: &str, find: Find) {
-        eprintln!("now selecting {} for {:?}", pattern, find)
+    fn find_first(&mut self, pattern: &str, find: Find) {
+        self.apply_pattern(pattern, find, false)
     }
 
-    fn find_first(&mut self, pattern: &str, find: Find) {
-        println!("find_first {:?} for {}", find, pattern);
+    fn select(&mut self, pattern: &str, find: Find) {
+        self.apply_pattern(pattern, find, true)
+    }
+
+    fn apply_pattern(&mut self, pattern: &str, find: Find, for_selection: bool) {
         match Regex::new(pattern) {
             Ok(re) => {
                 let predicate = match find {

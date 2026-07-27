@@ -2,9 +2,10 @@
 ## Gallery Show in Rust
 
 ## Todo
-- [ ] extend category selection window
-- [ ] when args contains -c retrieve picture on index category
-- [ ] use template and `sed` to get portable configuration and testdata
+- [ ] repository can be initialized from args + a predicate, which is used by select command
+- [X] extend category selection window
+- [X] when args contains -c retrieve picture on index category
+- [X] use template and `sed` to get portable configuration and testdata
 - [X] extract file names to a extraction file giving it a name
 - [X] the ratio cutoff in color filter has a minus sign to mean : ratio must be lower 
 - [X] filter option analyse if colors in picture match the filter 
