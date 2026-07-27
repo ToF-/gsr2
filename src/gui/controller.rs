@@ -386,8 +386,8 @@ impl Controller {
                 if !self.selector.selecting() {
                     self.state.set_mode(Mode::View);
                     if !self.selector.selected().is_empty() {
-                        let category: Category = Some(self.selector.selected());
-                        self.find_first(&category.unwrap(), Find::SubCategory)
+                        let category_name  = self.selector.selected();
+                        self.find_first(&category_name, Find::SubCategory)
                     }
                 }
             }
@@ -978,20 +978,6 @@ impl Controller {
         self.navigator.set_page_changed();
     }
 
-    fn apply_selection_criteria(&mut self, selection_str: &str) {
-        self.repository
-            .set_selection_criteria(SelectionCriteria::from(selection_str, false));
-        self.navigator.move_towards(Direction::First);
-        self.navigator.set_page_changed();
-    }
-
-    fn apply_restriction_criteria(&mut self, selection_str: &str) {
-        self.repository
-            .set_selection_criteria(SelectionCriteria::from(selection_str, true));
-        self.navigator.move_towards(Direction::First);
-        self.navigator.set_page_changed();
-    }
-
     fn add_tag(&mut self) {
         self.set_opacity_for_current_picture(0.25);
         self.editor.begin(
@@ -1135,15 +1121,6 @@ impl Controller {
         self.state.set_mode(Mode::Editing);
     }
 
-    fn find_label(&mut self) {
-        self.editor.begin(
-            &self.main_window(),
-            EntryKind::FindLabel,
-            Some(self.repository.all_labels()),
-        );
-        self.state.set_mode(Mode::Editing);
-    }
-
     fn information(&mut self) {
         self.editor
             .begin(&self.main_window(), EntryKind::Information, None);
@@ -1180,30 +1157,6 @@ impl Controller {
         }
     }
 
-    fn find_pattern(&mut self, pattern: &str, in_label: bool) {
-        match Regex::new(pattern) {
-            Ok(re) => {
-                if let Ok(gallery) = self.repository.gallery_rc().try_borrow() {
-                    if let Some(index) = gallery.pictures().iter().position(|picture| {
-                        if in_label {
-                            re.is_match(&picture.label())
-                        } else {
-                            re.is_match(&picture.file_path())
-                        }
-                    }) {
-                        let navigator = &mut self.navigator;
-                        navigator.move_towards(Direction::Index { value: index });
-                        navigator.set_page_changed()
-                    };
-                } else {
-                    panic!("can't borrow")
-                }
-            }
-            Err(e) => {
-                eprintln!("{}", e);
-            }
-        }
-    }
 
     fn quit(&mut self) {
         if self.state.has_saved_args() {
@@ -1339,11 +1292,6 @@ impl Controller {
         self.navigator.update_page_limits();
         self.navigator.set_page_changed();
         self.main_window().change_grid_size(pictures_per_row);
-    }
-
-    fn toggle_back_grid_size(&mut self) {
-        self.state.toggle_back_grid_size();
-        self.apply_grid_size_change();
     }
 
     fn set_selection_range(&mut self) {
@@ -1536,10 +1484,6 @@ impl Controller {
         }
     }
 
-    fn acknowledge_grid_size_change(&mut self) {
-        self.state.acknowledge_grid_size_change();
-    }
-
     fn arrow_move(&mut self, direction: Direction) {
         if self.state().single_view() && self.state().full_size_on() {
             self.full_size_arrow_move(direction)
@@ -1608,10 +1552,6 @@ impl Controller {
         }
     }
 
-    fn setting_rank(&self) {
-        todo!()
-    }
-
     fn confirm_rank(&mut self, input: &str) {
         if !input.is_empty() {
             match input.parse() {
@@ -1674,8 +1614,8 @@ impl Controller {
                     }
                 };
                 if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut() {
-                    let mut finder = &mut gallery.finder;
-                    if let Some(index) = finder.first(predicate) {
+                    let finder = &mut gallery.finder;
+                    if let Some(index) = finder.find_first(predicate) {
                         let navigator = &mut self.navigator;
                         navigator.move_towards(Direction::Index { value: index });
                         navigator.set_page_changed();
@@ -1696,7 +1636,7 @@ impl Controller {
     fn find_next(&mut self) {
         println!("find_next");
         if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut() {
-            if let Some(index) = gallery.finder.next() {
+            if let Some(index) = gallery.finder.find_next() {
                 let navigator = &mut self.navigator;
                 navigator.move_towards(Direction::Index { value: index });
                 navigator.set_page_changed()

@@ -2,7 +2,6 @@ use crate::file::paths::parent_directory;
 use crate::file::picture_file::{get_all_picture_file_paths, get_picture_file_path};
 use crate::model::cover::cover_sort_key;
 use crate::model::finder::Finder;
-use crate::model::finder::Predicate;
 use crate::model::label::sort_key;
 use crate::model::order::Order;
 use crate::model::picture::Picture;
@@ -14,7 +13,6 @@ use std::cmp::Reverse;
 use std::collections::BTreeSet;
 use std::collections::HashMap;
 use std::io::Result;
-use std::sync::Arc;
 
 #[derive(Debug, Clone)]
 pub struct Gallery {
@@ -258,6 +256,7 @@ impl Default for Gallery {
 mod tests {
 
     use super::*;
+    use std::sync::Arc;
     use crate::env::default_values::TEST_DATABASE_FILE;
     use crate::file::database::Database;
     use crate::file::database::tests::{dummy_args, my_args, my_db};
@@ -266,6 +265,7 @@ mod tests {
     use crate::test_data::*;
     use serial_test::serial;
     use std::env::current_dir;
+    use crate::model::finder::Predicate;
 
     #[test]
     #[serial]
@@ -351,22 +351,22 @@ mod tests {
         let predicate: Predicate = Predicate {
             function: Arc::new(move |picture: &Picture| picture.file_name().contains(ch)),
         };
-        let p = gallery.finder.first(predicate);
+        let p = gallery.finder.find_first(predicate);
         assert!(p.is_some());
         assert_eq!(
             "large_picture.png",
             gallery.pictures()[p.unwrap()].file_name()
         );
-        let p = gallery.finder.next();
+        let p = gallery.finder.find_next();
         assert!(p.is_some());
         assert_eq!(
             "nine_colors.png",
             gallery.pictures()[p.unwrap()].file_name()
         );
-        let p = gallery.finder.next();
+        let p = gallery.finder.find_next();
         assert!(p.is_some());
         assert_eq!("single_dot.png", gallery.pictures()[p.unwrap()].file_name());
-        let p = gallery.finder.next();
+        let p = gallery.finder.find_next();
         assert!(p.is_none());
     }
 }

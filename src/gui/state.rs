@@ -151,10 +151,9 @@ impl State {
     }
 
     pub fn toggle_back_grid_size(&mut self) {
-        let current = self.pictures_per_row;
-        self.pictures_per_row = self.old_pictures_per_row;
-        self.old_pictures_per_row = current;
+        std::mem::swap(&mut self.pictures_per_row, &mut self.old_pictures_per_row);
         self.single_view = self.pictures_per_row == 1;
+
     }
 
     pub fn change_grid_size(&mut self, pictures_per_row: usize) {

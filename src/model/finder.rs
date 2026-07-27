@@ -46,17 +46,17 @@ impl Finder {
         self.predicate.is_some()
     }
 
-    pub fn first(&mut self, predicate: Predicate) -> Option<usize> {
+    pub fn find_first(&mut self, predicate: Predicate) -> Option<usize> {
         self.predicate = Some(predicate);
-        self.first_from_index(0)
+        self.find_first_from_index(0)
     }
 
-    pub fn first_from_index(&mut self, start: usize) -> Option<usize> {
+    pub fn find_first_from_index(&mut self, start: usize) -> Option<usize> {
         self.position = start;
-        self.next()
+        self.find_next()
     }
 
-    pub fn next(&mut self) -> Option<usize> {
+    pub fn find_next(&mut self) -> Option<usize> {
         let predicate_opt = &<std::option::Option<Predicate> as Clone>::clone(&self.predicate);
         match predicate_opt {
             Some(predicate) => {
@@ -64,7 +64,7 @@ impl Finder {
                 let old_position = self.position;
                 let index = self.items[self.position..]
                     .iter()
-                    .position(|item| function(&item))
+                    .position(|item| function(item))
                     .map(|i| self.position + i)?;
 
                 self.position = index + 1;

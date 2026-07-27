@@ -271,7 +271,7 @@ impl Editor {
                     _ => todo!(),
                 };
                 self.input = format!("{}", order);
-                let _ = self.enter();
+                self.enter();
             }
             c if self.entry_kind == EntryKind::Find => {
                 let criterion = match c {
@@ -283,8 +283,8 @@ impl Editor {
                     's' => "SomeTags",
                     _ => todo!(),
                 };
-                self.input = format!("{}", criterion);
-                let _ = self.enter();
+                self.input = criterion.to_string();
+                self.enter();
             }
             c if self.entry_kind == EntryKind::Change => {
                 let change = match c {
@@ -297,8 +297,8 @@ impl Editor {
                     'v' => "Cover",
                     _ => todo!(),
                 };
-                self.input = format!("{}", change);
-                let _ = self.enter();
+                self.input = change.to_string();
+                self.enter();
             }
             c if self.entry_kind == EntryKind::View => {
                 let view = match c {
@@ -316,7 +316,7 @@ impl Editor {
                     _ => todo!(),
                 };
                 self.input = view.to_string();
-                let _ = self.enter();
+                self.enter();
             }
             other if other.is_ascii() => self.input.push(other.to_lowercase().next().unwrap()),
             other => self.input.push(other),

@@ -15,7 +15,6 @@ use gtk::glib::{Propagation, clone};
 use gtk::prelude::BoxExt;
 use gtk::prelude::GtkWindowExt;
 use gtk::prelude::ListItemExt;
-use gtk::prelude::ObjectExt;
 #[allow(deprecated)]
 use gtk::prelude::StyleContextExt;
 use gtk::prelude::WidgetExt;

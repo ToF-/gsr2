@@ -72,8 +72,6 @@ impl Picture {
             Some(n) => {
                 if n < 1_024 {
                     format!("{}", n)
-                } else if n < 1_048_576 {
-                    format!("{}K", n / 1_024)
                 } else if n < 1_073_741_824 {
                     format!("{}K", n / 1_024)
                 } else {
