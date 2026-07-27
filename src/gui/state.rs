@@ -6,7 +6,6 @@ use crate::gui::mode::Mode;
 pub struct State {
     pictures_per_row: usize,
     old_pictures_per_row: usize,
-    single_view: bool,
     expand_on: bool,
     full_size_on: bool,
     slideshow_on: bool,
@@ -17,7 +16,7 @@ pub struct State {
     mode: Mode,
     focus_symbol: char,
     change_focus_symbol_on: bool,
-    saved_args: Option<(usize, bool, Args)>,
+    saved_args: Option<(usize, Args)>,
 }
 
 impl State {
@@ -25,7 +24,6 @@ impl State {
         State {
             pictures_per_row,
             old_pictures_per_row: 1,
-            single_view: pictures_per_row == 1,
             expand_on: false,
             full_size_on: false,
             slideshow_on,
@@ -42,11 +40,11 @@ impl State {
 
     pub fn push_current_args(&mut self, args: Args) {
         if self.saved_args.is_none() {
-            self.saved_args = Some((self.pictures_per_row, self.single_view, args));
+            self.saved_args = Some((self.pictures_per_row, args));
         }
     }
 
-    pub fn pop_saved_args(&mut self) -> Option<(usize, bool, Args)> {
+    pub fn pop_saved_args(&mut self) -> Option<(usize, Args)> {
         let result = self.saved_args.clone();
         self.saved_args = None;
         result
@@ -88,9 +86,6 @@ impl State {
         }
     }
 
-    pub fn set_single_view(&mut self, single_view: bool) {
-        self.single_view = single_view
-    }
     pub fn set_mode(&mut self, mode: Mode) {
         self.mode = mode
     }
@@ -115,7 +110,7 @@ impl State {
     }
 
     pub fn single_view(&self) -> bool {
-        self.single_view
+        self.pictures_per_row == 1
     }
 
     pub fn expand_on(&self) -> bool {
@@ -127,8 +122,7 @@ impl State {
     }
 
     pub fn toggle_single_view(&mut self) {
-        self.single_view = !self.single_view;
-        if self.single_view {
+        if self.pictures_per_row !=1 {
             self.change_grid_size(1)
         } else {
             self.toggle_back_grid_size()
@@ -152,8 +146,6 @@ impl State {
 
     pub fn toggle_back_grid_size(&mut self) {
         std::mem::swap(&mut self.pictures_per_row, &mut self.old_pictures_per_row);
-        self.single_view = self.pictures_per_row == 1;
-
     }
 
     pub fn change_grid_size(&mut self, pictures_per_row: usize) {
@@ -161,7 +153,6 @@ impl State {
             self.old_pictures_per_row = self.pictures_per_row;
             self.pictures_per_row = pictures_per_row
         };
-        self.single_view = pictures_per_row == 1;
     }
 
     pub fn display_date_on(&self) -> bool {

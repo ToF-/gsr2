@@ -867,11 +867,10 @@ impl Controller {
     }
 
     fn back_from_directory(&mut self) {
-        if let Some((pictures_per_row, single_view, old_args)) = self.state.pop_saved_args() {
+        if let Some((pictures_per_row, old_args)) = self.state.pop_saved_args() {
             self.args = old_args.clone();
             match self.repository.initialize_for_args(&old_args) {
                 Ok(()) => {
-                    self.state.set_single_view(single_view);
                     self.change_grid_size(pictures_per_row);
                     let _ = self.reload();
                     if let Some(index) = self.args.index
@@ -888,12 +887,11 @@ impl Controller {
     }
 
     fn toggle_single_view(&mut self) {
-        let mut state = self.state();
+        let state = &mut self.state;
         state.toggle_single_view();
         if state.full_size_on() {
             state.toggle_full_size()
         }
-        self.state = state;
         self.change_grid_size(self.state().pictures_per_row());
     }
 
