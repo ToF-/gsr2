@@ -739,6 +739,26 @@ impl Controller {
         self.state.set_mode(Mode::Setting(Control::SetDisplay));
     }
 
+    fn enter_change(&mut self) {
+        if !self.state().has_saved_args() {
+            self.enter_editing(EntryKind::Change, None)
+        } else {
+            eprintln!("change not allowed while in a directory or a selection")
+        }
+    }
+    fn enter_find(&mut self) {
+            self.enter_editing(EntryKind::Find, None)
+        }
+
+
+    fn enter_select(&mut self) {
+        if !self.state().has_saved_args() {
+            self.enter_editing(EntryKind::Select, None)
+        } else {
+            eprintln!("selection not allowed while in a directory or a selection")
+        }
+    }
+
     fn enter_editing(&mut self, entry_kind: EntryKind, choice_opt: Option<Tags>) {
         self.editor
             .begin(&self.main_window(), entry_kind, choice_opt);
@@ -847,9 +867,9 @@ impl Controller {
             Control::DisplayDate => self.toggle_display_date(),
             Control::DisplaySize => self.toggle_display_size(),
             Control::Down => self.arrow_move(Direction::Down),
-            Control::EnterChange => self.enter_editing(EntryKind::Change, None),
-            Control::EnterFind => self.enter_editing(EntryKind::Find, None),
-            Control::EnterSelect => self.enter_editing(EntryKind::Select, None),
+            Control::EnterChange => self.enter_change(),
+            Control::EnterFind => self.enter_find(),
+            Control::EnterSelect => self.enter_select(),
             Control::SetView => self.enter_editing(EntryKind::View, None),
             Control::EnterRank => self.enter_editing(EntryKind::Rank, None),
             Control::ExtractFileNames => self.extract_filenames(),
@@ -1748,4 +1768,6 @@ impl Controller {
             panic!("can't borrow")
         }
     }
+
+
 }
