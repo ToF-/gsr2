@@ -120,16 +120,16 @@ impl Editor {
         if self.entry_kind == EntryKind::Information {
             self.cancel()
         } else {
-        match key.name() {
-            None => {}
-            Some(key_name) => match self.controls.get(&(key_name.to_string(), Mode::Editing)) {
-                Some(Control::CancelEdition) => self.cancel(),
-                Some(Control::ConfirmEdition) => self.enter(),
-                Some(Control::DeleteChar) => self.delete(),
-                Some(Control::Complete) => self.complete(),
-                Some(_) | None => self.append_from_key(key),
-            },
-        }
+            match key.name() {
+                None => {}
+                Some(key_name) => match self.controls.get(&(key_name.to_string(), Mode::Editing)) {
+                    Some(Control::CancelEdition) => self.cancel(),
+                    Some(Control::ConfirmEdition) => self.enter(),
+                    Some(Control::DeleteChar) => self.delete(),
+                    Some(Control::Complete) => self.complete(),
+                    Some(_) | None => self.append_from_key(key),
+                },
+            }
         }
     }
 

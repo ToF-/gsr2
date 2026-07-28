@@ -14,7 +14,7 @@ pub struct SubCategory {
 }
 
 impl SubCategory {
-    pub fn leave(name: &str) -> Self {
+    pub fn leaf(name: &str) -> Self {
         SubCategory {
             name: name.to_string(),
             sub_categories: vec![],
@@ -29,6 +29,9 @@ impl SubCategory {
         self.sub_categories.clone()
     }
 
+    pub fn is_top_category(&self) -> bool {
+        &self.name == TOP_CATEGORY
+    }
     pub fn format_at_level(&self, level: usize) -> String {
         let indent: String = " ".repeat(level * 2);
         if self.sub_categories.is_empty() {
@@ -44,20 +47,52 @@ impl SubCategory {
         }
     }
 
-    pub fn add_sub_category(&mut self, sub_category_name: &str, category_name: &str) -> Result<()> {
+    pub fn add_sub_category_leaf(&mut self, sub_category_name: &str, category_name: &str) -> Result<()> {
         if self.name == category_name {
-            self.sub_categories.push(Self::leave(sub_category_name));
+            self.sub_categories.push(Self::leaf(sub_category_name));
             Ok(())
         } else {
             let mut result: Result<()> = Ok(());
             for sub_category in self.sub_categories.iter_mut() {
-                let sub_result = sub_category.add_sub_category(sub_category_name, category_name);
+                let sub_result = sub_category.add_sub_category_leaf(sub_category_name, category_name);
                 if sub_result.is_err() {
                     result = sub_result;
                     break;
                 };
             }
             result
+        }
+    }
+
+    pub fn find_parent_category(&self, target_name: &str) -> Option<SubCategory> {
+        if self.name == target_name {
+            None
+        } else {
+            let r = self.sub_categories.iter().try_for_each(|child| {
+                if child.name == target_name {
+                    return ControlFlow::Break(self.clone())
+                };
+                if let Some(grand_child) = child.find_parent_category(target_name) {
+                    return ControlFlow::Break(grand_child.clone())
+                };
+                ControlFlow::Continue(())
+            });
+            if let ControlFlow::Break(child) = r {
+                Some(child)
+                } else {
+                    None
+            }
+        }
+    }
+
+    pub fn has_ancestor(&self, ancestor_name: &str, category_name: &str) -> bool {
+        match self.find_parent_category(category_name) {
+            Some(parent) => if parent.name == ancestor_name {
+                    true
+                } else {
+                    self.has_ancestor(ancestor_name, &parent.name)
+                },
+            None => false,
         }
     }
 
@@ -144,11 +179,11 @@ impl SubCategory {
                     Null =>
                     //  (foo • ∅)
                     {
-                        Ok(vec![Self::leave(symbol)])
+                        Ok(vec![Self::leaf(symbol)])
                     }
                     Cons(_) => {
                         // (foo • (… • …))
-                        let mut subs = vec![Self::leave(symbol)];
+                        let mut subs = vec![Self::leaf(symbol)];
                         match Self::from_cons(cons.cdr()) {
                             Ok(next) => {
                                 subs.extend(next);
@@ -201,7 +236,7 @@ impl SubCategory {
                 if car.is_symbol() {
                     let symbol = car.as_symbol().unwrap();
                     if cdr.is_null() {
-                        Ok(Self::leave(symbol))
+                        Ok(Self::leaf(symbol))
                     } else {
                         Self::from_cons(cdr).map(|subs| SubCategory {
                             name: symbol.to_string(),
@@ -269,5 +304,24 @@ mod tests {
         assert!(sub.is_some());
         let bag = sub.unwrap();
         assert_eq!("bag", bag.name);
+    }
+    #[test]
+    fn can_tell_if_a_sub_category_is_the_top_category() {
+        let cat = SubCategory::from_value(&lexpr::from_str("(- (bar law) (qux (gus (bro bag))))").unwrap()).unwrap();
+        assert!(cat.is_top_category());
+    }
+    #[test]
+    fn can_find_a_sub_category_parent() {
+        let cat = SubCategory::from_value(&lexpr::from_str("(- (bar law) (qux (gus (bro bag))))").unwrap()).unwrap();
+        let bro = cat.find_parent_category("bag");
+        assert!(bro.is_some());
+        assert_eq!("bro", bro.unwrap().name);
+    }
+    #[test]
+    fn can_find_if_a_sub_category_belons_to_a_category() {
+        let cat = SubCategory::from_value(&lexpr::from_str("(- (bar law) (qux (gus (bro bag))))").unwrap()).unwrap();
+        assert!(cat.has_ancestor("qux", "bag"));
+        assert!(cat.has_ancestor("-", "law"));
+        assert!(!cat.has_ancestor("bar", "bag"));
     }
 }

@@ -990,26 +990,21 @@ impl Controller {
             .repository
             .initialize_for_args(&new_args, Some(predicate))
         {
-            Ok(()) => {
-                match self.reload() {
-                    Ok(0) => {
-                        self.back_from_directory();
-                        self.navigator.set_page_changed();
-                        Some(format!(
-                            "no picture found with: {}",
-                            selection
-                        ))
-                    },
-                    Ok(n) => {
-                        self.navigator.set_page_changed();
-                        None
-                    },
-                    Err(e) => {
-                        eprintln!("error:{}", e);
-                        None
-                    },
+            Ok(()) => match self.reload() {
+                Ok(0) => {
+                    self.back_from_directory();
+                    self.navigator.set_page_changed();
+                    Some(format!("no picture found with: {}", selection))
                 }
-            }
+                Ok(n) => {
+                    self.navigator.set_page_changed();
+                    None
+                }
+                Err(e) => {
+                    eprintln!("error:{}", e);
+                    None
+                }
+            },
             Err(e) => {
                 eprintln!("{}", e);
                 None
@@ -1769,9 +1764,7 @@ impl Controller {
                     None
                 }
             }
-            Err(e) => {
-                Some(format!("{}", e))
-            }
+            Err(e) => Some(format!("{}", e)),
         };
         if let Some(information) = information_opt {
             self.display_information(&information)
@@ -1779,7 +1772,8 @@ impl Controller {
     }
 
     fn find_next(&mut self) {
-        let information_opt = if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut() {
+        let information_opt = if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut()
+        {
             if let Some(index) = gallery.finder.find_next() {
                 let navigator = &mut self.navigator;
                 navigator.move_towards(Direction::Index { value: index });
@@ -1796,6 +1790,5 @@ impl Controller {
         if let Some(information) = information_opt {
             self.display_information(&information)
         }
-
     }
 }

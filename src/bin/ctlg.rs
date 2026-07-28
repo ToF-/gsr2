@@ -80,7 +80,10 @@ pub fn main() {
                     Ok(_) => {}
                     Err(err) => eprintln!("error: {}", err),
                 },
-                Commands::Move { sub_category, category, } => match catalog.move_sub_category(&sub_category, &category) {
+                Commands::Move {
+                    sub_category,
+                    category,
+                } => match catalog.move_sub_category(&sub_category, &category) {
                     Ok(_) => {}
                     Err(err) => eprintln!("error: {}", err),
                 },

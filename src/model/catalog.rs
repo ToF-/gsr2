@@ -1,4 +1,3 @@
-use std::ops::ControlFlow;
 use crate::env::configuration::Configuration;
 use crate::model::categories::Categories;
 use crate::model::sub_category::SubCategory;
@@ -12,6 +11,7 @@ use std::collections::HashMap;
 use std::collections::hash_map::Entry;
 use std::fs;
 use std::io::{Error, Result};
+use std::ops::ControlFlow;
 
 type ReverseTree = HashMap<String, String>;
 
@@ -115,7 +115,7 @@ impl Catalog {
             Err(Error::other(format!("unknown category:{}", category_name)))
         } else {
             self.root
-                .add_sub_category(sub_category_name, category_name)
+                .add_sub_category_leaf(sub_category_name, category_name)
                 .and_then(|()| {
                     let mut tree: ReverseTree = ReverseTree::new();
                     match make_reverse_tree(&mut tree, &self.root) {
@@ -128,10 +128,16 @@ impl Catalog {
                 })
         }
     }
-    
 
-    pub fn move_sub_category(&mut self, sub_category_name: &str, category_name: &str) -> Result<()> {
-        Err(Error::other(format!("cannot find subcategory:{}", sub_category_name)))
+    pub fn move_sub_category(
+        &mut self,
+        sub_category_name: &str,
+        category_name: &str,
+    ) -> Result<()> {
+        Err(Error::other(format!(
+            "cannot find subcategory:{}",
+            sub_category_name
+        )))
     }
 
     pub fn remove_and_save(&mut self, category_name: &str, force: bool) -> Result<()> {
@@ -163,43 +169,37 @@ impl Catalog {
         }
     }
     pub fn remove_category(&mut self, category_name: &str, force: bool) -> Result<()> {
-        if !self.reverse_tree.contains_key(category_name) {
-            Err(Error::other(format!("unknown category:{}", category_name)))
-        } else {
-            self.root
-                .remove_sub_category(category_name, force)
-                .and_then(|()| {
-                    let mut tree: ReverseTree = ReverseTree::new();
-                    match make_reverse_tree(&mut tree, &self.root) {
-                        Ok(_) => {
-                            self.reverse_tree = tree;
-                            Ok(())
+        match self.root.find_sub_category_by_name(category_name) {
+            Some(sub_category) => {
+               self.root
+                    .remove_sub_category(category_name, force)
+                    .and_then(|()| {
+                        let mut tree: ReverseTree = ReverseTree::new();
+                        match make_reverse_tree(&mut tree, &self.root) {
+                            Ok(_) => {
+                                self.reverse_tree = tree;
+                                Ok(())
+                            }
+                            Err(err) => Err(Error::other(err)),
                         }
-                        Err(err) => Err(Error::other(err)),
-                    }
-                })
+                    })
+            },
+            None => Err(Error::other(format!("unknown category:{}", category_name)))
         }
     }
+
     pub fn s_expression(&self) -> String {
         self.root.format_at_level(0)
     }
 
     pub fn is_a(&self, target_category_name: &str, sub_category_name: &str) -> bool {
-        if !self.reverse_tree.contains_key(target_category_name) {
-            return false;
-        }
-        if !self.reverse_tree.contains_key(sub_category_name) {
-            return false;
-        }
-        if sub_category_name == target_category_name {
-            true
-        } else {
-            if let Some(parent_category_name) = self.reverse_tree.get(sub_category_name) {
-                parent_category_name == target_category_name
-                    || self.is_a(target_category_name, parent_category_name)
-            } else {
-                false
+        if target_category_name != TOP_CATEGORY {
+            match self.root.find_sub_category_by_name(target_category_name) {
+                Some(category) => category.find_sub_category_by_name(sub_category_name).is_some(),
+                None => false,
             }
+        } else {
+            false
         }
     }
 
@@ -436,9 +436,9 @@ mod tests {
         assert!(catalog.add_sub_category("!ag", "-").is_err());
         assert!(catalog.add_sub_category("-", "foo").is_err());
     }
-//    #[test]
+    //    #[test]
     fn moving_a_sub_category() {
-        let mut catalog = 
+        let mut catalog =
             Catalog::from_sexpr("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
         let result = catalog.move_sub_category("qux", "foo");
         println!("{:?}", result);
