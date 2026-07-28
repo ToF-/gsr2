@@ -33,11 +33,19 @@ pub enum Commands {
         #[arg(short, long, value_name = "SUB_CATEGORY")]
         sub_category: String,
 
-        #[arg(short, long)]
+        #[arg(short, long, value_name = "CATEGORY")]
         category: String,
     },
     /// list all categories (default)
     List,
+    /// move <SUB_CATEGORY> under <CATEGORY>
+    Move {
+        #[arg(short, long, value_name = "SUB_CATEGORY")]
+        sub_category: String,
+
+        #[arg(short, long, value_name = "CATEGORY")]
+        category: String,
+    },
     /// remove <CATEGORY> [--force]
     Remove {
         #[arg(short, long)]
@@ -69,6 +77,10 @@ pub fn main() {
                     sub_category,
                     category,
                 } => match catalog.add_and_save(&sub_category, &category) {
+                    Ok(_) => {}
+                    Err(err) => eprintln!("error: {}", err),
+                },
+                Commands::Move { sub_category, category, } => match catalog.move_sub_category(&sub_category, &category) {
                     Ok(_) => {}
                     Err(err) => eprintln!("error: {}", err),
                 },

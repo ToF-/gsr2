@@ -883,6 +883,7 @@ pub mod tests {
             pattern: None,
             cover: false,
             parent_opt: None,
+            predicate_opt: None,
         };
         let result = database.retrieve_all_pictures(criteria, None);
         assert!(result.is_ok());

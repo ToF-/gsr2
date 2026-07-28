@@ -674,7 +674,7 @@ mod tests {
     fn given_a_db_once_initialized_it_provides_the_set_of_all_labels() {
         let args = my_args().expect("can't access to test args");
         let mut repository = Repository::new(my_cfg(), args, false);
-        repository.initialize().expect("can't initialize");
+        repository.initialize(None).expect("can't initialize");
         assert!(repository.all_labels().contains("a_rather_long_tag"));
         assert!(repository.all_labels().contains("white_square"));
     }
@@ -685,7 +685,7 @@ mod tests {
         let args = my_args().expect("can't access to test args");
         let cfg = my_cfg();
         let mut repository = Repository::new(my_cfg(), args, false);
-        repository.initialize().expect("can't initialize");
+        repository.initialize(None).expect("can't initialize");
         assert!(!repository.all_labels().contains("a-new-label"));
         repository.add_label("a-new-label");
         assert!(repository.all_labels().contains("a-new-label"));
@@ -699,7 +699,7 @@ mod tests {
         let cfg = my_cfg();
         let mut repository = Repository::new(my_cfg(), args.clone(), false);
         repository
-            .initialize()
+            .initialize(None)
             .expect("can't initialize repository");
         let gallery_rc = repository.gallery_rc();
         let gallery = gallery_rc
@@ -717,7 +717,7 @@ mod tests {
         let mut args = my_args().expect("can't access to test args");
         args.order = Some(Order::Size);
         let mut repository = Repository::new(my_cfg(), args, false);
-        assert!(repository.initialize().is_ok());
+        assert!(repository.initialize(None).is_ok());
         let result = repository.pictures_in_directory("testdata");
         assert!(result.is_ok());
         let gallery = result.unwrap();
@@ -729,7 +729,7 @@ mod tests {
         let mut args = my_args().expect("can't access to test args");
         args.order = Some(Order::Size);
         let mut repository = Repository::new(my_cfg(), args, false);
-        assert!(repository.initialize().is_ok());
+        assert!(repository.initialize(None).is_ok());
         let result = repository.picture_from_file_path(&format!("testdata/{}", NINE_COLORS));
         assert!(result.is_ok());
         let gallery = result.unwrap();
@@ -742,7 +742,7 @@ mod tests {
         let mut args = my_args().expect("can't access to test args");
         args.restrict = Some("foo,bar".to_string());
         let mut repository = Repository::new(my_cfg(), args.clone(), false);
-        assert!(repository.initialize().is_ok());
+        assert!(repository.initialize(None).is_ok());
         let gallery_rc = repository.gallery_rc();
         let gallery = gallery_rc
             .try_borrow()
@@ -752,7 +752,7 @@ mod tests {
         args.restrict = None;
         args.label = Some("dot".to_string());
         let mut repository = Repository::new(my_cfg(), args.clone(), false);
-        assert!(repository.initialize().is_ok());
+        assert!(repository.initialize(None).is_ok());
         let gallery_rc = repository.gallery_rc();
         let gallery = gallery_rc
             .try_borrow()
@@ -761,7 +761,7 @@ mod tests {
         args.label = None;
         args.cover = true;
         let mut repository = Repository::new(my_cfg(), args.clone(), false);
-        assert!(repository.initialize().is_ok());
+        assert!(repository.initialize(None).is_ok());
         let gallery_rc = repository.gallery_rc();
         let gallery = gallery_rc
             .try_borrow()
@@ -774,7 +774,7 @@ mod tests {
     fn a_picture_that_is_a_cover_has_the_len_of_its_parent_dir() {
         let mut args = my_args().expect("can't access to test args");
         let mut repository = Repository::new(my_cfg(), args.clone(), false);
-        assert!(repository.initialize().is_ok());
+        assert!(repository.initialize(None).is_ok());
         let gallery_rc = repository.gallery_rc();
         let gallery = gallery_rc
             .try_borrow()
@@ -790,7 +790,7 @@ mod tests {
     fn provides_the_list_of_all_parent_dirs() {
         let mut args = my_args().expect("can't access to test args");
         let mut repository = Repository::new(my_cfg(), args.clone(), false);
-        assert!(repository.initialize().is_ok());
+        assert!(repository.initialize(None).is_ok());
         let map = repository.parent_dirs();
         let counts: (usize, usize) = *map
             .get(&format!("{}/{}", current_directory(), TEST_DATA_DIR))
@@ -802,7 +802,7 @@ mod tests {
     fn can_tell_if_selection_has_covers() {
         let mut args = my_args().expect("can't access to test args");
         let mut repository = Repository::new(my_cfg(), args.clone(), false);
-        assert!(repository.initialize().is_ok());
+        assert!(repository.initialize(None).is_ok());
         assert_eq!(1, repository.covers());
     }
     // #[test]

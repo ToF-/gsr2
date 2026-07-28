@@ -1,3 +1,4 @@
+use std::ops::ControlFlow;
 use lexpr::Value;
 use lexpr::Value::Cons;
 use lexpr::Value::Null;
@@ -51,6 +52,40 @@ impl SubCategory {
             let mut result: Result<()> = Ok(());
             for sub_category in self.sub_categories.iter_mut() {
                 let sub_result = sub_category.add_sub_category(sub_category_name, category_name);
+                if sub_result.is_err() {
+                    result = sub_result;
+                    break;
+                };
+            }
+            result
+        }
+    }
+
+    pub fn find_sub_category_by_name(&self, target_name: &str) -> Result<Option<SubCategory>> {
+        println!("{:?}", self);
+        let result = self.sub_categories().iter().try_for_each(|child| {
+            if child.name() == target_name {
+                ControlFlow::Break(Some(child.clone()))
+            } else { match child.find_sub_category_by_name(target_name) {
+                Ok(Some(grand_child)) => ControlFlow::Break(Some(grand_child.clone())),
+                Ok(None) => ControlFlow::Continue(()),
+                Err(e) => ControlFlow::Continue(()),
+            }}
+        });
+        match result {
+            ControlFlow::Break(result) => Ok(result),
+            ControlFlow::Continue(()) => Ok(None),
+        }
+    }
+
+    pub fn add_sub_category_tree(&mut self, sub_category_tree: &Self, category_name: &str) -> Result<()> {
+        if self.name == category_name {
+            self.sub_categories.push(sub_category_tree.clone());
+            Ok(())
+        } else {
+            let mut result: Result<()> = Ok(());
+            for sub_category in self.sub_categories.iter_mut() {
+                let sub_result = sub_category.add_sub_category_tree(sub_category_tree, category_name);
                 if sub_result.is_err() {
                     result = sub_result;
                     break;

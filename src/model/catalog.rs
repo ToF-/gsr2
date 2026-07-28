@@ -1,3 +1,4 @@
+use std::ops::ControlFlow;
 use crate::env::configuration::Configuration;
 use crate::model::categories::Categories;
 use crate::model::sub_category::SubCategory;
@@ -125,6 +126,25 @@ impl Catalog {
                         Err(err) => Err(Error::other(err)),
                     }
                 })
+        }
+    }
+    
+
+    pub fn move_sub_category(&mut self, sub_category_name: &str, category_name: &str) -> Result<()> {
+        match self.root.find_sub_category_by_name(sub_category_name) {
+            Ok(None) => Err(Error::other(format!("cannot find subcategory:{}", sub_category_name))),
+            Ok(Some(sub_category)) => match self.root.find_sub_category_by_name(category_name) {
+                Ok(None) => Err(Error::other(format!("cannot find category: {}", category_name))),
+                Ok(Some(category)) => match self.root.remove_sub_category(sub_category_name, true) {
+                    Ok(_) => match self.root.add_sub_category_tree(&sub_category, category_name) {
+                        Ok(_) => Ok(()),
+                        Err(e) => Err(e),
+                    },
+                    Err(e) => Err(e),
+                },
+                Err(e) => Err(e),
+            },
+            Err(e) => Err(e),
         }
     }
 
@@ -429,5 +449,14 @@ mod tests {
             Catalog::from_sexpr("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
         assert!(catalog.add_sub_category("!ag", "-").is_err());
         assert!(catalog.add_sub_category("-", "foo").is_err());
+    }
+    #[test]
+    fn moving_a_sub_category() {
+        let mut catalog = 
+            Catalog::from_sexpr("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
+        let result = catalog.move_sub_category("qux", "foo");
+        println!("{:?}", result);
+        assert!(result.is_ok());
+        assert!(catalog.is_a("foo", "bol"));
     }
 }
