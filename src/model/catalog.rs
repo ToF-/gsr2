@@ -18,7 +18,6 @@ type ReverseTree = HashMap<String, String>;
 #[derive(Debug, Clone)]
 pub struct Catalog {
     root: SubCategory,
-    reverse_tree: ReverseTree,
 }
 
 impl Catalog {
@@ -27,13 +26,14 @@ impl Catalog {
             Ok(value) => match SubCategory::from_value(&value) {
                 Ok(root) => {
                     if root.name() == TOP_CATEGORY {
-                        let mut tree: ReverseTree = ReverseTree::new();
-                        match make_reverse_tree(&mut tree, &root) {
-                            Ok(_) => Ok(Catalog {
-                                root,
-                                reverse_tree: tree,
-                            }),
-                            Err(err) => Err(Error::other(err)),
+                        let mut keys = root.all_sub_category_names();
+                        keys.sort();
+                        let initial = keys.clone();
+                        keys.dedup();
+                        if keys.len() == initial.len() {
+                            Ok(Catalog { root, })
+                        } else {
+                            Err(Error::other(format!("incorrect s_expression value: duplicate sub_categories in {:?}", initial))) 
                         }
                     } else {
                         Err(Error::other(format!(
@@ -111,21 +111,12 @@ impl Catalog {
                 "category {} already exists",
                 sub_category_name
             )))
-        } else if category_name != TOP_CATEGORY && !self.reverse_tree.contains_key(category_name) {
+        } else if self.root.find_sub_category_by_name(sub_category_name).is_some() {
+            Err(Error::other(format!("subcategory {} already exists", sub_category_name)))
+        } else if category_name != TOP_CATEGORY && self.root.find_sub_category_by_name(category_name).is_none() {
             Err(Error::other(format!("unknown category:{}", category_name)))
         } else {
-            self.root
-                .add_sub_category_leaf(sub_category_name, category_name)
-                .and_then(|()| {
-                    let mut tree: ReverseTree = ReverseTree::new();
-                    match make_reverse_tree(&mut tree, &self.root) {
-                        Ok(_) => {
-                            self.reverse_tree = tree;
-                            Ok(())
-                        }
-                        Err(err) => Err(Error::other(err)),
-                    }
-                })
+            self.root.add_sub_category_leaf(sub_category_name, category_name)
         }
     }
 
@@ -171,19 +162,8 @@ impl Catalog {
     pub fn remove_category(&mut self, category_name: &str, force: bool) -> Result<()> {
         match self.root.find_sub_category_by_name(category_name) {
             Some(sub_category) => {
-               self.root
-                    .remove_sub_category(category_name, force)
-                    .and_then(|()| {
-                        let mut tree: ReverseTree = ReverseTree::new();
-                        match make_reverse_tree(&mut tree, &self.root) {
-                            Ok(_) => {
-                                self.reverse_tree = tree;
-                                Ok(())
-                            }
-                            Err(err) => Err(Error::other(err)),
-                        }
-                    })
-            },
+               self.root.remove_sub_category(category_name, force)
+                    },
             None => Err(Error::other(format!("unknown category:{}", category_name)))
         }
     }
@@ -394,7 +374,7 @@ mod tests {
             Catalog::from_sexpr("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
         let result = catalog.add_sub_category("foo", "gus");
         assert_eq!(
-            "Err(Custom { kind: Other, error: Custom { kind: Other, error: \"duplicate subcategory:foo\" } })",
+            "Err(Custom { kind: Other, error: \"subcategory foo already exists\" })",
             format!("{:?}", result)
         );
     }

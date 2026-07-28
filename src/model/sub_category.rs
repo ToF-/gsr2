@@ -32,6 +32,15 @@ impl SubCategory {
     pub fn is_top_category(&self) -> bool {
         &self.name == TOP_CATEGORY
     }
+    pub fn all_sub_category_names(&self) -> Vec<String> {
+        let mut result = vec![];
+        result.push(self.name.clone());
+        self.sub_categories.iter().for_each(|child| {
+            let mut sub_result = child.all_sub_category_names();
+            result.append(&mut sub_result);
+        });
+        result
+    }
     pub fn format_at_level(&self, level: usize) -> String {
         let indent: String = " ".repeat(level * 2);
         if self.sub_categories.is_empty() {
@@ -82,17 +91,6 @@ impl SubCategory {
                 } else {
                     None
             }
-        }
-    }
-
-    pub fn has_ancestor(&self, ancestor_name: &str, category_name: &str) -> bool {
-        match self.find_parent_category(category_name) {
-            Some(parent) => if parent.name == ancestor_name {
-                    true
-                } else {
-                    self.has_ancestor(ancestor_name, &parent.name)
-                },
-            None => false,
         }
     }
 
@@ -318,10 +316,10 @@ mod tests {
         assert_eq!("bro", bro.unwrap().name);
     }
     #[test]
-    fn can_find_if_a_sub_category_belons_to_a_category() {
+    fn can_tell_all_sub_category_names() {
         let cat = SubCategory::from_value(&lexpr::from_str("(- (bar law) (qux (gus (bro bag))))").unwrap()).unwrap();
-        assert!(cat.has_ancestor("qux", "bag"));
-        assert!(cat.has_ancestor("-", "law"));
-        assert!(!cat.has_ancestor("bar", "bag"));
+        assert_eq!(vec!["-","bar","law","qux","gus","bro","bag"], cat.all_sub_category_names())
+
     }
+
 }
