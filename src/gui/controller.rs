@@ -1,7 +1,7 @@
-use crate::model::finder::predicate;
 use crate::model::categories::Categories;
 use crate::model::category::category_from_string;
 use crate::model::change::Change;
+use crate::model::finder::predicate;
 use crate::model::tags::Tags;
 use crate::model::tags::tags_from_str;
 
@@ -400,8 +400,7 @@ impl Controller {
                     self.state.set_mode(Mode::View);
                     if !self.selector.selected().is_empty() {
                         let category_name = self.selector.selected();
-                            self.select(&category_name, Find::SubCategory)
-
+                        self.select(&category_name, Find::SubCategory)
                     }
                 }
             }
@@ -743,19 +742,18 @@ impl Controller {
         if !self.state().has_saved_args() {
             self.enter_editing(EntryKind::Change, None)
         } else {
-            eprintln!("change not allowed while in a directory or a selection")
+            self.display_information("change not allowed while in a directory or a selection")
         }
     }
     fn enter_find(&mut self) {
-            self.enter_editing(EntryKind::Find, None)
-        }
-
+        self.enter_editing(EntryKind::Find, None)
+    }
 
     fn enter_select(&mut self) {
         if !self.state().has_saved_args() {
             self.enter_editing(EntryKind::Select, None)
         } else {
-            eprintln!("selection not allowed while in a directory or a selection")
+            self.display_information("selection not allowed while in a directory or a selection")
         }
     }
 
@@ -974,7 +972,7 @@ impl Controller {
                 Err(e) => eprintln!("{}", e),
             }
         } else {
-            eprintln!("cannot go to a directory when not in covers view")
+            self.display_information("cannot go to a directory when not in covers view")
         }
     }
 
@@ -995,13 +993,16 @@ impl Controller {
             Ok(()) => {
                 match self.reload() {
                     Ok(0) => {
-                        eprintln!("no picture found with this selection pattern: {}", selection);
+                        eprintln!(
+                            "no picture found with this selection pattern: {}",
+                            selection
+                        );
                         self.back_from_directory()
-                    },
-                    Ok(n) => {},
+                    }
+                    Ok(n) => {}
                     Err(e) => {
                         eprintln!("error:{}", e);
-                    },
+                    }
                 }
                 self.navigator.set_page_changed();
             }
@@ -1012,7 +1013,6 @@ impl Controller {
     fn back_from_directory(&mut self) {
         if let Some((pictures_per_row, old_args)) = self.state.pop_saved_args() {
             self.args = old_args.clone();
-            println!("back from directory with args: {:?}", self.args);
             match self.repository.initialize_for_args(&old_args, None) {
                 Ok(()) => {
                     self.change_grid_size(pictures_per_row);
@@ -1107,7 +1107,7 @@ impl Controller {
                 }
             }
         } else {
-            eprintln!("cannot toggle cover selection while in a directory");
+            self.display_information("cannot toggle cover selection while in a directory")
         }
     }
 
@@ -1169,6 +1169,13 @@ impl Controller {
         }
     }
 
+    fn display_information(&mut self, message: &str) {
+        self.editor
+            .begin(&self.main_window(), EntryKind::Information, None);
+        self.editor.set_input(message);
+        self.state.set_mode(Mode::Editing);
+    }
+
     fn categorize_selected_pictures(&mut self, category: Category) {
         if self.navigator.has_selected() {
             for index in 0..self.navigator.limit() {
@@ -1186,12 +1193,14 @@ impl Controller {
 
     fn categorize(&mut self) {
         self.set_opacity_for_current_picture(0.25);
-        self.selector.begin(&self.main_window(), "select a category to apply");
+        self.selector
+            .begin(&self.main_window(), "select a category to apply");
         self.state.set_mode(Mode::Categorizing);
     }
 
     fn set_category_selection(&mut self) {
-        self.selector.begin(&self.main_window(), "select a category to find");
+        self.selector
+            .begin(&self.main_window(), "select a category to find");
         self.state.set_mode(Mode::SelectingCategory);
     }
 
@@ -1293,13 +1302,13 @@ impl Controller {
                     navigator.move_towards(Direction::Index { value: index });
                     navigator.set_page_changed()
                 } else {
-                    println!("mark: {} not found", mark);
+                    // self.display_information(&format!("mark: {} not found", mark));
                 }
             } else {
                 panic!("can't borrow")
             }
         } else {
-            println!("no picture with mark {}", mark);
+            self.display_information(&format!("no picture with mark {}", mark));
         }
     }
 
@@ -1723,10 +1732,10 @@ impl Controller {
             Ok(predicate) => {
                 let selection = format!("{:?} {}", find, pattern);
                 self.go_to_selection(&selection, predicate)
-            },
+            }
             Err(e) => {
                 eprintln!("error in select: {}", e)
-            },
+            }
         }
     }
 
@@ -1746,10 +1755,10 @@ impl Controller {
                 } else {
                     panic!("can't borrow")
                 }
-            },
+            }
             Err(e) => {
                 eprintln!("{}", e);
-            },
+            }
         }
     }
 
@@ -1768,6 +1777,4 @@ impl Controller {
             panic!("can't borrow")
         }
     }
-
-
 }

@@ -1,10 +1,10 @@
-use crate::model::finder::Predicate;
 use crate::file::paths::parent_directory;
 use crate::file::paths::{file_exists, file_path_as_retrieved, file_path_as_stored};
 use crate::model::catalog::Catalog;
 use crate::model::categories::Categories;
 use crate::model::color_range::ColorRange;
 use crate::model::cover::{bool_to_cover, cover_to_bool};
+use crate::model::finder::Predicate;
 use crate::model::image_data::ImageData;
 use crate::model::palette::Palette;
 use crate::model::picture::Picture;
@@ -421,7 +421,6 @@ impl Database {
         retrieve_criteria: RetrieveCriteria,
         catalog_opt: Option<Catalog>,
     ) -> IOResult<Vec<Picture>> {
-        println!("database.retrieve_all_pictures({:?},…)", retrieve_criteria);
         self.retrieve_all_parent_dirs().and_then(|parent_dirs| {
             match self.rusqlite_retrieve_all_pictures(
                 retrieve_criteria.cover,
@@ -506,11 +505,11 @@ impl Database {
                             if color_range_opt.is_some() && !color_range.matches(count, file_path) {
                                 continue;
                             };
-                            
+
                             let picture = Picture::new_with_image_data(file_path, &new_image_data);
                             if let Some(ref predicate) = retrieve_criteria.predicate_opt {
                                 let function = &predicate.function;
-                                if ! function(&picture) {
+                                if !function(&picture) {
                                     continue;
                                 }
                             };

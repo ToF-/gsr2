@@ -117,6 +117,9 @@ impl Editor {
     }
 
     pub fn process(&mut self, key: Key) {
+        if self.entry_kind == EntryKind::Information {
+            self.cancel()
+        } else {
         match key.name() {
             None => {}
             Some(key_name) => match self.controls.get(&(key_name.to_string(), Mode::Editing)) {
@@ -126,6 +129,7 @@ impl Editor {
                 Some(Control::Complete) => self.complete(),
                 Some(_) | None => self.append_from_key(key),
             },
+        }
         }
     }
 

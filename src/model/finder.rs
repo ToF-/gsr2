@@ -1,11 +1,11 @@
-use crate::model::tags::tags_from_str;
 use crate::model::catalog::Catalog;
 use crate::model::categories::Categories;
 use crate::model::find::Find;
 use crate::model::picture::Picture;
-use std::sync::Arc;
-use regex::Regex;
+use crate::model::tags::tags_from_str;
 use regex::Error;
+use regex::Regex;
+use std::sync::Arc;
 
 #[derive(Clone)]
 pub struct Predicate {
