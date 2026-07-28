@@ -26,14 +26,17 @@ impl Catalog {
             Ok(value) => match SubCategory::from_value(&value) {
                 Ok(root) => {
                     if root.name() == TOP_CATEGORY {
-                        let mut keys = root.all_sub_category_names();
+                        let mut keys = root.sub_category_names();
                         keys.sort();
                         let initial = keys.clone();
                         keys.dedup();
                         if keys.len() == initial.len() {
-                            Ok(Catalog { root, })
+                            Ok(Catalog { root })
                         } else {
-                            Err(Error::other(format!("incorrect s_expression value: duplicate sub_categories in {:?}", initial))) 
+                            Err(Error::other(format!(
+                                "incorrect s_expression value: duplicate sub_categories in {:?}",
+                                initial
+                            )))
                         }
                     } else {
                         Err(Error::other(format!(
@@ -111,12 +114,22 @@ impl Catalog {
                 "category {} already exists",
                 sub_category_name
             )))
-        } else if self.root.find_sub_category_by_name(sub_category_name).is_some() {
-            Err(Error::other(format!("subcategory {} already exists", sub_category_name)))
-        } else if category_name != TOP_CATEGORY && self.root.find_sub_category_by_name(category_name).is_none() {
+        } else if self
+            .root
+            .find_sub_category_by_name(sub_category_name)
+            .is_some()
+        {
+            Err(Error::other(format!(
+                "subcategory {} already exists",
+                sub_category_name
+            )))
+        } else if category_name != TOP_CATEGORY
+            && self.root.find_sub_category_by_name(category_name).is_none()
+        {
             Err(Error::other(format!("unknown category:{}", category_name)))
         } else {
-            self.root.add_sub_category_leaf(sub_category_name, category_name)
+            self.root
+                .add_sub_category_leaf(sub_category_name, category_name)
         }
     }
 
@@ -161,10 +174,8 @@ impl Catalog {
     }
     pub fn remove_category(&mut self, category_name: &str, force: bool) -> Result<()> {
         match self.root.find_sub_category_by_name(category_name) {
-            Some(sub_category) => {
-               self.root.remove_sub_category(category_name, force)
-                    },
-            None => Err(Error::other(format!("unknown category:{}", category_name)))
+            Some(sub_category) => self.root.remove_sub_category(category_name, force),
+            None => Err(Error::other(format!("unknown category:{}", category_name))),
         }
     }
 
@@ -175,7 +186,9 @@ impl Catalog {
     pub fn is_a(&self, target_category_name: &str, sub_category_name: &str) -> bool {
         if target_category_name != TOP_CATEGORY {
             match self.root.find_sub_category_by_name(target_category_name) {
-                Some(category) => category.find_sub_category_by_name(sub_category_name).is_some(),
+                Some(category) => category
+                    .find_sub_category_by_name(sub_category_name)
+                    .is_some(),
                 None => false,
             }
         } else {
