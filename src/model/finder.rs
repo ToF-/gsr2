@@ -1,9 +1,61 @@
+use crate::model::tags::tags_from_str;
+use crate::model::catalog::Catalog;
+use crate::model::categories::Categories;
+use crate::model::find::Find;
 use crate::model::picture::Picture;
 use std::sync::Arc;
+use regex::Regex;
+use regex::Error;
 
 #[derive(Clone)]
 pub struct Predicate {
     pub function: Arc<dyn Fn(&Picture) -> bool>,
+}
+
+pub fn predicate(pattern: &str, find: Find, catalog: Catalog) -> Result<Predicate, Error> {
+    match Regex::new(pattern) {
+        Ok(re) => {
+            let predicate = match find {
+                Find::Name => Predicate {
+                    function: Arc::new(move |picture: &Picture| re.is_match(&picture.file_name())),
+                },
+                Find::Label => Predicate {
+                    function: Arc::new(move |picture: &Picture| re.is_match(&picture.label())),
+                },
+                Find::Category => Predicate {
+                    function: Arc::new(move |picture: &Picture| {
+                        re.is_match(&picture.category_name())
+                    }),
+                },
+                Find::SubCategory => {
+                    let categories: Categories = Categories::from_string(pattern);
+                    Predicate {
+                        function: Arc::new(move |picture: &Picture| {
+                            catalog.is_one_of(&categories, &picture.category_name())
+                        }),
+                    }
+                }
+                Find::SomeTags => {
+                    let tags = tags_from_str(pattern);
+                    Predicate {
+                        function: Arc::new(move |picture: &Picture| {
+                            picture.tags().intersection(&tags).count() > 0
+                        }),
+                    }
+                }
+                Find::AllTags => {
+                    let tags = tags_from_str(pattern);
+                    Predicate {
+                        function: Arc::new(move |picture: &Picture| {
+                            tags.is_subset(&picture.tags())
+                        }),
+                    }
+                }
+            };
+            Ok(predicate)
+        }
+        Err(e) => Err(e),
+    }
 }
 
 impl std::fmt::Debug for Predicate {

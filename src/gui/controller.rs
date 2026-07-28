@@ -1,3 +1,4 @@
+use crate::model::finder::predicate;
 use crate::model::categories::Categories;
 use crate::model::category::category_from_string;
 use crate::model::change::Change;
@@ -60,6 +61,7 @@ pub struct Controller {
     selector: Selector,
     last_action: Action,
     scores: HashMap<String, u32>,
+    catalog: Catalog,
 }
 
 pub type RcController = Rc<RefCell<Controller>>;
@@ -89,9 +91,9 @@ impl Controller {
             cli.cover = !args.all;
         }
         let mut repository = Repository::new(config.clone(), cli.clone(), false);
-        match repository.initialize() {
+        match repository.initialize(None) {
             Ok(_) => {}
-            Err(e) => panic!("c'est bien moi qui panic {}", e),
+            Err(e) => panic!("can't initialize repository: {}", e),
         };
         println!("{} pictures", repository.len());
         let catalog: Catalog = match Catalog::from_file(&config.catalog_filepath) {
@@ -116,6 +118,7 @@ impl Controller {
             main_window_opt: None,
             last_action: Action::Nothing,
             scores: HashMap::new(),
+            catalog: catalog,
         })
     }
 
@@ -593,7 +596,7 @@ impl Controller {
                 }
             }
         }
-        match self.repository.initialize_for_args(&self.args) {
+        match self.repository.initialize_for_args(&self.args, None) {
             Ok(()) => {
                 let _ = self.reload();
                 self.navigator.set_page_changed();
@@ -922,7 +925,8 @@ impl Controller {
         if self.args.cover
             && let Some(directory) = parent_directory(&self.current_picture().file_path())
             && Some(directory.clone()) != self.args.directory
-            && !self.state.single_view() {
+            && !self.state.single_view()
+        {
             self.args.index = Some(self.navigator.position());
             let args = self.args.clone();
             self.state.push_saved_args(args.clone(), &directory);
@@ -932,7 +936,7 @@ impl Controller {
                 ..args.clone()
             };
             self.args = new_args.clone();
-            match self.repository.initialize_for_args(&new_args) {
+            match self.repository.initialize_for_args(&new_args, None) {
                 Ok(()) => {
                     let _ = self.reload();
                     self.navigator.set_page_changed();
@@ -944,10 +948,32 @@ impl Controller {
         }
     }
 
+    fn go_to_selection(&mut self, selection: &str, predicate: Predicate) {
+        self.args.index = Some(self.navigator.position());
+        let args = self.args.clone();
+        self.state.push_saved_args(args.clone(), selection);
+        let new_args = Args {
+            directory: Some(selection.to_string()),
+            cover: false,
+            ..args.clone()
+        };
+        self.args = new_args.clone();
+        match self
+            .repository
+            .initialize_for_args(&new_args, Some(predicate))
+        {
+            Ok(()) => {
+                let _ = self.reload();
+                self.navigator.set_page_changed();
+            }
+            Err(e) => eprintln!("{}", e),
+        }
+    }
+
     fn back_from_directory(&mut self) {
         if let Some((pictures_per_row, old_args)) = self.state.pop_saved_args() {
             self.args = old_args.clone();
-            match self.repository.initialize_for_args(&old_args) {
+            match self.repository.initialize_for_args(&old_args, None) {
                 Ok(()) => {
                     self.change_grid_size(pictures_per_row);
                     let _ = self.reload();
@@ -1013,7 +1039,7 @@ impl Controller {
                     ..self.args.clone()
                 };
                 self.args = new_args;
-                match self.repository.initialize_for_args(&self.args) {
+                match self.repository.initialize_for_args(&self.args, None) {
                     Ok(_) => match self.reload() {
                         Ok(0) => {
                             self.toggle_cover_selection();
@@ -1029,7 +1055,7 @@ impl Controller {
                     ..self.args.clone()
                 };
                 self.args = new_args;
-                match self.repository.initialize_for_args(&self.args) {
+                match self.repository.initialize_for_args(&self.args, None) {
                     Ok(_) => match self.reload() {
                         Ok(0) => {
                             self.toggle_cover_selection();
@@ -1142,7 +1168,7 @@ impl Controller {
             }
         };
         self.args = new_args;
-        match self.repository.initialize_for_args(&self.args) {
+        match self.repository.initialize_for_args(&self.args, None) {
             Ok(_) => match self.reload() {
                 Ok(0) => {
                     eprintln!("no pictures for this category");
@@ -1649,56 +1675,21 @@ impl Controller {
     }
 
     fn find_first(&mut self, pattern: &str, find: Find) {
-        self.apply_pattern(pattern, find, false)
+        self.apply_search(pattern, find)
     }
 
     fn select(&mut self, pattern: &str, find: Find) {
-        self.apply_pattern(pattern, find, true)
+        match predicate(pattern, find, self.catalog.clone()) {
+            Ok(predicate) => self.go_to_selection(pattern, predicate),
+            Err(e) => {
+                eprintln!("error in select: {}", e)
+            },
+        }
     }
 
-    fn apply_pattern(&mut self, pattern: &str, find: Find, for_selection: bool) {
-        match Regex::new(pattern) {
-            Ok(re) => {
-                let predicate = match find {
-                    Find::Name => Predicate {
-                        function: Arc::new(move |picture: &Picture| {
-                            re.is_match(&picture.file_name())
-                        }),
-                    },
-                    Find::Label => Predicate {
-                        function: Arc::new(move |picture: &Picture| re.is_match(&picture.label())),
-                    },
-                    Find::Category => Predicate {
-                        function: Arc::new(move |picture: &Picture| {
-                            re.is_match(&picture.category_name())
-                        }),
-                    },
-                    Find::SubCategory => {
-                        let categories: Categories = Categories::from_string(pattern);
-                        let catalog: Catalog = self.selector().catalog().clone();
-                        Predicate {
-                            function: Arc::new(move |picture: &Picture| {
-                                catalog.is_one_of(&categories, &picture.category_name())
-                            }),
-                        }
-                    }
-                    Find::SomeTags => {
-                        let tags = tags_from_str(pattern);
-                        Predicate {
-                            function: Arc::new(move |picture: &Picture| {
-                                picture.tags().intersection(&tags).count() > 0
-                            }),
-                        }
-                    }
-                    Find::AllTags => {
-                        let tags = tags_from_str(pattern);
-                        Predicate {
-                            function: Arc::new(move |picture: &Picture| {
-                                tags.is_subset(&picture.tags())
-                            }),
-                        }
-                    }
-                };
+    fn apply_search(&mut self, pattern: &str, find: Find) {
+        match predicate(pattern, find, self.catalog.clone()) {
+            Ok(predicate) => {
                 if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut() {
                     let finder = &mut gallery.finder;
                     if let Some(index) = finder.find_first(predicate) {
@@ -1712,10 +1703,10 @@ impl Controller {
                 } else {
                     panic!("can't borrow")
                 }
-            }
+            },
             Err(e) => {
                 eprintln!("{}", e);
-            }
+            },
         }
     }
 

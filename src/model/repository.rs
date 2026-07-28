@@ -16,6 +16,7 @@ use crate::file::picture_file::get_all_picture_file_paths;
 use crate::file::picture_file::get_picture_file_path;
 use crate::model::catalog::Catalog;
 use crate::model::categories::Categories;
+use crate::model::finder::Predicate;
 use crate::model::gallery::Gallery;
 use crate::model::order::Order;
 use crate::model::picture::Picture;
@@ -86,7 +87,11 @@ impl Repository {
         }
     }
 
-    fn retrieve_all_pictures(&mut self, args: &Args) -> IOResult<()> {
+    fn retrieve_all_pictures(
+        &mut self,
+        args: &Args,
+        predicate_opt: Option<Predicate>,
+    ) -> IOResult<()> {
         let catalog_result = Catalog::from_file(&self.catalog_filepath);
         let catalog: Catalog = catalog_result?;
         let selection_criteria = SelectionCriteria::from_args(args);
@@ -167,7 +172,7 @@ impl Repository {
             panic!("can't borrow")
         }
     }
-    pub fn initialize(&mut self) -> IOResult<()> {
+    pub fn initialize(&mut self, predicate_opt: Option<Predicate>) -> IOResult<()> {
         match &self.args.command {
             Some(Command::File { file_path }) => {
                 self.on_database = false;
@@ -200,16 +205,22 @@ impl Repository {
             _ => {
                 self.on_database = true;
                 self.retrieve_all_labels().and_then(|()| {
-                    self.retrieve_all_parent_dirs()
-                        .and_then(|()| self.retrieve_all_pictures(&self.args.clone()))
+                    self.retrieve_all_parent_dirs().and_then(|()| {
+                        self.retrieve_all_pictures(&self.args.clone(), predicate_opt)
+                    })
                 })
             }
         }
     }
 
-    pub fn initialize_for_args(&mut self, args: &Args) -> IOResult<()> {
-        self.retrieve_all_pictures(args)
+    pub fn initialize_for_args(
+        &mut self,
+        args: &Args,
+        predicate_opt: Option<Predicate>,
+    ) -> IOResult<()> {
+        self.retrieve_all_pictures(args, predicate_opt)
     }
+
     pub fn pictures_in_directory(&self, dir: &str) -> IOResult<Gallery> {
         let mut pictures: Vec<Picture> = vec![];
         get_all_picture_file_paths(dir).and_then(|list| {

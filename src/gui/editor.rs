@@ -223,8 +223,8 @@ impl Editor {
             EntryKind::FindName
             | EntryKind::FindLabel
             | EntryKind::FindCategory
-            | EntryKind::FindSubCategory 
-            | EntryKind::SelectName 
+            | EntryKind::FindSubCategory
+            | EntryKind::SelectName
             | EntryKind::SelectLabel
             | EntryKind::SelectCategory
             | EntryKind::SelectSubCategory => {
@@ -240,9 +240,9 @@ impl Editor {
                 'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ':')
             }
             EntryKind::FindAllTags
-                | EntryKind::FindSomeTags 
-                | EntryKind::SelectAllTags
-                | EntryKind::SelectSomeTags => matches!(ch,
+            | EntryKind::FindSomeTags
+            | EntryKind::SelectAllTags
+            | EntryKind::SelectSomeTags => matches!(ch,
                 'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' ' | ',' ),
             EntryKind::Order => matches!(
                 ch,

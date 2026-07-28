@@ -53,7 +53,7 @@ impl State {
         self.directory = None;
         result
     }
-    
+
     pub fn directory(&self) -> Option<String> {
         self.directory.clone()
     }
