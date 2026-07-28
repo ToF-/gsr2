@@ -61,22 +61,26 @@ impl SubCategory {
         }
     }
 
-    pub fn find_sub_category_by_name(&self, target_name: &str) -> Result<Option<SubCategory>> {
-        println!("{:?}", self);
-        let result = self.sub_categories().iter().try_for_each(|child| {
-            if child.name() == target_name {
-                ControlFlow::Break(Some(child.clone()))
-            } else { match child.find_sub_category_by_name(target_name) {
-                Ok(Some(grand_child)) => ControlFlow::Break(Some(grand_child.clone())),
-                Ok(None) => ControlFlow::Continue(()),
-                Err(e) => ControlFlow::Continue(()),
-            }}
-        });
-        match result {
-            ControlFlow::Break(result) => Ok(result),
-            ControlFlow::Continue(()) => Ok(None),
+    pub fn find_sub_category_by_name(&self, target_name: &str) -> Option<SubCategory> {
+        if self.name == target_name {
+            Some(self.clone())
+        } else  {
+            let r = self.sub_categories.iter().try_for_each(|child| {
+                if child.name == target_name {
+                    return ControlFlow::Break(child.clone())
+                };
+                if let Some(grand_child) = child.find_sub_category_by_name(target_name) {
+                    return ControlFlow::Break(grand_child.clone())
+                };
+                ControlFlow::Continue(())
+            });
+            if let ControlFlow::Break(child) = r {
+                Some(child)
+            } else {
+                None
+            }
         }
-    }
+}
 
     pub fn add_sub_category_tree(&mut self, sub_category_tree: &Self, category_name: &str) -> Result<()> {
         if self.name == category_name {
@@ -235,5 +239,35 @@ impl SubCategory {
             sub_category.sort()
         }
         self.sub_categories.sort_by_key(|k| k.name())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn can_find_a_sub_category_when_that_sub_is_itself() {
+        let cat = SubCategory::from_value(&lexpr::from_str("(foo (bar law) (qux bag))").unwrap()).unwrap();
+        let sub = cat.find_sub_category_by_name("foo");
+        assert!(sub.is_some());
+        let foo = sub.unwrap();
+        assert_eq!("qux", foo.sub_categories()[1].name);
+    }
+    #[test]
+    fn can_find_a_sub_category_when_that_sub_is_one_of_direct_subs() {
+        let cat = SubCategory::from_value(&lexpr::from_str("(foo (bar law) (qux bag))").unwrap()).unwrap();
+        let sub = cat.find_sub_category_by_name("bar");
+        assert!(sub.is_some());
+        let bar = sub.unwrap();
+        assert_eq!("law", bar.sub_categories()[0].name);
+    }
+    #[test]
+    fn can_find_a_sub_category_when_that_sub_is_one_of_indirect_subs() {
+        let cat = SubCategory::from_value(&lexpr::from_str("(foo (bar law) (qux (gus (bro bag))))").unwrap()).unwrap();
+        let sub = cat.find_sub_category_by_name("bag");
+        assert!(sub.is_some());
+        let bag = sub.unwrap();
+        assert_eq!("bag", bag.name);
     }
 }
