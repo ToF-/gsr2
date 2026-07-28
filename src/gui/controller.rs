@@ -976,7 +976,7 @@ impl Controller {
         }
     }
 
-    fn go_to_selection(&mut self, selection: &str, predicate: Predicate) {
+    fn go_to_selection(&mut self, selection: &str, predicate: Predicate) -> Option<String> {
         self.args.index = Some(self.navigator.position());
         let args = self.args.clone();
         self.state.push_saved_args(args.clone(), selection);
@@ -993,20 +993,27 @@ impl Controller {
             Ok(()) => {
                 match self.reload() {
                     Ok(0) => {
-                        eprintln!(
-                            "no picture found with this selection pattern: {}",
+                        self.back_from_directory();
+                        self.navigator.set_page_changed();
+                        Some(format!(
+                            "no picture found with: {}",
                             selection
-                        );
-                        self.back_from_directory()
-                    }
-                    Ok(n) => {}
+                        ))
+                    },
+                    Ok(n) => {
+                        self.navigator.set_page_changed();
+                        None
+                    },
                     Err(e) => {
                         eprintln!("error:{}", e);
-                    }
+                        None
+                    },
                 }
-                self.navigator.set_page_changed();
             }
-            Err(e) => eprintln!("{}", e),
+            Err(e) => {
+                eprintln!("{}", e);
+                None
+            }
         }
     }
 
@@ -1728,19 +1735,23 @@ impl Controller {
     }
 
     fn select(&mut self, pattern: &str, find: Find) {
-        match predicate(pattern, find, self.catalog.clone()) {
+        let information_opt = match predicate(pattern, find, self.catalog.clone()) {
             Ok(predicate) => {
                 let selection = format!("{:?} {}", find, pattern);
                 self.go_to_selection(&selection, predicate)
             }
             Err(e) => {
-                eprintln!("error in select: {}", e)
+                eprintln!("error in select: {}", e);
+                None
             }
+        };
+        if let Some(information) = information_opt {
+            self.display_information(&information)
         }
     }
 
     fn apply_search(&mut self, pattern: &str, find: Find) {
-        match predicate(pattern, find, self.catalog.clone()) {
+        let information_opt = match predicate(pattern, find, self.catalog.clone()) {
             Ok(predicate) => {
                 if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut() {
                     let finder = &mut gallery.finder;
@@ -1749,32 +1760,42 @@ impl Controller {
                         navigator.move_towards(Direction::Index { value: index });
                         navigator.set_page_changed();
                         self.search_in_progress = true;
+                        None
                     } else {
-                        eprintln!("not found");
+                        Some(format!("{} [{}] not found", find, pattern))
                     }
                 } else {
-                    panic!("can't borrow")
+                    panic!("can't borrow");
+                    None
                 }
             }
             Err(e) => {
-                eprintln!("{}", e);
+                Some(format!("{}", e))
             }
+        };
+        if let Some(information) = information_opt {
+            self.display_information(&information)
         }
     }
 
     fn find_next(&mut self) {
-        println!("find_next");
-        if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut() {
+        let information_opt = if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut() {
             if let Some(index) = gallery.finder.find_next() {
                 let navigator = &mut self.navigator;
                 navigator.move_towards(Direction::Index { value: index });
-                navigator.set_page_changed()
+                navigator.set_page_changed();
+                None
             } else {
                 self.search_in_progress = false;
-                println!("end of search");
+                Some(format!("end of search"))
             }
         } else {
-            panic!("can't borrow")
+            panic!("can't borrow");
+            None
+        };
+        if let Some(information) = information_opt {
+            self.display_information(&information)
         }
+
     }
 }
