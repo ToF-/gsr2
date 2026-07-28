@@ -1,3 +1,4 @@
+use crate::model::finder::Predicate;
 use crate::file::paths::parent_directory;
 use crate::file::paths::{file_exists, file_path_as_retrieved, file_path_as_stored};
 use crate::model::catalog::Catalog;
@@ -28,6 +29,7 @@ pub struct Database {
     connection_rc: Rc<RefCell<Connection>>,
 }
 
+#[derive(Debug)]
 pub struct RetrieveCriteria {
     pub selection_criteria: SelectionCriteria,
     pub categories: Option<Categories>,
@@ -37,6 +39,7 @@ pub struct RetrieveCriteria {
     pub pattern: Option<Regex>,
     pub cover: bool,
     pub parent_opt: Option<String>,
+    pub predicate_opt: Option<Predicate>,
 }
 
 impl Database {
@@ -418,6 +421,7 @@ impl Database {
         retrieve_criteria: RetrieveCriteria,
         catalog_opt: Option<Catalog>,
     ) -> IOResult<Vec<Picture>> {
+        println!("database.retrieve_all_pictures({:?},…)", retrieve_criteria);
         self.retrieve_all_parent_dirs().and_then(|parent_dirs| {
             match self.rusqlite_retrieve_all_pictures(
                 retrieve_criteria.cover,
@@ -502,7 +506,14 @@ impl Database {
                             if color_range_opt.is_some() && !color_range.matches(count, file_path) {
                                 continue;
                             };
+                            
                             let picture = Picture::new_with_image_data(file_path, &new_image_data);
+                            if let Some(ref predicate) = retrieve_criteria.predicate_opt {
+                                let function = &predicate.function;
+                                if ! function(&picture) {
+                                    continue;
+                                }
+                            };
                             pictures.push(picture)
                         }
                         pictures.sort_by_key(|picture| picture.file_path());
@@ -525,6 +536,7 @@ impl Database {
             pattern: None,
             cover: false,
             parent_opt: Some(parent_dir.to_string()),
+            predicate_opt: None,
         };
         self.retrieve_all_pictures(retrieve_criteria, None)
     }

@@ -380,17 +380,28 @@ impl Controller {
                     self.state.set_mode(Mode::View);
                     if !self.selector.selected().is_empty() {
                         let category: Category = Some(self.selector.selected());
-                        self.set_filter_to_category(category)
+                        self.find_first(&self.editor.input(), Find::SubCategory);
                     }
                 }
             }
-            Mode::FindingCategory => {
+            Mode::FindingSubCategory => {
                 self.selector.process(key);
                 if !self.selector.selecting() {
                     self.state.set_mode(Mode::View);
                     if !self.selector.selected().is_empty() {
                         let category_name = self.selector.selected();
                         self.find_first(&category_name, Find::SubCategory)
+                    }
+                }
+            }
+            Mode::SelectingSubCategory => {
+                self.selector.process(key);
+                if !self.selector.selecting() {
+                    self.state.set_mode(Mode::View);
+                    if !self.selector.selected().is_empty() {
+                        let category_name = self.selector.selected();
+                            self.select(&category_name, Find::SubCategory)
+
                     }
                 }
             }
@@ -529,7 +540,6 @@ impl Controller {
                             };
                         }
                         EntryKind::SelectName => {
-                            println!("foo");
                             if !self.editor.input().is_empty() {
                                 self.select(&self.editor.input(), Find::Name);
                             };
@@ -764,7 +774,7 @@ impl Controller {
     }
     fn enter_find_sub_category(&mut self) {
         self.set_category_selection();
-        self.state.set_mode(Mode::FindingCategory);
+        self.state.set_mode(Mode::FindingSubCategory);
     }
 
     fn enter_select_label(&mut self) {
@@ -796,7 +806,7 @@ impl Controller {
     }
     fn enter_select_sub_category(&mut self) {
         self.set_category_selection();
-        self.state.set_mode(Mode::SelectingCategory);
+        self.state.set_mode(Mode::SelectingSubCategory);
     }
     fn setting_mark(&mut self) {
         println!("Setting mark…");
@@ -953,7 +963,7 @@ impl Controller {
         let args = self.args.clone();
         self.state.push_saved_args(args.clone(), selection);
         let new_args = Args {
-            directory: Some(selection.to_string()),
+            directory: None,
             cover: false,
             ..args.clone()
         };
@@ -963,7 +973,16 @@ impl Controller {
             .initialize_for_args(&new_args, Some(predicate))
         {
             Ok(()) => {
-                let _ = self.reload();
+                match self.reload() {
+                    Ok(0) => {
+                        eprintln!("no picture found with this selection pattern: {}", selection);
+                        self.back_from_directory()
+                    },
+                    Ok(n) => {},
+                    Err(e) => {
+                        eprintln!("error:{}", e);
+                    },
+                }
                 self.navigator.set_page_changed();
             }
             Err(e) => eprintln!("{}", e),
@@ -973,6 +992,7 @@ impl Controller {
     fn back_from_directory(&mut self) {
         if let Some((pictures_per_row, old_args)) = self.state.pop_saved_args() {
             self.args = old_args.clone();
+            println!("back from directory with args: {:?}", self.args);
             match self.repository.initialize_for_args(&old_args, None) {
                 Ok(()) => {
                     self.change_grid_size(pictures_per_row);
@@ -1146,12 +1166,12 @@ impl Controller {
 
     fn categorize(&mut self) {
         self.set_opacity_for_current_picture(0.25);
-        self.selector.begin(&self.main_window());
+        self.selector.begin(&self.main_window(), "select a category to apply");
         self.state.set_mode(Mode::Categorizing);
     }
 
     fn set_category_selection(&mut self) {
-        self.selector.begin(&self.main_window());
+        self.selector.begin(&self.main_window(), "select a category to find");
         self.state.set_mode(Mode::SelectingCategory);
     }
 
@@ -1680,7 +1700,10 @@ impl Controller {
 
     fn select(&mut self, pattern: &str, find: Find) {
         match predicate(pattern, find, self.catalog.clone()) {
-            Ok(predicate) => self.go_to_selection(pattern, predicate),
+            Ok(predicate) => {
+                let selection = format!("{:?} {}", find, pattern);
+                self.go_to_selection(&selection, predicate)
+            },
             Err(e) => {
                 eprintln!("error in select: {}", e)
             },

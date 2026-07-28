@@ -128,6 +128,7 @@ impl Repository {
                     pattern: regex,
                     cover: args.cover,
                     parent_opt: args.directory.clone(),
+                    predicate_opt: predicate_opt,
                 };
                 *gallery = match self
                     .database

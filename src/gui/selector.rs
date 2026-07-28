@@ -29,8 +29,7 @@ impl Selector {
         }
     }
 
-    pub fn begin(&mut self, main_window: &MainWindow) {
-        let prompt = "select a category";
+    pub fn begin(&mut self, main_window: &MainWindow, prompt: &str) {
         self.prompt = prompt.to_string();
         self.treelist_window_opt =
             Some(main_window.popup_treelist_window(&self.prompt, &self.catalog));
