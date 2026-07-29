@@ -1,3 +1,4 @@
+use crate::model::sub_category::SubCategory;
 use crate::model::category::category_from_string;
 use crate::model::change::Change;
 use crate::model::finder::predicate;
@@ -59,6 +60,7 @@ pub struct Controller {
     selector: Selector,
     last_action: Action,
     scores: HashMap<String, u32>,
+    moving_category_name: String,
 }
 
 pub type RcController = Rc<RefCell<Controller>>;
@@ -115,6 +117,7 @@ impl Controller {
             main_window_opt: None,
             last_action: Action::Nothing,
             scores: HashMap::new(),
+            moving_category_name: "".to_string(),
         })
     }
 
@@ -338,6 +341,24 @@ impl Controller {
         }
         let controls = self.controls.clone();
         match self.state().mode() {
+            Mode::MovingToCategory => {
+                self.selector.process(key);
+                if !self.selector.selecting() {
+                    self.state.set_mode(Mode::View);
+                    if !self.selector.selected().is_empty() {
+                        let moving_category_name = self.moving_category_name.clone();
+                        self.move_sub_category_to_category(&moving_category_name, &self.selector.selected())
+                    }
+                }
+            }
+            Mode::MovingCategory => {
+                self.selector.process(key);
+                if !self.selector.selecting() {
+                    if !self.selector.selected().is_empty() {
+                        self.move_to_category(&self.selector.selected())
+                    }
+                }
+            }
             Mode::AddingCategory => {
                 self.selector.process(key);
                 if !self.selector.selecting() {
@@ -429,14 +450,8 @@ impl Controller {
                             }
                         }
                         EntryKind::MoveCategory => {
-                            if !self.editor.input().is_empty() {
-                                self.move_category(&self.editor.input())
-                            }
                         }
                         EntryKind::RemoveCategory => {
-                            if !self.editor.input().is_empty() {
-                                self.remove_category(&self.editor.input())
-                            }
                         }
                         EntryKind::Catalog => {
                             if !self.editor.input().is_empty() {
@@ -805,7 +820,16 @@ impl Controller {
         }
     }
     fn enter_move_category(&mut self) {
-        self.enter_editing(EntryKind::MoveCategory, None)
+        self.selector.begin(&self.main_window(), "select the category to move", &self.repository.catalog());
+        self.state.set_mode(Mode::MovingCategory);
+    }
+
+    fn move_to_category(&mut self, moving_category_name: &str) {
+        let mut pruned_catalog = self.repository.catalog();
+        let _ = pruned_catalog.remove_category(moving_category_name, true);
+        self.moving_category_name = moving_category_name.to_string();
+        self.selector.begin(&self.main_window(), &format!("select the category where to move {}", moving_category_name), &pruned_catalog);
+        self.state.set_mode(Mode::MovingToCategory);
     }
 
     fn enter_remove_category(&mut self) {
@@ -1202,23 +1226,30 @@ impl Controller {
         }
     }
 
-fn remove_category(&mut self, input: &str) {
-    self.repository.retrieve_all_categories();
-    if !self.repository.all_categories().contains(input) {
-        match self.repository.remove_category(input) {
+    fn move_sub_category_to_category(&mut self, moving_category_name: &str, target_category_name: &str) {
+        match self.repository.move_category(moving_category_name, target_category_name) {
             Ok(_) => {},
-            Err(e) => self.display_information(&format!("{}",e)),
+            Err(e) => self.display_information(&format!("{}", e)),
         }
-    } else {
-        self.display_information(&format!("category {} is being used and cannot be removed", input))
     }
-}
 
-fn move_category(&mut self, input: &str) {
-    println!("todo: move_category")
-}
+    fn remove_category(&mut self, input: &str) {
+        self.repository.retrieve_all_categories();
+        if !self.repository.all_categories().contains(input) {
+            match self.repository.remove_category(input) {
+                Ok(_) => {},
+                Err(e) => self.display_information(&format!("{}",e)),
+            }
+        } else {
+            self.display_information(&format!("category {} is being used and cannot be removed", input))
+        }
+    }
 
-fn add_tag(&mut self) {
+    fn move_category(&mut self, sub_category: &SubCategory, target_category_name: &str) {
+        println!("todo: move_category")
+    }
+
+    fn add_tag(&mut self) {
     self.set_opacity_for_current_picture(0.25);
     self.editor.begin(
         &self.main_window(),

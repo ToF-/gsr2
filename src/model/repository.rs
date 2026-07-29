@@ -217,6 +217,17 @@ impl Repository {
         }
     }
 
+    pub fn move_category(&mut self, moving_category_name: &str, target_category_name: &str) -> IOResult<()> {
+        if let Ok(mut catalog) = self.catalog_rc.try_borrow_mut() {
+            match catalog.move_and_save(moving_category_name, target_category_name) {
+                Ok(_) => Ok(()),
+                Err(e) => Err(IOError::other(e)),
+            }
+        } else {
+            panic!("can't borrow")
+        }
+    }
+
     pub fn remove_category(&mut self, category_name: &str) -> IOResult<()> {
         if let Ok(mut catalog) = self.catalog_rc.try_borrow_mut() {
             match catalog.remove_and_save(category_name, false) {

@@ -8,6 +8,8 @@ pub enum Mode {
     Editing,
     Categorizing,
     SelectingCategory,
+    MovingCategory,
+    MovingToCategory,
     RemovingCategory,
     FindingSubCategory,
     SelectingSubCategory,

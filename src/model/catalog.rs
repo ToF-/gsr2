@@ -68,6 +68,13 @@ impl Catalog {
         }
     }
 
+    pub fn sub_category(&self, category_name: &str) -> Result<SubCategory> {
+        match self.root.find_sub_category_by_name(category_name) {
+            Some(sub_category) => Ok(sub_category),
+            None => Err(Error::other(format!("category {} does not exist", category_name))),
+        }
+    }
+
     pub fn contains(&self, category_name: &str) -> bool {
         self.root.find_sub_category_by_name(category_name).is_some()
     }
