@@ -707,9 +707,13 @@ impl Controller {
         self.last_action = Action::Unlabel;
     }
 
-    fn tag_picture_at_index(&mut self, index: usize, label: &str) {
+    fn tag_picture_at_index(&mut self, index: usize, input: &str) {
+        let labels: Vec<String> = input.split(',').map(|s| s.to_string()).collect();
         let mut picture = self.repository.picture_at(index);
-        picture.add_tag(label);
+        labels.iter().for_each(|label| {
+            self.repository.add_label(label);
+            picture.add_tag(label);
+        });
         self.repository.set_picture_at(index, &picture);
     }
 
@@ -719,20 +723,19 @@ impl Controller {
         self.repository.set_picture_at(index, &picture);
     }
 
-    fn tag_selected_pictures(&mut self, label: &str) {
-        self.repository.add_label(label);
+    fn tag_selected_pictures(&mut self, labels: &str) {
         if self.navigator.has_selected() {
             for index in 0..self.navigator.limit() {
                 if self.navigator.is_selected(index) {
-                    self.tag_picture_at_index(index, label);
+                    self.tag_picture_at_index(index, labels);
                 }
             }
             self.navigator.unselect_all();
         } else {
-            self.tag_picture_at_index(self.navigator().position(), label)
+            self.tag_picture_at_index(self.navigator().position(), labels)
         };
         self.navigator.set_page_changed();
-        self.last_action = Action::AddTag(label.to_string());
+        self.last_action = Action::AddTag(labels.to_string());
     }
 
     fn untag_selected_pictures(&mut self, label: &str) {

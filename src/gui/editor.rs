@@ -1,3 +1,4 @@
+use crate::env::default_values::MAX_LABELS_LENGTH;
 use crate::env::default_values::MAX_LABEL_LENGTH;
 use crate::env::default_values::MAX_NAME_LENGTH;
 use crate::gui::control::{Control, Controls, default_controls};
@@ -44,7 +45,7 @@ impl Editor {
     ) {
         let prompt: &str = match entry_kind {
             EntryKind::AddCategory => "Enter the new category",
-            EntryKind::AddTag => "Enter a new tag to add",
+            EntryKind::AddTag => "Enter new tags to add",
             EntryKind::Catalog => {
                 "Enter what to change: (A)dd category (M)ove category (R)emove category"
             }
@@ -244,9 +245,12 @@ impl Editor {
                 matches!(ch,
                     'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' ' | '^' | '$' | '.' | '*' | '/' | '{' | '}' | '[' | ']' | '(' | ')' | '\\' )
             }
+            EntryKind::AddTag => {
+                matches!(ch,
+                'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' ' | ',')
+            }
             EntryKind::Label
             | EntryKind::Rename
-            | EntryKind::AddTag
             | EntryKind::RemoveTag
             | EntryKind::RemoveCategory => {
                 matches!(ch,
@@ -411,6 +415,8 @@ impl Editor {
     fn max_edit_length(&self) -> usize {
         if self.entry_kind == EntryKind::Rename {
             MAX_NAME_LENGTH
+        } else if self.entry_kind == EntryKind::AddTag {
+            MAX_LABELS_LENGTH
         } else {
             MAX_LABEL_LENGTH
         }
