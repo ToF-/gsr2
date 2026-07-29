@@ -1,9 +1,7 @@
-use crate::model::categories::Categories;
 use crate::model::category::category_from_string;
 use crate::model::change::Change;
 use crate::model::finder::predicate;
 use crate::model::tags::Tags;
-use crate::model::tags::tags_from_str;
 
 use crate::cli::args::Args;
 use crate::cli::command::Command;
@@ -342,6 +340,15 @@ impl Controller {
         }
         let controls = self.controls.clone();
         match self.state().mode() {
+            Mode::RemovingCategory => {
+                self.selector.process(key);
+                if !self.selector.selecting() {
+                    self.state.set_mode(Mode::View);
+                    if !self.selector.selected().is_empty() {
+                        self.remove_category(&self.selector.selected())
+                    }
+                }
+            }
             Mode::View => match key.name() {
                 None => {}
                 Some(key_name) => {
@@ -785,8 +792,9 @@ impl Controller {
     }
 
     fn enter_remove_category(&mut self) {
-        let tags = self.repository.catalog().tags();
-        self.enter_editing(EntryKind::RemoveCategory, Some(tags))
+        self.selector
+            .begin(&self.main_window(), "select a category to remove");
+        self.state.set_mode(Mode::RemovingCategory);
     }
 
     fn enter_find(&mut self) {
@@ -1176,8 +1184,11 @@ impl Controller {
 
 
     fn remove_category(&mut self, input: &str) {
-        self.repository.retrieve_all_categories();
         if !self.repository.all_categories().contains(input) {
+            match self.repository.remove_category(input) {
+                Ok(_) => {},
+                Err(e) => self.display_information(&format!("{}",e)),
+            }
         } else {
             self.display_information(&format!("category {} is being used and cannot be removed", input))
         }

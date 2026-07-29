@@ -215,6 +215,7 @@ impl MainWindow {
             Mode::Editing => String::from("Editing…"),
             Mode::Categorizing => String::from("Pick category to apply"),
             Mode::SelectingCategory => String::from("Pick category to view"),
+            Mode::RemovingCategory => String::from("Pick category to remove"),
             Mode::FindingSubCategory => String::from("Pick category to find"),
             Mode::SelectingSubCategory => String::from("Pick category to select"),
         };

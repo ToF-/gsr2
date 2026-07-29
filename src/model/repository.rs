@@ -1,3 +1,4 @@
+  use std::io::Error;
 use crate::model::catalog::load_catalog;
 use crate::cli::args::Args;
 use crate::cli::command::Command;
@@ -199,6 +200,18 @@ impl Repository {
         } else {
             panic!("can't borrow")
         }
+    }
+
+    pub fn remove_category(&mut self, category_name: &str) -> IOResult<()> {
+        if let Ok(mut catalog) = self.catalog_rc.try_borrow_mut() {
+            match catalog.remove_and_save(category_name, false) {
+                Ok(_) => Ok(()),
+                Err(e) => Err(IOError::other(e)),
+            }
+        } else {
+            panic!("can't borrow")
+        }
+
     }
     pub fn initialize(&mut self, predicate_opt: Option<Predicate>) -> IOResult<()> {
         match &self.args.command {
