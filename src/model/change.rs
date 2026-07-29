@@ -22,12 +22,15 @@ impl FromStr for Change {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
+            "AddCategory" => Ok(Change::AddCategory),
             "AddTag" => Ok(Change::AddTag),
             "Catalog" => Ok(Change::Catalog),
             "Category" => Ok(Change::Category),
             "Cover" => Ok(Change::Cover),
+            "MoveCategory" => Ok(Change::MoveCategory),
             "Name" => Ok(Change::Name),
             "Label" => Ok(Change::Label),
+            "RemoveCategory" => Ok(Change::RemoveCategory),
             "RemoveTag" => Ok(Change::RemoveTag),
             "Unlabel" => Ok(Change::Unlabel),
 

@@ -777,12 +777,15 @@ impl Controller {
     }
 
     fn enter_add_category(&mut self) {
+        self.enter_editing(EntryKind::AddCategory, None)
     }
 
     fn enter_move_category(&mut self) {
+        self.enter_editing(EntryKind::MoveCategory, None)
     }
 
     fn enter_remove_category(&mut self) {
+        self.enter_editing(EntryKind::RemoveCategory, None)
     }
 
     fn enter_find(&mut self) {
