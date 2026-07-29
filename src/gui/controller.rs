@@ -354,6 +354,7 @@ impl Controller {
             Mode::MovingCategory => {
                 self.selector.process(key);
                 if !self.selector.selecting() {
+                    self.state.set_mode(Mode::View);
                     if !self.selector.selected().is_empty() {
                         self.move_to_category(&self.selector.selected())
                     }
