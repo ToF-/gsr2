@@ -227,9 +227,13 @@ impl Catalog {
         }
     }
     pub fn remove_category(&mut self, category_name: &str, force: bool) -> Result<()> {
-        match self.root.find_sub_category_by_name(category_name) {
-            Some(sub_category) => self.root.remove_sub_category(category_name, force),
-            None => Err(Error::other(format!("unknown category:{}", category_name))),
+        if category_name != TOP_CATEGORY { 
+            match self.root.find_sub_category_by_name(category_name) {
+                Some(sub_category) => self.root.remove_sub_category(category_name, force),
+                None => Err(Error::other(format!("unknown category:{}", category_name))),
+            }
+        } else {
+            Err(Error::other(format!("top category {} cannot be removed", TOP_CATEGORY)))
         }
     }
 

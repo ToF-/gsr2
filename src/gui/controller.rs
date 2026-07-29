@@ -59,7 +59,6 @@ pub struct Controller {
     selector: Selector,
     last_action: Action,
     scores: HashMap<String, u32>,
-    catalog: Catalog,
 }
 
 pub type RcController = Rc<RefCell<Controller>>;
@@ -116,7 +115,6 @@ impl Controller {
             main_window_opt: None,
             last_action: Action::Nothing,
             scores: HashMap::new(),
-            catalog: catalog,
         })
     }
 
@@ -793,7 +791,7 @@ impl Controller {
 
     fn enter_remove_category(&mut self) {
         self.selector
-            .begin(&self.main_window(), "select a category to remove");
+            .begin(&self.main_window(), "select a category to remove", &self.repository.catalog());
         self.state.set_mode(Mode::RemovingCategory);
     }
 
@@ -1182,8 +1180,8 @@ impl Controller {
         println!("todo: add_category")
     }
 
-
     fn remove_category(&mut self, input: &str) {
+        self.repository.retrieve_all_categories();
         if !self.repository.all_categories().contains(input) {
             match self.repository.remove_category(input) {
                 Ok(_) => {},
@@ -1268,13 +1266,13 @@ impl Controller {
     fn categorize(&mut self) {
         self.set_opacity_for_current_picture(0.25);
         self.selector
-            .begin(&self.main_window(), "select a category to apply");
+            .begin(&self.main_window(), "select a category to apply", &self.repository.catalog());
         self.state.set_mode(Mode::Categorizing);
     }
 
     fn set_category_selection(&mut self) {
         self.selector
-            .begin(&self.main_window(), "select a category to find");
+            .begin(&self.main_window(), "select a category to find", &self.repository.catalog());
         self.state.set_mode(Mode::SelectingCategory);
     }
 
@@ -1802,7 +1800,7 @@ impl Controller {
     }
 
     fn select(&mut self, pattern: &str, find: Find) {
-        let information_opt = match predicate(pattern, find, self.catalog.clone()) {
+        let information_opt = match predicate(pattern, find, self.repository.catalog().clone()) {
             Ok(predicate) => {
                 let selection = format!("{:?} {}", find, pattern);
                 self.go_to_selection(&selection, predicate)
@@ -1818,7 +1816,7 @@ impl Controller {
     }
 
     fn apply_search(&mut self, pattern: &str, find: Find) {
-        let information_opt = match predicate(pattern, find, self.catalog.clone()) {
+        let information_opt = match predicate(pattern, find, self.repository.catalog().clone()) {
             Ok(predicate) => {
                 if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut() {
                     let finder = &mut gallery.finder;
