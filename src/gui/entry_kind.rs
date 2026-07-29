@@ -1,6 +1,8 @@
 #[derive(PartialEq, Clone, Debug)]
 pub enum EntryKind {
     AddTag,
+    AddCategory,
+    Catalog,
     Categorize,
     Change,
     DeleteConfirmation,
@@ -15,11 +17,13 @@ pub enum EntryKind {
     Help,
     Information,
     Label,
+    MoveCategory,
     MoveConfirmation,
     MoveToLabelConfirmation(String),
     Number,
     Order,
     Rank,
+    RemoveCategory,
     RemoveTag,
     Rename,
     Select,

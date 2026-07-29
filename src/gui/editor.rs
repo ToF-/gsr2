@@ -43,42 +43,38 @@ impl Editor {
         choice_opt: Option<Tags>,
     ) {
         let prompt: &str = match entry_kind {
-            EntryKind::Rename => "Enter a name for the selected picture",
-            EntryKind::Change => {
-                "Enter what to change: C)ategory L)abel N)ameR)emove T)ag U)nlabel co(V)er on"
-            }
-            EntryKind::Label => "Enter a label",
+            EntryKind::AddCategory => "Enter a new sub category, and the category to add it to",
             EntryKind::AddTag => "Enter a new tag to add",
+            EntryKind::Catalog => { "Enter what to change: (A)dd category (M)ove category (R)emove category" }
             EntryKind::Categorize => "Enter a category",
-            EntryKind::RemoveTag => "Enter a tag to remove",
-            EntryKind::Number => "Enter a number",
-            EntryKind::Order => {
-                "Enter a sorting criteria: c(A)tegory (C)olors (D)ate (L)abel (M)ost views (N)ame (P)alette c(O)ver (R)andom (S)ize (V)alue "
-            }
-            EntryKind::View => "View: 1x1 2x2 3x3 4x4 5x5 Thumbs Covers Date Path Size",
-            EntryKind::Rank => "Enter a rank level: 0 1 2 3",
+            EntryKind::Change => { "Enter what to change: c(A)talog (C)ategory (L)abel (N)ame (R)emove (T)ag (U)nlabel co(V)er on" }
             EntryKind::DeleteConfirmation => "Delete these pictures?",
-            EntryKind::MoveConfirmation => "Move these pictures?",
-            EntryKind::MoveToLabelConfirmation(ref target) => {
-                &format!("Move these pictures to {} ?", target)
-            }
-            EntryKind::Find | EntryKind::Select => {
-                "Select criteria C)ategory (B)elongs (L)abel (N)ame (S)ome Tags (A)ll tags "
-            }
-            EntryKind::FindCategory => "Enter a part of the category to find",
-            EntryKind::SelectCategory => "Enter a part of the category to select on",
-            EntryKind::FindSubCategory => "Enter category or super-category to find",
-            EntryKind::SelectSubCategory => "Enter category or super-category to select on",
-            EntryKind::FindName => "Enter a part of the picture file name to find",
-            EntryKind::SelectName => "Enter a part of the picture file name to select on",
-            EntryKind::FindLabel => "Enter a part of the picture label to find",
-            EntryKind::SelectLabel => "Enter a part of the picture label to select on",
-            EntryKind::Information => "Current picture",
-            EntryKind::Help => "Keyboard shortcuts",
-            EntryKind::FindSomeTags => "Enter tags to define the find (1 or more tags match)",
-            EntryKind::SelectSomeTags => "Enter tags to define the selection (1 or more tag match)",
+            EntryKind::Find | EntryKind::Select => { "Select criteria C)ategory (B)elongs (L)abel (N)ame (S)ome Tags (A)ll tags " }
             EntryKind::FindAllTags => "Enter tags to define the find (all tags matcth)",
+            EntryKind::FindCategory => "Enter a part of the category to find",
+            EntryKind::FindLabel => "Enter a part of the picture label to find",
+            EntryKind::FindName => "Enter a part of the picture file name to find",
+            EntryKind::FindSomeTags => "Enter tags to define the find (1 or more tags match)",
+            EntryKind::FindSubCategory => "Enter category or super-category to find",
+            EntryKind::Help => "Keyboard shortcuts",
+            EntryKind::Information => "Current picture",
+            EntryKind::Label => "Enter a label",
+            EntryKind::MoveCategory => "Enter sub category to move, and the category to move it to",
+            EntryKind::MoveConfirmation => "Move these pictures?",
+            EntryKind::MoveToLabelConfirmation(ref target) => { &format!("Move these pictures to {} ?", target) }
+            EntryKind::Number => "Enter a number",
+            EntryKind::Order => { "Enter a sorting criteria: c(A)tegory (C)olors (D)ate (L)abel (M)ost views (N)ame (P)alette c(O)ver (R)andom (S)ize (V)alue " }
+            EntryKind::Rank => "Enter a rank level: 0 1 2 3",
+            EntryKind::RemoveCategory => "Enter the sub category to remove",
+            EntryKind::RemoveTag => "Enter a tag to remove",
+            EntryKind::Rename => "Enter a name for the selected picture",
             EntryKind::SelectAllTags => "Enter tags to define the restriction (all tags match)",
+            EntryKind::SelectCategory => "Enter a part of the category to select on",
+            EntryKind::SelectLabel => "Enter a part of the picture label to select on",
+            EntryKind::SelectName => "Enter a part of the picture file name to select on",
+            EntryKind::SelectSomeTags => "Enter tags to define the selection (1 or more tag match)",
+            EntryKind::SelectSubCategory => "Enter category or super-category to select on",
+            EntryKind::View => "View: 1x1 2x2 3x3 4x4 5x5 Thumbs Covers Date Path Size",
         };
         self.prompt = prompt.to_string();
         self.begin_input(entry_kind, choice_opt);
@@ -212,8 +208,9 @@ impl Editor {
             return;
         };
         let ch_is_ok = match self.entry_kind {
+            EntryKind::Catalog => { matches!(ch, 'a' | 'm' | 'r') }
             EntryKind::Change => {
-                matches!(ch, 'c' | 'l' | 'n' | 'r' | 't' | 'u' | 'v')
+                matches!(ch, 'a' | 'c' | 'l' | 'n' | 'r' | 't' | 'u' | 'v')
             }
             EntryKind::Number => ch.is_ascii_digit(),
             EntryKind::DeleteConfirmation
@@ -235,9 +232,13 @@ impl Editor {
                 matches!(ch,
                     'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' ' | '^' | '$' | '.' | '*' | '/' | '{' | '}' | '[' | ']' | '(' | ')' | '\\' )
             }
-            EntryKind::Label | EntryKind::Rename | EntryKind::AddTag | EntryKind::RemoveTag => {
+            EntryKind::Label | EntryKind::Rename | EntryKind::AddTag | EntryKind::RemoveTag | EntryKind::RemoveCategory => {
                 matches!(ch,
                 'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' ')
+            }
+            EntryKind::AddCategory | EntryKind::MoveCategory => {
+                matches!(ch,
+                    'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' ' | ',')
             }
             EntryKind::Categorize => {
                 matches!(ch,
@@ -321,6 +322,7 @@ impl Editor {
             }
             c if self.entry_kind == EntryKind::Change => {
                 let change = match c {
+                    'a' => "Catalog",
                     'c' => "Category",
                     'l' => "Label",
                     'n' => "Name",
@@ -349,6 +351,16 @@ impl Editor {
                     _ => todo!(),
                 };
                 self.input = view.to_string();
+                self.enter();
+            }
+            c if self.entry_kind == EntryKind::Catalog => {
+                let change = match c {
+                    'a' => "AddCategory",
+                    'm' => "MoveCategory",
+                    'r' => "RemoveCategory",
+                    _ => todo!(),
+                };
+                self.input = change.to_string();
                 self.enter();
             }
             other if other.is_ascii() => self.input.push(other.to_lowercase().next().unwrap()),

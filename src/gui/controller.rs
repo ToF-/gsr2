@@ -409,10 +409,36 @@ impl Controller {
                 if !self.editor.editing() {
                     self.state.set_mode(Mode::View);
                     match self.editor.entry_kind() {
+                        EntryKind::AddCategory => {
+                            if !self.editor.input().is_empty() {
+                                self.add_category(&self.editor.input())
+                            }
+                        }
+                        EntryKind::MoveCategory => {
+                            if !self.editor.input().is_empty() {
+                                self.move_category(&self.editor.input())
+                            }
+                        }
+                        EntryKind::RemoveCategory => {
+                            if !self.editor.input().is_empty() {
+                                self.remove_category(&self.editor.input())
+                            }
+                        }
+                        EntryKind::Catalog => {
+                            if !self.editor.input().is_empty() {
+                                match Change::from_str(&self.editor.input()) {
+                                    Ok(Change::AddCategory) => self.enter_add_category(),
+                                    Ok(Change::MoveCategory) => self.enter_move_category(),
+                                    Ok(Change::RemoveCategory) => self.enter_remove_category(),
+                                    _ => {},
+                                }
+                            };
+                        }
                         EntryKind::Change => {
                             if !self.editor.input().is_empty() {
                                 match Change::from_str(&self.editor.input()) {
                                     Ok(Change::AddTag) => self.add_tag(),
+                                    Ok(Change::Catalog) => self.enter_change_catalog(),
                                     Ok(Change::Category) => self.categorize(),
                                     Ok(Change::Cover) => self.toggle_cover(),
                                     Ok(Change::Label) => self.label(),
@@ -745,6 +771,20 @@ impl Controller {
             self.display_information("change not allowed while in a directory or a selection")
         }
     }
+
+    fn enter_change_catalog(&mut self) {
+        self.enter_editing(EntryKind::Catalog, None)
+    }
+
+    fn enter_add_category(&mut self) {
+    }
+
+    fn enter_move_category(&mut self) {
+    }
+
+    fn enter_remove_category(&mut self) {
+    }
+
     fn enter_find(&mut self) {
         self.enter_editing(EntryKind::Find, None)
     }
@@ -1124,6 +1164,18 @@ impl Controller {
             self.navigator.move_towards(Direction::First)
         };
         self.navigator.set_page_changed();
+    }
+
+    fn add_category(&mut self, input: &str) {
+        println!("todo: add_category")
+    }
+
+    fn remove_category(&mut self, input: &str) {
+        println!("todo: remove_category")
+    }
+
+    fn move_category(&mut self, input: &str) {
+        println!("todo: move_category")
     }
 
     fn add_tag(&mut self) {
