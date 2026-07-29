@@ -795,11 +795,7 @@ impl Controller {
     }
 
     fn enter_change(&mut self) {
-        if !self.state().has_saved_args() {
-            self.enter_editing(EntryKind::Change, None)
-        } else {
-            self.display_information("change not allowed while in a directory or a selection")
-        }
+        self.enter_editing(EntryKind::Change, None)
     }
 
     fn enter_change_catalog(&mut self) {
