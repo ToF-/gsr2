@@ -1,5 +1,4 @@
-  use std::io::Error;
-use crate::model::catalog::load_catalog;
+
 use crate::cli::args::Args;
 use crate::cli::command::Command;
 use crate::env::configuration::Configuration;
@@ -17,6 +16,7 @@ use crate::file::picture_file::delete_picture_files;
 use crate::file::picture_file::get_all_picture_file_paths;
 use crate::file::picture_file::get_picture_file_path;
 use crate::model::catalog::Catalog;
+use crate::model::catalog::load_catalog;
 use crate::model::categories::Categories;
 use crate::model::finder::Predicate;
 use crate::model::gallery::Gallery;
@@ -31,6 +31,7 @@ use std::fs::File;
 use std::io::BufRead;
 use std::io::BufReader;
 use std::io::BufWriter;
+use std::io::Error;
 use std::io::Error as IOError;
 use std::io::Result as IOResult;
 use std::io::Write;
@@ -92,7 +93,6 @@ impl Repository {
             Err(e) => Err(IOError::other(format!("{}", e))),
         }
     }
-
 
     fn retrieve_all_labels(&mut self) -> IOResult<()> {
         match self.tags_rc.try_borrow_mut() {
@@ -202,6 +202,21 @@ impl Repository {
         }
     }
 
+    pub fn add_category(
+        &mut self,
+        new_category_name: &str,
+        target_category_name: &str,
+    ) -> IOResult<()> {
+        if let Ok(mut catalog) = self.catalog_rc.try_borrow_mut() {
+            match catalog.add_and_save(new_category_name, target_category_name) {
+                Ok(_) => Ok(()),
+                Err(e) => Err(IOError::other(e)),
+            }
+        } else {
+            panic!("can't borrow")
+        }
+    }
+
     pub fn remove_category(&mut self, category_name: &str) -> IOResult<()> {
         if let Ok(mut catalog) = self.catalog_rc.try_borrow_mut() {
             match catalog.remove_and_save(category_name, false) {
@@ -211,7 +226,6 @@ impl Repository {
         } else {
             panic!("can't borrow")
         }
-
     }
     pub fn initialize(&mut self, predicate_opt: Option<Predicate>) -> IOResult<()> {
         match &self.args.command {
@@ -363,7 +377,10 @@ impl Repository {
     }
 
     pub fn all_categories(&self) -> Tags {
-        let tags = self.categories_rc.try_borrow().expect("can't borrow repository categories");
+        let tags = self
+            .categories_rc
+            .try_borrow()
+            .expect("can't borrow repository categories");
         tags.clone()
     }
 

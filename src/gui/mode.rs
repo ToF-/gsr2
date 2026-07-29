@@ -4,6 +4,7 @@ use crate::gui::control::Control;
 pub enum Mode {
     Setting(Control),
     View,
+    AddingCategory,
     Editing,
     Categorizing,
     SelectingCategory,

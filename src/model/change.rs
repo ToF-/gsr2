@@ -1,6 +1,6 @@
+use std::fmt::Display;
 use std::fmt::Error;
 use std::fmt::Formatter;
-use std::fmt::Display;
 use std::str::FromStr;
 #[derive(PartialEq, Eq, Copy, Clone, Debug)]
 pub enum Change {

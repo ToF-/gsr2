@@ -80,7 +80,7 @@ pub fn main() {
                     Ok(_) => {
                         println!("added {} to {}", sub_category, category);
                         list(&catalog);
-                    },
+                    }
                     Err(err) => eprintln!("error: {}", err),
                 },
                 Commands::Move {
@@ -90,15 +90,15 @@ pub fn main() {
                     Ok(_) => {
                         println!("moved {} to {}", sub_category, category);
                         list(&catalog);
-                    },
+                    }
                     Err(err) => eprintln!("error: {}", err),
                 },
                 Commands::Remove { category, force } => {
                     match catalog.remove_and_save(&category, force) {
-                    Ok(_) => {
-                        println!("removed {}", category);
-                        list(&catalog);
-                    },
+                        Ok(_) => {
+                            println!("removed {}", category);
+                            list(&catalog);
+                        }
                         Err(err) => eprintln!("error: {}", err),
                     }
                 }

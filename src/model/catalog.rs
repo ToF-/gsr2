@@ -1,9 +1,9 @@
-use crate::model::tags::tags_from_vec;
-use crate::model::tags::Tags;
 use crate::env::configuration::Configuration;
 use crate::model::categories::Categories;
 use crate::model::sub_category::SubCategory;
 use crate::model::sub_category::TOP_CATEGORY;
+use crate::model::tags::Tags;
+use crate::model::tags::tags_from_vec;
 use lexpr::Value;
 use lexpr::Value::Cons;
 use lexpr::Value::Null;
@@ -68,6 +68,10 @@ impl Catalog {
         }
     }
 
+    pub fn contains(&self, category_name: &str) -> bool {
+        self.root.find_sub_category_by_name(category_name).is_some()
+    }
+
     fn sort(&mut self) {
         self.root.sort();
     }
@@ -93,21 +97,19 @@ impl Catalog {
             }
         };
         match self.add_sub_category(sub_category_name, category_name) {
-            Ok(_) => {
-                match self.save_to_file(&config.catalog_filepath) {
-                    Ok(_) => {
-                        println!(
-                            "adding sub category {} to category {}",
-                            sub_category_name, category_name
-                        );
-                        Ok(())
-                    }
-                    Err(err) => {
-                        eprintln!("error: {}", err);
-                        Err(err)
-                    }
+            Ok(_) => match self.save_to_file(&config.catalog_filepath) {
+                Ok(_) => {
+                    println!(
+                        "adding sub category {} to category {}",
+                        sub_category_name, category_name
+                    );
+                    Ok(())
                 }
-            }
+                Err(err) => {
+                    eprintln!("error: {}", err);
+                    Err(err)
+                }
+            },
             Err(err) => {
                 eprintln!("error: {}", err);
                 Err(err)
@@ -155,18 +157,19 @@ impl Catalog {
             }
         };
         match self.move_sub_category(sub_category_name, category_name) {
-            Ok(_) => {
-                match self.save_to_file(&config.catalog_filepath) {
-                    Ok(_) => {
-                        println!("moving sub category {} to category {}", sub_category_name, category_name);
-                        Ok(())
-                    }
-                    Err(err) => {
-                        eprintln!("error: {}", err);
-                        Err(err)
-                    }
+            Ok(_) => match self.save_to_file(&config.catalog_filepath) {
+                Ok(_) => {
+                    println!(
+                        "moving sub category {} to category {}",
+                        sub_category_name, category_name
+                    );
+                    Ok(())
                 }
-            }
+                Err(err) => {
+                    eprintln!("error: {}", err);
+                    Err(err)
+                }
+            },
             Err(err) => {
                 eprintln!("error: {}", err);
                 Err(err)
@@ -179,23 +182,40 @@ impl Catalog {
         sub_category_name: &str,
         category_name: &str,
     ) -> Result<()> {
-        if ! self.is_a(sub_category_name, category_name) {
+        if !self.is_a(sub_category_name, category_name) {
             if sub_category_name != TOP_CATEGORY {
                 match self.root.find_sub_category_by_name(sub_category_name) {
-                    Some(sub_category) => match self.root.find_sub_category_by_name(category_name) {
-                        Some(_) => match self.root.remove_sub_category(sub_category_name, true) {
-                            Ok(_) => self.root.add_sub_category_tree(&sub_category, category_name),
-                            Err(e) => Err(e),
-                        },
-                        None => Err(Error::other(format!("destination category {} does not exist", category_name))),
-                    },
-                    None => Err(Error::other(format!("destination sub category {} does not exist", sub_category_name))),
+                    Some(sub_category) => {
+                        match self.root.find_sub_category_by_name(category_name) {
+                            Some(_) => match self.root.remove_sub_category(sub_category_name, true)
+                            {
+                                Ok(_) => self
+                                    .root
+                                    .add_sub_category_tree(&sub_category, category_name),
+                                Err(e) => Err(e),
+                            },
+                            None => Err(Error::other(format!(
+                                "destination category {} does not exist",
+                                category_name
+                            ))),
+                        }
+                    }
+                    None => Err(Error::other(format!(
+                        "destination sub category {} does not exist",
+                        sub_category_name
+                    ))),
                 }
             } else {
-                Err(Error::other(format!("cannot move top category {}", TOP_CATEGORY)))
+                Err(Error::other(format!(
+                    "cannot move top category {}",
+                    TOP_CATEGORY
+                )))
             }
         } else {
-            Err(Error::other(format!("cannot move category {} to its sub category:{}", sub_category_name, category_name)))
+            Err(Error::other(format!(
+                "cannot move category {} to its sub category:{}",
+                sub_category_name, category_name
+            )))
         }
     }
 
@@ -208,18 +228,16 @@ impl Catalog {
             }
         };
         match self.remove_category(category_name, force) {
-            Ok(_) => {
-                match self.save_to_file(&config.catalog_filepath) {
-                    Ok(_) => {
-                        println!("removing category {}", category_name);
-                        Ok(())
-                    }
-                    Err(err) => {
-                        eprintln!("error: {}", err);
-                        Err(err)
-                    }
+            Ok(_) => match self.save_to_file(&config.catalog_filepath) {
+                Ok(_) => {
+                    println!("removing category {}", category_name);
+                    Ok(())
                 }
-            }
+                Err(err) => {
+                    eprintln!("error: {}", err);
+                    Err(err)
+                }
+            },
             Err(err) => {
                 eprintln!("error: {}", err);
                 Err(err)
@@ -227,13 +245,16 @@ impl Catalog {
         }
     }
     pub fn remove_category(&mut self, category_name: &str, force: bool) -> Result<()> {
-        if category_name != TOP_CATEGORY { 
+        if category_name != TOP_CATEGORY {
             match self.root.find_sub_category_by_name(category_name) {
                 Some(sub_category) => self.root.remove_sub_category(category_name, force),
                 None => Err(Error::other(format!("unknown category:{}", category_name))),
             }
         } else {
-            Err(Error::other(format!("top category {} cannot be removed", TOP_CATEGORY)))
+            Err(Error::other(format!(
+                "top category {} cannot be removed",
+                TOP_CATEGORY
+            )))
         }
     }
 
@@ -525,10 +546,10 @@ mod tests {
     }
     #[test]
     fn can_obtain_tags_from_the_sub_categories() {
-        let catalog = Catalog::from_sexpr("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
+        let catalog =
+            Catalog::from_sexpr("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
         let tags: Tags = catalog.tags();
         assert!(tags.contains("foo"));
         assert!(tags.contains("bol"));
-        
     }
 }

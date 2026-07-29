@@ -73,7 +73,7 @@ impl Controller {
                 n => n.try_into().unwrap(),
             }
             .try_into()
-            .unwrap()
+                .unwrap()
         };
         let mut cli = args.clone();
 
@@ -97,8 +97,8 @@ impl Controller {
             Ok(cat) => cat,
             Err(e) => {
                 return Err(Error::other(format!(
-                    "cannot log catalog file {} {}",
-                    config.catalog_filepath, e
+                            "cannot log catalog file {} {}",
+                            config.catalog_filepath, e
                 )));
             }
         };
@@ -228,8 +228,8 @@ impl Controller {
             .set_label_text_for_current_picture(self, None);
         if let Some(index) = self
             .navigator
-            .position_from_coords(row as usize, col as usize)
-            && self.navigator.can_move(Direction::Index { value: index })
+                .position_from_coords(row as usize, col as usize)
+                && self.navigator.can_move(Direction::Index { value: index })
         {
             self.navigator
                 .move_towards(Direction::Index { value: index });
@@ -247,8 +247,8 @@ impl Controller {
             .set_label_text_for_current_picture(self, None);
         if let Some(index) = self
             .navigator
-            .position_from_coords(row as usize, col as usize)
-            && self.navigator.can_move(Direction::Index { value: index })
+                .position_from_coords(row as usize, col as usize)
+                && self.navigator.can_move(Direction::Index { value: index })
         {
             self.navigator
                 .move_towards(Direction::Index { value: index });
@@ -338,6 +338,15 @@ impl Controller {
         }
         let controls = self.controls.clone();
         match self.state().mode() {
+            Mode::AddingCategory => {
+                self.selector.process(key);
+                if !self.selector.selecting() {
+                    self.state.set_mode(Mode::View);
+                    if !self.selector.selected().is_empty() {
+                        self.add_category(&self.editor.input(), &self.selector.selected())
+                    }
+                }
+            }
             Mode::RemovingCategory => {
                 self.selector.process(key);
                 if !self.selector.selecting() {
@@ -416,7 +425,7 @@ impl Controller {
                     match self.editor.entry_kind() {
                         EntryKind::AddCategory => {
                             if !self.editor.input().is_empty() {
-                                self.add_category(&self.editor.input())
+                                self.adding_category(&self.editor.input())
                             }
                         }
                         EntryKind::MoveCategory => {
@@ -749,15 +758,15 @@ impl Controller {
             },
             Control::SetOrder => match choice {
                 Control::OrderByCategory
-                | Control::OrderByName
-                | Control::OrderByDate
-                | Control::OrderBySize
-                | Control::OrderByValue
-                | Control::OrderByLabel
-                | Control::OrderByColorCount
-                | Control::OrderByPalette
-                | Control::OrderByScore
-                | Control::Randomize => self.process_control(choice),
+                    | Control::OrderByName
+                    | Control::OrderByDate
+                    | Control::OrderBySize
+                    | Control::OrderByValue
+                    | Control::OrderByLabel
+                    | Control::OrderByColorCount
+                    | Control::OrderByPalette
+                    | Control::OrderByScore
+                    | Control::Randomize => self.process_control(choice),
                 _ => println!("?"),
             },
             _ => {}
@@ -785,6 +794,16 @@ impl Controller {
         self.enter_editing(EntryKind::AddCategory, None)
     }
 
+    fn adding_category(&mut self, category_name: &str) {
+        if !self.repository.catalog().contains(category_name) {
+            self.selector
+                .begin(&self.main_window(), &format!("select a category to add {} to ", category_name), &self.repository.catalog());
+            self.state.set_mode(Mode::AddingCategory);
+
+        } else {
+            self.display_information(&format!("the category {} already exists", category_name));
+        }
+    }
     fn enter_move_category(&mut self) {
         self.enter_editing(EntryKind::MoveCategory, None)
     }
@@ -1002,8 +1021,8 @@ impl Controller {
     fn go_to_directory(&mut self) {
         if self.args.cover
             && let Some(directory) = parent_directory(&self.current_picture().file_path())
-            && Some(directory.clone()) != self.args.directory
-            && !self.state.single_view()
+                && Some(directory.clone()) != self.args.directory
+                && !self.state.single_view()
         {
             self.args.index = Some(self.navigator.position());
             let args = self.args.clone();
@@ -1039,27 +1058,27 @@ impl Controller {
         match self
             .repository
             .initialize_for_args(&new_args, Some(predicate))
-        {
-            Ok(()) => match self.reload() {
-                Ok(0) => {
-                    self.back_from_directory();
-                    self.navigator.set_page_changed();
-                    Some(format!("no picture found with: {}", selection))
-                }
-                Ok(n) => {
-                    self.navigator.set_page_changed();
-                    None
-                }
+            {
+                Ok(()) => match self.reload() {
+                    Ok(0) => {
+                        self.back_from_directory();
+                        self.navigator.set_page_changed();
+                        Some(format!("no picture found with: {}", selection))
+                    }
+                    Ok(n) => {
+                        self.navigator.set_page_changed();
+                        None
+                    }
+                    Err(e) => {
+                        eprintln!("error:{}", e);
+                        None
+                    }
+                },
                 Err(e) => {
-                    eprintln!("error:{}", e);
+                    eprintln!("{}", e);
                     None
                 }
-            },
-            Err(e) => {
-                eprintln!("{}", e);
-                None
             }
-        }
     }
 
     fn back_from_directory(&mut self) {
@@ -1176,689 +1195,692 @@ impl Controller {
         self.navigator.set_page_changed();
     }
 
-    fn add_category(&mut self, input: &str) {
-        println!("todo: add_category")
-    }
-
-    fn remove_category(&mut self, input: &str) {
-        self.repository.retrieve_all_categories();
-        if !self.repository.all_categories().contains(input) {
-            match self.repository.remove_category(input) {
-                Ok(_) => {},
-                Err(e) => self.display_information(&format!("{}",e)),
-            }
-        } else {
-            self.display_information(&format!("category {} is being used and cannot be removed", input))
+    fn add_category(&mut self, new_category_name: &str, target_category_name: &str) {
+        match self.repository.add_category(new_category_name, target_category_name) {
+            Ok(_) => {},
+            Err(e) => self.display_information(&format!("{}",e)),
         }
     }
 
-    fn move_category(&mut self, input: &str) {
-        println!("todo: move_category")
-    }
-
-    fn add_tag(&mut self) {
-        self.set_opacity_for_current_picture(0.25);
-        self.editor.begin(
-            &self.main_window(),
-            EntryKind::AddTag,
-            Some(self.repository.all_labels()),
-        );
-        self.state.set_mode(Mode::Editing);
-    }
-
-    fn remove_tag(&mut self) {
-        self.set_opacity_for_current_picture(0.25);
-        self.editor.begin(
-            &self.main_window(),
-            EntryKind::RemoveTag,
-            Some(self.current_picture().tags()),
-        );
-        self.state.set_mode(Mode::Editing);
-    }
-
-    fn label(&mut self) {
-        self.set_opacity_for_current_picture(0.25);
-        self.editor.begin(
-            &self.main_window(),
-            EntryKind::Label,
-            Some(self.repository.all_labels()),
-        );
-        self.state.set_mode(Mode::Editing);
-    }
-
-    fn rename(&mut self) {
-        if self.navigator.has_selected() && self.navigator.selected_picture_count() == 1 {
-            self.set_opacity_for_current_picture(0.25);
-            self.editor
-                .begin(&self.main_window(), EntryKind::Rename, None);
-            self.state.set_mode(Mode::Editing);
-        } else {
-            self.editor
-                .begin(&self.main_window(), EntryKind::Information, None);
-            self.editor
-                .set_input("Select the picture you want to rename first");
-            self.state.set_mode(Mode::Editing);
+fn remove_category(&mut self, input: &str) {
+    self.repository.retrieve_all_categories();
+    if !self.repository.all_categories().contains(input) {
+        match self.repository.remove_category(input) {
+            Ok(_) => {},
+            Err(e) => self.display_information(&format!("{}",e)),
         }
+    } else {
+        self.display_information(&format!("category {} is being used and cannot be removed", input))
     }
+}
 
-    fn display_information(&mut self, message: &str) {
+fn move_category(&mut self, input: &str) {
+    println!("todo: move_category")
+}
+
+fn add_tag(&mut self) {
+    self.set_opacity_for_current_picture(0.25);
+    self.editor.begin(
+        &self.main_window(),
+        EntryKind::AddTag,
+        Some(self.repository.all_labels()),
+    );
+    self.state.set_mode(Mode::Editing);
+}
+
+fn remove_tag(&mut self) {
+    self.set_opacity_for_current_picture(0.25);
+    self.editor.begin(
+        &self.main_window(),
+        EntryKind::RemoveTag,
+        Some(self.current_picture().tags()),
+    );
+    self.state.set_mode(Mode::Editing);
+}
+
+fn label(&mut self) {
+    self.set_opacity_for_current_picture(0.25);
+    self.editor.begin(
+        &self.main_window(),
+        EntryKind::Label,
+        Some(self.repository.all_labels()),
+    );
+    self.state.set_mode(Mode::Editing);
+}
+
+fn rename(&mut self) {
+    if self.navigator.has_selected() && self.navigator.selected_picture_count() == 1 {
+        self.set_opacity_for_current_picture(0.25);
+        self.editor
+            .begin(&self.main_window(), EntryKind::Rename, None);
+        self.state.set_mode(Mode::Editing);
+    } else {
         self.editor
             .begin(&self.main_window(), EntryKind::Information, None);
-        self.editor.set_input(message);
+        self.editor
+            .set_input("Select the picture you want to rename first");
         self.state.set_mode(Mode::Editing);
     }
+}
 
-    fn categorize_selected_pictures(&mut self, category: Category) {
-        if self.navigator.has_selected() {
-            for index in 0..self.navigator.limit() {
-                if self.navigator.is_selected(index) {
-                    self.categorize_picture_at_index(index, category.clone());
-                }
+fn display_information(&mut self, message: &str) {
+    self.editor
+        .begin(&self.main_window(), EntryKind::Information, None);
+    self.editor.set_input(message);
+    self.state.set_mode(Mode::Editing);
+}
+
+fn categorize_selected_pictures(&mut self, category: Category) {
+    if self.navigator.has_selected() {
+        for index in 0..self.navigator.limit() {
+            if self.navigator.is_selected(index) {
+                self.categorize_picture_at_index(index, category.clone());
             }
-            self.navigator.unselect_all();
-        } else {
-            self.categorize_picture_at_index(self.navigator().position(), category.clone());
-        };
-        self.navigator.set_page_changed();
-        self.last_action = Action::Categorize(category);
-    }
+        }
+        self.navigator.unselect_all();
+    } else {
+        self.categorize_picture_at_index(self.navigator().position(), category.clone());
+    };
+    self.navigator.set_page_changed();
+    self.last_action = Action::Categorize(category);
+}
 
-    fn categorize(&mut self) {
-        self.set_opacity_for_current_picture(0.25);
-        self.selector
-            .begin(&self.main_window(), "select a category to apply", &self.repository.catalog());
-        self.state.set_mode(Mode::Categorizing);
-    }
+fn categorize(&mut self) {
+    self.set_opacity_for_current_picture(0.25);
+    self.selector
+        .begin(&self.main_window(), "select a category to apply", &self.repository.catalog());
+    self.state.set_mode(Mode::Categorizing);
+}
 
-    fn set_category_selection(&mut self) {
-        self.selector
-            .begin(&self.main_window(), "select a category to find", &self.repository.catalog());
-        self.state.set_mode(Mode::SelectingCategory);
-    }
+fn set_category_selection(&mut self) {
+    self.selector
+        .begin(&self.main_window(), "select a category to find", &self.repository.catalog());
+    self.state.set_mode(Mode::SelectingCategory);
+}
 
-    fn set_filter_to_category(&mut self, category: Category) {
-        let new_args = if category.is_none() || category.as_ref().unwrap() == TOP_CATEGORY {
-            Args {
-                categories: None,
-                ..self.args.clone()
+fn set_filter_to_category(&mut self, category: Category) {
+    let new_args = if category.is_none() || category.as_ref().unwrap() == TOP_CATEGORY {
+        Args {
+            categories: None,
+            ..self.args.clone()
+        }
+    } else {
+        Args {
+            categories: category.clone(),
+            ..self.args.clone()
+        }
+    };
+    self.args = new_args;
+    match self.repository.initialize_for_args(&self.args, None) {
+        Ok(_) => match self.reload() {
+            Ok(0) => {
+                eprintln!("no pictures for this category");
+                self.set_filter_to_category(None);
             }
-        } else {
-            Args {
-                categories: category.clone(),
-                ..self.args.clone()
+            Ok(_) => {
+                self.navigator.move_towards(Direction::First);
+                self.navigator().set_page_changed();
             }
-        };
-        self.args = new_args;
-        match self.repository.initialize_for_args(&self.args, None) {
-            Ok(_) => match self.reload() {
-                Ok(0) => {
-                    eprintln!("no pictures for this category");
-                    self.set_filter_to_category(None);
-                }
-                Ok(_) => {
-                    self.navigator.move_towards(Direction::First);
-                    self.navigator().set_page_changed();
-                }
-                Err(e) => eprintln!("{}", e),
-            },
             Err(e) => eprintln!("{}", e),
+        },
+        Err(e) => eprintln!("{}", e),
+    }
+    self.navigator.set_page_changed();
+}
+
+fn uncategorize_selected_pictures(&mut self) {
+    if self.navigator.has_selected() {
+        for index in 0..self.navigator.limit() {
+            if self.navigator.is_selected(index) {
+                self.categorize_picture_at_index(index, None);
+            }
         }
-        self.navigator.set_page_changed();
-    }
-
-    fn uncategorize_selected_pictures(&mut self) {
-        if self.navigator.has_selected() {
-            for index in 0..self.navigator.limit() {
-                if self.navigator.is_selected(index) {
-                    self.categorize_picture_at_index(index, None);
-                }
+        self.navigator.unselect_all();
+    } else {
+        self.categorize_picture_at_index(self.navigator().position(), None)
+    };
+    self.navigator.set_page_changed();
+    self.last_action = Action::Unlabel;
+}
+fn rank_selected_pictures(&mut self, rank: Rank) {
+    if self.navigator.has_selected() {
+        for index in 0..self.navigator.limit() {
+            if self.navigator.is_selected(index) {
+                self.rank_picture_at_index(index, rank);
             }
-            self.navigator.unselect_all();
-        } else {
-            self.categorize_picture_at_index(self.navigator().position(), None)
-        };
-        self.navigator.set_page_changed();
-        self.last_action = Action::Unlabel;
-    }
-    fn rank_selected_pictures(&mut self, rank: Rank) {
-        if self.navigator.has_selected() {
-            for index in 0..self.navigator.limit() {
-                if self.navigator.is_selected(index) {
-                    self.rank_picture_at_index(index, rank);
-                }
-            }
-            self.navigator.unselect_all();
-        } else {
-            self.rank_picture_at_index(self.navigator().position(), rank)
-        };
-        self.navigator.set_page_changed();
-        self.last_action = Action::Rank(rank);
-    }
+        }
+        self.navigator.unselect_all();
+    } else {
+        self.rank_picture_at_index(self.navigator().position(), rank)
+    };
+    self.navigator.set_page_changed();
+    self.last_action = Action::Rank(rank);
+}
 
-    fn jump(&mut self) {
-        self.editor
-            .begin(&self.main_window(), EntryKind::Number, None);
-        self.state.set_mode(Mode::Editing);
-    }
+fn jump(&mut self) {
+    self.editor
+        .begin(&self.main_window(), EntryKind::Number, None);
+    self.state.set_mode(Mode::Editing);
+}
 
-    fn help(&mut self) {
-        self.editor
-            .begin(&self.main_window(), EntryKind::Help, None);
-        self.editor.set_input(&help_on_controls());
-        self.state.set_mode(Mode::Editing);
-    }
+fn help(&mut self) {
+    self.editor
+        .begin(&self.main_window(), EntryKind::Help, None);
+    self.editor.set_input(&help_on_controls());
+    self.state.set_mode(Mode::Editing);
+}
 
-    fn information(&mut self) {
-        self.editor
-            .begin(&self.main_window(), EntryKind::Information, None);
-        self.editor
-            .set_input(&self.current_picture().file_path().to_string());
-        self.state.set_mode(Mode::Editing);
-    }
+fn information(&mut self) {
+    self.editor
+        .begin(&self.main_window(), EntryKind::Information, None);
+    self.editor
+        .set_input(&self.current_picture().file_path().to_string());
+    self.state.set_mode(Mode::Editing);
+}
 
-    fn toggle_display_path(&mut self) {
-        self.state.toggle_display_path();
-        let navigator = &mut self.navigator;
-        navigator.set_page_changed()
-    }
+fn toggle_display_path(&mut self) {
+    self.state.toggle_display_path();
+    let navigator = &mut self.navigator;
+    navigator.set_page_changed()
+}
 
-    fn find_mark(&mut self, mark: char) {
-        if let Some(file_path) = self.configuration.marked.get(&mark) {
-            if let Ok(gallery) = self.repository.gallery_rc().try_borrow() {
-                if let Some(index) = gallery
-                    .pictures()
+fn find_mark(&mut self, mark: char) {
+    if let Some(file_path) = self.configuration.marked.get(&mark) {
+        if let Ok(gallery) = self.repository.gallery_rc().try_borrow() {
+            if let Some(index) = gallery
+                .pictures()
                     .iter()
                     .position(|picture| picture.file_path() == *file_path)
-                {
-                    let navigator = &mut self.navigator;
-                    navigator.move_towards(Direction::Index { value: index });
-                    navigator.set_page_changed()
-                } else {
-                    // self.display_information(&format!("mark: {} not found", mark));
-                }
-            } else {
-                panic!("can't borrow")
-            }
-        } else {
-            self.display_information(&format!("no picture with mark {}", mark));
-        }
-    }
-
-    fn quit(&mut self) {
-        if self.state.has_saved_args() {
-            self.back_from_directory()
-        } else {
-            self.configuration.current_picture = Some(self.current_picture().file_path());
-            self.configuration.cover = self.args.cover;
-            self.configuration.current_pictures_per_row = if self.state.single_view() {
-                Some(1)
-            } else {
-                Some(self.state.pictures_per_row())
-            };
-            self.configuration.current_order = Some(self.repository.order());
-            let _ = self.configuration.save();
-            let application_window = self.main_window().application_window();
-            self.repository.update_picture_scores(self.scores.clone());
-            application_window.close()
-        }
-    }
-
-    fn reload(&mut self) -> Result<usize, Error> {
-        match self.load_repository() {
-            Ok(0) => Ok(0),
-            Ok(n) => {
-                self.move_towards(Direction::First);
-                self.navigator.set_page_changed();
-                Ok(n)
-            }
-            Err(e) => {
-                eprintln!("{}", e);
-                self.quit();
-                Err(e)
-            }
-        }
-    }
-
-    fn toggle_expand(&mut self) {
-        if self.state.single_view() {
-            self.state.toggle_expand();
-            let navigator = &mut self.navigator;
-            navigator.set_page_changed();
-        }
-    }
-
-    fn toggle_display_date(&mut self) {
-        if self.state.display_path_on() {
-            self.state.toggle_display_path();
-        };
-        self.state.toggle_display_date();
-        self.main_window().set_title(self);
-        println!(
-            "display date {}",
-            if self.state().display_date_on() {
-                String::from("on")
-            } else {
-                String::from("off")
-            }
-        );
-    }
-
-    fn toggle_display_focus_symbol_change(&mut self) {
-        self.state.toggle_change_focus_symbol()
-    }
-
-    fn toggle_display_size(&mut self) {
-        if self.state.display_path_on() {
-            self.state.toggle_display_path();
-        };
-        self.state.toggle_display_size();
-        self.main_window().set_title(self);
-        println!(
-            "display size {}",
-            if self.state().display_size_on() {
-                String::from("on")
-            } else {
-                String::from("off")
-            }
-        );
-    }
-
-    fn toggle_full_size(&mut self) {
-        if self.state.single_view() {
-            self.state.toggle_full_size();
-            let navigator = &mut self.navigator;
-            navigator.set_page_changed();
-        }
-    }
-
-    fn toggle_palette(&mut self) {
-        self.state.toggle_palette();
-        let navigator = &mut self.navigator;
-        navigator.set_page_changed()
-    }
-
-    fn toggle_slideshow(&mut self) {
-        if let Some(seconds) = self.args().slideshow() {
-            self.state.toggle_slideshow();
-            if self.state.slideshow_on() {
-                self.main_window().reattach_slideshow_event(seconds);
+            {
                 let navigator = &mut self.navigator;
-                navigator.set_page_changed();
+                navigator.move_towards(Direction::Index { value: index });
+                navigator.set_page_changed()
+            } else {
+                // self.display_information(&format!("mark: {} not found", mark));
             }
-        }
-    }
-
-    fn order_by(&mut self, order: Order) {
-        let new_position: Option<usize>;
-        let current_file_path = self.current_picture().file_path();
-        if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut() {
-            gallery.sort_by(order);
-            new_position = gallery.find_file_path(&current_file_path);
-            self.args.order = Some(order);
         } else {
-            panic!("can't borrow mut")
+            panic!("can't borrow")
+        }
+    } else {
+        self.display_information(&format!("no picture with mark {}", mark));
+    }
+}
+
+fn quit(&mut self) {
+    if self.state.has_saved_args() {
+        self.back_from_directory()
+    } else {
+        self.configuration.current_picture = Some(self.current_picture().file_path());
+        self.configuration.cover = self.args.cover;
+        self.configuration.current_pictures_per_row = if self.state.single_view() {
+            Some(1)
+        } else {
+            Some(self.state.pictures_per_row())
         };
-        if let Some(index) = new_position {
-            self.navigator
-                .move_towards(Direction::Index { value: index })
-        } else {
-            self.navigator.move_towards(Direction::First)
-        };
-        self.navigator.set_page_changed()
+        self.configuration.current_order = Some(self.repository.order());
+        let _ = self.configuration.save();
+        let application_window = self.main_window().application_window();
+        self.repository.update_picture_scores(self.scores.clone());
+        application_window.close()
     }
+}
 
-    fn change_grid_size(&mut self, pictures_per_row: usize) {
-        self.state.change_grid_size(pictures_per_row);
-        self.apply_grid_size_change();
-    }
-
-    fn apply_grid_size_change(&mut self) {
-        let pictures_per_row = self.state.pictures_per_row();
-        self.navigator.set_pictures_per_row(pictures_per_row);
-        self.navigator.update_page_limits();
-        self.navigator.set_page_changed();
-        self.main_window().change_grid_size(pictures_per_row);
-    }
-
-    fn set_selection_range(&mut self) {
-        let position = self.navigator.position();
-        self.navigator.set_selection_range(position);
-        self.navigator.set_page_changed()
-    }
-
-    fn set_selection_range_all(&mut self) {
-        let navigator = &mut self.navigator;
-        navigator.set_selection_range_all();
-        self.navigator.set_page_changed()
-    }
-
-    fn set_selection_range_page(&mut self) {
-        let navigator = &mut self.navigator;
-        navigator.set_selection_range_page();
-        self.navigator.set_page_changed()
-    }
-    fn repeat_range(&mut self) {
-        let navigator = &mut self.navigator;
-        navigator.repeat_range();
-        self.navigator.set_page_changed()
-    }
-
-    fn toggle_selected(&mut self) {
-        let position = self.navigator.position();
-        let navigator = &mut self.navigator;
-        if navigator.is_selected(position) {
-            navigator.unselect(position)
-        } else {
-            navigator.select(position)
+fn reload(&mut self) -> Result<usize, Error> {
+    match self.load_repository() {
+        Ok(0) => Ok(0),
+        Ok(n) => {
+            self.move_towards(Direction::First);
+            self.navigator.set_page_changed();
+            Ok(n)
         }
-        self.navigator.set_page_changed()
+        Err(e) => {
+            eprintln!("{}", e);
+            self.quit();
+            Err(e)
+        }
     }
+}
 
-    fn cancel_range(&mut self) {
+fn toggle_expand(&mut self) {
+    if self.state.single_view() {
+        self.state.toggle_expand();
         let navigator = &mut self.navigator;
-        navigator.cancel_range();
-        self.navigator.set_page_changed()
+        navigator.set_page_changed();
     }
+}
 
-    fn delete_selected_pictures(&mut self) {
-        for index in self.navigator.selection() {
-            match self.repository.delete_picture_at_index(index) {
-                Ok(_) => {}
-                Err(err) => {
-                    println!("{}", err);
-                }
+fn toggle_display_date(&mut self) {
+    if self.state.display_path_on() {
+        self.state.toggle_display_path();
+    };
+    self.state.toggle_display_date();
+    self.main_window().set_title(self);
+    println!(
+        "display date {}",
+        if self.state().display_date_on() {
+            String::from("on")
+        } else {
+            String::from("off")
+        }
+    );
+}
+
+fn toggle_display_focus_symbol_change(&mut self) {
+    self.state.toggle_change_focus_symbol()
+}
+
+fn toggle_display_size(&mut self) {
+    if self.state.display_path_on() {
+        self.state.toggle_display_path();
+    };
+    self.state.toggle_display_size();
+    self.main_window().set_title(self);
+    println!(
+        "display size {}",
+        if self.state().display_size_on() {
+            String::from("on")
+        } else {
+            String::from("off")
+        }
+    );
+}
+
+fn toggle_full_size(&mut self) {
+    if self.state.single_view() {
+        self.state.toggle_full_size();
+        let navigator = &mut self.navigator;
+        navigator.set_page_changed();
+    }
+}
+
+fn toggle_palette(&mut self) {
+    self.state.toggle_palette();
+    let navigator = &mut self.navigator;
+    navigator.set_page_changed()
+}
+
+fn toggle_slideshow(&mut self) {
+    if let Some(seconds) = self.args().slideshow() {
+        self.state.toggle_slideshow();
+        if self.state.slideshow_on() {
+            self.main_window().reattach_slideshow_event(seconds);
+            let navigator = &mut self.navigator;
+            navigator.set_page_changed();
+        }
+    }
+}
+
+fn order_by(&mut self, order: Order) {
+    let new_position: Option<usize>;
+    let current_file_path = self.current_picture().file_path();
+    if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut() {
+        gallery.sort_by(order);
+        new_position = gallery.find_file_path(&current_file_path);
+        self.args.order = Some(order);
+    } else {
+        panic!("can't borrow mut")
+    };
+    if let Some(index) = new_position {
+        self.navigator
+            .move_towards(Direction::Index { value: index })
+    } else {
+        self.navigator.move_towards(Direction::First)
+    };
+    self.navigator.set_page_changed()
+}
+
+fn change_grid_size(&mut self, pictures_per_row: usize) {
+    self.state.change_grid_size(pictures_per_row);
+    self.apply_grid_size_change();
+}
+
+fn apply_grid_size_change(&mut self) {
+    let pictures_per_row = self.state.pictures_per_row();
+    self.navigator.set_pictures_per_row(pictures_per_row);
+    self.navigator.update_page_limits();
+    self.navigator.set_page_changed();
+    self.main_window().change_grid_size(pictures_per_row);
+}
+
+fn set_selection_range(&mut self) {
+    let position = self.navigator.position();
+    self.navigator.set_selection_range(position);
+    self.navigator.set_page_changed()
+}
+
+fn set_selection_range_all(&mut self) {
+    let navigator = &mut self.navigator;
+    navigator.set_selection_range_all();
+    self.navigator.set_page_changed()
+}
+
+fn set_selection_range_page(&mut self) {
+    let navigator = &mut self.navigator;
+    navigator.set_selection_range_page();
+    self.navigator.set_page_changed()
+}
+fn repeat_range(&mut self) {
+    let navigator = &mut self.navigator;
+    navigator.repeat_range();
+    self.navigator.set_page_changed()
+}
+
+fn toggle_selected(&mut self) {
+    let position = self.navigator.position();
+    let navigator = &mut self.navigator;
+    if navigator.is_selected(position) {
+        navigator.unselect(position)
+    } else {
+        navigator.select(position)
+    }
+    self.navigator.set_page_changed()
+}
+
+fn cancel_range(&mut self) {
+    let navigator = &mut self.navigator;
+    navigator.cancel_range();
+    self.navigator.set_page_changed()
+}
+
+fn delete_selected_pictures(&mut self) {
+    for index in self.navigator.selection() {
+        match self.repository.delete_picture_at_index(index) {
+            Ok(_) => {}
+            Err(err) => {
+                println!("{}", err);
             }
         }
     }
+}
 
-    fn move_selected_pictures_to_target(&mut self, target_dir: &str) {
-        let mut picture_count = 0;
-        let mut operation_count = 0;
-        for index in self.navigator.selection() {
-            match self.repository.move_picture_at_index(index, target_dir) {
-                Ok(count) => {
-                    picture_count += 1;
-                    operation_count += count;
-                }
-                Err(err) => {
-                    println!("{}", err);
-                }
+fn move_selected_pictures_to_target(&mut self, target_dir: &str) {
+    let mut picture_count = 0;
+    let mut operation_count = 0;
+    for index in self.navigator.selection() {
+        match self.repository.move_picture_at_index(index, target_dir) {
+            Ok(count) => {
+                picture_count += 1;
+                operation_count += count;
+            }
+            Err(err) => {
+                println!("{}", err);
             }
         }
-        println!(
-            "{} pictures moved to {}\n{} operations\nexiting gsr",
-            picture_count, target_dir, operation_count
-        );
-        let _ = self.reload();
-        self.navigator.set_page_changed();
     }
-    fn move_selected_pictures(&mut self) {
-        if let Some(target_dir) = &self.args.clone().r#move {
-            self.move_selected_pictures_to_target(target_dir);
-        }
+    println!(
+        "{} pictures moved to {}\n{} operations\nexiting gsr",
+        picture_count, target_dir, operation_count
+    );
+    let _ = self.reload();
+    self.navigator.set_page_changed();
+}
+fn move_selected_pictures(&mut self) {
+    if let Some(target_dir) = &self.args.clone().r#move {
+        self.move_selected_pictures_to_target(target_dir);
     }
-    fn cancel_delete_picture(&mut self) {
-        let navigator = &mut self.navigator;
-        navigator.cancel_range();
-        self.navigator.set_page_changed()
-    }
+}
+fn cancel_delete_picture(&mut self) {
+    let navigator = &mut self.navigator;
+    navigator.cancel_range();
+    self.navigator.set_page_changed()
+}
 
-    fn confirm_delete_picture(&mut self) {
-        self.delete_selected_pictures();
-        let _ = self.reload();
-        self.navigator.set_page_changed()
-    }
+fn confirm_delete_picture(&mut self) {
+    self.delete_selected_pictures();
+    let _ = self.reload();
+    self.navigator.set_page_changed()
+}
 
-    fn confirm_move_picture(&mut self) {
-        self.move_selected_pictures()
-    }
+fn confirm_move_picture(&mut self) {
+    self.move_selected_pictures()
+}
 
-    fn confirm_move_picture_to_label(&mut self, directory: &str) {
-        self.move_selected_pictures_to_target(directory);
-    }
+fn confirm_move_picture_to_label(&mut self, directory: &str) {
+    self.move_selected_pictures_to_target(directory);
+}
 
-    fn cancel_move_picture(&mut self) {
-        let navigator = &mut self.navigator;
-        navigator.cancel_range();
-        self.navigator.set_page_changed()
-    }
+fn cancel_move_picture(&mut self) {
+    let navigator = &mut self.navigator;
+    navigator.cancel_range();
+    self.navigator.set_page_changed()
+}
 
-    fn copy_to_temp(&mut self) {
-        match self
-            .repository
-            .copy_picture_at_index_to_temp_dir(self.navigator.position())
+fn copy_to_temp(&mut self) {
+    match self
+        .repository
+        .copy_picture_at_index_to_temp_dir(self.navigator.position())
         {
             Ok(_) => {}
             Err(e) => {
                 eprintln!("{}", e);
             }
         }
-    }
+}
 
-    fn extract_filenames(&mut self) {
-        if self.navigator.has_selected() {
-            let _ = self
-                .repository
-                .extract_file_names(&self.navigator.selection());
-        }
+fn extract_filenames(&mut self) {
+    if self.navigator.has_selected() {
+        let _ = self
+            .repository
+            .extract_file_names(&self.navigator.selection());
     }
+}
 
-    fn delete_picture(&mut self) {
-        if self.navigator.has_selected() {
-            self.editor
-                .begin(&self.main_window(), EntryKind::DeleteConfirmation, None);
-            self.state.set_mode(Mode::Editing);
-        }
+fn delete_picture(&mut self) {
+    if self.navigator.has_selected() {
+        self.editor
+            .begin(&self.main_window(), EntryKind::DeleteConfirmation, None);
+        self.state.set_mode(Mode::Editing);
     }
+}
 
-    fn move_picture(&mut self) {
-        if let Some(target_dir) = &self.args.r#move {
-            self.editor
-                .begin(&self.main_window(), EntryKind::MoveConfirmation, None);
-            self.editor
-                .set_prompt(&format!("move these pictures to {} ?", target_dir));
-            self.state.set_mode(Mode::Editing);
-        }
+fn move_picture(&mut self) {
+    if let Some(target_dir) = &self.args.r#move {
+        self.editor
+            .begin(&self.main_window(), EntryKind::MoveConfirmation, None);
+        self.editor
+            .set_prompt(&format!("move these pictures to {} ?", target_dir));
+        self.state.set_mode(Mode::Editing);
     }
-    fn check_move_destination_label(&self) -> Option<String> {
-        let mut label: Option<String> = None;
-        let mut grand_parent: Option<String> = None;
+}
+fn check_move_destination_label(&self) -> Option<String> {
+    let mut label: Option<String> = None;
+    let mut grand_parent: Option<String> = None;
 
-        if self.navigator.has_selected() {
-            for index in 0..self.navigator.limit() {
-                if self.navigator.is_selected(index) {
-                    let picture = self.repository.picture_at(index);
-                    let this_label = picture.label();
-                    if let Some(directory) = grand_parent_directory(&picture.file_path()) {
-                        if label.is_none() {
-                            label = Some(this_label);
-                            grand_parent = Some(directory);
-                        } else if this_label != label.clone().unwrap()
-                            || directory != grand_parent.clone().unwrap()
-                        {
-                            return None;
-                        }
-                    } else {
+    if self.navigator.has_selected() {
+        for index in 0..self.navigator.limit() {
+            if self.navigator.is_selected(index) {
+                let picture = self.repository.picture_at(index);
+                let this_label = picture.label();
+                if let Some(directory) = grand_parent_directory(&picture.file_path()) {
+                    if label.is_none() {
+                        label = Some(this_label);
+                        grand_parent = Some(directory);
+                    } else if this_label != label.clone().unwrap()
+                        || directory != grand_parent.clone().unwrap()
+                    {
                         return None;
                     }
-                }
-            }
-            let path = PathBuf::from(grand_parent.unwrap());
-            let addendum = PathBuf::from(label.clone().unwrap());
-            let candidate = path.join(addendum.clone());
-            let result = check_path_exists(&candidate);
-            match result {
-                Ok(valid_path) => Some(valid_path.to_str().unwrap().to_string()),
-                Err(e) => {
-                    eprintln!("{}", e);
-                    None
-                }
-            }
-        } else {
-            None
-        }
-    }
-
-    fn move_picture_to_label(&mut self) {
-        if let Some(target_dir) = self.check_move_destination_label() {
-            self.editor.begin(
-                &self.main_window(),
-                EntryKind::MoveToLabelConfirmation(target_dir),
-                None,
-            );
-            self.state.set_mode(Mode::Editing);
-        }
-    }
-
-    fn arrow_move(&mut self, direction: Direction) {
-        if self.state().single_view() && self.state().full_size_on() {
-            self.full_size_arrow_move(direction)
-        } else {
-            let navigator = &mut (self.navigator);
-            if navigator.can_move(direction.clone()) {
-                navigator.move_towards(direction)
-            }
-        }
-    }
-
-    fn full_size_arrow_move(&self, direction: Direction) {
-        self.main_window().full_size_arrow_move(direction.clone())
-    }
-
-    fn can_move(&mut self, direction: Direction) -> bool {
-        !self.state.full_size_on() && self.navigator.can_move(direction)
-    }
-
-    fn move_towards(&mut self, direction: Direction) {
-        match direction {
-            Direction::NextPage if self.state.single_view() => self.move_towards(Direction::Right),
-            Direction::PrevPage if self.state.single_view() => self.move_towards(Direction::Left),
-            ref other => {
-                if self.can_move(other.clone()) {
-                    self.navigator.move_towards(other.clone());
-                }
-            }
-        }
-    }
-
-    fn repeat_last_action(&mut self) {
-        let action = self.last_action.clone();
-        match action {
-            Action::Nothing => {}
-            Action::Label(label) => self.label_selected_pictures(&label),
-            Action::Categorize(category) => self.categorize_selected_pictures(category),
-            Action::Unlabel => self.unlabel_selected_pictures(),
-            Action::AddTag(label) => self.tag_selected_pictures(&label),
-            Action::RemoveTag(label) => self.untag_selected_pictures(&label),
-            Action::Rank(rank) => self.rank_selected_pictures(rank),
-        }
-    }
-
-    pub fn increment_picture_score(&mut self, file_path: &str) {
-        if let Some(score) = self.scores.get_mut(file_path) {
-            *score += 1;
-        } else {
-            _ = self.scores.insert(file_path.to_string(), 1);
-        };
-    }
-
-    fn confirm_view(&mut self, input: &str) {
-        if !input.is_empty() {
-            match input {
-                "1" | "2" | "3" | "4" | "5" => self.change_grid_size(input.parse().unwrap()),
-                "Thumbs" => self.change_grid_size(10),
-                "Covers" => self.toggle_cover_selection(),
-                "Date" => self.process_control(&Control::DisplayDate),
-                "Path" => self.process_control(&Control::DisplayPath),
-                "Size" => self.process_control(&Control::DisplaySize),
-                _ => {
-                    eprintln!("not implemented");
-                }
-            }
-        }
-    }
-
-    fn confirm_rank(&mut self, input: &str) {
-        if !input.is_empty() {
-            match input.parse() {
-                Ok(level) => match level {
-                    0 => self.rank_selected_pictures(Rank::NoStar),
-                    1 => self.rank_selected_pictures(Rank::OneStar),
-                    2 => self.rank_selected_pictures(Rank::TwoStars),
-                    3 => self.rank_selected_pictures(Rank::ThreeStars),
-                    _ => {}
-                },
-                Err(e) => {
-                    eprintln!("{}", e);
-                }
-            }
-        }
-    }
-
-    fn find_first(&mut self, pattern: &str, find: Find) {
-        self.apply_search(pattern, find)
-    }
-
-    fn select(&mut self, pattern: &str, find: Find) {
-        let information_opt = match predicate(pattern, find, self.repository.catalog().clone()) {
-            Ok(predicate) => {
-                let selection = format!("{:?} {}", find, pattern);
-                self.go_to_selection(&selection, predicate)
-            }
-            Err(e) => {
-                eprintln!("error in select: {}", e);
-                None
-            }
-        };
-        if let Some(information) = information_opt {
-            self.display_information(&information)
-        }
-    }
-
-    fn apply_search(&mut self, pattern: &str, find: Find) {
-        let information_opt = match predicate(pattern, find, self.repository.catalog().clone()) {
-            Ok(predicate) => {
-                if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut() {
-                    let finder = &mut gallery.finder;
-                    if let Some(index) = finder.find_first(predicate) {
-                        let navigator = &mut self.navigator;
-                        navigator.move_towards(Direction::Index { value: index });
-                        navigator.set_page_changed();
-                        self.search_in_progress = true;
-                        None
-                    } else {
-                        Some(format!("{} [{}] not found", find, pattern))
-                    }
                 } else {
-                    panic!("can't borrow");
-                    None
+                    return None;
                 }
             }
-            Err(e) => Some(format!("{}", e)),
-        };
-        if let Some(information) = information_opt {
-            self.display_information(&information)
         }
-    }
-
-    fn find_next(&mut self) {
-        let information_opt = if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut()
-        {
-            if let Some(index) = gallery.finder.find_next() {
-                let navigator = &mut self.navigator;
-                navigator.move_towards(Direction::Index { value: index });
-                navigator.set_page_changed();
+        let path = PathBuf::from(grand_parent.unwrap());
+        let addendum = PathBuf::from(label.clone().unwrap());
+        let candidate = path.join(addendum.clone());
+        let result = check_path_exists(&candidate);
+        match result {
+            Ok(valid_path) => Some(valid_path.to_str().unwrap().to_string()),
+            Err(e) => {
+                eprintln!("{}", e);
                 None
-            } else {
-                self.search_in_progress = false;
-                Some(format!("end of search"))
             }
-        } else {
-            panic!("can't borrow");
-            None
-        };
-        if let Some(information) = information_opt {
-            self.display_information(&information)
+        }
+    } else {
+        None
+    }
+}
+
+fn move_picture_to_label(&mut self) {
+    if let Some(target_dir) = self.check_move_destination_label() {
+        self.editor.begin(
+            &self.main_window(),
+            EntryKind::MoveToLabelConfirmation(target_dir),
+            None,
+        );
+        self.state.set_mode(Mode::Editing);
+    }
+}
+
+fn arrow_move(&mut self, direction: Direction) {
+    if self.state().single_view() && self.state().full_size_on() {
+        self.full_size_arrow_move(direction)
+    } else {
+        let navigator = &mut (self.navigator);
+        if navigator.can_move(direction.clone()) {
+            navigator.move_towards(direction)
         }
     }
+}
+
+fn full_size_arrow_move(&self, direction: Direction) {
+    self.main_window().full_size_arrow_move(direction.clone())
+}
+
+fn can_move(&mut self, direction: Direction) -> bool {
+    !self.state.full_size_on() && self.navigator.can_move(direction)
+}
+
+fn move_towards(&mut self, direction: Direction) {
+    match direction {
+        Direction::NextPage if self.state.single_view() => self.move_towards(Direction::Right),
+        Direction::PrevPage if self.state.single_view() => self.move_towards(Direction::Left),
+        ref other => {
+            if self.can_move(other.clone()) {
+                self.navigator.move_towards(other.clone());
+            }
+        }
+    }
+}
+
+fn repeat_last_action(&mut self) {
+    let action = self.last_action.clone();
+    match action {
+        Action::Nothing => {}
+        Action::Label(label) => self.label_selected_pictures(&label),
+        Action::Categorize(category) => self.categorize_selected_pictures(category),
+        Action::Unlabel => self.unlabel_selected_pictures(),
+        Action::AddTag(label) => self.tag_selected_pictures(&label),
+        Action::RemoveTag(label) => self.untag_selected_pictures(&label),
+        Action::Rank(rank) => self.rank_selected_pictures(rank),
+    }
+}
+
+pub fn increment_picture_score(&mut self, file_path: &str) {
+    if let Some(score) = self.scores.get_mut(file_path) {
+        *score += 1;
+    } else {
+        _ = self.scores.insert(file_path.to_string(), 1);
+    };
+}
+
+fn confirm_view(&mut self, input: &str) {
+    if !input.is_empty() {
+        match input {
+            "1" | "2" | "3" | "4" | "5" => self.change_grid_size(input.parse().unwrap()),
+            "Thumbs" => self.change_grid_size(10),
+            "Covers" => self.toggle_cover_selection(),
+            "Date" => self.process_control(&Control::DisplayDate),
+            "Path" => self.process_control(&Control::DisplayPath),
+            "Size" => self.process_control(&Control::DisplaySize),
+            _ => {
+                eprintln!("not implemented");
+            }
+        }
+    }
+}
+
+fn confirm_rank(&mut self, input: &str) {
+    if !input.is_empty() {
+        match input.parse() {
+            Ok(level) => match level {
+                0 => self.rank_selected_pictures(Rank::NoStar),
+                1 => self.rank_selected_pictures(Rank::OneStar),
+                2 => self.rank_selected_pictures(Rank::TwoStars),
+                3 => self.rank_selected_pictures(Rank::ThreeStars),
+                _ => {}
+            },
+            Err(e) => {
+                eprintln!("{}", e);
+            }
+        }
+    }
+}
+
+fn find_first(&mut self, pattern: &str, find: Find) {
+    self.apply_search(pattern, find)
+}
+
+fn select(&mut self, pattern: &str, find: Find) {
+    let information_opt = match predicate(pattern, find, self.repository.catalog().clone()) {
+        Ok(predicate) => {
+            let selection = format!("{:?} {}", find, pattern);
+            self.go_to_selection(&selection, predicate)
+        }
+        Err(e) => {
+            eprintln!("error in select: {}", e);
+            None
+        }
+    };
+    if let Some(information) = information_opt {
+        self.display_information(&information)
+    }
+}
+
+fn apply_search(&mut self, pattern: &str, find: Find) {
+    let information_opt = match predicate(pattern, find, self.repository.catalog().clone()) {
+        Ok(predicate) => {
+            if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut() {
+                let finder = &mut gallery.finder;
+                if let Some(index) = finder.find_first(predicate) {
+                    let navigator = &mut self.navigator;
+                    navigator.move_towards(Direction::Index { value: index });
+                    navigator.set_page_changed();
+                    self.search_in_progress = true;
+                    None
+                } else {
+                    Some(format!("{} [{}] not found", find, pattern))
+                }
+            } else {
+                panic!("can't borrow");
+                None
+            }
+        }
+        Err(e) => Some(format!("{}", e)),
+    };
+    if let Some(information) = information_opt {
+        self.display_information(&information)
+    }
+}
+
+fn find_next(&mut self) {
+    let information_opt = if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut()
+    {
+        if let Some(index) = gallery.finder.find_next() {
+            let navigator = &mut self.navigator;
+            navigator.move_towards(Direction::Index { value: index });
+            navigator.set_page_changed();
+            None
+        } else {
+            self.search_in_progress = false;
+            Some(format!("end of search"))
+        }
+    } else {
+        panic!("can't borrow");
+        None
+    };
+    if let Some(information) = information_opt {
+        self.display_information(&information)
+    }
+}
 }
