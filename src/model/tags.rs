@@ -8,6 +8,11 @@ pub fn tags_from_str(s: &str) -> Tags {
     set
 }
 
+pub fn tags_from_vec(v: Vec<String>) -> Tags {
+    let set: HashSet<String> = HashSet::<String>::from_iter(v);
+    set
+}
+
 pub fn tags_as_vec(tags: Tags) -> Vec<String> {
     tags.iter().cloned().collect()
 }

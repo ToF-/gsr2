@@ -1,3 +1,4 @@
+use crate::model::catalog::load_catalog;
 use crate::cli::args::Args;
 use crate::cli::command::Command;
 use crate::env::configuration::Configuration;
@@ -40,11 +41,13 @@ pub struct Repository {
     on_database: bool,
     database: Database,
     tags_rc: RefCell<Tags>,
+    categories_rc: RefCell<Tags>,
     gallery_rc: RefCell<Gallery>,
     parent_dirs: HashMap<String, (usize, usize)>,
     len: usize,
     temp_dir: String,
     catalog_filepath: String,
+    catalog_rc: RefCell<Catalog>,
 }
 
 impl Repository {
@@ -55,11 +58,13 @@ impl Repository {
             on_database: true,
             database,
             tags_rc: RefCell::new(crate::model::tags::empty_tags()),
+            categories_rc: RefCell::new(crate::model::tags::empty_tags()),
             gallery_rc: RefCell::new(Gallery::new()),
             parent_dirs: HashMap::new(),
             len: 0,
             temp_dir: configuration.temp_dir,
-            catalog_filepath: configuration.catalog_filepath,
+            catalog_filepath: configuration.catalog_filepath.clone(),
+            catalog_rc: RefCell::new(load_catalog(&configuration.catalog_filepath)),
         }
     }
 
@@ -73,6 +78,20 @@ impl Repository {
             Err(e) => Err(IOError::other(format!("{}", e))),
         }
     }
+
+    pub fn retrieve_all_categories(&mut self) -> IOResult<()> {
+        match self.categories_rc.try_borrow_mut() {
+            Ok(mut categories) => match self.database.retrieve_all_categories() {
+                Ok(names) => {
+                    *categories = Tags::from(names);
+                    Ok(())
+                }
+                Err(e) => Err(e),
+            },
+            Err(e) => Err(IOError::other(format!("{}", e))),
+        }
+    }
+
 
     fn retrieve_all_labels(&mut self) -> IOResult<()> {
         match self.tags_rc.try_borrow_mut() {
@@ -169,6 +188,14 @@ impl Repository {
     pub fn order(&self) -> Order {
         if let Ok(gallery) = self.gallery_rc.try_borrow() {
             gallery.order()
+        } else {
+            panic!("can't borrow")
+        }
+    }
+
+    pub fn catalog(&self) -> Catalog {
+        if let Ok(catalog) = self.catalog_rc.try_borrow() {
+            catalog.clone()
         } else {
             panic!("can't borrow")
         }
@@ -319,6 +346,11 @@ impl Repository {
             .tags_rc
             .try_borrow()
             .expect("can't borrow repository tags");
+        tags.clone()
+    }
+
+    pub fn all_categories(&self) -> Tags {
+        let tags = self.categories_rc.try_borrow().expect("can't borrow repository categories");
         tags.clone()
     }
 

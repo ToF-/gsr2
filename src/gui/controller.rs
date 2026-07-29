@@ -785,7 +785,8 @@ impl Controller {
     }
 
     fn enter_remove_category(&mut self) {
-        self.enter_editing(EntryKind::RemoveCategory, None)
+        let tags = self.repository.catalog().tags();
+        self.enter_editing(EntryKind::RemoveCategory, Some(tags))
     }
 
     fn enter_find(&mut self) {
@@ -1173,8 +1174,13 @@ impl Controller {
         println!("todo: add_category")
     }
 
+
     fn remove_category(&mut self, input: &str) {
-        println!("todo: remove_category")
+        self.repository.retrieve_all_categories();
+        if !self.repository.all_categories().contains(input) {
+        } else {
+            self.display_information(&format!("category {} is being used and cannot be removed", input))
+        }
     }
 
     fn move_category(&mut self, input: &str) {

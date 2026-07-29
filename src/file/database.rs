@@ -283,6 +283,25 @@ impl Database {
         })
     }
 
+    pub fn rusqlite_retrieve_all_categories(&self) -> SqlResult<HashSet<String>> {
+        let connection = self.connection_rc.borrow();
+        connection
+            .prepare(
+                "SELECT DISTINCT Category      \n\
+                FROM Picture WHERE Category IS NOT NULL;", //""
+            )
+            .and_then(|mut statement| {
+                let mut map: HashSet<String> = HashSet::new();
+                statement.query([]).map(|mut rows| {
+                    while let Some(row) = rows.next().unwrap() {
+                        let label: String = row.get(0).expect("can't access to column Category");
+                        let _ = map.insert(label);
+                    }
+                    map
+                })
+            })
+    }
+
     pub fn rusqlite_retrieve_all_labels(&self) -> SqlResult<HashSet<String>> {
         let connection = self.connection_rc.borrow();
         connection
@@ -609,6 +628,13 @@ impl Database {
 
     pub fn retrieve_all_labels(&self) -> IOResult<HashSet<String>> {
         match self.rusqlite_retrieve_all_labels() {
+            Ok(result) => Ok(result),
+            Err(e) => Err(IOError::other(e)),
+        }
+    }
+
+    pub fn retrieve_all_categories(&self) -> IOResult<HashSet<String>> {
+        match self.rusqlite_retrieve_all_categories() {
             Ok(result) => Ok(result),
             Err(e) => Err(IOError::other(e)),
         }

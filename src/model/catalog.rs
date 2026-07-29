@@ -1,3 +1,5 @@
+use crate::model::tags::tags_from_vec;
+use crate::model::tags::Tags;
 use crate::env::configuration::Configuration;
 use crate::model::categories::Categories;
 use crate::model::sub_category::SubCategory;
@@ -18,6 +20,14 @@ type ReverseTree = HashMap<String, String>;
 #[derive(Debug, Clone)]
 pub struct Catalog {
     root: SubCategory,
+}
+
+pub fn load_catalog(catalog_filepath: &str) -> Catalog {
+    if let Ok(catalog) = Catalog::from_file(catalog_filepath) {
+        catalog
+    } else {
+        panic!("can't load catalog file {}", catalog_filepath)
+    }
 }
 
 impl Catalog {
@@ -60,6 +70,10 @@ impl Catalog {
 
     fn sort(&mut self) {
         self.root.sort();
+    }
+
+    pub fn tags(&self) -> Tags {
+        tags_from_vec(self.root.sub_category_names())
     }
     pub fn save_to_file(&mut self, file_path: &str) -> Result<()> {
         self.sort();
@@ -504,5 +518,13 @@ mod tests {
             Catalog::from_sexpr("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
         let result = catalog.move_sub_category("foo", "gus");
         assert!(result.is_err());
+    }
+    #[test]
+    fn can_obtain_tags_from_the_sub_categories() {
+        let catalog = Catalog::from_sexpr("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
+        let tags: Tags = catalog.tags();
+        assert!(tags.contains("foo"));
+        assert!(tags.contains("bol"));
+        
     }
 }
