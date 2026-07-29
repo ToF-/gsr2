@@ -77,19 +77,28 @@ pub fn main() {
                     sub_category,
                     category,
                 } => match catalog.add_and_save(&sub_category, &category) {
-                    Ok(_) => {}
+                    Ok(_) => {
+                        println!("added {} to {}", sub_category, category);
+                        list(&catalog);
+                    },
                     Err(err) => eprintln!("error: {}", err),
                 },
                 Commands::Move {
                     sub_category,
                     category,
-                } => match catalog.move_sub_category(&sub_category, &category) {
-                    Ok(_) => {}
+                } => match catalog.move_and_save(&sub_category, &category) {
+                    Ok(_) => {
+                        println!("moved {} to {}", sub_category, category);
+                        list(&catalog);
+                    },
                     Err(err) => eprintln!("error: {}", err),
                 },
                 Commands::Remove { category, force } => {
                     match catalog.remove_and_save(&category, force) {
-                        Ok(_) => {}
+                    Ok(_) => {
+                        println!("removed {}", category);
+                        list(&catalog);
+                    },
                         Err(err) => eprintln!("error: {}", err),
                     }
                 }
