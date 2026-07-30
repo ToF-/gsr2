@@ -1,11 +1,12 @@
-pub mod gsr_controller;
 pub mod control;
 pub mod controller;
 pub mod direction;
 pub mod display;
 pub mod editor;
+pub mod entry_controller;
 pub mod entry_kind;
 pub mod event;
+pub mod gsr_controller;
 pub mod mode;
 pub mod navigator;
 pub mod selector;

@@ -1,6 +1,7 @@
 use crate::env::default_values::{ENTRY_CURSOR_1, ENTRY_CURSOR_2};
 use crate::env::default_values::{ENTRY_WINDOW_HEIGHT, ENTRY_WINDOW_WIDTH};
 use crate::gui::controller::RcController;
+use crate::gui::entry_controller::EntryController;
 use crate::gui::event::Event;
 use crate::gui::mode::Mode;
 use gtk::Align;
@@ -19,8 +20,8 @@ use std::time::Duration;
 #[derive(Clone, Debug)]
 pub struct EntryWindow {
     window: gtk::Window,
+    entry_controller: std::cell::RefCell<EntryController>,
 }
-
 
 #[allow(deprecated)]
 impl EntryWindow {
@@ -73,16 +74,27 @@ impl EntryWindow {
             .transient_for(application_window)
             .build();
         window.set_child(Some(&entry_box));
-        Self::attach_key_pressed_event_handler(&window, controller_rc);
+        let entry_controller: std::cell::RefCell<EntryController> =
+            std::cell::RefCell::new(EntryController::new());
+        Self::attach_key_pressed_event_handler(&window, controller_rc, &entry_controller);
         Self::attach_cursor_blink_event(&window, controller_rc);
-        EntryWindow { window }
+        EntryWindow {
+            window,
+            entry_controller,
+        }
     }
 
-    fn attach_key_pressed_event_handler(window: &gtk::Window, controller_rc: &RcController) {
+    pub fn entry_controller(&self) -> std::cell::RefCell<EntryController> {
+        self.entry_controller.clone()
+    }
+
+    fn attach_key_pressed_event_handler(window: &gtk::Window, controller_rc: &RcController, entry_controller_rc: &std::cell::RefCell<EntryController>) {
         let event_controller_key = gtk::EventControllerKey::new();
         event_controller_key.connect_key_pressed(clone!(
             #[strong]
             controller_rc,
+            #[strong]
+            entry_controller_rc,
             move |_, key, key_code, modifier_type| {
                 if let Ok(mut controller) = controller_rc.try_borrow_mut() {
                     controller.process_event(
@@ -93,7 +105,11 @@ impl EntryWindow {
                         },
                         &controller_rc,
                     );
-                    controller.gsr_controller().entered(&format!("{:}",key));
+                    controller.gsr_controller().entered(&format!("{:}", key));
+                    if let Some(name) = key.name() {
+                        entry_controller_rc.borrow().enter(&name);
+                    }
+
                 };
                 Propagation::Stop
             }

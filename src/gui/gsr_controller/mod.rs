@@ -1,7 +1,7 @@
 mod imp;
 
-use gtk::prelude::ObjectExt;
 use gtk::glib::subclass::prelude::*;
+use gtk::prelude::ObjectExt;
 
 gtk::glib::wrapper! {
     pub struct GsrController(ObjectSubclass<imp::GsrController>);
