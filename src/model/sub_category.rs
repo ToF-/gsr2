@@ -30,7 +30,7 @@ impl SubCategory {
     }
 
     pub fn is_top_category(&self) -> bool {
-        &self.name == TOP_CATEGORY
+        self.name == TOP_CATEGORY
     }
     pub fn sub_category_names(&self) -> Vec<String> {
         let mut result = vec![];
@@ -125,8 +125,7 @@ impl SubCategory {
             self.sub_categories.push(sub_category_tree.clone());
         } else {
             for sub_category in self.sub_categories.iter_mut() {
-                let _ =
-                    sub_category.add_sub_category_tree_on_name(sub_category_tree, category_name);
+                sub_category.add_sub_category_tree_on_name(sub_category_tree, category_name);
             }
         }
     }

@@ -40,7 +40,6 @@ impl Display for Find {
                 Find::SubCategory => "subcategory",
                 Find::SomeTags => "tags",
                 Find::AllTags => "tags",
-                _ => "else",
             }
         )
     }

@@ -9,13 +9,8 @@ use lexpr::Value::Cons;
 use lexpr::Value::Null;
 use lexpr::Value::Symbol;
 use regex::Regex;
-use std::collections::HashMap;
-use std::collections::hash_map::Entry;
 use std::fs;
 use std::io::{Error, Result};
-use std::ops::ControlFlow;
-
-type ReverseTree = HashMap<String, String>;
 
 #[derive(Debug, Clone)]
 pub struct Catalog {
@@ -71,7 +66,10 @@ impl Catalog {
     pub fn sub_category(&self, category_name: &str) -> Result<SubCategory> {
         match self.root.find_sub_category_by_name(category_name) {
             Some(sub_category) => Ok(sub_category),
-            None => Err(Error::other(format!("category {} does not exist", category_name))),
+            None => Err(Error::other(format!(
+                "category {} does not exist",
+                category_name
+            ))),
         }
     }
 
@@ -254,7 +252,7 @@ impl Catalog {
     pub fn remove_category(&mut self, category_name: &str, force: bool) -> Result<()> {
         if category_name != TOP_CATEGORY {
             match self.root.find_sub_category_by_name(category_name) {
-                Some(sub_category) => self.root.remove_sub_category(category_name, force),
+                Some(_) => self.root.remove_sub_category(category_name, force),
                 None => Err(Error::other(format!("unknown category:{}", category_name))),
             }
         } else {
@@ -290,36 +288,6 @@ impl Catalog {
         }
         false
     }
-}
-
-fn make_reverse_tree(tree: &mut ReverseTree, parent: &SubCategory) -> Result<()> {
-    let mut result: Result<()> = Ok(());
-    parent.sub_categories().iter().for_each(|child| {
-        if result.is_ok() {
-            match make_reverse_tree(tree, child) {
-                Ok(_) => {}
-                Err(err) => {
-                    result = Err(err);
-                }
-            }
-        };
-        if result.is_ok() {
-            let key: String = child.name();
-            let value: String = parent.name();
-            match tree.entry(key) {
-                Entry::Vacant(entry) => {
-                    entry.insert(value);
-                }
-                Entry::Occupied(_) => {
-                    result = Err(Error::other(format!(
-                        "duplicate subcategory:{}",
-                        child.name()
-                    )));
-                }
-            };
-        };
-    });
-    result
 }
 
 pub fn format_value(v: &Value) -> String {

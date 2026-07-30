@@ -1,4 +1,3 @@
-
 use crate::cli::args::Args;
 use crate::cli::command::Command;
 use crate::env::configuration::Configuration;
@@ -31,7 +30,6 @@ use std::fs::File;
 use std::io::BufRead;
 use std::io::BufReader;
 use std::io::BufWriter;
-use std::io::Error;
 use std::io::Error as IOError;
 use std::io::Result as IOResult;
 use std::io::Write;
@@ -148,7 +146,7 @@ impl Repository {
                     pattern: regex,
                     cover: args.cover,
                     parent_opt: args.directory.clone(),
-                    predicate_opt: predicate_opt,
+                    predicate_opt,
                 };
                 *gallery = match self
                     .database
@@ -217,7 +215,11 @@ impl Repository {
         }
     }
 
-    pub fn move_category(&mut self, moving_category_name: &str, target_category_name: &str) -> IOResult<()> {
+    pub fn move_category(
+        &mut self,
+        moving_category_name: &str,
+        target_category_name: &str,
+    ) -> IOResult<()> {
         if let Ok(mut catalog) = self.catalog_rc.try_borrow_mut() {
             match catalog.move_and_save(moving_category_name, target_category_name) {
                 Ok(_) => Ok(()),

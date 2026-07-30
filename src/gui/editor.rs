@@ -1,5 +1,5 @@
-use crate::env::default_values::MAX_LABELS_LENGTH;
 use crate::env::default_values::MAX_LABEL_LENGTH;
+use crate::env::default_values::MAX_LABELS_LENGTH;
 use crate::env::default_values::MAX_NAME_LENGTH;
 use crate::gui::control::{Control, Controls, default_controls};
 use crate::gui::entry_kind::EntryKind;
