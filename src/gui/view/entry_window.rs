@@ -101,6 +101,7 @@ impl EntryWindow {
                         Event::KeyPressed {
                             key,
                             key_code,
+
                             modifier_type,
                         },
                         &controller_rc,
