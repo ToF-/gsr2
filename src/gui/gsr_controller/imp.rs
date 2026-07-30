@@ -4,22 +4,22 @@ use std::sync::OnceLock;
 use gtk::glib;
 
 #[derive(Default)]
-pub struct MyController;
+pub struct GsrController;
 
 #[gtk::glib::object_subclass]
-impl ObjectSubclass for MyController {
-    const NAME: &'static str = "MyController";
-    type Type = super::MyController;
+impl ObjectSubclass for GsrController {
+    const NAME: &'static str = "GsrController";
+    type Type = super::GsrController;
     type ParentType = gtk::glib::Object;
 }
 
-impl ObjectImpl for MyController {
+impl ObjectImpl for GsrController {
     fn signals() -> &'static [Signal] {
         static SIGNALS: OnceLock<Vec<Signal>> = OnceLock::new();
 
         SIGNALS.get_or_init(|| {
             vec![
-                Signal::builder("finished")
+                Signal::builder("entered")
                     .param_types([
                         gtk::glib::types::Type::STRING,
                     ])

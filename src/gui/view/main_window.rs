@@ -11,7 +11,6 @@ use crate::gui::display::title_display;
 use crate::gui::event::Event::{KeyPressed, NextSlideDelay, PaneClicked};
 use crate::gui::mode::Mode;
 use crate::gui::view::entry_window::EntryWindow;
-use crate::gui::view::gsr_window::GsrWindow;
 use crate::gui::view::picture_cell_box::make_picture_cell_box;
 use crate::gui::view::picture_frame::PictureFrame;
 use crate::gui::view::picture_grid::PictureGrid;

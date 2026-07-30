@@ -1,4 +1,4 @@
-use crate::gui::gsr_controller::MyController;
+use crate::gui::gsr_controller::GsrController;
 use crate::model::category::category_from_string;
 use crate::model::change::Change;
 use crate::model::finder::predicate;
@@ -54,7 +54,7 @@ pub struct Controller {
     editor: Editor,
     selector: Selector,
     last_action: Action,
-    my_controller: MyController,
+    my_controller: GsrController,
 }
 
 pub type RcController = Rc<RefCell<Controller>>;
@@ -109,14 +109,14 @@ impl Controller {
             state: State::new(pictures_per_row as usize, cli.slideshow().is_some()),
             main_window_opt: None,
             last_action: Action::Nothing,
-            my_controller: MyController::new(),
+            my_controller: GsrController::new(),
         };
         controller.my_controller.connect_local(
-            "finished",
+            "entered",
             false,
             |values| {
                 let text = values[1].get::<String>().unwrap();
-                println!("Operation finished with text={}", text);
+                println!("entered with text={}", text);
                 None
             },
         );
@@ -132,6 +132,10 @@ impl Controller {
     }
     pub fn selector(&self) -> Selector {
         self.selector.clone()
+    }
+
+    pub fn gsr_controller(&self) -> GsrController {
+        self.my_controller.clone()
     }
 
     pub fn set_selected(&mut self, selected: &str) {
@@ -1453,7 +1457,6 @@ impl Controller {
             let _ = self.configuration.save();
             let application_window = self.main_window().application_window();
             self.repository.update_picture_scores(self.state().scores());
-            self.my_controller.finish("foo bar");
             application_window.close()
         }
     }

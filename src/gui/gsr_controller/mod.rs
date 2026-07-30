@@ -4,15 +4,15 @@ use gtk::prelude::ObjectExt;
 use gtk::glib::subclass::prelude::*;
 
 gtk::glib::wrapper! {
-    pub struct MyController(ObjectSubclass<imp::MyController>);
+    pub struct GsrController(ObjectSubclass<imp::GsrController>);
 }
 
-impl MyController {
+impl GsrController {
     pub fn new() -> Self {
         gtk::glib::Object::new()
     }
 
-    pub fn finish(&self, text: &str) {
-        self.emit_by_name::<()>("finished", &[&text]);
+    pub fn entered(&self, key: &str) {
+        self.emit_by_name::<()>("entered", &[&key]);
     }
 }

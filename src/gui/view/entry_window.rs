@@ -1,4 +1,3 @@
-use crate::gui::view::gsr_window::GsrWindow;
 use crate::env::default_values::{ENTRY_CURSOR_1, ENTRY_CURSOR_2};
 use crate::env::default_values::{ENTRY_WINDOW_HEIGHT, ENTRY_WINDOW_WIDTH};
 use crate::gui::controller::RcController;
@@ -94,6 +93,7 @@ impl EntryWindow {
                         },
                         &controller_rc,
                     );
+                    controller.gsr_controller().entered(&format!("{:}",key));
                 };
                 Propagation::Stop
             }
