@@ -1,3 +1,4 @@
+pub mod gsr_controller;
 pub mod control;
 pub mod controller;
 pub mod direction;

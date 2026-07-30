@@ -1,3 +1,4 @@
+use crate::gui::gsr_controller::MyController;
 use crate::model::category::category_from_string;
 use crate::model::change::Change;
 use crate::model::finder::predicate;
@@ -53,6 +54,7 @@ pub struct Controller {
     editor: Editor,
     selector: Selector,
     last_action: Action,
+    my_controller: MyController,
 }
 
 pub type RcController = Rc<RefCell<Controller>>;
@@ -96,7 +98,7 @@ impl Controller {
                 )));
             }
         };
-        Ok(Controller {
+        let controller = Controller {
             configuration: config.clone(),
             repository: repository.clone(),
             args: cli.clone(),
@@ -107,7 +109,18 @@ impl Controller {
             state: State::new(pictures_per_row as usize, cli.slideshow().is_some()),
             main_window_opt: None,
             last_action: Action::Nothing,
-        })
+            my_controller: MyController::new(),
+        };
+        controller.my_controller.connect_local(
+            "finished",
+            false,
+            |values| {
+                let text = values[1].get::<String>().unwrap();
+                println!("Operation finished with text={}", text);
+                None
+            },
+        );
+        Ok(controller)
     }
 
     pub fn args(&self) -> Args {
@@ -1440,6 +1453,7 @@ impl Controller {
             let _ = self.configuration.save();
             let application_window = self.main_window().application_window();
             self.repository.update_picture_scores(self.state().scores());
+            self.my_controller.finish("foo bar");
             application_window.close()
         }
     }
