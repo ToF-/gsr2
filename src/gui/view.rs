@@ -6,3 +6,4 @@ pub mod picture_cell_box;
 pub mod picture_frame;
 pub mod picture_grid;
 pub mod treelist_window;
+pub mod gsr_window;

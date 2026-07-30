@@ -11,6 +11,7 @@ use crate::gui::display::title_display;
 use crate::gui::event::Event::{KeyPressed, NextSlideDelay, PaneClicked};
 use crate::gui::mode::Mode;
 use crate::gui::view::entry_window::EntryWindow;
+use crate::gui::view::gsr_window::GsrWindow;
 use crate::gui::view::picture_cell_box::make_picture_cell_box;
 use crate::gui::view::picture_frame::PictureFrame;
 use crate::gui::view::picture_grid::PictureGrid;
@@ -29,7 +30,7 @@ use gtk::prelude::{
     ApplicationExtManual, Cast, GestureSingleExt, GridExt, GtkApplicationExt, GtkWindowExt,
     WidgetExt,
 };
-use gtk::{ApplicationWindow, Grid, Label, Picture as GtkPicture, ScrolledWindow, Window};
+use gtk::{ApplicationWindow, Grid, Label, Picture as GtkPicture, ScrolledWindow};
 use palette_extract::Color;
 use std::path::Path;
 use std::path::PathBuf;
@@ -60,7 +61,7 @@ impl MainWindow {
         let application_window = application
             .active_window()
             .expect("can't get application active window")
-            .downcast::<gtk::ApplicationWindow>()
+            .downcast::<ApplicationWindow>()
             .expect("can't downcast application window");
 
         let stack = application_window
@@ -175,10 +176,10 @@ impl MainWindow {
 
     pub fn run_application(application: gtk::Application) {
         let no_args: Vec<String> = vec![];
-        application.run_with_args(&no_args);
+        application.run();
     }
 
-    pub fn application_window(&self) -> gtk::ApplicationWindow {
+    pub fn application_window(&self) -> ApplicationWindow {
         self.application_window.clone()
     }
 
@@ -425,13 +426,20 @@ impl MainWindow {
     }
 }
 
-fn make_application_window(application: &gtk::Application, args: &Args) -> gtk::ApplicationWindow {
+fn make_application_window(application: &gtk::Application, args: &Args) -> ApplicationWindow {
+    let gsrWindow = ApplicationWindow::new(application);
+    gsrWindow.set_title(Some("gsr2"));
+    gsrWindow.set_default_width(args.width.unwrap());
+    gsrWindow.set_default_height(args.height.unwrap());
+    gsrWindow
+    /*
     ApplicationWindow::builder()
         .application(application)
         .title("gsr2")
         .default_width(args.width.unwrap())
         .default_height(args.height.unwrap())
         .build()
+    */
 }
 #[allow(deprecated)]
 fn make_panel(view_grid: &gtk::Grid) -> gtk::Grid {
@@ -512,7 +520,7 @@ fn attach_panel_event_handlers(panel: &gtk::Grid, controller_rc: &RcController) 
 }
 
 fn attach_key_pressed_event_handlers(
-    application_window: &gtk::ApplicationWindow,
+    application_window: &ApplicationWindow,
     controller_rc: &RcController,
 ) {
     let event_controller_key = gtk::EventControllerKey::new();
@@ -551,8 +559,8 @@ pub fn remove_children_from_box(cell_box: &gtk::Box) {
 }
 
 #[allow(dead_code)]
-pub fn make_entry_window(application_window: &gtk::ApplicationWindow, prompt: &str) -> gtk::Window {
-    let window: gtk::Window = Window::builder()
+pub fn make_entry_window(application_window: &ApplicationWindow, prompt: &str) -> gtk::Window {
+    let window: gtk::Window = gtk::Window::builder()
         .title(prompt)
         .default_width(300)
         .default_height(30)
