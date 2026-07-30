@@ -48,7 +48,6 @@ pub struct Controller {
     repository: Repository,
     args: Args,
     navigator: Navigator,
-    search_in_progress: bool,
     controls: Controls,
     state: State,
     main_window_opt: Option<MainWindow>,
@@ -56,7 +55,6 @@ pub struct Controller {
     selector: Selector,
     last_action: Action,
     scores: HashMap<String, u32>,
-    moving_category_name: String,
 }
 
 pub type RcController = Rc<RefCell<Controller>>;
@@ -103,7 +101,6 @@ impl Controller {
         Ok(Controller {
             configuration: config.clone(),
             repository: repository.clone(),
-            search_in_progress: false,
             args: cli.clone(),
             editor: Editor::new(),
             selector: Selector::new(&catalog),
@@ -113,7 +110,6 @@ impl Controller {
             main_window_opt: None,
             last_action: Action::Nothing,
             scores: HashMap::new(),
-            moving_category_name: "".to_string(),
         })
     }
 
@@ -342,9 +338,8 @@ impl Controller {
                 if !self.selector.selecting() {
                     self.state.set_mode(Mode::View);
                     if !self.selector.selected().is_empty() {
-                        let moving_category_name = self.moving_category_name.clone();
                         self.move_sub_category_to_category(
-                            &moving_category_name,
+                            &self.selector.prev_selected(),
                             &self.selector.selected(),
                         )
                     }
@@ -749,6 +744,13 @@ impl Controller {
         self.last_action = Action::RemoveTag(label.to_string());
     }
 
+    fn move_next(&mut self) {
+                if self.state().search_in_progress() {
+                    self.find_next()
+                } else {
+                    self.move_towards(Direction::NextPage)
+                };
+    }
     fn move_towards_index(&mut self, index: usize) {
         let direction = Direction::Index { value: index };
         if self.navigator().can_move(direction.clone()) {
@@ -829,7 +831,7 @@ impl Controller {
     fn move_to_category(&mut self, moving_category_name: &str) {
         let mut pruned_catalog = self.repository.catalog();
         let _ = pruned_catalog.remove_category(moving_category_name, true);
-        self.moving_category_name = moving_category_name.to_string();
+        self.selector.set_prev_selected(moving_category_name);
         self.selector.begin(
             &self.main_window(),
             &format!("select the category where to move {}", moving_category_name),
@@ -973,6 +975,7 @@ impl Controller {
             Control::SetView => self.enter_editing(EntryKind::View, None),
             Control::EnterRank => self.enter_editing(EntryKind::Rank, None),
             Control::ExtractFileNames => self.extract_filenames(),
+            Control::FindName => self.enter_find_name(),
             Control::FindNext => self.find_next(),
             Control::GotoDirectory => self.go_to_directory(),
             Control::GotoMark => self.jumping_mark(),
@@ -985,13 +988,7 @@ impl Controller {
             Control::MoveEndPage => self.move_towards(Direction::PageEnd),
             Control::MoveFirst => self.move_towards(Direction::First),
             Control::MoveLast => self.move_towards(Direction::Last),
-            Control::MoveNext => {
-                if self.search_in_progress {
-                    self.find_next()
-                } else {
-                    self.move_towards(Direction::NextPage)
-                };
-            }
+            Control::MoveNext => self.move_next(),
             Control::MovePicture => self.move_picture(),
             Control::MovePictureToLabel => self.move_picture_to_label(),
             Control::MovePrev => self.move_towards(Direction::PrevPage),
@@ -1871,7 +1868,7 @@ impl Controller {
                         let navigator = &mut self.navigator;
                         navigator.move_towards(Direction::Index { value: index });
                         navigator.set_page_changed();
-                        self.search_in_progress = true;
+                        self.state.set_search_in_progress(true);
                         None
                     } else {
                         Some(format!("{} [{}] not found", find, pattern))
@@ -1896,7 +1893,7 @@ impl Controller {
                 navigator.set_page_changed();
                 None
             } else {
-                self.search_in_progress = false;
+                self.state.set_search_in_progress(false);
                 Some("end of search")
             }
         } else {

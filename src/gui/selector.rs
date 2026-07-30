@@ -12,6 +12,7 @@ pub struct Selector {
     prompt: String,
     selecting: bool,
     selected: String,
+    prev_selected: String,
     controls: Controls,
     treelist_window_opt: Option<TreeListWindow>,
     catalog: Catalog,
@@ -24,6 +25,7 @@ impl Selector {
             selecting: false,
             controls: default_controls(),
             selected: "".to_string(),
+            prev_selected: "".to_string(),
             treelist_window_opt: None,
             catalog: catalog.clone(),
         }
@@ -60,7 +62,15 @@ impl Selector {
     }
 
     pub fn set_selected(&mut self, selected: &str) {
-        self.selected = selected.to_string();
+        self.selected = selected.to_string()
+    }
+    
+    pub fn prev_selected(&self) -> String {
+        self.prev_selected.clone()
+    }
+
+    pub fn set_prev_selected(&mut self, selected: &str) {
+        self.prev_selected = selected.to_string()
     }
 
     pub fn cancel(&mut self) {

@@ -9,6 +9,7 @@ pub struct State {
     expand_on: bool,
     full_size_on: bool,
     slideshow_on: bool,
+    search_in_progress: bool,
     display_path_on: bool,
     display_date_on: bool,
     display_size_on: bool,
@@ -28,6 +29,7 @@ impl State {
             expand_on: false,
             full_size_on: false,
             slideshow_on,
+            search_in_progress: false,
             display_path_on: false,
             display_date_on: false,
             display_size_on: false,
@@ -60,6 +62,14 @@ impl State {
 
     pub fn has_saved_args(&self) -> bool {
         self.saved_args.is_some()
+    }
+
+    pub fn search_in_progress(&self) -> bool {
+        self.search_in_progress
+    }
+
+    pub fn set_search_in_progress(&mut self, in_progress: bool) {
+        self.search_in_progress = in_progress
     }
 
     pub fn mode(&self) -> Mode {
