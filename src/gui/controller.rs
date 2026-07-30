@@ -35,7 +35,6 @@ use gtk::{self, gdk};
 use rand::Rng;
 use rand::rng;
 use std::cell::RefCell;
-use std::collections::HashMap;
 use std::io::Error;
 use std::io::Result as IOResult;
 use std::path::PathBuf;
@@ -54,7 +53,6 @@ pub struct Controller {
     editor: Editor,
     selector: Selector,
     last_action: Action,
-    scores: HashMap<String, u32>,
 }
 
 pub type RcController = Rc<RefCell<Controller>>;
@@ -109,7 +107,6 @@ impl Controller {
             state: State::new(pictures_per_row as usize, cli.slideshow().is_some()),
             main_window_opt: None,
             last_action: Action::Nothing,
-            scores: HashMap::new(),
         })
     }
 
@@ -1442,7 +1439,7 @@ impl Controller {
             self.configuration.current_order = Some(self.repository.order());
             let _ = self.configuration.save();
             let application_window = self.main_window().application_window();
-            self.repository.update_picture_scores(self.scores.clone());
+            self.repository.update_picture_scores(self.state().scores());
             application_window.close()
         }
     }
@@ -1799,10 +1796,10 @@ impl Controller {
     }
 
     pub fn increment_picture_score(&mut self, file_path: &str) {
-        if let Some(score) = self.scores.get_mut(file_path) {
+        if let Some(score) = self.state().scores().get_mut(file_path) {
             *score += 1;
         } else {
-            _ = self.scores.insert(file_path.to_string(), 1);
+            _ = self.state().scores_mut().insert(file_path.to_string(), 1);
         };
     }
 

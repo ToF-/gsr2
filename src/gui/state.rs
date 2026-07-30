@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use crate::cli::args::Args;
 use crate::env::default_values::{FOCUS_SYMBOL_1, FOCUS_SYMBOL_2};
 use crate::gui::mode::Mode;
@@ -19,6 +20,7 @@ pub struct State {
     change_focus_symbol_on: bool,
     saved_args: Option<(usize, Args)>,
     directory: Option<String>,
+    scores: HashMap<String, u32>,
 }
 
 impl State {
@@ -39,6 +41,7 @@ impl State {
             change_focus_symbol_on: true,
             saved_args: None,
             directory: None,
+            scores: HashMap::new(),
         }
     }
 
@@ -58,6 +61,14 @@ impl State {
 
     pub fn directory(&self) -> Option<String> {
         self.directory.clone()
+    }
+
+    pub fn scores(&self) -> HashMap<String, u32> {
+        self.scores.clone()
+    }
+
+    pub fn scores_mut(&mut self) -> &mut HashMap<String, u32> {
+        &mut self.scores
     }
 
     pub fn has_saved_args(&self) -> bool {
