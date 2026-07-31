@@ -1,10 +1,9 @@
-use crate::gui::view::entry_view::EntryView;
 use crate::gui::input_validate::InputValidate;
+use crate::gui::view::entry_view::EntryView;
 use gtk::glib;
 use gtk::glib::subclass::Signal;
 use gtk::glib::subclass::prelude::*;
 use std::sync::OnceLock;
-
 
 pub struct EntryController {
     pub entry: std::cell::RefCell<String>,
@@ -13,6 +12,9 @@ pub struct EntryController {
 }
 
 impl EntryController {
+    pub fn new() -> Self {
+        Self::default()
+    }
     pub fn validate_input(&self, s: &str) -> Option<String> {
         self.validator().validate(s)
     }
@@ -24,9 +26,9 @@ impl EntryController {
 impl Default for EntryController {
     fn default() -> Self {
         Self {
-        entry: std::cell::RefCell::new(String::new()),
-        validator: InputValidate::new(),
-        view: EntryView::new(),
+            entry: std::cell::RefCell::new(String::new()),
+            validator: InputValidate::new(),
+            view: EntryView::new(),
         }
     }
 }
@@ -46,6 +48,7 @@ impl ObjectImpl for EntryController {
                 Signal::builder("entered")
                     .param_types([gtk::glib::types::Type::STRING])
                     .build(),
+                Signal::builder("closed").build(),
             ]
         })
     }

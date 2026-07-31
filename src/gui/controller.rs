@@ -1,4 +1,6 @@
+use crate::gui::entry_controller::EntryController;
 use crate::gui::gsr_controller::GsrController;
+use crate::gui::view::entry_view::EntryView;
 use crate::model::category::category_from_string;
 use crate::model::change::Change;
 use crate::model::finder::predicate;
@@ -971,6 +973,7 @@ impl Controller {
 
     fn process_control(&mut self, control: &Control) {
         match control {
+            Control::Test => self.test(),
             Control::AddTag => self.add_tag(),
             Control::BackFromDirectory => self.back_from_directory(),
             Control::CancelRange => self.cancel_range(),
@@ -1914,5 +1917,27 @@ impl Controller {
         if let Some(information) = information_opt {
             self.display_information(information)
         }
+    }
+
+    fn test(&self) {
+        println!("test");
+        let entry_controller = EntryController::new();
+        let entry_controller_rc = Rc::new(RefCell::new(entry_controller));
+        let entry_view = {
+            let mut entry_view = EntryView::new();
+            let application_window = self.main_window().application_window();
+            entry_view.build_ui(&application_window, "this is a test", "test input", &entry_controller_rc);
+            entry_view
+        };
+        if let Ok(entry_controller) = entry_controller_rc.try_borrow() {
+            entry_controller.connect_entered(|controller, s| {
+                println!("entry_controller was entered:\n {:?}", s.to_string());
+                if s == "Escape" {
+                    controller.close()
+                }
+
+            });
+        }
+        entry_view.present();
     }
 }

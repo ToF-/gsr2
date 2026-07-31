@@ -16,7 +16,7 @@ impl InputValidate {
 impl Default for InputValidate {
     fn default() -> Self {
         Self {
-            validator: Rc::new(|s: &str| { Some(s.to_string()) }),
+            validator: Rc::new(|s: &str| Some(s.to_string())),
         }
     }
 }

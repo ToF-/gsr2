@@ -74,6 +74,7 @@ pub enum Control {
     SetSelectionRangeAll,
     SetSelectionRangePage,
     SetRank,
+    Test,
     ToggleCover,
     ToggleCoverSelection,
     ToggleExpand,
@@ -147,6 +148,7 @@ pub fn default_controls() -> Controls {
             (String::from("Return"), Mode::View),
             Control::SetSelectionRange,
         ),
+        ((String::from("ampersand"), Mode::View), Control::Test),
         (
             (String::from("exclam"), Mode::View),
             Control::SetSelectionRangeAll,

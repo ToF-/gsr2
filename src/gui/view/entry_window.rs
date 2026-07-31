@@ -88,7 +88,11 @@ impl EntryWindow {
         self.entry_controller.clone()
     }
 
-    fn attach_key_pressed_event_handler(window: &gtk::Window, controller_rc: &RcController, entry_controller_rc: &std::cell::RefCell<EntryController>) {
+    fn attach_key_pressed_event_handler(
+        window: &gtk::Window,
+        controller_rc: &RcController,
+        entry_controller_rc: &std::cell::RefCell<EntryController>,
+    ) {
         let event_controller_key = gtk::EventControllerKey::new();
         event_controller_key.connect_key_pressed(clone!(
             #[strong]
@@ -110,7 +114,6 @@ impl EntryWindow {
                     if let Some(name) = key.name() {
                         entry_controller_rc.borrow().enter(&name);
                     }
-
                 };
                 Propagation::Stop
             }

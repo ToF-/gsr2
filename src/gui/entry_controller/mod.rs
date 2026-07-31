@@ -1,5 +1,6 @@
 mod imp;
 
+use crate::gui::view::entry_view::EntryView;
 use gtk::glib::subclass::prelude::*;
 use gtk::prelude::ObjectExt;
 use std::cell::RefCell;
@@ -20,6 +21,10 @@ impl EntryController {
         self.emit_by_name::<()>("entered", &[&key_name]);
     }
 
+    pub fn close(&self) {
+        self.emit_by_name::<()>("closed", &[]);
+    }
+
     pub fn entry(&self) -> String {
         self.imp().entry.borrow().clone()
     }
@@ -36,6 +41,17 @@ impl EntryController {
             let obj = values[0].get::<EntryController>().unwrap();
             let text = values[1].get::<String>().unwrap();
             f(&obj, &text);
+            None
+        })
+    }
+
+    pub fn connect_closed<F>(&self, f: F) -> gtk::glib::SignalHandlerId
+    where
+        F: Fn(&EntryController) + 'static,
+    {
+        self.connect_local("closed", false, move |values| {
+            let obj = values[0].get::<EntryController>().unwrap();
+            f(&obj);
             None
         })
     }

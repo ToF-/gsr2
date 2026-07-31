@@ -99,7 +99,6 @@ impl Editor {
             entry.push_str(text);
             controller.set_entry(&entry);
             println!("entry_controller entry is now  {}", controller.entry());
-
         });
     }
 
