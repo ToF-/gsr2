@@ -1921,21 +1921,18 @@ impl Controller {
 
     fn test(&self) {
         println!("test");
+        let application_window = self.main_window().application_window();
         let entry_controller = EntryController::new();
-        let entry_controller_rc = Rc::new(RefCell::new(entry_controller));
-        let entry_view = {
-            let mut entry_view = EntryView::new();
-            let application_window = self.main_window().application_window();
-            entry_view.build_ui(&application_window, "this is a test", "test input", &entry_controller_rc);
-            entry_view
-        };
+        let entry_controller_rc = RefCell::new(entry_controller);
+        let entry_view = EntryView::new_with(&application_window, "this is a test", "test input");
+        entry_view.attach_key_pressed_event_handler(&entry_controller_rc);
+        let view = entry_view.clone();
         if let Ok(entry_controller) = entry_controller_rc.try_borrow() {
-            entry_controller.connect_entered(|controller, s| {
+            entry_controller.connect_entered(move |controller, s| {
                 println!("entry_controller was entered:\n {:?}", s.to_string());
                 if s == "Escape" {
-                    controller.close()
+                    view.close()
                 }
-
             });
         }
         entry_view.present();

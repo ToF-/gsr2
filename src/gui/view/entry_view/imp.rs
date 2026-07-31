@@ -1,8 +1,3 @@
-use gtk::glib;
-use gtk::glib::subclass::Signal;
-use gtk::glib::subclass::prelude::*;
-use std::sync::OnceLock;
-
 use crate::env::default_values::ENTRY_WINDOW_HEIGHT;
 use crate::env::default_values::ENTRY_WINDOW_WIDTH;
 use crate::gui::entry_controller::EntryController;
@@ -10,23 +5,29 @@ use crate::gui::entry_controller::RcEntryController;
 use gtk::Align;
 use gtk::CssProvider;
 use gtk::Orientation;
+use gtk::glib::subclass::Signal;
+use gtk::glib::subclass::prelude::*;
 use gtk::glib::{ControlFlow, Propagation};
 use gtk::glib::{clone, timeout_add_local};
+use gtk::glib;
 use gtk::prelude::BoxExt;
+use gtk::prelude::Cast;
 use gtk::prelude::GtkWindowExt;
+use std::cell::RefCell;
+use std::sync::OnceLock;
 #[allow(deprecated)]
 use gtk::prelude::StyleContextExt;
 use gtk::prelude::WidgetExt;
 use gtk::subclass::prelude::ObjectSubclassIsExt;
 
 pub struct EntryView {
-    gtk_window_opt: Option<gtk::Window>,
+    gtk_window_opt_rc: RefCell<Option<gtk::Window>>,
 }
 
 impl Default for EntryView {
     fn default() -> Self {
         Self {
-            gtk_window_opt: None,
+            gtk_window_opt_rc: RefCell::new(None),
         }
     }
 }
@@ -48,36 +49,52 @@ impl EntryView {
     pub fn new() -> Self {
         Self::default()
     }
-    pub fn gtk_window(&self) -> &gtk::Window {
-        if let Some(gtk_window) = &self.gtk_window_opt {
-            gtk_window
-        } else {
-            panic!("entry_view doesn't have an attached gtk window yet")
-        }
+    pub fn initialize(&self, application_window: &gtk::ApplicationWindow, prompt: &str, input: &str) {
+        *self.gtk_window_opt_rc.borrow_mut() = Some(Self::build_window(application_window, prompt, input))
     }
+
     pub fn input(&self) -> String {
-        if let Some(gtk_window) = self.gtk_window_opt.clone() {
-            String::new()
-        } else {
-            panic!("entry_view doesn't have an attached gtk window yet")
+        self.gtk_window_opt_rc
+            .borrow()
+            .as_ref()
+            .expect("entry_view doesn't have an attached gtk window yet")
+            .first_child()
+            .expect("can't get first_child")
+            .downcast::<gtk::Box>()
+            .expect("can't downcast as box")
+            .first_child()
+            .expect("can't get entry prompt")
+            .downcast::<gtk::Label>()
+            .expect("can't downcast as label")
+            .next_sibling()
+            .expect("can't get next label")
+            .downcast::<gtk::Label>()
+            .expect("can't downcast as label")
+            .text()
+            .to_string()
         }
-    }
 
     pub fn set_input(&self, text: &str) {
-        if let Some(gtk_window) = &self.gtk_window_opt {
-            todo!("set the gtk window input")
-        } else {
-            panic!("entry_view doesn't have an attached gtk window yet")
-        }
+        self.gtk_window_opt_rc
+            .borrow()
+            .as_ref()
+            .expect("entry_view doesn't have an attached gtk window yet")
+            .first_child()
+            .expect("can't get first_child")
+            .downcast::<gtk::Box>()
+            .expect("can't downcast as box")
+            .first_child()
+            .expect("can't get entry prompt")
+            .downcast::<gtk::Label>()
+            .expect("can't downcast as label")
+            .next_sibling()
+            .expect("can't get next label")
+            .downcast::<gtk::Label>()
+            .expect("can't downcast as label")
+            .set_text(text);
     }
 
-    pub fn build_ui(
-        &mut self,
-        application_window: &gtk::ApplicationWindow,
-        prompt: &str,
-        input: &str,
-        entry_controller_rc: &RcEntryController,
-    ) {
+    pub fn build_window(application_window: &gtk::ApplicationWindow, prompt: &str, input: &str) -> gtk::Window {
         let entry_text = gtk::Label::builder()
             .valign(Align::Center)
             .halign(Align::Center)
@@ -121,13 +138,10 @@ impl EntryView {
             .transient_for(application_window)
             .build();
         window.set_child(Some(&entry_box));
-        let entry_controller: std::cell::RefCell<EntryController> =
-            std::cell::RefCell::new(EntryController::new());
-        self.gtk_window_opt = Some(window);
-        self.attach_key_pressed_event_handler(entry_controller_rc);
+        window
     }
 
-    fn attach_key_pressed_event_handler(
+    pub fn attach_key_pressed_event_handler(
         &self,
         entry_controller_rc: &std::cell::RefCell<EntryController>,
     ) {
@@ -144,18 +158,25 @@ impl EntryView {
                 Propagation::Stop
             }
         ));
-        if let Some(window) = &self.gtk_window_opt {
-            window.add_controller(event_controller_key);
-        } else {
-            panic!("entry_view doesn't have an attached gtk window yet")
+        self.gtk_window_opt_rc
+            .borrow()
+            .as_ref()
+            .expect("entry_view doesn't have an attached gtk window yet")
+            .add_controller(event_controller_key);
         }
-    }
 
+    pub fn present(&self) {
+        self.gtk_window_opt_rc
+            .borrow()
+            .as_ref()
+            .expect("entry_view doesn't have an attached gtk window yet")
+            .present()
+    }
     pub fn close(&self) {
-        if let Some(window) = &self.gtk_window_opt {
-            window.close()
-        } else {
-            panic!("entry_view doesn't have an attached gtk window yet")
-        }
+        self.gtk_window_opt_rc
+            .borrow()
+            .as_ref()
+            .expect("entry_view doesn't have an attached gtk window yet")
+            .close()
     }
 }
