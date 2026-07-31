@@ -27,7 +27,15 @@ impl EntryView {
         self.imp().close()
     }
 
-    pub fn attach_key_pressed_event_handler(&self, entry_controller_rc: &std::cell::RefCell<EntryController>) {
-        self.imp().attach_key_pressed_event_handler(entry_controller_rc);
+    pub fn input(&self) -> String {
+        self.imp().input()
+    }
+
+    pub fn set_input(&self, text: &str) {
+        self.imp().set_input(text);
+    }
+
+    pub fn attach_key_pressed_controller(&self, entry_controller_rc: &std::cell::RefCell<EntryController>) {
+        self.imp().attach_key_pressed_controller(entry_controller_rc);
     }
 }

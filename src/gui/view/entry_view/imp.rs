@@ -141,7 +141,7 @@ impl EntryView {
         window
     }
 
-    pub fn attach_key_pressed_event_handler(
+    pub fn attach_key_pressed_controller(
         &self,
         entry_controller_rc: &std::cell::RefCell<EntryController>,
     ) {

@@ -1924,14 +1924,19 @@ impl Controller {
         let application_window = self.main_window().application_window();
         let entry_controller = EntryController::new();
         let entry_controller_rc = RefCell::new(entry_controller);
-        let entry_view = EntryView::new_with(&application_window, "this is a test", "test input");
-        entry_view.attach_key_pressed_event_handler(&entry_controller_rc);
+        let entry_view = EntryView::new_with(&application_window, "this is a test", "");
+        entry_view.attach_key_pressed_controller(&entry_controller_rc);
         let view = entry_view.clone();
         if let Ok(entry_controller) = entry_controller_rc.try_borrow() {
-            entry_controller.connect_entered(move |controller, s| {
-                println!("entry_controller was entered:\n {:?}", s.to_string());
-                if s == "Escape" {
+            entry_controller.connect_entered(move |__controller, key_name| {
+                println!("entry_controller was entered:\n {:?}", key_name.to_string());
+                if key_name == "Escape" {
                     view.close()
+                } else {
+                    if key_name.len() == 1 {
+                        let input = view.input();
+                        view.set_input(&(input + key_name));
+                    }
                 }
             });
         }
