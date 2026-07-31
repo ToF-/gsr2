@@ -1,13 +1,22 @@
+use crate::gui::input_validate::InputValidate;
 use gtk::glib;
 use gtk::glib::subclass::Signal;
 use gtk::glib::subclass::prelude::*;
 use std::sync::OnceLock;
 
-#[derive(Default)]
 pub struct EntryController {
     pub entry: std::cell::RefCell<String>,
+    pub validator: InputValidate,
 }
 
+impl Default for EntryController {
+    fn default() -> Self {
+        Self {
+        entry: std::cell::RefCell::new(String::new()),
+        validator: InputValidate::new(),
+        }
+    }
+}
 #[gtk::glib::object_subclass]
 impl ObjectSubclass for EntryController {
     const NAME: &'static str = "EntryController";

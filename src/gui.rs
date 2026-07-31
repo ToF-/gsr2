@@ -7,6 +7,7 @@ pub mod entry_controller;
 pub mod entry_kind;
 pub mod event;
 pub mod gsr_controller;
+pub mod input_validate;
 pub mod mode;
 pub mod navigator;
 pub mod selector;
