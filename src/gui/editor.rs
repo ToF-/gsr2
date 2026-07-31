@@ -89,17 +89,7 @@ impl Editor {
         };
         self.prompt = prompt.to_string();
         self.begin_input(entry_kind, choice_opt);
-        let entry_window = main_window.popup_entry_window(&self.prompt, &self.input);
-        let entry_controller_rc = entry_window.clone().entry_controller();
-        let entry_controller = entry_controller_rc.borrow();
-        self.entry_window_opt = Some(entry_window);
-        entry_controller.connect_entered(|controller, text| {
-            println!("entry_controller says {}", text);
-            let mut entry: String = controller.entry();
-            entry.push_str(text);
-            controller.set_entry(&entry);
-            println!("entry_controller entry is now  {}", controller.entry());
-        });
+        self.entry_window_opt = Some(main_window.popup_entry_window(&self.prompt, &self.input));
     }
 
     pub fn begin_input(&mut self, kind: EntryKind, choice_opt: Option<Tags>) {

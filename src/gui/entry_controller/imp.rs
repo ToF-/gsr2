@@ -45,8 +45,8 @@ impl ObjectImpl for EntryController {
 
         SIGNALS.get_or_init(|| {
             vec![
-                Signal::builder("entered")
-                    .param_types([gtk::glib::types::Type::STRING])
+                Signal::builder("key-pressed")
+                    .param_types([gtk::gdk::Key::static_types()])
                     .build(),
                 Signal::builder("closed").build(),
             ]

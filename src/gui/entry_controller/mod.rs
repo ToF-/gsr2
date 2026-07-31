@@ -17,8 +17,8 @@ impl EntryController {
         gtk::glib::Object::new()
     }
 
-    pub fn enter(&self, key_name: &str) {
-        self.emit_by_name::<()>("entered", &[&key_name]);
+    pub fn key_pressed(&self, key: gdk::Key) {
+        self.emit_by_name::<()>("entered", &[&key]);
     }
 
     pub fn close(&self) {
@@ -33,14 +33,14 @@ impl EntryController {
         *self.imp().entry.borrow_mut() = text.to_string()
     }
 
-    pub fn connect_entered<F>(&self, f: F) -> gtk::glib::SignalHandlerId
+    pub fn connect_key_pressed<F>(&self, f: F) -> gtk::glib::SignalHandlerId
     where
-        F: Fn(&Self, &str) + 'static,
+        F: Fn(&Self, gtk::gdk::Key) + 'static,
     {
         self.connect_local("entered", false, move |values| {
             let obj = values[0].get::<EntryController>().unwrap();
-            let text = values[1].get::<String>().unwrap();
-            f(&obj, &text);
+            let key = values[1].get::<gdk::Key>().unwrap();
+            f(&obj, &key);
             None
         })
     }

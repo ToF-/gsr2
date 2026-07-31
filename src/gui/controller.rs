@@ -1928,17 +1928,19 @@ impl Controller {
         entry_view.attach_key_pressed_controller(&entry_controller_rc);
         let view = entry_view.clone();
         if let Ok(entry_controller) = entry_controller_rc.try_borrow() {
-            entry_controller.connect_entered(move |__controller, key_name| {
-                println!("entry_controller was entered:\n {:?}", key_name.to_string());
-                if key_name == "Escape" {
+            entry_controller.connect_key_pressed(move |__controller, key| {
+                println!("entry_controller was key pressed with:\n {:?}", key);
+                if let Some(name) = key.name() 
+                    && name == "Escape" {
                     view.close()
                 } else {
-                    if key_name.len() == 1 {
-                        let input = view.input();
-                        view.set_input(&(input + key_name));
+                        let mut input = view.input();
+                        if let Some(ch) = key.to_unicode() {
+                            input.push(ch);
+                            view.set_input(&input);
+                        }
                     }
-                }
-            });
+                });
         }
         entry_view.present();
     }
