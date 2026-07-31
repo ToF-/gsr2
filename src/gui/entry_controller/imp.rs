@@ -1,3 +1,4 @@
+use crate::gui::view::entry_view::EntryView;
 use crate::gui::input_validate::InputValidate;
 use gtk::glib;
 use gtk::glib::subclass::Signal;
@@ -7,6 +8,7 @@ use std::sync::OnceLock;
 pub struct EntryController {
     pub entry: std::cell::RefCell<String>,
     pub validator: InputValidate,
+    pub view: EntryView,
 }
 
 impl Default for EntryController {
@@ -14,6 +16,7 @@ impl Default for EntryController {
         Self {
         entry: std::cell::RefCell::new(String::new()),
         validator: InputValidate::new(),
+        view: EntryView::new(),
         }
     }
 }
