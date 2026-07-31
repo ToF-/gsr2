@@ -2,6 +2,10 @@ mod imp;
 
 use gtk::glib::subclass::prelude::*;
 use gtk::prelude::ObjectExt;
+use std::cell::RefCell;
+use std::rc::Rc;
+
+pub type RcEntryController = Rc<RefCell<EntryController>>;
 
 gtk::glib::wrapper! {
     pub struct EntryController(ObjectSubclass<imp::EntryController>);
@@ -23,6 +27,7 @@ impl EntryController {
     pub fn set_entry(&self, text: &str) {
         *self.imp().entry.borrow_mut() = text.to_string()
     }
+
     pub fn connect_entered<F>(&self, f: F) -> gtk::glib::SignalHandlerId
     where
         F: Fn(&Self, &str) + 'static,

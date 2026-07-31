@@ -5,12 +5,22 @@ use gtk::glib::subclass::Signal;
 use gtk::glib::subclass::prelude::*;
 use std::sync::OnceLock;
 
+
 pub struct EntryController {
     pub entry: std::cell::RefCell<String>,
     pub validator: InputValidate,
     pub view: EntryView,
 }
 
+impl EntryController {
+    pub fn validate_input(&self, s: &str) -> Option<String> {
+        self.validator().validate(s)
+    }
+
+    pub fn validator(&self) -> InputValidate {
+        self.validator.clone()
+    }
+}
 impl Default for EntryController {
     fn default() -> Self {
         Self {
