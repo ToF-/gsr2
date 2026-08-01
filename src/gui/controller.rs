@@ -1944,18 +1944,20 @@ impl Controller {
 
         // first create a view with the app_window, a prompt, an initial entry
         let entry_view = EntryView::new_with(&application_window, "this is a test", "");
+        
+        // create a refcell to it for the controller to have
+        let entry_view_rc = RefCell::new(entry_view);
 
         // create the controller managing the control between view and rest of the app
-        let entry_controller = EntryController::new();
+        let entry_controller = EntryController::new_with(entry_view_rc.clone());
         let entry_controller_rc = RefCell::new(entry_controller);
 
         // when view receives a key, it sends a signal to its controller
-        entry_view.attach_key_pressed_controller(&entry_controller_rc);
+        entry_view_rc.borrow().attach_key_pressed_controller(&entry_controller_rc);
 
-        // we moved the entry_controller value into the rc, so, borrow it from the rc
-        if let Ok(entry_controller) = entry_controller_rc.try_borrow() {
-            // when controller receives a key, if it's Escape, send itself a close signal
-            entry_controller.connect_key_pressed(|controller, key_name| {
+        // when the controller is sent a key signal it reacts
+        // maybe closing if Escape whas pressed
+        entry_controller_rc.borrow().connect_key_pressed(|controller, key_name| {
                 println!("testing: {:?}", key_name);
                 if key_name == "Escape" {
                     println!("closing…");
@@ -1963,15 +1965,12 @@ impl Controller {
                 }
             });
 
-            // we'll pass a clone of the view to the next closure
-            let the_entry_view = entry_view.clone();
-
-            // when controller receives close, signal, close the view
-            entry_controller.connect_closed(move |controller| {
-                println!("entry_controller closed");
-                the_entry_view.close()
-            });
-        }
-        entry_view.present();
+        // when the controller is sent a close signal it does things, mainly closing its view
+        entry_controller_rc.borrow().connect_closed(|controller| {
+            if let Some(view) = controller.view() {
+                view.close()
+            }
+        });
+        entry_view_rc.borrow().present();
     }
 }

@@ -26,8 +26,8 @@ impl EntryController {
         }
     }
 
-    pub fn view(&self) -> EntryView {
-        self.view_opt_rc.borrow().as_ref().unwrap().clone()
+    pub fn view(&self) -> Option<EntryView> {
+        self.view_opt_rc.borrow().clone()
     }
 
     pub fn validate_input(&self, s: &str) -> Option<String> {

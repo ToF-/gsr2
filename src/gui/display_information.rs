@@ -11,7 +11,10 @@ pub fn display_information(application_window: &gtk::ApplicationWindow, message:
     entry_view_rc.borrow().attach_key_pressed_controller(&entry_controller_rc);
 
     entry_controller_rc.borrow().connect_key_pressed(|controller,_| { controller.close() });
-    entry_controller_rc.borrow().connect_closed(|controller| { controller.view().close() });
-
+    entry_controller_rc.borrow().connect_closed(|controller| {
+        if let Some(entry_view) = controller.view() {
+            entry_view.close()
+        }
+    });
     entry_view_rc.borrow().present();
 }

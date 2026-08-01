@@ -22,7 +22,7 @@ impl EntryController {
         obj
     }
 
-    pub fn view(&self) -> EntryView {
+    pub fn view(&self) -> Option<EntryView> {
         self.imp().view()
     }
 
