@@ -16,20 +16,17 @@ impl EntryController {
         gtk::glib::Object::new()
     }
 
-    pub fn key_pressed(&self, key_name: &str) {
-        self.emit_by_name::<()>("key-pressed", &[&key_name]);
-    }
-
-    pub fn close(&self) {
-        self.emit_by_name::<()>("closed", &[]);
-    }
-
     pub fn entry(&self) -> String {
         self.imp().entry.borrow().clone()
     }
 
     pub fn set_entry(&self, text: &str) {
         *self.imp().entry.borrow_mut() = text.to_string()
+    }
+
+    // different entry controllers do different things when receiving a key that was pressed, so it's a closure
+    pub fn key_pressed(&self, key_name: &str) {
+        self.emit_by_name::<()>("key-pressed", &[&key_name]);
     }
 
     pub fn connect_key_pressed<F>(&self, f: F) -> gtk::glib::SignalHandlerId
@@ -42,6 +39,11 @@ impl EntryController {
             f(&obj, key);
             None
         })
+    }
+
+    // different entry controllers do different things when closing, so it's a closure
+    pub fn close(&self) {
+        self.emit_by_name::<()>("closed", &[]);
     }
 
     pub fn connect_closed<F>(&self, f: F) -> gtk::glib::SignalHandlerId

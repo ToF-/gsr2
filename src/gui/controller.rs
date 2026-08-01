@@ -1,4 +1,3 @@
-use gtk::glib::translate::FromGlib;
 use crate::gui::controller::entry_controller::EntryController;
 use crate::gui::controller::main_controller::MainController;
 use crate::gui::view::entry_view::EntryView;
@@ -6,6 +5,7 @@ use crate::model::category::category_from_string;
 use crate::model::change::Change;
 use crate::model::finder::predicate;
 use crate::model::tags::Tags;
+use gtk::glib::translate::FromGlib;
 
 use crate::cli::args::Args;
 use crate::cli::command::Command;
@@ -1926,26 +1926,38 @@ impl Controller {
     fn test(&self) {
         println!("test");
         let application_window = self.main_window().application_window();
+
+        // first create a view with the app_window, a prompt, an initial entry
+        let entry_view = EntryView::new_with(&application_window, "this is a test", "");
+
+        // create the controller managing the control between view and rest of the app
         let entry_controller = EntryController::new();
         let entry_controller_rc = RefCell::new(entry_controller);
-        let entry_view = EntryView::new_with(&application_window, "this is a test", "");
+    
+        // when view receives a key, it sends a signal to its controller
         entry_view.attach_key_pressed_controller(&entry_controller_rc);
-        let view = entry_view.clone();
+
+        // we moved the entry_controller value into the rc, so, borrow it from the rc
         if let Ok(entry_controller) = entry_controller_rc.try_borrow() {
-            entry_controller.connect_key_pressed(move |_controller, key_name| {
-                println!("entry_controller was key pressed with:\n {:?}", key_name);
+
+            // when controller receives a key, if it's Escape, send itself a close signal
+            entry_controller.connect_key_pressed(|controller, key_name| {
+
+                println!("entry_controller key_pressed: {:?}", key_name);
                 if key_name == "Escape" {
-                    view.close()
-                } else {
-                        let mut input = view.input();
-                        if let Some(key) = gtk::gdk::Key::from_name(key_name) {
-                            if let Some(ch) = key.to_unicode() {
-                                input.push(ch);
-                                view.set_input(&input);
-                            }
-                        }
-                    }
-                });
+                    println!("closing…");
+                    controller.close()
+                }
+            });
+
+            // we'll pass a clone of the view to the next closure
+            let the_entry_view = entry_view.clone();
+
+            // when controller receives close, signal, close the view
+            entry_controller.connect_closed(move |controller| {
+                println!("entry_controller closed");
+                the_entry_view.close()
+            });
         }
         entry_view.present();
     }

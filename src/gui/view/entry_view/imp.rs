@@ -5,20 +5,20 @@ use crate::gui::controller::entry_controller::RcEntryController;
 use gtk::Align;
 use gtk::CssProvider;
 use gtk::Orientation;
+use gtk::glib;
 use gtk::glib::subclass::Signal;
 use gtk::glib::subclass::prelude::*;
 use gtk::glib::{ControlFlow, Propagation};
 use gtk::glib::{clone, timeout_add_local};
-use gtk::glib;
 use gtk::prelude::BoxExt;
 use gtk::prelude::Cast;
 use gtk::prelude::GtkWindowExt;
-use std::cell::RefCell;
-use std::sync::OnceLock;
 #[allow(deprecated)]
 use gtk::prelude::StyleContextExt;
 use gtk::prelude::WidgetExt;
 use gtk::subclass::prelude::ObjectSubclassIsExt;
+use std::cell::RefCell;
+use std::sync::OnceLock;
 
 pub struct EntryView {
     gtk_window_opt_rc: RefCell<Option<gtk::Window>>,
@@ -49,8 +49,14 @@ impl EntryView {
     pub fn new() -> Self {
         Self::default()
     }
-    pub fn initialize(&self, application_window: &gtk::ApplicationWindow, prompt: &str, input: &str) {
-        *self.gtk_window_opt_rc.borrow_mut() = Some(Self::build_window(application_window, prompt, input))
+    pub fn initialize(
+        &self,
+        application_window: &gtk::ApplicationWindow,
+        prompt: &str,
+        input: &str,
+    ) {
+        *self.gtk_window_opt_rc.borrow_mut() =
+            Some(Self::build_window(application_window, prompt, input))
     }
 
     pub fn input(&self) -> String {
@@ -72,7 +78,7 @@ impl EntryView {
             .expect("can't downcast as label")
             .text()
             .to_string()
-        }
+    }
 
     pub fn set_input(&self, text: &str) {
         self.gtk_window_opt_rc
@@ -94,7 +100,11 @@ impl EntryView {
             .set_text(text);
     }
 
-    pub fn build_window(application_window: &gtk::ApplicationWindow, prompt: &str, input: &str) -> gtk::Window {
+    pub fn build_window(
+        application_window: &gtk::ApplicationWindow,
+        prompt: &str,
+        input: &str,
+    ) -> gtk::Window {
         let entry_text = gtk::Label::builder()
             .valign(Align::Center)
             .halign(Align::Center)
@@ -150,7 +160,10 @@ impl EntryView {
             #[strong]
             entry_controller_rc,
             move |_, key, key_code, modifier_type| {
-                println!("entry_controller key_pressed with:\n{:?} {:?} {:?}", key, key_code, modifier_type);
+                println!(
+                    "entry_controller key_pressed with:\n{:?} {:?} {:?}",
+                    key, key_code, modifier_type
+                );
                 if let Ok(entry_controller) = entry_controller_rc.try_borrow() {
                     if let Some(key_name) = key.name() {
                         entry_controller.key_pressed(&key_name);
@@ -164,7 +177,7 @@ impl EntryView {
             .as_ref()
             .expect("entry_view doesn't have an attached gtk window yet")
             .add_controller(event_controller_key);
-        }
+    }
 
     pub fn present(&self) {
         self.gtk_window_opt_rc

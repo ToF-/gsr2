@@ -1,7 +1,7 @@
-use crate::gui::controller::entry_controller::EntryController;
 use crate::env::default_values::{ENTRY_CURSOR_1, ENTRY_CURSOR_2};
 use crate::env::default_values::{ENTRY_WINDOW_HEIGHT, ENTRY_WINDOW_WIDTH};
 use crate::gui::controller::RcController;
+use crate::gui::controller::entry_controller::EntryController;
 use crate::gui::event::Event;
 use crate::gui::mode::Mode;
 use gtk::Align;
@@ -110,7 +110,9 @@ impl EntryWindow {
                         },
                         &controller_rc,
                     );
-                    controller.main_controller().entered(&format!("{:}", key));
+                    controller
+                        .main_controller()
+                        .key_pressed(&format!("{:}", key));
                     // entry_controller_rc.borrow().key_pressed(key_code);
                 };
                 Propagation::Stop

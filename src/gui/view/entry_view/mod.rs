@@ -11,9 +11,12 @@ gtk::glib::wrapper! {
 impl EntryView {
     pub fn new() -> Self {
         gtk::glib::Object::new()
-
     }
-    pub fn new_with(application_window: &gtk::ApplicationWindow, prompt: &str, input: &str) -> Self {
+    pub fn new_with(
+        application_window: &gtk::ApplicationWindow,
+        prompt: &str,
+        input: &str,
+    ) -> Self {
         let obj = Self::new();
         obj.imp().initialize(application_window, prompt, input);
         obj
@@ -35,7 +38,11 @@ impl EntryView {
         self.imp().set_input(text);
     }
 
-    pub fn attach_key_pressed_controller(&self, entry_controller_rc: &std::cell::RefCell<EntryController>) {
-        self.imp().attach_key_pressed_controller(entry_controller_rc);
+    pub fn attach_key_pressed_controller(
+        &self,
+        entry_controller_rc: &std::cell::RefCell<EntryController>,
+    ) {
+        self.imp()
+            .attach_key_pressed_controller(entry_controller_rc);
     }
 }

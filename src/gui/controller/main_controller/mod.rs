@@ -16,7 +16,33 @@ impl MainController {
         gtk::glib::Object::new()
     }
 
-    pub fn entered(&self, key: &str) {
-        self.emit_by_name::<()>("entered", &[&key]);
+    pub fn key_pressed(&self, key_name: &str) {
+        self.emit_by_name::<()>("key-pressed", &[&key_name]);
+    }
+
+    pub fn close(&self) {
+        self.emit_by_name::<()>("closed", &[]);
+    }
+
+    pub fn connect_key_pressed<F>(&self, f: F) -> gtk::glib::SignalHandlerId
+    where
+        F: Fn(&Self, &str) + 'static,
+    {
+        self.connect_local("key-pressed", false, move |values| {
+            let obj = values[0].get::<MainController>().unwrap();
+            let key_name = values[0].get::<&str>().unwrap();
+            f(&obj, key_name);
+            None
+        })
+    }
+    pub fn connect_closed<F>(&self, f: F) -> gtk::glib::SignalHandlerId
+    where
+        F: Fn(&MainController) + 'static,
+    {
+        self.connect_local("closed", false, move |values| {
+            let obj = values[0].get::<MainController>().unwrap();
+            f(&obj);
+            None
+        })
     }
 }
