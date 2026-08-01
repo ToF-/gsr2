@@ -149,10 +149,11 @@ impl EntryView {
         event_controller_key.connect_key_pressed(clone!(
             #[strong]
             entry_controller_rc,
-            move |_, key, key_code, modfier_type| {
+            move |_, key, key_code, modifier_type| {
+                println!("entry_controller key_pressed with:\n{:?} {:?} {:?}", key, key_code, modifier_type);
                 if let Ok(entry_controller) = entry_controller_rc.try_borrow() {
                     if let Some(key_name) = key.name() {
-                        entry_controller.key_pressed(key_code);
+                        entry_controller.key_pressed(&key_name);
                     }
                 }
                 Propagation::Stop

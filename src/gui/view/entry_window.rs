@@ -111,9 +111,7 @@ impl EntryWindow {
                         &controller_rc,
                     );
                     controller.gsr_controller().entered(&format!("{:}", key));
-                    if let Some(name) = key.name() {
-                        entry_controller_rc.borrow().key_pressed(&name);
-                    }
+                    // entry_controller_rc.borrow().key_pressed(key_code);
                 };
                 Propagation::Stop
             }

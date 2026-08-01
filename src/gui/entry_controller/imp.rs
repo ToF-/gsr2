@@ -46,7 +46,7 @@ impl ObjectImpl for EntryController {
         SIGNALS.get_or_init(|| {
             vec![
                 Signal::builder("key-pressed")
-                    .param_types([glib::Type::U32])
+                    .param_types([glib::Type::STRING])
                     .build(),
                 Signal::builder("closed").build(),
             ]

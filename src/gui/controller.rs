@@ -118,7 +118,7 @@ impl Controller {
             .my_controller
             .connect_local("entered", false, |values| {
                 let text = values[1].get::<String>().unwrap();
-                println!("entered with text={}", text);
+                println!("key-pressed with text={}", text);
                 None
             });
         Ok(controller)
@@ -1929,17 +1929,17 @@ impl Controller {
         entry_view.attach_key_pressed_controller(&entry_controller_rc);
         let view = entry_view.clone();
         if let Ok(entry_controller) = entry_controller_rc.try_borrow() {
-            entry_controller.connect_key_pressed(move |__controller, key_code| {
-                println!("entry_controller was key pressed with:\n {:?}", key_code);
-                let key = unsafe { gdk::Key::from_glib(key_code); };
-                if let Some(name) = key.name() 
-                    && name == "Escape" {
+            entry_controller.connect_key_pressed(move |_controller, key_name| {
+                println!("entry_controller was key pressed with:\n {:?}", key_name);
+                if key_name == "Escape" {
                     view.close()
                 } else {
                         let mut input = view.input();
-                        if let Some(ch) = key.to_unicode() {
-                            input.push(ch);
-                            view.set_input(&input);
+                        if let Some(key) = gtk::gdk::Key::from_name(key_name) {
+                            if let Some(ch) = key.to_unicode() {
+                                input.push(ch);
+                                view.set_input(&input);
+                            }
                         }
                     }
                 });
