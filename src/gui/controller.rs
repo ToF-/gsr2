@@ -1,6 +1,6 @@
 use gtk::glib::translate::FromGlib;
-use crate::gui::entry_controller::EntryController;
-use crate::gui::gsr_controller::GsrController;
+use crate::gui::controller::entry_controller::EntryController;
+use crate::gui::controller::gsr_controller::GsrController;
 use crate::gui::view::entry_view::EntryView;
 use crate::model::category::category_from_string;
 use crate::model::change::Change;
@@ -44,6 +44,9 @@ use std::io::Result as IOResult;
 use std::path::PathBuf;
 use std::rc::Rc;
 use std::str::FromStr;
+
+pub mod entry_controller;
+pub mod gsr_controller;
 
 #[derive(Debug)]
 pub struct Controller {

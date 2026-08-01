@@ -1,4 +1,4 @@
-use crate::gui::entry_controller::EntryController;
+use crate::gui::controller::entry_controller::EntryController;
 use gtk::prelude::GtkWindowExt;
 #[allow(deprecated)]
 use gtk::subclass::prelude::ObjectSubclassIsExt;

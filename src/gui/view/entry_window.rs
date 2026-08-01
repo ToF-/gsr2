@@ -1,7 +1,7 @@
+use crate::gui::controller::entry_controller::EntryController;
 use crate::env::default_values::{ENTRY_CURSOR_1, ENTRY_CURSOR_2};
 use crate::env::default_values::{ENTRY_WINDOW_HEIGHT, ENTRY_WINDOW_WIDTH};
 use crate::gui::controller::RcController;
-use crate::gui::entry_controller::EntryController;
 use crate::gui::event::Event;
 use crate::gui::mode::Mode;
 use gtk::Align;
