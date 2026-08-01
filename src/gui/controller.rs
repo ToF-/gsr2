@@ -1,3 +1,4 @@
+use gtk::glib::translate::FromGlib;
 use crate::gui::entry_controller::EntryController;
 use crate::gui::gsr_controller::GsrController;
 use crate::gui::view::entry_view::EntryView;
@@ -1928,8 +1929,9 @@ impl Controller {
         entry_view.attach_key_pressed_controller(&entry_controller_rc);
         let view = entry_view.clone();
         if let Ok(entry_controller) = entry_controller_rc.try_borrow() {
-            entry_controller.connect_key_pressed(move |__controller, key| {
-                println!("entry_controller was key pressed with:\n {:?}", key);
+            entry_controller.connect_key_pressed(move |__controller, key_code| {
+                println!("entry_controller was key pressed with:\n {:?}", key_code);
+                let key = unsafe { gdk::Key::from_glib(key_code); };
                 if let Some(name) = key.name() 
                     && name == "Escape" {
                     view.close()

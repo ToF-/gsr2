@@ -17,7 +17,7 @@ impl EntryController {
         gtk::glib::Object::new()
     }
 
-    pub fn key_pressed(&self, key: gdk::Key) {
+    pub fn key_pressed(&self, key: u32) {
         self.emit_by_name::<()>("entered", &[&key]);
     }
 
@@ -35,12 +35,12 @@ impl EntryController {
 
     pub fn connect_key_pressed<F>(&self, f: F) -> gtk::glib::SignalHandlerId
     where
-        F: Fn(&Self, gtk::gdk::Key) + 'static,
+        F: Fn(&Self, u32) + 'static,
     {
         self.connect_local("entered", false, move |values| {
             let obj = values[0].get::<EntryController>().unwrap();
-            let key = values[1].get::<gdk::Key>().unwrap();
-            f(&obj, &key);
+            let key = values[1].get::<u32>().unwrap();
+            f(&obj, key);
             None
         })
     }

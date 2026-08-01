@@ -152,7 +152,7 @@ impl EntryView {
             move |_, key, key_code, modfier_type| {
                 if let Ok(entry_controller) = entry_controller_rc.try_borrow() {
                     if let Some(key_name) = key.name() {
-                        entry_controller.enter(&key_name);
+                        entry_controller.key_pressed(key_code);
                     }
                 }
                 Propagation::Stop
