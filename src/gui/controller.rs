@@ -1,3 +1,4 @@
+use crate::gui::display_information::display_information;
 use crate::gui::controller::entry_controller::EntryController;
 use crate::gui::controller::main_controller::MainController;
 use crate::gui::view::entry_view::EntryView;
@@ -834,7 +835,7 @@ impl Controller {
             );
             self.state.set_mode(Mode::AddingCategory);
         } else {
-            self.display_information(&format!("the category {} already exists", category_name));
+            display_information(&self.main_window().application_window(), &format!("the category {} already exists", category_name));
         }
     }
     fn enter_move_category(&mut self) {
@@ -875,7 +876,7 @@ impl Controller {
         if !self.state().has_saved_args() {
             self.enter_editing(EntryKind::Select, None)
         } else {
-            self.display_information("selection not allowed while in a directory or a selection")
+            display_information(&self.main_window().application_window(),"selection not allowed while in a directory or a selection")
         }
     }
 
@@ -1090,7 +1091,7 @@ impl Controller {
                 Err(e) => eprintln!("{}", e),
             }
         } else {
-            self.display_information("cannot go to a directory when not in covers view")
+            display_information(&self.main_window().application_window(),"cannot go to a directory when not in covers view")
         }
     }
 
@@ -1227,7 +1228,7 @@ impl Controller {
                 }
             }
         } else {
-            self.display_information("cannot toggle cover selection while in a directory")
+            display_information(&self.main_window().application_window(),"cannot toggle cover selection while in a directory")
         }
     }
 
@@ -1250,7 +1251,7 @@ impl Controller {
             .add_category(new_category_name, target_category_name)
         {
             Ok(_) => {}
-            Err(e) => self.display_information(&format!("{}", e)),
+            Err(e) => display_information(&self.main_window().application_window(),&format!("{}", e)),
         }
     }
 
@@ -1264,7 +1265,7 @@ impl Controller {
             .move_category(moving_category_name, target_category_name)
         {
             Ok(_) => {}
-            Err(e) => self.display_information(&format!("{}", e)),
+            Err(e) => display_information(&self.main_window().application_window(),&format!("{}", e)),
         }
     }
 
@@ -1273,10 +1274,10 @@ impl Controller {
         if !self.repository.all_categories().contains(input) {
             match self.repository.remove_category(input) {
                 Ok(_) => {}
-                Err(e) => self.display_information(&format!("{}", e)),
+                Err(e) => display_information(&self.main_window().application_window(),&format!("{}", e)),
             }
         } else {
-            self.display_information(&format!(
+            display_information(&self.main_window().application_window(),&format!(
                 "category {} is being used and cannot be removed",
                 input
             ))
@@ -1328,28 +1329,6 @@ impl Controller {
         }
     }
 
-    fn display_information(&mut self, message: &str) {
-        let entry_view = EntryView::new_with(
-            &self.main_window().application_window(),
-            "information",
-            message);
-        let entry_controller = EntryController::new();
-        let EntryController_rc = RefCell::new(entry_controller);
-
-        entry_view.attach_key_pressed_controller(&EntryController_rc);
-
-        if let Ok(entry_controller) = EntryController_rc.try_borrow() {
-            entry_controller.connect_key_pressed(|controller, _| {
-                // whatever the key is, we close
-                controller.close()
-            });
-            let the_entry_view = entry_view.clone();
-            entry_controller.connect_closed(move |controller| {
-                the_entry_view.close()
-            });
-        };
-        entry_view.present()
-    }
 
     fn categorize_selected_pictures(&mut self, category: Category) {
         if self.navigator.has_selected() {
@@ -1421,7 +1400,7 @@ impl Controller {
     }
 
     fn help(&mut self) {
-        self.display_information(&help_on_controls());
+        display_information(&self.main_window().application_window(),&help_on_controls());
     }
 
     fn information(&mut self) {
@@ -1450,13 +1429,13 @@ impl Controller {
                     navigator.move_towards(Direction::Index { value: index });
                     navigator.set_page_changed()
                 } else {
-                    // self.display_information(&format!("mark: {} not found", mark));
+                    // display_information(&self.main_window().application_window(),&format!("mark: {} not found", mark));
                 }
             } else {
                 panic!("can't borrow")
             }
         } else {
-            self.display_information(&format!("no picture with mark {}", mark));
+            display_information(&self.main_window().application_window(),&format!("no picture with mark {}", mark));
         }
     }
 
@@ -1887,7 +1866,7 @@ impl Controller {
             }
         };
         if let Some(information) = information_opt {
-            self.display_information(&information)
+            display_information(&self.main_window().application_window(),&information)
         }
     }
 
@@ -1912,7 +1891,7 @@ impl Controller {
             Err(e) => Some(format!("{}", e)),
         };
         if let Some(information) = information_opt {
-            self.display_information(&information)
+            display_information(&self.main_window().application_window(),&information)
         }
     }
 
@@ -1932,7 +1911,7 @@ impl Controller {
             panic!("can't borrow");
         };
         if let Some(information) = information_opt {
-            self.display_information(information)
+            display_information(&self.main_window().application_window(),information)
         }
     }
 
