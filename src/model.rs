@@ -20,3 +20,4 @@ pub mod selection_criteria;
 pub mod sub_category;
 pub mod tags;
 pub mod thumbnail;
+pub mod view_option;

@@ -1950,6 +1950,10 @@ impl Controller {
                 if key_name == "Escape" {
                     println!("closing…");
                     controller.close()
+                } else {
+                    if let Some(key) = Key::from_name(key_name) {
+                        println!("{:?}", key);
+                    }
                 }
             });
 
