@@ -1,5 +1,5 @@
 mod imp;
-
+use crate::gui::view::entry_view::EntryView;
 use gtk::glib::subclass::prelude::*;
 use gtk::prelude::ObjectExt;
 use std::cell::RefCell;
@@ -14,6 +14,16 @@ gtk::glib::wrapper! {
 impl EntryController {
     pub fn new() -> Self {
         gtk::glib::Object::new()
+    }
+
+    pub fn new_with(entry_view_rc: RefCell<EntryView>) -> Self {
+        let obj = Self::new();
+        obj.imp().initialize(entry_view_rc);
+        obj
+    }
+
+    pub fn view(&self) -> EntryView {
+        self.imp().view()
     }
 
     pub fn entry(&self) -> String {

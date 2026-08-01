@@ -3,18 +3,33 @@ use crate::gui::view::entry_view::EntryView;
 use gtk::glib;
 use gtk::glib::subclass::Signal;
 use gtk::glib::subclass::prelude::*;
+use std::cell::RefCell;
 use std::sync::OnceLock;
 
 pub struct EntryController {
-    pub entry: std::cell::RefCell<String>,
+    pub entry: RefCell<String>,
+    pub prompt: RefCell<String>,
     pub validator: InputValidate,
-    pub view: EntryView,
+    pub view_opt_rc: RefCell<Option<EntryView>>,
 }
 
 impl EntryController {
     pub fn new() -> Self {
         Self::default()
     }
+
+    pub fn initialize(&self, entry_view_rc: RefCell<EntryView>) {
+        if let Ok(entry_view) = entry_view_rc.try_borrow() {
+            *self.view_opt_rc.borrow_mut() = Some(entry_view.clone())
+        } else {
+            panic!("can't borrow");
+        }
+    }
+
+    pub fn view(&self) -> EntryView {
+        self.view_opt_rc.borrow().as_ref().unwrap().clone()
+    }
+
     pub fn validate_input(&self, s: &str) -> Option<String> {
         self.validator().validate(s)
     }
@@ -26,9 +41,10 @@ impl EntryController {
 impl Default for EntryController {
     fn default() -> Self {
         Self {
-            entry: std::cell::RefCell::new(String::new()),
+            entry: RefCell::new(String::new()),
+            prompt: RefCell::new(String::new()),
             validator: InputValidate::new(),
-            view: EntryView::new(),
+            view_opt_rc: RefCell::new(None),
         }
     }
 }

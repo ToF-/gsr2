@@ -1,6 +1,6 @@
-use crate::gui::display_information::display_information;
 use crate::gui::controller::entry_controller::EntryController;
 use crate::gui::controller::main_controller::MainController;
+use crate::gui::display_information::display_information;
 use crate::gui::view::entry_view::EntryView;
 use crate::model::category::category_from_string;
 use crate::model::change::Change;
@@ -835,7 +835,10 @@ impl Controller {
             );
             self.state.set_mode(Mode::AddingCategory);
         } else {
-            display_information(&self.main_window().application_window(), &format!("the category {} already exists", category_name));
+            display_information(
+                &self.main_window().application_window(),
+                &format!("the category {} already exists", category_name),
+            );
         }
     }
     fn enter_move_category(&mut self) {
@@ -876,7 +879,10 @@ impl Controller {
         if !self.state().has_saved_args() {
             self.enter_editing(EntryKind::Select, None)
         } else {
-            display_information(&self.main_window().application_window(),"selection not allowed while in a directory or a selection")
+            display_information(
+                &self.main_window().application_window(),
+                "selection not allowed while in a directory or a selection",
+            )
         }
     }
 
@@ -1091,7 +1097,10 @@ impl Controller {
                 Err(e) => eprintln!("{}", e),
             }
         } else {
-            display_information(&self.main_window().application_window(),"cannot go to a directory when not in covers view")
+            display_information(
+                &self.main_window().application_window(),
+                "cannot go to a directory when not in covers view",
+            )
         }
     }
 
@@ -1228,7 +1237,10 @@ impl Controller {
                 }
             }
         } else {
-            display_information(&self.main_window().application_window(),"cannot toggle cover selection while in a directory")
+            display_information(
+                &self.main_window().application_window(),
+                "cannot toggle cover selection while in a directory",
+            )
         }
     }
 
@@ -1251,7 +1263,9 @@ impl Controller {
             .add_category(new_category_name, target_category_name)
         {
             Ok(_) => {}
-            Err(e) => display_information(&self.main_window().application_window(),&format!("{}", e)),
+            Err(e) => {
+                display_information(&self.main_window().application_window(), &format!("{}", e))
+            }
         }
     }
 
@@ -1265,7 +1279,9 @@ impl Controller {
             .move_category(moving_category_name, target_category_name)
         {
             Ok(_) => {}
-            Err(e) => display_information(&self.main_window().application_window(),&format!("{}", e)),
+            Err(e) => {
+                display_information(&self.main_window().application_window(), &format!("{}", e))
+            }
         }
     }
 
@@ -1274,13 +1290,15 @@ impl Controller {
         if !self.repository.all_categories().contains(input) {
             match self.repository.remove_category(input) {
                 Ok(_) => {}
-                Err(e) => display_information(&self.main_window().application_window(),&format!("{}", e)),
+                Err(e) => {
+                    display_information(&self.main_window().application_window(), &format!("{}", e))
+                }
             }
         } else {
-            display_information(&self.main_window().application_window(),&format!(
-                "category {} is being used and cannot be removed",
-                input
-            ))
+            display_information(
+                &self.main_window().application_window(),
+                &format!("category {} is being used and cannot be removed", input),
+            )
         }
     }
 
@@ -1328,7 +1346,6 @@ impl Controller {
             self.state.set_mode(Mode::Editing);
         }
     }
-
 
     fn categorize_selected_pictures(&mut self, category: Category) {
         if self.navigator.has_selected() {
@@ -1400,7 +1417,10 @@ impl Controller {
     }
 
     fn help(&mut self) {
-        display_information(&self.main_window().application_window(),&help_on_controls());
+        display_information(
+            &self.main_window().application_window(),
+            &help_on_controls(),
+        );
     }
 
     fn information(&mut self) {
@@ -1435,7 +1455,10 @@ impl Controller {
                 panic!("can't borrow")
             }
         } else {
-            display_information(&self.main_window().application_window(),&format!("no picture with mark {}", mark));
+            display_information(
+                &self.main_window().application_window(),
+                &format!("no picture with mark {}", mark),
+            );
         }
     }
 
@@ -1866,7 +1889,7 @@ impl Controller {
             }
         };
         if let Some(information) = information_opt {
-            display_information(&self.main_window().application_window(),&information)
+            display_information(&self.main_window().application_window(), &information)
         }
     }
 
@@ -1891,7 +1914,7 @@ impl Controller {
             Err(e) => Some(format!("{}", e)),
         };
         if let Some(information) = information_opt {
-            display_information(&self.main_window().application_window(),&information)
+            display_information(&self.main_window().application_window(), &information)
         }
     }
 
@@ -1911,7 +1934,7 @@ impl Controller {
             panic!("can't borrow");
         };
         if let Some(information) = information_opt {
-            display_information(&self.main_window().application_window(),information)
+            display_information(&self.main_window().application_window(), information)
         }
     }
 
@@ -1925,16 +1948,14 @@ impl Controller {
         // create the controller managing the control between view and rest of the app
         let entry_controller = EntryController::new();
         let entry_controller_rc = RefCell::new(entry_controller);
-    
+
         // when view receives a key, it sends a signal to its controller
         entry_view.attach_key_pressed_controller(&entry_controller_rc);
 
         // we moved the entry_controller value into the rc, so, borrow it from the rc
         if let Ok(entry_controller) = entry_controller_rc.try_borrow() {
-
             // when controller receives a key, if it's Escape, send itself a close signal
             entry_controller.connect_key_pressed(|controller, key_name| {
-
                 println!("testing: {:?}", key_name);
                 if key_name == "Escape" {
                     println!("closing…");
