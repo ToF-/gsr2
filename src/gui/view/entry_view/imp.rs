@@ -160,10 +160,6 @@ impl EntryView {
             #[strong]
             entry_controller_rc,
             move |_, key, key_code, modifier_type| {
-                println!(
-                    "entry_controller key_pressed with:\n{:?} {:?} {:?}",
-                    key, key_code, modifier_type
-                );
                 if let Ok(entry_controller) = entry_controller_rc.try_borrow() {
                     if let Some(key_name) = key.name() {
                         entry_controller.key_pressed(&key_name);

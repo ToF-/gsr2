@@ -1329,10 +1329,26 @@ impl Controller {
     }
 
     fn display_information(&mut self, message: &str) {
-        self.editor
-            .begin(&self.main_window(), EntryKind::Information, None);
-        self.editor.set_input(message);
-        self.state.set_mode(Mode::Editing);
+        let entry_view = EntryView::new_with(
+            &self.main_window().application_window(),
+            "information",
+            message);
+        let entry_controller = EntryController::new();
+        let EntryController_rc = RefCell::new(entry_controller);
+
+        entry_view.attach_key_pressed_controller(&EntryController_rc);
+
+        if let Ok(entry_controller) = EntryController_rc.try_borrow() {
+            entry_controller.connect_key_pressed(|controller, _| {
+                // whatever the key is, we close
+                controller.close()
+            });
+            let the_entry_view = entry_view.clone();
+            entry_controller.connect_closed(move |controller| {
+                the_entry_view.close()
+            });
+        };
+        entry_view.present()
     }
 
     fn categorize_selected_pictures(&mut self, category: Category) {
@@ -1405,10 +1421,7 @@ impl Controller {
     }
 
     fn help(&mut self) {
-        self.editor
-            .begin(&self.main_window(), EntryKind::Help, None);
-        self.editor.set_input(&help_on_controls());
-        self.state.set_mode(Mode::Editing);
+        self.display_information(&help_on_controls());
     }
 
     fn information(&mut self) {
@@ -1943,7 +1956,7 @@ impl Controller {
             // when controller receives a key, if it's Escape, send itself a close signal
             entry_controller.connect_key_pressed(|controller, key_name| {
 
-                println!("entry_controller key_pressed: {:?}", key_name);
+                println!("testing: {:?}", key_name);
                 if key_name == "Escape" {
                     println!("closing…");
                     controller.close()
