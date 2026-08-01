@@ -110,9 +110,6 @@ impl EntryWindow {
                         },
                         &controller_rc,
                     );
-                    controller
-                        .main_controller()
-                        .key_pressed(&format!("{:}", key));
                     // entry_controller_rc.borrow().key_pressed(key_code);
                 };
                 Propagation::Stop

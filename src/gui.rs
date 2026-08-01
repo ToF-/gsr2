@@ -5,6 +5,7 @@ pub mod display;
 pub mod display_information;
 pub mod editor;
 pub mod entry_kind;
+pub mod entry_prompt;
 pub mod event;
 pub mod input_validate;
 pub mod mode;

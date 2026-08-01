@@ -1,9 +1,11 @@
 use crate::gui::controller::entry_controller::EntryController;
+use crate::gui::entry_kind::EntryKind;
+use crate::gui::entry_prompt::entry_prompt;
 use crate::gui::view::entry_view::EntryView;
 use std::cell::RefCell;
 
 pub fn display_information(application_window: &gtk::ApplicationWindow, message: &str) {
-    let entry_view = EntryView::new_with(application_window, "information", message);
+    let entry_view = EntryView::new_with(application_window, &entry_prompt(EntryKind::Information), message);
     let entry_view_rc = RefCell::new(entry_view);
     let entry_controller = EntryController::new_with(entry_view_rc.clone());
     let entry_controller_rc = RefCell::new(entry_controller);

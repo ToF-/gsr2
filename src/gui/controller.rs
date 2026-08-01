@@ -61,7 +61,6 @@ pub struct Controller {
     editor: Editor,
     selector: Selector,
     last_action: Action,
-    my_controller: MainController,
 }
 
 pub type RcController = Rc<RefCell<Controller>>;
@@ -116,15 +115,7 @@ impl Controller {
             state: State::new(pictures_per_row as usize, cli.slideshow().is_some()),
             main_window_opt: None,
             last_action: Action::Nothing,
-            my_controller: MainController::new(),
         };
-        controller
-            .my_controller
-            .connect_local("entered", false, |values| {
-                let text = values[1].get::<String>().unwrap();
-                println!("key-pressed with text={}", text);
-                None
-            });
         Ok(controller)
     }
 
@@ -137,10 +128,6 @@ impl Controller {
     }
     pub fn selector(&self) -> Selector {
         self.selector.clone()
-    }
-
-    pub fn main_controller(&self) -> MainController {
-        self.my_controller.clone()
     }
 
     pub fn set_selected(&mut self, selected: &str) {
@@ -899,6 +886,7 @@ impl Controller {
     }
 
     fn enter_find_name(&mut self) {
+        println!("enter_find_name");
         self.editor
             .begin(&self.main_window(), EntryKind::FindName, None);
         self.state.set_mode(Mode::Editing);
