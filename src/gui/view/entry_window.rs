@@ -110,7 +110,7 @@ impl EntryWindow {
                         },
                         &controller_rc,
                     );
-                    controller.gsr_controller().entered(&format!("{:}", key));
+                    controller.main_controller().entered(&format!("{:}", key));
                     // entry_controller_rc.borrow().key_pressed(key_code);
                 };
                 Propagation::Stop

@@ -2,12 +2,16 @@ mod imp;
 
 use gtk::glib::subclass::prelude::*;
 use gtk::prelude::ObjectExt;
+use std::cell::RefCell;
+use std::rc::Rc;
+
+pub type RcMainController = Rc<RefCell<MainController>>;
 
 gtk::glib::wrapper! {
-    pub struct GsrController(ObjectSubclass<imp::GsrController>);
+    pub struct MainController(ObjectSubclass<imp::MainController>);
 }
 
-impl GsrController {
+impl MainController {
     pub fn new() -> Self {
         gtk::glib::Object::new()
     }

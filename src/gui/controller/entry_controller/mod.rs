@@ -1,6 +1,5 @@
 mod imp;
 
-use crate::gui::view::entry_view::EntryView;
 use gtk::glib::subclass::prelude::*;
 use gtk::prelude::ObjectExt;
 use std::cell::RefCell;

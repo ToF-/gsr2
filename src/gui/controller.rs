@@ -1,6 +1,6 @@
 use gtk::glib::translate::FromGlib;
 use crate::gui::controller::entry_controller::EntryController;
-use crate::gui::controller::gsr_controller::GsrController;
+use crate::gui::controller::main_controller::MainController;
 use crate::gui::view::entry_view::EntryView;
 use crate::model::category::category_from_string;
 use crate::model::change::Change;
@@ -46,7 +46,7 @@ use std::rc::Rc;
 use std::str::FromStr;
 
 pub mod entry_controller;
-pub mod gsr_controller;
+pub mod main_controller;
 
 #[derive(Debug)]
 pub struct Controller {
@@ -60,7 +60,7 @@ pub struct Controller {
     editor: Editor,
     selector: Selector,
     last_action: Action,
-    my_controller: GsrController,
+    my_controller: MainController,
 }
 
 pub type RcController = Rc<RefCell<Controller>>;
@@ -115,7 +115,7 @@ impl Controller {
             state: State::new(pictures_per_row as usize, cli.slideshow().is_some()),
             main_window_opt: None,
             last_action: Action::Nothing,
-            my_controller: GsrController::new(),
+            my_controller: MainController::new(),
         };
         controller
             .my_controller
@@ -138,7 +138,7 @@ impl Controller {
         self.selector.clone()
     }
 
-    pub fn gsr_controller(&self) -> GsrController {
+    pub fn main_controller(&self) -> MainController {
         self.my_controller.clone()
     }
 
