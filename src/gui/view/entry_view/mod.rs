@@ -1,4 +1,4 @@
-use crate::gui::controller::entry_controller::EntryController;
+use crate::gui::editor::entry_editor::EntryEditor;
 use gtk::prelude::GtkWindowExt;
 #[allow(deprecated)]
 use gtk::subclass::prelude::ObjectSubclassIsExt;
@@ -46,11 +46,11 @@ impl EntryView {
         self.imp().set_prompt(text)
     }
 
-    pub fn attach_key_pressed_controller(
+    pub fn attach_key_pressed_editor(
         &self,
-        entry_controller_rc: &std::cell::RefCell<EntryController>,
+        entry_editor_rc: &std::cell::RefCell<EntryEditor>,
     ) {
         self.imp()
-            .attach_key_pressed_controller(entry_controller_rc);
+            .attach_key_pressed_editor(entry_editor_rc);
     }
 }

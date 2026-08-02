@@ -6,7 +6,7 @@ use crate::file::paths::grand_parent_directory;
 use crate::file::paths::parent_directory;
 use crate::gui::completion_dispenser::CompletionDispenser;
 use crate::gui::control::{Control, Controls, default_controls, help_on_controls};
-use crate::gui::controller::entry_controller::EntryController;
+use crate::gui::editor::entry_editor::EntryEditor;
 use crate::gui::direction::Direction;
 use crate::gui::display_information::display_information;
 use crate::gui::editor::Editor;
@@ -48,7 +48,6 @@ use std::rc::Rc;
 use std::str::FromStr;
 
 pub mod entry_controller;
-
 #[derive(Debug)]
 pub struct Controller {
     configuration: Configuration,
@@ -1934,34 +1933,34 @@ impl Controller {
         let entry_view =
             EntryView::new_with(&application_window, &entry_prompt(EntryKind::FindLabel), "");
 
-        // create a refcell to it for the controller to have
+        // create a refcell to it for the editor to have
         let entry_view_rc = RefCell::new(entry_view);
 
-        // create a validator for this controller to have
+        // create a validator for this editor to have
         let validator = Validator::new(EntryKind::FindLabel);
 
-        // create the controller managing the control between view and rest of the app
-        let entry_controller = EntryController::new_with(
+        // create the editor managing the control between view and rest of the app
+        let entry_editor = EntryEditor::new_with(
             entry_view_rc.clone(),
             validator,
             CompletionDispenser::new_with(tags_from_str("foo,fog,bar,qux,law")),
         );
-        let entry_controller_rc = RefCell::new(entry_controller);
+        let entry_editor_rc = RefCell::new(entry_editor);
 
-        // when view receives a key, it sends a signal to its controller
+        // when view receives a key, it sends a signal to its editor
         entry_view_rc
             .borrow()
-            .attach_key_pressed_controller(&entry_controller_rc);
+            .attach_key_pressed_editor(&entry_editor_rc);
 
-        // when the controller is sent a key signal it reacts
+        // when the editor is sent a key signal it reacts
         // maybe closing if Escape whas pressed
-        entry_controller_rc
+        entry_editor_rc
             .borrow()
-            .connect_key_pressed(|controller, key_name| controller.edit_entry(key_name));
+            .connect_key_pressed(|editor, key_name| editor.edit_entry(key_name));
 
-        // when the controller is sent a close signal it does things, mainly closing its view
-        entry_controller_rc.borrow().connect_closed(|controller| {
-            if let Some(view) = controller.view() {
+        // when the editor is sent a close signal it does things, mainly closing its view
+        entry_editor_rc.borrow().connect_closed(|editor| {
+            if let Some(view) = editor.view() {
                 view.close()
             }
         });

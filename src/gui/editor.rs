@@ -13,6 +13,8 @@ use gdk::Key;
 use gtk::{self, gdk};
 use itertools::Itertools;
 
+pub mod entry_editor;
+
 #[derive(Clone, Debug)]
 pub struct Editor {
     prompt: String,
@@ -23,6 +25,7 @@ pub struct Editor {
     entry_window_opt: Option<EntryWindow>,
     choice: Tags,
 }
+
 
 #[allow(dead_code)]
 impl Editor {

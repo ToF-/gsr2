@@ -121,17 +121,13 @@ impl Validator {
                 input = change.to_string();
             }
             other if other.is_ascii() => {
-                println!("ascii :{:?}", other);
                 input.push(other.to_lowercase().next().unwrap());
-                println!("input now:{:?}", input)
             }
             other => input.push(other),
         };
-        println!("validator.convert_char.input:{:?}", input);
         Some(input)
     }
     pub fn valid_entry_char(&self, ch: char) -> bool {
-        println!("valid_entry_char({:?}) {:?}", ch, self.entry_kind);
         match self.entry_kind {
             EntryKind::Catalog => {
                 matches!(ch, 'a' | 'm' | 'r')

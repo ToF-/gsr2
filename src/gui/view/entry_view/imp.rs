@@ -1,7 +1,7 @@
 use crate::env::default_values::ENTRY_WINDOW_HEIGHT;
 use crate::env::default_values::ENTRY_WINDOW_WIDTH;
-use crate::gui::controller::entry_controller::EntryController;
-use crate::gui::controller::entry_controller::RcEntryController;
+use crate::gui::editor::entry_editor::EntryEditor;
+use crate::gui::editor::entry_editor::RcEntryEditor;
 use gtk::Align;
 use gtk::CssProvider;
 use gtk::Orientation;
@@ -184,18 +184,18 @@ impl EntryView {
         window
     }
 
-    pub fn attach_key_pressed_controller(
+    pub fn attach_key_pressed_editor(
         &self,
-        entry_controller_rc: &std::cell::RefCell<EntryController>,
+        entry_editor_rc: &std::cell::RefCell<EntryEditor>,
     ) {
         let event_controller_key = gtk::EventControllerKey::new();
         event_controller_key.connect_key_pressed(clone!(
             #[strong]
-            entry_controller_rc,
+            entry_editor_rc,
             move |_, key, key_code, modifier_type| {
-                if let Ok(entry_controller) = entry_controller_rc.try_borrow() {
+                if let Ok(entry_editor) = entry_editor_rc.try_borrow() {
                     if let Some(key_name) = key.name() {
-                        entry_controller.key_pressed(&key_name);
+                        entry_editor.key_pressed(&key_name);
                     }
                 }
                 Propagation::Stop
