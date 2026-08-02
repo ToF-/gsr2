@@ -47,7 +47,7 @@ use std::path::PathBuf;
 use std::rc::Rc;
 use std::str::FromStr;
 
-pub mod entry_controller;
+
 #[derive(Debug)]
 pub struct Controller {
     configuration: Configuration,

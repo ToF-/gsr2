@@ -1,7 +1,7 @@
 use crate::env::default_values::{ENTRY_CURSOR_1, ENTRY_CURSOR_2};
 use crate::env::default_values::{ENTRY_WINDOW_HEIGHT, ENTRY_WINDOW_WIDTH};
 use crate::gui::controller::RcController;
-use crate::gui::controller::entry_controller::EntryController;
+use crate::gui::editor::entry_editor::EntryEditor;
 use crate::gui::event::Event;
 use crate::gui::mode::Mode;
 use gtk::Align;
@@ -20,7 +20,7 @@ use std::time::Duration;
 #[derive(Clone, Debug)]
 pub struct EntryWindow {
     window: gtk::Window,
-    entry_controller: std::cell::RefCell<EntryController>,
+    entry_editor: std::cell::RefCell<EntryEditor>,
 }
 
 #[allow(deprecated)]
@@ -74,31 +74,31 @@ impl EntryWindow {
             .transient_for(application_window)
             .build();
         window.set_child(Some(&entry_box));
-        let entry_controller: std::cell::RefCell<EntryController> =
-            std::cell::RefCell::new(EntryController::new());
-        Self::attach_key_pressed_event_handler(&window, controller_rc, &entry_controller);
+        let entry_editor: std::cell::RefCell<EntryEditor> =
+            std::cell::RefCell::new(EntryEditor::new());
+        Self::attach_key_pressed_event_handler(&window, controller_rc, &entry_editor);
         Self::attach_cursor_blink_event(&window, controller_rc);
         EntryWindow {
             window,
-            entry_controller,
+            entry_editor,
         }
     }
 
-    pub fn entry_controller(&self) -> std::cell::RefCell<EntryController> {
-        self.entry_controller.clone()
+    pub fn entry_editor(&self) -> std::cell::RefCell<EntryEditor> {
+        self.entry_editor.clone()
     }
 
     fn attach_key_pressed_event_handler(
         window: &gtk::Window,
         controller_rc: &RcController,
-        entry_controller_rc: &std::cell::RefCell<EntryController>,
+        entry_editor_rc: &std::cell::RefCell<EntryEditor>,
     ) {
         let event_controller_key = gtk::EventControllerKey::new();
         event_controller_key.connect_key_pressed(clone!(
             #[strong]
             controller_rc,
             #[strong]
-            entry_controller_rc,
+            entry_editor_rc,
             move |_, key, key_code, modifier_type| {
                 if let Ok(mut controller) = controller_rc.try_borrow_mut() {
                     controller.process_event(
@@ -110,7 +110,7 @@ impl EntryWindow {
                         },
                         &controller_rc,
                     );
-                    // entry_controller_rc.borrow().key_pressed(key_code);
+                    // entry_editor_rc.borrow().key_pressed(key_code);
                 };
                 Propagation::Stop
             }
