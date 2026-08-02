@@ -10,7 +10,7 @@ use std::sync::OnceLock;
 pub struct EntryController {
     pub entry: RefCell<String>,
     pub prompt: RefCell<String>,
-    pub validator: RefCell<Validator>,
+    pub validator_rc: RefCell<Validator>,
     pub view_opt_rc: RefCell<Option<EntryView>>,
 }
 
@@ -22,7 +22,7 @@ impl EntryController {
     pub fn initialize(&self, entry_view_rc: RefCell<EntryView>, validator: Validator) {
         if let Ok(entry_view) = entry_view_rc.try_borrow() {
             *self.view_opt_rc.borrow_mut() = Some(entry_view.clone());
-            *self.validator.borrow_mut() = validator;
+            *self.validator_rc.borrow_mut() = validator;
         } else {
             panic!("can't borrow");
         }
@@ -33,7 +33,15 @@ impl EntryController {
     }
 
     pub fn validate_entry(&self, s: &str, ch: char) -> Option<String> {
-        self.validator.borrow().validate_entry(s, ch)
+        self.validator_rc.borrow().validate_entry(s, ch)
+    }
+
+    pub fn set_entry(&self, s: &str) {
+        *self.entry.borrow_mut() = s.to_string();
+        let view_opt = self.view_opt_rc.borrow();
+        if let Some(view) = view_opt.as_ref() {
+            view.set_input(s)
+        }
     }
 }
 
@@ -42,7 +50,7 @@ impl Default for EntryController {
         Self {
             entry: RefCell::new(String::new()),
             prompt: RefCell::new(String::new()),
-            validator: Validator::new(EntryKind::Information).into(),
+            validator_rc: Validator::new(EntryKind::Information).into(),
             view_opt_rc: RefCell::new(None),
         }
     }

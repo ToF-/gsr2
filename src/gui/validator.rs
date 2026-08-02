@@ -25,6 +25,7 @@ pub fn validate_entry(&self, entry: &str, ch: char) -> Option<String> {
 pub fn append_char(&self, entry: &str, ch: char) -> Option<String> {
     println!("append_char({:?},{:?})", entry, ch);
     let mut input: String = entry.into();
+    println!("append_char.input :({:?}", input);
     if self.valid_entry_char(ch) {
         self.convert_char(entry, ch)
     } else {
@@ -33,7 +34,6 @@ pub fn append_char(&self, entry: &str, ch: char) -> Option<String> {
 }
 
 pub fn convert_char(&self, entry: &str, ch: char) -> Option<String> {
-    println!("convert_char({:?},{:?})", entry, ch);
     let mut input: String = entry.into();
     let entry_kind = self.entry_kind.clone();
     match ch {
@@ -125,9 +125,10 @@ pub fn convert_char(&self, entry: &str, ch: char) -> Option<String> {
             };
             input = change.to_string();
         }
-        other if other.is_ascii() => input.push(other.to_lowercase().next().unwrap()),
+        other if other.is_ascii() => { println!("ascii :{:?}", other); input.push(other.to_lowercase().next().unwrap()); println!("input now:{:?}", input) },
         other => input.push(other),
-    }
+    };
+    println!("validator.convert_char.input:{:?}", input);
     Some(input)
 }
 pub fn valid_entry_char(&self, ch: char) -> bool {
@@ -195,4 +196,5 @@ pub fn valid_entry_char(&self, ch: char) -> bool {
         EntryKind::Information | EntryKind::Help => false,
     }
 }
+
 }

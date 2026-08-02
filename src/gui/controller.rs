@@ -1955,9 +1955,9 @@ impl Controller {
                     if let Some(key) = Key::from_name(key_name) {
                         println!("key:{:?}", key);
                         if let Some(ch) = key.to_unicode() {
-                            let entry = controller.entry();
-                            println!("validate_char:{:?}", controller.validate_char(ch));
-                            println!("controller.entry:{:?}", controller.entry());
+                            if let Some(entry) = controller.validate_char(ch) {
+                                controller.set_entry(&entry)
+                            }
                         } else {
                             println!("unicode failed:{:?}", key);
                         }

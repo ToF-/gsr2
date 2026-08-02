@@ -32,7 +32,7 @@ impl EntryController {
     }
 
     pub fn set_entry(&self, text: &str) {
-        *self.imp().entry.borrow_mut() = text.to_string()
+        self.imp().set_entry(text)
     }
     
     pub fn validate_char(&self, ch: char) -> Option<String> {
