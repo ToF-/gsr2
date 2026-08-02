@@ -1,12 +1,12 @@
-use itertools::Itertools;
-use crate::model::tags::empty_tags;
 use crate::gui::completion_dispenser::CompletionDispenser;
 use crate::gui::entry_kind::EntryKind;
 use crate::gui::validator::Validator;
 use crate::gui::view::entry_view::EntryView;
+use crate::model::tags::empty_tags;
 use gtk::glib;
 use gtk::glib::subclass::Signal;
 use gtk::glib::subclass::prelude::*;
+use itertools::Itertools;
 use std::cell::RefCell;
 use std::sync::OnceLock;
 
@@ -23,7 +23,12 @@ impl EntryController {
         Self::default()
     }
 
-    pub fn initialize(&self, entry_view_rc: RefCell<EntryView>, validator: Validator, completion_dispenser: CompletionDispenser) {
+    pub fn initialize(
+        &self,
+        entry_view_rc: RefCell<EntryView>,
+        validator: Validator,
+        completion_dispenser: CompletionDispenser,
+    ) {
         if let Ok(entry_view) = entry_view_rc.try_borrow() {
             *self.view_opt_rc.borrow_mut() = Some(entry_view.clone());
             *self.prompt.borrow_mut() = entry_view.prompt();
@@ -47,7 +52,6 @@ impl EntryController {
         } else {
             Some(candidates)
         }
-
     }
 
     pub fn validate_entry(&self, s: &str, ch: char) -> Option<String> {

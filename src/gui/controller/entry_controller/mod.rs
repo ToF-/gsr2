@@ -18,14 +18,66 @@ impl EntryController {
         gtk::glib::Object::new()
     }
 
-    pub fn new_with(entry_view_rc: RefCell<EntryView>, validator: Validator, completion_dispenser: CompletionDispenser) -> Self {
+    pub fn new_with(
+        entry_view_rc: RefCell<EntryView>,
+        validator: Validator,
+        completion_dispenser: CompletionDispenser,
+    ) -> Self {
         let obj = Self::new();
-        obj.imp().initialize(entry_view_rc, validator, completion_dispenser);
+        obj.imp()
+            .initialize(entry_view_rc, validator, completion_dispenser);
         obj
     }
 
     pub fn set_prompt(&self) {
         self.imp().set_prompt()
+    }
+
+    fn edit_backspace(&self) {
+        if self.entry().len() > 0 {
+            let mut entry = self.entry();
+            entry.pop();
+            self.set_entry(&entry);
+            self.set_prompt();
+        }
+    }
+
+    fn edit_tab(&self) {
+        if let Some(candidates) = self.candidates() {
+            if candidates.len() == 1 {
+                self.set_entry(&candidates[0]);
+                self.set_prompt();
+            } else {
+                self.set_prompt_with_candidates(candidates)
+            }
+        }
+    }
+    fn edit_escape(&self) {
+        self.set_entry("");
+        self.close()
+    }
+
+    fn edit_key(&self, key_name: &str) {
+        if let Some(key) = gtk::gdk::Key::from_name(key_name)
+            && let Some(ch) = key.to_unicode()
+            && let Some(entry) = self.validate_char(ch)
+        {
+            self.set_entry(&entry);
+            self.set_prompt()
+        }
+    }
+    pub fn edit_entry(&self, key_name: &str) {
+        if key_name == "Escape" {
+            self.edit_escape()
+        } else if key_name == "Return" {
+            self.close();
+        } else if key_name == "BackSpace" {
+            self.edit_backspace()
+        } else if key_name == "Tab" {
+            self.edit_tab()
+        } else {
+            self.edit_key(key_name)
+        }
     }
 
     pub fn set_prompt_with_candidates(&self, candidates: Vec<String>) {
@@ -45,10 +97,10 @@ impl EntryController {
     pub fn set_entry(&self, text: &str) {
         self.imp().set_entry(text)
     }
-    
+
     pub fn validate_char(&self, ch: char) -> Option<String> {
         let entry = self.entry();
-        if let Some(entry) =  self.imp().validate_entry(&entry, ch) {
+        if let Some(entry) = self.imp().validate_entry(&entry, ch) {
             self.set_entry(&entry);
             Some(entry)
         } else {
@@ -89,4 +141,3 @@ impl EntryController {
         })
     }
 }
-

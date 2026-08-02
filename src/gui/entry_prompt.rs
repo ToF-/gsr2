@@ -1,45 +1,55 @@
 use crate::gui::entry_kind::EntryKind;
 pub fn entry_prompt(entry_kind: EntryKind) -> String {
-        let prompt: &str = match entry_kind {
-            EntryKind::AddCategory => "Enter the new category",
-            EntryKind::AddTag => "Enter new tags to add",
-            EntryKind::Catalog => "Enter what to change: (A)dd category (M)ove category (R)emove category",
-            EntryKind::Categorize => "Enter a category",
-            EntryKind::Change => "Enter what to change: c(A)talog (C)ategory (L)abel (N)ame (R)emove (T)ag (U)nlabel co(V)er on",
-            EntryKind::DeleteConfirmation => "Delete these pictures?",
-            EntryKind::Find | EntryKind::Select => "Select criteria C)ategory (B)elongs (L)abel (N)ame (S)ome Tags (A)ll tags ",
-            EntryKind::FindAllTags => "Enter tags to define the find (all tags matcth)",
-            EntryKind::FindCategory => "Enter a part of the category to find",
-            EntryKind::FindLabel => "Enter a part of the picture label to find",
-            EntryKind::FindName => "Enter a part of the picture file name to find",
-            EntryKind::FindSomeTags => "Enter tags to define the find (1 or more tags match)",
-            EntryKind::FindSubCategory => "Enter category or super-category to find",
-            EntryKind::Help => "Keyboard shortcuts",
-            EntryKind::Information => "ⓘ",
-            EntryKind::Label => "Enter a label",
-            EntryKind::MoveCategory => "Enter sub category to move, and the category to move it to",
-            EntryKind::MoveConfirmation => "Move these pictures?",
-            EntryKind::MoveToLabelConfirmation(ref target) => &format!("Move these pictures to {} ?", target),
-            EntryKind::Number => "Enter a number",
-            EntryKind::Order => "Enter a sorting criteria: c(A)tegory (C)olors (D)ate (L)abel (M)ost views (N)ame (P)alette c(O)ver (R)andom (S)ize (V)alue ",
-            EntryKind::Rank => "Enter a rank level: 0 1 2 3",
-            EntryKind::RemoveCategory => "Enter the sub category to remove",
-            EntryKind::RemoveTag => "Enter a tag to remove",
-            EntryKind::Rename => "Enter a name for the selected picture",
-            EntryKind::SelectAllTags => "Enter tags to define the restriction (all tags match)",
-            EntryKind::SelectCategory => "Enter a part of the category to select on",
-            EntryKind::SelectLabel => "Enter a part of the picture label to select on",
-            EntryKind::SelectName => "Enter a part of the picture file name to select on",
-            EntryKind::SelectSomeTags => "Enter tags to define the selection (1 or more tag match)",
-            EntryKind::SelectSubCategory => "Enter category or super-category to select on",
-            EntryKind::View => "View: 1x1 2x2 3x3 4x4 5x5 Thumbs Covers Date Path Size",
-        };
-        prompt.to_string()
+    let prompt: &str = match entry_kind {
+        EntryKind::AddCategory => "Enter the new category",
+        EntryKind::AddTag => "Enter new tags to add",
+        EntryKind::Catalog => {
+            "Enter what to change: (A)dd category (M)ove category (R)emove category"
+        }
+        EntryKind::Categorize => "Enter a category",
+        EntryKind::Change => {
+            "Enter what to change: c(A)talog (C)ategory (L)abel (N)ame (R)emove (T)ag (U)nlabel co(V)er on"
+        }
+        EntryKind::DeleteConfirmation => "Delete these pictures?",
+        EntryKind::Find | EntryKind::Select => {
+            "Select criteria C)ategory (B)elongs (L)abel (N)ame (S)ome Tags (A)ll tags "
+        }
+        EntryKind::FindAllTags => "Enter tags to define the find (all tags matcth)",
+        EntryKind::FindCategory => "Enter a part of the category to find",
+        EntryKind::FindLabel => "Enter a part of the picture label to find",
+        EntryKind::FindName => "Enter a part of the picture file name to find",
+        EntryKind::FindSomeTags => "Enter tags to define the find (1 or more tags match)",
+        EntryKind::FindSubCategory => "Enter category or super-category to find",
+        EntryKind::Help => "Keyboard shortcuts",
+        EntryKind::Information => "ⓘ",
+        EntryKind::Label => "Enter a label",
+        EntryKind::MoveCategory => "Enter sub category to move, and the category to move it to",
+        EntryKind::MoveConfirmation => "Move these pictures?",
+        EntryKind::MoveToLabelConfirmation(ref target) => {
+            &format!("Move these pictures to {} ?", target)
+        }
+        EntryKind::Number => "Enter a number",
+        EntryKind::Order => {
+            "Enter a sorting criteria: c(A)tegory (C)olors (D)ate (L)abel (M)ost views (N)ame (P)alette c(O)ver (R)andom (S)ize (V)alue "
+        }
+        EntryKind::Rank => "Enter a rank level: 0 1 2 3",
+        EntryKind::RemoveCategory => "Enter the sub category to remove",
+        EntryKind::RemoveTag => "Enter a tag to remove",
+        EntryKind::Rename => "Enter a name for the selected picture",
+        EntryKind::SelectAllTags => "Enter tags to define the restriction (all tags match)",
+        EntryKind::SelectCategory => "Enter a part of the category to select on",
+        EntryKind::SelectLabel => "Enter a part of the picture label to select on",
+        EntryKind::SelectName => "Enter a part of the picture file name to select on",
+        EntryKind::SelectSomeTags => "Enter tags to define the selection (1 or more tag match)",
+        EntryKind::SelectSubCategory => "Enter category or super-category to select on",
+        EntryKind::View => "View: 1x1 2x2 3x3 4x4 5x5 Thumbs Covers Date Path Size",
+    };
+    prompt.to_string()
 }
 
 #[cfg(test)]
 mod tests {
-    use super::*; 
+    use super::*;
 
     #[test]
     fn example_of_a_prompt() {

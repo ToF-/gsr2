@@ -8,9 +8,7 @@ pub struct Validator {
 
 impl Validator {
     pub fn new(entry_kind: EntryKind) -> Self {
-        Self {
-            entry_kind,
-        }
+        Self { entry_kind }
     }
 
     pub fn validate_entry(&self, entry: &str, ch: char) -> Option<String> {
@@ -26,7 +24,7 @@ impl Validator {
         if self.valid_entry_char(ch) {
             self.convert_char(entry, ch)
         } else {
-            None 
+            None
         }
     }
 
@@ -122,7 +120,11 @@ impl Validator {
                 };
                 input = change.to_string();
             }
-            other if other.is_ascii() => { println!("ascii :{:?}", other); input.push(other.to_lowercase().next().unwrap()); println!("input now:{:?}", input) },
+            other if other.is_ascii() => {
+                println!("ascii :{:?}", other);
+                input.push(other.to_lowercase().next().unwrap());
+                println!("input now:{:?}", input)
+            }
             other => input.push(other),
         };
         println!("validator.convert_char.input:{:?}", input);
@@ -139,35 +141,35 @@ impl Validator {
             }
             EntryKind::Number => ch.is_ascii_digit(),
             EntryKind::DeleteConfirmation
-                | EntryKind::MoveConfirmation
-                | EntryKind::MoveToLabelConfirmation(_) => {
-                    matches!(ch, 'e' | 'n' | 'o' | 's' | 'y')
-                }
+            | EntryKind::MoveConfirmation
+            | EntryKind::MoveToLabelConfirmation(_) => {
+                matches!(ch, 'e' | 'n' | 'o' | 's' | 'y')
+            }
             EntryKind::Find | EntryKind::Select => {
                 matches!(ch, 'a' | 'b' | 'c' | 'l' | 'n' | 's')
             }
             EntryKind::FindName
-                | EntryKind::FindLabel
-                | EntryKind::FindCategory
-                | EntryKind::FindSubCategory
-                | EntryKind::SelectName
-                | EntryKind::SelectLabel
-                | EntryKind::SelectCategory
-                | EntryKind::SelectSubCategory => {
-                    matches!(ch,
+            | EntryKind::FindLabel
+            | EntryKind::FindCategory
+            | EntryKind::FindSubCategory
+            | EntryKind::SelectName
+            | EntryKind::SelectLabel
+            | EntryKind::SelectCategory
+            | EntryKind::SelectSubCategory => {
+                matches!(ch,
                         'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' ' | '^' | '$' | '.' | '*' | '/' | '{' | '}' | '[' | ']' | '(' | ')' | '\\' )
-                }
+            }
             EntryKind::AddTag => {
                 matches!(ch,
                     'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' ' | ',')
             }
             EntryKind::Label
-                | EntryKind::Rename
-                | EntryKind::RemoveTag
-                | EntryKind::RemoveCategory => {
-                    matches!(ch,
+            | EntryKind::Rename
+            | EntryKind::RemoveTag
+            | EntryKind::RemoveCategory => {
+                matches!(ch,
                         'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' ')
-                }
+            }
             EntryKind::AddCategory | EntryKind::MoveCategory => {
                 matches!(ch,
                     'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' ' | ',')
@@ -177,9 +179,9 @@ impl Validator {
                     'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ':')
             }
             EntryKind::FindAllTags
-                | EntryKind::FindSomeTags
-                | EntryKind::SelectAllTags
-                | EntryKind::SelectSomeTags => matches!(ch,
+            | EntryKind::FindSomeTags
+            | EntryKind::SelectAllTags
+            | EntryKind::SelectSomeTags => matches!(ch,
                     'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' ' | ',' ),
             EntryKind::Order => matches!(
                 ch,
@@ -196,27 +198,27 @@ impl Validator {
 }
 
 #[cfg(test)]
-    mod tests {
-        use super::*;
+mod tests {
+    use super::*;
 
-        #[test]
-        fn example_of_a_validation_for_entering_a_label() {
-            let validator = Validator::new(EntryKind::Label);
-            assert_eq!(Some("foo"), validator.validate_entry("fo",'o').as_deref());
-        }
-        #[test]
-        fn example_of_a_validation_for_choosing_a_view_option() {
-            let validator = Validator::new(EntryKind::View);
-            assert_eq!(Some("Thumbs"), validator.validate_entry("",'t').as_deref());
-        }
-        #[test]
-        fn example_of_a_validation_blocking_a_forbidden_char() {
-            let validator = Validator::new(EntryKind::View);
-            assert_eq!(None, validator.validate_entry("",'z').as_deref());
-        }
-        #[test]
-        fn example_of_a_validation_blocking_completion_with_a_forbidden_char() {
-            let validator = Validator::new(EntryKind::AddTag);
-            assert_eq!(None, validator.validate_entry("my_tag",'$').as_deref());
-        }
+    #[test]
+    fn example_of_a_validation_for_entering_a_label() {
+        let validator = Validator::new(EntryKind::Label);
+        assert_eq!(Some("foo"), validator.validate_entry("fo", 'o').as_deref());
     }
+    #[test]
+    fn example_of_a_validation_for_choosing_a_view_option() {
+        let validator = Validator::new(EntryKind::View);
+        assert_eq!(Some("Thumbs"), validator.validate_entry("", 't').as_deref());
+    }
+    #[test]
+    fn example_of_a_validation_blocking_a_forbidden_char() {
+        let validator = Validator::new(EntryKind::View);
+        assert_eq!(None, validator.validate_entry("", 'z').as_deref());
+    }
+    #[test]
+    fn example_of_a_validation_blocking_completion_with_a_forbidden_char() {
+        let validator = Validator::new(EntryKind::AddTag);
+        assert_eq!(None, validator.validate_entry("my_tag", '$').as_deref());
+    }
+}

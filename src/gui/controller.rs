@@ -1,24 +1,23 @@
-use crate::model::tags::tags_from_str;
-use crate::gui::completion_dispenser::CompletionDispenser;
-use crate::gui::entry_prompt::entry_prompt;
 use crate::cli::args::Args;
 use crate::cli::command::Command;
 use crate::env::configuration::Configuration;
 use crate::file::paths::check_path_exists;
 use crate::file::paths::grand_parent_directory;
 use crate::file::paths::parent_directory;
+use crate::gui::completion_dispenser::CompletionDispenser;
 use crate::gui::control::{Control, Controls, default_controls, help_on_controls};
 use crate::gui::controller::entry_controller::EntryController;
 use crate::gui::direction::Direction;
 use crate::gui::display_information::display_information;
 use crate::gui::editor::Editor;
 use crate::gui::entry_kind::EntryKind;
-use crate::gui::validator::Validator;
+use crate::gui::entry_prompt::entry_prompt;
 use crate::gui::event::Event;
 use crate::gui::mode::Mode;
 use crate::gui::navigator::Navigator;
 use crate::gui::selector::Selector;
 use crate::gui::state::State;
+use crate::gui::validator::Validator;
 use crate::gui::view::entry_view::EntryView;
 use crate::gui::view::main_window::{LEFT_PANE, MainWindow};
 use crate::model::action::Action;
@@ -35,6 +34,7 @@ use crate::model::rank::Rank;
 use crate::model::repository::Repository;
 use crate::model::selection_criteria::SelectionCriteria;
 use crate::model::tags::Tags;
+use crate::model::tags::tags_from_str;
 use gdk::{Key, ModifierType};
 use gtk::prelude::*;
 use gtk::{self, gdk};
@@ -1931,8 +1931,9 @@ impl Controller {
         let application_window = self.main_window().application_window();
 
         // first create a view with the app_window, a prompt, an initial entry
-        let entry_view = EntryView::new_with(&application_window, &entry_prompt(EntryKind::FindLabel), "");
-        
+        let entry_view =
+            EntryView::new_with(&application_window, &entry_prompt(EntryKind::FindLabel), "");
+
         // create a refcell to it for the controller to have
         let entry_view_rc = RefCell::new(entry_view);
 
@@ -1940,42 +1941,23 @@ impl Controller {
         let validator = Validator::new(EntryKind::FindLabel);
 
         // create the controller managing the control between view and rest of the app
-        let entry_controller = EntryController::new_with(entry_view_rc.clone(), validator, CompletionDispenser::new_with(tags_from_str("foo,fog,bar,qux,law")));
+        let entry_controller = EntryController::new_with(
+            entry_view_rc.clone(),
+            validator,
+            CompletionDispenser::new_with(tags_from_str("foo,fog,bar,qux,law")),
+        );
         let entry_controller_rc = RefCell::new(entry_controller);
 
         // when view receives a key, it sends a signal to its controller
-        entry_view_rc.borrow().attach_key_pressed_controller(&entry_controller_rc);
+        entry_view_rc
+            .borrow()
+            .attach_key_pressed_controller(&entry_controller_rc);
 
         // when the controller is sent a key signal it reacts
         // maybe closing if Escape whas pressed
-        entry_controller_rc.borrow().connect_key_pressed(|controller, key_name| {
-                println!("testing: {:?}", key_name);
-                if key_name == "Escape" {
-                    println!("closing…");
-                    controller.close()
-                } else if key_name == "Tab" {
-                    if let Some(candidates) = controller.candidates() {
-                        if candidates.len() == 1 {
-                            controller.set_entry(&candidates[0]);
-                            controller.set_prompt();
-                        } else {
-                            controller.set_prompt_with_candidates(candidates);
-                        }
-                    }
-                } else {
-                    if let Some(key) = Key::from_name(key_name) {
-                        println!("key:{:?}", key);
-                        if let Some(ch) = key.to_unicode() {
-                            if let Some(entry) = controller.validate_char(ch) {
-                                controller.set_entry(&entry);
-                                controller.set_prompt()
-                            }
-                        } else {
-                            println!("unicode failed:{:?}", key);
-                        }
-                    }
-                }
-            });
+        entry_controller_rc
+            .borrow()
+            .connect_key_pressed(|controller, key_name| controller.edit_entry(key_name));
 
         // when the controller is sent a close signal it does things, mainly closing its view
         entry_controller_rc.borrow().connect_closed(|controller| {

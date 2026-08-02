@@ -54,5 +54,6 @@ impl Display for ViewOption {
                 ViewOption::FileDate => "file date",
                 ViewOption::FileSize => "file size",
             }
-        )}
+        )
+    }
 }
