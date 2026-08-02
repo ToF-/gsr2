@@ -175,7 +175,7 @@ impl MainWindow {
 
     pub fn run_application(application: gtk::Application) {
         let no_args: Vec<String> = vec![];
-        application.run();
+        application.run_with_args(&no_args);
     }
 
     pub fn application_window(&self) -> ApplicationWindow {
