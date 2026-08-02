@@ -1,3 +1,5 @@
+use crate::model::tags::empty_tags;
+use crate::gui::completion_dispenser::CompletionDispenser;
 use crate::gui::entry_kind::EntryKind;
 use crate::gui::validator::Validator;
 use crate::gui::view::entry_view::EntryView;
@@ -11,6 +13,7 @@ pub struct EntryController {
     pub entry: RefCell<String>,
     pub prompt: RefCell<String>,
     pub validator_rc: RefCell<Validator>,
+    pub completion_dispenser_rc: RefCell<CompletionDispenser>,
     pub view_opt_rc: RefCell<Option<EntryView>>,
 }
 
@@ -19,10 +22,11 @@ impl EntryController {
         Self::default()
     }
 
-    pub fn initialize(&self, entry_view_rc: RefCell<EntryView>, validator: Validator) {
+    pub fn initialize(&self, entry_view_rc: RefCell<EntryView>, validator: Validator, completion_dispenser: CompletionDispenser) {
         if let Ok(entry_view) = entry_view_rc.try_borrow() {
             *self.view_opt_rc.borrow_mut() = Some(entry_view.clone());
             *self.validator_rc.borrow_mut() = validator;
+            *self.completion_dispenser_rc.borrow_mut() = completion_dispenser;
         } else {
             panic!("can't borrow");
         }
@@ -51,6 +55,7 @@ impl Default for EntryController {
             entry: RefCell::new(String::new()),
             prompt: RefCell::new(String::new()),
             validator_rc: Validator::new(EntryKind::Information).into(),
+            completion_dispenser_rc: CompletionDispenser::new_with(empty_tags()).into(),
             view_opt_rc: RefCell::new(None),
         }
     }

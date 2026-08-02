@@ -1,3 +1,4 @@
+pub mod completion_dispenser;
 pub mod control;
 pub mod controller;
 pub mod direction;

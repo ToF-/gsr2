@@ -1,3 +1,5 @@
+use crate::model::tags::tags_from_str;
+use crate::gui::completion_dispenser::CompletionDispenser;
 use crate::gui::entry_prompt::entry_prompt;
 use crate::cli::args::Args;
 use crate::cli::command::Command;
@@ -1938,7 +1940,7 @@ impl Controller {
         let validator = Validator::new(EntryKind::FindLabel);
 
         // create the controller managing the control between view and rest of the app
-        let entry_controller = EntryController::new_with(entry_view_rc.clone(), validator);
+        let entry_controller = EntryController::new_with(entry_view_rc.clone(), validator, CompletionDispenser::new_with(tags_from_str("foo,fog,bar,qux,law")));
         let entry_controller_rc = RefCell::new(entry_controller);
 
         // when view receives a key, it sends a signal to its controller

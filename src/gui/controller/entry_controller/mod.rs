@@ -1,4 +1,4 @@
-mod imp;
+use crate::gui::completion_dispenser::CompletionDispenser;
 use crate::gui::validator::Validator;
 use crate::gui::view::entry_view::EntryView;
 use gtk::glib::subclass::prelude::*;
@@ -6,6 +6,7 @@ use gtk::prelude::ObjectExt;
 use std::cell::RefCell;
 use std::rc::Rc;
 
+mod imp;
 pub type RcEntryController = Rc<RefCell<EntryController>>;
 
 gtk::glib::wrapper! {
@@ -17,9 +18,9 @@ impl EntryController {
         gtk::glib::Object::new()
     }
 
-    pub fn new_with(entry_view_rc: RefCell<EntryView>, validator: Validator) -> Self {
+    pub fn new_with(entry_view_rc: RefCell<EntryView>, validator: Validator, completion_dispenser: CompletionDispenser) -> Self {
         let obj = Self::new();
-        obj.imp().initialize(entry_view_rc, validator);
+        obj.imp().initialize(entry_view_rc, validator, completion_dispenser);
         obj
     }
 
