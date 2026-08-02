@@ -2,8 +2,9 @@
 ## Gallery Show in Rust
 
 ## Todo
-- [ ] entry_controller has closures for : allowing or stopping a key stroke, completing a key stroke
-- [ ] entry_controller uses a closure for entered event that updates the entry text of its entry_window's window
+- [ ] an enum type for all values returned by entry_editor rather than plain text
+- [X] entry_editor has closures for : allowing or stopping a key stroke, completing a key stroke
+- [X] entry_editor uses a closure for entered event that updates the entry text of its entry_view window
 - [X] extend category selection window
 - [X] when args contains -c retrieve picture on index category
 - [X] use template and `sed` to get portable configuration and testdata
