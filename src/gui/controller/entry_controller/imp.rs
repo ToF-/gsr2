@@ -1,3 +1,4 @@
+use itertools::Itertools;
 use crate::model::tags::empty_tags;
 use crate::gui::completion_dispenser::CompletionDispenser;
 use crate::gui::entry_kind::EntryKind;
@@ -25,6 +26,7 @@ impl EntryController {
     pub fn initialize(&self, entry_view_rc: RefCell<EntryView>, validator: Validator, completion_dispenser: CompletionDispenser) {
         if let Ok(entry_view) = entry_view_rc.try_borrow() {
             *self.view_opt_rc.borrow_mut() = Some(entry_view.clone());
+            *self.prompt.borrow_mut() = entry_view.prompt();
             *self.validator_rc.borrow_mut() = validator;
             *self.completion_dispenser_rc.borrow_mut() = completion_dispenser;
         } else {
@@ -36,6 +38,18 @@ impl EntryController {
         self.view_opt_rc.borrow().clone()
     }
 
+    pub fn candidates(&self) -> Option<Vec<String>> {
+        let entry = self.entry.borrow();
+        let completion_dispenser = self.completion_dispenser_rc.borrow();
+        let candidates = completion_dispenser.candidates(&entry);
+        if candidates.is_empty() {
+            None
+        } else {
+            Some(candidates)
+        }
+
+    }
+
     pub fn validate_entry(&self, s: &str, ch: char) -> Option<String> {
         self.validator_rc.borrow().validate_entry(s, ch)
     }
@@ -45,6 +59,22 @@ impl EntryController {
         let view_opt = self.view_opt_rc.borrow();
         if let Some(view) = view_opt.as_ref() {
             view.set_input(s)
+        }
+    }
+
+    pub fn set_prompt(&self) {
+        let view_opt = self.view_opt_rc.borrow();
+        if let Some(view) = view_opt.as_ref() {
+            let s = self.prompt.borrow().to_string();
+            view.set_prompt(&s)
+        }
+    }
+
+    pub fn set_prompt_with_candidates(&self, candidates: Vec<String>) {
+        let view_opt = self.view_opt_rc.borrow();
+        if let Some(view) = view_opt.as_ref() {
+            let s = self.prompt.borrow().to_string();
+            view.set_prompt(&(s + " [ " + &candidates.iter().join(" ") + " ] "));
         }
     }
 }

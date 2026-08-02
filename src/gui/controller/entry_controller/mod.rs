@@ -24,6 +24,13 @@ impl EntryController {
         obj
     }
 
+    pub fn set_prompt(&self) {
+        self.imp().set_prompt()
+    }
+
+    pub fn set_prompt_with_candidates(&self, candidates: Vec<String>) {
+        self.imp().set_prompt_with_candidates(candidates);
+    }
     pub fn view(&self) -> Option<EntryView> {
         self.imp().view()
     }
@@ -32,6 +39,9 @@ impl EntryController {
         self.imp().entry.borrow().clone()
     }
 
+    pub fn candidates(&self) -> Option<Vec<String>> {
+        self.imp().candidates()
+    }
     pub fn set_entry(&self, text: &str) {
         self.imp().set_entry(text)
     }

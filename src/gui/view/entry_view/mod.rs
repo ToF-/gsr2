@@ -38,6 +38,14 @@ impl EntryView {
         self.imp().set_input(text);
     }
 
+    pub fn prompt(&self) -> String {
+        self.imp().prompt()
+    }
+
+    pub fn set_prompt(&self, text: &str) {
+        self.imp().set_prompt(text)
+    }
+
     pub fn attach_key_pressed_controller(
         &self,
         entry_controller_rc: &std::cell::RefCell<EntryController>,

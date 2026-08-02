@@ -100,6 +100,39 @@ impl EntryView {
             .set_text(text);
     }
 
+    pub fn prompt(&self) -> String {
+        self.gtk_window_opt_rc
+            .borrow()
+            .as_ref()
+            .expect("entry_view doesn't have an attached gtk window yet")
+            .first_child()
+            .expect("can't get first_child")
+            .downcast::<gtk::Box>()
+            .expect("can't downcast as box")
+            .first_child()
+            .expect("can't get entry prompt")
+            .downcast::<gtk::Label>()
+            .expect("can't downcast as label")
+            .text()
+            .to_string()
+    }
+
+    pub fn set_prompt(&self, text: &str) {
+        self.gtk_window_opt_rc
+            .borrow()
+            .as_ref()
+            .expect("entry_view doesn't have an attached gtk window yet")
+            .first_child()
+            .expect("can't get first_child")
+            .downcast::<gtk::Box>()
+            .expect("can't downcast as box")
+            .first_child()
+            .expect("can't get entry prompt")
+            .downcast::<gtk::Label>()
+            .expect("can't downcast as label")
+            .set_text(text)
+    }
+
     pub fn build_window(
         application_window: &gtk::ApplicationWindow,
         prompt: &str,

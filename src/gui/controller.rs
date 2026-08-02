@@ -1953,12 +1953,22 @@ impl Controller {
                 if key_name == "Escape" {
                     println!("closing…");
                     controller.close()
+                } else if key_name == "Tab" {
+                    if let Some(candidates) = controller.candidates() {
+                        if candidates.len() == 1 {
+                            controller.set_entry(&candidates[0]);
+                            controller.set_prompt();
+                        } else {
+                            controller.set_prompt_with_candidates(candidates);
+                        }
+                    }
                 } else {
                     if let Some(key) = Key::from_name(key_name) {
                         println!("key:{:?}", key);
                         if let Some(ch) = key.to_unicode() {
                             if let Some(entry) = controller.validate_char(ch) {
-                                controller.set_entry(&entry)
+                                controller.set_entry(&entry);
+                                controller.set_prompt()
                             }
                         } else {
                             println!("unicode failed:{:?}", key);
