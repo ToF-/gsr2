@@ -36,3 +36,13 @@ pub fn entry_prompt(entry_kind: EntryKind) -> String {
         };
         prompt.to_string()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*; 
+
+    #[test]
+    fn example_of_a_prompt() {
+        assert_eq!("Enter a label", entry_prompt(EntryKind::Label));
+    }
+}
