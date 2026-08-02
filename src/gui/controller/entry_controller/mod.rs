@@ -1,4 +1,5 @@
 mod imp;
+use crate::gui::validator::Validator;
 use crate::gui::view::entry_view::EntryView;
 use gtk::glib::subclass::prelude::*;
 use gtk::prelude::ObjectExt;
@@ -16,9 +17,9 @@ impl EntryController {
         gtk::glib::Object::new()
     }
 
-    pub fn new_with(entry_view_rc: RefCell<EntryView>) -> Self {
+    pub fn new_with(entry_view_rc: RefCell<EntryView>, validator: Validator) -> Self {
         let obj = Self::new();
-        obj.imp().initialize(entry_view_rc);
+        obj.imp().initialize(entry_view_rc, validator);
         obj
     }
 
@@ -32,6 +33,16 @@ impl EntryController {
 
     pub fn set_entry(&self, text: &str) {
         *self.imp().entry.borrow_mut() = text.to_string()
+    }
+    
+    pub fn validate_char(&self, ch: char) -> Option<String> {
+        let entry = self.entry();
+        if let Some(entry) =  self.imp().validate_entry(&entry, ch) {
+            self.set_entry(&entry);
+            Some(entry)
+        } else {
+            None
+        }
     }
 
     // different entry controllers do different things when receiving a key that was pressed, so it's a closure

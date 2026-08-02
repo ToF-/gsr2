@@ -10,7 +10,7 @@ impl InputValidate {
     }
 
     pub fn validate(self, s: &str) -> Option<String> {
-        (self.validator)(s)
+        self.validator.v
     }
 }
 impl Default for InputValidate {

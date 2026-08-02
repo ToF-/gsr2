@@ -1,4 +1,5 @@
-use crate::gui::input_validate::InputValidate;
+use crate::gui::entry_kind::EntryKind;
+use crate::gui::validator::Validator;
 use crate::gui::view::entry_view::EntryView;
 use gtk::glib;
 use gtk::glib::subclass::Signal;
@@ -9,7 +10,7 @@ use std::sync::OnceLock;
 pub struct EntryController {
     pub entry: RefCell<String>,
     pub prompt: RefCell<String>,
-    pub validator: InputValidate,
+    pub validator: RefCell<Validator>,
     pub view_opt_rc: RefCell<Option<EntryView>>,
 }
 
@@ -18,9 +19,10 @@ impl EntryController {
         Self::default()
     }
 
-    pub fn initialize(&self, entry_view_rc: RefCell<EntryView>) {
+    pub fn initialize(&self, entry_view_rc: RefCell<EntryView>, validator: Validator) {
         if let Ok(entry_view) = entry_view_rc.try_borrow() {
-            *self.view_opt_rc.borrow_mut() = Some(entry_view.clone())
+            *self.view_opt_rc.borrow_mut() = Some(entry_view.clone());
+            *self.validator.borrow_mut() = validator;
         } else {
             panic!("can't borrow");
         }
@@ -30,20 +32,17 @@ impl EntryController {
         self.view_opt_rc.borrow().clone()
     }
 
-    pub fn validate_input(&self, s: &str) -> Option<String> {
-        self.validator().validate(s)
-    }
-
-    pub fn validator(&self) -> InputValidate {
-        self.validator.clone()
+    pub fn validate_entry(&self, s: &str, ch: char) -> Option<String> {
+        self.validator.borrow().validate_entry(s, ch)
     }
 }
+
 impl Default for EntryController {
     fn default() -> Self {
         Self {
             entry: RefCell::new(String::new()),
             prompt: RefCell::new(String::new()),
-            validator: InputValidate::new(),
+            validator: Validator::new(EntryKind::Information).into(),
             view_opt_rc: RefCell::new(None),
         }
     }

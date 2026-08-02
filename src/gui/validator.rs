@@ -1,23 +1,41 @@
-use crate::gui::valid_entry_char::valid_entry_char;
 use crate::gui::entry_kind::EntryKind;
 use crate::model::order::Order;
 
-pub fn entry_validate(entry_kind:EntryKind, entry: &str, ch: char) -> Option<String> {
-    let mut input: String = entry.into();
-    Some(input)
+#[derive(Debug)]
+pub struct Validator {
+    entry_kind: EntryKind,
 }
 
-pub fn append_char(entry_kind:EntryKind, entry: &str, ch: char) -> Option<String> {
+impl Validator {
+    pub fn new(entry_kind: EntryKind) -> Self {
+        Self {
+            entry_kind,
+        }
+    }
+
+pub fn validate_entry(&self, entry: &str, ch: char) -> Option<String> {
+    println!("{:?} validate_entry", self);
+    if let Some(input) = self.append_char(entry, ch) {
+        Some(input)
+    } else {
+        None
+    }
+}
+
+pub fn append_char(&self, entry: &str, ch: char) -> Option<String> {
+    println!("append_char({:?},{:?})", entry, ch);
     let mut input: String = entry.into();
-    if valid_entry_char(entry_kind, ch) {
-        convert_char(entry_kind, entry, ch)
+    if self.valid_entry_char(ch) {
+        self.convert_char(entry, ch)
     } else {
        None 
     }
 }
 
-pub fn convert_char(entry_kind: EntryKind, entry: &str, ch: char) -> Option<String> {
+pub fn convert_char(&self, entry: &str, ch: char) -> Option<String> {
+    println!("convert_char({:?},{:?})", entry, ch);
     let mut input: String = entry.into();
+    let entry_kind = self.entry_kind.clone();
     match ch {
         ' ' if entry_kind == EntryKind::FindAllTags => input.push(','),
         ' ' if entry_kind == EntryKind::FindSomeTags => input.push(','),
@@ -111,4 +129,70 @@ pub fn convert_char(entry_kind: EntryKind, entry: &str, ch: char) -> Option<Stri
         other => input.push(other),
     }
     Some(input)
+}
+pub fn valid_entry_char(&self, ch: char) -> bool {
+    println!("valid_entry_char({:?}) {:?}", ch, self.entry_kind);
+    match self.entry_kind {
+        EntryKind::Catalog => {
+            matches!(ch, 'a' | 'm' | 'r')
+        }
+        EntryKind::Change => {
+            matches!(ch, 'a' | 'c' | 'l' | 'n' | 'r' | 't' | 'u' | 'v')
+        }
+        EntryKind::Number => ch.is_ascii_digit(),
+        EntryKind::DeleteConfirmation
+            | EntryKind::MoveConfirmation
+            | EntryKind::MoveToLabelConfirmation(_) => {
+                matches!(ch, 'e' | 'n' | 'o' | 's' | 'y')
+            }
+        EntryKind::Find | EntryKind::Select => {
+            matches!(ch, 'a' | 'b' | 'c' | 'l' | 'n' | 's')
+        }
+        EntryKind::FindName
+            | EntryKind::FindLabel
+            | EntryKind::FindCategory
+            | EntryKind::FindSubCategory
+            | EntryKind::SelectName
+            | EntryKind::SelectLabel
+            | EntryKind::SelectCategory
+            | EntryKind::SelectSubCategory => {
+                matches!(ch,
+                    'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' ' | '^' | '$' | '.' | '*' | '/' | '{' | '}' | '[' | ']' | '(' | ')' | '\\' )
+            }
+        EntryKind::AddTag => {
+            matches!(ch,
+                'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' ' | ',')
+        }
+        EntryKind::Label
+            | EntryKind::Rename
+            | EntryKind::RemoveTag
+            | EntryKind::RemoveCategory => {
+                matches!(ch,
+                    'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' ')
+            }
+        EntryKind::AddCategory | EntryKind::MoveCategory => {
+            matches!(ch,
+                'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' ' | ',')
+        }
+        EntryKind::Categorize => {
+            matches!(ch,
+                'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ':')
+        }
+        EntryKind::FindAllTags
+            | EntryKind::FindSomeTags
+            | EntryKind::SelectAllTags
+            | EntryKind::SelectSomeTags => matches!(ch,
+                'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' ' | ',' ),
+        EntryKind::Order => matches!(
+            ch,
+            'a' | 'c' | 'd' | 'p' | 'm' | 'l' | 'n' | 'o' | 'r' | 's' | 'v'
+        ),
+        EntryKind::View => matches!(
+            ch,
+            '1' | '2' | '3' | '4' | '5' | 't' | 'c' | 'd' | 'p' | 's'
+        ),
+        EntryKind::Rank => matches!(ch, '0' | '1' | '2' | '3'),
+        EntryKind::Information | EntryKind::Help => false,
+    }
+}
 }

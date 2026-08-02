@@ -1,13 +1,4 @@
-use crate::gui::controller::entry_controller::EntryController;
-use crate::gui::controller::main_controller::MainController;
-use crate::gui::display_information::display_information;
-use crate::gui::view::entry_view::EntryView;
-use crate::model::category::category_from_string;
-use crate::model::change::Change;
-use crate::model::finder::predicate;
-use crate::model::tags::Tags;
-use gtk::glib::translate::FromGlib;
-
+use crate::gui::entry_prompt::entry_prompt;
 use crate::cli::args::Args;
 use crate::cli::command::Command;
 use crate::env::configuration::Configuration;
@@ -15,25 +6,33 @@ use crate::file::paths::check_path_exists;
 use crate::file::paths::grand_parent_directory;
 use crate::file::paths::parent_directory;
 use crate::gui::control::{Control, Controls, default_controls, help_on_controls};
+use crate::gui::controller::entry_controller::EntryController;
 use crate::gui::direction::Direction;
+use crate::gui::display_information::display_information;
 use crate::gui::editor::Editor;
 use crate::gui::entry_kind::EntryKind;
+use crate::gui::validator::Validator;
 use crate::gui::event::Event;
 use crate::gui::mode::Mode;
 use crate::gui::navigator::Navigator;
 use crate::gui::selector::Selector;
 use crate::gui::state::State;
+use crate::gui::view::entry_view::EntryView;
 use crate::gui::view::main_window::{LEFT_PANE, MainWindow};
 use crate::model::action::Action;
 use crate::model::catalog::Catalog;
 use crate::model::category::Category;
+use crate::model::category::category_from_string;
+use crate::model::change::Change;
 use crate::model::find::Find;
 use crate::model::finder::Predicate;
+use crate::model::finder::predicate;
 use crate::model::order::Order;
 use crate::model::picture::Picture;
 use crate::model::rank::Rank;
 use crate::model::repository::Repository;
 use crate::model::selection_criteria::SelectionCriteria;
+use crate::model::tags::Tags;
 use gdk::{Key, ModifierType};
 use gtk::prelude::*;
 use gtk::{self, gdk};
@@ -47,7 +46,6 @@ use std::rc::Rc;
 use std::str::FromStr;
 
 pub mod entry_controller;
-pub mod main_controller;
 
 #[derive(Debug)]
 pub struct Controller {
@@ -1931,13 +1929,16 @@ impl Controller {
         let application_window = self.main_window().application_window();
 
         // first create a view with the app_window, a prompt, an initial entry
-        let entry_view = EntryView::new_with(&application_window, "this is a test", "");
+        let entry_view = EntryView::new_with(&application_window, &entry_prompt(EntryKind::FindLabel), "");
         
         // create a refcell to it for the controller to have
         let entry_view_rc = RefCell::new(entry_view);
 
+        // create a validator for this controller to have
+        let validator = Validator::new(EntryKind::FindLabel);
+
         // create the controller managing the control between view and rest of the app
-        let entry_controller = EntryController::new_with(entry_view_rc.clone());
+        let entry_controller = EntryController::new_with(entry_view_rc.clone(), validator);
         let entry_controller_rc = RefCell::new(entry_controller);
 
         // when view receives a key, it sends a signal to its controller
@@ -1952,7 +1953,14 @@ impl Controller {
                     controller.close()
                 } else {
                     if let Some(key) = Key::from_name(key_name) {
-                        println!("{:?}", key);
+                        println!("key:{:?}", key);
+                        if let Some(ch) = key.to_unicode() {
+                            let entry = controller.entry();
+                            println!("validate_char:{:?}", controller.validate_char(ch));
+                            println!("controller.entry:{:?}", controller.entry());
+                        } else {
+                            println!("unicode failed:{:?}", key);
+                        }
                     }
                 }
             });
