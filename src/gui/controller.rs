@@ -1924,7 +1924,7 @@ impl Controller {
         }
     }
 
-    fn test(&self) {
+    fn test(&mut self) {
         println!("test");
         let application_window = self.main_window().application_window();
 
@@ -1964,6 +1964,7 @@ impl Controller {
                 view.close()
             }
         });
+        self.state.set_mode(Mode::Editing);
         entry_view_rc.borrow().present();
     }
 }

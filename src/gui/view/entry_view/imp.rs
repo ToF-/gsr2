@@ -91,7 +91,7 @@ impl EntryView {
     }
 
     pub fn set_input(&self, text: &str) {
-        self.gtk_window_opt_rc
+        let label = self.gtk_window_opt_rc
             .borrow()
             .as_ref()
             .expect("entry_view doesn't have an attached gtk window yet")
@@ -106,8 +106,9 @@ impl EntryView {
             .next_sibling()
             .expect("can't get next label")
             .downcast::<gtk::Label>()
-            .expect("can't downcast as label")
-            .set_text(text);
+            .expect("can't downcast as label");
+        label.set_text(text);
+        Self::append_cursor(&label);
     }
 
     pub fn prompt(&self) -> String {
@@ -257,7 +258,6 @@ impl EntryView {
     }
 
     fn append_cursor(label: &gtk::Label) {
-        println!("…");
         let mut content = label.text().to_string();
         let last_char = content.pop();
         match last_char {
