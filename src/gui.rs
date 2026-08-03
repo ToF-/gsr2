@@ -5,6 +5,7 @@ pub mod direction;
 pub mod display;
 pub mod display_information;
 pub mod editor;
+pub mod enter_label;
 pub mod entry_kind;
 pub mod entry_prompt;
 pub mod event;

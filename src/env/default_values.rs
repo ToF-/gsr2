@@ -1,4 +1,7 @@
 use crate::model::image_data::FileSize;
+pub const BLINKING: bool = true;
+pub const NO_BLINKING: bool = false;
+pub const BLINKING_DURATION: u64 = 500;
 pub const DEFAULT_HEIGHT: i32 = 1000;
 pub const DEFAULT_WIDTH: i32 = 1000;
 pub const ENTRY_WINDOW_WIDTH: i32 = 250;

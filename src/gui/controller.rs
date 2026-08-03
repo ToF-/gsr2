@@ -1,3 +1,5 @@
+use crate::model::label::Label;
+use crate::gui::enter_label::enter_label;
 use crate::cli::args::Args;
 use crate::cli::command::Command;
 use crate::env::configuration::Configuration;
@@ -1310,12 +1312,9 @@ impl Controller {
 
     fn label(&mut self) {
         self.set_opacity_for_current_picture(0.25);
-        self.editor.begin(
-            &self.main_window(),
-            EntryKind::Label,
-            Some(self.repository.all_labels()),
-        );
         self.state.set_mode(Mode::Editing);
+        let application_window = self.main_window().application_window();
+        enter_label(&application_window, &self.repository);
     }
 
     fn rename(&mut self) {

@@ -1,3 +1,4 @@
+use crate::env::default_values::BLINKING_DURATION;
 use std::borrow::Borrow;
 use std::borrow::BorrowMut;
 use std::rc::Rc;
@@ -26,9 +27,6 @@ use std::cell::RefCell;
 use std::sync::OnceLock;
 use std::time::Duration;
 
-const BLINKING: bool = true;
-const NO_BLINKING: bool = false;
-const BLINKING_DURATION: u64 = 500;
 
 pub struct EntryView {
     gtk_window_opt_rc: RefCell<Option<gtk::Window>>,
