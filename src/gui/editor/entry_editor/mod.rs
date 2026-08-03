@@ -1,4 +1,3 @@
-
 use crate::gui::completion_dispenser::CompletionDispenser;
 use crate::gui::validator::Validator;
 use crate::gui::view::entry_view::EntryView;

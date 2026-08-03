@@ -6,10 +6,10 @@ use crate::file::paths::grand_parent_directory;
 use crate::file::paths::parent_directory;
 use crate::gui::completion_dispenser::CompletionDispenser;
 use crate::gui::control::{Control, Controls, default_controls, help_on_controls};
-use crate::gui::editor::entry_editor::EntryEditor;
 use crate::gui::direction::Direction;
 use crate::gui::display_information::display_information;
 use crate::gui::editor::Editor;
+use crate::gui::editor::entry_editor::EntryEditor;
 use crate::gui::entry_kind::EntryKind;
 use crate::gui::entry_prompt::entry_prompt;
 use crate::gui::event::Event;
@@ -46,7 +46,6 @@ use std::io::Result as IOResult;
 use std::path::PathBuf;
 use std::rc::Rc;
 use std::str::FromStr;
-
 
 #[derive(Debug)]
 pub struct Controller {
@@ -1950,7 +1949,7 @@ impl Controller {
         // when view receives a key, it sends a signal to its editor
         entry_view_rc
             .borrow()
-            .attach_key_pressed_editor(&entry_editor_rc);
+            .attach_key_pressed_editor(&entry_editor_rc, true);
 
         // when the editor is sent a key signal it reacts
         // maybe closing if Escape whas pressed

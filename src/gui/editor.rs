@@ -26,7 +26,6 @@ pub struct Editor {
     choice: Tags,
 }
 
-
 #[allow(dead_code)]
 impl Editor {
     pub fn new() -> Editor {

@@ -1,3 +1,8 @@
+use std::borrow::Borrow;
+use std::borrow::BorrowMut;
+use std::rc::Rc;
+use crate::env::default_values::ENTRY_CURSOR_1;
+use crate::env::default_values::ENTRY_CURSOR_2;
 use crate::env::default_values::ENTRY_WINDOW_HEIGHT;
 use crate::env::default_values::ENTRY_WINDOW_WIDTH;
 use crate::gui::editor::entry_editor::EntryEditor;
@@ -19,15 +24,21 @@ use gtk::prelude::WidgetExt;
 use gtk::subclass::prelude::ObjectSubclassIsExt;
 use std::cell::RefCell;
 use std::sync::OnceLock;
+use std::time::Duration;
+
+const BLINKING: bool = true;
+const NO_BLINKING: bool = false;
 
 pub struct EntryView {
     gtk_window_opt_rc: RefCell<Option<gtk::Window>>,
+    blink_rc: RefCell<&bool>,
 }
 
 impl Default for EntryView {
     fn default() -> Self {
         Self {
             gtk_window_opt_rc: RefCell::new(None),
+            blink_rc: RefCell::new(&NO_BLINKING),
         }
     }
 }
@@ -59,7 +70,7 @@ impl EntryView {
             Some(Self::build_window(application_window, prompt, input))
     }
 
-    pub fn input(&self) -> String {
+    fn input_label(&self) -> gtk::Label {
         self.gtk_window_opt_rc
             .borrow()
             .as_ref()
@@ -76,8 +87,9 @@ impl EntryView {
             .expect("can't get next label")
             .downcast::<gtk::Label>()
             .expect("can't downcast as label")
-            .text()
-            .to_string()
+    }
+    pub fn input(&self) -> String {
+        self.input_label().text().to_string()
     }
 
     pub fn set_input(&self, text: &str) {
@@ -187,6 +199,7 @@ impl EntryView {
     pub fn attach_key_pressed_editor(
         &self,
         entry_editor_rc: &std::cell::RefCell<EntryEditor>,
+        blink: bool,
     ) {
         let event_controller_key = gtk::EventControllerKey::new();
         event_controller_key.connect_key_pressed(clone!(
@@ -206,6 +219,30 @@ impl EntryView {
             .as_ref()
             .expect("entry_view doesn't have an attached gtk window yet")
             .add_controller(event_controller_key);
+        if blink {
+            *(self.blink_rc.borrow_mut()) = BLINKING.into();
+            self.attach_cursor_blink_event(&self.input_label(), self.blink_rc.clone())
+        }
+    }
+
+    fn attach_cursor_blink_event(&self, label: &gtk::Label, blink_rc: RefCell<&bool>) {
+        let delay: u64 = 1;
+        timeout_add_local(
+            Duration::new(delay, 0),
+            clone!(
+                #[strong]
+                label,
+                move || {
+                    let blink = *blink_rc.borrow();
+                    if blink {
+                        Self::append_cursor(&label);
+                        ControlFlow::Continue
+                    } else {
+                        ControlFlow::Break
+                    }
+                }
+            ),
+        );
     }
 
     pub fn present(&self) {
@@ -216,10 +253,28 @@ impl EntryView {
             .present()
     }
     pub fn close(&self) {
+        *self.blink_rc.borrow_mut() = NO_BLINKING.into();
+        self.attach_cursor_blink_event(&self.input_label(), self.blink_rc.clone());
         self.gtk_window_opt_rc
             .borrow()
             .as_ref()
             .expect("entry_view doesn't have an attached gtk window yet")
             .close()
+    }
+
+    fn append_cursor(label: &gtk::Label) {
+        println!("…");
+        let mut content = label.text().to_string();
+        let last_char = content.pop();
+        match last_char {
+            None => content.push(ENTRY_CURSOR_1),
+            Some(ENTRY_CURSOR_1) => content.push(ENTRY_CURSOR_2),
+            Some(ENTRY_CURSOR_2) => content.push(ENTRY_CURSOR_1),
+            Some(other) => {
+                content.push(other);
+                content.push(ENTRY_CURSOR_1)
+            }
+        }
+        label.set_text(&content);
     }
 }
