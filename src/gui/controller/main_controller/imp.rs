@@ -3,9 +3,14 @@ use gtk::glib::subclass::Signal;
 use gtk::glib::subclass::prelude::*;
 use std::sync::OnceLock;
 
-#[derive(Default)]
-pub struct MainControllers;
+pub struct MainController{ }
 
+impl Default for MainController{
+    fn default() -> Self {
+        Self {
+        }
+    }
+}
 #[gtk::glib::object_subclass]
 impl ObjectSubclass for MainController {
     const NAME: &'static str = "MainController";

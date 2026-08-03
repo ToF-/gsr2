@@ -1,10 +1,9 @@
-mod imp;
-
 use gtk::glib::subclass::prelude::*;
 use gtk::prelude::ObjectExt;
 use std::cell::RefCell;
 use std::rc::Rc;
 
+mod imp;
 pub type RcMainController = Rc<RefCell<MainController>>;
 
 gtk::glib::wrapper! {
