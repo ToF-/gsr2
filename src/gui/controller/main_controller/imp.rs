@@ -4,7 +4,7 @@ use gtk::glib::subclass::prelude::*;
 use std::sync::OnceLock;
 
 #[derive(Default)]
-pub struct MainController;
+pub struct MainControllers;
 
 #[gtk::glib::object_subclass]
 impl ObjectSubclass for MainController {

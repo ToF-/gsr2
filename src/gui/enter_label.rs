@@ -1,8 +1,4 @@
-use crate::gui::controller::Controller;
-use gtk::glib::clone;
 use crate::env::default_values::BLINKING;
-use crate::env::default_values::BLINKING_DURATION;
-use crate::model::label::Label;
 use crate::model::repository::Repository;
 use crate::gui::completion_dispenser::CompletionDispenser;
 use crate::gui::editor::entry_editor::EntryEditor;
