@@ -108,7 +108,9 @@ impl Editor {
     pub fn cancel(&mut self) {
         self.input = String::from("");
         self.editing = false;
-        self.entry_window_opt.clone().unwrap().close();
+        if let Some(entry_window) = self.entry_window_opt.clone() {
+            entry_window.close()
+        }
     }
 
     pub fn enter(&mut self) {

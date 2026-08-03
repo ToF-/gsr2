@@ -28,15 +28,18 @@ use std::time::Duration;
 
 const BLINKING: bool = true;
 const NO_BLINKING: bool = false;
+const BLINKING_DURATION: u64 = 500;
 
 pub struct EntryView {
     gtk_window_opt_rc: RefCell<Option<gtk::Window>>,
+    time_out_rc: RefCell<Option<gtk::glib::SourceId>>,
 }
 
 impl Default for EntryView {
     fn default() -> Self {
         Self {
             gtk_window_opt_rc: RefCell::new(None),
+            time_out_rc: RefCell::new(None),
         }
     }
 }
@@ -224,22 +227,23 @@ impl EntryView {
     }
 
     fn attach_cursor_blink_event(&self, label: &gtk::Label) {
-        let delay: u64 = 1;
-        timeout_add_local(
-            Duration::new(delay, 0),
+        *self.time_out_rc.borrow_mut() = Some(
+            timeout_add_local(Duration::from_millis(BLINKING_DURATION),
             clone!(
                 #[strong]
                 label,
                 move || {
-                    if label.text().to_string() != "#" {
-                        Self::append_cursor(&label);
-                        ControlFlow::Continue
-                    } else {
-                        ControlFlow::Break
-                    }
+                    Self::append_cursor(&label);
+                    ControlFlow::Continue
                 }
-            ),
-        );
+            )));
+    }
+
+    fn detach_cursor_blink_event(&self) {
+        let mut time_out = self.time_out_rc.borrow_mut();
+        if let Some(id) = time_out.take() {
+            id.remove()
+        }
     }
 
     pub fn present(&self) {
@@ -250,6 +254,7 @@ impl EntryView {
             .present()
     }
     pub fn close(&self) {
+        self.detach_cursor_blink_event();
         self.gtk_window_opt_rc
             .borrow()
             .as_ref()
