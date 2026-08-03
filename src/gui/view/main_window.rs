@@ -1,4 +1,4 @@
-use crate::cli::args::Args;
+use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::default_values::FOCUS_SYMBOL_1;
 use crate::env::default_values::QUARTER_OPACITY;
 use crate::env::default_values::{FULL_OPACITY, HALF_OPACITY};
@@ -49,7 +49,7 @@ pub struct MainWindow {
 }
 
 impl MainWindow {
-    // pub fn new(application: &gtk::Application, args: &Args, controller_rc: &RcController) -> Self {
+    // pub fn new(application: &gtk::Application, args: &CommandLineArguments, controller_rc: &RcController) -> Self {
     //     // main_window_opt_rc.borrow().clone().unwrap()
     // }
 
@@ -124,7 +124,7 @@ impl MainWindow {
 
     pub fn activate(
         application: &gtk::Application,
-        args: &Args,
+        clargs: &CommandLineArguments,
         controller_rc: &RcController,
         position: usize,
     ) {
@@ -149,7 +149,7 @@ impl MainWindow {
         } else {
             view_stack.set_visible_child(&multiple_view_scrolled_window);
         }
-        let application_window = make_application_window(application, args);
+        let application_window = make_application_window(application, clargs);
         application_window.set_child(Some(&view_stack));
         {
             if let Ok(mut controller) = controller_rc.try_borrow_mut() {
@@ -167,7 +167,7 @@ impl MainWindow {
         }
         attach_panel_event_handlers(&panel, controller_rc);
         attach_key_pressed_event_handlers(&application_window, controller_rc);
-        if let Some(seconds) = args.slideshow {
+        if let Some(seconds) = clargs.slideshow {
             Self::attach_slideshow_event(seconds, controller_rc);
         }
         application_window.present();
@@ -425,11 +425,11 @@ impl MainWindow {
     }
 }
 
-fn make_application_window(application: &gtk::Application, args: &Args) -> ApplicationWindow {
+fn make_application_window(application: &gtk::Application, clargs: &CommandLineArguments) -> ApplicationWindow {
     let gsrWindow = ApplicationWindow::new(application);
     gsrWindow.set_title(Some("gsr2"));
-    gsrWindow.set_default_width(args.width.unwrap());
-    gsrWindow.set_default_height(args.height.unwrap());
+    gsrWindow.set_default_width(clargs.width.unwrap());
+    gsrWindow.set_default_height(clargs.height.unwrap());
     gsrWindow
     /*
     ApplicationWindow::builder()

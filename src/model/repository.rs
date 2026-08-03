@@ -1,4 +1,4 @@
-use crate::cli::args::Args;
+use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::cli::command::Command;
 use crate::env::configuration::Configuration;
 use crate::file::database::Database;
@@ -37,7 +37,7 @@ use std::path::PathBuf;
 
 #[derive(Debug, Clone)]
 pub struct Repository {
-    args: Args,
+    command_line_arguments: CommandLineArguments,
     on_database: bool,
     database: Database,
     tags_rc: RefCell<Tags>,
@@ -51,10 +51,10 @@ pub struct Repository {
 }
 
 impl Repository {
-    pub fn new(configuration: Configuration, args: Args, create: bool) -> Self {
+    pub fn new(configuration: Configuration, clargs: CommandLineArguments, create: bool) -> Self {
         let database = Database::from_connection(&configuration.database_file, create).unwrap();
         Repository {
-            args: args.clone(),
+            command_line_arguments: clargs.clone(),
             on_database: true,
             database,
             tags_rc: RefCell::new(crate::model::tags::empty_tags()),
@@ -107,7 +107,7 @@ impl Repository {
 
     fn retrieve_all_pictures(
         &mut self,
-        args: &Args,
+        args: &CommandLineArguments,
         predicate_opt: Option<Predicate>,
     ) -> IOResult<()> {
         let catalog_result = Catalog::from_file(&self.catalog_filepath);
@@ -241,7 +241,7 @@ impl Repository {
         }
     }
     pub fn initialize(&mut self, predicate_opt: Option<Predicate>) -> IOResult<()> {
-        match &self.args.command {
+        match &self.command_line_arguments.command {
             Some(Command::File { file_path }) => {
                 self.on_database = false;
                 match self.picture_from_file_path(file_path) {
@@ -274,7 +274,7 @@ impl Repository {
                 self.on_database = true;
                 self.retrieve_all_labels().and_then(|()| {
                     self.retrieve_all_parent_dirs().and_then(|()| {
-                        self.retrieve_all_pictures(&self.args.clone(), predicate_opt)
+                        self.retrieve_all_pictures(&self.command_line_arguments.clone(), predicate_opt)
                     })
                 })
             }
@@ -283,7 +283,7 @@ impl Repository {
 
     pub fn initialize_for_args(
         &mut self,
-        args: &Args,
+        args: &CommandLineArguments,
         predicate_opt: Option<Predicate>,
     ) -> IOResult<()> {
         self.retrieve_all_pictures(args, predicate_opt)
@@ -304,7 +304,7 @@ impl Repository {
 
     pub fn collect_data(&self) -> IOResult<()> {
         println!("gallery count before collect:{}\n", self.len());
-        if let Some(Command::Collect { directory }) = &self.args.command {
+        if let Some(Command::Collect { directory }) = &self.command_line_arguments.command {
             match self.pictures_in_directory(directory) {
                 Ok(dir_gallery) => {
                     println!(
@@ -370,7 +370,7 @@ impl Repository {
     pub fn set_picture_at(&self, position: usize, picture: &Picture) {
         if let Ok(mut gallery) = self.gallery_rc().try_borrow_mut() {
             gallery.set_picture(position, picture.clone());
-            if self.args.on_database() {
+            if self.command_line_arguments.on_database() {
                 match self.update_picture(picture) {
                     Ok(_) => {}
                     Err(e) => println!("{}", e),
@@ -885,7 +885,7 @@ mod tests {
     fn initializing_on_a_dir_command_sets_database_off() {
         let cfg = my_cfg();
         let cmd: Option<Vec<&str>> = Some(vec!["dir", "testdata"]);
-        let my_args = Args::parse_and_check(cmd, &cfg).unwrap();
+        let my_args = CommandLineArguments::parse_and_check(cmd, &cfg).unwrap();
         let mut repository = Repository::new(my_cfg(), my_args, false);
     }
 }

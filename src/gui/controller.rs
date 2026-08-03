@@ -1,6 +1,6 @@
 use crate::model::label::Label;
 use crate::gui::enter_label::enter_label;
-use crate::cli::args::Args;
+use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::cli::command::Command;
 use crate::env::configuration::Configuration;
 use crate::file::paths::check_path_exists;
@@ -53,7 +53,7 @@ use std::str::FromStr;
 pub struct Controller {
     configuration: Configuration,
     repository: Repository,
-    args: Args,
+    command_line_arguments: CommandLineArguments,
     navigator: Navigator,
     controls: Controls,
     state: State,
@@ -66,18 +66,18 @@ pub struct Controller {
 pub type RcController = Rc<RefCell<Controller>>;
 
 impl Controller {
-    pub fn new(config: Configuration, args: Args) -> IOResult<Self> {
-        let pictures_per_row = if let Some(grid) = args.grid {
+    pub fn new(config: Configuration, command_line_arguments: CommandLineArguments) -> IOResult<Self> {
+        let pictures_per_row = if let Some(grid) = command_line_arguments.grid {
             grid
         } else {
-            match args.pictures_per_row() {
+            match command_line_arguments.pictures_per_row() {
                 1 => config.current_pictures_per_row.unwrap_or(1),
                 n => n.try_into().unwrap(),
             }
             .try_into()
             .unwrap()
         };
-        let mut cli = args.clone();
+        let mut cli = command_line_arguments.clone();
 
         if cli.order.is_none() {
             if let Some(order) = config.current_order {
@@ -87,7 +87,7 @@ impl Controller {
             }
         };
         if config.cover {
-            cli.cover = !args.all;
+            cli.cover = !command_line_arguments.all;
         }
         let mut repository = Repository::new(config.clone(), cli.clone(), false);
         match repository.initialize(None) {
@@ -107,7 +107,7 @@ impl Controller {
         let controller = Controller {
             configuration: config.clone(),
             repository: repository.clone(),
-            args: cli.clone(),
+            command_line_arguments: cli.clone(),
             editor: Editor::new(),
             selector: Selector::new(&catalog),
             navigator: Navigator::new(repository.len(), pictures_per_row as usize),
@@ -119,8 +119,8 @@ impl Controller {
         Ok(controller)
     }
 
-    pub fn args(&self) -> Args {
-        self.args.clone()
+    pub fn command_line_arguments(&self) -> CommandLineArguments {
+        self.command_line_arguments.clone()
     }
 
     pub fn repository(&self) -> Repository {
@@ -158,7 +158,7 @@ impl Controller {
 
     fn load_repository(&mut self) -> IOResult<usize> {
         println!("loading directory");
-        let args = self.args.clone();
+        let args = self.command_line_arguments.clone();
         let result = match args.command {
             Some(Command::File { file_path }) => {
                 match self.repository.picture_from_file_path(&file_path) {
@@ -658,7 +658,7 @@ impl Controller {
                 }
             }
         }
-        match self.repository.initialize_for_args(&self.args, None) {
+        match self.repository.initialize_for_args(&self.command_line_arguments, None) {
             Ok(()) => {
                 let _ = self.reload();
                 self.navigator.set_page_changed();
@@ -863,7 +863,7 @@ impl Controller {
     }
 
     fn enter_select(&mut self) {
-        if !self.state().has_saved_args() {
+        if !self.state().has_saved_command_line_arguments() {
             self.enter_editing(EntryKind::Select, None)
         } else {
             display_information(
@@ -1063,21 +1063,21 @@ impl Controller {
     }
 
     fn go_to_directory(&mut self) {
-        if self.args.cover
+        if self.command_line_arguments.cover
             && let Some(directory) = parent_directory(&self.current_picture().file_path())
-            && Some(directory.clone()) != self.args.directory
+            && Some(directory.clone()) != self.command_line_arguments.directory
             && !self.state.single_view()
         {
-            self.args.index = Some(self.navigator.position());
-            let args = self.args.clone();
-            self.state.push_saved_args(args.clone(), &directory);
-            let new_args = Args {
+            self.command_line_arguments.index = Some(self.navigator.position());
+            let clargs = self.command_line_arguments.clone();
+            self.state.push_saved_command_line_arguments(clargs.clone(), &directory);
+            let new_clargs = CommandLineArguments {
                 directory: Some(directory),
                 cover: false,
-                ..args.clone()
+                ..clargs.clone()
             };
-            self.args = new_args.clone();
-            match self.repository.initialize_for_args(&new_args, None) {
+            self.command_line_arguments = new_clargs.clone();
+            match self.repository.initialize_for_args(&new_clargs, None) {
                 Ok(()) => {
                     let _ = self.reload();
                     self.navigator.set_page_changed();
@@ -1093,18 +1093,18 @@ impl Controller {
     }
 
     fn go_to_selection(&mut self, selection: &str, predicate: Predicate) -> Option<String> {
-        self.args.index = Some(self.navigator.position());
-        let args = self.args.clone();
-        self.state.push_saved_args(args.clone(), selection);
-        let new_args = Args {
+        self.command_line_arguments.index = Some(self.navigator.position());
+        let clargs = self.command_line_arguments.clone();
+        self.state.push_saved_command_line_arguments(clargs.clone(), selection);
+        let new_clargs = CommandLineArguments {
             directory: None,
             cover: false,
-            ..args.clone()
+            ..clargs.clone()
         };
-        self.args = new_args.clone();
+        self.command_line_arguments = new_clargs.clone();
         match self
             .repository
-            .initialize_for_args(&new_args, Some(predicate))
+            .initialize_for_args(&new_clargs, Some(predicate))
         {
             Ok(()) => match self.reload() {
                 Ok(0) => {
@@ -1129,13 +1129,13 @@ impl Controller {
     }
 
     fn back_from_directory(&mut self) {
-        if let Some((pictures_per_row, old_args)) = self.state.pop_saved_args() {
-            self.args = old_args.clone();
-            match self.repository.initialize_for_args(&old_args, None) {
+        if let Some((pictures_per_row, old_clargs)) = self.state.pop_saved_command_line_arguments() {
+            self.command_line_arguments = old_clargs.clone();
+            match self.repository.initialize_for_args(&old_clargs, None) {
                 Ok(()) => {
                     self.change_grid_size(pictures_per_row);
                     let _ = self.reload();
-                    if let Some(index) = self.args.index
+                    if let Some(index) = self.command_line_arguments.index
                         && self.navigator.can_move(Direction::Index { value: index })
                     {
                         self.navigator
@@ -1190,14 +1190,14 @@ impl Controller {
 
     fn toggle_cover_selection(&mut self) {
         println!("toggle cover selection");
-        if !self.state.has_saved_args() {
-            if !self.args.cover && self.repository.covers() > 0 {
-                let new_args = Args {
+        if !self.state.has_saved_command_line_arguments() {
+            if !self.command_line_arguments.cover && self.repository.covers() > 0 {
+                let new_clargs = CommandLineArguments {
                     cover: true,
-                    ..self.args.clone()
+                    ..self.command_line_arguments.clone()
                 };
-                self.args = new_args;
-                match self.repository.initialize_for_args(&self.args, None) {
+                self.command_line_arguments = new_clargs;
+                match self.repository.initialize_for_args(&self.command_line_arguments, None) {
                     Ok(_) => match self.reload() {
                         Ok(0) => {
                             self.toggle_cover_selection();
@@ -1207,13 +1207,13 @@ impl Controller {
                     },
                     Err(e) => panic!("{}", e),
                 }
-            } else if self.args.cover {
-                let new_args = Args {
+            } else if self.command_line_arguments.cover {
+                let new_clargs = CommandLineArguments {
                     cover: false,
-                    ..self.args.clone()
+                    ..self.command_line_arguments.clone()
                 };
-                self.args = new_args;
-                match self.repository.initialize_for_args(&self.args, None) {
+                self.command_line_arguments = new_clargs;
+                match self.repository.initialize_for_args(&self.command_line_arguments, None) {
                     Ok(_) => match self.reload() {
                         Ok(0) => {
                             self.toggle_cover_selection();
@@ -1448,11 +1448,11 @@ impl Controller {
     }
 
     fn quit(&mut self) {
-        if self.state.has_saved_args() {
+        if self.state.has_saved_command_line_arguments() {
             self.back_from_directory()
         } else {
             self.configuration.current_picture = Some(self.current_picture().file_path());
-            self.configuration.cover = self.args.cover;
+            self.configuration.cover = self.command_line_arguments.cover;
             self.configuration.current_pictures_per_row = if self.state.single_view() {
                 Some(1)
             } else {
@@ -1541,7 +1541,7 @@ impl Controller {
     }
 
     fn toggle_slideshow(&mut self) {
-        if let Some(seconds) = self.args().slideshow() {
+        if let Some(seconds) = self.command_line_arguments().slideshow() {
             self.state.toggle_slideshow();
             if self.state.slideshow_on() {
                 self.main_window().reattach_slideshow_event(seconds);
@@ -1557,7 +1557,7 @@ impl Controller {
         if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut() {
             gallery.sort_by(order);
             new_position = gallery.find_file_path(&current_file_path);
-            self.args.order = Some(order);
+            self.command_line_arguments.order = Some(order);
         } else {
             panic!("can't borrow mut")
         };
@@ -1656,7 +1656,7 @@ impl Controller {
         self.navigator.set_page_changed();
     }
     fn move_selected_pictures(&mut self) {
-        if let Some(target_dir) = &self.args.clone().r#move {
+        if let Some(target_dir) = &self.command_line_arguments.clone().r#move {
             self.move_selected_pictures_to_target(target_dir);
         }
     }
@@ -1715,7 +1715,7 @@ impl Controller {
     }
 
     fn move_picture(&mut self) {
-        if let Some(target_dir) = &self.args.r#move {
+        if let Some(target_dir) = &self.command_line_arguments.r#move {
             self.editor
                 .begin(&self.main_window(), EntryKind::MoveConfirmation, None);
             self.editor

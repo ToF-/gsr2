@@ -134,7 +134,7 @@ pub fn title_display(controller: &Controller) -> String {
         let order: Order;
         let current_picture = controller.current_picture();
         let selection_criteria: SelectionCriteria =
-            SelectionCriteria::from_args(&controller.args());
+            SelectionCriteria::from_args(&controller.command_line_arguments());
 
         if let Ok(gallery) = controller.repository().gallery_rc().try_borrow() {
             order = gallery.order();

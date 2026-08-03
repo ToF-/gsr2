@@ -2,7 +2,7 @@ use clap::Subcommand;
 use std::io::Result as IOResult;
 use std::path::PathBuf;
 
-use crate::cli::args::Args;
+use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::cli::status::Status;
 use crate::env::configuration::Configuration;
 use crate::file::paths::{check_collectable, file_exists};
@@ -61,12 +61,12 @@ pub enum Command {
 }
 
 pub fn execute_command(
-    args: Args,
+    command_line_arguments: CommandLineArguments,
     repository: Repository,
     config: Configuration,
 ) -> IOResult<Status> {
     let mut gallery = Gallery::new();
-    match args.command {
+    match command_line_arguments.command {
         Some(Command::Collect { directory }) => {
             println!("collecting data for picture files in the database…");
             let path: PathBuf = PathBuf::from(directory);
@@ -146,18 +146,18 @@ pub fn execute_command(
                 if gallery.is_empty() {
                     println!("no pictures for this selection");
                     Ok(Status::Exit)
-                } else if args.names {
+                } else if command_line_arguments.names {
                     gallery.print(false);
                     Ok(Status::Exit)
-                } else if args.folders {
+                } else if command_line_arguments.folders {
                     gallery.print(true);
                     Ok(Status::Exit)
-                } else if args.tags {
+                } else if command_line_arguments.tags {
                     gallery.print_tags();
                     Ok(Status::Exit)
                 } else {
                     println!("{} pictures", &gallery.len());
-                    if let Some(initial_position) = args.index {
+                    if let Some(initial_position) = command_line_arguments.index {
                         Ok(Status::Ready(initial_position))
                     } else if let Some(file_path) = config.current_picture
                         && let Some(initial_position) = gallery.find_file_path(&file_path)

@@ -1,4 +1,4 @@
-use crate::cli::args::Args;
+use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::model::tags::{Tags, empty_tags, tags_from_str};
 
 pub const SOME_TAGS: bool = false;
@@ -18,10 +18,10 @@ impl SelectionCriteria {
         }
     }
 
-    pub fn from_args(args: &Args) -> Self {
-        if let Some(labels) = &args.select {
+    pub fn from_args(clargs: &CommandLineArguments) -> Self {
+        if let Some(labels) = &clargs.select {
             SelectionCriteria::from(labels, SOME_TAGS)
-        } else if let Some(labels) = &args.restrict {
+        } else if let Some(labels) = &clargs.restrict {
             SelectionCriteria::from(labels, ALL_TAGS)
         } else {
             SelectionCriteria::empty()

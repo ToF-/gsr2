@@ -1,4 +1,4 @@
-use crate::cli::args::Args;
+use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::default_values::{FOCUS_SYMBOL_1, FOCUS_SYMBOL_2};
 use crate::gui::mode::Mode;
 use std::collections::HashMap;
@@ -18,7 +18,7 @@ pub struct State {
     mode: Mode,
     focus_symbol: char,
     change_focus_symbol_on: bool,
-    saved_args: Option<(usize, Args)>,
+    saved_command_line_arguments: Option<(usize, CommandLineArguments)>,
     directory: Option<String>,
     scores: HashMap<String, u32>,
 }
@@ -39,22 +39,22 @@ impl State {
             mode: Mode::View,
             focus_symbol: FOCUS_SYMBOL_1,
             change_focus_symbol_on: true,
-            saved_args: None,
+            saved_command_line_arguments: None,
             directory: None,
             scores: HashMap::new(),
         }
     }
 
-    pub fn push_saved_args(&mut self, args: Args, directory: &str) {
-        if self.saved_args.is_none() {
-            self.saved_args = Some((self.pictures_per_row, args));
+    pub fn push_saved_command_line_arguments(&mut self, clargs: CommandLineArguments, directory: &str) {
+        if self.saved_command_line_arguments.is_none() {
+            self.saved_command_line_arguments = Some((self.pictures_per_row, clargs));
             self.directory = Some(directory.to_string());
         }
     }
 
-    pub fn pop_saved_args(&mut self) -> Option<(usize, Args)> {
-        let result = self.saved_args.clone();
-        self.saved_args = None;
+    pub fn pop_saved_command_line_arguments(&mut self) -> Option<(usize, CommandLineArguments)> {
+        let result = self.saved_command_line_arguments.clone();
+        self.saved_command_line_arguments = None;
         self.directory = None;
         result
     }
@@ -71,8 +71,8 @@ impl State {
         &mut self.scores
     }
 
-    pub fn has_saved_args(&self) -> bool {
-        self.saved_args.is_some()
+    pub fn has_saved_command_line_arguments(&self) -> bool {
+        self.saved_command_line_arguments.is_some()
     }
 
     pub fn search_in_progress(&self) -> bool {

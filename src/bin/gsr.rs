@@ -1,4 +1,4 @@
-use gsr::cli::args::Args;
+use gsr::cli::command_line_arguments::CommandLineArguments;
 use gsr::cli::command::Command;
 use gsr::cli::command::execute_command;
 use gsr::cli::status::Status;
@@ -25,7 +25,7 @@ fn main() {
             exit(1)
         }
     };
-    let result = Args::parse_and_check(None, &config).and_then(|cli| {
+    let result = CommandLineArguments::parse_and_check(None, &config).and_then(|cli| {
         let args = cli.clone();
         if let Some(Command::Initialize) = args.clone().command {
             if !file_exists(&config.database_file) {
@@ -73,15 +73,15 @@ fn main() {
     }
 }
 
-fn build_and_run_app(args: Args, controller_rc: RcController, position: usize) {
+fn build_and_run_app(clargs: CommandLineArguments, controller_rc: RcController, position: usize) {
     let application: gtk::Application = make_application(APPLICATION_ID);
     application.connect_activate(clone!(
         #[strong]
-        args,
+        clargs,
         #[strong]
         controller_rc,
         move |application: &gtk::Application| {
-            MainWindow::activate(application, &args, &controller_rc, position)
+            MainWindow::activate(application, &clargs, &controller_rc, position)
         }
     ));
     MainWindow::run_application(application);
