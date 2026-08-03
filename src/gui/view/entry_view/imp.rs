@@ -31,14 +31,12 @@ const NO_BLINKING: bool = false;
 
 pub struct EntryView {
     gtk_window_opt_rc: RefCell<Option<gtk::Window>>,
-    blink_rc: RefCell<&bool>,
 }
 
 impl Default for EntryView {
     fn default() -> Self {
         Self {
             gtk_window_opt_rc: RefCell::new(None),
-            blink_rc: RefCell::new(&NO_BLINKING),
         }
     }
 }
@@ -220,12 +218,11 @@ impl EntryView {
             .expect("entry_view doesn't have an attached gtk window yet")
             .add_controller(event_controller_key);
         if blink {
-            *(self.blink_rc.borrow_mut()) = BLINKING.into();
-            self.attach_cursor_blink_event(&self.input_label(), self.blink_rc.clone())
+            self.attach_cursor_blink_event(&self.input_label())
         }
     }
 
-    fn attach_cursor_blink_event(&self, label: &gtk::Label, blink_rc: RefCell<&bool>) {
+    fn attach_cursor_blink_event(&self, label: &gtk::Label) {
         let delay: u64 = 1;
         timeout_add_local(
             Duration::new(delay, 0),
@@ -233,8 +230,7 @@ impl EntryView {
                 #[strong]
                 label,
                 move || {
-                    let blink = *blink_rc.borrow();
-                    if blink {
+                    if label.text().to_string() != "#" {
                         Self::append_cursor(&label);
                         ControlFlow::Continue
                     } else {
@@ -253,8 +249,6 @@ impl EntryView {
             .present()
     }
     pub fn close(&self) {
-        *self.blink_rc.borrow_mut() = NO_BLINKING.into();
-        self.attach_cursor_blink_event(&self.input_label(), self.blink_rc.clone());
         self.gtk_window_opt_rc
             .borrow()
             .as_ref()
