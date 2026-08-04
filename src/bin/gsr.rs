@@ -1,6 +1,6 @@
-use gsr::cli::command_line_arguments::CommandLineArguments;
 use gsr::cli::command::Command;
 use gsr::cli::command::execute_command;
+use gsr::cli::command_line_arguments::CommandLineArguments;
 use gsr::cli::status::Status;
 use gsr::env::configuration::Configuration;
 use gsr::env::default_values::APPLICATION_ID;

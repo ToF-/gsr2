@@ -1,7 +1,5 @@
-use crate::model::label::Label;
-use crate::gui::enter_label::enter_label;
-use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::cli::command::Command;
+use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::Configuration;
 use crate::file::paths::check_path_exists;
 use crate::file::paths::grand_parent_directory;
@@ -12,6 +10,7 @@ use crate::gui::direction::Direction;
 use crate::gui::display_information::display_information;
 use crate::gui::editor::Editor;
 use crate::gui::editor::entry_editor::EntryEditor;
+use crate::gui::enter_label::enter_label;
 use crate::gui::entry_kind::EntryKind;
 use crate::gui::entry_prompt::entry_prompt;
 use crate::gui::event::Event;
@@ -30,6 +29,7 @@ use crate::model::change::Change;
 use crate::model::find::Find;
 use crate::model::finder::Predicate;
 use crate::model::finder::predicate;
+use crate::model::label::Label;
 use crate::model::order::Order;
 use crate::model::picture::Picture;
 use crate::model::rank::Rank;
@@ -67,7 +67,10 @@ pub struct Controller {
 pub type RcController = Rc<RefCell<Controller>>;
 
 impl Controller {
-    pub fn new(config: Configuration, command_line_arguments: CommandLineArguments) -> IOResult<Self> {
+    pub fn new(
+        config: Configuration,
+        command_line_arguments: CommandLineArguments,
+    ) -> IOResult<Self> {
         let pictures_per_row = if let Some(grid) = command_line_arguments.grid {
             grid
         } else {
@@ -659,7 +662,10 @@ impl Controller {
                 }
             }
         }
-        match self.repository.initialize_for_args(&self.command_line_arguments, None) {
+        match self
+            .repository
+            .initialize_for_args(&self.command_line_arguments, None)
+        {
             Ok(()) => {
                 let _ = self.reload();
                 self.navigator.set_page_changed();
@@ -1071,7 +1077,8 @@ impl Controller {
         {
             self.command_line_arguments.index = Some(self.navigator.position());
             let clargs = self.command_line_arguments.clone();
-            self.state.push_saved_command_line_arguments(clargs.clone(), &directory);
+            self.state
+                .push_saved_command_line_arguments(clargs.clone(), &directory);
             let new_clargs = CommandLineArguments {
                 directory: Some(directory),
                 cover: false,
@@ -1096,7 +1103,8 @@ impl Controller {
     fn go_to_selection(&mut self, selection: &str, predicate: Predicate) -> Option<String> {
         self.command_line_arguments.index = Some(self.navigator.position());
         let clargs = self.command_line_arguments.clone();
-        self.state.push_saved_command_line_arguments(clargs.clone(), selection);
+        self.state
+            .push_saved_command_line_arguments(clargs.clone(), selection);
         let new_clargs = CommandLineArguments {
             directory: None,
             cover: false,
@@ -1130,7 +1138,8 @@ impl Controller {
     }
 
     fn back_from_directory(&mut self) {
-        if let Some((pictures_per_row, old_clargs)) = self.state.pop_saved_command_line_arguments() {
+        if let Some((pictures_per_row, old_clargs)) = self.state.pop_saved_command_line_arguments()
+        {
             self.command_line_arguments = old_clargs.clone();
             match self.repository.initialize_for_args(&old_clargs, None) {
                 Ok(()) => {
@@ -1198,7 +1207,10 @@ impl Controller {
                     ..self.command_line_arguments.clone()
                 };
                 self.command_line_arguments = new_clargs;
-                match self.repository.initialize_for_args(&self.command_line_arguments, None) {
+                match self
+                    .repository
+                    .initialize_for_args(&self.command_line_arguments, None)
+                {
                     Ok(_) => match self.reload() {
                         Ok(0) => {
                             self.toggle_cover_selection();
@@ -1214,7 +1226,10 @@ impl Controller {
                     ..self.command_line_arguments.clone()
                 };
                 self.command_line_arguments = new_clargs;
-                match self.repository.initialize_for_args(&self.command_line_arguments, None) {
+                match self
+                    .repository
+                    .initialize_for_args(&self.command_line_arguments, None)
+                {
                     Ok(_) => match self.reload() {
                         Ok(0) => {
                             self.toggle_cover_selection();
@@ -1815,14 +1830,17 @@ impl Controller {
 
     fn repeat_last_action(&mut self) {
         let action = self.last_action.clone();
-        match action {
-            Action::Nothing => {}
-            Action::Label(label) => self.label_selected_pictures(&label),
-            Action::Categorize(category) => self.categorize_selected_pictures(category),
-            Action::Unlabel => self.unlabel_selected_pictures(),
-            Action::AddTag(label) => self.tag_selected_pictures(&label),
-            Action::RemoveTag(label) => self.untag_selected_pictures(&label),
-            Action::Rank(rank) => self.rank_selected_pictures(rank),
+        if action.is_repeatable() {
+            match action {
+                Action::Nothing => {}
+                Action::Label(label) => self.label_selected_pictures(&label),
+                Action::Categorize(category) => self.categorize_selected_pictures(category),
+                Action::Unlabel => self.unlabel_selected_pictures(),
+                Action::AddTag(label) => self.tag_selected_pictures(&label),
+                Action::RemoveTag(label) => self.untag_selected_pictures(&label),
+                Action::Rank(rank) => self.rank_selected_pictures(rank),
+                _ => {}
+            }
         }
     }
 

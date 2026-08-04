@@ -45,7 +45,11 @@ impl State {
         }
     }
 
-    pub fn push_saved_command_line_arguments(&mut self, clargs: CommandLineArguments, directory: &str) {
+    pub fn push_saved_command_line_arguments(
+        &mut self,
+        clargs: CommandLineArguments,
+        directory: &str,
+    ) {
         if self.saved_command_line_arguments.is_none() {
             self.saved_command_line_arguments = Some((self.pictures_per_row, clargs));
             self.directory = Some(directory.to_string());

@@ -15,8 +15,8 @@ impl MainController {
         gtk::glib::Object::new()
     }
 
-    pub fn key_pressed(&self, key_name: &str) {
-        self.emit_by_name::<()>("key-pressed", &[&key_name]);
+    pub fn help_command(&self, key_name: &str) {
+        self.emit_by_name::<()>("help-command", &[&key_name]);
     }
 
     pub fn close(&self) {

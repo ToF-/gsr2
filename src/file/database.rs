@@ -644,7 +644,7 @@ impl Database {
 #[cfg(test)]
 pub mod tests {
     use super::*;
-    use crate::cli::args::Args;
+    use crate::cli::command_line_arguments::CommandLineArguments;
     use crate::env::configuration::Configuration;
     use crate::env::default_values::TEST_DATABASE_FILE;
     use crate::file::paths::test::current_directory;
@@ -668,7 +668,7 @@ pub mod tests {
         database
     }
 
-    pub fn my_args() -> IOResult<Args> {
+    pub fn my_args() -> IOResult<CommandLineArguments> {
         let cmd: Option<Vec<&str>> = None;
         let config = Configuration {
             width: 1000,
@@ -683,11 +683,11 @@ pub mod tests {
             base_dir: format!("{}/{}", current_directory(), TEST_DATA_DIR),
             catalog_filepath: "".to_string(),
         };
-        Args::parse_and_check(cmd, &config)
+        CommandLineArguments::parse_and_check(cmd, &config)
     }
 
-    pub fn dummy_args() -> Args {
-        Args {
+    pub fn dummy_args() -> CommandLineArguments {
+        CommandLineArguments {
             command: None,
             categories: None,
             directory: None,

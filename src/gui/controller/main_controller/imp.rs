@@ -3,12 +3,11 @@ use gtk::glib::subclass::Signal;
 use gtk::glib::subclass::prelude::*;
 use std::sync::OnceLock;
 
-pub struct MainController{ }
+pub struct MainController {}
 
-impl Default for MainController{
+impl Default for MainController {
     fn default() -> Self {
-        Self {
-        }
+        Self {}
     }
 }
 #[gtk::glib::object_subclass]
@@ -24,9 +23,8 @@ impl ObjectImpl for MainController {
 
         SIGNALS.get_or_init(|| {
             vec![
-                Signal::builder("entered")
-                    .param_types([gtk::glib::types::Type::STRING])
-                    .build(),
+                Signal::builder("closed").build(),
+                Signal::builder("action").build(),
             ]
         })
     }

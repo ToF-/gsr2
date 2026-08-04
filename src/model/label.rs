@@ -2,7 +2,7 @@ pub type Label = String;
 
 const LAST_ASCII: &str = "~";
 
-pub fn from(s: &str) -> Label {
+pub fn label_from(s: &str) -> Label {
     s.to_string()
 }
 

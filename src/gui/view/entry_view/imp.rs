@@ -1,7 +1,4 @@
 use crate::env::default_values::BLINKING_DURATION;
-use std::borrow::Borrow;
-use std::borrow::BorrowMut;
-use std::rc::Rc;
 use crate::env::default_values::ENTRY_CURSOR_1;
 use crate::env::default_values::ENTRY_CURSOR_2;
 use crate::env::default_values::ENTRY_WINDOW_HEIGHT;
@@ -23,10 +20,12 @@ use gtk::prelude::GtkWindowExt;
 use gtk::prelude::StyleContextExt;
 use gtk::prelude::WidgetExt;
 use gtk::subclass::prelude::ObjectSubclassIsExt;
+use std::borrow::Borrow;
+use std::borrow::BorrowMut;
 use std::cell::RefCell;
+use std::rc::Rc;
 use std::sync::OnceLock;
 use std::time::Duration;
-
 
 pub struct EntryView {
     gtk_window_opt_rc: RefCell<Option<gtk::Window>>,
@@ -92,7 +91,8 @@ impl EntryView {
     }
 
     pub fn set_input(&self, text: &str) {
-        let label = self.gtk_window_opt_rc
+        let label = self
+            .gtk_window_opt_rc
             .borrow()
             .as_ref()
             .expect("entry_view doesn't have an attached gtk window yet")
@@ -225,8 +225,8 @@ impl EntryView {
     }
 
     fn attach_cursor_blink_event(&self, label: &gtk::Label) {
-        *self.time_out_rc.borrow_mut() = Some(
-            timeout_add_local(Duration::from_millis(BLINKING_DURATION),
+        *self.time_out_rc.borrow_mut() = Some(timeout_add_local(
+            Duration::from_millis(BLINKING_DURATION),
             clone!(
                 #[strong]
                 label,
@@ -234,7 +234,8 @@ impl EntryView {
                     Self::append_cursor(&label);
                     ControlFlow::Continue
                 }
-            )));
+            ),
+        ));
     }
 
     fn detach_cursor_blink_event(&self) {

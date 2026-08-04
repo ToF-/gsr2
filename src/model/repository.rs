@@ -1,5 +1,5 @@
-use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::cli::command::Command;
+use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::Configuration;
 use crate::file::database::Database;
 use crate::file::database::RetrieveCriteria;
@@ -274,7 +274,10 @@ impl Repository {
                 self.on_database = true;
                 self.retrieve_all_labels().and_then(|()| {
                     self.retrieve_all_parent_dirs().and_then(|()| {
-                        self.retrieve_all_pictures(&self.command_line_arguments.clone(), predicate_opt)
+                        self.retrieve_all_pictures(
+                            &self.command_line_arguments.clone(),
+                            predicate_opt,
+                        )
                     })
                 })
             }

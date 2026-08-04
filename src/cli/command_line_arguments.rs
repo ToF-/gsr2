@@ -1,4 +1,3 @@
-
 use crate::cli::command::Command;
 use crate::env::configuration::Configuration;
 use crate::env::default_values::{DEFAULT_HEIGHT, DEFAULT_SLIDESHOW_DELAY, DEFAULT_WIDTH};

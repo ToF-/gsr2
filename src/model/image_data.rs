@@ -1,6 +1,6 @@
 use crate::file::picture_file::get_data_from_picture_file;
 use crate::model::cover::Cover;
-use crate::model::label::{Label, from};
+use crate::model::label::{Label, label_from};
 use crate::model::palette::Palette;
 use crate::model::rank::Rank;
 use crate::model::tags::Tags;
@@ -57,7 +57,7 @@ impl ImageData {
     }
     pub fn new_with_label(label: &str) -> Self {
         ImageData {
-            label: from(label),
+            label: label_from(label),
             size: 0,
             rank: Rank::NoStar,
             modified_time: timestamp(SystemTime::UNIX_EPOCH),

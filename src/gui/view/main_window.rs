@@ -425,7 +425,10 @@ impl MainWindow {
     }
 }
 
-fn make_application_window(application: &gtk::Application, clargs: &CommandLineArguments) -> ApplicationWindow {
+fn make_application_window(
+    application: &gtk::Application,
+    clargs: &CommandLineArguments,
+) -> ApplicationWindow {
     let gsrWindow = ApplicationWindow::new(application);
     gsrWindow.set_title(Some("gsr2"));
     gsrWindow.set_default_width(clargs.width.unwrap());
