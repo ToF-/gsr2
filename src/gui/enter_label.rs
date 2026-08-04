@@ -1,3 +1,5 @@
+use crate::gui::controller::Controller;
+use crate::gui::controller::RcController;
 use crate::env::default_values::BLINKING;
 use crate::model::repository::Repository;
 use crate::gui::completion_dispenser::CompletionDispenser;
@@ -34,7 +36,7 @@ pub fn enter_label(application_window: &gtk::ApplicationWindow, repository: &Rep
 
     entry_editor_rc.borrow().connect_closed( move |editor| {
         if !editor.entry().is_empty() {
-             
+            println!("here we should launch a controller function");
         }
         if let Some(entry_view) = editor.view() {
             entry_view.close();

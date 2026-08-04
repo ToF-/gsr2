@@ -1313,7 +1313,15 @@ impl Controller {
 
     fn label(&mut self) {
         self.set_opacity_for_current_picture(0.25);
+        self.editor.begin(
+            &self.main_window(),
+            EntryKind::Label,
+            Some(self.repository.all_labels()),
+        );
         self.state.set_mode(Mode::Editing);
+    }
+
+    fn label_(&self) {
         let application_window = self.main_window().application_window();
         enter_label(&application_window, &self.repository);
     }
