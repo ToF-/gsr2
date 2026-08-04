@@ -45,17 +45,19 @@ fn main() {
                 )))
             }
         } else {
-            let result = Controller::new(config.clone(), args.clone()).and_then(|controller| {
-                let repository = controller.repository();
-                let controller_rc: RcController = Rc::new(RefCell::new(controller));
-                let result = execute_command(args.clone(), repository, config.clone());
-                if let Ok(Status::Ready(index)) = result {
-                    build_and_run_app(args, controller_rc, index);
-                    Ok(Status::Done)
-                } else {
-                    result
-                }
-            });
+            let main_controller = MainController::new();
+            let result = Controller::new(config.clone(), args.clone(), main_controller.clone())
+                .and_then(|controller| {
+                    let repository = controller.repository();
+                    let controller_rc: RcController = Rc::new(RefCell::new(controller));
+                    let result = execute_command(args.clone(), repository, config.clone());
+                    if let Ok(Status::Ready(index)) = result {
+                        build_and_run_app(args, controller_rc, main_controller, index);
+                        Ok(Status::Done)
+                    } else {
+                        result
+                    }
+                });
             match result {
                 Ok(Status::Done) | Ok(Status::Exit) | Ok(Status::Ready(_)) => exit(0),
                 Err(e) => {
@@ -74,8 +76,12 @@ fn main() {
     }
 }
 
-fn build_and_run_app(clargs: CommandLineArguments, controller_rc: RcController, position: usize) {
-    let main_controller = MainController::new();
+fn build_and_run_app(
+    clargs: CommandLineArguments,
+    controller_rc: RcController,
+    main_controller: MainController,
+    position: usize,
+) {
     let application: gtk::Application = make_application(APPLICATION_ID);
     application.connect_activate(clone!(
         #[strong]

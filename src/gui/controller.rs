@@ -6,6 +6,7 @@ use crate::file::paths::grand_parent_directory;
 use crate::file::paths::parent_directory;
 use crate::gui::completion_dispenser::CompletionDispenser;
 use crate::gui::control::{Control, Controls, default_controls, help_on_controls};
+use crate::gui::controller::main_controller::MainController;
 use crate::gui::direction::Direction;
 use crate::gui::display_information::display_information;
 use crate::gui::editor::Editor;
@@ -62,6 +63,7 @@ pub struct Controller {
     editor: Editor,
     selector: Selector,
     last_action: Action,
+    main_controller: MainController,
 }
 
 pub type RcController = Rc<RefCell<Controller>>;
@@ -70,6 +72,7 @@ impl Controller {
     pub fn new(
         config: Configuration,
         command_line_arguments: CommandLineArguments,
+        main_controller: MainController,
     ) -> IOResult<Self> {
         let pictures_per_row = if let Some(grid) = command_line_arguments.grid {
             grid
@@ -119,8 +122,13 @@ impl Controller {
             state: State::new(pictures_per_row as usize, cli.slideshow().is_some()),
             main_window_opt: None,
             last_action: Action::Nothing,
+            main_controller: main_controller,
         };
         Ok(controller)
+    }
+
+    pub fn main_controller(&self) -> MainController {
+        self.main_controller.clone()
     }
 
     pub fn command_line_arguments(&self) -> CommandLineArguments {
@@ -832,6 +840,7 @@ impl Controller {
             display_information(
                 &self.main_window().application_window(),
                 &format!("the category {} already exists", category_name),
+                self.main_controller.clone(),
             );
         }
     }
@@ -876,6 +885,7 @@ impl Controller {
             display_information(
                 &self.main_window().application_window(),
                 "selection not allowed while in a directory or a selection",
+                self.main_controller(),
             )
         }
     }
@@ -1096,6 +1106,7 @@ impl Controller {
             display_information(
                 &self.main_window().application_window(),
                 "cannot go to a directory when not in covers view",
+                self.main_controller(),
             )
         }
     }
@@ -1244,6 +1255,7 @@ impl Controller {
             display_information(
                 &self.main_window().application_window(),
                 "cannot toggle cover selection while in a directory",
+                self.main_controller(),
             )
         }
     }
@@ -1267,9 +1279,11 @@ impl Controller {
             .add_category(new_category_name, target_category_name)
         {
             Ok(_) => {}
-            Err(e) => {
-                display_information(&self.main_window().application_window(), &format!("{}", e))
-            }
+            Err(e) => display_information(
+                &self.main_window().application_window(),
+                &format!("{}", e),
+                self.main_controller(),
+            ),
         }
     }
 
@@ -1283,9 +1297,11 @@ impl Controller {
             .move_category(moving_category_name, target_category_name)
         {
             Ok(_) => {}
-            Err(e) => {
-                display_information(&self.main_window().application_window(), &format!("{}", e))
-            }
+            Err(e) => display_information(
+                &self.main_window().application_window(),
+                &format!("{}", e),
+                self.main_controller(),
+            ),
         }
     }
 
@@ -1294,14 +1310,17 @@ impl Controller {
         if !self.repository.all_categories().contains(input) {
             match self.repository.remove_category(input) {
                 Ok(_) => {}
-                Err(e) => {
-                    display_information(&self.main_window().application_window(), &format!("{}", e))
-                }
+                Err(e) => display_information(
+                    &self.main_window().application_window(),
+                    &format!("{}", e),
+                    self.main_controller(),
+                ),
             }
         } else {
             display_information(
                 &self.main_window().application_window(),
                 &format!("category {} is being used and cannot be removed", input),
+                self.main_controller(),
             )
         }
     }
@@ -1338,7 +1357,11 @@ impl Controller {
 
     fn label_(&self) {
         let application_window = self.main_window().application_window();
-        enter_label(&application_window, &self.repository);
+        enter_label(
+            &application_window,
+            &self.repository,
+            self.main_controller(),
+        );
     }
 
     fn rename(&mut self) {
@@ -1429,6 +1452,7 @@ impl Controller {
         display_information(
             &self.main_window().application_window(),
             &help_on_controls(),
+            self.main_controller(),
         );
     }
 
@@ -1467,6 +1491,7 @@ impl Controller {
             display_information(
                 &self.main_window().application_window(),
                 &format!("no picture with mark {}", mark),
+                self.main_controller(),
             );
         }
     }
@@ -1901,7 +1926,11 @@ impl Controller {
             }
         };
         if let Some(information) = information_opt {
-            display_information(&self.main_window().application_window(), &information)
+            display_information(
+                &self.main_window().application_window(),
+                &information,
+                self.main_controller(),
+            )
         }
     }
 
@@ -1926,7 +1955,11 @@ impl Controller {
             Err(e) => Some(format!("{}", e)),
         };
         if let Some(information) = information_opt {
-            display_information(&self.main_window().application_window(), &information)
+            display_information(
+                &self.main_window().application_window(),
+                &information,
+                self.main_controller(),
+            )
         }
     }
 
@@ -1946,7 +1979,11 @@ impl Controller {
             panic!("can't borrow");
         };
         if let Some(information) = information_opt {
-            display_information(&self.main_window().application_window(), information)
+            display_information(
+                &self.main_window().application_window(),
+                information,
+                self.main_controller(),
+            )
         }
     }
 
@@ -1960,8 +1997,13 @@ impl Controller {
         );
 
         // first create a view with the app_window, a prompt, an initial entry
-        let entry_view =
-            EntryView::new_with(&application_window, &entry_prompt(EntryKind::FindLabel), "");
+        let entry_view = EntryView::new_with(
+            &application_window,
+            &entry_prompt(EntryKind::FindLabel),
+            "",
+            &self.main_controller(),
+            Action::Find(Find::Label),
+        );
 
         // create a refcell to it for the editor to have
         let entry_view_rc = RefCell::new(entry_view);

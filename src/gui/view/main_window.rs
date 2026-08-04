@@ -566,28 +566,17 @@ fn attach_key_pressed_event_handlers(
         #[strong]
         controller_rc,
         move |_, key, key_code, modifier_type| {
-            if let Some(name) = key.name()
-                && name == "t"
-            {
-                gtk::prelude::WidgetExt::activate_action(
-                    &application_window,
-                    "controller.test",
-                    Some(&"foo bar law".to_variant()),
+            if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+                controller.process_event(
+                    KeyPressed {
+                        key,
+                        key_code,
+                        modifier_type,
+                    },
+                    &controller_rc,
                 );
-                Propagation::Stop
-            } else {
-                if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-                    controller.process_event(
-                        KeyPressed {
-                            key,
-                            key_code,
-                            modifier_type,
-                        },
-                        &controller_rc,
-                    );
-                };
-                Propagation::Stop
-            }
+            };
+            Propagation::Stop
         }
     ));
     application_window.add_controller(event_controller_key);

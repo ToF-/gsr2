@@ -3,8 +3,10 @@ use crate::env::default_values::ENTRY_CURSOR_1;
 use crate::env::default_values::ENTRY_CURSOR_2;
 use crate::env::default_values::ENTRY_WINDOW_HEIGHT;
 use crate::env::default_values::ENTRY_WINDOW_WIDTH;
+use crate::gui::controller::main_controller::MainController;
 use crate::gui::editor::entry_editor::EntryEditor;
 use crate::gui::editor::entry_editor::RcEntryEditor;
+use crate::model::action::Action;
 use gtk::Align;
 use gtk::CssProvider;
 use gtk::Orientation;
@@ -18,6 +20,7 @@ use gtk::prelude::Cast;
 use gtk::prelude::GtkWindowExt;
 #[allow(deprecated)]
 use gtk::prelude::StyleContextExt;
+use gtk::prelude::ToVariant;
 use gtk::prelude::WidgetExt;
 use gtk::subclass::prelude::ObjectSubclassIsExt;
 use std::borrow::Borrow;
@@ -30,6 +33,7 @@ use std::time::Duration;
 pub struct EntryView {
     gtk_window_opt_rc: RefCell<Option<gtk::Window>>,
     time_out_rc: RefCell<Option<gtk::glib::SourceId>>,
+    action_on_close: Action,
 }
 
 impl Default for EntryView {
@@ -37,6 +41,7 @@ impl Default for EntryView {
         Self {
             gtk_window_opt_rc: RefCell::new(None),
             time_out_rc: RefCell::new(None),
+            action_on_close: Action::Nothing,
         }
     }
 }
@@ -63,9 +68,15 @@ impl EntryView {
         application_window: &gtk::ApplicationWindow,
         prompt: &str,
         input: &str,
+        main_controller: &MainController,
+        action_on_close: Action,
     ) {
-        *self.gtk_window_opt_rc.borrow_mut() =
-            Some(Self::build_window(application_window, prompt, input))
+        *self.gtk_window_opt_rc.borrow_mut() = Some(Self::build_window(
+            application_window,
+            prompt,
+            input,
+            main_controller,
+        ))
     }
 
     fn input_label(&self) -> gtk::Label {
@@ -149,6 +160,7 @@ impl EntryView {
         application_window: &gtk::ApplicationWindow,
         prompt: &str,
         input: &str,
+        main_controller: &MainController,
     ) -> gtk::Window {
         let entry_text = gtk::Label::builder()
             .valign(Align::Center)
@@ -193,6 +205,7 @@ impl EntryView {
             .transient_for(application_window)
             .build();
         window.set_child(Some(&entry_box));
+        window.insert_action_group("controller", Some(&main_controller.actions()));
         window
     }
 
@@ -253,6 +266,20 @@ impl EntryView {
             .present()
     }
     pub fn close(&self) {
+        let gtk_window = self
+            .gtk_window_opt_rc
+            .borrow()
+            .as_ref()
+            .expect("entry_view doesn't have an attached gtk window yet")
+            .clone();
+        match gtk::prelude::WidgetExt::activate_action(
+            &gtk_window,
+            "controller.find-label",
+            Some(&self.input().to_variant()),
+        ) {
+            Ok(_) => {}
+            Err(e) => eprintln!("{}", e),
+        }
         self.detach_cursor_blink_event();
         self.gtk_window_opt_rc
             .borrow()
