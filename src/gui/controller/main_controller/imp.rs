@@ -45,8 +45,7 @@ impl MainController {
     pub fn initialize(&self) {
         let action_test = ActionEntry::builder("test")
             .parameter_type(Some(&String::static_variant_type()))
-            .activate(move |obj, simple_action, variant_opt| {
-                println!("test: obj:{:?} simple_action:{:?} variant_opt:{:?}", obj, simple_action, variant_opt);
+            .activate(move |_obj, _simple_action, variant_opt| {
                 let value = variant_opt
                     .expect("could not get parameter")
                     .get::<String>()
@@ -54,7 +53,9 @@ impl MainController {
                 println!("action parameter: {:?}", value)
             })
             .build();
-        self.actions.add_action_entries([action_test]);
-        println!("added actions: {:?}", self.actions);
+        println!("{:?}", action_test);
+        let action_entries = vec![action_test];
+        self.actions.add_action_entries(action_entries);
+        // self.add_action_entries([action_test]);
     }
 }

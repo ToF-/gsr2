@@ -1,15 +1,3 @@
-use gtk::gdk::ModifierType;
-use gtk::gio;
-use gtk::gio::ActionEntry;
-use gtk::gio::prelude::*;
-use gtk::glib;
-use gtk::glib::subclass::Signal;
-use gtk::glib::subclass::prelude::*;
-use std::sync::OnceLock;
-use gtk::gio::prelude::*;
-use gtk::prelude::ToVariant;
-use gtk::prelude::ActionGroupExt;
-use crate::gui::controller::main_controller::MainController;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::default_values::FOCUS_SYMBOL_1;
 use crate::env::default_values::QUARTER_OPACITY;
@@ -18,6 +6,7 @@ use crate::file::paths::check_path_exists;
 use crate::gui::control::Control;
 use crate::gui::controller::Controller;
 use crate::gui::controller::RcController;
+use crate::gui::controller::main_controller::MainController;
 use crate::gui::direction::Direction;
 use crate::gui::display::title_display;
 use crate::gui::event::Event::{KeyPressed, NextSlideDelay, PaneClicked};
@@ -30,12 +19,22 @@ use crate::gui::view::treelist_window::TreeListWindow;
 use crate::model::catalog::Catalog;
 use crate::model::picture::Picture;
 use crate::model::thumbnail::no_thumbnail_picture;
+use gtk::gdk::ModifierType;
+use gtk::gio;
+use gtk::gio::ActionEntry;
 use gtk::gio::File as GtkFile;
+use gtk::gio::prelude::*;
+use gtk::gio::prelude::*;
+use gtk::glib;
 use gtk::glib::clone;
+use gtk::glib::subclass::Signal;
+use gtk::glib::subclass::prelude::*;
 use gtk::glib::timeout_add_local;
 use gtk::glib::{ControlFlow, Propagation};
+use gtk::prelude::ActionGroupExt;
 use gtk::prelude::AdjustmentExt;
 use gtk::prelude::BoxExt;
+use gtk::prelude::ToVariant;
 #[allow(deprecated)]
 use gtk::prelude::{
     ApplicationExtManual, Cast, GestureSingleExt, GridExt, GtkApplicationExt, GtkWindowExt,
@@ -45,6 +44,7 @@ use gtk::{ApplicationWindow, Grid, Label, Picture as GtkPicture, ScrolledWindow}
 use palette_extract::Color;
 use std::path::Path;
 use std::path::PathBuf;
+use std::sync::OnceLock;
 use std::time::Duration;
 
 pub const LEFT_PANE: usize = 0;
@@ -68,7 +68,6 @@ impl MainWindow {
     pub fn new_from_application(
         application: &gtk::Application,
         controller_rc: &RcController,
-
     ) -> Self {
         let application_window = application
             .active_window()
@@ -179,26 +178,15 @@ impl MainWindow {
                 controller.main_window().set_title(&controller);
             }
         };
-        // TEMPORARY : adding an action to close the main_window
-        let action_close = ActionEntry::builder("close")
-            .activate(clone!( #[weak] controller_rc, move |_obj,_simple_action,_variant_opt| { 
-                if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-                    controller.quit();
-                }
-            })).build();
-        let actions = gtk::gio::SimpleActionGroup::new();
-        actions.add_action_entries([action_close]);
-        application_window.insert_action_group("application-group", Some(&actions));
         attach_panel_event_handlers(&panel, controller_rc);
+        add_actions(&application_window, controller_rc);
+        // TESTING
+        application_window.insert_action_group("controller", Some(&main_controller.actions()));
+        application.set_accels_for_action("application-group.close", &["<Ctrl>W"]);
         attach_key_pressed_event_handlers(&application_window, controller_rc);
         if let Some(seconds) = clargs.slideshow {
             Self::attach_slideshow_event(seconds, controller_rc);
         }
-        // Set keyboard accelerator to trigger "custom-group.close".
-        application.set_accels_for_action("application-group.close", &["<Ctrl>W"]);
-        // TEMPORARY : add an action group 
-        application_window.insert_action_group("controller", Some(&main_controller.actions()));
-        // This accelerator won't work as it does not provide the parameter
         application_window.present();
     }
 
@@ -550,29 +538,44 @@ fn attach_panel_event_handlers(panel: &gtk::Grid, controller_rc: &RcController) 
     right_pane(panel).add_controller(pane_gesture_click(1, RIGHT_PANE, controller_rc));
 }
 
+fn add_actions(application_window: &ApplicationWindow, controller_rc: &RcController) {
+    let action_close = ActionEntry::builder("close")
+        .activate(clone!(
+            #[weak]
+            controller_rc,
+            move |_obj, _simple_action, _variant_opt| {
+                if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+                    controller.quit();
+                }
+            }
+        ))
+        .build();
+    let actions = gtk::gio::SimpleActionGroup::new();
+    actions.add_action_entries([action_close]);
+    application_window.insert_action_group("application-group", Some(&actions));
+}
+
 fn attach_key_pressed_event_handlers(
     application_window: &ApplicationWindow,
     controller_rc: &RcController,
 ) {
     let event_controller_key = gtk::EventControllerKey::new();
     event_controller_key.connect_key_pressed(clone!(
-            #[strong]
-            application_window,
-            #[strong]
-            controller_rc,
-            move |_, key, key_code, modifier_type| {
-                println!("{:?} {:?}", key.name(), modifier_type);
-                if let Some(name) = key.name() {
-                    if name == "t" && modifier_type == ModifierType::CONTROL_MASK {
-                        println!("activate action controller.test");
-                        // SUCCESS !
-                        println!("{:?}", gtk::prelude::WidgetExt::activate_action(&application_window, "controller.test", Some(&"foo bar law".to_variant())));
-
-                        Propagation::Stop
-                    } else {
-                        Propagation::Proceed
-                    }
-                } else {
+        #[strong]
+        application_window,
+        #[strong]
+        controller_rc,
+        move |_, key, key_code, modifier_type| {
+            if let Some(name) = key.name()
+                && name == "t"
+            {
+                gtk::prelude::WidgetExt::activate_action(
+                    &application_window,
+                    "controller.test",
+                    Some(&"foo bar law".to_variant()),
+                );
+                Propagation::Stop
+            } else {
                 if let Ok(mut controller) = controller_rc.try_borrow_mut() {
                     controller.process_event(
                         KeyPressed {
@@ -584,8 +587,8 @@ fn attach_key_pressed_event_handlers(
                     );
                 };
                 Propagation::Stop
-                }
             }
+        }
     ));
     application_window.add_controller(event_controller_key);
 }

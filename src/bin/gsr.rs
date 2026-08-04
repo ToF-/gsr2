@@ -76,7 +76,6 @@ fn main() {
 
 fn build_and_run_app(clargs: CommandLineArguments, controller_rc: RcController, position: usize) {
     let main_controller = MainController::new();
-    println!("actions:{:?}", main_controller.actions());
     let application: gtk::Application = make_application(APPLICATION_ID);
     application.connect_activate(clone!(
         #[strong]
