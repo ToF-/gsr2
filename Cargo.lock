@@ -898,7 +898,7 @@ dependencies = [
 
 [[package]]
 name = "gsr"
-version = "1.5.2"
+version = "1.5.3"
 dependencies = [
  "chrono",
  "clap",

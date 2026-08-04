@@ -1,3 +1,4 @@
+use gtk::gdk::ModifierType;
 use gtk::gio;
 use gtk::gio::ActionEntry;
 use gtk::gio::prelude::*;
@@ -178,27 +179,31 @@ impl MainWindow {
                 controller.main_window().set_title(&controller);
             }
         };
-        let action_close = ActionEntry::builder("close").activate(clone!(#[weak] application_window, move |_,_,_| { application_window.close(); })).build();
+        // TEMPORARY : adding an action to close the main_window
+        let action_close = ActionEntry::builder("close")
+            .activate(clone!( #[weak] controller_rc, move |_obj,_simple_action,_variant_opt| { 
+                if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+                    controller.quit();
+                }
+            })).build();
         let actions = gtk::gio::SimpleActionGroup::new();
         actions.add_action_entries([action_close]);
-        application_window.insert_action_group("custom-group", Some(&actions));
+        application_window.insert_action_group("application-group", Some(&actions));
         attach_panel_event_handlers(&panel, controller_rc);
         attach_key_pressed_event_handlers(&application_window, controller_rc);
         if let Some(seconds) = clargs.slideshow {
             Self::attach_slideshow_event(seconds, controller_rc);
         }
+        // Set keyboard accelerator to trigger "custom-group.close".
+        application.set_accels_for_action("application-group.close", &["<Ctrl>W"]);
+        // TEMPORARY : add an action group 
         application_window.insert_action_group("controller", Some(&main_controller.actions()));
-
+        // This accelerator won't work as it does not provide the parameter
         application_window.present();
-        application.activate_action( "controller.test", Some(&"hello".to_variant()),);
     }
 
     pub fn run_application(application: gtk::Application) {
         let no_args: Vec<String> = vec![];
-        // Set keyboard accelerator to trigger "custom-group.close".
-        application.set_accels_for_action("custom-group.close", &["<Ctrl>W"]);
-
-    // Run the application
         application.run_with_args(&no_args);
     }
 
@@ -551,21 +556,36 @@ fn attach_key_pressed_event_handlers(
 ) {
     let event_controller_key = gtk::EventControllerKey::new();
     event_controller_key.connect_key_pressed(clone!(
-        #[strong]
-        controller_rc,
-        move |_, key, key_code, modifier_type| {
-            if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-                controller.process_event(
-                    KeyPressed {
-                        key,
-                        key_code,
-                        modifier_type,
-                    },
-                    &controller_rc,
-                );
-            };
-            Propagation::Stop
-        }
+            #[strong]
+            application_window,
+            #[strong]
+            controller_rc,
+            move |_, key, key_code, modifier_type| {
+                println!("{:?} {:?}", key.name(), modifier_type);
+                if let Some(name) = key.name() {
+                    if name == "t" && modifier_type == ModifierType::CONTROL_MASK {
+                        println!("activate action controller.test");
+                        // SUCCESS !
+                        println!("{:?}", gtk::prelude::WidgetExt::activate_action(&application_window, "controller.test", Some(&"foo bar law".to_variant())));
+
+                        Propagation::Stop
+                    } else {
+                        Propagation::Proceed
+                    }
+                } else {
+                if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+                    controller.process_event(
+                        KeyPressed {
+                            key,
+                            key_code,
+                            modifier_type,
+                        },
+                        &controller_rc,
+                    );
+                };
+                Propagation::Stop
+                }
+            }
     ));
     application_window.add_controller(event_controller_key);
 }

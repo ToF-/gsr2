@@ -1471,7 +1471,7 @@ impl Controller {
         }
     }
 
-    fn quit(&mut self) {
+    pub fn quit(&mut self) {
         if self.state.has_saved_command_line_arguments() {
             self.back_from_directory()
         } else {

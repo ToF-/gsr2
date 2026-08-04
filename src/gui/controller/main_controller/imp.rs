@@ -45,8 +45,9 @@ impl MainController {
     pub fn initialize(&self) {
         let action_test = ActionEntry::builder("test")
             .parameter_type(Some(&String::static_variant_type()))
-            .activate(move |_, action, parameter| {
-                let value = parameter
+            .activate(move |obj, simple_action, variant_opt| {
+                println!("test: obj:{:?} simple_action:{:?} variant_opt:{:?}", obj, simple_action, variant_opt);
+                let value = variant_opt
                     .expect("could not get parameter")
                     .get::<String>()
                     .expect("the variant need to be of type string");
