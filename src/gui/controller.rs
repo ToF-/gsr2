@@ -1953,8 +1953,11 @@ impl Controller {
     fn test(&mut self) {
         println!("test");
         let application_window = self.main_window().application_window();
-        gtk::prelude::ActionGroupExt::activate_action(&application_window, "controller.test", Some(&"foo bar test action".to_variant()));
-
+        gtk::prelude::ActionGroupExt::activate_action(
+            &application_window,
+            "controller.test",
+            Some(&"foo bar test action".to_variant()),
+        );
 
         // first create a view with the app_window, a prompt, an initial entry
         let entry_view =

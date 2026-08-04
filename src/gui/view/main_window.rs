@@ -1,3 +1,11 @@
+use gtk::gio;
+use gtk::gio::ActionEntry;
+use gtk::gio::prelude::*;
+use gtk::glib;
+use gtk::glib::subclass::Signal;
+use gtk::glib::subclass::prelude::*;
+use std::sync::OnceLock;
+use gtk::gio::prelude::*;
 use gtk::prelude::ToVariant;
 use gtk::prelude::ActionGroupExt;
 use crate::gui::controller::main_controller::MainController;
@@ -169,19 +177,28 @@ impl MainWindow {
                 controller.main_window().set_pictures(&mut controller);
                 controller.main_window().set_title(&controller);
             }
-        }
+        };
+        let action_close = ActionEntry::builder("close").activate(clone!(#[weak] application_window, move |_,_,_| { application_window.close(); })).build();
+        let actions = gtk::gio::SimpleActionGroup::new();
+        actions.add_action_entries([action_close]);
+        application_window.insert_action_group("custom-group", Some(&actions));
         attach_panel_event_handlers(&panel, controller_rc);
         attach_key_pressed_event_handlers(&application_window, controller_rc);
         if let Some(seconds) = clargs.slideshow {
             Self::attach_slideshow_event(seconds, controller_rc);
         }
         application_window.insert_action_group("controller", Some(&main_controller.actions()));
+
         application_window.present();
         application.activate_action( "controller.test", Some(&"hello".to_variant()),);
     }
 
     pub fn run_application(application: gtk::Application) {
         let no_args: Vec<String> = vec![];
+        // Set keyboard accelerator to trigger "custom-group.close".
+        application.set_accels_for_action("custom-group.close", &["<Ctrl>W"]);
+
+    // Run the application
         application.run_with_args(&no_args);
     }
 

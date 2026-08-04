@@ -1,5 +1,5 @@
-use gtk::subclass::prelude::ObjectSubclassIsExt;
 use gtk::prelude::ObjectExt;
+use gtk::subclass::prelude::ObjectSubclassIsExt;
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -14,7 +14,7 @@ impl MainController {
     pub fn new() -> Self {
         let obj: Self = gtk::glib::Object::new();
         obj.imp().initialize();
-        obj 
+        obj
     }
 
     pub fn actions(&self) -> gtk::gio::SimpleActionGroup {

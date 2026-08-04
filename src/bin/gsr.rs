@@ -1,4 +1,3 @@
-use gsr::gui::controller::main_controller::MainController;
 use gsr::cli::command::Command;
 use gsr::cli::command::execute_command;
 use gsr::cli::command_line_arguments::CommandLineArguments;
@@ -9,6 +8,7 @@ use gsr::file::database::Database;
 use gsr::file::paths::file_exists;
 use gsr::gui::controller::Controller;
 use gsr::gui::controller::RcController;
+use gsr::gui::controller::main_controller::MainController;
 use gsr::gui::view::application::make_application;
 use gsr::gui::view::main_window::MainWindow;
 use gtk::glib::clone;
@@ -76,6 +76,7 @@ fn main() {
 
 fn build_and_run_app(clargs: CommandLineArguments, controller_rc: RcController, position: usize) {
     let main_controller = MainController::new();
+    println!("actions:{:?}", main_controller.actions());
     let application: gtk::Application = make_application(APPLICATION_ID);
     application.connect_activate(clone!(
         #[strong]
@@ -83,7 +84,13 @@ fn build_and_run_app(clargs: CommandLineArguments, controller_rc: RcController, 
         #[strong]
         controller_rc,
         move |application: &gtk::Application| {
-            MainWindow::activate(application, &clargs, &controller_rc, position, &main_controller)
+            MainWindow::activate(
+                application,
+                &clargs,
+                &controller_rc,
+                position,
+                &main_controller,
+            )
         }
     ));
     MainWindow::run_application(application);

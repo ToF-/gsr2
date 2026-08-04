@@ -21,6 +21,7 @@ path = "src/bin/gsr.rs"
 [dependencies]
 chrono = "0.4.42"
 clap = { version = "4.5.4", features = ["derive"] }
+glib = "0.22.8"
 gtk = { version = "0.10.1", package = "gtk4", features = ["v4_20"] }
 
 image = "0.25.8"

@@ -1,6 +1,6 @@
 use gtk::gio;
-use gtk::gio::prelude::*;
 use gtk::gio::ActionEntry;
+use gtk::gio::prelude::*;
 use gtk::glib;
 use gtk::glib::subclass::Signal;
 use gtk::glib::subclass::prelude::*;
@@ -52,10 +52,8 @@ impl MainController {
                     .expect("the variant need to be of type string");
                 println!("action parameter: {:?}", value)
             })
-        .build();
+            .build();
         self.actions.add_action_entries([action_test]);
         println!("added actions: {:?}", self.actions);
     }
 }
-
-
