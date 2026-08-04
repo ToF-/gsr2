@@ -2033,7 +2033,6 @@ impl Controller {
         // when the editor is sent a close signal it does things, mainly closing its view
         entry_editor_rc.borrow().connect_closed(|editor| {
             if let Some(view) = editor.view() {
-                view.set_input("#");
                 view.close()
             }
         });

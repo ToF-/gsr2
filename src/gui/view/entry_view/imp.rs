@@ -272,6 +272,8 @@ impl EntryView {
             .as_ref()
             .expect("entry_view doesn't have an attached gtk window yet")
             .clone();
+        self.detach_cursor_blink_event();
+        Self::remove_cursor(&self.input_label());
         match gtk::prelude::WidgetExt::activate_action(
             &gtk_window,
             "controller.find-label",
@@ -280,7 +282,6 @@ impl EntryView {
             Ok(_) => {}
             Err(e) => eprintln!("{}", e),
         }
-        self.detach_cursor_blink_event();
         self.gtk_window_opt_rc
             .borrow()
             .as_ref()
@@ -300,6 +301,18 @@ impl EntryView {
                 content.push(ENTRY_CURSOR_1)
             }
         }
+        label.set_text(&content);
+    }
+
+    fn remove_cursor(label: &gtk::Label) {
+        let mut content = label.text().to_string();
+        if ! content.is_empty() {
+            let last_char = content.pop();
+            match last_char {
+                None | Some(ENTRY_CURSOR_1) | Some(ENTRY_CURSOR_2) => {},
+                Some(other) => content.push(other),
+                }
+            }
         label.set_text(&content);
     }
 }

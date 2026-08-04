@@ -1,3 +1,4 @@
+use crate::gui::controller::RcController;
 use gtk::prelude::ObjectExt;
 use gtk::subclass::prelude::ObjectSubclassIsExt;
 use std::cell::RefCell;
@@ -17,6 +18,9 @@ impl MainController {
         obj
     }
 
+    pub fn set_rc_controller(&self, controller_rc: RcController) {
+        self.imp().set_rc_controller(controller_rc)
+    }
     pub fn actions(&self) -> gtk::gio::SimpleActionGroup {
         self.imp().actions.clone()
     }
