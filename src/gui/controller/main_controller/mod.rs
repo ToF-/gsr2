@@ -1,4 +1,4 @@
-use gtk::glib::subclass::prelude::*;
+use gtk::subclass::prelude::ObjectSubclassIsExt;
 use gtk::prelude::ObjectExt;
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -12,9 +12,14 @@ gtk::glib::wrapper! {
 
 impl MainController {
     pub fn new() -> Self {
-        gtk::glib::Object::new()
+        let obj: Self = gtk::glib::Object::new();
+        obj.imp().initialize();
+        obj 
     }
 
+    pub fn actions(&self) -> gtk::gio::SimpleActionGroup {
+        self.imp().actions.clone()
+    }
     pub fn help_command(&self, key_name: &str) {
         self.emit_by_name::<()>("help-command", &[&key_name]);
     }

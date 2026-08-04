@@ -1,3 +1,6 @@
+use gtk::prelude::ToVariant;
+use gtk::prelude::ActionGroupExt;
+use crate::gui::controller::main_controller::MainController;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::default_values::FOCUS_SYMBOL_1;
 use crate::env::default_values::QUARTER_OPACITY;
@@ -56,6 +59,7 @@ impl MainWindow {
     pub fn new_from_application(
         application: &gtk::Application,
         controller_rc: &RcController,
+
     ) -> Self {
         let application_window = application
             .active_window()
@@ -127,6 +131,7 @@ impl MainWindow {
         clargs: &CommandLineArguments,
         controller_rc: &RcController,
         position: usize,
+        main_controller: &MainController,
     ) {
         let pictures_per_row = if let Ok(controller) = controller_rc.try_borrow() {
             controller.state().pictures_per_row()
@@ -170,7 +175,9 @@ impl MainWindow {
         if let Some(seconds) = clargs.slideshow {
             Self::attach_slideshow_event(seconds, controller_rc);
         }
+        application_window.insert_action_group("controller", Some(&main_controller.actions()));
         application_window.present();
+        application.activate_action( "controller.test", Some(&"hello".to_variant()),);
     }
 
     pub fn run_application(application: gtk::Application) {

@@ -1,3 +1,4 @@
+use gsr::gui::controller::main_controller::MainController;
 use gsr::cli::command::Command;
 use gsr::cli::command::execute_command;
 use gsr::cli::command_line_arguments::CommandLineArguments;
@@ -74,6 +75,7 @@ fn main() {
 }
 
 fn build_and_run_app(clargs: CommandLineArguments, controller_rc: RcController, position: usize) {
+    let main_controller = MainController::new();
     let application: gtk::Application = make_application(APPLICATION_ID);
     application.connect_activate(clone!(
         #[strong]
@@ -81,7 +83,7 @@ fn build_and_run_app(clargs: CommandLineArguments, controller_rc: RcController, 
         #[strong]
         controller_rc,
         move |application: &gtk::Application| {
-            MainWindow::activate(application, &clargs, &controller_rc, position)
+            MainWindow::activate(application, &clargs, &controller_rc, position, &main_controller)
         }
     ));
     MainWindow::run_application(application);
