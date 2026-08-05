@@ -309,7 +309,7 @@ impl MainWindow {
         }
     }
 
-    pub fn set_picture_for_single_view(&mut self, controller: &mut Controller) {
+    pub fn set_picture_for_single_view(&mut self, controller: &Controller) {
         let picture: Picture = controller.current_picture();
         let picture_file_path = picture.file_path();
         let gtk_picture =
@@ -324,7 +324,7 @@ impl MainWindow {
         self.set_title(controller);
     }
 
-    pub fn set_pictures(&mut self, controller: &mut Controller) {
+    pub fn set_pictures(&mut self, controller: &Controller) {
         if controller.state().single_view() {
             self.set_picture_for_single_view(controller)
         } else {

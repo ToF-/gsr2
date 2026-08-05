@@ -56,10 +56,10 @@ pub struct Controller {
     configuration: Configuration,
     repository: Repository,
     command_line_arguments: CommandLineArguments,
-    navigator: Navigator,
+    navigator_rc: RefCell<Navigator>,
     controls: Controls,
     state: State,
-    main_window_opt: Option<MainWindow>,
+    main_window_opt_rc: RefCell<Option<MainWindow>>,
     editor: Editor,
     selector_rc: RefCell<Selector>,
     last_action_rc: RefCell<Action>,
@@ -117,10 +117,10 @@ impl Controller {
             command_line_arguments: cli.clone(),
             editor: Editor::new(),
             selector_rc: RefCell::new(Selector::new(&catalog)),
-            navigator: Navigator::new(repository.len(), pictures_per_row as usize),
+            navigator_rc: RefCell::new(Navigator::new(repository.len(), pictures_per_row as usize)),
             controls: default_controls(),
             state: State::new(pictures_per_row as usize, cli.slideshow().is_some()),
-            main_window_opt: None,
+            main_window_opt_rc: RefCell::new(None),
             last_action_rc: RefCell::new(Action::Nothing),
             action_dispatcher_rc: RefCell::new(action_dispatcher),
         };
@@ -152,14 +152,19 @@ impl Controller {
         self.selector_rc.borrow().clone()
     }
 
-    pub fn set_selected(&mut self, selected: &str) {
+    pub fn set_selected(&self, selected: &str) {
         self.selector_rc.borrow_mut().set_selected(selected);
     }
     pub fn main_window(&self) -> MainWindow {
-        self.main_window_opt.clone().unwrap()
+        let main_window_opt = self.main_window_opt_rc.borrow().clone();
+        if let Some(main_window) = main_window_opt {
+            main_window.clone()
+        } else {
+            panic!("main_window is not set");
+        }
     }
-    pub fn set_main_window(&mut self, main_window: MainWindow) {
-        self.main_window_opt = Some(main_window)
+    pub fn set_main_window(&self, main_window: MainWindow) {
+        *self.main_window_opt_rc.borrow_mut() = Some(main_window)
     }
 
     pub fn state(&self) -> State {
@@ -167,15 +172,15 @@ impl Controller {
     }
 
     pub fn navigator(&self) -> Navigator {
-        self.navigator.clone()
+        self.navigator_rc.borrow().clone()
     }
 
-    pub fn set_navigator(&mut self, navigator: Navigator) {
-        self.navigator = navigator;
+    pub fn set_navigator(&self, navigator: Navigator) {
+        *self.navigator_rc.borrow_mut() = navigator
     }
 
     pub fn current_picture(&self) -> Picture {
-        self.repository.picture_at(self.navigator.position())
+        self.repository.picture_at(self.navigator().position())
     }
 
     fn load_repository(&mut self) -> IOResult<usize> {
@@ -205,8 +210,7 @@ impl Controller {
             Err(e) => Err(e),
             Ok(count) => {
                 println!("{} pictures", count);
-                self.navigator =
-                    Navigator::new(self.repository.len(), self.state.pictures_per_row());
+                self.set_navigator(Navigator::new(self.repository.len(), self.state.pictures_per_row()));
                 Ok(count)
             }
         }
@@ -247,34 +251,36 @@ impl Controller {
         }
     }
     fn process_picture_clicked(&mut self, button: u32, col: i32, row: i32) {
-        self.main_window()
-            .set_label_text_for_current_picture(self, None);
-        if let Some(index) = self
-            .navigator
-            .position_from_coords(row as usize, col as usize)
-            && self.navigator.can_move(Direction::Index { value: index })
+        let binding = self.navigator_rc.clone();
+        let mut navigator = binding.borrow_mut();
         {
-            self.navigator
-                .move_towards(Direction::Index { value: index });
-            if button == 3 {
-                self.toggle_selected();
-                self.main_window().set_pictures(self);
-                self.main_window().set_title(self);
+            self.main_window()
+                .set_label_text_for_current_picture(self, None);
+            if let Some(index) = navigator
+                .position_from_coords(row as usize, col as usize)
+                    && navigator.can_move(Direction::Index { value: index })
+            {
+                navigator.move_towards(Direction::Index { value: index });
+                if button == 3 {
+                    self.toggle_selected();
+                    self.main_window().set_pictures(self);
+                    self.main_window().set_title(self);
+                }
             }
         }
         self.set_label_text_for_current_picture();
     }
 
     fn process_picture_double_clicked(&mut self, button: u32, col: i32, row: i32) {
+        let binding = self.navigator_rc.clone();
+        let mut navigator = binding.borrow_mut();
         self.main_window()
             .set_label_text_for_current_picture(self, None);
-        if let Some(index) = self
-            .navigator
+        if let Some(index) =navigator
             .position_from_coords(row as usize, col as usize)
-            && self.navigator.can_move(Direction::Index { value: index })
+            && navigator.can_move(Direction::Index { value: index })
         {
-            self.navigator
-                .move_towards(Direction::Index { value: index });
+            navigator.move_towards(Direction::Index { value: index });
             if button == 1 {
                 let main_window = self.main_window();
                 main_window.set_label_text_for_current_picture(self, None);
@@ -285,9 +291,9 @@ impl Controller {
                     if self.state().single_view() != self.main_window().single_view() {
                         main_window.toggle_view_stack(self);
                     };
-                    if self.navigator.page_changed() {
+                    if navigator.page_changed() {
                         self.main_window().set_pictures(self);
-                        self.navigator.set_page_unchanged();
+                        navigator.set_page_unchanged();
                     };
                     self.set_label_text_for_current_picture();
                     self.main_window().set_title(self);
@@ -307,7 +313,7 @@ impl Controller {
         } else {
             &Control::MoveNext
         });
-        if self.navigator.has_moved() {
+        if self.navigator().has_moved() {
             self.main_window().set_pictures(self)
         }
     }
@@ -319,6 +325,8 @@ impl Controller {
         _modifier_type: ModifierType,
         _controller_rc: &RcController,
     ) {
+        let binding = self.navigator_rc.clone();
+        let mut navigator = binding.borrow_mut(); 
         let main_window = self.main_window();
         main_window.set_label_text_for_current_picture(self, None);
         let old_slideshow_on = self.state().slideshow_on();
@@ -329,9 +337,9 @@ impl Controller {
             if self.state().single_view() != self.main_window().single_view() {
                 main_window.toggle_view_stack(self);
             };
-            if self.navigator.page_changed() {
+            if navigator.page_changed() {
                 self.main_window().set_pictures(self);
-                self.navigator.set_page_unchanged();
+                navigator.set_page_unchanged();
             };
             self.set_label_text_for_current_picture();
             self.main_window().set_title(self);
@@ -672,7 +680,7 @@ impl Controller {
     }
 
     fn rename_selected_picture(&mut self, name: &str) {
-        for index in self.navigator.selection() {
+        for index in self.navigator().selection() {
             match self.repository.rename_picture_at_index(index, name) {
                 Ok(count) => {
                     println!("{} picture renamed", count);
@@ -688,7 +696,7 @@ impl Controller {
         {
             Ok(()) => {
                 let _ = self.reload();
-                self.navigator.set_page_changed();
+                self.navigator().set_page_changed();
             }
             Err(e) => eprintln!("{}", e),
         }
@@ -703,31 +711,33 @@ impl Controller {
 
     fn label_selected_pictures(&mut self, label: &str) {
         self.repository.add_label(label);
-        if self.navigator.has_selected() {
-            for index in 0..self.navigator.limit() {
-                if self.navigator.is_selected(index) {
+        let mut navigator = self.navigator_rc.borrow_mut();
+        if navigator.has_selected() {
+            for index in 0..navigator.limit() {
+                if navigator.is_selected(index) {
                     self.label_picture_at_index(index, label);
                 }
             }
-            self.navigator.unselect_all();
+            navigator.unselect_all();
         } else {
-            self.label_picture_at_index(self.navigator().position(), label)
+            self.label_picture_at_index(navigator.position(), label)
         };
-        self.navigator.set_page_changed()
+        navigator.set_page_changed()
     }
 
     fn unlabel_selected_pictures(&mut self) {
-        if self.navigator.has_selected() {
-            for index in 0..self.navigator.limit() {
-                if self.navigator.is_selected(index) {
+        let mut navigator = self.navigator_rc.borrow_mut();
+        if navigator.has_selected() {
+            for index in 0..navigator.limit() {
+                if navigator.is_selected(index) {
                     self.label_picture_at_index(index, "");
                 }
             }
-            self.navigator.unselect_all();
+            navigator.unselect_all();
         } else {
-            self.label_picture_at_index(self.navigator().position(), "")
+            self.label_picture_at_index(navigator.position(), "")
         };
-        self.navigator.set_page_changed();
+        navigator.set_page_changed();
         self.set_last_action(Action::Unlabel);
     }
 
@@ -748,32 +758,36 @@ impl Controller {
     }
 
     fn tag_selected_pictures(&mut self, labels: &str) {
-        if self.navigator.has_selected() {
-            for index in 0..self.navigator.limit() {
-                if self.navigator.is_selected(index) {
+        let binding = self.navigator_rc.clone();
+        let mut navigator = binding.borrow_mut();
+        if navigator.has_selected() {
+            for index in 0..navigator.limit() {
+                if navigator.is_selected(index) {
                     self.tag_picture_at_index(index, labels);
                 }
             }
-            self.navigator.unselect_all();
+            navigator.unselect_all();
         } else {
-            self.tag_picture_at_index(self.navigator().position(), labels)
+            self.tag_picture_at_index(navigator.position(), labels)
         };
-        self.navigator.set_page_changed();
+        navigator.set_page_changed();
         self.set_last_action(Action::AddTag(labels.to_string()));
     }
 
     fn untag_selected_pictures(&mut self, label: &str) {
-        if self.navigator.has_selected() {
-            for index in 0..self.navigator.limit() {
-                if self.navigator.is_selected(index) {
+        let binding = self.navigator_rc.clone();
+        let mut navigator = binding.borrow_mut();
+        if navigator.has_selected() {
+            for index in 0..navigator.limit() {
+                if navigator.is_selected(index) {
                     self.untag_picture_at_index(index, label);
                 }
             }
-            self.navigator.unselect_all();
+            navigator.unselect_all();
         } else {
-            self.untag_picture_at_index(self.navigator().position(), label)
+            self.untag_picture_at_index(navigator.position(), label)
         };
-        self.navigator.set_page_changed();
+        navigator.set_page_changed();
         self.set_last_action(Action::RemoveTag(label.to_string()));
     }
 
@@ -785,9 +799,10 @@ impl Controller {
         };
     }
     fn move_towards_index(&mut self, index: usize) {
+        let mut navigator = self.navigator_rc.borrow_mut();
         let direction = Direction::Index { value: index };
-        if self.navigator().can_move(direction.clone()) {
-            self.navigator.move_towards(direction)
+        if navigator.can_move(direction.clone()) {
+            navigator.move_towards(direction)
         }
     }
 
@@ -1040,7 +1055,7 @@ impl Controller {
             Control::MovePictureToLabel => self.move_picture_to_label(),
             Control::MovePrev => self.move_towards(Direction::PrevPage),
             Control::MoveRandom => self.move_towards(Direction::Index {
-                value: rng().random_range(0..self.navigator.limit()),
+                value: rng().random_range(0..self.navigator().limit()),
             }),
             Control::MoveStartPage => self.move_towards(Direction::PageStart),
             Control::OrderByCategory => self.order_by(Order::Category),
@@ -1061,7 +1076,7 @@ impl Controller {
             Control::RankTwoStars => self.rank_selected_pictures(Rank::TwoStars),
             Control::RemoveTag => self.remove_tag(),
             Control::Rename => {
-                if self.navigator.has_selected() && self.navigator.selected_picture_count() == 1 {
+                if self.navigator().has_selected() && self.navigator().selected_picture_count() == 1 {
                     self.enter_editing(EntryKind::Rename, None)
                 } else {
                     eprintln!("select the picture to rename first")
@@ -1101,7 +1116,7 @@ impl Controller {
             && Some(directory.clone()) != self.command_line_arguments.directory
             && !self.state.single_view()
         {
-            self.command_line_arguments.index = Some(self.navigator.position());
+            self.command_line_arguments.index = Some(self.navigator().position());
             let clargs = self.command_line_arguments.clone();
             self.state
                 .push_saved_command_line_arguments(clargs.clone(), &directory);
@@ -1111,10 +1126,12 @@ impl Controller {
                 ..clargs.clone()
             };
             self.command_line_arguments = new_clargs.clone();
+        let binding = self.navigator_rc.clone();
+        let mut navigator = binding.borrow_mut();
             match self.repository.initialize_for_args(&new_clargs, None) {
                 Ok(()) => {
                     let _ = self.reload();
-                    self.navigator.set_page_changed();
+                    navigator.set_page_changed();
                 }
                 Err(e) => eprintln!("{}", e),
             }
@@ -1128,7 +1145,7 @@ impl Controller {
     }
 
     fn go_to_selection(&mut self, selection: &str, predicate: Predicate) -> Option<String> {
-        self.command_line_arguments.index = Some(self.navigator.position());
+        self.command_line_arguments.index = Some(self.navigator().position());
         let clargs = self.command_line_arguments.clone();
         self.state
             .push_saved_command_line_arguments(clargs.clone(), selection);
@@ -1138,6 +1155,8 @@ impl Controller {
             ..clargs.clone()
         };
         self.command_line_arguments = new_clargs.clone();
+        let binding = self.navigator_rc.clone();
+        let mut navigator = binding.borrow_mut();
         match self
             .repository
             .initialize_for_args(&new_clargs, Some(predicate))
@@ -1145,11 +1164,11 @@ impl Controller {
             Ok(()) => match self.reload() {
                 Ok(0) => {
                     self.back_from_directory();
-                    self.navigator.set_page_changed();
+                    navigator.set_page_changed();
                     Some(format!("no picture found with: {}", selection))
                 }
                 Ok(_) => {
-                    self.navigator.set_page_changed();
+                    navigator.set_page_changed();
                     None
                 }
                 Err(e) => {
@@ -1168,17 +1187,19 @@ impl Controller {
         if let Some((pictures_per_row, old_clargs)) = self.state.pop_saved_command_line_arguments()
         {
             self.command_line_arguments = old_clargs.clone();
+        let binding = self.navigator_rc.clone();
+        let mut navigator = binding.borrow_mut();
             match self.repository.initialize_for_args(&old_clargs, None) {
                 Ok(()) => {
                     self.change_grid_size(pictures_per_row);
                     let _ = self.reload();
                     if let Some(index) = self.command_line_arguments.index
-                        && self.navigator.can_move(Direction::Index { value: index })
+                        && navigator.can_move(Direction::Index { value: index })
                     {
-                        self.navigator
+                        navigator
                             .move_towards(Direction::Index { value: index })
                     };
-                    self.navigator.set_page_changed()
+                    navigator.set_page_changed()
                 }
                 Err(e) => eprintln!("{}", e),
             }
@@ -1210,7 +1231,8 @@ impl Controller {
         let mut picture = self.repository.picture_at(index);
         picture.toggle_cover(counts.0);
         self.repository.set_picture_at(index, &picture);
-        self.navigator.set_page_changed()
+        let mut navigator = self.navigator_rc.borrow_mut();
+        navigator.set_page_changed()
     }
 
     fn rank_picture_at_index(&mut self, index: usize, rank: Rank) {
@@ -1280,13 +1302,14 @@ impl Controller {
         let current_file_path = self.current_picture().file_path();
         self.repository
             .set_selection_criteria(SelectionCriteria::empty());
+        let mut navigator = self.navigator_rc.borrow_mut();
         if let Some(index) = self.repository.find_index_for_file_path(&current_file_path) {
-            self.navigator
+            navigator
                 .move_towards(Direction::Index { value: index })
         } else {
-            self.navigator.move_towards(Direction::First)
+            navigator.move_towards(Direction::First)
         };
-        self.navigator.set_page_changed();
+        navigator.set_page_changed();
     }
 
     fn add_category(&mut self, new_category_name: &str, target_category_name: &str) {
@@ -1381,7 +1404,7 @@ impl Controller {
     }
 
     fn rename(&mut self) {
-        if self.navigator.has_selected() && self.navigator.selected_picture_count() == 1 {
+        if self.navigator().has_selected() && self.navigator().selected_picture_count() == 1 {
             self.set_opacity_for_current_picture(0.25);
             self.editor
                 .begin(&self.main_window(), EntryKind::Rename, None);
@@ -1396,17 +1419,19 @@ impl Controller {
     }
 
     fn categorize_selected_pictures(&mut self, category: Category) {
-        if self.navigator.has_selected() {
-            for index in 0..self.navigator.limit() {
-                if self.navigator.is_selected(index) {
+        let binding = self.navigator_rc.clone();
+        let mut navigator = binding.borrow_mut();
+        if navigator.has_selected() {
+            for index in 0..navigator.limit() {
+                if navigator.is_selected(index) {
                     self.categorize_picture_at_index(index, category.clone());
                 }
             }
-            self.navigator.unselect_all();
+            navigator.unselect_all();
         } else {
             self.categorize_picture_at_index(self.navigator().position(), category.clone());
         };
-        self.navigator.set_page_changed();
+        navigator.set_page_changed();
         self.set_last_action(Action::Categorize(category));
     }
 
@@ -1432,31 +1457,35 @@ impl Controller {
     }
 
     fn uncategorize_selected_pictures(&mut self) {
-        if self.navigator.has_selected() {
-            for index in 0..self.navigator.limit() {
-                if self.navigator.is_selected(index) {
+        let binding = self.navigator_rc.clone();
+        let mut navigator = binding.borrow_mut();
+        if navigator.has_selected() {
+            for index in 0..navigator.limit() {
+                if navigator.is_selected(index) {
                     self.categorize_picture_at_index(index, None);
                 }
             }
-            self.navigator.unselect_all();
+            navigator.unselect_all();
         } else {
-            self.categorize_picture_at_index(self.navigator().position(), None)
+            self.categorize_picture_at_index(navigator.position(), None)
         };
-        self.navigator.set_page_changed();
+        navigator.set_page_changed();
         self.set_last_action(Action::Unlabel);
     }
     fn rank_selected_pictures(&mut self, rank: Rank) {
-        if self.navigator.has_selected() {
-            for index in 0..self.navigator.limit() {
-                if self.navigator.is_selected(index) {
+        let binding = self.navigator_rc.clone();
+        let mut navigator = binding.borrow_mut();
+        if navigator.has_selected() {
+            for index in 0..navigator.limit() {
+                if navigator.is_selected(index) {
                     self.rank_picture_at_index(index, rank);
                 }
             }
-            self.navigator.unselect_all();
+            navigator.unselect_all();
         } else {
-            self.rank_picture_at_index(self.navigator().position(), rank)
+            self.rank_picture_at_index(navigator.position(), rank)
         };
-        self.navigator.set_page_changed();
+        navigator.set_page_changed();
         self.set_last_action(Action::Rank(rank));
     }
 
@@ -1484,7 +1513,7 @@ impl Controller {
 
     fn toggle_display_path(&mut self) {
         self.state.toggle_display_path();
-        let navigator = &mut self.navigator;
+        let mut navigator = self.navigator_rc.borrow_mut();
         navigator.set_page_changed()
     }
 
@@ -1496,7 +1525,7 @@ impl Controller {
                     .iter()
                     .position(|picture| picture.file_path() == *file_path)
                 {
-                    let navigator = &mut self.navigator;
+                    let mut navigator = self.navigator_rc.borrow_mut();
                     navigator.move_towards(Direction::Index { value: index });
                     navigator.set_page_changed()
                 } else {
@@ -1538,7 +1567,8 @@ impl Controller {
             Ok(0) => Ok(0),
             Ok(n) => {
                 self.move_towards(Direction::First);
-                self.navigator.set_page_changed();
+                let mut navigator = self.navigator_rc.borrow_mut();
+                navigator.set_page_changed();
                 Ok(n)
             }
             Err(e) => {
@@ -1552,7 +1582,7 @@ impl Controller {
     fn toggle_expand(&mut self) {
         if self.state.single_view() {
             self.state.toggle_expand();
-            let navigator = &mut self.navigator;
+            let mut navigator = self.navigator_rc.borrow_mut();
             navigator.set_page_changed();
         }
     }
@@ -1596,14 +1626,14 @@ impl Controller {
     fn toggle_full_size(&mut self) {
         if self.state.single_view() {
             self.state.toggle_full_size();
-            let navigator = &mut self.navigator;
+            let mut navigator = self.navigator_rc.borrow_mut();
             navigator.set_page_changed();
         }
     }
 
     fn toggle_palette(&mut self) {
         self.state.toggle_palette();
-        let navigator = &mut self.navigator;
+        let mut navigator = self.navigator_rc.borrow_mut();
         navigator.set_page_changed()
     }
 
@@ -1612,7 +1642,7 @@ impl Controller {
             self.state.toggle_slideshow();
             if self.state.slideshow_on() {
                 self.main_window().reattach_slideshow_event(seconds);
-                let navigator = &mut self.navigator;
+                let mut navigator = self.navigator_rc.borrow_mut();
                 navigator.set_page_changed();
             }
         }
@@ -1628,13 +1658,14 @@ impl Controller {
         } else {
             panic!("can't borrow mut")
         };
+        let mut navigator = self.navigator_rc.borrow_mut();
         if let Some(index) = new_position {
-            self.navigator
+            navigator
                 .move_towards(Direction::Index { value: index })
         } else {
-            self.navigator.move_towards(Direction::First)
+            navigator.move_towards(Direction::First)
         };
-        self.navigator.set_page_changed()
+        navigator.set_page_changed()
     }
 
     fn change_grid_size(&mut self, pictures_per_row: usize) {
@@ -1644,54 +1675,58 @@ impl Controller {
 
     fn apply_grid_size_change(&mut self) {
         let pictures_per_row = self.state.pictures_per_row();
-        self.navigator.set_pictures_per_row(pictures_per_row);
-        self.navigator.update_page_limits();
-        self.navigator.set_page_changed();
+        let mut navigator = self.navigator_rc.borrow_mut();
+        navigator.set_pictures_per_row(pictures_per_row);
+        navigator.update_page_limits();
+        navigator.set_page_changed();
         self.main_window().change_grid_size(pictures_per_row);
     }
 
     fn set_selection_range(&mut self) {
-        let position = self.navigator.position();
-        self.navigator.set_selection_range(position);
-        self.navigator.set_page_changed()
+        let pictures_per_row = self.state.pictures_per_row();
+        let mut navigator = self.navigator_rc.borrow_mut();
+        let position = navigator.position();
+        navigator.set_selection_range(position);
+        navigator.set_page_changed()
     }
 
     fn set_selection_range_all(&mut self) {
-        let navigator = &mut self.navigator;
+        let pictures_per_row = self.state.pictures_per_row();
+        let mut navigator = self.navigator_rc.borrow_mut();
         navigator.set_selection_range_all();
-        self.navigator.set_page_changed()
+        navigator.set_page_changed()
     }
 
     fn set_selection_range_page(&mut self) {
-        let navigator = &mut self.navigator;
+        let mut navigator = self.navigator_rc.borrow_mut();
         navigator.set_selection_range_page();
-        self.navigator.set_page_changed()
+        navigator.set_page_changed()
     }
     fn repeat_range(&mut self) {
-        let navigator = &mut self.navigator;
+        let mut navigator = self.navigator_rc.borrow_mut();
         navigator.repeat_range();
-        self.navigator.set_page_changed()
+        navigator.set_page_changed()
     }
 
-    fn toggle_selected(&mut self) {
-        let position = self.navigator.position();
-        let navigator = &mut self.navigator;
+    fn toggle_selected(&self) {
+        let mut navigator = self.navigator_rc.borrow_mut();
+        let position = navigator.position();
         if navigator.is_selected(position) {
             navigator.unselect(position)
         } else {
             navigator.select(position)
         }
-        self.navigator.set_page_changed()
+        navigator.set_page_changed()
     }
 
     fn cancel_range(&mut self) {
-        let navigator = &mut self.navigator;
+        let mut navigator = self.navigator_rc.borrow_mut();
         navigator.cancel_range();
-        self.navigator.set_page_changed()
+        navigator.set_page_changed()
     }
 
     fn delete_selected_pictures(&mut self) {
-        for index in self.navigator.selection() {
+        for index in self.navigator().selection() {
             match self.repository.delete_picture_at_index(index) {
                 Ok(_) => {}
                 Err(err) => {
@@ -1704,7 +1739,9 @@ impl Controller {
     fn move_selected_pictures_to_target(&mut self, target_dir: &str) {
         let mut picture_count = 0;
         let mut operation_count = 0;
-        for index in self.navigator.selection() {
+        let binding = self.navigator_rc.clone();
+        let mut navigator = binding.borrow_mut();
+        for index in navigator.selection() {
             match self.repository.move_picture_at_index(index, target_dir) {
                 Ok(count) => {
                     picture_count += 1;
@@ -1720,7 +1757,7 @@ impl Controller {
             picture_count, target_dir, operation_count
         );
         let _ = self.reload();
-        self.navigator.set_page_changed();
+        navigator.set_page_changed();
     }
     fn move_selected_pictures(&mut self) {
         if let Some(target_dir) = &self.command_line_arguments.clone().r#move {
@@ -1728,15 +1765,16 @@ impl Controller {
         }
     }
     fn cancel_delete_picture(&mut self) {
-        let navigator = &mut self.navigator;
+        let mut navigator = self.navigator_rc.borrow_mut();
         navigator.cancel_range();
-        self.navigator.set_page_changed()
+        navigator.set_page_changed()
     }
 
     fn confirm_delete_picture(&mut self) {
-        self.delete_selected_pictures();
+        let binding = self.navigator_rc.clone();
+        let mut navigator = binding.borrow_mut();
         let _ = self.reload();
-        self.navigator.set_page_changed()
+        navigator.set_page_changed()
     }
 
     fn confirm_move_picture(&mut self) {
@@ -1748,15 +1786,15 @@ impl Controller {
     }
 
     fn cancel_move_picture(&mut self) {
-        let navigator = &mut self.navigator;
+        let mut navigator = self.navigator_rc.borrow_mut();
         navigator.cancel_range();
-        self.navigator.set_page_changed()
+        navigator.set_page_changed()
     }
 
     fn copy_to_temp(&mut self) {
         match self
             .repository
-            .copy_picture_at_index_to_temp_dir(self.navigator.position())
+            .copy_picture_at_index_to_temp_dir(self.navigator().position())
         {
             Ok(_) => {}
             Err(e) => {
@@ -1766,15 +1804,15 @@ impl Controller {
     }
 
     fn extract_filenames(&mut self) {
-        if self.navigator.has_selected() {
+        if self.navigator().has_selected() {
             let _ = self
                 .repository
-                .extract_file_names(&self.navigator.selection());
+                .extract_file_names(&self.navigator().selection());
         }
     }
 
     fn delete_picture(&mut self) {
-        if self.navigator.has_selected() {
+        if self.navigator().has_selected() {
             self.editor
                 .begin(&self.main_window(), EntryKind::DeleteConfirmation, None);
             self.state.set_mode(Mode::Editing);
@@ -1794,9 +1832,10 @@ impl Controller {
         let mut label: Option<String> = None;
         let mut grand_parent: Option<String> = None;
 
-        if self.navigator.has_selected() {
-            for index in 0..self.navigator.limit() {
-                if self.navigator.is_selected(index) {
+        let navigator = self.navigator_rc.borrow_mut();
+        if navigator.has_selected() {
+            for index in 0..navigator.limit() {
+                if navigator.is_selected(index) {
                     let picture = self.repository.picture_at(index);
                     let this_label = picture.label();
                     if let Some(directory) = grand_parent_directory(&picture.file_path()) {
@@ -1844,7 +1883,7 @@ impl Controller {
         if self.state().single_view() && self.state().full_size_on() {
             self.full_size_arrow_move(direction)
         } else {
-            let navigator = &mut (self.navigator);
+            let mut navigator = self.navigator_rc.borrow_mut();
             if navigator.can_move(direction.clone()) {
                 navigator.move_towards(direction)
             }
@@ -1856,16 +1895,18 @@ impl Controller {
     }
 
     fn can_move(&mut self, direction: Direction) -> bool {
-        !self.state.full_size_on() && self.navigator.can_move(direction)
+        !self.state.full_size_on() && self.navigator().can_move(direction)
     }
 
     fn move_towards(&mut self, direction: Direction) {
+        let binding = self.navigator_rc.clone();
+        let mut navigator = binding.borrow_mut();
         match direction {
             Direction::NextPage if self.state.single_view() => self.move_towards(Direction::Right),
             Direction::PrevPage if self.state.single_view() => self.move_towards(Direction::Left),
             ref other => {
                 if self.can_move(other.clone()) {
-                    self.navigator.move_towards(other.clone());
+                    navigator.move_towards(other.clone());
                 }
             }
         }
@@ -1887,7 +1928,7 @@ impl Controller {
         }
     }
 
-    pub fn increment_picture_score(&mut self, file_path: &str) {
+    pub fn increment_picture_score(&self, file_path: &str) {
         if let Some(score) = self.state().scores().get_mut(file_path) {
             *score += 1;
         } else {
@@ -1958,7 +1999,7 @@ impl Controller {
                 if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut() {
                     let finder = &mut gallery.finder;
                     if let Some(index) = finder.find_first(predicate) {
-                        let navigator = &mut self.navigator;
+                        let mut navigator = self.navigator_rc.borrow_mut();
                         navigator.move_towards(Direction::Index { value: index });
                         navigator.set_page_changed();
                         self.state.set_search_in_progress(true);
@@ -1985,7 +2026,7 @@ impl Controller {
         let information_opt = if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut()
         {
             if let Some(index) = gallery.finder.find_next() {
-                let navigator = &mut self.navigator;
+                let mut navigator = self.navigator_rc.borrow_mut();
                 navigator.move_towards(Direction::Index { value: index });
                 navigator.set_page_changed();
                 None
