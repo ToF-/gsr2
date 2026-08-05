@@ -177,6 +177,11 @@ impl Controller {
         self.state_rc.borrow().clone()
     }
 
+    pub fn set_state_mode(&self, mode: Mode) {
+        let mut state = self.state_rc.borrow_mut();
+        state.set_mode(mode)
+    }
+
     pub fn navigator(&self) -> Navigator {
         self.navigator_rc.borrow().clone()
     }
@@ -385,7 +390,7 @@ impl Controller {
             Mode::MovingToCategory => {
                 selector.process(key);
                 if !selector.selecting() {
-                    self.state().set_mode(Mode::View);
+                    self.set_state_mode(Mode::View);
                     if !selector.selected().is_empty() {
                         self.move_sub_category_to_category(
                             &selector.prev_selected(),
@@ -397,7 +402,7 @@ impl Controller {
             Mode::MovingCategory => {
                 selector.process(key);
                 if !selector.selecting() {
-                    self.state().set_mode(Mode::View);
+                    self.set_state_mode(Mode::View);
                     if !selector.selected().is_empty() {
                         self.move_to_category(&selector.selected())
                     }
@@ -406,7 +411,7 @@ impl Controller {
             Mode::AddingCategory => {
                 selector.process(key);
                 if !selector.selecting() {
-                    self.state().set_mode(Mode::View);
+                    self.set_state_mode(Mode::View);
                     if !selector.selected().is_empty() {
                         self.add_category(&self.editor().input(), &selector.selected())
                     }
@@ -415,7 +420,7 @@ impl Controller {
             Mode::RemovingCategory => {
                 selector.process(key);
                 if !selector.selecting() {
-                    self.state().set_mode(Mode::View);
+                    self.set_state_mode(Mode::View);
                     if !selector.selected().is_empty() {
                         self.remove_category(&selector.selected())
                     }
@@ -440,12 +445,12 @@ impl Controller {
                         }
                     }
                 };
-                self.state().set_mode(Mode::View)
+                self.set_state_mode(Mode::View)
             }
             Mode::Categorizing => {
                 selector.process(key);
                 if !selector.selecting() {
-                    self.state().set_mode(Mode::View);
+                    self.set_state_mode(Mode::View);
                     if !selector.selected().is_empty() {
                         let category: Category = category_from_string(&selector.selected());
                         self.categorize_selected_pictures(category)
@@ -456,7 +461,7 @@ impl Controller {
             Mode::SelectingCategory => {
                 selector.process(key);
                 if !selector.selecting() {
-                    self.state().set_mode(Mode::View);
+                    self.set_state_mode(Mode::View);
                     if !selector.selected().is_empty() {
                         self.find_first(&self.editor().input(), Find::SubCategory);
                     }
@@ -465,7 +470,7 @@ impl Controller {
             Mode::FindingSubCategory => {
                 selector.process(key);
                 if !selector.selecting() {
-                    self.state().set_mode(Mode::View);
+                    self.set_state_mode(Mode::View);
                     if !selector.selected().is_empty() {
                         let category_name = selector.selected();
                         self.find_first(&category_name, Find::SubCategory)
@@ -475,7 +480,7 @@ impl Controller {
             Mode::SelectingSubCategory => {
                 selector.process(key);
                 if !selector.selecting() {
-                    self.state().set_mode(Mode::View);
+                    self.set_state_mode(Mode::View);
                     if !selector.selected().is_empty() {
                         let category_name = selector.selected();
                         self.select(&category_name, Find::SubCategory)
@@ -485,7 +490,7 @@ impl Controller {
             Mode::Editing => {
                 self.editor().process(key);
                 if !self.editor().editing() {
-                    self.state().set_mode(Mode::View);
+                    self.set_state_mode(Mode::View);
                     match self.editor().entry_kind() {
                         EntryKind::AddCategory => {
                             if !self.editor().input().is_empty() {
@@ -505,6 +510,7 @@ impl Controller {
                             };
                         }
                         EntryKind::Change => {
+                            println!("self.editor().input(): {}", self.editor().input());
                             if !self.editor().input().is_empty() {
                                 match Change::from_str(&self.editor().input()) {
                                     Ok(Change::AddTag) => self.add_tag(),
@@ -851,11 +857,11 @@ impl Controller {
 
     fn setting_display(&self) {
         println!("Setting display…");
-        self.state().set_mode(Mode::Setting(Control::SetDisplay));
+        self.set_state_mode(Mode::Setting(Control::SetDisplay));
     }
 
     fn enter_change(&self) {
-        self.enter_editing(EntryKind::Change, None)
+        self.enter_editing(EntryKind::Change, None);
     }
 
     fn enter_change_catalog(&self) {
@@ -874,7 +880,7 @@ impl Controller {
                 &format!("select a category to add {} to ", category_name),
                 &self.repository.catalog(),
             );
-            self.state().set_mode(Mode::AddingCategory);
+            self.set_state_mode(Mode::AddingCategory);
         } else {
             display_information(
                 &self.main_window().application_window(),
@@ -890,7 +896,7 @@ impl Controller {
             "select the category to move",
             &self.repository.catalog(),
         );
-        self.state().set_mode(Mode::MovingCategory);
+        self.set_state_mode(Mode::MovingCategory);
     }
 
     fn move_to_category(&self, moving_category_name: &str) {
@@ -903,7 +909,7 @@ impl Controller {
             &format!("select the category where to move {}", moving_category_name),
             &pruned_catalog,
         );
-        self.state().set_mode(Mode::MovingToCategory);
+        self.set_state_mode(Mode::MovingToCategory);
     }
 
     fn enter_remove_category(&self) {
@@ -913,7 +919,7 @@ impl Controller {
             "select a category to remove",
             &self.repository.catalog(),
         );
-        self.state().set_mode(Mode::RemovingCategory);
+        self.set_state_mode(Mode::RemovingCategory);
     }
 
     fn enter_find(&self) {
@@ -933,28 +939,22 @@ impl Controller {
     }
 
     fn enter_editing(&self, entry_kind: EntryKind, choice_opt: Option<Tags>) {
-        self.editor()
-            .begin(&self.main_window(), entry_kind, choice_opt);
-        self.state().set_mode(Mode::Editing);
+        let mut editor = self.editor_rc.borrow_mut();
+        editor.begin(&self.main_window(), entry_kind, choice_opt);
+        let mut state = self.state_rc.borrow_mut();
+        state.set_mode(Mode::Editing);
     }
 
     fn enter_find_label(&self) {
-        self.editor()
-            .begin(&self.main_window(), EntryKind::FindLabel, None);
-        self.state().set_mode(Mode::Editing);
+        self.enter_editing(EntryKind::FindLabel, None)
     }
 
     fn enter_find_name(&self) {
-        println!("enter_find_name");
-        self.editor()
-            .begin(&self.main_window(), EntryKind::FindName, None);
-        self.state().set_mode(Mode::Editing);
+        self.enter_editing(EntryKind::FindName, None)
     }
 
     fn enter_find_category(&self) {
-        self.editor()
-            .begin(&self.main_window(), EntryKind::FindCategory, None);
-        self.state().set_mode(Mode::Editing);
+        self.enter_editing(EntryKind::FindCategory, None);
     }
 
     fn enter_find_tags(&self, all_match: bool) {
@@ -963,30 +963,24 @@ impl Controller {
         } else {
             EntryKind::FindSomeTags
         };
-        self.editor().begin(&self.main_window(), kind, None);
-        self.state().set_mode(Mode::Editing);
+        self.enter_editing(kind, None);
     }
+
     fn enter_find_sub_category(&self) {
         self.set_category_selection();
-        self.state().set_mode(Mode::FindingSubCategory);
+        self.set_state_mode(Mode::FindingSubCategory);
     }
 
     fn enter_select_label(&self) {
-        self.editor()
-            .begin(&self.main_window(), EntryKind::SelectLabel, None);
-        self.state().set_mode(Mode::Editing);
+        self.enter_editing(EntryKind::SelectLabel, None);
     }
 
     fn enter_select_name(&self) {
-        self.editor()
-            .begin(&self.main_window(), EntryKind::SelectName, None);
-        self.state().set_mode(Mode::Editing);
+        self.enter_editing(EntryKind::SelectName, None);
     }
 
     fn enter_select_category(&self) {
-        self.editor()
-            .begin(&self.main_window(), EntryKind::SelectCategory, None);
-        self.state().set_mode(Mode::Editing);
+        self.enter_editing(EntryKind::SelectCategory, None);
     }
 
     fn enter_select_tags(&self, all_match: bool) {
@@ -995,21 +989,20 @@ impl Controller {
         } else {
             EntryKind::SelectSomeTags
         };
-        self.editor().begin(&self.main_window(), kind, None);
-        self.state().set_mode(Mode::Editing);
+        self.enter_editing(kind, None);
     }
     fn enter_select_sub_category(&self) {
         self.set_category_selection();
-        self.state().set_mode(Mode::SelectingSubCategory);
+        self.set_state_mode(Mode::SelectingSubCategory);
     }
     fn setting_mark(&self) {
         println!("Setting mark…");
-        self.state().set_mode(Mode::Setting(Control::SetMark));
+        self.set_state_mode(Mode::Setting(Control::SetMark));
     }
 
     fn jumping_mark(&self) {
         println!("Jumping to mark…");
-        self.state().set_mode(Mode::Setting(Control::GotoMark));
+        self.set_state_mode(Mode::Setting(Control::GotoMark));
     }
 
     fn set_mark(&self, mark: char) {
@@ -1020,9 +1013,7 @@ impl Controller {
         let _ = configuration.save();
     }
     fn setting_order(&self) {
-        self.editor()
-            .begin(&self.main_window(), EntryKind::Order, None);
-        self.state().set_mode(Mode::Editing);
+        self.enter_editing(EntryKind::Order, None);
     }
 
     fn next_slide_delay(&self) {
@@ -1385,32 +1376,18 @@ impl Controller {
 
     fn add_tag(&self) {
         self.set_opacity_for_current_picture(0.25);
-        self.editor().begin(
-            &self.main_window(),
-            EntryKind::AddTag,
-            Some(self.repository.all_labels()),
-        );
-        self.state().set_mode(Mode::Editing);
+        self.enter_editing(EntryKind::AddTag, Some(self.repository.all_labels()));
+        self.set_state_mode(Mode::Editing);
     }
 
     fn remove_tag(&self) {
         self.set_opacity_for_current_picture(0.25);
-        self.editor().begin(
-            &self.main_window(),
-            EntryKind::RemoveTag,
-            Some(self.current_picture().tags()),
-        );
-        self.state().set_mode(Mode::Editing);
+        self.enter_editing(EntryKind::RemoveTag, Some(self.current_picture().tags()));
     }
 
     fn label(&self) {
         self.set_opacity_for_current_picture(0.25);
-        self.editor().begin(
-            &self.main_window(),
-            EntryKind::Label,
-            Some(self.repository.all_labels()),
-        );
-        self.state().set_mode(Mode::Editing);
+        self.enter_editing(EntryKind::Label, Some(self.repository.all_labels()));
     }
 
     fn label_(&self) {
@@ -1427,13 +1404,13 @@ impl Controller {
             self.set_opacity_for_current_picture(0.25);
             self.editor()
                 .begin(&self.main_window(), EntryKind::Rename, None);
-            self.state().set_mode(Mode::Editing);
+            self.set_state_mode(Mode::Editing);
         } else {
             self.editor()
                 .begin(&self.main_window(), EntryKind::Information, None);
             self.editor()
                 .set_input("Select the picture you want to rename first");
-            self.state().set_mode(Mode::Editing);
+            self.set_state_mode(Mode::Editing);
         }
     }
 
@@ -1462,7 +1439,7 @@ impl Controller {
             "select a category to apply",
             &self.repository.catalog(),
         );
-        self.state().set_mode(Mode::Categorizing);
+        self.set_state_mode(Mode::Categorizing);
     }
 
     fn set_category_selection(&self) {
@@ -1472,7 +1449,7 @@ impl Controller {
             "select a category to find",
             &self.repository.catalog(),
         );
-        self.state().set_mode(Mode::SelectingCategory);
+        self.set_state_mode(Mode::SelectingCategory);
     }
 
     fn uncategorize_selected_pictures(&self) {
@@ -1511,7 +1488,7 @@ impl Controller {
     fn jump(&self) {
         self.editor()
             .begin(&self.main_window(), EntryKind::Number, None);
-        self.state().set_mode(Mode::Editing);
+        self.set_state_mode(Mode::Editing);
     }
 
     fn help(&self) {
@@ -1527,7 +1504,7 @@ impl Controller {
             .begin(&self.main_window(), EntryKind::Information, None);
         self.editor()
             .set_input(&self.current_picture().file_path().to_string());
-        self.state().set_mode(Mode::Editing);
+        self.set_state_mode(Mode::Editing);
     }
 
     fn toggle_display_path(&self) {
@@ -1835,7 +1812,7 @@ impl Controller {
         if self.navigator().has_selected() {
             self.editor()
                 .begin(&self.main_window(), EntryKind::DeleteConfirmation, None);
-            self.state().set_mode(Mode::Editing);
+            self.set_state_mode(Mode::Editing);
         }
     }
 
@@ -1845,7 +1822,7 @@ impl Controller {
                 .begin(&self.main_window(), EntryKind::MoveConfirmation, None);
             self.editor()
                 .set_prompt(&format!("move these pictures to {} ?", target_dir));
-            self.state().set_mode(Mode::Editing);
+            self.set_state_mode(Mode::Editing);
         }
     }
     fn check_move_destination_label(&self) -> Option<String> {
@@ -1895,7 +1872,7 @@ impl Controller {
                 EntryKind::MoveToLabelConfirmation(target_dir),
                 None,
             );
-            self.state().set_mode(Mode::Editing);
+            self.set_state_mode(Mode::Editing);
         }
     }
 
@@ -2117,7 +2094,7 @@ impl Controller {
                 view.close()
             }
         });
-        self.state().set_mode(Mode::Editing);
+        self.set_state_mode(Mode::Editing);
         entry_view_rc.borrow().present();
     }
 }
