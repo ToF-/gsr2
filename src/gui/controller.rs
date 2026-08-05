@@ -55,7 +55,7 @@ use std::str::FromStr;
 pub struct Controller {
     configuration_rc: RefCell<Configuration>,
     repository: Repository,
-    command_line_arguments: CommandLineArguments,
+    command_line_arguments_rc: RefCell<CommandLineArguments>,
     navigator_rc: RefCell<Navigator>,
     controls: Controls,
     state_rc: RefCell<State>,
@@ -114,7 +114,7 @@ impl Controller {
         let controller = Controller {
             configuration_rc: RefCell::new(config.clone()),
             repository: repository.clone(),
-            command_line_arguments: cli.clone(),
+            command_line_arguments_rc: RefCell::new(cli.clone()),
             editor_rc: RefCell::new(Editor::new()),
             selector_rc: RefCell::new(Selector::new(&catalog)),
             navigator_rc: RefCell::new(Navigator::new(repository.len(), pictures_per_row as usize)),
@@ -142,7 +142,7 @@ impl Controller {
     }
 
     pub fn command_line_arguments(&self) -> CommandLineArguments {
-        self.command_line_arguments.clone()
+        self.command_line_arguments_rc.borrow().clone()
     }
 
     pub fn repository(&self) -> Repository {
@@ -188,7 +188,7 @@ impl Controller {
 
     fn load_repository(&self) -> IOResult<usize> {
         println!("loading directory");
-        let args = self.command_line_arguments.clone();
+        let args = self.command_line_arguments().clone();
         let result = match args.command {
             Some(Command::File { file_path }) => {
                 match self.repository.picture_from_file_path(&file_path) {
@@ -697,7 +697,7 @@ impl Controller {
         }
         match self
             .repository
-            .initialize_for_args(&self.command_line_arguments, None)
+            .initialize_for_args(&self.command_line_arguments(), None)
         {
             Ok(()) => {
                 let _ = self.reload();
@@ -1109,20 +1109,21 @@ impl Controller {
     }
 
     fn go_to_directory(&self) {
-        if self.command_line_arguments.cover
+        let mut command_line_arguments = self.command_line_arguments_rc.borrow_mut();
+        if command_line_arguments.cover
             && let Some(directory) = parent_directory(&self.current_picture().file_path())
-            && Some(directory.clone()) != self.command_line_arguments.directory
+            && Some(directory.clone()) != command_line_arguments.directory
             && !self.state().single_view()
         {
-            self.command_line_arguments.index = Some(self.navigator().position());
-            let clargs = self.command_line_arguments.clone();
+            command_line_arguments.index = Some(self.navigator().position());
+            let clargs = command_line_arguments.clone();
             self.state().push_saved_command_line_arguments(clargs.clone(), &directory);
             let new_clargs = CommandLineArguments {
                 directory: Some(directory),
                 cover: false,
                 ..clargs.clone()
             };
-            self.command_line_arguments = new_clargs.clone();
+            *command_line_arguments = new_clargs.clone();
         let binding = self.navigator_rc.clone();
         let mut navigator = binding.borrow_mut();
             match self.repository.initialize_for_args(&new_clargs, None) {
@@ -1142,15 +1143,16 @@ impl Controller {
     }
 
     fn go_to_selection(&self, selection: &str, predicate: Predicate) -> Option<String> {
-        self.command_line_arguments.index = Some(self.navigator().position());
-        let clargs = self.command_line_arguments.clone();
+        let mut command_line_arguments = self.command_line_arguments_rc.borrow_mut();
+        command_line_arguments.index = Some(self.navigator().position());
+        let clargs = command_line_arguments.clone();
         self.state().push_saved_command_line_arguments(clargs.clone(), selection);
         let new_clargs = CommandLineArguments {
             directory: None,
             cover: false,
             ..clargs.clone()
         };
-        self.command_line_arguments = new_clargs.clone();
+        *command_line_arguments = new_clargs.clone();
         let binding = self.navigator_rc.clone();
         let mut navigator = binding.borrow_mut();
         match self
@@ -1180,16 +1182,17 @@ impl Controller {
     }
 
     fn back_from_directory(&self) {
+        let mut command_line_arguments = self.command_line_arguments_rc.borrow_mut();
         if let Some((pictures_per_row, old_clargs)) = self.state().pop_saved_command_line_arguments()
         {
-            self.command_line_arguments = old_clargs.clone();
+            *command_line_arguments = old_clargs.clone();
         let binding = self.navigator_rc.clone();
         let mut navigator = binding.borrow_mut();
             match self.repository.initialize_for_args(&old_clargs, None) {
                 Ok(()) => {
                     self.change_grid_size(pictures_per_row);
                     let _ = self.reload();
-                    if let Some(index) = self.command_line_arguments.index
+                    if let Some(index) = command_line_arguments.index
                         && navigator.can_move(Direction::Index { value: index })
                     {
                         navigator
@@ -1243,17 +1246,18 @@ impl Controller {
     }
 
     fn toggle_cover_selection(&self) {
+        let mut command_line_arguments = self.command_line_arguments_rc.borrow_mut();
         println!("toggle cover selection");
         if !self.state().has_saved_command_line_arguments() {
-            if !self.command_line_arguments.cover && self.repository.covers() > 0 {
+            if !command_line_arguments.cover && self.repository.covers() > 0 {
                 let new_clargs = CommandLineArguments {
                     cover: true,
-                    ..self.command_line_arguments.clone()
+                    ..command_line_arguments.clone()
                 };
-                self.command_line_arguments = new_clargs;
+                *command_line_arguments = new_clargs;
                 match self
                     .repository
-                    .initialize_for_args(&self.command_line_arguments, None)
+                    .initialize_for_args(&command_line_arguments, None)
                 {
                     Ok(_) => match self.reload() {
                         Ok(0) => {
@@ -1264,15 +1268,15 @@ impl Controller {
                     },
                     Err(e) => panic!("{}", e),
                 }
-            } else if self.command_line_arguments.cover {
+            } else if command_line_arguments.cover {
                 let new_clargs = CommandLineArguments {
                     cover: false,
-                    ..self.command_line_arguments.clone()
+                    ..command_line_arguments.clone()
                 };
-                self.command_line_arguments = new_clargs;
+                *command_line_arguments = new_clargs;
                 match self
                     .repository
-                    .initialize_for_args(&self.command_line_arguments, None)
+                    .initialize_for_args(&command_line_arguments, None)
                 {
                     Ok(_) => match self.reload() {
                         Ok(0) => {
@@ -1541,7 +1545,7 @@ impl Controller {
             self.back_from_directory()
         } else {
             configuration.current_picture = Some(self.current_picture().file_path());
-            configuration.cover = self.command_line_arguments.cover;
+            configuration.cover = self.command_line_arguments().cover;
             configuration.current_pictures_per_row = if self.state().single_view() {
                 Some(1)
             } else {
@@ -1647,7 +1651,7 @@ impl Controller {
         if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut() {
             gallery.sort_by(order);
             new_position = gallery.find_file_path(&current_file_path);
-            self.command_line_arguments.order = Some(order);
+            self.command_line_arguments().order = Some(order);
         } else {
             panic!("can't borrow mut")
         };
@@ -1753,7 +1757,7 @@ impl Controller {
         navigator.set_page_changed();
     }
     fn move_selected_pictures(&self) {
-        if let Some(target_dir) = &self.command_line_arguments.clone().r#move {
+        if let Some(target_dir) = &self.command_line_arguments().clone().r#move {
             self.move_selected_pictures_to_target(target_dir);
         }
     }
@@ -1813,7 +1817,7 @@ impl Controller {
     }
 
     fn move_picture(&self) {
-        if let Some(target_dir) = &self.command_line_arguments.r#move {
+        if let Some(target_dir) = &self.command_line_arguments().r#move {
             self.editor()
                 .begin(&self.main_window(), EntryKind::MoveConfirmation, None);
             self.editor()
