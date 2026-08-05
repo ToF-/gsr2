@@ -1,3 +1,4 @@
+use crate::gui::main_controller::RcController;
 use crate::gui::controller::Controller;
 use gtk::gio::ActionEntry;
 use gtk::gio::prelude::*;
@@ -10,7 +11,7 @@ use std::sync::OnceLock;
 
 pub struct MainController {
     pub actions: gtk::gio::SimpleActionGroup,
-    controller_opt_rc : RefCell<Option<Controller>>, 
+    controller_opt_rc : RefCell<Option<RcController>>, 
 }
 
 impl Default for MainController {
@@ -43,13 +44,13 @@ impl ObjectImpl for MainController {
 }
 
 impl MainController {
-    pub fn new(controller_opt: Option<Controller>) -> Self {
+    pub fn new(controller_opt: Option<RcController>) -> Self {
         let obj = Self::default();
         obj.initialize(controller_opt);
         obj
     }
 
-    pub fn initialize(&self, controller_opt: Option<Controller>) {
+    pub fn initialize(&self, controller_opt: Option<RcController>) {
         *self.controller_opt_rc.borrow_mut() = controller_opt
     }
 }

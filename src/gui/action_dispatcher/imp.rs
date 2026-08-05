@@ -52,6 +52,7 @@ impl ActionDispatcher {
         *self.controller_opt_rc.borrow_mut() = Some(controller_rc)
     }
     pub fn initialize(&self) {
+
         let action_test = ActionEntry::builder("test")
             .parameter_type(Some(&String::static_variant_type()))
             .activate(move |_obj, _simple_action, variant_opt| {
@@ -59,8 +60,10 @@ impl ActionDispatcher {
                     .expect("could not get parameter")
                     .get::<String>()
                     .expect("the variant need to be of type string");
+                println!("controller.test with value {:?}", value);
             })
             .build();
+
         let controller_opt_rc = self.controller_opt_rc.clone();
         let action_find_label = ActionEntry::builder("find-label")
             .parameter_type(Some(&String::static_variant_type()))
@@ -88,6 +91,7 @@ impl ActionDispatcher {
                 }
             ))
             .build();
+
         let action_entries = vec![action_test, action_find_label];
         self.actions.add_action_entries(action_entries);
     }

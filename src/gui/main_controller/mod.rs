@@ -1,3 +1,4 @@
+use crate::gui::controller::RcController;
 use crate::gui::controller::Controller;
 use gtk::prelude::ObjectExt;
 use gtk::subclass::prelude::ObjectSubclassIsExt;
@@ -12,7 +13,7 @@ gtk::glib::wrapper! {
 }
 
 impl MainController {
-    pub fn new(controller_opt: Option<Controller>) -> Self {
+    pub fn new(controller_opt: Option<RcController>) -> Self {
         let obj: Self = gtk::glib::Object::new();
         obj.imp().initialize(controller_opt);
         obj
