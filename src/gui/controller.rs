@@ -119,7 +119,10 @@ impl Controller {
             selector_rc: RefCell::new(Selector::new(&catalog)),
             navigator_rc: RefCell::new(Navigator::new(repository.len(), pictures_per_row as usize)),
             controls: default_controls(),
-            state_rc: RefCell::new(State::new(pictures_per_row as usize, cli.slideshow().is_some())),
+            state_rc: RefCell::new(State::new(
+                pictures_per_row as usize,
+                cli.slideshow().is_some(),
+            )),
             main_window_opt_rc: RefCell::new(None),
             last_action_rc: RefCell::new(Action::Nothing),
             action_dispatcher_rc: RefCell::new(action_dispatcher),
@@ -213,7 +216,10 @@ impl Controller {
             Err(e) => Err(e),
             Ok(count) => {
                 println!("{} pictures", count);
-                self.set_navigator(Navigator::new(self.repository.len(), self.state().pictures_per_row()));
+                self.set_navigator(Navigator::new(
+                    self.repository.len(),
+                    self.state().pictures_per_row(),
+                ));
                 Ok(count)
             }
         }
@@ -260,9 +266,8 @@ impl Controller {
         {
             self.main_window()
                 .set_label_text_for_current_picture(self, None);
-            if let Some(index) = navigator
-                .position_from_coords(row as usize, col as usize)
-                    && navigator.can_move(Direction::Index { value: index })
+            if let Some(index) = navigator.position_from_coords(row as usize, col as usize)
+                && navigator.can_move(Direction::Index { value: index })
             {
                 navigator.move_towards(Direction::Index { value: index });
                 if button == 3 {
@@ -280,8 +285,7 @@ impl Controller {
         let mut navigator = binding.borrow_mut();
         self.main_window()
             .set_label_text_for_current_picture(self, None);
-        if let Some(index) =navigator
-            .position_from_coords(row as usize, col as usize)
+        if let Some(index) = navigator.position_from_coords(row as usize, col as usize)
             && navigator.can_move(Direction::Index { value: index })
         {
             navigator.move_towards(Direction::Index { value: index });
@@ -330,7 +334,7 @@ impl Controller {
         _controller_rc: &RcController,
     ) {
         let binding = self.navigator_rc.clone();
-        let mut navigator = binding.borrow_mut(); 
+        let mut navigator = binding.borrow_mut();
         let main_window = self.main_window();
         main_window.set_label_text_for_current_picture(self, None);
         let old_slideshow_on = self.state().slideshow_on();
@@ -351,12 +355,14 @@ impl Controller {
     }
 
     pub fn set_label_text_for_current_picture(&self) {
-        let mut state = self.state_rc.borrow_mut();
-        if state.change_focus_symbol_on() {
-            state.toggle_focus_symbol()
+        {
+            let mut state = self.state_rc.borrow_mut();
+            if state.change_focus_symbol_on() {
+                state.toggle_focus_symbol()
+            }
         };
         self.main_window()
-            .set_label_text_for_current_picture(self, Some(state.focus_symbol()))
+            .set_label_text_for_current_picture(self, Some(self.state().focus_symbol()))
     }
 
     fn set_opacity_for_current_picture(&self, opacity: f64) {
@@ -927,23 +933,27 @@ impl Controller {
     }
 
     fn enter_editing(&self, entry_kind: EntryKind, choice_opt: Option<Tags>) {
-        self.editor().begin(&self.main_window(), entry_kind, choice_opt);
+        self.editor()
+            .begin(&self.main_window(), entry_kind, choice_opt);
         self.state().set_mode(Mode::Editing);
     }
 
     fn enter_find_label(&self) {
-        self.editor().begin(&self.main_window(), EntryKind::FindLabel, None);
+        self.editor()
+            .begin(&self.main_window(), EntryKind::FindLabel, None);
         self.state().set_mode(Mode::Editing);
     }
 
     fn enter_find_name(&self) {
         println!("enter_find_name");
-        self.editor().begin(&self.main_window(), EntryKind::FindName, None);
+        self.editor()
+            .begin(&self.main_window(), EntryKind::FindName, None);
         self.state().set_mode(Mode::Editing);
     }
 
     fn enter_find_category(&self) {
-        self.editor().begin(&self.main_window(), EntryKind::FindCategory, None);
+        self.editor()
+            .begin(&self.main_window(), EntryKind::FindCategory, None);
         self.state().set_mode(Mode::Editing);
     }
 
@@ -962,17 +972,20 @@ impl Controller {
     }
 
     fn enter_select_label(&self) {
-        self.editor().begin(&self.main_window(), EntryKind::SelectLabel, None);
+        self.editor()
+            .begin(&self.main_window(), EntryKind::SelectLabel, None);
         self.state().set_mode(Mode::Editing);
     }
 
     fn enter_select_name(&self) {
-        self.editor().begin(&self.main_window(), EntryKind::SelectName, None);
+        self.editor()
+            .begin(&self.main_window(), EntryKind::SelectName, None);
         self.state().set_mode(Mode::Editing);
     }
 
     fn enter_select_category(&self) {
-        self.editor().begin(&self.main_window(), EntryKind::SelectCategory, None);
+        self.editor()
+            .begin(&self.main_window(), EntryKind::SelectCategory, None);
         self.state().set_mode(Mode::Editing);
     }
 
@@ -1007,7 +1020,8 @@ impl Controller {
         let _ = configuration.save();
     }
     fn setting_order(&self) {
-        self.editor().begin(&self.main_window(), EntryKind::Order, None);
+        self.editor()
+            .begin(&self.main_window(), EntryKind::Order, None);
         self.state().set_mode(Mode::Editing);
     }
 
@@ -1074,7 +1088,8 @@ impl Controller {
             Control::RankTwoStars => self.rank_selected_pictures(Rank::TwoStars),
             Control::RemoveTag => self.remove_tag(),
             Control::Rename => {
-                if self.navigator().has_selected() && self.navigator().selected_picture_count() == 1 {
+                if self.navigator().has_selected() && self.navigator().selected_picture_count() == 1
+                {
                     self.enter_editing(EntryKind::Rename, None)
                 } else {
                     eprintln!("select the picture to rename first")
@@ -1117,15 +1132,16 @@ impl Controller {
         {
             command_line_arguments.index = Some(self.navigator().position());
             let clargs = command_line_arguments.clone();
-            self.state().push_saved_command_line_arguments(clargs.clone(), &directory);
+            self.state()
+                .push_saved_command_line_arguments(clargs.clone(), &directory);
             let new_clargs = CommandLineArguments {
                 directory: Some(directory),
                 cover: false,
                 ..clargs.clone()
             };
             *command_line_arguments = new_clargs.clone();
-        let binding = self.navigator_rc.clone();
-        let mut navigator = binding.borrow_mut();
+            let binding = self.navigator_rc.clone();
+            let mut navigator = binding.borrow_mut();
             match self.repository.initialize_for_args(&new_clargs, None) {
                 Ok(()) => {
                     let _ = self.reload();
@@ -1146,7 +1162,8 @@ impl Controller {
         let mut command_line_arguments = self.command_line_arguments_rc.borrow_mut();
         command_line_arguments.index = Some(self.navigator().position());
         let clargs = command_line_arguments.clone();
-        self.state().push_saved_command_line_arguments(clargs.clone(), selection);
+        self.state()
+            .push_saved_command_line_arguments(clargs.clone(), selection);
         let new_clargs = CommandLineArguments {
             directory: None,
             cover: false,
@@ -1183,11 +1200,12 @@ impl Controller {
 
     fn back_from_directory(&self) {
         let mut command_line_arguments = self.command_line_arguments_rc.borrow_mut();
-        if let Some((pictures_per_row, old_clargs)) = self.state().pop_saved_command_line_arguments()
+        if let Some((pictures_per_row, old_clargs)) =
+            self.state().pop_saved_command_line_arguments()
         {
             *command_line_arguments = old_clargs.clone();
-        let binding = self.navigator_rc.clone();
-        let mut navigator = binding.borrow_mut();
+            let binding = self.navigator_rc.clone();
+            let mut navigator = binding.borrow_mut();
             match self.repository.initialize_for_args(&old_clargs, None) {
                 Ok(()) => {
                     self.change_grid_size(pictures_per_row);
@@ -1195,8 +1213,7 @@ impl Controller {
                     if let Some(index) = command_line_arguments.index
                         && navigator.can_move(Direction::Index { value: index })
                     {
-                        navigator
-                            .move_towards(Direction::Index { value: index })
+                        navigator.move_towards(Direction::Index { value: index })
                     };
                     navigator.set_page_changed()
                 }
@@ -1206,22 +1223,26 @@ impl Controller {
     }
 
     fn toggle_single_view(&self) {
-        let mut state = self.state_rc.borrow_mut();
-        state.toggle_single_view();
-        if state.full_size_on() {
-            state.toggle_full_size()
+        {
+            let mut state = self.state_rc.borrow_mut();
+            state.toggle_single_view();
+            if state.full_size_on() {
+                state.toggle_full_size()
+            }
         }
         self.change_grid_size(self.state().pictures_per_row());
     }
 
     fn toggle_thumbview(&self) {
-        let mut state = self.state_rc.borrow_mut();
-        if state.pictures_per_row() != 10 {
-            state.change_grid_size(10)
-        } else {
-            state.toggle_back_grid_size()
-        };
-        self.change_grid_size(state.pictures_per_row());
+        {
+            let mut state = self.state_rc.borrow_mut();
+            if state.pictures_per_row() != 10 {
+                state.change_grid_size(10)
+            } else {
+                state.toggle_back_grid_size()
+            };
+        }
+        self.change_grid_size(self.state().pictures_per_row());
     }
     fn toggle_cover(&self) {
         let index = self.navigator().position();
@@ -1303,8 +1324,7 @@ impl Controller {
             .set_selection_criteria(SelectionCriteria::empty());
         let mut navigator = self.navigator_rc.borrow_mut();
         if let Some(index) = self.repository.find_index_for_file_path(&current_file_path) {
-            navigator
-                .move_towards(Direction::Index { value: index })
+            navigator.move_towards(Direction::Index { value: index })
         } else {
             navigator.move_towards(Direction::First)
         };
@@ -1405,11 +1425,14 @@ impl Controller {
     fn rename(&self) {
         if self.navigator().has_selected() && self.navigator().selected_picture_count() == 1 {
             self.set_opacity_for_current_picture(0.25);
-            self.editor().begin(&self.main_window(), EntryKind::Rename, None);
+            self.editor()
+                .begin(&self.main_window(), EntryKind::Rename, None);
             self.state().set_mode(Mode::Editing);
         } else {
-            self.editor().begin(&self.main_window(), EntryKind::Information, None);
-            self.editor().set_input("Select the picture you want to rename first");
+            self.editor()
+                .begin(&self.main_window(), EntryKind::Information, None);
+            self.editor()
+                .set_input("Select the picture you want to rename first");
             self.state().set_mode(Mode::Editing);
         }
     }
@@ -1486,7 +1509,8 @@ impl Controller {
     }
 
     fn jump(&self) {
-        self.editor().begin(&self.main_window(), EntryKind::Number, None);
+        self.editor()
+            .begin(&self.main_window(), EntryKind::Number, None);
         self.state().set_mode(Mode::Editing);
     }
 
@@ -1657,8 +1681,7 @@ impl Controller {
         };
         let mut navigator = self.navigator_rc.borrow_mut();
         if let Some(index) = new_position {
-            navigator
-                .move_towards(Direction::Index { value: index })
+            navigator.move_towards(Direction::Index { value: index })
         } else {
             navigator.move_towards(Direction::First)
         };
@@ -1899,7 +1922,9 @@ impl Controller {
         let binding = self.navigator_rc.clone();
         let mut navigator = binding.borrow_mut();
         match direction {
-            Direction::NextPage if self.state().single_view() => self.move_towards(Direction::Right),
+            Direction::NextPage if self.state().single_view() => {
+                self.move_towards(Direction::Right)
+            }
             Direction::PrevPage if self.state().single_view() => self.move_towards(Direction::Left),
             ref other => {
                 if self.can_move(other.clone()) {
