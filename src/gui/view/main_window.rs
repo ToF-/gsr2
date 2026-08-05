@@ -1,3 +1,4 @@
+use crate::gui::main_controller::MainController;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::default_values::FOCUS_SYMBOL_1;
 use crate::env::default_values::QUARTER_OPACITY;
@@ -140,6 +141,7 @@ impl MainWindow {
         controller_rc: &RcController,
         position: usize,
         action_dispatcher: &ActionDispatcher,
+        main_controller: &MainController,
     ) {
         let pictures_per_row = if let Ok(controller) = controller_rc.try_borrow() {
             controller.state().pictures_per_row()
@@ -182,7 +184,10 @@ impl MainWindow {
         add_actions(&application_window, controller_rc);
         // TESTING
         application_window.insert_action_group("controller", Some(&action_dispatcher.actions()));
+        println!("main_controller.actions:{:?}", main_controller.actions());
+        application_window.insert_action_group("main-controller", Some(&main_controller.actions()));
         application.set_accels_for_action("application-group.close", &["<Ctrl>W"]);
+        application.set_accels_for_action("main-controller.test::foobardelaw", &["<Ctrl>Z"]);
         attach_key_pressed_event_handlers(&application_window, controller_rc);
         if let Some(seconds) = clargs.slideshow {
             Self::attach_slideshow_event(seconds, controller_rc);

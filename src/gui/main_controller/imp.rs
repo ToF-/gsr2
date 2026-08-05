@@ -51,6 +51,21 @@ impl MainController {
     }
 
     pub fn initialize(&self, controller_opt: Option<RcController>) {
-        *self.controller_opt_rc.borrow_mut() = controller_opt
+        *self.controller_opt_rc.borrow_mut() = controller_opt;
+
+        let action_test = ActionEntry::builder("test")
+            .parameter_type(Some(&String::static_variant_type()))
+            .activate(move |_obj, _simple_action, variant_opt| {
+                let value = variant_opt
+                    .expect("could not get parameter")
+                    .get::<String>()
+                    .expect("the variant need to be of type string");
+                println!("controller.test with value {:?}", value);
+            })
+            .build();
+
+        let action_entries = vec![action_test];
+        self.actions.add_action_entries(action_entries);
+
     }
 }

@@ -2050,7 +2050,7 @@ impl Controller {
         let application_window = self.main_window().application_window();
         gtk::prelude::ActionGroupExt::activate_action(
             &application_window,
-            "test",
+            "main-controller.test",
             Some(&"foo bar test action".to_variant()),
         );
         /*

@@ -92,11 +92,14 @@ fn build_and_run_app(
 ) {
     let main_controller:MainController = MainController::new(Some(controller_rc.clone()));
     let application: gtk::Application = make_application(APPLICATION_ID);
+    // application.insert_action_group("main-controller", Some(main_controller.actions()));
     application.connect_activate(clone!(
         #[strong]
         clargs,
         #[strong]
         controller_rc,
+        #[strong]
+        main_controller,
         move |application: &gtk::Application| {
             MainWindow::activate(
                 application,
@@ -104,6 +107,7 @@ fn build_and_run_app(
                 &controller_rc,
                 position,
                 &action_dispatcher,
+                &main_controller,
             )
         }
     ));
