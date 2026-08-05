@@ -53,14 +53,14 @@ use std::str::FromStr;
 
 #[derive(Debug)]
 pub struct Controller {
-    configuration: Configuration,
+    configuration_rc: RefCell<Configuration>,
     repository: Repository,
     command_line_arguments: CommandLineArguments,
     navigator_rc: RefCell<Navigator>,
     controls: Controls,
-    state: State,
+    state_rc: RefCell<State>,
     main_window_opt_rc: RefCell<Option<MainWindow>>,
-    editor: Editor,
+    editor_rc: RefCell<Editor>,
     selector_rc: RefCell<Selector>,
     last_action_rc: RefCell<Action>,
     action_dispatcher_rc: RefCell<ActionDispatcher>,
@@ -112,14 +112,14 @@ impl Controller {
             }
         };
         let controller = Controller {
-            configuration: config.clone(),
+            configuration_rc: RefCell::new(config.clone()),
             repository: repository.clone(),
             command_line_arguments: cli.clone(),
-            editor: Editor::new(),
+            editor_rc: RefCell::new(Editor::new()),
             selector_rc: RefCell::new(Selector::new(&catalog)),
             navigator_rc: RefCell::new(Navigator::new(repository.len(), pictures_per_row as usize)),
             controls: default_controls(),
-            state: State::new(pictures_per_row as usize, cli.slideshow().is_some()),
+            state_rc: RefCell::new(State::new(pictures_per_row as usize, cli.slideshow().is_some())),
             main_window_opt_rc: RefCell::new(None),
             last_action_rc: RefCell::new(Action::Nothing),
             action_dispatcher_rc: RefCell::new(action_dispatcher),
@@ -152,6 +152,9 @@ impl Controller {
         self.selector_rc.borrow().clone()
     }
 
+    pub fn editor(&self) -> Editor {
+        self.editor_rc.borrow().clone()
+    }
     pub fn set_selected(&self, selected: &str) {
         self.selector_rc.borrow_mut().set_selected(selected);
     }
@@ -168,7 +171,7 @@ impl Controller {
     }
 
     pub fn state(&self) -> State {
-        self.state.clone()
+        self.state_rc.borrow().clone()
     }
 
     pub fn navigator(&self) -> Navigator {
@@ -183,7 +186,7 @@ impl Controller {
         self.repository.picture_at(self.navigator().position())
     }
 
-    fn load_repository(&mut self) -> IOResult<usize> {
+    fn load_repository(&self) -> IOResult<usize> {
         println!("loading directory");
         let args = self.command_line_arguments.clone();
         let result = match args.command {
@@ -210,13 +213,13 @@ impl Controller {
             Err(e) => Err(e),
             Ok(count) => {
                 println!("{} pictures", count);
-                self.set_navigator(Navigator::new(self.repository.len(), self.state.pictures_per_row()));
+                self.set_navigator(Navigator::new(self.repository.len(), self.state().pictures_per_row()));
                 Ok(count)
             }
         }
     }
 
-    pub fn process_event(&mut self, event: Event, controller_rc: &RcController) {
+    pub fn process_event(&self, event: Event, controller_rc: &RcController) {
         match event {
             Event::KeyPressed {
                 key,
@@ -244,13 +247,14 @@ impl Controller {
         }
     }
 
-    fn set_slideshow_off(&mut self) {
-        if self.state().slideshow_on() {
+    fn set_slideshow_off(&self) {
+        let mut state = self.state_rc.borrow_mut();
+        if state.slideshow_on() {
             println!("setting slideshow off…");
-            self.state.set_slideshow_off();
+            state.set_slideshow_off();
         }
     }
-    fn process_picture_clicked(&mut self, button: u32, col: i32, row: i32) {
+    fn process_picture_clicked(&self, button: u32, col: i32, row: i32) {
         let binding = self.navigator_rc.clone();
         let mut navigator = binding.borrow_mut();
         {
@@ -271,7 +275,7 @@ impl Controller {
         self.set_label_text_for_current_picture();
     }
 
-    fn process_picture_double_clicked(&mut self, button: u32, col: i32, row: i32) {
+    fn process_picture_double_clicked(&self, button: u32, col: i32, row: i32) {
         let binding = self.navigator_rc.clone();
         let mut navigator = binding.borrow_mut();
         self.main_window()
@@ -286,7 +290,7 @@ impl Controller {
                 main_window.set_label_text_for_current_picture(self, None);
                 let old_slideshow_on = self.state().slideshow_on();
                 self.process_control(&Control::SetSelectionRange);
-                if self.state.slideshow_on() == old_slideshow_on {
+                if self.state().slideshow_on() == old_slideshow_on {
                     self.set_slideshow_off();
                     if self.state().single_view() != self.main_window().single_view() {
                         main_window.toggle_view_stack(self);
@@ -307,7 +311,7 @@ impl Controller {
         self.set_label_text_for_current_picture();
     }
 
-    fn process_pane_clicked(&mut self, _button: usize, pane_number: usize) {
+    fn process_pane_clicked(&self, _button: usize, pane_number: usize) {
         self.process_control(if pane_number == LEFT_PANE {
             &Control::MovePrev
         } else {
@@ -319,7 +323,7 @@ impl Controller {
     }
 
     fn process_key_event(
-        &mut self,
+        &self,
         key: Key,
         _key_code: u32,
         _modifier_type: ModifierType,
@@ -332,7 +336,7 @@ impl Controller {
         let old_slideshow_on = self.state().slideshow_on();
         self.process_key(key);
 
-        if self.state.slideshow_on() == old_slideshow_on {
+        if self.state().slideshow_on() == old_slideshow_on {
             self.set_slideshow_off();
             if self.state().single_view() != self.main_window().single_view() {
                 main_window.toggle_view_stack(self);
@@ -346,20 +350,21 @@ impl Controller {
         }
     }
 
-    pub fn set_label_text_for_current_picture(&mut self) {
-        if self.state.change_focus_symbol_on() {
-            self.state.toggle_focus_symbol()
+    pub fn set_label_text_for_current_picture(&self) {
+        let mut state = self.state_rc.borrow_mut();
+        if state.change_focus_symbol_on() {
+            state.toggle_focus_symbol()
         };
         self.main_window()
-            .set_label_text_for_current_picture(self, Some(self.state().focus_symbol()))
+            .set_label_text_for_current_picture(self, Some(state.focus_symbol()))
     }
 
-    fn set_opacity_for_current_picture(&mut self, opacity: f64) {
+    fn set_opacity_for_current_picture(&self, opacity: f64) {
         self.main_window()
             .set_opacity_for_current_picture(self, opacity)
     }
 
-    fn process_key(&mut self, key: Key) {
+    fn process_key(&self, key: Key) {
         const SHIFT_L: &str = "Shift_L";
         const SHIFT_R: &str = "Shift_R";
         if let Some(name) = key.name()
@@ -374,7 +379,7 @@ impl Controller {
             Mode::MovingToCategory => {
                 selector.process(key);
                 if !selector.selecting() {
-                    self.state.set_mode(Mode::View);
+                    self.state().set_mode(Mode::View);
                     if !selector.selected().is_empty() {
                         self.move_sub_category_to_category(
                             &selector.prev_selected(),
@@ -386,7 +391,7 @@ impl Controller {
             Mode::MovingCategory => {
                 selector.process(key);
                 if !selector.selecting() {
-                    self.state.set_mode(Mode::View);
+                    self.state().set_mode(Mode::View);
                     if !selector.selected().is_empty() {
                         self.move_to_category(&selector.selected())
                     }
@@ -395,16 +400,16 @@ impl Controller {
             Mode::AddingCategory => {
                 selector.process(key);
                 if !selector.selecting() {
-                    self.state.set_mode(Mode::View);
+                    self.state().set_mode(Mode::View);
                     if !selector.selected().is_empty() {
-                        self.add_category(&self.editor.input(), &selector.selected())
+                        self.add_category(&self.editor().input(), &selector.selected())
                     }
                 }
             }
             Mode::RemovingCategory => {
                 selector.process(key);
                 if !selector.selecting() {
-                    self.state.set_mode(Mode::View);
+                    self.state().set_mode(Mode::View);
                     if !selector.selected().is_empty() {
                         self.remove_category(&selector.selected())
                     }
@@ -429,12 +434,12 @@ impl Controller {
                         }
                     }
                 };
-                self.state.set_mode(Mode::View)
+                self.state().set_mode(Mode::View)
             }
             Mode::Categorizing => {
                 selector.process(key);
                 if !selector.selecting() {
-                    self.state.set_mode(Mode::View);
+                    self.state().set_mode(Mode::View);
                     if !selector.selected().is_empty() {
                         let category: Category = category_from_string(&selector.selected());
                         self.categorize_selected_pictures(category)
@@ -445,16 +450,16 @@ impl Controller {
             Mode::SelectingCategory => {
                 selector.process(key);
                 if !selector.selecting() {
-                    self.state.set_mode(Mode::View);
+                    self.state().set_mode(Mode::View);
                     if !selector.selected().is_empty() {
-                        self.find_first(&self.editor.input(), Find::SubCategory);
+                        self.find_first(&self.editor().input(), Find::SubCategory);
                     }
                 }
             }
             Mode::FindingSubCategory => {
                 selector.process(key);
                 if !selector.selecting() {
-                    self.state.set_mode(Mode::View);
+                    self.state().set_mode(Mode::View);
                     if !selector.selected().is_empty() {
                         let category_name = selector.selected();
                         self.find_first(&category_name, Find::SubCategory)
@@ -464,7 +469,7 @@ impl Controller {
             Mode::SelectingSubCategory => {
                 selector.process(key);
                 if !selector.selecting() {
-                    self.state.set_mode(Mode::View);
+                    self.state().set_mode(Mode::View);
                     if !selector.selected().is_empty() {
                         let category_name = selector.selected();
                         self.select(&category_name, Find::SubCategory)
@@ -472,20 +477,20 @@ impl Controller {
                 }
             }
             Mode::Editing => {
-                self.editor.process(key);
-                if !self.editor.editing() {
-                    self.state.set_mode(Mode::View);
-                    match self.editor.entry_kind() {
+                self.editor().process(key);
+                if !self.editor().editing() {
+                    self.state().set_mode(Mode::View);
+                    match self.editor().entry_kind() {
                         EntryKind::AddCategory => {
-                            if !self.editor.input().is_empty() {
-                                self.adding_category(&self.editor.input())
+                            if !self.editor().input().is_empty() {
+                                self.adding_category(&self.editor().input())
                             }
                         }
                         EntryKind::MoveCategory => {}
                         EntryKind::RemoveCategory => {}
                         EntryKind::Catalog => {
-                            if !self.editor.input().is_empty() {
-                                match Change::from_str(&self.editor.input()) {
+                            if !self.editor().input().is_empty() {
+                                match Change::from_str(&self.editor().input()) {
                                     Ok(Change::AddCategory) => self.enter_add_category(),
                                     Ok(Change::MoveCategory) => self.enter_move_category(),
                                     Ok(Change::RemoveCategory) => self.enter_remove_category(),
@@ -494,8 +499,8 @@ impl Controller {
                             };
                         }
                         EntryKind::Change => {
-                            if !self.editor.input().is_empty() {
-                                match Change::from_str(&self.editor.input()) {
+                            if !self.editor().input().is_empty() {
+                                match Change::from_str(&self.editor().input()) {
                                     Ok(Change::AddTag) => self.add_tag(),
                                     Ok(Change::Catalog) => self.enter_change_catalog(),
                                     Ok(Change::Category) => self.categorize(),
@@ -509,20 +514,20 @@ impl Controller {
                             };
                         }
                         EntryKind::Rename => {
-                            if !self.editor.input().is_empty() {
-                                self.rename_selected_picture(&self.editor.input())
+                            if !self.editor().input().is_empty() {
+                                self.rename_selected_picture(&self.editor().input())
                             };
                             self.set_opacity_for_current_picture(1.00);
                         }
                         EntryKind::Categorize => {
-                            if !self.editor.input().is_empty() {
-                                self.categorize_selected_pictures(Some(self.editor.input()))
+                            if !self.editor().input().is_empty() {
+                                self.categorize_selected_pictures(Some(self.editor().input()))
                             };
                             self.set_opacity_for_current_picture(1.00);
                         }
                         EntryKind::Select => {
-                            if !self.editor.input().is_empty() {
-                                match Find::from_str(&self.editor.input()) {
+                            if !self.editor().input().is_empty() {
+                                match Find::from_str(&self.editor().input()) {
                                     Ok(Find::Label) => self.enter_select_label(),
                                     Ok(Find::Name) => self.enter_select_name(),
                                     Ok(Find::Category) => self.enter_select_category(),
@@ -534,8 +539,8 @@ impl Controller {
                             }
                         }
                         EntryKind::Find => {
-                            if !self.editor.input().is_empty() {
-                                match Find::from_str(&self.editor.input()) {
+                            if !self.editor().input().is_empty() {
+                                match Find::from_str(&self.editor().input()) {
                                     Ok(Find::Label) => self.enter_find_label(),
                                     Ok(Find::Name) => self.enter_find_name(),
                                     Ok(Find::Category) => self.enter_find_category(),
@@ -547,110 +552,110 @@ impl Controller {
                             }
                         }
                         EntryKind::Label => {
-                            if !self.editor.input().is_empty() {
-                                self.label_selected_pictures(&self.editor.input())
+                            if !self.editor().input().is_empty() {
+                                self.label_selected_pictures(&self.editor().input())
                             };
                             self.set_opacity_for_current_picture(1.00);
                         }
                         EntryKind::AddTag => {
-                            if !self.editor.input().is_empty() {
-                                self.tag_selected_pictures(&self.editor.input())
+                            if !self.editor().input().is_empty() {
+                                self.tag_selected_pictures(&self.editor().input())
                             };
                             self.set_opacity_for_current_picture(1.00);
                         }
                         EntryKind::RemoveTag => {
-                            if !self.editor.input().is_empty() {
-                                self.untag_selected_pictures(&self.editor.input())
+                            if !self.editor().input().is_empty() {
+                                self.untag_selected_pictures(&self.editor().input())
                             };
                             self.set_opacity_for_current_picture(1.00);
                         }
                         EntryKind::Number => {
-                            if !self.editor.input().is_empty() {
-                                self.move_towards_index(self.editor.input().parse().unwrap())
+                            if !self.editor().input().is_empty() {
+                                self.move_towards_index(self.editor().input().parse().unwrap())
                             };
                         }
-                        EntryKind::Order => self.set_order(&self.editor.input()),
-                        EntryKind::Rank => self.confirm_rank(&self.editor.input()),
-                        EntryKind::View => self.confirm_view(&self.editor.input()),
+                        EntryKind::Order => self.set_order(&self.editor().input()),
+                        EntryKind::Rank => self.confirm_rank(&self.editor().input()),
+                        EntryKind::View => self.confirm_view(&self.editor().input()),
                         EntryKind::DeleteConfirmation => {
-                            if &self.editor.input() == "yes" {
+                            if &self.editor().input() == "yes" {
                                 self.confirm_delete_picture()
                             } else {
                                 self.cancel_delete_picture()
                             }
                         }
                         EntryKind::MoveConfirmation => {
-                            if &self.editor.input() == "yes" {
+                            if &self.editor().input() == "yes" {
                                 self.confirm_move_picture()
                             } else {
                                 self.cancel_move_picture()
                             }
                         }
                         EntryKind::MoveToLabelConfirmation(ref target) => {
-                            if &self.editor.input() == "yes" {
+                            if &self.editor().input() == "yes" {
                                 self.confirm_move_picture_to_label(target)
                             } else {
                                 self.cancel_move_picture()
                             }
                         }
                         EntryKind::FindName => {
-                            if !self.editor.input().is_empty() {
-                                self.find_first(&self.editor.input(), Find::Name);
+                            if !self.editor().input().is_empty() {
+                                self.find_first(&self.editor().input(), Find::Name);
                             };
                         }
                         EntryKind::FindLabel => {
-                            if !self.editor.input().is_empty() {
-                                self.find_first(&self.editor.input(), Find::Label);
+                            if !self.editor().input().is_empty() {
+                                self.find_first(&self.editor().input(), Find::Label);
                             };
                         }
                         EntryKind::FindCategory => {
-                            if !self.editor.input().is_empty() {
-                                self.find_first(&self.editor.input(), Find::Category);
+                            if !self.editor().input().is_empty() {
+                                self.find_first(&self.editor().input(), Find::Category);
                             };
                         }
                         EntryKind::FindSubCategory => {
-                            if !self.editor.input().is_empty() {
-                                self.find_first(&self.editor.input(), Find::SubCategory);
+                            if !self.editor().input().is_empty() {
+                                self.find_first(&self.editor().input(), Find::SubCategory);
                             };
                         }
                         EntryKind::FindSomeTags => {
-                            if !self.editor.input().is_empty() {
-                                self.find_first(&self.editor.input(), Find::AllTags)
+                            if !self.editor().input().is_empty() {
+                                self.find_first(&self.editor().input(), Find::AllTags)
                             }
                         }
                         EntryKind::FindAllTags => {
-                            if !self.editor.input().is_empty() {
-                                self.find_first(&self.editor.input(), Find::AllTags)
+                            if !self.editor().input().is_empty() {
+                                self.find_first(&self.editor().input(), Find::AllTags)
                             };
                         }
                         EntryKind::SelectName => {
-                            if !self.editor.input().is_empty() {
-                                self.select(&self.editor.input(), Find::Name);
+                            if !self.editor().input().is_empty() {
+                                self.select(&self.editor().input(), Find::Name);
                             };
                         }
                         EntryKind::SelectLabel => {
-                            if !self.editor.input().is_empty() {
-                                self.select(&self.editor.input(), Find::Label);
+                            if !self.editor().input().is_empty() {
+                                self.select(&self.editor().input(), Find::Label);
                             };
                         }
                         EntryKind::SelectCategory => {
-                            if !self.editor.input().is_empty() {
-                                self.select(&self.editor.input(), Find::Category);
+                            if !self.editor().input().is_empty() {
+                                self.select(&self.editor().input(), Find::Category);
                             };
                         }
                         EntryKind::SelectSubCategory => {
-                            if !self.editor.input().is_empty() {
-                                self.select(&self.editor.input(), Find::SubCategory);
+                            if !self.editor().input().is_empty() {
+                                self.select(&self.editor().input(), Find::SubCategory);
                             };
                         }
                         EntryKind::SelectSomeTags => {
-                            if !self.editor.input().is_empty() {
-                                self.select(&self.editor.input(), Find::AllTags)
+                            if !self.editor().input().is_empty() {
+                                self.select(&self.editor().input(), Find::AllTags)
                             }
                         }
                         EntryKind::SelectAllTags => {
-                            if !self.editor.input().is_empty() {
-                                self.find_first(&self.editor.input(), Find::AllTags)
+                            if !self.editor().input().is_empty() {
+                                self.find_first(&self.editor().input(), Find::AllTags)
                             };
                         }
                         EntryKind::Information => {}
@@ -661,7 +666,7 @@ impl Controller {
         }
     }
 
-    fn set_order(&mut self, input: &str) {
+    fn set_order(&self, input: &str) {
         let choice: Control = match input {
             "Category" => Control::OrderByCategory,
             "ColorCount" => Control::OrderByColorCount,
@@ -679,7 +684,7 @@ impl Controller {
         self.process_control(&choice)
     }
 
-    fn rename_selected_picture(&mut self, name: &str) {
+    fn rename_selected_picture(&self, name: &str) {
         for index in self.navigator().selection() {
             match self.repository.rename_picture_at_index(index, name) {
                 Ok(count) => {
@@ -709,7 +714,7 @@ impl Controller {
         self.set_last_action(Action::Label(label.to_string()));
     }
 
-    fn label_selected_pictures(&mut self, label: &str) {
+    fn label_selected_pictures(&self, label: &str) {
         self.repository.add_label(label);
         let mut navigator = self.navigator_rc.borrow_mut();
         if navigator.has_selected() {
@@ -725,7 +730,7 @@ impl Controller {
         navigator.set_page_changed()
     }
 
-    fn unlabel_selected_pictures(&mut self) {
+    fn unlabel_selected_pictures(&self) {
         let mut navigator = self.navigator_rc.borrow_mut();
         if navigator.has_selected() {
             for index in 0..navigator.limit() {
@@ -741,7 +746,7 @@ impl Controller {
         self.set_last_action(Action::Unlabel);
     }
 
-    fn tag_picture_at_index(&mut self, index: usize, input: &str) {
+    fn tag_picture_at_index(&self, index: usize, input: &str) {
         let labels: Vec<String> = input.split(',').map(|s| s.to_string()).collect();
         let mut picture = self.repository.picture_at(index);
         labels.iter().for_each(|label| {
@@ -751,13 +756,13 @@ impl Controller {
         self.repository.set_picture_at(index, &picture);
     }
 
-    fn untag_picture_at_index(&mut self, index: usize, label: &str) {
+    fn untag_picture_at_index(&self, index: usize, label: &str) {
         let mut picture = self.repository.picture_at(index);
         picture.remove_tag(label);
         self.repository.set_picture_at(index, &picture);
     }
 
-    fn tag_selected_pictures(&mut self, labels: &str) {
+    fn tag_selected_pictures(&self, labels: &str) {
         let binding = self.navigator_rc.clone();
         let mut navigator = binding.borrow_mut();
         if navigator.has_selected() {
@@ -774,7 +779,7 @@ impl Controller {
         self.set_last_action(Action::AddTag(labels.to_string()));
     }
 
-    fn untag_selected_pictures(&mut self, label: &str) {
+    fn untag_selected_pictures(&self, label: &str) {
         let binding = self.navigator_rc.clone();
         let mut navigator = binding.borrow_mut();
         if navigator.has_selected() {
@@ -791,14 +796,14 @@ impl Controller {
         self.set_last_action(Action::RemoveTag(label.to_string()));
     }
 
-    fn move_next(&mut self) {
+    fn move_next(&self) {
         if self.state().search_in_progress() {
             self.find_next()
         } else {
             self.move_towards(Direction::NextPage)
         };
     }
-    fn move_towards_index(&mut self, index: usize) {
+    fn move_towards_index(&self, index: usize) {
         let mut navigator = self.navigator_rc.borrow_mut();
         let direction = Direction::Index { value: index };
         if navigator.can_move(direction.clone()) {
@@ -806,7 +811,7 @@ impl Controller {
         }
     }
 
-    fn set_setting(&mut self, setting: &Control, choice: &Control) {
+    fn set_setting(&self, setting: &Control, choice: &Control) {
         match setting {
             Control::SetMark => match choice {
                 Control::SetMarkChar(_) => self.process_control(choice),
@@ -838,24 +843,24 @@ impl Controller {
         }
     }
 
-    fn setting_display(&mut self) {
+    fn setting_display(&self) {
         println!("Setting display…");
-        self.state.set_mode(Mode::Setting(Control::SetDisplay));
+        self.state().set_mode(Mode::Setting(Control::SetDisplay));
     }
 
-    fn enter_change(&mut self) {
+    fn enter_change(&self) {
         self.enter_editing(EntryKind::Change, None)
     }
 
-    fn enter_change_catalog(&mut self) {
+    fn enter_change_catalog(&self) {
         self.enter_editing(EntryKind::Catalog, None)
     }
 
-    fn enter_add_category(&mut self) {
+    fn enter_add_category(&self) {
         self.enter_editing(EntryKind::AddCategory, None)
     }
 
-    fn adding_category(&mut self, category_name: &str) {
+    fn adding_category(&self, category_name: &str) {
         let mut selector = self.selector_rc.borrow_mut();
         if !self.repository.catalog().contains(category_name) {
             selector.begin(
@@ -863,7 +868,7 @@ impl Controller {
                 &format!("select a category to add {} to ", category_name),
                 &self.repository.catalog(),
             );
-            self.state.set_mode(Mode::AddingCategory);
+            self.state().set_mode(Mode::AddingCategory);
         } else {
             display_information(
                 &self.main_window().application_window(),
@@ -872,17 +877,17 @@ impl Controller {
             );
         }
     }
-    fn enter_move_category(&mut self) {
+    fn enter_move_category(&self) {
         let mut selector = self.selector_rc.borrow_mut();
         selector.begin(
             &self.main_window(),
             "select the category to move",
             &self.repository.catalog(),
         );
-        self.state.set_mode(Mode::MovingCategory);
+        self.state().set_mode(Mode::MovingCategory);
     }
 
-    fn move_to_category(&mut self, moving_category_name: &str) {
+    fn move_to_category(&self, moving_category_name: &str) {
         let mut selector = self.selector_rc.borrow_mut();
         let mut pruned_catalog = self.repository.catalog();
         let _ = pruned_catalog.remove_category(moving_category_name, true);
@@ -892,24 +897,24 @@ impl Controller {
             &format!("select the category where to move {}", moving_category_name),
             &pruned_catalog,
         );
-        self.state.set_mode(Mode::MovingToCategory);
+        self.state().set_mode(Mode::MovingToCategory);
     }
 
-    fn enter_remove_category(&mut self) {
+    fn enter_remove_category(&self) {
         let mut selector = self.selector_rc.borrow_mut();
         selector.begin(
             &self.main_window(),
             "select a category to remove",
             &self.repository.catalog(),
         );
-        self.state.set_mode(Mode::RemovingCategory);
+        self.state().set_mode(Mode::RemovingCategory);
     }
 
-    fn enter_find(&mut self) {
+    fn enter_find(&self) {
         self.enter_editing(EntryKind::Find, None)
     }
 
-    fn enter_select(&mut self) {
+    fn enter_select(&self) {
         if !self.state().has_saved_command_line_arguments() {
             self.enter_editing(EntryKind::Select, None)
         } else {
@@ -921,104 +926,97 @@ impl Controller {
         }
     }
 
-    fn enter_editing(&mut self, entry_kind: EntryKind, choice_opt: Option<Tags>) {
-        self.editor
-            .begin(&self.main_window(), entry_kind, choice_opt);
-        self.state.set_mode(Mode::Editing);
+    fn enter_editing(&self, entry_kind: EntryKind, choice_opt: Option<Tags>) {
+        self.editor().begin(&self.main_window(), entry_kind, choice_opt);
+        self.state().set_mode(Mode::Editing);
     }
 
-    fn enter_find_label(&mut self) {
-        self.editor
-            .begin(&self.main_window(), EntryKind::FindLabel, None);
-        self.state.set_mode(Mode::Editing);
+    fn enter_find_label(&self) {
+        self.editor().begin(&self.main_window(), EntryKind::FindLabel, None);
+        self.state().set_mode(Mode::Editing);
     }
 
-    fn enter_find_name(&mut self) {
+    fn enter_find_name(&self) {
         println!("enter_find_name");
-        self.editor
-            .begin(&self.main_window(), EntryKind::FindName, None);
-        self.state.set_mode(Mode::Editing);
+        self.editor().begin(&self.main_window(), EntryKind::FindName, None);
+        self.state().set_mode(Mode::Editing);
     }
 
-    fn enter_find_category(&mut self) {
-        self.editor
-            .begin(&self.main_window(), EntryKind::FindCategory, None);
-        self.state.set_mode(Mode::Editing);
+    fn enter_find_category(&self) {
+        self.editor().begin(&self.main_window(), EntryKind::FindCategory, None);
+        self.state().set_mode(Mode::Editing);
     }
 
-    fn enter_find_tags(&mut self, all_match: bool) {
+    fn enter_find_tags(&self, all_match: bool) {
         let kind = if all_match {
             EntryKind::FindAllTags
         } else {
             EntryKind::FindSomeTags
         };
-        self.editor.begin(&self.main_window(), kind, None);
-        self.state.set_mode(Mode::Editing);
+        self.editor().begin(&self.main_window(), kind, None);
+        self.state().set_mode(Mode::Editing);
     }
-    fn enter_find_sub_category(&mut self) {
+    fn enter_find_sub_category(&self) {
         self.set_category_selection();
-        self.state.set_mode(Mode::FindingSubCategory);
+        self.state().set_mode(Mode::FindingSubCategory);
     }
 
-    fn enter_select_label(&mut self) {
-        self.editor
-            .begin(&self.main_window(), EntryKind::SelectLabel, None);
-        self.state.set_mode(Mode::Editing);
+    fn enter_select_label(&self) {
+        self.editor().begin(&self.main_window(), EntryKind::SelectLabel, None);
+        self.state().set_mode(Mode::Editing);
     }
 
-    fn enter_select_name(&mut self) {
-        self.editor
-            .begin(&self.main_window(), EntryKind::SelectName, None);
-        self.state.set_mode(Mode::Editing);
+    fn enter_select_name(&self) {
+        self.editor().begin(&self.main_window(), EntryKind::SelectName, None);
+        self.state().set_mode(Mode::Editing);
     }
 
-    fn enter_select_category(&mut self) {
-        self.editor
-            .begin(&self.main_window(), EntryKind::SelectCategory, None);
-        self.state.set_mode(Mode::Editing);
+    fn enter_select_category(&self) {
+        self.editor().begin(&self.main_window(), EntryKind::SelectCategory, None);
+        self.state().set_mode(Mode::Editing);
     }
 
-    fn enter_select_tags(&mut self, all_match: bool) {
+    fn enter_select_tags(&self, all_match: bool) {
         let kind = if all_match {
             EntryKind::SelectAllTags
         } else {
             EntryKind::SelectSomeTags
         };
-        self.editor.begin(&self.main_window(), kind, None);
-        self.state.set_mode(Mode::Editing);
+        self.editor().begin(&self.main_window(), kind, None);
+        self.state().set_mode(Mode::Editing);
     }
-    fn enter_select_sub_category(&mut self) {
+    fn enter_select_sub_category(&self) {
         self.set_category_selection();
-        self.state.set_mode(Mode::SelectingSubCategory);
+        self.state().set_mode(Mode::SelectingSubCategory);
     }
-    fn setting_mark(&mut self) {
+    fn setting_mark(&self) {
         println!("Setting mark…");
-        self.state.set_mode(Mode::Setting(Control::SetMark));
+        self.state().set_mode(Mode::Setting(Control::SetMark));
     }
 
-    fn jumping_mark(&mut self) {
+    fn jumping_mark(&self) {
         println!("Jumping to mark…");
-        self.state.set_mode(Mode::Setting(Control::GotoMark));
+        self.state().set_mode(Mode::Setting(Control::GotoMark));
     }
 
-    fn set_mark(&mut self, mark: char) {
+    fn set_mark(&self, mark: char) {
+        let mut configuration = self.configuration_rc.borrow_mut();
         let file_path = self.current_picture().file_path();
-        let _ = self.configuration.marked.insert(mark, file_path.clone());
+        let _ = configuration.marked.insert(mark, file_path.clone());
         println!("{}={}", mark, file_path);
-        let _ = self.configuration.save();
+        let _ = configuration.save();
     }
-    fn setting_order(&mut self) {
-        self.editor
-            .begin(&self.main_window(), EntryKind::Order, None);
-        self.state.set_mode(Mode::Editing);
+    fn setting_order(&self) {
+        self.editor().begin(&self.main_window(), EntryKind::Order, None);
+        self.state().set_mode(Mode::Editing);
     }
 
-    fn next_slide_delay(&mut self) {
+    fn next_slide_delay(&self) {
         self.move_towards(Direction::NextPage);
         self.main_window().set_pictures(self)
     }
 
-    fn process_control(&mut self, control: &Control) {
+    fn process_control(&self, control: &Control) {
         match control {
             Control::Test => self.test(),
             Control::AddTag => self.add_tag(),
@@ -1110,16 +1108,15 @@ impl Controller {
         }
     }
 
-    fn go_to_directory(&mut self) {
+    fn go_to_directory(&self) {
         if self.command_line_arguments.cover
             && let Some(directory) = parent_directory(&self.current_picture().file_path())
             && Some(directory.clone()) != self.command_line_arguments.directory
-            && !self.state.single_view()
+            && !self.state().single_view()
         {
             self.command_line_arguments.index = Some(self.navigator().position());
             let clargs = self.command_line_arguments.clone();
-            self.state
-                .push_saved_command_line_arguments(clargs.clone(), &directory);
+            self.state().push_saved_command_line_arguments(clargs.clone(), &directory);
             let new_clargs = CommandLineArguments {
                 directory: Some(directory),
                 cover: false,
@@ -1144,11 +1141,10 @@ impl Controller {
         }
     }
 
-    fn go_to_selection(&mut self, selection: &str, predicate: Predicate) -> Option<String> {
+    fn go_to_selection(&self, selection: &str, predicate: Predicate) -> Option<String> {
         self.command_line_arguments.index = Some(self.navigator().position());
         let clargs = self.command_line_arguments.clone();
-        self.state
-            .push_saved_command_line_arguments(clargs.clone(), selection);
+        self.state().push_saved_command_line_arguments(clargs.clone(), selection);
         let new_clargs = CommandLineArguments {
             directory: None,
             cover: false,
@@ -1183,8 +1179,8 @@ impl Controller {
         }
     }
 
-    fn back_from_directory(&mut self) {
-        if let Some((pictures_per_row, old_clargs)) = self.state.pop_saved_command_line_arguments()
+    fn back_from_directory(&self) {
+        if let Some((pictures_per_row, old_clargs)) = self.state().pop_saved_command_line_arguments()
         {
             self.command_line_arguments = old_clargs.clone();
         let binding = self.navigator_rc.clone();
@@ -1206,8 +1202,8 @@ impl Controller {
         }
     }
 
-    fn toggle_single_view(&mut self) {
-        let state = &mut self.state;
+    fn toggle_single_view(&self) {
+        let mut state = self.state_rc.borrow_mut();
         state.toggle_single_view();
         if state.full_size_on() {
             state.toggle_full_size()
@@ -1215,17 +1211,16 @@ impl Controller {
         self.change_grid_size(self.state().pictures_per_row());
     }
 
-    fn toggle_thumbview(&mut self) {
-        let mut state = self.state();
+    fn toggle_thumbview(&self) {
+        let mut state = self.state_rc.borrow_mut();
         if state.pictures_per_row() != 10 {
             state.change_grid_size(10)
         } else {
             state.toggle_back_grid_size()
         };
-        self.state = state;
-        self.change_grid_size(self.state().pictures_per_row());
+        self.change_grid_size(state.pictures_per_row());
     }
-    fn toggle_cover(&mut self) {
+    fn toggle_cover(&self) {
         let index = self.navigator().position();
         let counts = self.repository.directory_count_at_index(index);
         let mut picture = self.repository.picture_at(index);
@@ -1235,21 +1230,21 @@ impl Controller {
         navigator.set_page_changed()
     }
 
-    fn rank_picture_at_index(&mut self, index: usize, rank: Rank) {
+    fn rank_picture_at_index(&self, index: usize, rank: Rank) {
         let mut picture = self.repository.picture_at(index);
         picture.set_rank(rank);
         self.repository.set_picture_at(index, &picture);
     }
 
-    fn categorize_picture_at_index(&mut self, index: usize, category_opt: Category) {
+    fn categorize_picture_at_index(&self, index: usize, category_opt: Category) {
         let mut picture = self.repository.picture_at(index);
         picture.set_category(category_opt.clone());
         self.repository.set_picture_at(index, &picture);
     }
 
-    fn toggle_cover_selection(&mut self) {
+    fn toggle_cover_selection(&self) {
         println!("toggle cover selection");
-        if !self.state.has_saved_command_line_arguments() {
+        if !self.state().has_saved_command_line_arguments() {
             if !self.command_line_arguments.cover && self.repository.covers() > 0 {
                 let new_clargs = CommandLineArguments {
                     cover: true,
@@ -1298,7 +1293,7 @@ impl Controller {
         }
     }
 
-    fn cancel_selection_criteria(&mut self) {
+    fn cancel_selection_criteria(&self) {
         let current_file_path = self.current_picture().file_path();
         self.repository
             .set_selection_criteria(SelectionCriteria::empty());
@@ -1312,7 +1307,7 @@ impl Controller {
         navigator.set_page_changed();
     }
 
-    fn add_category(&mut self, new_category_name: &str, target_category_name: &str) {
+    fn add_category(&self, new_category_name: &str, target_category_name: &str) {
         match self
             .repository
             .add_category(new_category_name, target_category_name)
@@ -1327,7 +1322,7 @@ impl Controller {
     }
 
     fn move_sub_category_to_category(
-        &mut self,
+        &self,
         moving_category_name: &str,
         target_category_name: &str,
     ) {
@@ -1344,7 +1339,7 @@ impl Controller {
         }
     }
 
-    fn remove_category(&mut self, input: &str) {
+    fn remove_category(&self, input: &str) {
         let _ = self.repository.retrieve_all_categories();
         if !self.repository.all_categories().contains(input) {
             match self.repository.remove_category(input) {
@@ -1364,34 +1359,34 @@ impl Controller {
         }
     }
 
-    fn add_tag(&mut self) {
+    fn add_tag(&self) {
         self.set_opacity_for_current_picture(0.25);
-        self.editor.begin(
+        self.editor().begin(
             &self.main_window(),
             EntryKind::AddTag,
             Some(self.repository.all_labels()),
         );
-        self.state.set_mode(Mode::Editing);
+        self.state().set_mode(Mode::Editing);
     }
 
-    fn remove_tag(&mut self) {
+    fn remove_tag(&self) {
         self.set_opacity_for_current_picture(0.25);
-        self.editor.begin(
+        self.editor().begin(
             &self.main_window(),
             EntryKind::RemoveTag,
             Some(self.current_picture().tags()),
         );
-        self.state.set_mode(Mode::Editing);
+        self.state().set_mode(Mode::Editing);
     }
 
-    fn label(&mut self) {
+    fn label(&self) {
         self.set_opacity_for_current_picture(0.25);
-        self.editor.begin(
+        self.editor().begin(
             &self.main_window(),
             EntryKind::Label,
             Some(self.repository.all_labels()),
         );
-        self.state.set_mode(Mode::Editing);
+        self.state().set_mode(Mode::Editing);
     }
 
     fn label_(&self) {
@@ -1403,22 +1398,19 @@ impl Controller {
         );
     }
 
-    fn rename(&mut self) {
+    fn rename(&self) {
         if self.navigator().has_selected() && self.navigator().selected_picture_count() == 1 {
             self.set_opacity_for_current_picture(0.25);
-            self.editor
-                .begin(&self.main_window(), EntryKind::Rename, None);
-            self.state.set_mode(Mode::Editing);
+            self.editor().begin(&self.main_window(), EntryKind::Rename, None);
+            self.state().set_mode(Mode::Editing);
         } else {
-            self.editor
-                .begin(&self.main_window(), EntryKind::Information, None);
-            self.editor
-                .set_input("Select the picture you want to rename first");
-            self.state.set_mode(Mode::Editing);
+            self.editor().begin(&self.main_window(), EntryKind::Information, None);
+            self.editor().set_input("Select the picture you want to rename first");
+            self.state().set_mode(Mode::Editing);
         }
     }
 
-    fn categorize_selected_pictures(&mut self, category: Category) {
+    fn categorize_selected_pictures(&self, category: Category) {
         let binding = self.navigator_rc.clone();
         let mut navigator = binding.borrow_mut();
         if navigator.has_selected() {
@@ -1435,7 +1427,7 @@ impl Controller {
         self.set_last_action(Action::Categorize(category));
     }
 
-    fn categorize(&mut self) {
+    fn categorize(&self) {
         self.set_opacity_for_current_picture(0.25);
         let mut selector = self.selector_rc.borrow_mut();
         selector.begin(
@@ -1443,20 +1435,20 @@ impl Controller {
             "select a category to apply",
             &self.repository.catalog(),
         );
-        self.state.set_mode(Mode::Categorizing);
+        self.state().set_mode(Mode::Categorizing);
     }
 
-    fn set_category_selection(&mut self) {
+    fn set_category_selection(&self) {
         let mut selector = self.selector_rc.borrow_mut();
         selector.begin(
             &self.main_window(),
             "select a category to find",
             &self.repository.catalog(),
         );
-        self.state.set_mode(Mode::SelectingCategory);
+        self.state().set_mode(Mode::SelectingCategory);
     }
 
-    fn uncategorize_selected_pictures(&mut self) {
+    fn uncategorize_selected_pictures(&self) {
         let binding = self.navigator_rc.clone();
         let mut navigator = binding.borrow_mut();
         if navigator.has_selected() {
@@ -1472,7 +1464,7 @@ impl Controller {
         navigator.set_page_changed();
         self.set_last_action(Action::Unlabel);
     }
-    fn rank_selected_pictures(&mut self, rank: Rank) {
+    fn rank_selected_pictures(&self, rank: Rank) {
         let binding = self.navigator_rc.clone();
         let mut navigator = binding.borrow_mut();
         if navigator.has_selected() {
@@ -1489,13 +1481,12 @@ impl Controller {
         self.set_last_action(Action::Rank(rank));
     }
 
-    fn jump(&mut self) {
-        self.editor
-            .begin(&self.main_window(), EntryKind::Number, None);
-        self.state.set_mode(Mode::Editing);
+    fn jump(&self) {
+        self.editor().begin(&self.main_window(), EntryKind::Number, None);
+        self.state().set_mode(Mode::Editing);
     }
 
-    fn help(&mut self) {
+    fn help(&self) {
         display_information(
             &self.main_window().application_window(),
             &help_on_controls(),
@@ -1503,22 +1494,23 @@ impl Controller {
         );
     }
 
-    fn information(&mut self) {
-        self.editor
+    fn information(&self) {
+        self.editor()
             .begin(&self.main_window(), EntryKind::Information, None);
-        self.editor
+        self.editor()
             .set_input(&self.current_picture().file_path().to_string());
-        self.state.set_mode(Mode::Editing);
+        self.state().set_mode(Mode::Editing);
     }
 
-    fn toggle_display_path(&mut self) {
-        self.state.toggle_display_path();
+    fn toggle_display_path(&self) {
+        self.state().toggle_display_path();
         let mut navigator = self.navigator_rc.borrow_mut();
         navigator.set_page_changed()
     }
 
-    fn find_mark(&mut self, mark: char) {
-        if let Some(file_path) = self.configuration.marked.get(&mark) {
+    fn find_mark(&self, mark: char) {
+        let configuration = self.configuration_rc.borrow();
+        if let Some(file_path) = configuration.marked.get(&mark) {
             if let Ok(gallery) = self.repository.gallery_rc().try_borrow() {
                 if let Some(index) = gallery
                     .pictures()
@@ -1543,26 +1535,27 @@ impl Controller {
         }
     }
 
-    pub fn quit(&mut self) {
-        if self.state.has_saved_command_line_arguments() {
+    pub fn quit(&self) {
+        let mut configuration = self.configuration_rc.borrow_mut();
+        if self.state().has_saved_command_line_arguments() {
             self.back_from_directory()
         } else {
-            self.configuration.current_picture = Some(self.current_picture().file_path());
-            self.configuration.cover = self.command_line_arguments.cover;
-            self.configuration.current_pictures_per_row = if self.state.single_view() {
+            configuration.current_picture = Some(self.current_picture().file_path());
+            configuration.cover = self.command_line_arguments.cover;
+            configuration.current_pictures_per_row = if self.state().single_view() {
                 Some(1)
             } else {
-                Some(self.state.pictures_per_row())
+                Some(self.state().pictures_per_row())
             };
-            self.configuration.current_order = Some(self.repository.order());
-            let _ = self.configuration.save();
+            configuration.current_order = Some(self.repository.order());
+            let _ = configuration.save();
             let application_window = self.main_window().application_window();
             self.repository.update_picture_scores(self.state().scores());
             application_window.close()
         }
     }
 
-    fn reload(&mut self) -> Result<usize, Error> {
+    fn reload(&self) -> Result<usize, Error> {
         match self.load_repository() {
             Ok(0) => Ok(0),
             Ok(n) => {
@@ -1579,19 +1572,19 @@ impl Controller {
         }
     }
 
-    fn toggle_expand(&mut self) {
-        if self.state.single_view() {
-            self.state.toggle_expand();
+    fn toggle_expand(&self) {
+        if self.state().single_view() {
+            self.state().toggle_expand();
             let mut navigator = self.navigator_rc.borrow_mut();
             navigator.set_page_changed();
         }
     }
 
-    fn toggle_display_date(&mut self) {
-        if self.state.display_path_on() {
-            self.state.toggle_display_path();
+    fn toggle_display_date(&self) {
+        if self.state().display_path_on() {
+            self.state().toggle_display_path();
         };
-        self.state.toggle_display_date();
+        self.state().toggle_display_date();
         self.main_window().set_title(self);
         println!(
             "display date {}",
@@ -1603,15 +1596,15 @@ impl Controller {
         );
     }
 
-    fn toggle_display_focus_symbol_change(&mut self) {
-        self.state.toggle_change_focus_symbol()
+    fn toggle_display_focus_symbol_change(&self) {
+        self.state().toggle_change_focus_symbol()
     }
 
-    fn toggle_display_size(&mut self) {
-        if self.state.display_path_on() {
-            self.state.toggle_display_path();
+    fn toggle_display_size(&self) {
+        if self.state().display_path_on() {
+            self.state().toggle_display_path();
         };
-        self.state.toggle_display_size();
+        self.state().toggle_display_size();
         self.main_window().set_title(self);
         println!(
             "display size {}",
@@ -1623,24 +1616,24 @@ impl Controller {
         );
     }
 
-    fn toggle_full_size(&mut self) {
-        if self.state.single_view() {
-            self.state.toggle_full_size();
+    fn toggle_full_size(&self) {
+        if self.state().single_view() {
+            self.state().toggle_full_size();
             let mut navigator = self.navigator_rc.borrow_mut();
             navigator.set_page_changed();
         }
     }
 
-    fn toggle_palette(&mut self) {
-        self.state.toggle_palette();
+    fn toggle_palette(&self) {
+        self.state().toggle_palette();
         let mut navigator = self.navigator_rc.borrow_mut();
         navigator.set_page_changed()
     }
 
-    fn toggle_slideshow(&mut self) {
+    fn toggle_slideshow(&self) {
         if let Some(seconds) = self.command_line_arguments().slideshow() {
-            self.state.toggle_slideshow();
-            if self.state.slideshow_on() {
+            self.state().toggle_slideshow();
+            if self.state().slideshow_on() {
                 self.main_window().reattach_slideshow_event(seconds);
                 let mut navigator = self.navigator_rc.borrow_mut();
                 navigator.set_page_changed();
@@ -1648,7 +1641,7 @@ impl Controller {
         }
     }
 
-    fn order_by(&mut self, order: Order) {
+    fn order_by(&self, order: Order) {
         let new_position: Option<usize>;
         let current_file_path = self.current_picture().file_path();
         if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut() {
@@ -1668,13 +1661,13 @@ impl Controller {
         navigator.set_page_changed()
     }
 
-    fn change_grid_size(&mut self, pictures_per_row: usize) {
-        self.state.change_grid_size(pictures_per_row);
+    fn change_grid_size(&self, pictures_per_row: usize) {
+        self.state().change_grid_size(pictures_per_row);
         self.apply_grid_size_change();
     }
 
-    fn apply_grid_size_change(&mut self) {
-        let pictures_per_row = self.state.pictures_per_row();
+    fn apply_grid_size_change(&self) {
+        let pictures_per_row = self.state().pictures_per_row();
         let mut navigator = self.navigator_rc.borrow_mut();
         navigator.set_pictures_per_row(pictures_per_row);
         navigator.update_page_limits();
@@ -1682,27 +1675,27 @@ impl Controller {
         self.main_window().change_grid_size(pictures_per_row);
     }
 
-    fn set_selection_range(&mut self) {
-        let pictures_per_row = self.state.pictures_per_row();
+    fn set_selection_range(&self) {
+        let pictures_per_row = self.state().pictures_per_row();
         let mut navigator = self.navigator_rc.borrow_mut();
         let position = navigator.position();
         navigator.set_selection_range(position);
         navigator.set_page_changed()
     }
 
-    fn set_selection_range_all(&mut self) {
-        let pictures_per_row = self.state.pictures_per_row();
+    fn set_selection_range_all(&self) {
+        let pictures_per_row = self.state().pictures_per_row();
         let mut navigator = self.navigator_rc.borrow_mut();
         navigator.set_selection_range_all();
         navigator.set_page_changed()
     }
 
-    fn set_selection_range_page(&mut self) {
+    fn set_selection_range_page(&self) {
         let mut navigator = self.navigator_rc.borrow_mut();
         navigator.set_selection_range_page();
         navigator.set_page_changed()
     }
-    fn repeat_range(&mut self) {
+    fn repeat_range(&self) {
         let mut navigator = self.navigator_rc.borrow_mut();
         navigator.repeat_range();
         navigator.set_page_changed()
@@ -1719,13 +1712,13 @@ impl Controller {
         navigator.set_page_changed()
     }
 
-    fn cancel_range(&mut self) {
+    fn cancel_range(&self) {
         let mut navigator = self.navigator_rc.borrow_mut();
         navigator.cancel_range();
         navigator.set_page_changed()
     }
 
-    fn delete_selected_pictures(&mut self) {
+    fn delete_selected_pictures(&self) {
         for index in self.navigator().selection() {
             match self.repository.delete_picture_at_index(index) {
                 Ok(_) => {}
@@ -1736,7 +1729,7 @@ impl Controller {
         }
     }
 
-    fn move_selected_pictures_to_target(&mut self, target_dir: &str) {
+    fn move_selected_pictures_to_target(&self, target_dir: &str) {
         let mut picture_count = 0;
         let mut operation_count = 0;
         let binding = self.navigator_rc.clone();
@@ -1759,39 +1752,39 @@ impl Controller {
         let _ = self.reload();
         navigator.set_page_changed();
     }
-    fn move_selected_pictures(&mut self) {
+    fn move_selected_pictures(&self) {
         if let Some(target_dir) = &self.command_line_arguments.clone().r#move {
             self.move_selected_pictures_to_target(target_dir);
         }
     }
-    fn cancel_delete_picture(&mut self) {
+    fn cancel_delete_picture(&self) {
         let mut navigator = self.navigator_rc.borrow_mut();
         navigator.cancel_range();
         navigator.set_page_changed()
     }
 
-    fn confirm_delete_picture(&mut self) {
+    fn confirm_delete_picture(&self) {
         let binding = self.navigator_rc.clone();
         let mut navigator = binding.borrow_mut();
         let _ = self.reload();
         navigator.set_page_changed()
     }
 
-    fn confirm_move_picture(&mut self) {
+    fn confirm_move_picture(&self) {
         self.move_selected_pictures()
     }
 
-    fn confirm_move_picture_to_label(&mut self, directory: &str) {
+    fn confirm_move_picture_to_label(&self, directory: &str) {
         self.move_selected_pictures_to_target(directory);
     }
 
-    fn cancel_move_picture(&mut self) {
+    fn cancel_move_picture(&self) {
         let mut navigator = self.navigator_rc.borrow_mut();
         navigator.cancel_range();
         navigator.set_page_changed()
     }
 
-    fn copy_to_temp(&mut self) {
+    fn copy_to_temp(&self) {
         match self
             .repository
             .copy_picture_at_index_to_temp_dir(self.navigator().position())
@@ -1803,7 +1796,7 @@ impl Controller {
         }
     }
 
-    fn extract_filenames(&mut self) {
+    fn extract_filenames(&self) {
         if self.navigator().has_selected() {
             let _ = self
                 .repository
@@ -1811,21 +1804,21 @@ impl Controller {
         }
     }
 
-    fn delete_picture(&mut self) {
+    fn delete_picture(&self) {
         if self.navigator().has_selected() {
-            self.editor
+            self.editor()
                 .begin(&self.main_window(), EntryKind::DeleteConfirmation, None);
-            self.state.set_mode(Mode::Editing);
+            self.state().set_mode(Mode::Editing);
         }
     }
 
-    fn move_picture(&mut self) {
+    fn move_picture(&self) {
         if let Some(target_dir) = &self.command_line_arguments.r#move {
-            self.editor
+            self.editor()
                 .begin(&self.main_window(), EntryKind::MoveConfirmation, None);
-            self.editor
+            self.editor()
                 .set_prompt(&format!("move these pictures to {} ?", target_dir));
-            self.state.set_mode(Mode::Editing);
+            self.state().set_mode(Mode::Editing);
         }
     }
     fn check_move_destination_label(&self) -> Option<String> {
@@ -1868,18 +1861,18 @@ impl Controller {
         }
     }
 
-    fn move_picture_to_label(&mut self) {
+    fn move_picture_to_label(&self) {
         if let Some(target_dir) = self.check_move_destination_label() {
-            self.editor.begin(
+            self.editor().begin(
                 &self.main_window(),
                 EntryKind::MoveToLabelConfirmation(target_dir),
                 None,
             );
-            self.state.set_mode(Mode::Editing);
+            self.state().set_mode(Mode::Editing);
         }
     }
 
-    fn arrow_move(&mut self, direction: Direction) {
+    fn arrow_move(&self, direction: Direction) {
         if self.state().single_view() && self.state().full_size_on() {
             self.full_size_arrow_move(direction)
         } else {
@@ -1894,16 +1887,16 @@ impl Controller {
         self.main_window().full_size_arrow_move(direction.clone())
     }
 
-    fn can_move(&mut self, direction: Direction) -> bool {
-        !self.state.full_size_on() && self.navigator().can_move(direction)
+    fn can_move(&self, direction: Direction) -> bool {
+        !self.state().full_size_on() && self.navigator().can_move(direction)
     }
 
-    fn move_towards(&mut self, direction: Direction) {
+    fn move_towards(&self, direction: Direction) {
         let binding = self.navigator_rc.clone();
         let mut navigator = binding.borrow_mut();
         match direction {
-            Direction::NextPage if self.state.single_view() => self.move_towards(Direction::Right),
-            Direction::PrevPage if self.state.single_view() => self.move_towards(Direction::Left),
+            Direction::NextPage if self.state().single_view() => self.move_towards(Direction::Right),
+            Direction::PrevPage if self.state().single_view() => self.move_towards(Direction::Left),
             ref other => {
                 if self.can_move(other.clone()) {
                     navigator.move_towards(other.clone());
@@ -1912,7 +1905,7 @@ impl Controller {
         }
     }
 
-    fn repeat_last_action(&mut self) {
+    fn repeat_last_action(&self) {
         let action = self.last_action().clone();
         if action.is_repeatable() {
             match action {
@@ -1936,7 +1929,7 @@ impl Controller {
         };
     }
 
-    fn confirm_view(&mut self, input: &str) {
+    fn confirm_view(&self, input: &str) {
         if !input.is_empty() {
             match input {
                 "1" | "2" | "3" | "4" | "5" => self.change_grid_size(input.parse().unwrap()),
@@ -1952,7 +1945,7 @@ impl Controller {
         }
     }
 
-    fn confirm_rank(&mut self, input: &str) {
+    fn confirm_rank(&self, input: &str) {
         if !input.is_empty() {
             match input.parse() {
                 Ok(level) => match level {
@@ -1969,11 +1962,11 @@ impl Controller {
         }
     }
 
-    pub fn find_first(&mut self, pattern: &str, find: Find) {
+    pub fn find_first(&self, pattern: &str, find: Find) {
         self.apply_search(pattern, find)
     }
 
-    fn select(&mut self, pattern: &str, find: Find) {
+    fn select(&self, pattern: &str, find: Find) {
         let information_opt = match predicate(pattern, find, self.repository.catalog().clone()) {
             Ok(predicate) => {
                 let selection = format!("{:?} {}", find, pattern);
@@ -1993,7 +1986,7 @@ impl Controller {
         }
     }
 
-    fn apply_search(&mut self, pattern: &str, find: Find) {
+    fn apply_search(&self, pattern: &str, find: Find) {
         let information_opt = match predicate(pattern, find, self.repository.catalog().clone()) {
             Ok(predicate) => {
                 if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut() {
@@ -2002,7 +1995,7 @@ impl Controller {
                         let mut navigator = self.navigator_rc.borrow_mut();
                         navigator.move_towards(Direction::Index { value: index });
                         navigator.set_page_changed();
-                        self.state.set_search_in_progress(true);
+                        self.state().set_search_in_progress(true);
                         None
                     } else {
                         Some(format!("{} [{}] not found", find, pattern))
@@ -2022,7 +2015,7 @@ impl Controller {
         }
     }
 
-    fn find_next(&mut self) {
+    fn find_next(&self) {
         let information_opt = if let Ok(mut gallery) = self.repository.gallery_rc().try_borrow_mut()
         {
             if let Some(index) = gallery.finder.find_next() {
@@ -2031,7 +2024,7 @@ impl Controller {
                 navigator.set_page_changed();
                 None
             } else {
-                self.state.set_search_in_progress(false);
+                self.state().set_search_in_progress(false);
                 Some("end of search")
             }
         } else {
@@ -2046,7 +2039,7 @@ impl Controller {
         }
     }
 
-    fn test(&mut self) {
+    fn test(&self) {
         println!("test");
         let application_window = self.main_window().application_window();
         gtk::prelude::ActionGroupExt::activate_action(
@@ -2095,7 +2088,7 @@ impl Controller {
                 view.close()
             }
         });
-        self.state.set_mode(Mode::Editing);
+        self.state().set_mode(Mode::Editing);
         entry_view_rc.borrow().present();
     }
 }

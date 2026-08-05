@@ -82,7 +82,7 @@ impl Editor {
         self.entry_kind.clone()
     }
 
-    pub fn process(&mut self, key: Key) {
+    pub fn process(&self, key: Key) {
         if self.entry_kind == EntryKind::Information {
             self.cancel()
         } else {
