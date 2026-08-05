@@ -1,3 +1,4 @@
+use gtk::glib::prelude::ToVariant;
 use crate::env::default_values::{ENTRY_CURSOR_1, ENTRY_CURSOR_2};
 use crate::env::default_values::{ENTRY_WINDOW_HEIGHT, ENTRY_WINDOW_WIDTH};
 use crate::gui::controller::RcController;
@@ -76,6 +77,13 @@ impl EntryWindow {
         window.set_child(Some(&entry_box));
         let entry_editor: std::cell::RefCell<EntryEditor> =
             std::cell::RefCell::new(EntryEditor::new());
+        {
+        if let Ok(controller) = controller_rc.try_borrow() {
+            window.insert_action_group("main-controller",Some(&controller.main_controller().actions()));
+        } else {
+            println!("nope");
+        }
+        }
         Self::attach_key_pressed_event_handler(&window, controller_rc, &entry_editor);
         Self::attach_cursor_blink_event(&window, controller_rc);
         EntryWindow {
@@ -95,15 +103,19 @@ impl EntryWindow {
     ) {
         let event_controller_key = gtk::EventControllerKey::new();
         event_controller_key.connect_key_pressed(clone!(
-            #[strong]
-            controller_rc,
-            #[strong]
-            entry_editor_rc,
-            move |_, key, key_code, modifier_type| {
-                if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-                    controller.process_event(
-                        Event::KeyPressed {
-                            key,
+                #[strong]
+                window,
+                #[strong]
+                controller_rc,
+                #[strong]
+                entry_editor_rc,
+                move |_, key, key_code, modifier_type| {
+                    println!("{:?}",window.activate_action("main-controller.test", Some(&"lawfoobar".to_variant())));
+                    if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+
+                        controller.process_event(
+                            Event::KeyPressed {
+                                key,
                             key_code,
 
                             modifier_type,

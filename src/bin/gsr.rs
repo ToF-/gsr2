@@ -91,6 +91,11 @@ fn build_and_run_app(
     position: usize,
 ) {
     let main_controller:MainController = MainController::new(Some(controller_rc.clone()));
+    if let Ok(controller) = controller_rc.try_borrow() {
+        controller.set_main_controller(main_controller.clone());
+    } else {
+        panic!("can't borrow");
+    }
     let application: gtk::Application = make_application(APPLICATION_ID);
     // application.insert_action_group("main-controller", Some(main_controller.actions()));
     application.connect_activate(clone!(
