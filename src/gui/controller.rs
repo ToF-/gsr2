@@ -1,3 +1,4 @@
+use crate::gui::action_dispatcher::RcActionDispatcher;
 use crate::cli::command::Command;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::Configuration;
@@ -6,7 +7,7 @@ use crate::file::paths::grand_parent_directory;
 use crate::file::paths::parent_directory;
 use crate::gui::completion_dispenser::CompletionDispenser;
 use crate::gui::control::{Control, Controls, default_controls, help_on_controls};
-use crate::gui::controller::main_controller::MainController;
+use crate::gui::action_dispatcher::ActionDispatcher;
 use crate::gui::direction::Direction;
 use crate::gui::display_information::display_information;
 use crate::gui::editor::Editor;
@@ -50,7 +51,6 @@ use std::path::PathBuf;
 use std::rc::Rc;
 use std::str::FromStr;
 
-pub mod main_controller;
 #[derive(Debug)]
 pub struct Controller {
     configuration: Configuration,
@@ -63,7 +63,7 @@ pub struct Controller {
     editor: Editor,
     selector: Selector,
     last_action: Action,
-    main_controller: MainController,
+    action_dispatcher: ActionDispatcher,
 }
 
 pub type RcController = Rc<RefCell<Controller>>;
@@ -72,7 +72,7 @@ impl Controller {
     pub fn new(
         config: Configuration,
         command_line_arguments: CommandLineArguments,
-        main_controller: MainController,
+        action_dispatcher: ActionDispatcher,
     ) -> IOResult<Self> {
         let pictures_per_row = if let Some(grid) = command_line_arguments.grid {
             grid
@@ -122,13 +122,17 @@ impl Controller {
             state: State::new(pictures_per_row as usize, cli.slideshow().is_some()),
             main_window_opt: None,
             last_action: Action::Nothing,
-            main_controller: main_controller,
+            action_dispatcher: action_dispatcher,
         };
         Ok(controller)
     }
 
-    pub fn main_controller(&self) -> MainController {
-        self.main_controller.clone()
+    pub fn action_dispatcher(&self) -> ActionDispatcher {
+        self.action_dispatcher.clone()
+    }
+
+    pub fn set_action_dispatcher(&mut self, action_dispatcher: ActionDispatcher) {
+        self.action_dispatcher = action_dispatcher
     }
 
     pub fn command_line_arguments(&self) -> CommandLineArguments {
@@ -840,7 +844,7 @@ impl Controller {
             display_information(
                 &self.main_window().application_window(),
                 &format!("the category {} already exists", category_name),
-                self.main_controller.clone(),
+                self.action_dispatcher.clone(),
             );
         }
     }
@@ -885,7 +889,7 @@ impl Controller {
             display_information(
                 &self.main_window().application_window(),
                 "selection not allowed while in a directory or a selection",
-                self.main_controller(),
+                self.action_dispatcher(),
             )
         }
     }
@@ -1106,7 +1110,7 @@ impl Controller {
             display_information(
                 &self.main_window().application_window(),
                 "cannot go to a directory when not in covers view",
-                self.main_controller(),
+                self.action_dispatcher(),
             )
         }
     }
@@ -1255,7 +1259,7 @@ impl Controller {
             display_information(
                 &self.main_window().application_window(),
                 "cannot toggle cover selection while in a directory",
-                self.main_controller(),
+                self.action_dispatcher(),
             )
         }
     }
@@ -1282,7 +1286,7 @@ impl Controller {
             Err(e) => display_information(
                 &self.main_window().application_window(),
                 &format!("{}", e),
-                self.main_controller(),
+                self.action_dispatcher(),
             ),
         }
     }
@@ -1300,7 +1304,7 @@ impl Controller {
             Err(e) => display_information(
                 &self.main_window().application_window(),
                 &format!("{}", e),
-                self.main_controller(),
+                self.action_dispatcher(),
             ),
         }
     }
@@ -1313,14 +1317,14 @@ impl Controller {
                 Err(e) => display_information(
                     &self.main_window().application_window(),
                     &format!("{}", e),
-                    self.main_controller(),
+                    self.action_dispatcher(),
                 ),
             }
         } else {
             display_information(
                 &self.main_window().application_window(),
                 &format!("category {} is being used and cannot be removed", input),
-                self.main_controller(),
+                self.action_dispatcher(),
             )
         }
     }
@@ -1360,7 +1364,7 @@ impl Controller {
         enter_label(
             &application_window,
             &self.repository,
-            self.main_controller(),
+            self.action_dispatcher(),
         );
     }
 
@@ -1452,7 +1456,7 @@ impl Controller {
         display_information(
             &self.main_window().application_window(),
             &help_on_controls(),
-            self.main_controller(),
+            self.action_dispatcher(),
         );
     }
 
@@ -1491,7 +1495,7 @@ impl Controller {
             display_information(
                 &self.main_window().application_window(),
                 &format!("no picture with mark {}", mark),
-                self.main_controller(),
+                self.action_dispatcher(),
             );
         }
     }
@@ -1910,7 +1914,7 @@ impl Controller {
         }
     }
 
-    fn find_first(&mut self, pattern: &str, find: Find) {
+    pub fn find_first(&mut self, pattern: &str, find: Find) {
         self.apply_search(pattern, find)
     }
 
@@ -1929,7 +1933,7 @@ impl Controller {
             display_information(
                 &self.main_window().application_window(),
                 &information,
-                self.main_controller(),
+                self.action_dispatcher(),
             )
         }
     }
@@ -1958,7 +1962,7 @@ impl Controller {
             display_information(
                 &self.main_window().application_window(),
                 &information,
-                self.main_controller(),
+                self.action_dispatcher(),
             )
         }
     }
@@ -1982,7 +1986,7 @@ impl Controller {
             display_information(
                 &self.main_window().application_window(),
                 information,
-                self.main_controller(),
+                self.action_dispatcher(),
             )
         }
     }
@@ -2001,7 +2005,7 @@ impl Controller {
             &application_window,
             &entry_prompt(EntryKind::FindLabel),
             "",
-            &self.main_controller(),
+            &self.action_dispatcher(),
             Action::Find(Find::Label),
         );
 

@@ -5,13 +5,13 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 mod imp;
-pub type RcMainController = Rc<RefCell<MainController>>;
+pub type RcActionDispatcher = Rc<RefCell<ActionDispatcher>>;
 
 gtk::glib::wrapper! {
-    pub struct MainController(ObjectSubclass<imp::MainController>);
+    pub struct ActionDispatcher(ObjectSubclass<imp::ActionDispatcher>);
 }
 
-impl MainController {
+impl ActionDispatcher {
     pub fn new() -> Self {
         let obj: Self = gtk::glib::Object::new();
         obj.imp().initialize();
@@ -37,7 +37,7 @@ impl MainController {
         F: Fn(&Self, &str) + 'static,
     {
         self.connect_local("key-pressed", false, move |values| {
-            let obj = values[0].get::<MainController>().unwrap();
+            let obj = values[0].get::<ActionDispatcher>().unwrap();
             let key_name = values[0].get::<&str>().unwrap();
             f(&obj, key_name);
             None
@@ -45,10 +45,10 @@ impl MainController {
     }
     pub fn connect_closed<F>(&self, f: F) -> gtk::glib::SignalHandlerId
     where
-        F: Fn(&MainController) + 'static,
+        F: Fn(&ActionDispatcher) + 'static,
     {
         self.connect_local("closed", false, move |values| {
-            let obj = values[0].get::<MainController>().unwrap();
+            let obj = values[0].get::<ActionDispatcher>().unwrap();
             f(&obj);
             None
         })

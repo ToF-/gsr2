@@ -1,5 +1,5 @@
 use crate::gui::completion_dispenser::CompletionDispenser;
-use crate::gui::controller::main_controller::MainController;
+use crate::gui::action_dispatcher::ActionDispatcher;
 use crate::gui::editor::entry_editor::EntryEditor;
 use crate::gui::entry_kind::EntryKind;
 use crate::gui::entry_prompt::entry_prompt;
@@ -11,13 +11,13 @@ use std::cell::RefCell;
 pub fn display_information(
     application_window: &gtk::ApplicationWindow,
     message: &str,
-    main_controller: MainController,
+    action_dispatcher: ActionDispatcher,
 ) {
     let entry_view = EntryView::new_with(
         application_window,
         &entry_prompt(EntryKind::Information),
         message,
-        &main_controller,
+        &action_dispatcher,
         Action::Nothing,
     );
     let entry_view_rc = RefCell::new(entry_view);

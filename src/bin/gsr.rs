@@ -8,7 +8,7 @@ use gsr::file::database::Database;
 use gsr::file::paths::file_exists;
 use gsr::gui::controller::Controller;
 use gsr::gui::controller::RcController;
-use gsr::gui::controller::main_controller::MainController;
+use gsr::gui::action_dispatcher::ActionDispatcher;
 use gsr::gui::view::application::make_application;
 use gsr::gui::view::main_window::MainWindow;
 use gtk::glib::clone;
@@ -45,14 +45,21 @@ fn main() {
                 )))
             }
         } else {
-            let main_controller = MainController::new();
-            let result = Controller::new(config.clone(), args.clone(), main_controller.clone())
+            let action_dispatcher = ActionDispatcher::new();
+            let result = Controller::new(config.clone(), args.clone(), action_dispatcher.clone())
                 .and_then(|controller| {
                     let repository = controller.repository();
                     let controller_rc: RcController = Rc::new(RefCell::new(controller));
+
+                    {
+                        let mut controller = controller_rc.borrow_mut();
+                        controller.set_action_dispatcher(action_dispatcher.clone());
+                    }
+                    action_dispatcher.set_rc_controller(controller_rc.clone());
+                    println!("{:?}", action_dispatcher);
                     let result = execute_command(args.clone(), repository, config.clone());
                     if let Ok(Status::Ready(index)) = result {
-                        build_and_run_app(args, controller_rc, main_controller, index);
+                        build_and_run_app(args, controller_rc, action_dispatcher, index);
                         Ok(Status::Done)
                     } else {
                         result
@@ -79,7 +86,7 @@ fn main() {
 fn build_and_run_app(
     clargs: CommandLineArguments,
     controller_rc: RcController,
-    main_controller: MainController,
+    action_dispatcher: ActionDispatcher,
     position: usize,
 ) {
     let application: gtk::Application = make_application(APPLICATION_ID);
@@ -94,7 +101,7 @@ fn build_and_run_app(
                 &clargs,
                 &controller_rc,
                 position,
-                &main_controller,
+                &action_dispatcher,
             )
         }
     ));

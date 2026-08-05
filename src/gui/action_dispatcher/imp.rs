@@ -10,12 +10,12 @@ use gtk::glib::subclass::Signal;
 use gtk::glib::subclass::prelude::*;
 use std::sync::OnceLock;
 
-pub struct MainController {
+pub struct ActionDispatcher {
     pub actions: gtk::gio::SimpleActionGroup,
     controller_opt_rc: RefCell<Option<RcController>>,
 }
 
-impl Default for MainController {
+impl Default for ActionDispatcher {
     fn default() -> Self {
         Self {
             actions: gtk::gio::SimpleActionGroup::new(),
@@ -24,13 +24,13 @@ impl Default for MainController {
     }
 }
 #[gtk::glib::object_subclass]
-impl ObjectSubclass for MainController {
-    const NAME: &'static str = "MainController";
-    type Type = super::MainController;
+impl ObjectSubclass for ActionDispatcher {
+    const NAME: &'static str = "ActionDispatcher";
+    type Type = super::ActionDispatcher;
     type ParentType = gtk::glib::Object;
 }
 
-impl ObjectImpl for MainController {
+impl ObjectImpl for ActionDispatcher {
     fn signals() -> &'static [Signal] {
         static SIGNALS: OnceLock<Vec<Signal>> = OnceLock::new();
 
@@ -42,7 +42,7 @@ impl ObjectImpl for MainController {
         })
     }
 }
-impl MainController {
+impl ActionDispatcher {
     pub fn new() -> Self {
         let obj = Self::default();
         obj.initialize();

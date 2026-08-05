@@ -3,7 +3,7 @@ use crate::env::default_values::ENTRY_CURSOR_1;
 use crate::env::default_values::ENTRY_CURSOR_2;
 use crate::env::default_values::ENTRY_WINDOW_HEIGHT;
 use crate::env::default_values::ENTRY_WINDOW_WIDTH;
-use crate::gui::controller::main_controller::MainController;
+use crate::gui::action_dispatcher::ActionDispatcher;
 use crate::gui::editor::entry_editor::EntryEditor;
 use crate::gui::editor::entry_editor::RcEntryEditor;
 use crate::model::action::Action;
@@ -68,14 +68,14 @@ impl EntryView {
         application_window: &gtk::ApplicationWindow,
         prompt: &str,
         input: &str,
-        main_controller: &MainController,
+        action_dispatcher: &ActionDispatcher,
         action_on_close: Action,
     ) {
         *self.gtk_window_opt_rc.borrow_mut() = Some(Self::build_window(
             application_window,
             prompt,
             input,
-            main_controller,
+            action_dispatcher,
         ))
     }
 
@@ -160,7 +160,7 @@ impl EntryView {
         application_window: &gtk::ApplicationWindow,
         prompt: &str,
         input: &str,
-        main_controller: &MainController,
+        action_dispatcher: &ActionDispatcher,
     ) -> gtk::Window {
         let entry_text = gtk::Label::builder()
             .valign(Align::Center)
@@ -205,7 +205,7 @@ impl EntryView {
             .transient_for(application_window)
             .build();
         window.set_child(Some(&entry_box));
-        window.insert_action_group("controller", Some(&main_controller.actions()));
+        window.insert_action_group("controller", Some(&action_dispatcher.actions()));
         window
     }
 
