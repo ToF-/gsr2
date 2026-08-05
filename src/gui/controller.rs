@@ -62,7 +62,7 @@ pub struct Controller {
     main_window_opt: Option<MainWindow>,
     editor: Editor,
     selector: Selector,
-    last_action: Action,
+    last_action_rc: RefCell<Action>,
     action_dispatcher: ActionDispatcher,
 }
 
@@ -121,12 +121,18 @@ impl Controller {
             controls: default_controls(),
             state: State::new(pictures_per_row as usize, cli.slideshow().is_some()),
             main_window_opt: None,
-            last_action: Action::Nothing,
+            last_action_rc: RefCell::new(Action::Nothing),
             action_dispatcher: action_dispatcher,
         };
         Ok(controller)
     }
 
+    pub fn last_action(&self) -> Action {
+        self.last_action_rc.borrow().clone()
+    }
+    pub fn set_last_action(&self, action: Action) {
+        *self.last_action_rc.borrow_mut() = action
+    }
     pub fn action_dispatcher(&self) -> ActionDispatcher {
         self.action_dispatcher.clone()
     }
@@ -686,11 +692,11 @@ impl Controller {
         }
     }
 
-    fn label_picture_at_index(&mut self, index: usize, label: &str) {
+    fn label_picture_at_index(&self, index: usize, label: &str) {
         let mut picture = self.repository.picture_at(index);
         picture.set_label(label);
         self.repository.set_picture_at(index, &picture);
-        self.last_action = Action::Label(label.to_string());
+        self.set_last_action(Action::Label(label.to_string()));
     }
 
     fn label_selected_pictures(&mut self, label: &str) {
@@ -720,7 +726,7 @@ impl Controller {
             self.label_picture_at_index(self.navigator().position(), "")
         };
         self.navigator.set_page_changed();
-        self.last_action = Action::Unlabel;
+        self.set_last_action(Action::Unlabel);
     }
 
     fn tag_picture_at_index(&mut self, index: usize, input: &str) {
@@ -751,7 +757,7 @@ impl Controller {
             self.tag_picture_at_index(self.navigator().position(), labels)
         };
         self.navigator.set_page_changed();
-        self.last_action = Action::AddTag(labels.to_string());
+        self.set_last_action(Action::AddTag(labels.to_string()));
     }
 
     fn untag_selected_pictures(&mut self, label: &str) {
@@ -766,7 +772,7 @@ impl Controller {
             self.untag_picture_at_index(self.navigator().position(), label)
         };
         self.navigator.set_page_changed();
-        self.last_action = Action::RemoveTag(label.to_string());
+        self.set_last_action(Action::RemoveTag(label.to_string()));
     }
 
     fn move_next(&mut self) {
@@ -1395,7 +1401,7 @@ impl Controller {
             self.categorize_picture_at_index(self.navigator().position(), category.clone());
         };
         self.navigator.set_page_changed();
-        self.last_action = Action::Categorize(category);
+        self.set_last_action(Action::Categorize(category));
     }
 
     fn categorize(&mut self) {
@@ -1429,7 +1435,7 @@ impl Controller {
             self.categorize_picture_at_index(self.navigator().position(), None)
         };
         self.navigator.set_page_changed();
-        self.last_action = Action::Unlabel;
+        self.set_last_action(Action::Unlabel);
     }
     fn rank_selected_pictures(&mut self, rank: Rank) {
         if self.navigator.has_selected() {
@@ -1443,7 +1449,7 @@ impl Controller {
             self.rank_picture_at_index(self.navigator().position(), rank)
         };
         self.navigator.set_page_changed();
-        self.last_action = Action::Rank(rank);
+        self.set_last_action(Action::Rank(rank));
     }
 
     fn jump(&mut self) {
@@ -1858,7 +1864,7 @@ impl Controller {
     }
 
     fn repeat_last_action(&mut self) {
-        let action = self.last_action.clone();
+        let action = self.last_action().clone();
         if action.is_repeatable() {
             match action {
                 Action::Nothing => {}
