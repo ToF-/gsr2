@@ -38,13 +38,11 @@ use std::path::PathBuf;
 #[derive(Debug, Clone)]
 pub struct Repository {
     command_line_arguments: CommandLineArguments,
-    on_database: bool,
     database: Database,
     tags_rc: RefCell<Tags>,
     categories_rc: RefCell<Tags>,
     gallery_rc: RefCell<Gallery>,
-    parent_dirs: HashMap<String, (usize, usize)>,
-    len: usize,
+    parent_dirs_rc: RefCell<HashMap<String, (usize, usize)>>,
     temp_dir: String,
     catalog_filepath: String,
     catalog_rc: RefCell<Catalog>,
@@ -55,13 +53,11 @@ impl Repository {
         let database = Database::from_connection(&configuration.database_file, create).unwrap();
         Repository {
             command_line_arguments: clargs.clone(),
-            on_database: true,
             database,
             tags_rc: RefCell::new(crate::model::tags::empty_tags()),
             categories_rc: RefCell::new(crate::model::tags::empty_tags()),
             gallery_rc: RefCell::new(Gallery::new()),
-            parent_dirs: HashMap::new(),
-            len: 0,
+            parent_dirs_rc: RefCell::new(HashMap::new()),
             temp_dir: configuration.temp_dir,
             catalog_filepath: configuration.catalog_filepath.clone(),
             catalog_rc: RefCell::new(load_catalog(&configuration.catalog_filepath)),
@@ -79,7 +75,7 @@ impl Repository {
         }
     }
 
-    pub fn retrieve_all_categories(&mut self) -> IOResult<()> {
+    pub fn retrieve_all_categories(&self) -> IOResult<()> {
         match self.categories_rc.try_borrow_mut() {
             Ok(mut categories) => match self.database.retrieve_all_categories() {
                 Ok(names) => {
@@ -92,7 +88,7 @@ impl Repository {
         }
     }
 
-    fn retrieve_all_labels(&mut self) -> IOResult<()> {
+    fn retrieve_all_labels(&self) -> IOResult<()> {
         match self.tags_rc.try_borrow_mut() {
             Ok(mut tags) => match self.database.retrieve_all_labels() {
                 Ok(labels) => {
@@ -106,7 +102,7 @@ impl Repository {
     }
 
     fn retrieve_all_pictures(
-        &mut self,
+        &self,
         args: &CommandLineArguments,
         predicate_opt: Option<Predicate>,
     ) -> IOResult<()> {
@@ -155,7 +151,6 @@ impl Repository {
                     Ok(pictures) => {
                         let mut gallery = Gallery::new_with_pictures(pictures);
                         gallery.sort_by(args.order.unwrap_or(Order::Name));
-                        self.len = gallery.len();
                         gallery
                     }
                     Err(e) => return Err(e),
@@ -166,22 +161,30 @@ impl Repository {
         }
     }
 
-    fn retrieve_all_parent_dirs(&mut self) -> IOResult<()> {
+    fn retrieve_all_parent_dirs(&self) -> IOResult<()> {
         match self.database.retrieve_all_parent_dirs() {
             Ok(map) => {
-                self.parent_dirs = map;
-                Ok(())
+                if let Ok(mut parent_dirs) = self.parent_dirs_rc.try_borrow_mut() {
+                    *parent_dirs = map;
+                    Ok(())
+                } else {
+                    panic!("can't mutably borrow parent_dirs_rc");
+                }
             }
             Err(e) => Err(e),
         }
     }
 
     pub fn len(&self) -> usize {
-        self.len
+        if let Ok(gallery) = self.gallery_rc.try_borrow() {
+            gallery.len()
+        } else {
+            panic!("can't borrow")
+        }
     }
 
     pub fn is_empty(&self) -> bool {
-        self.len == 0
+        self.len() == 0
     }
 
     pub fn order(&self) -> Order {
@@ -201,7 +204,7 @@ impl Repository {
     }
 
     pub fn add_category(
-        &mut self,
+        &self,
         new_category_name: &str,
         target_category_name: &str,
     ) -> IOResult<()> {
@@ -216,7 +219,7 @@ impl Repository {
     }
 
     pub fn move_category(
-        &mut self,
+        &self,
         moving_category_name: &str,
         target_category_name: &str,
     ) -> IOResult<()> {
@@ -230,7 +233,7 @@ impl Repository {
         }
     }
 
-    pub fn remove_category(&mut self, category_name: &str) -> IOResult<()> {
+    pub fn remove_category(&self, category_name: &str) -> IOResult<()> {
         if let Ok(mut catalog) = self.catalog_rc.try_borrow_mut() {
             match catalog.remove_and_save(category_name, false) {
                 Ok(_) => Ok(()),
@@ -240,15 +243,13 @@ impl Repository {
             panic!("can't borrow")
         }
     }
-    pub fn initialize(&mut self, predicate_opt: Option<Predicate>) -> IOResult<()> {
+    pub fn initialize(&self, predicate_opt: Option<Predicate>) -> IOResult<()> {
         match &self.command_line_arguments.command {
             Some(Command::File { file_path }) => {
-                self.on_database = false;
                 match self.picture_from_file_path(file_path) {
                     Ok(file_gallery) => match self.gallery_rc.try_borrow_mut() {
                         Ok(mut gallery) => {
                             *gallery = file_gallery.clone();
-                            self.len = file_gallery.len();
                             Ok(())
                         }
                         Err(e) => Err(IOError::other(e)),
@@ -257,12 +258,10 @@ impl Repository {
                 }
             }
             Some(Command::Directory { directory }) => {
-                self.on_database = false;
                 match self.pictures_in_directory(directory) {
                     Ok(dir_gallery) => match self.gallery_rc.try_borrow_mut() {
                         Ok(mut gallery) => {
                             *gallery = dir_gallery.clone();
-                            self.len = dir_gallery.len();
                             Ok(())
                         }
                         Err(e) => Err(IOError::other(e)),
@@ -271,7 +270,6 @@ impl Repository {
                 }
             }
             _ => {
-                self.on_database = true;
                 self.retrieve_all_labels().and_then(|()| {
                     self.retrieve_all_parent_dirs().and_then(|()| {
                         self.retrieve_all_pictures(
@@ -285,7 +283,7 @@ impl Repository {
     }
 
     pub fn initialize_for_args(
-        &mut self,
+        &self,
         args: &CommandLineArguments,
         predicate_opt: Option<Predicate>,
     ) -> IOResult<()> {
@@ -413,7 +411,7 @@ impl Repository {
     }
 
     pub fn parent_dirs(&self) -> HashMap<String, (usize, usize)> {
-        self.parent_dirs.clone()
+        self.parent_dirs_rc.borrow().clone()
     }
 
     pub fn directory_count_at_index(&self, index: usize) -> (usize, usize) {
@@ -445,7 +443,7 @@ impl Repository {
         }
     }
 
-    pub fn update_picture_scores(&mut self, scores: HashMap<String, u32>) {
+    pub fn update_picture_scores(&self, scores: HashMap<String, u32>) {
         println!("updating picture scores");
         if let Ok(gallery) = self.gallery_rc.try_borrow() {
             scores.into_iter().for_each(|(file_path, score)| {
@@ -469,20 +467,19 @@ impl Repository {
         }
     }
 
-    pub fn set_selection_criteria(&mut self, selection_criteria: SelectionCriteria) {
+    pub fn set_selection_criteria(&self, selection_criteria: SelectionCriteria) {
         if let Ok(mut gallery) = self.gallery_rc.try_borrow_mut() {
             gallery.set_selection_criteria(selection_criteria.clone());
-            self.len = gallery.len();
         } else {
             panic!("can't borrow mut")
         }
     }
 
-    pub fn delete_picture_at_index(&mut self, index: usize) -> IOResult<()> {
+    pub fn delete_picture_at_index(&self, index: usize) -> IOResult<()> {
         if let Ok(gallery) = self.gallery_rc.try_borrow() {
             let picture = gallery.pictures()[index].clone();
             let file_path = picture.file_path();
-            if self.on_database {
+            if self.command_line_arguments.on_database() {
                 self.database
                     .delete_picture_with_file_path(&file_path)
                     .and_then(|_| match delete_picture_files(&file_path) {
