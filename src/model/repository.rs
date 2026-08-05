@@ -245,40 +245,31 @@ impl Repository {
     }
     pub fn initialize(&self, predicate_opt: Option<Predicate>) -> IOResult<()> {
         match &self.command_line_arguments.command {
-            Some(Command::File { file_path }) => {
-                match self.picture_from_file_path(file_path) {
-                    Ok(file_gallery) => match self.gallery_rc.try_borrow_mut() {
-                        Ok(mut gallery) => {
-                            *gallery = file_gallery.clone();
-                            Ok(())
-                        }
-                        Err(e) => Err(IOError::other(e)),
-                    },
-                    Err(e) => Err(e),
-                }
-            }
-            Some(Command::Directory { directory }) => {
-                match self.pictures_in_directory(directory) {
-                    Ok(dir_gallery) => match self.gallery_rc.try_borrow_mut() {
-                        Ok(mut gallery) => {
-                            *gallery = dir_gallery.clone();
-                            Ok(())
-                        }
-                        Err(e) => Err(IOError::other(e)),
-                    },
-                    Err(e) => Err(e),
-                }
-            }
-            _ => {
-                self.retrieve_all_labels().and_then(|()| {
-                    self.retrieve_all_parent_dirs().and_then(|()| {
-                        self.retrieve_all_pictures(
-                            &self.command_line_arguments.clone(),
-                            predicate_opt,
-                        )
-                    })
+            Some(Command::File { file_path }) => match self.picture_from_file_path(file_path) {
+                Ok(file_gallery) => match self.gallery_rc.try_borrow_mut() {
+                    Ok(mut gallery) => {
+                        *gallery = file_gallery.clone();
+                        Ok(())
+                    }
+                    Err(e) => Err(IOError::other(e)),
+                },
+                Err(e) => Err(e),
+            },
+            Some(Command::Directory { directory }) => match self.pictures_in_directory(directory) {
+                Ok(dir_gallery) => match self.gallery_rc.try_borrow_mut() {
+                    Ok(mut gallery) => {
+                        *gallery = dir_gallery.clone();
+                        Ok(())
+                    }
+                    Err(e) => Err(IOError::other(e)),
+                },
+                Err(e) => Err(e),
+            },
+            _ => self.retrieve_all_labels().and_then(|()| {
+                self.retrieve_all_parent_dirs().and_then(|()| {
+                    self.retrieve_all_pictures(&self.command_line_arguments.clone(), predicate_opt)
                 })
-            }
+            }),
         }
     }
 

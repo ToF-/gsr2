@@ -1,13 +1,13 @@
-use gtk::glib::clone;
-use crate::model::find::Find;
 use crate::gui::controller::RcController;
-use std::cell::RefCell;
+use crate::model::find::Find;
 use gtk::gio;
 use gtk::gio::ActionEntry;
 use gtk::gio::prelude::*;
 use gtk::glib;
+use gtk::glib::clone;
 use gtk::glib::subclass::Signal;
 use gtk::glib::subclass::prelude::*;
+use std::cell::RefCell;
 use std::sync::OnceLock;
 
 pub struct ActionDispatcher {
@@ -64,25 +64,29 @@ impl ActionDispatcher {
         let controller_opt_rc = self.controller_opt_rc.clone();
         let action_find_label = ActionEntry::builder("find-label")
             .parameter_type(Some(&String::static_variant_type()))
-            .activate(clone!(#[strong] controller_opt_rc, move |_obj, _simple_action, variant_opt| {
-                let value = variant_opt
-                    .expect("could not get parameter")
-                    .get::<String>()
-                    .expect("the variant need to be of type string");
-                if let Ok(controller_rc_opt) = controller_opt_rc.try_borrow() {
-                    if let Some(controller_rc) = controller_rc_opt.clone() {
-                        if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-                            controller.find_first(&value, Find::Label);
+            .activate(clone!(
+                #[strong]
+                controller_opt_rc,
+                move |_obj, _simple_action, variant_opt| {
+                    let value = variant_opt
+                        .expect("could not get parameter")
+                        .get::<String>()
+                        .expect("the variant need to be of type string");
+                    if let Ok(controller_rc_opt) = controller_opt_rc.try_borrow() {
+                        if let Some(controller_rc) = controller_rc_opt.clone() {
+                            if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+                                controller.find_first(&value, Find::Label);
+                            } else {
+                                println!("can't borrow mutably controller");
+                            }
                         } else {
-                            println!("can't borrow mutably controller");
+                            println!("controller_rc is not set")
                         }
                     } else {
-                        println!("controller_rc is not set")
+                        println!("can't borrow controller_rc_opt");
                     }
-                } else {
-                    println!("can't borrow controller_rc_opt");
                 }
-            }))
+            ))
             .build();
         let action_entries = vec![action_test, action_find_label];
         self.actions.add_action_entries(action_entries);

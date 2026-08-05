@@ -1,13 +1,13 @@
-use crate::gui::action_dispatcher::RcActionDispatcher;
 use crate::cli::command::Command;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::Configuration;
 use crate::file::paths::check_path_exists;
 use crate::file::paths::grand_parent_directory;
 use crate::file::paths::parent_directory;
+use crate::gui::action_dispatcher::ActionDispatcher;
+use crate::gui::action_dispatcher::RcActionDispatcher;
 use crate::gui::completion_dispenser::CompletionDispenser;
 use crate::gui::control::{Control, Controls, default_controls, help_on_controls};
-use crate::gui::action_dispatcher::ActionDispatcher;
 use crate::gui::direction::Direction;
 use crate::gui::display_information::display_information;
 use crate::gui::editor::Editor;
@@ -61,9 +61,9 @@ pub struct Controller {
     state: State,
     main_window_opt: Option<MainWindow>,
     editor: Editor,
-    selector: Selector,
+    selector_rc: RefCell<Selector>,
     last_action_rc: RefCell<Action>,
-    action_dispatcher: ActionDispatcher,
+    action_dispatcher_rc: RefCell<ActionDispatcher>,
 }
 
 pub type RcController = Rc<RefCell<Controller>>;
@@ -116,13 +116,13 @@ impl Controller {
             repository: repository.clone(),
             command_line_arguments: cli.clone(),
             editor: Editor::new(),
-            selector: Selector::new(&catalog),
+            selector_rc: RefCell::new(Selector::new(&catalog)),
             navigator: Navigator::new(repository.len(), pictures_per_row as usize),
             controls: default_controls(),
             state: State::new(pictures_per_row as usize, cli.slideshow().is_some()),
             main_window_opt: None,
             last_action_rc: RefCell::new(Action::Nothing),
-            action_dispatcher: action_dispatcher,
+            action_dispatcher_rc: RefCell::new(action_dispatcher),
         };
         Ok(controller)
     }
@@ -134,11 +134,11 @@ impl Controller {
         *self.last_action_rc.borrow_mut() = action
     }
     pub fn action_dispatcher(&self) -> ActionDispatcher {
-        self.action_dispatcher.clone()
+        self.action_dispatcher_rc.borrow().clone()
     }
 
-    pub fn set_action_dispatcher(&mut self, action_dispatcher: ActionDispatcher) {
-        self.action_dispatcher = action_dispatcher
+    pub fn set_action_dispatcher(&self, action_dispatcher: ActionDispatcher) {
+        *self.action_dispatcher_rc.borrow_mut() = action_dispatcher
     }
 
     pub fn command_line_arguments(&self) -> CommandLineArguments {
@@ -149,11 +149,11 @@ impl Controller {
         self.repository.clone()
     }
     pub fn selector(&self) -> Selector {
-        self.selector.clone()
+        self.selector_rc.borrow().clone()
     }
 
     pub fn set_selected(&mut self, selected: &str) {
-        self.selector.set_selected(selected);
+        self.selector_rc.borrow_mut().set_selected(selected);
     }
     pub fn main_window(&self) -> MainWindow {
         self.main_window_opt.clone().unwrap()
@@ -360,43 +360,45 @@ impl Controller {
             return;
         }
         let controls = self.controls.clone();
+        let binding = self.selector_rc.clone();
+        let mut selector = binding.borrow_mut();
         match self.state().mode() {
             Mode::MovingToCategory => {
-                self.selector.process(key);
-                if !self.selector.selecting() {
+                selector.process(key);
+                if !selector.selecting() {
                     self.state.set_mode(Mode::View);
-                    if !self.selector.selected().is_empty() {
+                    if !selector.selected().is_empty() {
                         self.move_sub_category_to_category(
-                            &self.selector.prev_selected(),
-                            &self.selector.selected(),
+                            &selector.prev_selected(),
+                            &selector.selected(),
                         )
                     }
                 }
             }
             Mode::MovingCategory => {
-                self.selector.process(key);
-                if !self.selector.selecting() {
+                selector.process(key);
+                if !selector.selecting() {
                     self.state.set_mode(Mode::View);
-                    if !self.selector.selected().is_empty() {
-                        self.move_to_category(&self.selector.selected())
+                    if !selector.selected().is_empty() {
+                        self.move_to_category(&selector.selected())
                     }
                 }
             }
             Mode::AddingCategory => {
-                self.selector.process(key);
-                if !self.selector.selecting() {
+                selector.process(key);
+                if !selector.selecting() {
                     self.state.set_mode(Mode::View);
-                    if !self.selector.selected().is_empty() {
-                        self.add_category(&self.editor.input(), &self.selector.selected())
+                    if !selector.selected().is_empty() {
+                        self.add_category(&self.editor.input(), &selector.selected())
                     }
                 }
             }
             Mode::RemovingCategory => {
-                self.selector.process(key);
-                if !self.selector.selecting() {
+                selector.process(key);
+                if !selector.selecting() {
                     self.state.set_mode(Mode::View);
-                    if !self.selector.selected().is_empty() {
-                        self.remove_category(&self.selector.selected())
+                    if !selector.selected().is_empty() {
+                        self.remove_category(&selector.selected())
                     }
                 }
             }
@@ -422,41 +424,41 @@ impl Controller {
                 self.state.set_mode(Mode::View)
             }
             Mode::Categorizing => {
-                self.selector.process(key);
-                if !self.selector.selecting() {
+                selector.process(key);
+                if !selector.selecting() {
                     self.state.set_mode(Mode::View);
-                    if !self.selector.selected().is_empty() {
-                        let category: Category = category_from_string(&self.selector.selected());
+                    if !selector.selected().is_empty() {
+                        let category: Category = category_from_string(&selector.selected());
                         self.categorize_selected_pictures(category)
                     }
                     self.set_opacity_for_current_picture(1.00);
                 }
             }
             Mode::SelectingCategory => {
-                self.selector.process(key);
-                if !self.selector.selecting() {
+                selector.process(key);
+                if !selector.selecting() {
                     self.state.set_mode(Mode::View);
-                    if !self.selector.selected().is_empty() {
+                    if !selector.selected().is_empty() {
                         self.find_first(&self.editor.input(), Find::SubCategory);
                     }
                 }
             }
             Mode::FindingSubCategory => {
-                self.selector.process(key);
-                if !self.selector.selecting() {
+                selector.process(key);
+                if !selector.selecting() {
                     self.state.set_mode(Mode::View);
-                    if !self.selector.selected().is_empty() {
-                        let category_name = self.selector.selected();
+                    if !selector.selected().is_empty() {
+                        let category_name = selector.selected();
                         self.find_first(&category_name, Find::SubCategory)
                     }
                 }
             }
             Mode::SelectingSubCategory => {
-                self.selector.process(key);
-                if !self.selector.selecting() {
+                selector.process(key);
+                if !selector.selecting() {
                     self.state.set_mode(Mode::View);
-                    if !self.selector.selected().is_empty() {
-                        let category_name = self.selector.selected();
+                    if !selector.selected().is_empty() {
+                        let category_name = selector.selected();
                         self.select(&category_name, Find::SubCategory)
                     }
                 }
@@ -839,8 +841,9 @@ impl Controller {
     }
 
     fn adding_category(&mut self, category_name: &str) {
+        let mut selector = self.selector_rc.borrow_mut();
         if !self.repository.catalog().contains(category_name) {
-            self.selector.begin(
+            selector.begin(
                 &self.main_window(),
                 &format!("select a category to add {} to ", category_name),
                 &self.repository.catalog(),
@@ -850,12 +853,13 @@ impl Controller {
             display_information(
                 &self.main_window().application_window(),
                 &format!("the category {} already exists", category_name),
-                self.action_dispatcher.clone(),
+                self.action_dispatcher(),
             );
         }
     }
     fn enter_move_category(&mut self) {
-        self.selector.begin(
+        let mut selector = self.selector_rc.borrow_mut();
+        selector.begin(
             &self.main_window(),
             "select the category to move",
             &self.repository.catalog(),
@@ -864,10 +868,11 @@ impl Controller {
     }
 
     fn move_to_category(&mut self, moving_category_name: &str) {
+        let mut selector = self.selector_rc.borrow_mut();
         let mut pruned_catalog = self.repository.catalog();
         let _ = pruned_catalog.remove_category(moving_category_name, true);
-        self.selector.set_prev_selected(moving_category_name);
-        self.selector.begin(
+        selector.set_prev_selected(moving_category_name);
+        selector.begin(
             &self.main_window(),
             &format!("select the category where to move {}", moving_category_name),
             &pruned_catalog,
@@ -876,7 +881,8 @@ impl Controller {
     }
 
     fn enter_remove_category(&mut self) {
-        self.selector.begin(
+        let mut selector = self.selector_rc.borrow_mut();
+        selector.begin(
             &self.main_window(),
             "select a category to remove",
             &self.repository.catalog(),
@@ -1406,7 +1412,8 @@ impl Controller {
 
     fn categorize(&mut self) {
         self.set_opacity_for_current_picture(0.25);
-        self.selector.begin(
+        let mut selector = self.selector_rc.borrow_mut();
+        selector.begin(
             &self.main_window(),
             "select a category to apply",
             &self.repository.catalog(),
@@ -1415,7 +1422,8 @@ impl Controller {
     }
 
     fn set_category_selection(&mut self) {
-        self.selector.begin(
+        let mut selector = self.selector_rc.borrow_mut();
+        selector.begin(
             &self.main_window(),
             "select a category to find",
             &self.repository.catalog(),

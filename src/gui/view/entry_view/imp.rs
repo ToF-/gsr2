@@ -306,13 +306,13 @@ impl EntryView {
 
     fn remove_cursor(label: &gtk::Label) {
         let mut content = label.text().to_string();
-        if ! content.is_empty() {
+        if !content.is_empty() {
             let last_char = content.pop();
             match last_char {
-                None | Some(ENTRY_CURSOR_1) | Some(ENTRY_CURSOR_2) => {},
+                None | Some(ENTRY_CURSOR_1) | Some(ENTRY_CURSOR_2) => {}
                 Some(other) => content.push(other),
-                }
             }
+        }
         label.set_text(&content);
     }
 }
