@@ -2,9 +2,10 @@
 ## Gallery Show in Rust
 
 ## Todo
+- [ ] make the Controller a glib Object with trait ActionMap so that it will itself receive the action entries signals
 - [ ] have the legacy Controller define actions through its MainController, with activates referencing controller_rc, then each activate closure can borrow_mut the controller and invoke the legacy Controller action
 - [ ] have all Action enum values get a default display for transmission through gtk action activation
-- [ ] an enum type for all values returned by entry_editor rather than plain text
+- [X] an enum type for all values returned by entry_editor rather than plain text
 - [X] entry_editor has closures for : allowing or stopping a key stroke, completing a key stroke
 - [X] entry_editor uses a closure for entered event that updates the entry text of its entry_view window
 - [X] extend category selection window
