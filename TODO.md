@@ -3,6 +3,12 @@
 
 ## Todo
 - [ ] make the Controller a glib Object with trait ActionMap so that it will itself receive the action entries signals
+    - [ ] requires a mod where Controller is wrapped as ObjectSubClass with imp 
+    - [ ] and requires a where Controller has its current logic
+    - [ ] imp as Default trait,
+    - [ ] imp ObjectSubclass trait where const NAME and inheritance is set
+    - [ ] ObjectImpl trait where  SIGNALS is defined and build with signals it can receive
+    - [ ] is initialize a fill a list of ActionEntry for all the actions it can process
 - [ ] have the legacy Controller define actions through its MainController, with activates referencing controller_rc, then each activate closure can borrow_mut the controller and invoke the legacy Controller action
 - [ ] have all Action enum values get a default display for transmission through gtk action activation
 - [X] an enum type for all values returned by entry_editor rather than plain text
