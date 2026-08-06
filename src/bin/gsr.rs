@@ -1,4 +1,3 @@
-use gsr::gui::main_controller::MainController;
 use gsr::cli::command::Command;
 use gsr::cli::command::execute_command;
 use gsr::cli::command_line_arguments::CommandLineArguments;
@@ -10,6 +9,7 @@ use gsr::file::paths::file_exists;
 use gsr::gui::action_dispatcher::ActionDispatcher;
 use gsr::gui::controller::Controller;
 use gsr::gui::controller::RcController;
+use gsr::gui::main_controller::MainController;
 use gsr::gui::view::application::make_application;
 use gsr::gui::view::main_window::MainWindow;
 use gtk::glib::clone;
@@ -90,7 +90,7 @@ fn build_and_run_app(
     action_dispatcher: ActionDispatcher,
     position: usize,
 ) {
-    let main_controller:MainController = MainController::new(Some(controller_rc.clone()));
+    let main_controller: MainController = MainController::new(Some(controller_rc.clone()));
     if let Ok(controller) = controller_rc.try_borrow() {
         controller.set_main_controller(main_controller.clone());
     } else {

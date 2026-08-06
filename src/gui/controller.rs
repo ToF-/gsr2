@@ -1,4 +1,3 @@
-use crate::gui::main_controller::MainController;
 use crate::cli::command::Command;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::Configuration;
@@ -17,6 +16,7 @@ use crate::gui::enter_label::enter_label;
 use crate::gui::entry_kind::EntryKind;
 use crate::gui::entry_prompt::entry_prompt;
 use crate::gui::event::Event;
+use crate::gui::main_controller::MainController;
 use crate::gui::mode::Mode;
 use crate::gui::navigator::Navigator;
 use crate::gui::selector::Selector;
@@ -135,13 +135,13 @@ impl Controller {
 
     pub fn set_main_controller(&self, main_controller: MainController) {
         let mut main_controller_opt = self.main_controller_rc.borrow_mut();
-            *main_controller_opt = Some(main_controller)
+        *main_controller_opt = Some(main_controller)
     }
 
     pub fn main_controller(&self) -> MainController {
         let main_controller_opt = self.main_controller_rc.borrow();
         let main_controller = main_controller_opt.as_ref().unwrap();
-            main_controller.clone()
+        main_controller.clone()
     }
     pub fn last_action(&self) -> Action {
         self.last_action_rc.borrow().clone()
@@ -244,6 +244,13 @@ impl Controller {
     }
 
     pub fn process_event(&self, event: Event, controller_rc: &RcController) {
+        {
+            if let Ok(_) = controller_rc.try_borrow() {
+                println!("controller.process_event controller_rc available");
+            } else {
+                println!("controller.process_event controller_rc borrowed");
+            }
+        }
         match event {
             Event::KeyPressed {
                 key,

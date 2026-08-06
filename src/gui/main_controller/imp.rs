@@ -1,5 +1,5 @@
-use crate::gui::main_controller::RcController;
 use crate::gui::controller::Controller;
+use crate::gui::main_controller::RcController;
 use gtk::gio::ActionEntry;
 use gtk::gio::prelude::*;
 use gtk::glib;
@@ -11,14 +11,14 @@ use std::sync::OnceLock;
 
 pub struct MainController {
     pub actions: gtk::gio::SimpleActionGroup,
-    controller_opt_rc : RefCell<Option<RcController>>, 
+    controller_opt_rc: RefCell<Option<RcController>>,
 }
 
 impl Default for MainController {
     fn default() -> Self {
         Self {
             actions: gtk::gio::SimpleActionGroup::new(),
-            controller_opt_rc : RefCell::new(None),
+            controller_opt_rc: RefCell::new(None),
         }
     }
 }
@@ -66,6 +66,5 @@ impl MainController {
 
         let action_entries = vec![action_test];
         self.actions.add_action_entries(action_entries);
-
     }
 }

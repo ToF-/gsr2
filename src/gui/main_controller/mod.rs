@@ -1,5 +1,5 @@
-use crate::gui::controller::RcController;
 use crate::gui::controller::Controller;
+use crate::gui::controller::RcController;
 use gtk::prelude::ObjectExt;
 use gtk::subclass::prelude::ObjectSubclassIsExt;
 use std::cell::RefCell;

@@ -46,6 +46,7 @@ impl Editor {
         entry_kind: EntryKind,
         choice_opt: Option<Tags>,
     ) {
+        println!("editor.begin");
         self.prompt = entry_prompt(entry_kind.clone());
         self.begin_input(entry_kind, choice_opt);
         self.entry_window_opt = Some(main_window.popup_entry_window(&self.prompt, &self.input));

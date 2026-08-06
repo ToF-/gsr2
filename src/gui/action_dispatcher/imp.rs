@@ -52,7 +52,6 @@ impl ActionDispatcher {
         *self.controller_opt_rc.borrow_mut() = Some(controller_rc)
     }
     pub fn initialize(&self) {
-
         let action_test = ActionEntry::builder("test")
             .parameter_type(Some(&String::static_variant_type()))
             .activate(move |_obj, _simple_action, variant_opt| {

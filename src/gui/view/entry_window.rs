@@ -1,4 +1,3 @@
-use gtk::glib::prelude::ToVariant;
 use crate::env::default_values::{ENTRY_CURSOR_1, ENTRY_CURSOR_2};
 use crate::env::default_values::{ENTRY_WINDOW_HEIGHT, ENTRY_WINDOW_WIDTH};
 use crate::gui::controller::RcController;
@@ -8,6 +7,7 @@ use crate::gui::mode::Mode;
 use gtk::Align;
 use gtk::CssProvider;
 use gtk::Orientation;
+use gtk::glib::prelude::ToVariant;
 use gtk::glib::{ControlFlow, Propagation};
 use gtk::glib::{clone, timeout_add_local};
 use gtk::prelude::BoxExt;
@@ -32,6 +32,8 @@ impl EntryWindow {
         text: &str,
         controller_rc: &RcController,
     ) -> Self {
+        println!("new entry_window for {}", prompt);
+        println!("0 - controller_rc: {:?}", controller_rc);
         let entry_text = gtk::Label::builder()
             .valign(Align::Center)
             .halign(Align::Center)
@@ -77,15 +79,12 @@ impl EntryWindow {
         window.set_child(Some(&entry_box));
         let entry_editor: std::cell::RefCell<EntryEditor> =
             std::cell::RefCell::new(EntryEditor::new());
-        {
-        if let Ok(controller) = controller_rc.try_borrow() {
-            window.insert_action_group("main-controller",Some(&controller.main_controller().actions()));
-        } else {
-            println!("nope");
-        }
-        }
+        println!("1 - controller_rc: {:?}", controller_rc);
         Self::attach_key_pressed_event_handler(&window, controller_rc, &entry_editor);
+        println!("2 - controller_rc: {:?}", controller_rc);
         Self::attach_cursor_blink_event(&window, controller_rc);
+        println!("3 - controller_rc: {:?}", controller_rc);
+        Self::attach_actions(&window, controller_rc);
         EntryWindow {
             window,
             entry_editor,
@@ -96,6 +95,17 @@ impl EntryWindow {
         self.entry_editor.clone()
     }
 
+    fn attach_actions(window: &gtk::Window, controller_rc: &RcController) {
+        println!("controller_rc: {:?}", controller_rc);
+        if let Ok(controller) = controller_rc.try_borrow() {
+            window.insert_action_group(
+                "main-controller",
+                Some(&controller.main_controller().actions()),
+            );
+        } else {
+            println!("nope");
+        }
+    }
     fn attach_key_pressed_event_handler(
         window: &gtk::Window,
         controller_rc: &RcController,
@@ -103,19 +113,25 @@ impl EntryWindow {
     ) {
         let event_controller_key = gtk::EventControllerKey::new();
         event_controller_key.connect_key_pressed(clone!(
-                #[strong]
-                window,
-                #[strong]
-                controller_rc,
-                #[strong]
-                entry_editor_rc,
-                move |_, key, key_code, modifier_type| {
-                    println!("{:?}",window.activate_action("main-controller.test", Some(&"lawfoobar".to_variant())));
-                    if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-
-                        controller.process_event(
-                            Event::KeyPressed {
-                                key,
+            #[strong]
+            window,
+            #[strong]
+            controller_rc,
+            #[strong]
+            entry_editor_rc,
+            move |_, key, key_code, modifier_type| {
+                println!(
+                    "{:?}",
+                    window.activate_action("main-controller.test", Some(&"lawfoobar".to_variant()))
+                );
+                if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+                    println!(
+                        "entry window -> controller -> last_action : {:?}",
+                        controller.last_action()
+                    );
+                    controller.process_event(
+                        Event::KeyPressed {
+                            key,
                             key_code,
 
                             modifier_type,

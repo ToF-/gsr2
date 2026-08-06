@@ -1,4 +1,3 @@
-use crate::gui::main_controller::MainController;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::default_values::FOCUS_SYMBOL_1;
 use crate::env::default_values::QUARTER_OPACITY;
@@ -11,6 +10,7 @@ use crate::gui::controller::RcController;
 use crate::gui::direction::Direction;
 use crate::gui::display::title_display;
 use crate::gui::event::Event::{KeyPressed, NextSlideDelay, PaneClicked};
+use crate::gui::main_controller::MainController;
 use crate::gui::mode::Mode;
 use crate::gui::view::entry_window::EntryWindow;
 use crate::gui::view::picture_cell_box::make_picture_cell_box;
@@ -70,6 +70,13 @@ impl MainWindow {
         application: &gtk::Application,
         controller_rc: &RcController,
     ) -> Self {
+        {
+            if let Ok(_) = controller_rc.try_borrow() {
+                println!("MainWindow::new_from_application controller_rc available");
+            } else {
+                println!("MainWindow::new_from_application controller_rc already borrowed");
+            }
+        }
         let application_window = application
             .active_window()
             .expect("can't get application active window")
@@ -143,6 +150,13 @@ impl MainWindow {
         action_dispatcher: &ActionDispatcher,
         main_controller: &MainController,
     ) {
+        {
+            if let Ok(_) = controller_rc.try_borrow() {
+                println!("main_window activate controller_rc available");
+            } else {
+                println!("main_window activate controller_rc already borrowed");
+            }
+        }
         let pictures_per_row = if let Ok(controller) = controller_rc.try_borrow() {
             controller.state().pictures_per_row()
         } else {
@@ -167,8 +181,15 @@ impl MainWindow {
         let application_window = make_application_window(application, clargs);
         application_window.set_child(Some(&view_stack));
         {
-            if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-                let main_window = MainWindow::new_from_application(application, controller_rc);
+            {
+                if let Ok(_) = controller_rc.try_borrow() {
+                    println!("MainWindow::activate … set_child controller_cr available");
+                } else {
+                    println!("MainWindow::activate … set_child controller_cr borrowed");
+                }
+            }
+            let main_window = MainWindow::new_from_application(application, controller_rc);
+            if let Ok(controller) = controller_rc.try_borrow_mut() {
                 controller.set_main_window(main_window);
                 let mut navigator = controller.navigator();
                 if navigator.can_move(Direction::Index { value: position }) {
@@ -176,6 +197,8 @@ impl MainWindow {
                     navigator.set_page_changed();
                     controller.set_navigator(navigator);
                 }
+            }
+            if let Ok(mut controller) = controller_rc.try_borrow_mut() {
                 controller.main_window().set_pictures(&mut controller);
                 controller.main_window().set_title(&controller);
             }
@@ -371,6 +394,13 @@ impl MainWindow {
     }
 
     pub fn popup_entry_window(&self, prompt: &str, text: &str) -> EntryWindow {
+        {
+            if let Ok(_) = self.controller_rc.try_borrow() {
+                println!("main_window.popup_entry_window controller_rc available");
+            } else {
+                println!("main_window.popup_entry_window controller_rc borrowed");
+            }
+        }
         let entry_window = EntryWindow::new(
             &self.application_window(),
             prompt,
@@ -571,16 +601,22 @@ fn attach_key_pressed_event_handlers(
         #[strong]
         controller_rc,
         move |_, key, key_code, modifier_type| {
-            if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-                controller.process_event(
-                    KeyPressed {
-                        key,
-                        key_code,
-                        modifier_type,
-                    },
-                    &controller_rc,
-                );
+            println!("event_controller_key.connect_key_pressed");
+            let controller = {
+                if let Ok(controller) = controller_rc.try_borrow_mut() {
+                    controller
+                } else {
+                    panic!("can't borrow")
+                }
             };
+            controller.process_event(
+                KeyPressed {
+                    key,
+                    key_code,
+                    modifier_type,
+                },
+                &controller_rc,
+            );
             Propagation::Stop
         }
     ));
