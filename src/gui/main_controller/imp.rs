@@ -55,38 +55,38 @@ impl MainController {
     }
 
     pub fn initialize(&self, controller_opt: Option<RcController>) {
-        *self.controller_opt_rc.borrow_mut() = controller_opt;
+        *self.controller_opt_rc.borrow_mut() = controller_opt.clone();
 
+        let controller_rc = controller_opt.unwrap();
         let action_test = ActionEntry::builder("test")
-            .activate(move |_obj, _simple_action, variant_opt| {
-                println!("controller.test");
-            })
+            .activate(clone!( #[strong] controller_rc, move |_obj, _simple_action, variant_opt| {
+                println!("controller.test, with controller_rc= {:?}", controller_rc);
+            }))
             .build();
 
-        let action_change_undefined = Self::make_action_entry(Action::EnterChange(Change::Undefined));
+        let action_change_undefined = Self::make_action_entry(Action::EnterChange(Change::Undefined),
+            clone!( #[strong] controller_rc, move |_obj, _simple_action, variant_opt| {
+                if let Ok(controller) = controller_rc.try_borrow() {
+                    println!("here's the controller's state:\n {:?}", controller.state());
+                } else {
+                    println!("can't borrow controller_rc");
+                }
+            }));
         let action_entries = vec![action_test, action_change_undefined];
         println!("initializing {:?}",action_entries);
         self.actions.add_action_entries(action_entries);
         println!("main_controller.actions() = {:?}", self.actions);
     }
 
-    pub fn make_action_entry(action: Action) -> ActionEntry<gtk::gio::SimpleActionGroup> {
-        let mca = action.main_controller_action();
-        let action_entry = if mca.parameter_type() == ActionParameterType::None {
-        ActionEntry::builder(&mca.name())
-            .activate(move |_obj, _simple_action, _variant_opt| {
-                println!("foo bar parameterless!");
-            })
-        .build()
-        } else {
-        ActionEntry::builder(&mca.name())
-            .parameter_type(mca.parameter_type().variant_ty())
-            .activate(move |_obj, _simple_action, _variant_opt| {
-                println!("foo bar!");
-            })
-        .build()
-        };
-        println!("making ActionEntry: {:?}", action_entry);
-        action_entry
-    }
+    pub fn make_action_entry<F>(action: Action, activate: F,) -> ActionEntry<gtk::gio::SimpleActionGroup>
+        where F:Fn(&gtk::gio::SimpleActionGroup, &gtk::gio::SimpleAction, Option<&gtk::glib::Variant>) + 'static,
+        {
+            let mca = action.main_controller_action();
+            let action_entry = ActionEntry::builder(&mca.name())
+                .parameter_type(mca.parameter_type().variant_ty())
+                .activate(activate)
+            .build();
+            println!("making ActionEntry: {:?}", action_entry);
+            action_entry
+        }
 }
