@@ -2,6 +2,7 @@
 ## Gallery Show in Rust
 
 ## Todo
+- [ ] make a correspondance function mapping a key name in a context (mode, entry kind) to a main-controller.action
 - [ ] make the Controller a glib Object with trait ActionMap so that it will itself receive the action entries signals
     - [ ] requires a mod where Controller is wrapped as ObjectSubClass with imp 
     - [ ] and requires a where Controller has its current logic
