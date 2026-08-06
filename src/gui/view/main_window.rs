@@ -598,31 +598,31 @@ fn attach_key_pressed_event_handlers(
 ) {
     let event_controller_key = gtk::EventControllerKey::new();
     event_controller_key.connect_key_pressed(clone!(
-        #[strong]
-        application_window,
-        #[strong]
-        controller_rc,
-        move |_, key, key_code, modifier_type| {
-            if let Some(key_name) = key.name() {
-                let mode = if let Ok(controller) = controller_rc.try_borrow() {
-                    controller.state().mode()
-                } else {
-                    panic!("can't borrow controller");
-                };
-                // let action = Action::EnterChange(Change::Undefined);
-                let action = Action::Unlabel;
-                let mca = action.main_controller_action();
-                println!("activating action: {:?}\n with mca: {:?}", action, mca);
-                println!(
-                    "{:?}",
-                    gtk::prelude::WidgetExt::activate_action(
-                        &application_window,
-                        &mca.name(),
-                        None)
+            #[strong]
+            application_window,
+            #[strong]
+            controller_rc,
+            move |_, key, key_code, modifier_type| {
+                if let Some(key_name) = key.name() {
+                    let mode = if let Ok(controller) = controller_rc.try_borrow() {
+                        controller.state().mode()
+                    } else {
+                        panic!("can't borrow controller");
+                    };
+                    // let action = Action::EnterChange(Change::Undefined);
+                    let action = Action::EnterChange(Change::Undefined);
+                    let mca = action.main_controller_action();
+                    println!("activating action: {:?}\n with mca: {:?}\n named:{:?}", action, mca, mca.name());
+                    println!(
+                        "{:?}",
+                        gtk::prelude::WidgetExt::activate_action(
+                            &application_window,
+                            &mca.action_entry_name(),
+                            None)
                     );
-            };
-            Propagation::Stop
-        }
+                };
+                Propagation::Stop
+            }
     ));
     application_window.add_controller(event_controller_key);
 }

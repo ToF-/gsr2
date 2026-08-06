@@ -85,7 +85,7 @@ impl Action {
 
     pub fn main_controller_action(&self) -> MainControllerAction {
         match self {
-            Action::EnterChange(Change::Undefined) => MainControllerAction::new("enter-change-undefined", ActionParameterType::None),
+            Action::EnterChange(Change::Undefined) => MainControllerAction::new("foo", ActionParameterType::None),
             _ => MainControllerAction::new("test", ActionParameterType::None),
         }
     }

@@ -21,6 +21,7 @@ impl ActionParameterType {
 #[derive(Debug)]
 pub struct MainControllerAction {
     name: String,
+    action_entry_name: String,
     parameter_type: ActionParameterType,
 }
 
@@ -28,7 +29,8 @@ pub struct MainControllerAction {
 impl MainControllerAction {
     pub fn new(name: &str, action_parameter_type: ActionParameterType) -> Self {
         Self {
-            name: format!("{}.{}", MAIN_CONTROLLER_GROUP_NAME, name),
+            name: name.to_string(),
+            action_entry_name: format!("{}.{}", MAIN_CONTROLLER_GROUP_NAME, name),
             parameter_type: action_parameter_type,
         }
     }
@@ -37,6 +39,9 @@ impl MainControllerAction {
         self.name.clone()
     }
 
+    pub fn action_entry_name(&self) -> String {
+        self.action_entry_name.clone()
+    }
     pub fn parameter_type(&self) -> ActionParameterType {
         self.parameter_type.clone()
     }
