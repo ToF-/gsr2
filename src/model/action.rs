@@ -1,3 +1,4 @@
+use crate::gui::control::Control;
 use crate::gui::main_controller_action::ActionParameterType;
 use crate::gui::main_controller_action::MainControllerAction;
 use std::fmt::Display;
@@ -91,6 +92,14 @@ impl Action {
     }
     pub fn single_action_name(key_name: &str, mode: Mode) -> String {
         format!("{}.{}", MAIN_CONTROLLER_GROUP_NAME, "test")
+    }
+
+    pub fn from_control(control: &Control) -> Self {
+        match control {
+            Control::EnterChange => Action::EnterChange(Change::Undefined),
+            _ => Action::Nothing,
+
+        }
     }
 }
 

@@ -60,7 +60,7 @@ impl MainController {
         let controller_rc = controller_opt.unwrap();
         let action_test = ActionEntry::builder("test")
             .activate(clone!( #[strong] controller_rc, move |_obj, _simple_action, variant_opt| {
-                println!("controller.test, with controller_rc= {:?}", controller_rc);
+                println!("todo!");
             }))
             .build();
 

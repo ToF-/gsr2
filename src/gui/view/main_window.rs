@@ -1,3 +1,4 @@
+use crate::gui::control::default_controls;
 use crate::model::change::Change;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::default_values::FOCUS_SYMBOL_1;
@@ -609,18 +610,19 @@ fn attach_key_pressed_event_handlers(
                     } else {
                         panic!("can't borrow controller");
                     };
-                    // let action = Action::EnterChange(Change::Undefined);
-                    let action = Action::EnterChange(Change::Undefined);
-                    let mca = action.main_controller_action();
-                    println!("activating action: {:?}\n with mca: {:?}\n named:{:?}", action, mca, mca.name());
-                    println!(
-                        "{:?}",
-                        gtk::prelude::WidgetExt::activate_action(
-                            &application_window,
-                            &mca.action_entry_name(),
-                            None)
-                    );
-                };
+                    if let Some(control) = default_controls().get(&(key_name.into(), mode)) {
+                        let action = Action::from_control(control);
+                        let mca = action.main_controller_action();
+                        println!("activating action: {:?}\n with mca: {:?}\n named:{:?}", action, mca, mca.name());
+                        println!(
+                            "{:?}",
+                            gtk::prelude::WidgetExt::activate_action(
+                                &application_window,
+                                &mca.action_entry_name(),
+                                None)
+                        );
+                    };
+                }
                 Propagation::Stop
             }
     ));
