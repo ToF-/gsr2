@@ -25,7 +25,6 @@ pub struct MainControllerAction {
     parameter_type: ActionParameterType,
 }
 
-
 impl MainControllerAction {
     pub fn new(name: &str, action_parameter_type: ActionParameterType) -> Self {
         Self {

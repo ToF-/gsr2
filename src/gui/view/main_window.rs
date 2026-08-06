@@ -73,13 +73,6 @@ impl MainWindow {
         application: &gtk::Application,
         controller_rc: &RcController,
     ) -> Self {
-        {
-            if let Ok(_) = controller_rc.try_borrow() {
-                println!("MainWindow::new_from_application controller_rc available");
-            } else {
-                println!("MainWindow::new_from_application controller_rc already borrowed");
-            }
-        }
         let application_window = application
             .active_window()
             .expect("can't get application active window")
@@ -153,13 +146,6 @@ impl MainWindow {
         action_dispatcher: &ActionDispatcher,
         main_controller: &MainController,
     ) {
-        {
-            if let Ok(_) = controller_rc.try_borrow() {
-                println!("main_window activate controller_rc available");
-            } else {
-                println!("main_window activate controller_rc already borrowed");
-            }
-        }
         let pictures_per_row = if let Ok(controller) = controller_rc.try_borrow() {
             controller.state().pictures_per_row()
         } else {
@@ -184,13 +170,6 @@ impl MainWindow {
         let application_window = make_application_window(application, clargs);
         application_window.set_child(Some(&view_stack));
         {
-            {
-                if let Ok(_) = controller_rc.try_borrow() {
-                    println!("MainWindow::activate … set_child controller_cr available");
-                } else {
-                    println!("MainWindow::activate … set_child controller_cr borrowed");
-                }
-            }
             let main_window = MainWindow::new_from_application(application, controller_rc);
             if let Ok(controller) = controller_rc.try_borrow() {
                 controller.set_main_window(main_window);
@@ -210,7 +189,6 @@ impl MainWindow {
         add_actions(&application_window, controller_rc);
         // TESTING
         application_window.insert_action_group("controller", Some(&action_dispatcher.actions()));
-        println!("main_controller.actions:{:?}", main_controller.actions());
         application_window.insert_action_group("main-controller", Some(&main_controller.actions()));
         application.set_accels_for_action("application-group.close", &["<Ctrl>W"]);
         application.set_accels_for_action("main-controller.test::foobardelaw", &["<Ctrl>Z"]);
@@ -397,13 +375,6 @@ impl MainWindow {
     }
 
     pub fn popup_entry_window(&self, prompt: &str, text: &str) -> EntryWindow {
-        {
-            if let Ok(_) = self.controller_rc.try_borrow() {
-                println!("main_window.popup_entry_window controller_rc available");
-            } else {
-                println!("main_window.popup_entry_window controller_rc borrowed");
-            }
-        }
         let entry_window = EntryWindow::new(
             &self.application_window(),
             prompt,
@@ -603,24 +574,24 @@ fn attach_key_pressed_event_handlers(
             application_window,
             #[strong]
             controller_rc,
-            move |_, key, key_code, modifier_type| {
+            move |_, key, _key_code, _modifier_type| {
                 if let Some(key_name) = key.name() {
                     let mode = if let Ok(controller) = controller_rc.try_borrow() {
                         controller.state().mode()
                     } else {
                         panic!("can't borrow controller");
                     };
-                    if let Some(control) = default_controls().get(&(key_name.into(), mode)) {
+                    if let Some(control) = default_controls().get(&(key_name.clone().into(), mode.clone())) {
+                        println!("{key_name:?} + {mode:?} = {control:?}");
                         let action = Action::from_control(control);
                         let mca = action.main_controller_action();
-                        println!("activating action: {:?}\n with mca: {:?}\n named:{:?}", action, mca, mca.name());
-                        println!(
-                            "{:?}",
-                            gtk::prelude::WidgetExt::activate_action(
+                        match gtk::prelude::WidgetExt::activate_action(
                                 &application_window,
                                 &mca.action_entry_name(),
-                                None)
-                        );
+                                None) {
+                            Ok(_) => {},
+                            Err(e) => { println!("error:{e}"); },
+                        }
                     };
                 }
                 Propagation::Stop
