@@ -85,9 +85,9 @@ impl Action {
 
     pub fn main_controller_action(&self) -> MainControllerAction {
         match self {
-            Action::PickChange => {
-                MainControllerAction::new("pick-change", ActionParameterType::None)
-            }
+            Action::PickChange => MainControllerAction::new("pick-change", ActionParameterType::None),
+            Action::PickOrderSetting => MainControllerAction::new("pick-order-setting", ActionParameterType::None),
+            Action::PickViewOption => MainControllerAction::new("pick-view-option", ActionParameterType::None),
             _ => MainControllerAction::new("test", ActionParameterType::None),
         }
     }
@@ -98,6 +98,8 @@ impl Action {
     pub fn from_control(control: &Control) -> Self {
         match control {
             Control::EnterChange => Action::PickChange,
+            Control::SetView => Action::PickViewOption,
+            Control::SetOrder => Action::PickOrderSetting,
             _ => Action::Nothing,
         }
     }

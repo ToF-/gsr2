@@ -61,47 +61,10 @@ impl MainController {
 
         let mut action_entries = vec![];
 
-        action_entries.push(
-            ActionEntry::builder("test")
-                .activate(clone!(
-                    #[strong]
-                    controller_rc,
-                    move |_, _, _| {
-                        println!("todo!");
-                    }
-                ))
-                .build(),
-        );
 
-        action_entries.push(Self::make_action_entry(
-            Action::PickChange,
-            clone!(
-                #[strong]
-                controller_rc,
-                move |_, _, _| {
-                    if let Ok(_) = controller_rc.try_borrow() {
-                        println!("{:?}", Action::PickChange)
-                    } else {
-                        println!("can't borrow controller_rc");
-                    }
-                }
-            ),
-        ));
-
-        action_entries.push(Self::make_action_entry(
-            Action::PickViewOption,
-            clone!(
-                #[strong]
-                controller_rc,
-                move |_, _, _| {
-                    if let Ok(_) = controller_rc.try_borrow() {
-                        println!("{:?}", Action::PickViewOption)
-                    } else {
-                        println!("can't borrow controller_rc");
-                    }
-                }
-            ),
-        ));
+        action_entries.push(Self::make_simple_action_entry(Action::PickChange, &controller_rc));
+        action_entries.push(Self::make_simple_action_entry(Action::PickViewOption, &controller_rc));
+        action_entries.push(Self::make_simple_action_entry(Action::PickOrderSetting, &controller_rc));
         println!("initializing {:?}", action_entries);
         self.actions.add_action_entries(action_entries);
     }
@@ -114,11 +77,33 @@ impl MainController {
         F: Fn(&gtk::gio::SimpleActionGroup, &gtk::gio::SimpleAction, Option<&gtk::glib::Variant>)
             + 'static,
     {
+        println!("make_action_entry({action:?})");
         let mca = action.main_controller_action();
         let action_entry = ActionEntry::builder(&mca.name())
             .parameter_type(mca.parameter_type().variant_ty())
             .activate(activate)
             .build();
+        println!("{action_entry:?}");
         action_entry
     }
+
+    pub fn make_simple_action_entry(action: Action, controller_rc: &RcController) -> ActionEntry<gtk::gio::SimpleActionGroup> {
+        Self::make_action_entry(
+            action.clone(),
+            clone!(
+                #[strong]
+                action,
+                #[strong]
+                controller_rc,
+                move |_, _, _| {
+                    if let Ok(_) = controller_rc.try_borrow() {
+                        println!("{:?}", action)
+                    } else {
+                        println!("can't borrow controller_rc");
+                    }
+                }
+            ),
+        )
+    }
+
 }
