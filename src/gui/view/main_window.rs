@@ -189,7 +189,7 @@ impl MainWindow {
                 }
             }
             let main_window = MainWindow::new_from_application(application, controller_rc);
-            if let Ok(controller) = controller_rc.try_borrow_mut() {
+            if let Ok(controller) = controller_rc.try_borrow() {
                 controller.set_main_window(main_window);
                 let mut navigator = controller.navigator();
                 if navigator.can_move(Direction::Index { value: position }) {
@@ -198,7 +198,7 @@ impl MainWindow {
                     controller.set_navigator(navigator);
                 }
             }
-            if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+            if let Ok(mut controller) = controller_rc.try_borrow() {
                 controller.main_window().set_pictures(&mut controller);
                 controller.main_window().set_title(&controller);
             }
@@ -461,7 +461,7 @@ impl MainWindow {
                 #[strong]
                 controller_rc,
                 move || {
-                    if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+                    if let Ok(controller) = controller_rc.try_borrow() {
                         if controller.state().slideshow_on() {
                             controller.process_event(NextSlideDelay, &controller_rc);
                             ControlFlow::Continue
@@ -552,7 +552,7 @@ fn pane_gesture_click(
         #[strong]
         controller_rc,
         move |_, _, _, _| {
-            if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+            if let Ok(controller) = controller_rc.try_borrow() {
                 controller.process_event(
                     PaneClicked {
                         button,
@@ -579,7 +579,7 @@ fn add_actions(application_window: &ApplicationWindow, controller_rc: &RcControl
             #[weak]
             controller_rc,
             move |_obj, _simple_action, _variant_opt| {
-                if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+                if let Ok(controller) = controller_rc.try_borrow() {
                     controller.quit();
                 }
             }
@@ -598,26 +598,12 @@ fn attach_key_pressed_event_handlers(
     event_controller_key.connect_key_pressed(clone!(
         #[strong]
         application_window,
-        #[strong]
-        controller_rc,
         move |_, key, key_code, modifier_type| {
-            println!("event_controller_key.connect_key_pressed");
-            let controller = {
-                if let Ok(controller) = controller_rc.try_borrow_mut() {
-                    controller
-                } else {
-                    panic!("can't borrow")
-                }
+            if let Some(name) = key.name() {
+                println!("{:?}", gtk::prelude::WidgetExt::activate_action(&application_window, "main-controller.test", Some(&name.to_variant())))
             };
-            controller.process_event(
-                KeyPressed {
-                    key,
-                    key_code,
-                    modifier_type,
-                },
-                &controller_rc,
-            );
             Propagation::Stop
+
         }
     ));
     application_window.add_controller(event_controller_key);

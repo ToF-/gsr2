@@ -66,5 +66,6 @@ impl MainController {
 
         let action_entries = vec![action_test];
         self.actions.add_action_entries(action_entries);
+        println!("main_controller.actions() = {:?}", self.actions);
     }
 }
