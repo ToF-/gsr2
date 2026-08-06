@@ -1,3 +1,4 @@
+use crate::model::rank::Rank;
 use crate::gui::control::default_controls;
 use crate::model::change::Change;
 use crate::cli::command_line_arguments::CommandLineArguments;
@@ -584,13 +585,27 @@ fn attach_key_pressed_event_handlers(
                     if let Some(control) = default_controls().get(&(key_name.clone().into(), mode.clone())) {
                         println!("{key_name:?} + {mode:?} = {control:?}");
                         let action = Action::from_control(control);
-                        let mca = action.main_controller_action();
-                        match gtk::prelude::WidgetExt::activate_action(
+                        let gio_action = action.gio_action();
+                        if action == Action::Rank(Rank::ThreeStars) {
+                            println!("Action::Rank(Rank::ThreeStars) detected");
+                            let action_entry_name = gio_action.action_entry_name();
+                            let parameter = Some(&(i64::from(Rank::ThreeStars) as i32).to_variant());
+                            println!("activate_action({action_entry_name:?},{parameter:?})");
+                            match gtk::prelude::WidgetExt::activate_action(
                                 &application_window,
-                                &mca.action_entry_name(),
+                                &action_entry_name,
+                                parameter) {
+                                Ok(_) => {},
+                                Err(e) => { println!("error:{e}"); },
+                            }
+                        } else {
+                            match gtk::prelude::WidgetExt::activate_action(
+                                &application_window,
+                                &gio_action.action_entry_name(),
                                 None) {
-                            Ok(_) => {},
-                            Err(e) => { println!("error:{e}"); },
+                                Ok(_) => {},
+                                Err(e) => { println!("error:{e}"); },
+                            }
                         }
                     };
                 }

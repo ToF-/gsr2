@@ -11,7 +11,7 @@ pub mod entry_kind;
 pub mod entry_prompt;
 pub mod event;
 pub mod main_controller;
-pub mod main_controller_action;
+pub mod gio_action;
 pub mod mode;
 pub mod navigator;
 pub mod selector;

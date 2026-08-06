@@ -1,6 +1,7 @@
+use crate::model::rank::Rank;
 use crate::gui::controller::Controller;
 use crate::gui::main_controller::RcController;
-use crate::gui::main_controller_action::ActionParameterType;
+use crate::gui::gio_action::GioActionParameterType;
 use crate::model::action::Action;
 use crate::model::change::Change;
 use gtk::gio::ActionEntry;
@@ -62,9 +63,12 @@ impl MainController {
         let mut action_entries = vec![];
 
 
-        action_entries.push(Self::make_simple_action_entry(Action::PickChange, &controller_rc));
-        action_entries.push(Self::make_simple_action_entry(Action::PickViewOption, &controller_rc));
-        action_entries.push(Self::make_simple_action_entry(Action::PickOrderSetting, &controller_rc));
+        // action_entries.push(Self::make_parameterless_action_entry(Action::AddCategory("foo".to_string(), "bar".to_string()), &controller_rc));
+        action_entries.push(Self::make_string_parameter_action_entry(Action::Label("foo".to_string()), &controller_rc));
+        action_entries.push(Self::make_int32_parameter_action_entry(Action::Rank(Rank::ThreeStars), &controller_rc));
+        action_entries.push(Self::make_parameterless_action_entry(Action::PickChange, &controller_rc));
+        action_entries.push(Self::make_parameterless_action_entry(Action::PickViewOption, &controller_rc));
+        action_entries.push(Self::make_parameterless_action_entry(Action::PickOrderSetting, &controller_rc));
         println!("initializing {:?}", action_entries);
         self.actions.add_action_entries(action_entries);
     }
@@ -78,7 +82,7 @@ impl MainController {
             + 'static,
     {
         println!("make_action_entry({action:?})");
-        let mca = action.main_controller_action();
+        let mca = action.gio_action();
         let action_entry = ActionEntry::builder(&mca.name())
             .parameter_type(mca.parameter_type().variant_ty())
             .activate(activate)
@@ -87,17 +91,18 @@ impl MainController {
         action_entry
     }
 
-    pub fn make_simple_action_entry(action: Action, controller_rc: &RcController) -> ActionEntry<gtk::gio::SimpleActionGroup> {
+    pub fn make_parameterless_action_entry(action: Action, controller_rc: &RcController) -> ActionEntry<gtk::gio::SimpleActionGroup> {
+        let sample = action.clone();
         Self::make_action_entry(
-            action.clone(),
+            action,
             clone!(
                 #[strong]
-                action,
+                sample,
                 #[strong]
                 controller_rc,
-                move |_, _, _| {
+                move |_, object, variant| {
                     if let Ok(_) = controller_rc.try_borrow() {
-                        println!("{:?}", action)
+                        println!("object:{object:?},object.name:{0:?},\nvariant:{variant:?}\nsample:{sample:?}", object.name())
                     } else {
                         println!("can't borrow controller_rc");
                     }
@@ -106,4 +111,58 @@ impl MainController {
         )
     }
 
+    pub fn make_string_parameter_action_entry(action: Action, controller_rc: &RcController) -> ActionEntry<gtk::gio::SimpleActionGroup> {
+        let sample = action.clone();
+        Self::make_action_entry(
+            action,
+            clone!(
+                #[strong]
+                sample,
+                #[strong]
+                controller_rc,
+                move |_, object, variant| {
+                    if let Ok(_) = controller_rc.try_borrow() {
+                        println!("object:{object:?},object.name:{0:?},\nvariant:{variant:?}\nsample:{sample:?}", object.name());
+                        let parameter: String = variant
+                            .expect("can't unwrap variant parameter")
+                            .get::<String>().expect("can't get parameter value");
+                        let action = match sample {
+                            Action::Label(_) => Action::Label(parameter),
+                            _ => Action::Nothing,
+                        };
+                        println!("ready to lauch {action:?}");
+                    } else {
+                        println!("can't borrow controller_rc");
+                    }
+                }
+            ),
+        )
+    }
+    pub fn make_int32_parameter_action_entry(action: Action, controller_rc: &RcController) -> ActionEntry<gtk::gio::SimpleActionGroup> {
+        let sample = action.clone();
+        Self::make_action_entry(
+            action,
+            clone!(
+                #[strong]
+                sample,
+                #[strong]
+                controller_rc,
+                move |_, object, variant| {
+                    if let Ok(_) = controller_rc.try_borrow() {
+                        println!("object:{object:?},object.name:{0:?},\nvariant:{variant:?}\nsample:{sample:?}", object.name());
+                        let parameter: i32 = variant
+                            .expect("can't unwrap variant parameter")
+                            .get::<i32>().expect("can't get parameter value");
+                        let action = match sample {
+                            Action::Rank(_) => Action::Rank(Rank::from(parameter as i64)),
+                            _ => Action::Nothing,
+                        };
+                        println!("ready to lauch {action:?}");
+                    } else {
+                        println!("can't borrow controller_rc");
+                    }
+                }
+            ),
+        )
+    }
 }
