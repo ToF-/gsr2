@@ -107,7 +107,10 @@ impl EntryWindow {
             }
         }
         if let Ok(controller) = controller_rc.try_borrow() {
-            println!("controller.main_controller().actions() = {:?}", controller.main_controller().actions());
+            println!(
+                "controller.main_controller().actions() = {:?}",
+                controller.main_controller().actions()
+            );
             window.insert_action_group(
                 "main-controller",
                 Some(&controller.main_controller().actions()),
@@ -132,7 +135,8 @@ impl EntryWindow {
             _entry_editor_rc,
             move |_, _key, _key_code, _modifier_type| {
                 println!(
-                    "{:?}", window.activate_action("main-controller.test", Some(&"lawfoobar".to_variant()))
+                    "{:?}",
+                    window.activate_action("main-controller.test", Some(&"lawfoobar".to_variant()))
                 );
                 /*
                 if let Ok(mut controller) = controller_rc.try_borrow_mut() {

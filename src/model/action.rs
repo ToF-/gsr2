@@ -1,4 +1,6 @@
 use crate::gui::direction::Direction;
+use crate::gui::main_controller::MAIN_CONTROLLER_GROUP_NAME;
+use crate::gui::mode::Mode;
 use crate::model::category::Category;
 use crate::model::change::Change;
 use crate::model::find::Find;
@@ -74,6 +76,9 @@ impl Action {
             _ => false,
         }
     }
+    pub fn single_action_name(key_name: &str, mode: Mode) -> String {
+        format!("{}.{}", MAIN_CONTROLLER_GROUP_NAME, "test")
+    }
 }
 
 #[cfg(test)]
@@ -86,5 +91,13 @@ mod tests {
         assert!(Action::Rank(Rank::ThreeStars).is_repeatable());
         assert!(Action::Label(label_from("foo")).is_repeatable());
         assert!(!Action::AddCategory("foo".into(), "bar".into()).is_repeatable());
+    }
+
+    #[test]
+    fn name_for_action_given_key_name_and_mode() {
+        assert_eq!(
+            "main-controller.test",
+            Action::single_action_name("c", Mode::View)
+        );
     }
 }

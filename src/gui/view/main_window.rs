@@ -17,6 +17,7 @@ use crate::gui::view::picture_cell_box::make_picture_cell_box;
 use crate::gui::view::picture_frame::PictureFrame;
 use crate::gui::view::picture_grid::PictureGrid;
 use crate::gui::view::treelist_window::TreeListWindow;
+use crate::model::action::Action;
 use crate::model::catalog::Catalog;
 use crate::model::picture::Picture;
 use crate::model::thumbnail::no_thumbnail_picture;
@@ -598,12 +599,27 @@ fn attach_key_pressed_event_handlers(
     event_controller_key.connect_key_pressed(clone!(
         #[strong]
         application_window,
+        #[strong]
+        controller_rc,
         move |_, key, key_code, modifier_type| {
-            if let Some(name) = key.name() {
-                println!("{:?}", gtk::prelude::WidgetExt::activate_action(&application_window, "main-controller.test", Some(&name.to_variant())))
+            if let Some(key_name) = key.name() {
+                let mode = if let Ok(controller) = controller_rc.try_borrow() {
+                    controller.state().mode()
+                } else {
+                    panic!("can't borrow controller");
+                };
+                let action_name: String =
+                    crate::model::action::Action::single_action_name(&key_name, mode);
+                println!(
+                    "{:?}",
+                    gtk::prelude::WidgetExt::activate_action(
+                        &application_window,
+                        &action_name,
+                        Some(&key_name.to_variant())
+                    )
+                )
             };
             Propagation::Stop
-
         }
     ));
     application_window.add_controller(event_controller_key);

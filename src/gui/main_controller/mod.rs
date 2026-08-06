@@ -5,6 +5,7 @@ use gtk::subclass::prelude::ObjectSubclassIsExt;
 use std::cell::RefCell;
 use std::rc::Rc;
 
+pub const MAIN_CONTROLLER_GROUP_NAME: &str = "main-controller";
 mod imp;
 pub type RcMainController = Rc<RefCell<MainController>>;
 
