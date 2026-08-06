@@ -1,3 +1,7 @@
+use crate::gui::main_controller_action::ActionParameterType;
+use gtk::subclass::prelude::ObjectSubclassIsExt;
+use crate::model::change::Change;
+use crate::model::action::Action;
 use crate::gui::controller::Controller;
 use crate::gui::main_controller::RcController;
 use gtk::gio::ActionEntry;
@@ -54,18 +58,35 @@ impl MainController {
         *self.controller_opt_rc.borrow_mut() = controller_opt;
 
         let action_test = ActionEntry::builder("test")
-            .parameter_type(Some(&String::static_variant_type()))
             .activate(move |_obj, _simple_action, variant_opt| {
-                let value = variant_opt
-                    .expect("could not get parameter")
-                    .get::<String>()
-                    .expect("the variant need to be of type string");
-                println!("controller.test with value {:?}", value);
+                println!("controller.test");
             })
             .build();
 
-        let action_entries = vec![action_test];
+        let action_change_undefined = Self::make_action_entry(Action::EnterChange(Change::Undefined));
+        let action_entries = vec![action_test, action_change_undefined];
+        println!("initializing {:?}",action_entries);
         self.actions.add_action_entries(action_entries);
         println!("main_controller.actions() = {:?}", self.actions);
+    }
+
+    pub fn make_action_entry(action: Action) -> ActionEntry<gtk::gio::SimpleActionGroup> {
+        let mca = action.main_controller_action();
+        let action_entry = if mca.parameter_type() == ActionParameterType::None {
+        ActionEntry::builder(&mca.name())
+            .activate(move |_obj, _simple_action, _variant_opt| {
+                println!("foo bar parameterless!");
+            })
+        .build()
+        } else {
+        ActionEntry::builder(&mca.name())
+            .parameter_type(mca.parameter_type().variant_ty())
+            .activate(move |_obj, _simple_action, _variant_opt| {
+                println!("foo bar!");
+            })
+        .build()
+        };
+        println!("making ActionEntry: {:?}", action_entry);
+        action_entry
     }
 }

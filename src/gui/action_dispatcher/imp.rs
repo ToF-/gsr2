@@ -1,6 +1,5 @@
 use crate::gui::controller::RcController;
 use crate::model::find::Find;
-use gtk::gio;
 use gtk::gio::ActionEntry;
 use gtk::gio::prelude::*;
 use gtk::glib;

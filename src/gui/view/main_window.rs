@@ -1,3 +1,4 @@
+use crate::model::change::Change;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::default_values::FOCUS_SYMBOL_1;
 use crate::env::default_values::QUARTER_OPACITY;
@@ -608,16 +609,17 @@ fn attach_key_pressed_event_handlers(
                 } else {
                     panic!("can't borrow controller");
                 };
-                let action_name: String =
-                    crate::model::action::Action::single_action_name(&key_name, mode);
+                // let action = Action::EnterChange(Change::Undefined);
+                let action = Action::Unlabel;
+                let mca = action.main_controller_action();
+                println!("activating action: {:?}\n with mca: {:?}", action, mca);
                 println!(
                     "{:?}",
                     gtk::prelude::WidgetExt::activate_action(
                         &application_window,
-                        &action_name,
-                        Some(&key_name.to_variant())
-                    )
-                )
+                        &mca.name(),
+                        None)
+                    );
             };
             Propagation::Stop
         }

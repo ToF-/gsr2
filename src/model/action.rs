@@ -1,3 +1,9 @@
+use crate::gui::main_controller_action::ActionParameterType;
+use crate::gui::main_controller_action::MainControllerAction;
+use std::fmt::Display;
+use std::fmt::Error;
+use std::fmt::Formatter;
+use std::str::FromStr;
 use crate::gui::direction::Direction;
 use crate::gui::main_controller::MAIN_CONTROLLER_GROUP_NAME;
 use crate::gui::mode::Mode;
@@ -21,7 +27,7 @@ pub enum Action {
     ConfirmMoveFile(String),       // input a yes to moving selected picture files
     EnterAddTag,                   // enter new tag(s) to add to the selected pictures
     EnterCategory,                 // enter category to apply to the selected pictures
-    EnterChange(Change), // launch a specific change action (EnterCategory then AddCategory, …)
+    EnterChange(Change), // launch a specific change interaction
     EnterIndex,          // interactively enter index to jump to
     EnterLabel,          // enter label to apply to the selected pictures
     EnterRemoveTag,      // enter tag(s) to remove from the selected pictures
@@ -76,10 +82,18 @@ impl Action {
             _ => false,
         }
     }
+
+    pub fn main_controller_action(&self) -> MainControllerAction {
+        match self {
+            Action::EnterChange(Change::Undefined) => MainControllerAction::new("enter-change-undefined", ActionParameterType::None),
+            _ => MainControllerAction::new("test", ActionParameterType::None),
+        }
+    }
     pub fn single_action_name(key_name: &str, mode: Mode) -> String {
         format!("{}.{}", MAIN_CONTROLLER_GROUP_NAME, "test")
     }
 }
+
 
 #[cfg(test)]
 mod tests {
@@ -94,10 +108,10 @@ mod tests {
     }
 
     #[test]
-    fn name_for_action_given_key_name_and_mode() {
-        assert_eq!(
-            "main-controller.test",
-            Action::single_action_name("c", Mode::View)
-        );
+    fn main_controller_action_from_action() {
+        let action = Action::EnterChange(Change::Undefined);
+        let mca = action.main_controller_action();
+        assert_eq!("main-controller.enter-change-undefined", mca.name());
+        assert_eq!(ActionParameterType::None, mca.parameter_type());
     }
 }
