@@ -115,10 +115,10 @@ mod tests {
     }
 
     #[test]
-    fn gio_action_from_action() {
+    fn gio_action_ty_from_action() {
         let action = Action::PickChange;
-        let gio_action = action.gio_action_ty();
-        assert_eq!("pick-change", gio_action.name());
-        assert_eq!(GioActionParameterType::None, gio_action.parameter_type());
+        let gio_action_ty = GioActionTy::from(action);
+        assert_eq!("pick-change", gio_action_ty.name());
+        assert_eq!(GioActionParameterType::None, gio_action_ty.parameter_type());
     }
 }

@@ -1,7 +1,6 @@
 use crate::gui::action::Action;
 use crate::gui::action::gio_action_parameter_type::GioActionParameterType;
 use crate::gui::main_controller::MAIN_CONTROLLER_GROUP_NAME;
-use gtk::glib::VariantTy;
 use std::sync::OnceLock;
 
 #[derive(Debug)]
