@@ -19,11 +19,8 @@ impl GioActionParameterType {
             GioActionParameterType::String => Some(VariantTy::STRING),
             GioActionParameterType::StringPair => {
                 static STRING_PAIR: OnceLock<&'static VariantTy> = OnceLock::new();
-                Some(STRING_PAIR.get_or_init(|| {
-                    Box::leak(VariantTy::new("(ss)").unwrap().into())
-                }))
+                Some(STRING_PAIR.get_or_init(|| Box::leak(VariantTy::new("(ss)").unwrap().into())))
             }
         }
     }
 }
-

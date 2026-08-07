@@ -4,6 +4,7 @@ use crate::env::configuration::Configuration;
 use crate::file::paths::check_path_exists;
 use crate::file::paths::grand_parent_directory;
 use crate::file::paths::parent_directory;
+use crate::gui::action::Action;
 use crate::gui::control::{Control, Controls, default_controls, help_on_controls};
 use crate::gui::direction::Direction;
 use crate::gui::display_information::display_information;
@@ -17,7 +18,6 @@ use crate::gui::navigator::Navigator;
 use crate::gui::selector::Selector;
 use crate::gui::state::State;
 use crate::gui::view::main_window::{LEFT_PANE, MainWindow};
-use crate::gui::action::Action;
 use crate::model::catalog::Catalog;
 use crate::model::category::Category;
 use crate::model::category::category_from_string;
@@ -1326,10 +1326,9 @@ impl Controller {
             .add_category(new_category_name, target_category_name)
         {
             Ok(_) => {}
-            Err(e) => display_information(
-                &self.main_window().application_window(),
-                &format!("{}", e),
-            ),
+            Err(e) => {
+                display_information(&self.main_window().application_window(), &format!("{}", e))
+            }
         }
     }
 
@@ -1343,10 +1342,9 @@ impl Controller {
             .move_category(moving_category_name, target_category_name)
         {
             Ok(_) => {}
-            Err(e) => display_information(
-                &self.main_window().application_window(),
-                &format!("{}", e),
-            ),
+            Err(e) => {
+                display_information(&self.main_window().application_window(), &format!("{}", e))
+            }
         }
     }
 
@@ -1355,10 +1353,9 @@ impl Controller {
         if !self.repository.all_categories().contains(input) {
             match self.repository.remove_category(input) {
                 Ok(_) => {}
-                Err(e) => display_information(
-                    &self.main_window().application_window(),
-                    &format!("{}", e),
-                ),
+                Err(e) => {
+                    display_information(&self.main_window().application_window(), &format!("{}", e))
+                }
             }
         } else {
             display_information(
@@ -1386,10 +1383,7 @@ impl Controller {
 
     fn label_(&self) {
         let application_window = self.main_window().application_window();
-        enter_label(
-            &application_window,
-            &self.repository,
-        );
+        enter_label(&application_window, &self.repository);
     }
 
     fn rename(&self) {
@@ -1975,10 +1969,7 @@ impl Controller {
             }
         };
         if let Some(information) = information_opt {
-            display_information(
-                &self.main_window().application_window(),
-                &information,
-            )
+            display_information(&self.main_window().application_window(), &information)
         }
     }
 
@@ -2003,10 +1994,7 @@ impl Controller {
             Err(e) => Some(format!("{}", e)),
         };
         if let Some(information) = information_opt {
-            display_information(
-                &self.main_window().application_window(),
-                &information,
-            )
+            display_information(&self.main_window().application_window(), &information)
         }
     }
 
@@ -2026,10 +2014,7 @@ impl Controller {
             panic!("can't borrow");
         };
         if let Some(information) = information_opt {
-            display_information(
-                &self.main_window().application_window(),
-                information,
-            )
+            display_information(&self.main_window().application_window(), information)
         }
     }
 

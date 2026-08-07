@@ -3,9 +3,9 @@ use crate::env::default_values::ENTRY_CURSOR_1;
 use crate::env::default_values::ENTRY_CURSOR_2;
 use crate::env::default_values::ENTRY_WINDOW_HEIGHT;
 use crate::env::default_values::ENTRY_WINDOW_WIDTH;
+use crate::gui::action::Action;
 use crate::gui::editor::entry_editor::EntryEditor;
 use crate::gui::editor::entry_editor::RcEntryEditor;
-use crate::gui::action::Action;
 use gtk::Align;
 use gtk::CssProvider;
 use gtk::Orientation;
@@ -69,11 +69,8 @@ impl EntryView {
         input: &str,
         action_on_close: Action,
     ) {
-        *self.gtk_window_opt_rc.borrow_mut() = Some(Self::build_window(
-            application_window,
-            prompt,
-            input,
-        ))
+        *self.gtk_window_opt_rc.borrow_mut() =
+            Some(Self::build_window(application_window, prompt, input))
     }
 
     fn input_label(&self) -> gtk::Label {

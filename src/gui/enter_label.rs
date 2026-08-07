@@ -1,4 +1,5 @@
 use crate::env::default_values::BLINKING;
+use crate::gui::action::Action;
 use crate::gui::completion_dispenser::CompletionDispenser;
 use crate::gui::controller::Controller;
 use crate::gui::controller::RcController;
@@ -7,14 +8,10 @@ use crate::gui::entry_kind::EntryKind;
 use crate::gui::entry_prompt::entry_prompt;
 use crate::gui::validator::Validator;
 use crate::gui::view::entry_view::EntryView;
-use crate::gui::action::Action;
 use crate::model::repository::Repository;
 use std::cell::RefCell;
 
-pub fn enter_label(
-    application_window: &gtk::ApplicationWindow,
-    repository: &Repository,
-) {
+pub fn enter_label(application_window: &gtk::ApplicationWindow, repository: &Repository) {
     let entry_view = EntryView::new_with(
         application_window,
         &entry_prompt(EntryKind::Label),

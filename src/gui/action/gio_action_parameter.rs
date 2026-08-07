@@ -5,7 +5,6 @@ pub struct GioActionParameter {
     variant: gtk::glib::Variant,
 }
 
-
 impl From<i64> for GioActionParameter {
     fn from(n: i64) -> Self {
         Self {
@@ -37,4 +36,3 @@ impl GioActionParameter {
         }
     }
 }
-

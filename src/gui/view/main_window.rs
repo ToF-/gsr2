@@ -1,13 +1,12 @@
-use crate::gui::action::gio_action_ty::GioActionTy;
-use crate::model::rank::Rank;
-use crate::gui::control::default_controls;
-use crate::model::change::Change;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::default_values::FOCUS_SYMBOL_1;
 use crate::env::default_values::QUARTER_OPACITY;
 use crate::env::default_values::{FULL_OPACITY, HALF_OPACITY};
 use crate::file::paths::check_path_exists;
+use crate::gui::action::Action;
+use crate::gui::action::gio_action_ty::GioActionTy;
 use crate::gui::control::Control;
+use crate::gui::control::default_controls;
 use crate::gui::controller::Controller;
 use crate::gui::controller::RcController;
 use crate::gui::direction::Direction;
@@ -20,9 +19,10 @@ use crate::gui::view::picture_cell_box::make_picture_cell_box;
 use crate::gui::view::picture_frame::PictureFrame;
 use crate::gui::view::picture_grid::PictureGrid;
 use crate::gui::view::treelist_window::TreeListWindow;
-use crate::gui::action::Action;
 use crate::model::catalog::Catalog;
+use crate::model::change::Change;
 use crate::model::picture::Picture;
+use crate::model::rank::Rank;
 use crate::model::thumbnail::no_thumbnail_picture;
 use gtk::gdk::ModifierType;
 use gtk::gio;
@@ -188,7 +188,8 @@ impl MainWindow {
         attach_panel_event_handlers(&panel, controller_rc);
         add_actions(&application_window, controller_rc);
         // TESTING
-        application_window.insert_action_group("main-controller", Some(&main_controller.gio_action_group()));
+        application_window
+            .insert_action_group("main-controller", Some(&main_controller.gio_action_group()));
         application.set_accels_for_action("application-group.close", &["<Ctrl>W"]);
         application.set_accels_for_action("main-controller.test::foobardelaw", &["<Ctrl>Z"]);
         attach_key_pressed_event_handlers(&application_window, controller_rc);
@@ -569,46 +570,54 @@ fn attach_key_pressed_event_handlers(
 ) {
     let event_controller_key = gtk::EventControllerKey::new();
     event_controller_key.connect_key_pressed(clone!(
-            #[strong]
-            application_window,
-            #[strong]
-            controller_rc,
-            move |_, key, _key_code, _modifier_type| {
-                if let Some(key_name) = key.name() {
-                    let mode = if let Ok(controller) = controller_rc.try_borrow() {
-                        controller.state().mode()
-                    } else {
-                        panic!("can't borrow controller");
-                    };
-                    if let Some(control) = default_controls().get(&(key_name.clone().into(), mode.clone())) {
-                        println!("{key_name:?} + {mode:?} = {control:?}");
-                        let action = Action::from_control(control);
-                        let gio_action = GioActionTy::from(action.clone());
-                        if action == Action::Rank(Rank::ThreeStars) {
-                            println!("Action::Rank(Rank::ThreeStars) detected");
-                            let action_entry_name = gio_action.action_entry_name();
-                            let parameter = Some(&(i64::from(Rank::ThreeStars) as i32).to_variant());
-                            println!("activate_action({action_entry_name:?},{parameter:?})");
-                            match gtk::prelude::WidgetExt::activate_action(
-                                &application_window,
-                                &action_entry_name,
-                                parameter) {
-                                Ok(_) => {},
-                                Err(e) => { println!("error:{e}"); },
-                            }
-                        } else {
-                            match gtk::prelude::WidgetExt::activate_action(
-                                &application_window,
-                                &gio_action.action_entry_name(),
-                                None) {
-                                Ok(_) => {},
-                                Err(e) => { println!("error:{e}"); },
+        #[strong]
+        application_window,
+        #[strong]
+        controller_rc,
+        move |_, key, _key_code, _modifier_type| {
+            if let Some(key_name) = key.name() {
+                let mode = if let Ok(controller) = controller_rc.try_borrow() {
+                    controller.state().mode()
+                } else {
+                    panic!("can't borrow controller");
+                };
+                if let Some(control) =
+                    default_controls().get(&(key_name.clone().into(), mode.clone()))
+                {
+                    println!("{key_name:?} + {mode:?} = {control:?}");
+                    let action = Action::from_control(control);
+                    let gio_action = GioActionTy::from(action.clone());
+                    if action == Action::Rank(Rank::ThreeStars) {
+                        println!("Action::Rank(Rank::ThreeStars) detected");
+                        let action_entry_name = gio_action.action_entry_name();
+                        let parameter = Some(&(i64::from(Rank::ThreeStars) as i32).to_variant());
+                        println!("activate_action({action_entry_name:?},{parameter:?})");
+                        match gtk::prelude::WidgetExt::activate_action(
+                            &application_window,
+                            &action_entry_name,
+                            parameter,
+                        ) {
+                            Ok(_) => {}
+                            Err(e) => {
+                                println!("error:{e}");
                             }
                         }
-                    };
-                }
-                Propagation::Stop
+                    } else {
+                        match gtk::prelude::WidgetExt::activate_action(
+                            &application_window,
+                            &gio_action.action_entry_name(),
+                            None,
+                        ) {
+                            Ok(_) => {}
+                            Err(e) => {
+                                println!("error:{e}");
+                            }
+                        }
+                    }
+                };
             }
+            Propagation::Stop
+        }
     ));
     application_window.add_controller(event_controller_key);
 }

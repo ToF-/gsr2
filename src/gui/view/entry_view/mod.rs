@@ -1,5 +1,5 @@
-use crate::gui::editor::entry_editor::EntryEditor;
 use crate::gui::action::Action;
+use crate::gui::editor::entry_editor::EntryEditor;
 use gtk::prelude::GtkWindowExt;
 #[allow(deprecated)]
 use gtk::subclass::prelude::ObjectSubclassIsExt;
@@ -20,12 +20,8 @@ impl EntryView {
         action_on_close: Action,
     ) -> Self {
         let obj = Self::new();
-        obj.imp().initialize(
-            application_window,
-            prompt,
-            input,
-            action_on_close,
-        );
+        obj.imp()
+            .initialize(application_window, prompt, input, action_on_close);
         obj
     }
 

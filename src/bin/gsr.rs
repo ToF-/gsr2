@@ -45,22 +45,21 @@ fn main() {
                 )))
             }
         } else {
-            let result = Controller::new(config.clone(), args.clone())
-                .and_then(|controller| {
-                    let repository = controller.repository();
-                    let controller_rc: RcController = Rc::new(RefCell::new(controller));
+            let result = Controller::new(config.clone(), args.clone()).and_then(|controller| {
+                let repository = controller.repository();
+                let controller_rc: RcController = Rc::new(RefCell::new(controller));
 
-                    {
-                        let mut controller = controller_rc.borrow_mut();
-                    }
-                    let result = execute_command(args.clone(), repository, config.clone());
-                    if let Ok(Status::Ready(index)) = result {
-                        build_and_run_app(args, controller_rc, index);
-                        Ok(Status::Done)
-                    } else {
-                        result
-                    }
-                });
+                {
+                    let mut controller = controller_rc.borrow_mut();
+                }
+                let result = execute_command(args.clone(), repository, config.clone());
+                if let Ok(Status::Ready(index)) = result {
+                    build_and_run_app(args, controller_rc, index);
+                    Ok(Status::Done)
+                } else {
+                    result
+                }
+            });
             match result {
                 Ok(Status::Done) | Ok(Status::Exit) | Ok(Status::Ready(_)) => exit(0),
                 Err(e) => {
@@ -79,11 +78,7 @@ fn main() {
     }
 }
 
-fn build_and_run_app(
-    clargs: CommandLineArguments,
-    controller_rc: RcController,
-    position: usize,
-) {
+fn build_and_run_app(clargs: CommandLineArguments, controller_rc: RcController, position: usize) {
     let main_controller: MainController = MainController::new(Some(controller_rc.clone()));
     if let Ok(controller) = controller_rc.try_borrow() {
         controller.set_main_controller(main_controller.clone());
