@@ -7,7 +7,6 @@ use crate::env::default_values::FOCUS_SYMBOL_1;
 use crate::env::default_values::QUARTER_OPACITY;
 use crate::env::default_values::{FULL_OPACITY, HALF_OPACITY};
 use crate::file::paths::check_path_exists;
-use crate::gui::action_dispatcher::ActionDispatcher;
 use crate::gui::control::Control;
 use crate::gui::controller::Controller;
 use crate::gui::controller::RcController;
@@ -145,7 +144,6 @@ impl MainWindow {
         clargs: &CommandLineArguments,
         controller_rc: &RcController,
         position: usize,
-        action_dispatcher: &ActionDispatcher,
         main_controller: &MainController,
     ) {
         let pictures_per_row = if let Ok(controller) = controller_rc.try_borrow() {
@@ -190,7 +188,6 @@ impl MainWindow {
         attach_panel_event_handlers(&panel, controller_rc);
         add_actions(&application_window, controller_rc);
         // TESTING
-        application_window.insert_action_group("controller", Some(&action_dispatcher.actions()));
         application_window.insert_action_group("main-controller", Some(&main_controller.gio_action_group()));
         application.set_accels_for_action("application-group.close", &["<Ctrl>W"]);
         application.set_accels_for_action("main-controller.test::foobardelaw", &["<Ctrl>Z"]);

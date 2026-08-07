@@ -6,7 +6,6 @@ use gsr::env::configuration::Configuration;
 use gsr::env::default_values::APPLICATION_ID;
 use gsr::file::database::Database;
 use gsr::file::paths::file_exists;
-use gsr::gui::action_dispatcher::ActionDispatcher;
 use gsr::gui::controller::Controller;
 use gsr::gui::controller::RcController;
 use gsr::gui::main_controller::MainController;
@@ -46,21 +45,17 @@ fn main() {
                 )))
             }
         } else {
-            let action_dispatcher = ActionDispatcher::new();
-            let result = Controller::new(config.clone(), args.clone(), action_dispatcher.clone())
+            let result = Controller::new(config.clone(), args.clone())
                 .and_then(|controller| {
                     let repository = controller.repository();
                     let controller_rc: RcController = Rc::new(RefCell::new(controller));
 
                     {
                         let mut controller = controller_rc.borrow_mut();
-                        controller.set_action_dispatcher(action_dispatcher.clone());
                     }
-                    action_dispatcher.set_rc_controller(controller_rc.clone());
-                    println!("{:?}", action_dispatcher);
                     let result = execute_command(args.clone(), repository, config.clone());
                     if let Ok(Status::Ready(index)) = result {
-                        build_and_run_app(args, controller_rc, action_dispatcher, index);
+                        build_and_run_app(args, controller_rc, index);
                         Ok(Status::Done)
                     } else {
                         result
@@ -87,7 +82,6 @@ fn main() {
 fn build_and_run_app(
     clargs: CommandLineArguments,
     controller_rc: RcController,
-    action_dispatcher: ActionDispatcher,
     position: usize,
 ) {
     let main_controller: MainController = MainController::new(Some(controller_rc.clone()));
@@ -111,7 +105,6 @@ fn build_and_run_app(
                 &clargs,
                 &controller_rc,
                 position,
-                &action_dispatcher,
                 &main_controller,
             )
         }

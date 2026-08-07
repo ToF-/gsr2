@@ -4,7 +4,6 @@ use crate::env::configuration::Configuration;
 use crate::file::paths::check_path_exists;
 use crate::file::paths::grand_parent_directory;
 use crate::file::paths::parent_directory;
-use crate::gui::action_dispatcher::ActionDispatcher;
 use crate::gui::control::{Control, Controls, default_controls, help_on_controls};
 use crate::gui::direction::Direction;
 use crate::gui::display_information::display_information;
@@ -57,7 +56,6 @@ pub struct Controller {
     editor_rc: RefCell<Editor>,
     selector_rc: RefCell<Selector>,
     last_action_rc: RefCell<Action>,
-    action_dispatcher_rc: RefCell<ActionDispatcher>,
     main_controller_rc: RefCell<Option<MainController>>,
 }
 
@@ -67,7 +65,6 @@ impl Controller {
     pub fn new(
         config: Configuration,
         command_line_arguments: CommandLineArguments,
-        action_dispatcher: ActionDispatcher,
     ) -> IOResult<Self> {
         let pictures_per_row = if let Some(grid) = command_line_arguments.grid {
             grid
@@ -120,7 +117,6 @@ impl Controller {
             )),
             main_window_opt_rc: RefCell::new(None),
             last_action_rc: RefCell::new(Action::Nothing),
-            action_dispatcher_rc: RefCell::new(action_dispatcher),
             main_controller_rc: RefCell::new(None),
         };
         Ok(controller)
@@ -141,13 +137,6 @@ impl Controller {
     }
     pub fn set_last_action(&self, action: Action) {
         *self.last_action_rc.borrow_mut() = action
-    }
-    pub fn action_dispatcher(&self) -> ActionDispatcher {
-        self.action_dispatcher_rc.borrow().clone()
-    }
-
-    pub fn set_action_dispatcher(&self, action_dispatcher: ActionDispatcher) {
-        *self.action_dispatcher_rc.borrow_mut() = action_dispatcher
     }
 
     pub fn command_line_arguments(&self) -> CommandLineArguments {
@@ -898,7 +887,6 @@ impl Controller {
             display_information(
                 &self.main_window().application_window(),
                 &format!("the category {} already exists", category_name),
-                self.action_dispatcher(),
             );
         }
     }
@@ -946,7 +934,6 @@ impl Controller {
             display_information(
                 &self.main_window().application_window(),
                 "selection not allowed while in a directory or a selection",
-                self.action_dispatcher(),
             )
         }
     }
@@ -1157,7 +1144,6 @@ impl Controller {
             display_information(
                 &self.main_window().application_window(),
                 "cannot go to a directory when not in covers view",
-                self.action_dispatcher(),
             )
         }
     }
@@ -1317,7 +1303,6 @@ impl Controller {
             display_information(
                 &self.main_window().application_window(),
                 "cannot toggle cover selection while in a directory",
-                self.action_dispatcher(),
             )
         }
     }
@@ -1344,7 +1329,6 @@ impl Controller {
             Err(e) => display_information(
                 &self.main_window().application_window(),
                 &format!("{}", e),
-                self.action_dispatcher(),
             ),
         }
     }
@@ -1362,7 +1346,6 @@ impl Controller {
             Err(e) => display_information(
                 &self.main_window().application_window(),
                 &format!("{}", e),
-                self.action_dispatcher(),
             ),
         }
     }
@@ -1375,14 +1358,12 @@ impl Controller {
                 Err(e) => display_information(
                     &self.main_window().application_window(),
                     &format!("{}", e),
-                    self.action_dispatcher(),
                 ),
             }
         } else {
             display_information(
                 &self.main_window().application_window(),
                 &format!("category {} is being used and cannot be removed", input),
-                self.action_dispatcher(),
             )
         }
     }
@@ -1408,7 +1389,6 @@ impl Controller {
         enter_label(
             &application_window,
             &self.repository,
-            self.action_dispatcher(),
         );
     }
 
@@ -1508,7 +1488,6 @@ impl Controller {
         display_information(
             &self.main_window().application_window(),
             &help_on_controls(),
-            self.action_dispatcher(),
         );
     }
 
@@ -1548,7 +1527,6 @@ impl Controller {
             display_information(
                 &self.main_window().application_window(),
                 &format!("no picture with mark {}", mark),
-                self.action_dispatcher(),
             );
         }
     }
@@ -2000,7 +1978,6 @@ impl Controller {
             display_information(
                 &self.main_window().application_window(),
                 &information,
-                self.action_dispatcher(),
             )
         }
     }
@@ -2029,7 +2006,6 @@ impl Controller {
             display_information(
                 &self.main_window().application_window(),
                 &information,
-                self.action_dispatcher(),
             )
         }
     }
@@ -2053,7 +2029,6 @@ impl Controller {
             display_information(
                 &self.main_window().application_window(),
                 information,
-                self.action_dispatcher(),
             )
         }
     }
@@ -2072,7 +2047,6 @@ impl Controller {
             &application_window,
             &entry_prompt(EntryKind::FindLabel),
             "",
-            &self.action_dispatcher(),
             Action::Find(Find::Label),
         );
 

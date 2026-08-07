@@ -1,5 +1,4 @@
 pub mod action;
-pub mod action_dispatcher;
 pub mod completion_dispenser;
 pub mod control;
 pub mod controller;

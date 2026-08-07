@@ -1,5 +1,4 @@
 use crate::env::default_values::BLINKING;
-use crate::gui::action_dispatcher::ActionDispatcher;
 use crate::gui::completion_dispenser::CompletionDispenser;
 use crate::gui::controller::Controller;
 use crate::gui::controller::RcController;
@@ -15,13 +14,11 @@ use std::cell::RefCell;
 pub fn enter_label(
     application_window: &gtk::ApplicationWindow,
     repository: &Repository,
-    action_dispatcher: ActionDispatcher,
 ) {
     let entry_view = EntryView::new_with(
         application_window,
         &entry_prompt(EntryKind::Label),
         "",
-        &action_dispatcher,
         Action::Nothing,
     ); // TEMPORARY
     let entry_view_rc = RefCell::new(entry_view);
