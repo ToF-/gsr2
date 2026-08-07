@@ -2,6 +2,7 @@
 ## Gallery Show in Rust
 
 ## Todo
+- [ ] explore subclassing window to to make the main_window *have* the controller instead of the controller having the main_window 
 - [ ] make helpers to convert any action into a gio_simple_action with the parameters correctly encoded and decode back any gio_simple_action into original action
 - [X] make a correspondance function mapping a key name in a context (mode, entry kind) to a main-controller.action
 - [ ] make the Controller a glib Object with trait ActionMap so that it will itself receive the action entries signals
