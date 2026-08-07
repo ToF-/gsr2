@@ -20,8 +20,8 @@ impl MainController {
         obj
     }
 
-    pub fn actions(&self) -> gtk::gio::SimpleActionGroup {
-        self.imp().actions.clone()
+    pub fn gio_action_group(&self) -> gtk::gio::SimpleActionGroup {
+        self.imp().gio_action_group.clone()
     }
 
     pub fn close(&self) {

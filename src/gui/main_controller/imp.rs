@@ -1,8 +1,9 @@
+use crate::gui::action::gio_action_ty::GioActionTy;
 use crate::model::rank::Rank;
 use crate::gui::controller::Controller;
 use crate::gui::main_controller::RcController;
-use crate::gui::gio_action::GioActionParameterType;
-use crate::model::action::Action;
+use crate::gui::action::gio_action_parameter_type::GioActionParameterType;
+use crate::gui::action::Action;
 use crate::model::change::Change;
 use gtk::gio::ActionEntry;
 use gtk::gio::prelude::*;
@@ -15,14 +16,14 @@ use std::cell::RefCell;
 use std::sync::OnceLock;
 
 pub struct MainController {
-    pub actions: gtk::gio::SimpleActionGroup,
+    pub gio_action_group: gtk::gio::SimpleActionGroup,
     controller_opt_rc: RefCell<Option<RcController>>,
 }
 
 impl Default for MainController {
     fn default() -> Self {
         Self {
-            actions: gtk::gio::SimpleActionGroup::new(),
+            gio_action_group: gtk::gio::SimpleActionGroup::new(),
             controller_opt_rc: RefCell::new(None),
         }
     }
@@ -70,7 +71,7 @@ impl MainController {
         action_entries.push(Self::make_parameterless_action_entry(Action::PickViewOption, &controller_rc));
         action_entries.push(Self::make_parameterless_action_entry(Action::PickOrderSetting, &controller_rc));
         println!("initializing {:?}", action_entries);
-        self.actions.add_action_entries(action_entries);
+        self.gio_action_group.add_action_entries(action_entries);
     }
 
     pub fn make_action_entry<F>(
@@ -82,9 +83,9 @@ impl MainController {
             + 'static,
     {
         println!("make_action_entry({action:?})");
-        let mca = action.gio_action();
-        let action_entry = ActionEntry::builder(&mca.name())
-            .parameter_type(mca.parameter_type().variant_ty())
+        let gio_action_ty = GioActionTy::from(action);
+        let action_entry = ActionEntry::builder(&gio_action_ty.name())
+            .parameter_type(gio_action_ty.parameter_type().variant_ty())
             .activate(activate)
             .build();
         println!("{action_entry:?}");

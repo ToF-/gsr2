@@ -1,6 +1,6 @@
 use crate::gui::action_dispatcher::ActionDispatcher;
 use crate::gui::editor::entry_editor::EntryEditor;
-use crate::model::action::Action;
+use crate::gui::action::Action;
 use gtk::prelude::GtkWindowExt;
 #[allow(deprecated)]
 use gtk::subclass::prelude::ObjectSubclassIsExt;

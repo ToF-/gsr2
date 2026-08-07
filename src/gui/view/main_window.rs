@@ -1,3 +1,4 @@
+use crate::gui::action::gio_action_ty::GioActionTy;
 use crate::model::rank::Rank;
 use crate::gui::control::default_controls;
 use crate::model::change::Change;
@@ -20,7 +21,7 @@ use crate::gui::view::picture_cell_box::make_picture_cell_box;
 use crate::gui::view::picture_frame::PictureFrame;
 use crate::gui::view::picture_grid::PictureGrid;
 use crate::gui::view::treelist_window::TreeListWindow;
-use crate::model::action::Action;
+use crate::gui::action::Action;
 use crate::model::catalog::Catalog;
 use crate::model::picture::Picture;
 use crate::model::thumbnail::no_thumbnail_picture;
@@ -190,7 +191,7 @@ impl MainWindow {
         add_actions(&application_window, controller_rc);
         // TESTING
         application_window.insert_action_group("controller", Some(&action_dispatcher.actions()));
-        application_window.insert_action_group("main-controller", Some(&main_controller.actions()));
+        application_window.insert_action_group("main-controller", Some(&main_controller.gio_action_group()));
         application.set_accels_for_action("application-group.close", &["<Ctrl>W"]);
         application.set_accels_for_action("main-controller.test::foobardelaw", &["<Ctrl>Z"]);
         attach_key_pressed_event_handlers(&application_window, controller_rc);
@@ -585,7 +586,7 @@ fn attach_key_pressed_event_handlers(
                     if let Some(control) = default_controls().get(&(key_name.clone().into(), mode.clone())) {
                         println!("{key_name:?} + {mode:?} = {control:?}");
                         let action = Action::from_control(control);
-                        let gio_action = action.gio_action();
+                        let gio_action = GioActionTy::from(action.clone());
                         if action == Action::Rank(Rank::ThreeStars) {
                             println!("Action::Rank(Rank::ThreeStars) detected");
                             let action_entry_name = gio_action.action_entry_name();

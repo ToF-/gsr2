@@ -1,3 +1,4 @@
+pub mod action;
 pub mod action_dispatcher;
 pub mod completion_dispenser;
 pub mod control;
@@ -11,7 +12,6 @@ pub mod entry_kind;
 pub mod entry_prompt;
 pub mod event;
 pub mod main_controller;
-pub mod gio_action;
 pub mod mode;
 pub mod navigator;
 pub mod selector;

@@ -6,7 +6,7 @@ use crate::env::default_values::ENTRY_WINDOW_WIDTH;
 use crate::gui::action_dispatcher::ActionDispatcher;
 use crate::gui::editor::entry_editor::EntryEditor;
 use crate::gui::editor::entry_editor::RcEntryEditor;
-use crate::model::action::Action;
+use crate::gui::action::Action;
 use gtk::Align;
 use gtk::CssProvider;
 use gtk::Orientation;

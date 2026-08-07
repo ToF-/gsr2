@@ -1,4 +1,3 @@
-pub mod action;
 pub mod catalog;
 pub mod categories;
 pub mod category;

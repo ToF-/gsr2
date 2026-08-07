@@ -87,7 +87,7 @@ impl EntryWindow {
             std::cell::RefCell::new(EntryEditor::new());
         Self::attach_key_pressed_event_handler(&window, controller_rc, &entry_editor);
         Self::attach_cursor_blink_event(&window, controller_rc);
-        Self::attach_actions(&window, controller_rc);
+        Self::attach_gio_action_group(&window, controller_rc);
         EntryWindow {
             window,
             entry_editor,
@@ -98,25 +98,14 @@ impl EntryWindow {
         self.entry_editor.clone()
     }
 
-    fn attach_actions(window: &gtk::Window, controller_rc: &RcController) {
-        {
-            if let Ok(_) = controller_rc.try_borrow() {
-                println!("entry_window.attach_actions controller available")
-            } else {
-                println!("entry_window.attach_actions controller borrowed")
-            }
-        }
+    fn attach_gio_action_group(window: &gtk::Window, controller_rc: &RcController) {
         if let Ok(controller) = controller_rc.try_borrow() {
-            println!(
-                "controller.main_controller().actions() = {:?}",
-                controller.main_controller().actions()
-            );
             window.insert_action_group(
                 "main-controller",
-                Some(&controller.main_controller().actions()),
-            );
+                Some(&controller.main_controller().gio_action_group()),
+            )
         } else {
-            println!("nope");
+            panic!("can't borrow")
         }
     }
 

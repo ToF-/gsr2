@@ -8,7 +8,7 @@ use crate::gui::entry_kind::EntryKind;
 use crate::gui::entry_prompt::entry_prompt;
 use crate::gui::validator::Validator;
 use crate::gui::view::entry_view::EntryView;
-use crate::model::action::Action;
+use crate::gui::action::Action;
 use crate::model::repository::Repository;
 use std::cell::RefCell;
 

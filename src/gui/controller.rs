@@ -18,7 +18,7 @@ use crate::gui::navigator::Navigator;
 use crate::gui::selector::Selector;
 use crate::gui::state::State;
 use crate::gui::view::main_window::{LEFT_PANE, MainWindow};
-use crate::model::action::Action;
+use crate::gui::action::Action;
 use crate::model::catalog::Catalog;
 use crate::model::category::Category;
 use crate::model::category::category_from_string;
