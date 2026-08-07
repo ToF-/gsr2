@@ -15,11 +15,15 @@ gtk::glib::wrapper! {
 
 impl MainController {
     pub fn new(controller_opt: Option<RcController>) -> Self {
+        println!("MainController mod new");
         let obj: Self = gtk::glib::Object::new();
         obj.imp().initialize(controller_opt);
         obj
     }
 
+    pub fn controlller_rc_opt(&self) -> Option<RcController> {
+        self.imp().controller_rc_opt()
+    }
     pub fn gio_action_group(&self) -> gtk::gio::SimpleActionGroup {
         self.imp().gio_action_group.clone()
     }

@@ -1,8 +1,7 @@
-use std::cell::Cell;
 use gtk::glib;
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
-
+use std::cell::Cell;
 
 #[derive(Default)]
 pub struct GsrWindow {

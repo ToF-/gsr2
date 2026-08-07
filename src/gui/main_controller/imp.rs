@@ -15,6 +15,7 @@ use gtk::subclass::prelude::ObjectSubclassIsExt;
 use std::cell::RefCell;
 use std::sync::OnceLock;
 
+#[derive(Debug)]
 pub struct MainController {
     pub gio_action_group: gtk::gio::SimpleActionGroup,
     controller_opt_rc: RefCell<Option<RcController>>,
@@ -56,7 +57,11 @@ impl MainController {
         obj
     }
 
+    pub fn controller_rc_opt(&self) -> Option<RcController> {
+        self.controller_opt_rc.borrow().clone()
+    }
     pub fn initialize(&self, controller_opt: Option<RcController>) {
+        dbg!(&self);
         *self.controller_opt_rc.borrow_mut() = controller_opt.clone();
 
         let controller_rc = controller_opt.unwrap();
@@ -84,7 +89,7 @@ impl MainController {
             Action::PickOrderSetting,
             &controller_rc,
         ));
-        println!("initializing {:?}", action_entries);
+        dbg!(&action_entries);
         self.gio_action_group.add_action_entries(action_entries);
     }
 
@@ -96,13 +101,12 @@ impl MainController {
         F: Fn(&gtk::gio::SimpleActionGroup, &gtk::gio::SimpleAction, Option<&gtk::glib::Variant>)
             + 'static,
     {
-        println!("make_action_entry({action:?})");
+        dbg!(&action);
         let gio_action_ty = GioActionTy::from(action);
         let action_entry = ActionEntry::builder(&gio_action_ty.name())
             .parameter_type(gio_action_ty.parameter_type().variant_ty())
             .activate(activate)
             .build();
-        println!("{action_entry:?}");
         action_entry
     }
 

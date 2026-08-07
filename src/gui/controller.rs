@@ -56,7 +56,6 @@ pub struct Controller {
     editor_rc: RefCell<Editor>,
     selector_rc: RefCell<Selector>,
     last_action_rc: RefCell<Action>,
-    main_controller_rc: RefCell<Option<MainController>>,
 }
 
 pub type RcController = Rc<RefCell<Controller>>;
@@ -117,21 +116,11 @@ impl Controller {
             )),
             main_window_opt_rc: RefCell::new(None),
             last_action_rc: RefCell::new(Action::Nothing),
-            main_controller_rc: RefCell::new(None),
         };
         Ok(controller)
     }
 
-    pub fn set_main_controller(&self, main_controller: MainController) {
-        let mut main_controller_opt = self.main_controller_rc.borrow_mut();
-        *main_controller_opt = Some(main_controller)
-    }
 
-    pub fn main_controller(&self) -> MainController {
-        let main_controller_opt = self.main_controller_rc.borrow();
-        let main_controller = main_controller_opt.as_ref().unwrap();
-        main_controller.clone()
-    }
     pub fn last_action(&self) -> Action {
         self.last_action_rc.borrow().clone()
     }

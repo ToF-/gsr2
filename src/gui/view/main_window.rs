@@ -12,6 +12,7 @@ use crate::gui::controller::RcController;
 use crate::gui::direction::Direction;
 use crate::gui::display::title_display;
 use crate::gui::event::Event::{KeyPressed, NextSlideDelay, PaneClicked};
+use crate::gui::gsr_application::GsrApplication;
 use crate::gui::main_controller::MainController;
 use crate::gui::mode::Mode;
 use crate::gui::view::entry_window::EntryWindow;
@@ -51,7 +52,6 @@ use std::path::Path;
 use std::path::PathBuf;
 use std::sync::OnceLock;
 use std::time::Duration;
-use crate::gui::gsr_application::GsrApplication;
 
 pub const LEFT_PANE: usize = 0;
 pub const RIGHT_PANE: usize = 1;

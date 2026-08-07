@@ -1,3 +1,5 @@
+use crate::gui::main_controller::MainController;
+use crate::gui::gsr_application::GsrApplication;
 use crate::env::default_values::{ENTRY_CURSOR_1, ENTRY_CURSOR_2};
 use crate::env::default_values::{ENTRY_WINDOW_HEIGHT, ENTRY_WINDOW_WIDTH};
 use crate::gui::controller::RcController;
@@ -87,7 +89,19 @@ impl EntryWindow {
             std::cell::RefCell::new(EntryEditor::new());
         Self::attach_key_pressed_event_handler(&window, controller_rc, &entry_editor);
         Self::attach_cursor_blink_event(&window, controller_rc);
-        Self::attach_gio_action_group(&window, controller_rc);
+        let main_controller = if let Some(application) = application_window.application() {
+            let gsr_application = application.downcast::<GsrApplication>()
+            .expect("application is not a GsrApplication");
+            let main_controller_rc = gsr_application.main_controller_rc();
+            if let Ok(main_controller) = main_controller_rc.try_borrow() {
+                main_controller.clone()
+            } else {
+                panic!("can't borrow")
+            }
+        } else {
+            panic!("can't get application")
+        };
+        Self::attach_gio_action_group(&window, controller_rc, &main_controller);
         EntryWindow {
             window,
             entry_editor,
@@ -98,11 +112,11 @@ impl EntryWindow {
         self.entry_editor.clone()
     }
 
-    fn attach_gio_action_group(window: &gtk::Window, controller_rc: &RcController) {
+    fn attach_gio_action_group(window: &gtk::Window, controller_rc: &RcController, main_controller: &MainController) {
         if let Ok(controller) = controller_rc.try_borrow() {
             window.insert_action_group(
                 "main-controller",
-                Some(&controller.main_controller().gio_action_group()),
+                Some(&main_controller.gio_action_group()),
             )
         } else {
             panic!("can't borrow")
