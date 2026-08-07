@@ -15,8 +15,8 @@ impl GsrApplication {
         self.main_controller_rc.clone()
     }
 
-    pub fn set_main_controller_rc(&self, main_controller: MainController) {
-        *self.main_controller_rc.borrow_mut() = main_controller;
+    pub fn set_main_controller_rc(&self, main_controller: &MainController) {
+        *self.main_controller_rc.borrow_mut() = main_controller.clone();
     }
 }
 impl Default for GsrApplication {

@@ -18,7 +18,7 @@ glib::wrapper! {
 }
 
 impl GsrApplication {
-    pub fn new(application_id: &str, main_controller: MainController) -> Self {
+    pub fn new(application_id: &str, main_controller: &MainController) -> Self {
         let obj: Self = 
         Object::builder()
             .property("application-id", application_id)
@@ -31,7 +31,7 @@ impl GsrApplication {
         self.imp().main_controller_rc()
     }
 
-    pub fn set_main_controller_rc(&self, main_controller: MainController) {
+    pub fn set_main_controller_rc(&self, main_controller: &MainController) {
         self.imp().set_main_controller_rc(main_controller)
     }
 
