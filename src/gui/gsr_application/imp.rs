@@ -1,6 +1,8 @@
+use gtk::Application;
 use gtk::glib;
 use gtk::gio::ActionMap;
 use gtk::gio::ActionGroup;
+use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 use gtk::subclass::prelude::ApplicationImpl;
 
@@ -18,4 +20,4 @@ impl ObjectImpl for GsrApplication {}
 
 impl ApplicationImpl for GsrApplication {}
 
-impl ActionGroupImpl for  GsrApplication {}
+impl GtkApplicationImpl for GsrApplication {}

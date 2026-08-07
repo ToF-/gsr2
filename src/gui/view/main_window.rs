@@ -51,6 +51,7 @@ use std::path::Path;
 use std::path::PathBuf;
 use std::sync::OnceLock;
 use std::time::Duration;
+use crate::gui::gsr_application::GsrApplication;
 
 pub const LEFT_PANE: usize = 0;
 pub const RIGHT_PANE: usize = 1;
@@ -71,7 +72,7 @@ impl MainWindow {
     // }
 
     pub fn new_from_application(
-        application: &gtk::Application,
+        application: &GsrApplication,
         controller_rc: &RcController,
     ) -> Self {
         let application_window = application
@@ -140,7 +141,7 @@ impl MainWindow {
     }
 
     pub fn activate(
-        application: &gtk::Application,
+        application: &GsrApplication,
         clargs: &CommandLineArguments,
         controller_rc: &RcController,
         position: usize,
@@ -199,7 +200,7 @@ impl MainWindow {
         application_window.present();
     }
 
-    pub fn run_application(application: gtk::Application) {
+    pub fn run_application(application: GsrApplication) {
         let no_args: Vec<String> = vec![];
         application.run_with_args(&no_args);
     }
@@ -452,7 +453,7 @@ impl MainWindow {
 }
 
 fn make_application_window(
-    application: &gtk::Application,
+    application: &GsrApplication,
     clargs: &CommandLineArguments,
 ) -> ApplicationWindow {
     let gsrWindow = ApplicationWindow::new(application);

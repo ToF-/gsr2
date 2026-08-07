@@ -1,3 +1,4 @@
+use gsr::gui::view::application::make_gsr_application;
 use gsr::cli::command::Command;
 use gsr::cli::command::execute_command;
 use gsr::cli::command_line_arguments::CommandLineArguments;
@@ -9,8 +10,8 @@ use gsr::file::paths::file_exists;
 use gsr::gui::controller::Controller;
 use gsr::gui::controller::RcController;
 use gsr::gui::main_controller::MainController;
-use gsr::gui::view::application::make_application;
 use gsr::gui::view::main_window::MainWindow;
+use gsr::gui::gsr_application::GsrApplication;
 use gtk::glib::clone;
 use gtk::prelude::ApplicationExt;
 use std::cell::RefCell;
@@ -85,18 +86,18 @@ fn build_and_run_app(clargs: CommandLineArguments, controller_rc: RcController, 
     } else {
         panic!("can't borrow");
     }
-    let application: gtk::Application = make_application(APPLICATION_ID);
+    let gsr_application: GsrApplication = make_gsr_application(APPLICATION_ID);
     // application.insert_action_group("main-controller", Some(main_controller.actions()));
-    application.connect_activate(clone!(
+    gsr_application.connect_activate(clone!(
         #[strong]
         clargs,
         #[strong]
         controller_rc,
         #[strong]
         main_controller,
-        move |application: &gtk::Application| {
+        move |gsr_application: &GsrApplication| {
             MainWindow::activate(
-                application,
+                &gsr_application,
                 &clargs,
                 &controller_rc,
                 position,
@@ -104,5 +105,5 @@ fn build_and_run_app(clargs: CommandLineArguments, controller_rc: RcController, 
             )
         }
     ));
-    MainWindow::run_application(application);
+    MainWindow::run_application(gsr_application);
 }

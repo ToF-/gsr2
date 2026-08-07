@@ -10,6 +10,7 @@ pub mod enter_label;
 pub mod entry_kind;
 pub mod entry_prompt;
 pub mod event;
+pub mod gsr_application;
 pub mod main_controller;
 pub mod mode;
 pub mod navigator;

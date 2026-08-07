@@ -1,11 +1,10 @@
 use gtk::Application;
 use gtk::gdk::Display;
 use gtk::prelude::ApplicationExt;
+use crate::gui::gsr_application::GsrApplication;
 
-pub fn make_application(application_id: &str) -> gtk::Application {
-    let application = Application::builder()
-        .application_id(application_id)
-        .build();
+pub fn make_gsr_application(application_id: &str) -> GsrApplication {
+    let application = GsrApplication::new(application_id);
     application.connect_startup(|_| startup_gui());
     application
 }
