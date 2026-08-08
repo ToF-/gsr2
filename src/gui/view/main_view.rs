@@ -57,7 +57,7 @@ pub const LEFT_PANE: usize = 0;
 pub const RIGHT_PANE: usize = 1;
 
 #[derive(Clone, Debug)]
-pub struct MainWindow {
+pub struct MainView {
     picture_grid: PictureGrid,
     picture_frame: PictureFrame,
     application_window: gtk::ApplicationWindow,
@@ -66,9 +66,9 @@ pub struct MainWindow {
     controller_rc: RcController,
 }
 
-impl MainWindow {
+impl MainView {
     // pub fn new(application: &gtk::Application, args: &CommandLineArguments, controller_rc: &RcController) -> Self {
-    //     // main_window_opt_rc.borrow().clone().unwrap()
+    //     // main_view_opt_rc.borrow().clone().unwrap()
     // }
 
     pub fn new_from_application(
@@ -130,7 +130,7 @@ impl MainWindow {
         let picture_grid = PictureGrid::new_from_grid(&grid, controller_rc);
         let picture_frame = PictureFrame::new_from_frame(&frame);
 
-        MainWindow {
+        MainView {
             picture_grid: picture_grid.clone(),
             picture_frame: picture_frame.clone(),
             application_window: application_window.clone(),
@@ -171,9 +171,9 @@ impl MainWindow {
         let application_window = make_application_window(application, clargs);
         application_window.set_child(Some(&view_stack));
         {
-            let main_window = MainWindow::new_from_application(application, controller_rc);
+            let main_view = MainView::new_from_application(application, controller_rc);
             if let Ok(controller) = controller_rc.try_borrow() {
-                controller.set_main_window(main_window);
+                controller.set_main_view(main_view);
                 let mut navigator = controller.navigator();
                 if navigator.can_move(Direction::Index { value: position }) {
                     navigator.move_towards(Direction::Index { value: position });
@@ -182,8 +182,8 @@ impl MainWindow {
                 }
             }
             if let Ok(mut controller) = controller_rc.try_borrow() {
-                controller.main_window().set_pictures(&mut controller);
-                controller.main_window().set_title(&controller);
+                controller.main_view().set_pictures(&mut controller);
+                controller.main_view().set_title(&controller);
             }
         };
         attach_panel_event_handlers(&panel, controller_rc);

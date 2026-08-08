@@ -2,7 +2,7 @@ pub mod application;
 pub mod entry_view;
 pub mod entry_window;
 pub mod gsr_window;
-pub mod main_window;
+pub mod main_view;
 pub mod palette_area;
 pub mod picture_cell_box;
 pub mod picture_frame;

@@ -6,7 +6,7 @@ use crate::gui::entry_kind::EntryKind;
 use crate::gui::entry_prompt::entry_prompt;
 use crate::gui::mode::Mode;
 use crate::gui::view::entry_window::EntryWindow;
-use crate::gui::view::main_window::MainWindow;
+use crate::gui::view::main_view::MainView;
 use crate::model::order::Order;
 use crate::model::tags::{Tags, empty_tags};
 use gdk::Key;
@@ -42,14 +42,14 @@ impl Editor {
 
     pub fn begin(
         &mut self,
-        main_window: &MainWindow,
+        main_view: &MainView,
         entry_kind: EntryKind,
         choice_opt: Option<Tags>,
     ) {
         println!("editor.begin");
         self.prompt = entry_prompt(entry_kind.clone());
         self.begin_input(entry_kind, choice_opt);
-        self.entry_window_opt = Some(main_window.popup_entry_window(&self.prompt, &self.input));
+        self.entry_window_opt = Some(main_view.popup_entry_window(&self.prompt, &self.input));
     }
 
     pub fn begin_input(&mut self, kind: EntryKind, choice_opt: Option<Tags>) {

@@ -11,7 +11,7 @@ use gsr::gui::controller::RcController;
 use gsr::gui::gsr_application::GsrApplication;
 use gsr::gui::main_controller::MainController;
 use gsr::gui::view::application::make_gsr_application;
-use gsr::gui::view::main_window::MainWindow;
+use gsr::gui::view::main_view::MainView;
 use gtk::glib::clone;
 use gtk::prelude::ApplicationExt;
 use std::cell::RefCell;
@@ -84,5 +84,5 @@ fn build_and_run_app(clargs: CommandLineArguments, controller_rc: RcController, 
     let gsr_application: GsrApplication = make_gsr_application(APPLICATION_ID, &main_controller);
     // application.insert_action_group("main-controller", Some(main_controller.actions()));
     gsr_application.connect_activation(clargs, position);
-    MainWindow::run_application(gsr_application);
+    MainView::run_application(gsr_application);
 }

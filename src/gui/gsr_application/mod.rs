@@ -1,7 +1,7 @@
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::gui::main_controller::MainController;
 use crate::gui::main_controller::RcMainController;
-use crate::gui::view::main_window::MainWindow;
+use crate::gui::view::main_view::MainView;
 use gtk::glib::clone;
 use gtk::prelude::ApplicationExt;
 use gtk::subclass::prelude::*;
@@ -44,7 +44,7 @@ impl GsrApplication {
                 #[strong]
                 controller_rc,
                 move |gsr_application: &GsrApplication| {
-                    MainWindow::activate(
+                    MainView::activate(
                         gsr_application,
                         &clargs,
                         &controller_rc,

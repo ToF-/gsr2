@@ -17,7 +17,7 @@ use crate::gui::mode::Mode;
 use crate::gui::navigator::Navigator;
 use crate::gui::selector::Selector;
 use crate::gui::state::State;
-use crate::gui::view::main_window::{LEFT_PANE, MainWindow};
+use crate::gui::view::main_view::{LEFT_PANE, MainView};
 use crate::model::catalog::Catalog;
 use crate::model::category::Category;
 use crate::model::category::category_from_string;
@@ -52,7 +52,7 @@ pub struct Controller {
     navigator_rc: RefCell<Navigator>,
     controls: Controls,
     state_rc: RefCell<State>,
-    main_window_opt_rc: RefCell<Option<MainWindow>>,
+    main_view_opt_rc: RefCell<Option<MainView>>,
     editor_rc: RefCell<Editor>,
     selector_rc: RefCell<Selector>,
     last_action_rc: RefCell<Action>,
@@ -114,7 +114,7 @@ impl Controller {
                 pictures_per_row as usize,
                 cli.slideshow().is_some(),
             )),
-            main_window_opt_rc: RefCell::new(None),
+            main_view_opt_rc: RefCell::new(None),
             last_action_rc: RefCell::new(Action::Nothing),
         };
         Ok(controller)
@@ -144,16 +144,16 @@ impl Controller {
     pub fn set_selected(&self, selected: &str) {
         self.selector_rc.borrow_mut().set_selected(selected);
     }
-    pub fn main_window(&self) -> MainWindow {
-        let main_window_opt = self.main_window_opt_rc.borrow().clone();
-        if let Some(main_window) = main_window_opt {
-            main_window.clone()
+    pub fn main_view(&self) -> MainView {
+        let main_view_opt = self.main_view_opt_rc.borrow().clone();
+        if let Some(main_view) = main_view_opt {
+            main_view.clone()
         } else {
-            panic!("main_window is not set");
+            panic!("main_view is not set");
         }
     }
-    pub fn set_main_window(&self, main_window: MainWindow) {
-        *self.main_window_opt_rc.borrow_mut() = Some(main_window)
+    pub fn set_main_view(&self, main_view: MainView) {
+        *self.main_view_opt_rc.borrow_mut() = Some(main_view)
     }
 
     pub fn state(&self) -> State {
@@ -259,7 +259,7 @@ impl Controller {
         let binding = self.navigator_rc.clone();
         let mut navigator = binding.borrow_mut();
         {
-            self.main_window()
+            self.main_view()
                 .set_label_text_for_current_picture(self, None);
             if let Some(index) = navigator.position_from_coords(row as usize, col as usize)
                 && navigator.can_move(Direction::Index { value: index })
@@ -267,8 +267,8 @@ impl Controller {
                 navigator.move_towards(Direction::Index { value: index });
                 if button == 3 {
                     self.toggle_selected();
-                    self.main_window().set_pictures(self);
-                    self.main_window().set_title(self);
+                    self.main_view().set_pictures(self);
+                    self.main_view().set_title(self);
                 }
             }
         }
@@ -278,33 +278,33 @@ impl Controller {
     fn process_picture_double_clicked(&self, button: u32, col: i32, row: i32) {
         let binding = self.navigator_rc.clone();
         let mut navigator = binding.borrow_mut();
-        self.main_window()
+        self.main_view()
             .set_label_text_for_current_picture(self, None);
         if let Some(index) = navigator.position_from_coords(row as usize, col as usize)
             && navigator.can_move(Direction::Index { value: index })
         {
             navigator.move_towards(Direction::Index { value: index });
             if button == 1 {
-                let main_window = self.main_window();
-                main_window.set_label_text_for_current_picture(self, None);
+                let main_view = self.main_view();
+                main_view.set_label_text_for_current_picture(self, None);
                 let old_slideshow_on = self.state().slideshow_on();
                 self.process_control(&Control::SetSelectionRange);
                 if self.state().slideshow_on() == old_slideshow_on {
                     self.set_slideshow_off();
-                    if self.state().single_view() != self.main_window().single_view() {
-                        main_window.toggle_view_stack(self);
+                    if self.state().single_view() != self.main_view().single_view() {
+                        main_view.toggle_view_stack(self);
                     };
                     if navigator.page_changed() {
-                        self.main_window().set_pictures(self);
+                        self.main_view().set_pictures(self);
                         navigator.set_page_unchanged();
                     };
                     self.set_label_text_for_current_picture();
-                    self.main_window().set_title(self);
+                    self.main_view().set_title(self);
                 }
             } else if button == 3 {
                 self.toggle_selected();
-                self.main_window().set_pictures(self);
-                self.main_window().set_title(self);
+                self.main_view().set_pictures(self);
+                self.main_view().set_title(self);
             }
         }
         self.set_label_text_for_current_picture();
@@ -317,7 +317,7 @@ impl Controller {
             &Control::MoveNext
         });
         if self.navigator().has_moved() {
-            self.main_window().set_pictures(self)
+            self.main_view().set_pictures(self)
         }
     }
 
@@ -330,22 +330,22 @@ impl Controller {
     ) {
         let binding = self.navigator_rc.clone();
         let mut navigator = binding.borrow_mut();
-        let main_window = self.main_window();
-        main_window.set_label_text_for_current_picture(self, None);
+        let main_view = self.main_view();
+        main_view.set_label_text_for_current_picture(self, None);
         let old_slideshow_on = self.state().slideshow_on();
         self.process_key(key);
 
         if self.state().slideshow_on() == old_slideshow_on {
             self.set_slideshow_off();
-            if self.state().single_view() != self.main_window().single_view() {
-                main_window.toggle_view_stack(self);
+            if self.state().single_view() != self.main_view().single_view() {
+                main_view.toggle_view_stack(self);
             };
             if navigator.page_changed() {
-                self.main_window().set_pictures(self);
+                self.main_view().set_pictures(self);
                 navigator.set_page_unchanged();
             };
             self.set_label_text_for_current_picture();
-            self.main_window().set_title(self);
+            self.main_view().set_title(self);
         }
     }
 
@@ -356,12 +356,12 @@ impl Controller {
                 state.toggle_focus_symbol()
             }
         };
-        self.main_window()
+        self.main_view()
             .set_label_text_for_current_picture(self, Some(self.state().focus_symbol()))
     }
 
     fn set_opacity_for_current_picture(&self, opacity: f64) {
-        self.main_window()
+        self.main_view()
             .set_opacity_for_current_picture(self, opacity)
     }
 
@@ -866,14 +866,14 @@ impl Controller {
         let mut selector = self.selector_rc.borrow_mut();
         if !self.repository.catalog().contains(category_name) {
             selector.begin(
-                &self.main_window(),
+                &self.main_view(),
                 &format!("select a category to add {} to ", category_name),
                 &self.repository.catalog(),
             );
             self.set_state_mode(Mode::AddingCategory);
         } else {
             display_information(
-                &self.main_window().application_window(),
+                &self.main_view().application_window(),
                 &format!("the category {} already exists", category_name),
             );
         }
@@ -881,7 +881,7 @@ impl Controller {
     fn enter_move_category(&self) {
         let mut selector = self.selector_rc.borrow_mut();
         selector.begin(
-            &self.main_window(),
+            &self.main_view(),
             "select the category to move",
             &self.repository.catalog(),
         );
@@ -894,7 +894,7 @@ impl Controller {
         let _ = pruned_catalog.remove_category(moving_category_name, true);
         selector.set_prev_selected(moving_category_name);
         selector.begin(
-            &self.main_window(),
+            &self.main_view(),
             &format!("select the category where to move {}", moving_category_name),
             &pruned_catalog,
         );
@@ -904,7 +904,7 @@ impl Controller {
     fn enter_remove_category(&self) {
         let mut selector = self.selector_rc.borrow_mut();
         selector.begin(
-            &self.main_window(),
+            &self.main_view(),
             "select a category to remove",
             &self.repository.catalog(),
         );
@@ -920,7 +920,7 @@ impl Controller {
             self.enter_editing(EntryKind::Select, None)
         } else {
             display_information(
-                &self.main_window().application_window(),
+                &self.main_view().application_window(),
                 "selection not allowed while in a directory or a selection",
             )
         }
@@ -928,7 +928,7 @@ impl Controller {
 
     fn enter_editing(&self, entry_kind: EntryKind, choice_opt: Option<Tags>) {
         let mut editor = self.editor_rc.borrow_mut();
-        editor.begin(&self.main_window(), entry_kind, choice_opt);
+        editor.begin(&self.main_view(), entry_kind, choice_opt);
         let mut state = self.state_rc.borrow_mut();
         state.set_mode(Mode::Editing);
     }
@@ -1006,7 +1006,7 @@ impl Controller {
 
     fn next_slide_delay(&self) {
         self.move_towards(Direction::NextPage);
-        self.main_window().set_pictures(self)
+        self.main_view().set_pictures(self)
     }
 
     fn process_control(&self, control: &Control) {
@@ -1130,7 +1130,7 @@ impl Controller {
             }
         } else {
             display_information(
-                &self.main_window().application_window(),
+                &self.main_view().application_window(),
                 "cannot go to a directory when not in covers view",
             )
         }
@@ -1289,7 +1289,7 @@ impl Controller {
             }
         } else {
             display_information(
-                &self.main_window().application_window(),
+                &self.main_view().application_window(),
                 "cannot toggle cover selection while in a directory",
             )
         }
@@ -1315,7 +1315,7 @@ impl Controller {
         {
             Ok(_) => {}
             Err(e) => {
-                display_information(&self.main_window().application_window(), &format!("{}", e))
+                display_information(&self.main_view().application_window(), &format!("{}", e))
             }
         }
     }
@@ -1331,7 +1331,7 @@ impl Controller {
         {
             Ok(_) => {}
             Err(e) => {
-                display_information(&self.main_window().application_window(), &format!("{}", e))
+                display_information(&self.main_view().application_window(), &format!("{}", e))
             }
         }
     }
@@ -1342,12 +1342,12 @@ impl Controller {
             match self.repository.remove_category(input) {
                 Ok(_) => {}
                 Err(e) => {
-                    display_information(&self.main_window().application_window(), &format!("{}", e))
+                    display_information(&self.main_view().application_window(), &format!("{}", e))
                 }
             }
         } else {
             display_information(
-                &self.main_window().application_window(),
+                &self.main_view().application_window(),
                 &format!("category {} is being used and cannot be removed", input),
             )
         }
@@ -1370,7 +1370,7 @@ impl Controller {
     }
 
     fn label_(&self) {
-        let application_window = self.main_window().application_window();
+        let application_window = self.main_view().application_window();
         enter_label(&application_window, &self.repository);
     }
 
@@ -1378,11 +1378,11 @@ impl Controller {
         if self.navigator().has_selected() && self.navigator().selected_picture_count() == 1 {
             self.set_opacity_for_current_picture(0.25);
             self.editor()
-                .begin(&self.main_window(), EntryKind::Rename, None);
+                .begin(&self.main_view(), EntryKind::Rename, None);
             self.set_state_mode(Mode::Editing);
         } else {
             self.editor()
-                .begin(&self.main_window(), EntryKind::Information, None);
+                .begin(&self.main_view(), EntryKind::Information, None);
             self.editor()
                 .set_input("Select the picture you want to rename first");
             self.set_state_mode(Mode::Editing);
@@ -1410,7 +1410,7 @@ impl Controller {
         self.set_opacity_for_current_picture(0.25);
         let mut selector = self.selector_rc.borrow_mut();
         selector.begin(
-            &self.main_window(),
+            &self.main_view(),
             "select a category to apply",
             &self.repository.catalog(),
         );
@@ -1420,7 +1420,7 @@ impl Controller {
     fn set_category_selection(&self) {
         let mut selector = self.selector_rc.borrow_mut();
         selector.begin(
-            &self.main_window(),
+            &self.main_view(),
             "select a category to find",
             &self.repository.catalog(),
         );
@@ -1462,20 +1462,20 @@ impl Controller {
 
     fn jump(&self) {
         self.editor()
-            .begin(&self.main_window(), EntryKind::Number, None);
+            .begin(&self.main_view(), EntryKind::Number, None);
         self.set_state_mode(Mode::Editing);
     }
 
     fn help(&self) {
         display_information(
-            &self.main_window().application_window(),
+            &self.main_view().application_window(),
             &help_on_controls(),
         );
     }
 
     fn information(&self) {
         self.editor()
-            .begin(&self.main_window(), EntryKind::Information, None);
+            .begin(&self.main_view(), EntryKind::Information, None);
         self.editor()
             .set_input(&self.current_picture().file_path().to_string());
         self.set_state_mode(Mode::Editing);
@@ -1500,14 +1500,14 @@ impl Controller {
                     navigator.move_towards(Direction::Index { value: index });
                     navigator.set_page_changed()
                 } else {
-                    // display_information(&self.main_window().application_window(),&format!("mark: {} not found", mark));
+                    // display_information(&self.main_view().application_window(),&format!("mark: {} not found", mark));
                 }
             } else {
                 panic!("can't borrow")
             }
         } else {
             display_information(
-                &self.main_window().application_window(),
+                &self.main_view().application_window(),
                 &format!("no picture with mark {}", mark),
             );
         }
@@ -1527,7 +1527,7 @@ impl Controller {
             };
             configuration.current_order = Some(self.repository.order());
             let _ = configuration.save();
-            let application_window = self.main_window().application_window();
+            let application_window = self.main_view().application_window();
             self.repository.update_picture_scores(self.state().scores());
             application_window.close()
         }
@@ -1563,7 +1563,7 @@ impl Controller {
             self.state().toggle_display_path();
         };
         self.state().toggle_display_date();
-        self.main_window().set_title(self);
+        self.main_view().set_title(self);
         println!(
             "display date {}",
             if self.state().display_date_on() {
@@ -1583,7 +1583,7 @@ impl Controller {
             self.state().toggle_display_path();
         };
         self.state().toggle_display_size();
-        self.main_window().set_title(self);
+        self.main_view().set_title(self);
         println!(
             "display size {}",
             if self.state().display_size_on() {
@@ -1612,7 +1612,7 @@ impl Controller {
         if let Some(seconds) = self.command_line_arguments().slideshow() {
             self.state().toggle_slideshow();
             if self.state().slideshow_on() {
-                self.main_window().reattach_slideshow_event(seconds);
+                self.main_view().reattach_slideshow_event(seconds);
                 let mut navigator = self.navigator_rc.borrow_mut();
                 navigator.set_page_changed();
             }
@@ -1649,7 +1649,7 @@ impl Controller {
         navigator.set_pictures_per_row(pictures_per_row);
         navigator.update_page_limits();
         navigator.set_page_changed();
-        self.main_window().change_grid_size(pictures_per_row);
+        self.main_view().change_grid_size(pictures_per_row);
     }
 
     fn set_selection_range(&self) {
@@ -1784,7 +1784,7 @@ impl Controller {
     fn delete_picture(&self) {
         if self.navigator().has_selected() {
             self.editor()
-                .begin(&self.main_window(), EntryKind::DeleteConfirmation, None);
+                .begin(&self.main_view(), EntryKind::DeleteConfirmation, None);
             self.set_state_mode(Mode::Editing);
         }
     }
@@ -1792,7 +1792,7 @@ impl Controller {
     fn move_picture(&self) {
         if let Some(target_dir) = &self.command_line_arguments().r#move {
             self.editor()
-                .begin(&self.main_window(), EntryKind::MoveConfirmation, None);
+                .begin(&self.main_view(), EntryKind::MoveConfirmation, None);
             self.editor()
                 .set_prompt(&format!("move these pictures to {} ?", target_dir));
             self.set_state_mode(Mode::Editing);
@@ -1841,7 +1841,7 @@ impl Controller {
     fn move_picture_to_label(&self) {
         if let Some(target_dir) = self.check_move_destination_label() {
             self.editor().begin(
-                &self.main_window(),
+                &self.main_view(),
                 EntryKind::MoveToLabelConfirmation(target_dir),
                 None,
             );
@@ -1861,7 +1861,7 @@ impl Controller {
     }
 
     fn full_size_arrow_move(&self, direction: Direction) {
-        self.main_window().full_size_arrow_move(direction.clone())
+        self.main_view().full_size_arrow_move(direction.clone())
     }
 
     fn can_move(&self, direction: Direction) -> bool {
@@ -1957,7 +1957,7 @@ impl Controller {
             }
         };
         if let Some(information) = information_opt {
-            display_information(&self.main_window().application_window(), &information)
+            display_information(&self.main_view().application_window(), &information)
         }
     }
 
@@ -1982,7 +1982,7 @@ impl Controller {
             Err(e) => Some(format!("{}", e)),
         };
         if let Some(information) = information_opt {
-            display_information(&self.main_window().application_window(), &information)
+            display_information(&self.main_view().application_window(), &information)
         }
     }
 
@@ -2002,13 +2002,13 @@ impl Controller {
             panic!("can't borrow");
         };
         if let Some(information) = information_opt {
-            display_information(&self.main_window().application_window(), information)
+            display_information(&self.main_view().application_window(), information)
         }
     }
 
     fn test(&self) {
         println!("…test…");
-        let application_window = self.main_window().application_window();
+        let application_window = self.main_view().application_window();
         gtk::prelude::ActionGroupExt::activate_action(
             &application_window,
             "main-controller.test",

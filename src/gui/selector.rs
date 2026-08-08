@@ -2,7 +2,7 @@ use crate::gui::control::Control;
 use crate::gui::control::Controls;
 use crate::gui::control::default_controls;
 use crate::gui::mode::Mode;
-use crate::gui::view::main_window::MainWindow;
+use crate::gui::view::main_view::MainView;
 use crate::gui::view::treelist_window::TreeListWindow;
 use crate::model::catalog::Catalog;
 use gtk::gdk::Key;
@@ -31,11 +31,11 @@ impl Selector {
         }
     }
 
-    pub fn begin(&mut self, main_window: &MainWindow, prompt: &str, catalog: &Catalog) {
+    pub fn begin(&mut self, main_view: &MainView, prompt: &str, catalog: &Catalog) {
         self.catalog = catalog.clone();
         self.prompt = prompt.to_string();
         self.treelist_window_opt =
-            Some(main_window.popup_treelist_window(&self.prompt, &self.catalog));
+            Some(main_view.popup_treelist_window(&self.prompt, &self.catalog));
         self.selecting = true;
     }
 
