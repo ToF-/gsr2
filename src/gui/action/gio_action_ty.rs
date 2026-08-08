@@ -123,7 +123,7 @@ impl From<Action> for GioActionTy {
             Action::Test(_) => GioActionTy::new("test", GioActionParameterType::String),
             Action::ToggleCover => GioActionTy::new("toggle-cover", GioActionParameterType::None),
             Action::ToggleCoversView => {
-                GioActionTy::new("toggle-cover-view", GioActionParameterType::None)
+                GioActionTy::new("toggle-covers-view", GioActionParameterType::None)
             }
             Action::ToggleSelected(_) => {
                 GioActionTy::new("toggle-selected", GioActionParameterType::None)
@@ -132,10 +132,10 @@ impl From<Action> for GioActionTy {
                 GioActionTy::new("toggle-single-view", GioActionParameterType::None)
             }
             Action::ToggleSlideShow => {
-                GioActionTy::new("toggle-single-view", GioActionParameterType::None)
+                GioActionTy::new("toggle-slide-show", GioActionParameterType::None)
             }
             Action::ToggleThumbnailsView => {
-                GioActionTy::new("toggle-thumbnain-view", GioActionParameterType::None)
+                GioActionTy::new("toggle-thumbnails-view", GioActionParameterType::None)
             }
             Action::Unlabel => GioActionTy::new("unlabel", GioActionParameterType::None),
             _ => GioActionTy::new("test", GioActionParameterType::None),

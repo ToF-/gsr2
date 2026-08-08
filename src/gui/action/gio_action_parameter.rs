@@ -22,14 +22,14 @@ impl GioActionParameter {
 impl From<usize> for GioActionParameter {
     fn from(n: usize) -> Self {
         Self {
-            variant: (n as i64).to_variant(),
+            variant: (n as u64).to_variant(),
         }
     }
 }
 
 impl From<GioActionParameter> for usize {
     fn from(gio_action_parameter: GioActionParameter) -> Self {
-        gio_action_parameter.variant().get::<i64>().unwrap() as usize
+        gio_action_parameter.variant().get::<u64>().unwrap() as usize
     }
 }
 

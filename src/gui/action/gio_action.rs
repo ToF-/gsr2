@@ -63,6 +63,21 @@ impl From<Action> for GioAction {
             Action::RemoveCategory(category_name) => Some(GioActionParameter::from(category_name)),
             Action::RemoveTag(tag) => Some(GioActionParameter::from(tag)),
             Action::Rename(name) => Some(GioActionParameter::from(name)),
+            Action::RepeatAction => None,
+            Action::RepeatRangeSelection => None,
+            Action::Select(find) => Some(GioActionParameter::from(find)),
+            Action::SetSelectionAll => None,
+            Action::SetSelectionPage => None,
+            Action::SetSelectionRangeEnd(index) => Some(GioActionParameter::from(index)),
+            Action::SetSelectionRangeStart(index) => Some(GioActionParameter::from(index)),
+            Action::Test(s) => Some(GioActionParameter::from(s)),
+            Action::ToggleCover => None,
+            Action::ToggleCoversView => None,
+            Action::ToggleSelected(index) => Some(GioActionParameter::from(index)),
+            Action::ToggleSingleView => None,
+            Action::ToggleSlideShow => None,
+            Action::ToggleThumbnailsView => None,
+            Action::Unlabel => None,
             _ => None,
         };
         Self {
@@ -117,6 +132,22 @@ impl From<GioAction> for Action {
             "remove-category" => Action::RemoveCategory(String::from(gio_action.parameter().unwrap())),
             "remove-tag" => Action::RemoveTag(String::from(gio_action.parameter().unwrap())),
             "rename" => Action::Rename(String::from(gio_action.parameter().unwrap())),
+            "repeat-action" => Action::RepeatAction,
+            "repeat-range-selection" => Action::RepeatRangeSelection,
+            "select" => Action::Select(Find::from(gio_action.parameter().unwrap())),
+            "set-selection-all" => Action::SetSelectionAll,
+            "set-selection-page" => Action::SetSelectionPage,
+            "set-selection-range-end" => Action::SetSelectionRangeEnd(usize::from(gio_action.parameter().unwrap())),
+            "set-selection-range-start" => Action::SetSelectionRangeStart(usize::from(gio_action.parameter().unwrap())),
+            "test" => Action::Test(String::from(gio_action.parameter().unwrap())),
+            "toggle-cover" => Action::ToggleCover,
+            "toggle-covers-view" => Action::ToggleCoversView,
+            "toggle-selected" => Action::ToggleSelected(usize::from(gio_action.parameter().unwrap())),
+
+            "toggle-single-view" => Action::ToggleSingleView,
+            "toggle-slide-show" => Action::ToggleSlideShow,
+            "toggle-thumbnails-view" => Action::ToggleThumbnailsView,
+            "unlabel" => Action::Unlabel,
             _ => Action::Nothing,
         }
     }
@@ -187,7 +218,22 @@ mod tests {
         check_action_to_and_from(Action::RemoveCategory("foo".to_string()));
         check_action_to_and_from(Action::RemoveTag("foo".to_string()));
         check_action_to_and_from(Action::Rename("foo".to_string()));
-    }
+        check_action_to_and_from(Action::RepeatAction);
+        check_action_to_and_from(Action::RepeatRangeSelection);
+        check_action_to_and_from(Action::Select(Find::Label));
+        check_action_to_and_from(Action::SetSelectionAll);
+        check_action_to_and_from(Action::SetSelectionPage);
+        check_action_to_and_from(Action::SetSelectionRangeEnd(4807));
+        check_action_to_and_from(Action::SetSelectionRangeStart(4807));
+        check_action_to_and_from(Action::Test("foo".to_string()));
+        check_action_to_and_from(Action::ToggleCover);
+        check_action_to_and_from(Action::ToggleCoversView);
+        check_action_to_and_from(Action::ToggleSelected(4807));
+        check_action_to_and_from(Action::ToggleSingleView);
+        check_action_to_and_from(Action::ToggleSlideShow);
+        check_action_to_and_from(Action::ToggleThumbnailsView);
+        check_action_to_and_from(Action::Unlabel);
+}
 
 }
 
