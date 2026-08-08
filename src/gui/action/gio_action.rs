@@ -1,11 +1,14 @@
+use crate::model::view_option::ViewOption;
+use crate::model::order::Order;
 use gtk::glib::prelude::ToVariant;
 use crate::gui::action::GioActionTy;
 use crate::gui::action::Action;
 use crate::gui::action::gio_action_parameter::GioActionParameter;
 #[derive(Debug)]
 pub struct GioAction {
+    name: String,
     action_entry_name: String,
-    parameter: GioActionParameter,
+    parameter: Option<GioActionParameter>,
 }
 
 impl From<Action> for GioAction {
@@ -13,25 +16,54 @@ impl From<Action> for GioAction {
         let gio_action_ty = GioActionTy::from(action.clone());
         let gio_action_parameter = match action.clone() {
             Action::AddCategory(category_name,target_category_name) =>
-                GioActionParameter::from((category_name, target_category_name)),
+                Some(GioActionParameter::from((category_name, target_category_name))),
             Action::AddTag(tag) =>
-                GioActionParameter::from(tag),
+                Some(GioActionParameter::from(tag)),
+            Action::ApplyOrderSetting(order) =>
+                Some(GioActionParameter::from(order)),
+            Action::ApplyViewSetting(view_option) =>
+                Some(GioActionParameter::from(view_option)),
+            Action::CancelSelectionRange =>
+                None,
             _ => todo!()
         };
         Self {
+            name: gio_action_ty.name(),
             action_entry_name: gio_action_ty.action_entry_name(),
             parameter: gio_action_parameter,
         }
     }
 }
 
+impl From<GioAction> for Action {
+    fn from(gio_action: GioAction) -> Self {
+        match &gio_action.name() as &str {
+            "add-category" => {
+                let string_pair: (String, String) = <(String, String)>::from(gio_action.parameter().unwrap());
+                Action::AddCategory(string_pair.0, string_pair.1)
+            },
+            "add-tag" => Action::AddTag(String::from(gio_action.parameter().unwrap())),
+            "apply-order-setting" => Action::ApplyOrderSetting(Order::from(gio_action.parameter().unwrap())),
+            "apply-view-setting" => Action::ApplyViewSetting(ViewOption::from(gio_action.parameter().unwrap())),
+            "cancel-selection-range" => Action::CancelSelectionRange,
+
+            _ => todo!()
+        }
+    }
+}
+
 impl GioAction {
+
+    pub fn name(&self) -> String {
+        self.name.clone()
+    }
+
     pub fn action_entry_name(&self) -> String {
         self.action_entry_name.clone()
     }
 
-    pub fn parameter(&self) -> gtk::glib::Variant {
-        self.parameter.variant()
+    pub fn parameter(&self) -> Option<GioActionParameter> {
+        self.parameter.clone()
     }
 }
 
@@ -39,25 +71,21 @@ impl GioAction {
 mod tests {
     use super::*;
 
-    #[test]
-    fn gio_action_from_action_add_category() {
-        let action = Action::AddCategory("foo".to_string(), "bar".to_string());
-        let gio_action = GioAction::from(action);
-        assert_eq!("main-controller.add-category", gio_action.action_entry_name());
-        let parameter_as_string_pair: (String, String) = gio_action.parameter()
-            .get().unwrap();
-        assert_eq!("foo".to_string(), parameter_as_string_pair.0);
-        assert_eq!("bar".to_string(), parameter_as_string_pair.1);
-
+    fn check_action_to_and_from(action: Action) {
+        let source = action.clone();
+        let gio_action = GioAction::from(source.clone());
+        let target = Action::from(gio_action);
+        assert_eq!(target, source);
     }
+
     #[test]
-    fn gio_action_from_action_add_tag() {
-        let action = Action::AddTag("foo".to_string());
-        let gio_action = GioAction::from(action);
-        assert_eq!("main-controller.add-tag", gio_action.action_entry_name());
-        let parameter_as_string: String = gio_action.parameter()
-            .get().unwrap();
-        assert_eq!("foo".to_string(), parameter_as_string);
+    fn gio_action_from_action_and_vice_versa() {
+        check_action_to_and_from(Action::AddCategory("foo".to_string(), "bar".to_string()));
+        check_action_to_and_from(Action::AddTag("foo".to_string()));
+        check_action_to_and_from(Action::ApplyOrderSetting(Order::Name));
+        check_action_to_and_from(Action::ApplyViewSetting(ViewOption::Thumbnails));
+        check_action_to_and_from(Action::CancelSelectionRange);
     }
 
 }
+

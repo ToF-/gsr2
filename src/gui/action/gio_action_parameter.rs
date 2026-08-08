@@ -1,3 +1,5 @@
+use crate::model::view_option::ViewOption;
+use crate::model::order::Order;
 use gtk::glib::prelude::ToVariant;
 
 #[derive(PartialEq, Clone, Debug)]
@@ -64,5 +66,35 @@ impl From<(String, String)> for GioActionParameter {
 impl From<GioActionParameter> for (String,String) {
     fn from(gio_action_parameter: GioActionParameter) -> Self {
         gio_action_parameter.variant().get::<(String,String)>().unwrap()
+    }
+}
+
+impl From<Order> for GioActionParameter {
+    fn from(order: Order) -> Self {
+        Self {
+            variant: (order as i32).to_variant(),
+        }
+    }
+}
+
+impl From<GioActionParameter> for Order {
+    fn from(gio_action_parameter: GioActionParameter) -> Self {
+        let parameter_value: i32 =gio_action_parameter.variant().get::<i32>().unwrap();
+        Order::from(parameter_value)
+    }
+}
+
+impl From<ViewOption> for GioActionParameter {
+    fn from(view_option: ViewOption) -> Self {
+        Self {
+            variant: (view_option as i32).to_variant(),
+        }
+    }
+}
+
+impl From<GioActionParameter> for ViewOption {
+    fn from(gio_action_parameter: GioActionParameter) -> Self {
+        let parameter_value: i32 = gio_action_parameter.variant().get::<i32>().unwrap();
+        ViewOption::from(parameter_value)
     }
 }

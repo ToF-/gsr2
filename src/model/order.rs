@@ -1,21 +1,40 @@
 use clap::builder::PossibleValue;
 use serde::{Deserialize, Serialize};
 
+#[repr(i32)]
 #[derive(PartialEq, Clone, Copy, Debug, Deserialize, Serialize)]
 pub enum Order {
-    Category,
-    ColorCount,
-    Cover,
-    Date,
-    Label,
-    Name,
-    Palette,
-    Score,
-    Size,
-    Value,
-    Random,
+    Category = 0,
+    ColorCount = 1,
+    Cover = 2,
+    Date = 3,
+    Label = 4,
+    Name = 5,
+    Palette = 6,
+    Random = 7,
+    Score = 8,
+    Size = 9,
+    Value = 10,
 }
 
+impl From<i32> for Order {
+    fn from(n: i32) -> Self {
+        match n {
+            0 => Order::Category,
+            1 => Order::ColorCount,
+            2 => Order::Cover,
+            3 => Order::Date,
+            4 => Order::Label,
+            5 => Order::Name,
+            6 => Order::Palette,
+            7 => Order::Random,
+            8 => Order::Score,
+            9 => Order::Size,
+            10 => Order::Value,
+            _ => todo!()
+        }
+    }
+}
 #[allow(dead_code)]
 pub fn from(s: &str) -> Option<Order> {
     match s {
