@@ -1,3 +1,4 @@
+use crate::model::find::Find;
 use crate::model::category::Category;
 use crate::model::category::category_from_string;
 use crate::model::view_option::ViewOption;
@@ -29,7 +30,17 @@ impl From<Action> for GioAction {
                 None,
             Action::Categorize(category_opt) =>
                 Some(GioActionParameter::from(category_opt)),
-            _ => todo!()
+            Action::ConfirmDeleteFile => None,
+            Action::ConfirmMoveFile(file_path) =>
+                Some(GioActionParameter::from(file_path)),
+            Action::EnterAddTag => None,
+            Action::EnterCategory => None,
+            Action::EnterIndex => None,
+            Action::EnterLabel => None,
+            Action::EnterRemoveTag => None,
+            Action::EnterRename => None,
+            Action::Find(find) => Some(GioActionParameter::from(find)),
+            _ => None,
         };
         Self {
             name: gio_action_ty.name(),
@@ -51,8 +62,16 @@ impl From<GioAction> for Action {
             "apply-view-setting" => Action::ApplyViewSetting(ViewOption::from(gio_action.parameter().unwrap())),
             "cancel-selection-range" => Action::CancelSelectionRange,
             "categorize" => Action::Categorize(Category::from(gio_action.parameter().unwrap())),
-
-            _ => todo!()
+            "confirm-delete-file" => Action::ConfirmDeleteFile,
+            "confirm-move-file" => Action::ConfirmMoveFile(String::from(gio_action.parameter().unwrap())),
+            "enter-add-tag" => Action::EnterAddTag,
+            "enter-category" => Action::EnterCategory,
+            "enter-index" => Action::EnterIndex,
+            "enter-label" => Action::EnterLabel,
+            "enter-remove-tag" => Action::EnterRemoveTag,
+            "enter-rename" => Action::EnterRename,
+            "find" => Action::Find(Find::from(gio_action.parameter().unwrap())),
+            _ => Action::Nothing,
         }
     }
 }
@@ -80,6 +99,8 @@ mod tests {
         let source = action.clone();
         let gio_action = GioAction::from(source.clone());
         let target = Action::from(gio_action);
+        dbg!(target.clone());
+        dbg!(source.clone());
         assert_eq!(target, source);
     }
 
@@ -91,6 +112,15 @@ mod tests {
         check_action_to_and_from(Action::ApplyViewSetting(ViewOption::Thumbnails));
         check_action_to_and_from(Action::CancelSelectionRange);
         check_action_to_and_from(Action::Categorize(category_from_string("foo")));
+        check_action_to_and_from(Action::ConfirmDeleteFile);
+        check_action_to_and_from(Action::ConfirmMoveFile("foo".to_string()));
+        check_action_to_and_from(Action::EnterAddTag);
+        check_action_to_and_from(Action::EnterCategory);
+        check_action_to_and_from(Action::EnterIndex);
+        check_action_to_and_from(Action::EnterLabel);
+        check_action_to_and_from(Action::EnterRemoveTag);
+        check_action_to_and_from(Action::EnterRename);
+        check_action_to_and_from(Action::Find(Find::Label));
     }
 
 }

@@ -120,7 +120,6 @@ impl Controller {
         Ok(controller)
     }
 
-
     pub fn last_action(&self) -> Action {
         self.last_action_rc.borrow().clone()
     }

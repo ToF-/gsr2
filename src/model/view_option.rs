@@ -31,7 +31,7 @@ impl From<i32> for ViewOption {
             7 => ViewOption::FilePath,
             8 => ViewOption::FileDate,
             9 => ViewOption::FileSize,
-            _ => todo!()
+            _ => todo!(),
         }
     }
 }

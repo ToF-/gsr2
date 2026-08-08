@@ -31,7 +31,7 @@ impl From<i32> for Order {
             8 => Order::Score,
             9 => Order::Size,
             10 => Order::Value,
-            _ => todo!()
+            _ => todo!(),
         }
     }
 }

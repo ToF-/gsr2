@@ -1,8 +1,9 @@
+use crate::model::find::Find;
+use crate::model::category::Category;
 use crate::model::category::category_from_string;
 use crate::model::category::string_from_category;
-use crate::model::category::Category;
-use crate::model::view_option::ViewOption;
 use crate::model::order::Order;
+use crate::model::view_option::ViewOption;
 use gtk::glib::prelude::ToVariant;
 
 #[derive(PartialEq, Clone, Debug)]
@@ -66,9 +67,12 @@ impl From<(String, String)> for GioActionParameter {
     }
 }
 
-impl From<GioActionParameter> for (String,String) {
+impl From<GioActionParameter> for (String, String) {
     fn from(gio_action_parameter: GioActionParameter) -> Self {
-        gio_action_parameter.variant().get::<(String,String)>().unwrap()
+        gio_action_parameter
+            .variant()
+            .get::<(String, String)>()
+            .unwrap()
     }
 }
 
@@ -82,7 +86,7 @@ impl From<Order> for GioActionParameter {
 
 impl From<GioActionParameter> for Order {
     fn from(gio_action_parameter: GioActionParameter) -> Self {
-        let parameter_value: i32 =gio_action_parameter.variant().get::<i32>().unwrap();
+        let parameter_value: i32 = gio_action_parameter.variant().get::<i32>().unwrap();
         Order::from(parameter_value)
     }
 }
@@ -114,5 +118,20 @@ impl From<GioActionParameter> for Category {
     fn from(gio_action_parameter: GioActionParameter) -> Self {
         let parameter_value: String = gio_action_parameter.variant().get::<String>().unwrap();
         category_from_string(&parameter_value)
+    }
+}
+
+impl From<Find> for GioActionParameter {
+    fn from(find: Find) -> Self {
+        Self {
+            variant: (find as i32).to_variant(),
+        }
+    }
+}
+
+impl From<GioActionParameter> for Find {
+    fn from(gio_action_parameter: GioActionParameter) -> Self {
+        let parameter_value: i32 = gio_action_parameter.variant().get::<i32>().unwrap();
+           Find::from(parameter_value) 
     }
 }

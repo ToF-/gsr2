@@ -1,10 +1,13 @@
-use crate::gui::main_controller::MainController;
 use crate::gui::gsr_application::GsrApplication;
+use crate::gui::main_controller::MainController;
 use gtk::Application;
 use gtk::gdk::Display;
 use gtk::prelude::ApplicationExt;
 
-pub fn make_gsr_application(application_id: &str, main_controller: &MainController) -> GsrApplication {
+pub fn make_gsr_application(
+    application_id: &str,
+    main_controller: &MainController,
+) -> GsrApplication {
     let application = GsrApplication::new(application_id, main_controller);
     application.connect_startup(|_| startup_gui());
     application

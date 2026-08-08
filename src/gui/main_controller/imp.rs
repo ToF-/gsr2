@@ -69,15 +69,13 @@ impl MainController {
         let mut action_entries = vec![];
 
         // action_entries.push(Self::make_parameterless_action_entry(Action::AddCategory("foo".to_string(), "bar".to_string()), &controller_rc));
-        action_entries.push(Self::make_string_parameter_action_entry(
-            Action::Label("foo".to_string()),
-        ));
-        action_entries.push(Self::make_int32_parameter_action_entry(
-            Action::Rank(Rank::ThreeStars),
-        ));
-        action_entries.push(Self::make_parameterless_action_entry(
-            Action::PickChange,
-        ));
+        action_entries.push(Self::make_string_parameter_action_entry(Action::Label(
+            "foo".to_string(),
+        )));
+        action_entries.push(Self::make_int32_parameter_action_entry(Action::Rank(
+            Rank::ThreeStars,
+        )));
+        action_entries.push(Self::make_parameterless_action_entry(Action::PickChange));
         action_entries.push(Self::make_parameterless_action_entry(
             Action::PickViewOption,
         ));
@@ -115,10 +113,10 @@ impl MainController {
                 #[strong]
                 sample,
                 move |_, object, variant| {
-                        println!(
-                            "object:{object:?},object.name:{0:?},\nvariant:{variant:?}\nsample:{sample:?}",
-                            object.name()
-                        )
+                    println!(
+                        "object:{object:?},object.name:{0:?},\nvariant:{variant:?}\nsample:{sample:?}",
+                        object.name()
+                    )
                 }
             ),
         )
@@ -134,7 +132,10 @@ impl MainController {
                 #[strong]
                 sample,
                 move |_, object, variant| {
-                    println!("object:{object:?},object.name:{0:?},\nvariant:{variant:?}\nsample:{sample:?}", object.name());
+                    println!(
+                        "object:{object:?},object.name:{0:?},\nvariant:{variant:?}\nsample:{sample:?}",
+                        object.name()
+                    );
                     let parameter: String = variant
                         .expect("can't unwrap variant parameter")
                         .get::<String>()
@@ -159,19 +160,20 @@ impl MainController {
                 #[strong]
                 sample,
                 move |_, object, variant| {
-                        println!(
-                            "object:{object:?},object.name:{0:?},\nvariant:{variant:?}\nsample:{sample:?}",
-                            object.name());
-                        let parameter: i32 = variant
-                            .expect("can't unwrap variant parameter")
-                            .get::<i32>()
-                            .expect("can't get parameter value");
-                        let action = match sample {
-                            Action::Rank(_) => Action::Rank(Rank::from(parameter as i64)),
-                            _ => Action::Nothing,
-                        };
-                        println!("ready to lauch {action:?}");
-                    }
+                    println!(
+                        "object:{object:?},object.name:{0:?},\nvariant:{variant:?}\nsample:{sample:?}",
+                        object.name()
+                    );
+                    let parameter: i32 = variant
+                        .expect("can't unwrap variant parameter")
+                        .get::<i32>()
+                        .expect("can't get parameter value");
+                    let action = match sample {
+                        Action::Rank(_) => Action::Rank(Rank::from(parameter as i64)),
+                        _ => Action::Nothing,
+                    };
+                    println!("ready to lauch {action:?}");
+                }
             ),
         )
     }

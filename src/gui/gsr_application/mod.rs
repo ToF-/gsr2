@@ -1,9 +1,9 @@
-use gtk::prelude::ApplicationExt;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::gui::main_controller::MainController;
 use crate::gui::main_controller::RcMainController;
 use crate::gui::view::main_window::MainWindow;
 use gtk::glib::clone;
+use gtk::prelude::ApplicationExt;
 use gtk::subclass::prelude::*;
 mod imp;
 
@@ -19,8 +19,7 @@ glib::wrapper! {
 
 impl GsrApplication {
     pub fn new(application_id: &str, main_controller: &MainController) -> Self {
-        let obj: Self = 
-        Object::builder()
+        let obj: Self = Object::builder()
             .property("application-id", application_id)
             .build();
         obj.set_main_controller_rc(main_controller);

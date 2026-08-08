@@ -2,14 +2,15 @@ use std::fmt::Display;
 use std::fmt::Error;
 use std::fmt::Formatter;
 use std::str::FromStr;
+#[repr(i32)]
 #[derive(PartialEq, Eq, Copy, Clone, Debug)]
 pub enum Find {
-    Category,
-    Name,
-    Label,
-    SubCategory,
-    SomeTags,
-    AllTags,
+    AllTags = 0,
+    Category = 1,
+    Label = 2,
+    Name = 3,
+    SomeTags = 4,
+    SubCategory = 5,
 }
 
 impl FromStr for Find {
@@ -24,6 +25,20 @@ impl FromStr for Find {
             "SomeTags" => Ok(Find::SomeTags),
             "AllTags" => Ok(Find::AllTags),
             _ => Err(format!("unknown find: {s}")),
+        }
+    }
+}
+
+impl From<i32> for Find {
+    fn from(n: i32) -> Self {
+        match n {
+            0 => Find::AllTags,
+            1 => Find::Category,
+            2 => Find::Label,
+            3 => Find::Name,
+            4 => Find::SomeTags,
+            5 => Find::SubCategory,
+            _ => todo!()
         }
     }
 }
