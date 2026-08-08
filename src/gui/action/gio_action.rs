@@ -1,3 +1,5 @@
+use crate::model::category::Category;
+use crate::model::category::category_from_string;
 use crate::model::view_option::ViewOption;
 use crate::model::order::Order;
 use gtk::glib::prelude::ToVariant;
@@ -25,6 +27,8 @@ impl From<Action> for GioAction {
                 Some(GioActionParameter::from(view_option)),
             Action::CancelSelectionRange =>
                 None,
+            Action::Categorize(category_opt) =>
+                Some(GioActionParameter::from(category_opt)),
             _ => todo!()
         };
         Self {
@@ -46,6 +50,7 @@ impl From<GioAction> for Action {
             "apply-order-setting" => Action::ApplyOrderSetting(Order::from(gio_action.parameter().unwrap())),
             "apply-view-setting" => Action::ApplyViewSetting(ViewOption::from(gio_action.parameter().unwrap())),
             "cancel-selection-range" => Action::CancelSelectionRange,
+            "categorize" => Action::Categorize(Category::from(gio_action.parameter().unwrap())),
 
             _ => todo!()
         }
@@ -85,6 +90,7 @@ mod tests {
         check_action_to_and_from(Action::ApplyOrderSetting(Order::Name));
         check_action_to_and_from(Action::ApplyViewSetting(ViewOption::Thumbnails));
         check_action_to_and_from(Action::CancelSelectionRange);
+        check_action_to_and_from(Action::Categorize(category_from_string("foo")));
     }
 
 }

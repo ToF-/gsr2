@@ -9,3 +9,10 @@ pub fn category_from_string(s: &str) -> Category {
         Some(s.to_string())
     }
 }
+
+pub fn string_from_category(category: Category) -> String {
+    match category {
+        Some(s) => s.clone(),
+        None => "".to_string(),
+    }
+}

@@ -1,3 +1,6 @@
+use crate::model::category::category_from_string;
+use crate::model::category::string_from_category;
+use crate::model::category::Category;
 use crate::model::view_option::ViewOption;
 use crate::model::order::Order;
 use gtk::glib::prelude::ToVariant;
@@ -96,5 +99,20 @@ impl From<GioActionParameter> for ViewOption {
     fn from(gio_action_parameter: GioActionParameter) -> Self {
         let parameter_value: i32 = gio_action_parameter.variant().get::<i32>().unwrap();
         ViewOption::from(parameter_value)
+    }
+}
+
+impl From<Category> for GioActionParameter {
+    fn from(category: Category) -> Self {
+        Self {
+            variant: string_from_category(category).to_variant(),
+        }
+    }
+}
+
+impl From<GioActionParameter> for Category {
+    fn from(gio_action_parameter: GioActionParameter) -> Self {
+        let parameter_value: String = gio_action_parameter.variant().get::<String>().unwrap();
+        category_from_string(&parameter_value)
     }
 }
