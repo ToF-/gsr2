@@ -8,7 +8,7 @@ use gsr::file::database::Database;
 use gsr::file::paths::file_exists;
 use gsr::gui::controller::Controller;
 use gsr::gui::controller::RcController;
-use gsr::gui::gsr_application::GsrApplication;
+use gsr::gui::objects::gsr_application::GsrApplication;
 use gsr::gui::main_controller::MainController;
 use gsr::gui::view::main_view::MainView;
 use gtk::glib::clone;

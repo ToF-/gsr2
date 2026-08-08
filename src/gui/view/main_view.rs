@@ -12,7 +12,7 @@ use crate::gui::controller::RcController;
 use crate::gui::direction::Direction;
 use crate::gui::display::title_display;
 use crate::gui::event::Event::{KeyPressed, NextSlideDelay, PaneClicked};
-use crate::gui::gsr_application::GsrApplication;
+use crate::gui::objects::gsr_application::GsrApplication;
 use crate::gui::main_controller::MainController;
 use crate::gui::mode::Mode;
 use crate::gui::view::entry_window::EntryWindow;

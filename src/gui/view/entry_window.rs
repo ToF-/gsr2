@@ -3,7 +3,7 @@ use crate::env::default_values::{ENTRY_WINDOW_HEIGHT, ENTRY_WINDOW_WIDTH};
 use crate::gui::controller::RcController;
 use crate::gui::editor::entry_editor::EntryEditor;
 use crate::gui::event::Event;
-use crate::gui::gsr_application::GsrApplication;
+use crate::gui::objects::gsr_application::GsrApplication;
 use crate::gui::main_controller::MainController;
 use crate::gui::mode::Mode;
 use gtk::Align;
