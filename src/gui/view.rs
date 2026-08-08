@@ -6,5 +6,5 @@ pub mod main_view;
 pub mod palette_area;
 pub mod picture_cell_box;
 pub mod picture_frame;
-pub mod picture_grid;
-pub mod treelist_window;
+pub mod grid_view;
+pub mod treelist_view;

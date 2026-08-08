@@ -25,12 +25,12 @@ use gtk::{
 };
 
 #[derive(Clone, Debug)]
-pub struct TreeListWindow {
+pub struct TreeListView {
     window: gtk::Window,
 }
 
 #[allow(deprecated)]
-impl TreeListWindow {
+impl TreeListView {
     pub fn new(
         application_window: &gtk::ApplicationWindow,
         prompt: &str,
@@ -96,7 +96,7 @@ impl TreeListWindow {
             &window_css_provider,
             gtk::STYLE_PROVIDER_PRIORITY_APPLICATION,
         );
-        TreeListWindow { window }
+        TreeListView { window }
     }
     pub fn popup(&self) {
         self.window.present()

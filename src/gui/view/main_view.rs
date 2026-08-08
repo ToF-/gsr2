@@ -18,8 +18,8 @@ use crate::gui::mode::Mode;
 use crate::gui::view::entry_window::EntryWindow;
 use crate::gui::view::picture_cell_box::make_picture_cell_box;
 use crate::gui::view::picture_frame::PictureFrame;
-use crate::gui::view::picture_grid::PictureGrid;
-use crate::gui::view::treelist_window::TreeListWindow;
+use crate::gui::view::grid_view::GridView;
+use crate::gui::view::treelist_view::TreeListView;
 use crate::model::catalog::Catalog;
 use crate::model::change::Change;
 use crate::model::picture::Picture;
@@ -58,7 +58,7 @@ pub const RIGHT_PANE: usize = 1;
 
 #[derive(Clone, Debug)]
 pub struct MainView {
-    picture_grid: PictureGrid,
+    grid_view: GridView,
     picture_frame: PictureFrame,
     application_window: gtk::ApplicationWindow,
     stack: gtk::Stack,
@@ -127,11 +127,11 @@ impl MainView {
             .downcast::<gtk::Grid>()
             .expect("can't dowcast panel central child to grid");
 
-        let picture_grid = PictureGrid::new_from_grid(&grid, controller_rc);
+        let grid_view = GridView::new_from_grid(&grid, controller_rc);
         let picture_frame = PictureFrame::new_from_frame(&frame);
 
         MainView {
-            picture_grid: picture_grid.clone(),
+            grid_view: grid_view.clone(),
             picture_frame: picture_frame.clone(),
             application_window: application_window.clone(),
             stack: stack.clone(),
@@ -152,11 +152,11 @@ impl MainView {
         } else {
             panic!("can't borrow")
         };
-        let picture_grid = PictureGrid::new(pictures_per_row.try_into().unwrap(), controller_rc);
+        let grid_view = GridView::new(pictures_per_row.try_into().unwrap(), controller_rc);
         let picture_frame = PictureFrame::new();
         let single_view_scrolled_window = make_scrolled_window();
         let multiple_view_scrolled_window = make_scrolled_window();
-        let panel = make_panel(&picture_grid.grid());
+        let panel = make_panel(&grid_view.grid());
         let frame: gtk::Box = picture_frame.frame();
         single_view_scrolled_window.set_child(Some(&frame));
         multiple_view_scrolled_window.set_child(Some(&panel));
@@ -209,8 +209,8 @@ impl MainView {
         self.application_window.clone()
     }
 
-    pub fn picture_grid(&self) -> PictureGrid {
-        self.picture_grid.clone()
+    pub fn grid_view(&self) -> GridView {
+        self.grid_view.clone()
     }
 
     pub fn picture_frame(&self) -> PictureFrame {
@@ -259,8 +259,8 @@ impl MainView {
     ) {
         let navigator = controller.navigator();
         if let Ok(gallery) = controller.repository().gallery_rc().try_borrow() {
-            let picture_grid = self.picture_grid.clone();
-            let grid = picture_grid.grid();
+            let grid_view = self.grid_view.clone();
+            let grid = grid_view.grid();
             for col in 0..pictures_per_row {
                 for row in 0..pictures_per_row {
                     let coords = (row as usize, col as usize);
@@ -291,7 +291,7 @@ impl MainView {
                         } else {
                             None
                         };
-                        self.picture_grid
+                        self.grid_view
                             .set_picture_at(col, row, &gtk_picture, with_sample);
                         let opacity: f64 = if let Some(position) =
                             navigator.position_from_coords(row as usize, col as usize)
@@ -308,8 +308,8 @@ impl MainView {
                         } else {
                             FULL_OPACITY
                         };
-                        self.picture_grid.set_picture_opacity_at(col, row, opacity);
-                        self.picture_grid
+                        self.grid_view.set_picture_opacity_at(col, row, opacity);
+                        self.grid_view
                             .set_label_text_at(&picture, col, row, with_focus);
                     }
                 }
@@ -353,8 +353,8 @@ impl MainView {
         if !controller.state().single_view()
             && let Some((row, col)) = navigator.coords_from_position(position)
         {
-            let mut picture_grid = self.picture_grid();
-            picture_grid.set_label_text_at(&picture, col as i32, row as i32, with_focus);
+            let mut grid_view = self.grid_view();
+            grid_view.set_label_text_at(&picture, col as i32, row as i32, with_focus);
         }
     }
 
@@ -364,7 +364,7 @@ impl MainView {
         if !controller.state().single_view()
             && let Some((row, col)) = navigator.coords_from_position(position)
         {
-            self.picture_grid
+            self.grid_view
                 .set_picture_opacity_at(col as i32, row as i32, opacity);
         }
     }
@@ -386,19 +386,19 @@ impl MainView {
         entry_window
     }
 
-    pub fn popup_treelist_window(&self, prompt: &str, catalog: &Catalog) -> TreeListWindow {
-        let treelist_window = TreeListWindow::new(
+    pub fn popup_treelist_view(&self, prompt: &str, catalog: &Catalog) -> TreeListView {
+        let treelist_view = TreeListView::new(
             &self.application_window(),
             prompt,
             "",
             catalog,
             &self.controller_rc,
         );
-        treelist_window.popup();
-        treelist_window
+        treelist_view.popup();
+        treelist_view
     }
     pub fn change_grid_size(&mut self, pictures_per_row: usize) {
-        self.picture_grid.change_dimension(pictures_per_row as i32)
+        self.grid_view.change_dimension(pictures_per_row as i32)
     }
 
     pub fn toggle_view_stack(&self, controller: &Controller) {

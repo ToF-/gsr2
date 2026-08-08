@@ -3,7 +3,7 @@ use crate::gui::control::Controls;
 use crate::gui::control::default_controls;
 use crate::gui::mode::Mode;
 use crate::gui::view::main_view::MainView;
-use crate::gui::view::treelist_window::TreeListWindow;
+use crate::gui::view::treelist_view::TreeListView;
 use crate::model::catalog::Catalog;
 use gtk::gdk::Key;
 
@@ -14,7 +14,7 @@ pub struct Selector {
     selected: String,
     prev_selected: String,
     controls: Controls,
-    treelist_window_opt: Option<TreeListWindow>,
+    treelist_view_opt: Option<TreeListView>,
     catalog: Catalog,
 }
 
@@ -26,7 +26,7 @@ impl Selector {
             controls: default_controls(),
             selected: "".to_string(),
             prev_selected: "".to_string(),
-            treelist_window_opt: None,
+            treelist_view_opt: None,
             catalog: catalog.clone(),
         }
     }
@@ -34,8 +34,8 @@ impl Selector {
     pub fn begin(&mut self, main_view: &MainView, prompt: &str, catalog: &Catalog) {
         self.catalog = catalog.clone();
         self.prompt = prompt.to_string();
-        self.treelist_window_opt =
-            Some(main_view.popup_treelist_window(&self.prompt, &self.catalog));
+        self.treelist_view_opt =
+            Some(main_view.popup_treelist_view(&self.prompt, &self.catalog));
         self.selecting = true;
     }
 
@@ -75,12 +75,12 @@ impl Selector {
 
     pub fn cancel(&mut self) {
         self.selected = String::from("");
-        self.treelist_window_opt.clone().unwrap().close();
+        self.treelist_view_opt.clone().unwrap().close();
         self.selecting = false;
     }
 
     pub fn enter(&mut self) {
-        self.treelist_window_opt.clone().unwrap().close();
+        self.treelist_view_opt.clone().unwrap().close();
         self.selecting = false;
     }
 

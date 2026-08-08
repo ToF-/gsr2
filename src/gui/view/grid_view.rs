@@ -18,27 +18,27 @@ use palette_extract::Color;
 use std::time::Duration;
 
 #[derive(Clone, Debug)]
-pub struct PictureGrid {
+pub struct GridView {
     grid: gtk::Grid,
     controller_rc: RcController,
 }
 
-impl PictureGrid {
+impl GridView {
     pub fn new_from_grid(grid: &gtk::Grid, controller_rc: &RcController) -> Self {
-        PictureGrid {
+        GridView {
             controller_rc: controller_rc.clone(),
             grid: grid.clone(),
         }
     }
     pub fn new(pictures_per_row: i32, controller_rc: &RcController) -> Self {
         let grid = make_grid();
-        let picture_grid = PictureGrid {
+        let grid_view = GridView {
             grid,
             controller_rc: controller_rc.clone(),
         };
-        picture_grid.attach_cells(pictures_per_row);
-        picture_grid.attach_focus_symbol_change_event();
-        picture_grid
+        grid_view.attach_cells(pictures_per_row);
+        grid_view.attach_focus_symbol_change_event();
+        grid_view
     }
 
     pub fn attach_focus_symbol_change_event(&self) {
