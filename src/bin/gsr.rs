@@ -10,7 +10,6 @@ use gsr::gui::controller::Controller;
 use gsr::gui::controller::RcController;
 use gsr::gui::gsr_application::GsrApplication;
 use gsr::gui::main_controller::MainController;
-use gsr::gui::view::application::make_gsr_application;
 use gsr::gui::view::main_view::MainView;
 use gtk::glib::clone;
 use gtk::prelude::ApplicationExt;
@@ -81,8 +80,7 @@ fn main() {
 
 fn build_and_run_app(clargs: CommandLineArguments, controller_rc: RcController, position: usize) {
     let main_controller: MainController = MainController::new(Some(controller_rc.clone()));
-    let gsr_application: GsrApplication = make_gsr_application(APPLICATION_ID, &main_controller);
-    // application.insert_action_group("main-controller", Some(main_controller.actions()));
+    let gsr_application: GsrApplication = GsrApplication::make_gsr_application(APPLICATION_ID, &main_controller);
     gsr_application.connect_activation(clargs, position);
     MainView::run_application(gsr_application);
 }
