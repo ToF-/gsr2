@@ -1,3 +1,5 @@
+use crate::model::rank::Rank;
+use crate::gui::direction::Direction;
 use crate::model::find::Find;
 use crate::model::category::Category;
 use crate::model::category::category_from_string;
@@ -14,6 +16,20 @@ pub struct GioActionParameter {
 impl GioActionParameter {
     pub fn variant(&self) -> gtk::glib::Variant {
         self.variant.clone()
+    }
+}
+
+impl From<usize> for GioActionParameter {
+    fn from(n: usize) -> Self {
+        Self {
+            variant: (n as i64).to_variant(),
+        }
+    }
+}
+
+impl From<GioActionParameter> for usize {
+    fn from(gio_action_parameter: GioActionParameter) -> Self {
+        gio_action_parameter.variant().get::<i64>().unwrap() as usize
     }
 }
 
@@ -42,6 +58,21 @@ impl From<i32> for GioActionParameter {
 impl From<GioActionParameter> for i32 {
     fn from(gio_action_parameter: GioActionParameter) -> Self {
         gio_action_parameter.variant().get::<i32>().unwrap()
+    }
+}
+
+impl From<GioActionParameter> for char {
+    fn from(gio_action_parameter: GioActionParameter) -> Self {
+        let parameter = gio_action_parameter.variant().get::<i32>().unwrap() as u32;
+        char::from_u32(parameter).unwrap()
+    }
+}
+
+impl From<char> for GioActionParameter {
+    fn from(c: char) -> Self {
+        Self {
+            variant: (c as i32).to_variant(),
+        }
     }
 }
 
@@ -133,5 +164,35 @@ impl From<GioActionParameter> for Find {
     fn from(gio_action_parameter: GioActionParameter) -> Self {
         let parameter_value: i32 = gio_action_parameter.variant().get::<i32>().unwrap();
            Find::from(parameter_value) 
+    }
+}
+
+impl From<Direction> for GioActionParameter {
+    fn from(direction: Direction) -> Self {
+        Self {
+            variant: (i32::from(direction)).to_variant(),
+        }
+    }
+}
+
+impl From<GioActionParameter> for Direction {
+    fn from(gio_action_parameter: GioActionParameter) -> Self {
+        let parameter_value: i32 = gio_action_parameter.variant().get::<i32>().unwrap();
+           Direction::from(parameter_value) 
+    }
+}
+
+impl From<Rank> for GioActionParameter {
+    fn from(rank: Rank) -> Self {
+        Self {
+            variant: (i64::from(rank)).to_variant(),
+        }
+    }
+}
+
+impl From<GioActionParameter> for Rank {
+    fn from(gio_action_parameter: GioActionParameter) -> Self {
+        let parameter_value: i64 = gio_action_parameter.variant().get::<i64>().unwrap();
+           Rank::from(parameter_value) 
     }
 }

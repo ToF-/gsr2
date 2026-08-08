@@ -56,7 +56,7 @@ impl From<Action> for GioActionTy {
             }
             Action::EnterAddTag => GioActionTy::new("enter-add-tag", GioActionParameterType::None),
             Action::EnterCategory => {
-                GioActionTy::new("enter-add-category", GioActionParameterType::None)
+                GioActionTy::new("enter-category", GioActionParameterType::None)
             }
             Action::EnterIndex => GioActionTy::new("enter-index", GioActionParameterType::None),
             Action::EnterLabel => GioActionTy::new("enter-label", GioActionParameterType::None),
@@ -81,7 +81,7 @@ impl From<Action> for GioActionTy {
             Action::MoveCategory(_, _) => {
                 GioActionTy::new("move-category", GioActionParameterType::StringPair)
             }
-            Action::MoveFile => GioActionTy::new("MoveFile", GioActionParameterType::None),
+            Action::MoveFile => GioActionTy::new("move-file", GioActionParameterType::None),
             Action::MoveTowards(_) => {
                 GioActionTy::new("move-towards", GioActionParameterType::String)
             }

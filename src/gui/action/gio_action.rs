@@ -1,3 +1,5 @@
+use crate::model::rank::Rank;
+use crate::gui::direction::Direction;
 use crate::model::find::Find;
 use crate::model::category::Category;
 use crate::model::category::category_from_string;
@@ -40,6 +42,27 @@ impl From<Action> for GioAction {
             Action::EnterRemoveTag => None,
             Action::EnterRename => None,
             Action::Find(find) => Some(GioActionParameter::from(find)),
+            Action::FindNext => None,
+            Action::GotoDirectory(name) => Some(GioActionParameter::from(name)),
+            Action::JumpToIndex(index) => Some(GioActionParameter::from(index)),
+            Action::JumpToMark(mark) => Some(GioActionParameter::from(mark)),
+            Action::JumpToRandom => None,
+            Action::Label(label) => Some(GioActionParameter::from(label)),
+            Action::Mark(mark) => Some(GioActionParameter::from(mark)),
+            Action::MoveCategory(category_name, target_category_name) =>
+                Some(GioActionParameter::from((category_name, target_category_name))),
+            Action::MoveFile => None,
+            Action::MoveTowards(direction) => Some(GioActionParameter::from(direction)),
+            Action::Nothing => None,
+            Action::PickChange => None,
+            Action::PickOrderSetting => None,
+            Action::PickViewOption => None,
+            Action::Quit => None,
+            Action::QuitDirectory => None,
+            Action::Rank(rank) => Some(GioActionParameter::from(rank)),
+            Action::RemoveCategory(category_name) => Some(GioActionParameter::from(category_name)),
+            Action::RemoveTag(tag) => Some(GioActionParameter::from(tag)),
+            Action::Rename(name) => Some(GioActionParameter::from(name)),
             _ => None,
         };
         Self {
@@ -71,6 +94,29 @@ impl From<GioAction> for Action {
             "enter-remove-tag" => Action::EnterRemoveTag,
             "enter-rename" => Action::EnterRename,
             "find" => Action::Find(Find::from(gio_action.parameter().unwrap())),
+            "find-next" => Action::FindNext,
+            "go-to-directory" => Action::GotoDirectory(String::from(gio_action.parameter().unwrap())),
+            "jump-to-index" => Action::JumpToIndex(usize::from(gio_action.parameter().unwrap())),
+            "jump-to-mark" => Action::JumpToMark(char::from(gio_action.parameter().unwrap())),
+            "jump-to-random" => Action::JumpToRandom,
+            "label" => Action::Label(String::from(gio_action.parameter().unwrap())),
+            "mark" => Action::Mark(char::from(gio_action.parameter().unwrap())),
+            "move-category" => {
+                    let string_pair: (String, String) = <(String, String)>::from(gio_action.parameter().unwrap());
+                    Action::MoveCategory(string_pair.0, string_pair.1)
+            },
+            "move-file" => Action::MoveFile,
+            "move-towards" => Action::MoveTowards(Direction::from(gio_action.parameter().unwrap())),
+            "nothing" => Action::Nothing,
+            "pick-change" => Action::PickChange,
+            "pick-order-setting" => Action::PickOrderSetting,
+            "pick-view-option" => Action::PickViewOption,
+            "quit" => Action::Quit,
+            "quit-directory" => Action::QuitDirectory,
+            "rank" => Action::Rank(Rank::from(gio_action.parameter().unwrap())),
+            "remove-category" => Action::RemoveCategory(String::from(gio_action.parameter().unwrap())),
+            "remove-tag" => Action::RemoveTag(String::from(gio_action.parameter().unwrap())),
+            "rename" => Action::Rename(String::from(gio_action.parameter().unwrap())),
             _ => Action::Nothing,
         }
     }
@@ -121,6 +167,26 @@ mod tests {
         check_action_to_and_from(Action::EnterRemoveTag);
         check_action_to_and_from(Action::EnterRename);
         check_action_to_and_from(Action::Find(Find::Label));
+        check_action_to_and_from(Action::FindNext);
+        check_action_to_and_from(Action::GotoDirectory("foo".to_string()));
+        check_action_to_and_from(Action::JumpToIndex(4807));
+        check_action_to_and_from(Action::JumpToMark('f'));
+        check_action_to_and_from(Action::JumpToRandom);
+        check_action_to_and_from(Action::Label("foo".to_string()));
+        check_action_to_and_from(Action::Mark('f'));
+        check_action_to_and_from(Action::MoveCategory("foo".to_string(), "bar".to_string()));
+        check_action_to_and_from(Action::MoveFile);
+        check_action_to_and_from(Action::MoveTowards(Direction::Down));
+        check_action_to_and_from(Action::Nothing);
+        check_action_to_and_from(Action::PickChange);
+        check_action_to_and_from(Action::PickOrderSetting);
+        check_action_to_and_from(Action::PickViewOption);
+        check_action_to_and_from(Action::Quit);
+        check_action_to_and_from(Action::QuitDirectory);
+        check_action_to_and_from(Action::Rank(Rank::ThreeStars));
+        check_action_to_and_from(Action::RemoveCategory("foo".to_string()));
+        check_action_to_and_from(Action::RemoveTag("foo".to_string()));
+        check_action_to_and_from(Action::Rename("foo".to_string()));
     }
 
 }

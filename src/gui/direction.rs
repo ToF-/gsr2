@@ -12,3 +12,40 @@ pub enum Direction {
     Right,
     Up,
 }
+
+impl From<Direction> for i32 {
+    fn from(direction: Direction) -> Self {
+        match direction {
+            Direction::Down => -1,
+            Direction::First => -2,
+            Direction::Index { value } => value as i32,
+            Direction::Last => -3,
+            Direction::Left => -4,
+            Direction::NextPage => -5,
+            Direction::PageEnd => -6,
+            Direction::PageStart => -7,
+            Direction::PrevPage => -8,
+            Direction::Right => -9,
+            Direction::Up => -10
+        }
+    }
+}
+
+impl From<i32> for Direction {
+    fn from(n: i32) -> Self {
+        match n {
+            -1 => Direction::Down,
+            -2 => Direction::First,
+            -3 => Direction::Last,
+            -4 => Direction::Left,
+            -5 => Direction::NextPage,
+            -6 => Direction::PageEnd,
+            -7 => Direction::PageStart,
+            -8 => Direction::PrevPage,
+            -9 => Direction::Right,
+            -10 => Direction::Up,
+            value if value >= 0 => Direction::Index { value: value as usize },
+            _ => todo!()
+        }
+    }
+}
