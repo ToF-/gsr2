@@ -1,8 +1,9 @@
+use std::rc::Rc;
+use crate::gui::controller::RcController;
 use crate::gui::action::Action;
 use crate::gui::action::gio_action_parameter_type::GioActionParameterType;
 use crate::gui::action::gio_action_type::GioActionType;
 use crate::gui::controller::Controller;
-use crate::gui::main_controller::RcController;
 use crate::model::change::Change;
 use crate::model::rank::Rank;
 use gtk::gio::ActionEntry;
@@ -15,7 +16,10 @@ use gtk::subclass::prelude::ObjectSubclassIsExt;
 use std::cell::RefCell;
 use std::sync::OnceLock;
 
-#[derive(Debug)]
+pub const MAIN_CONTROLLER_GROUP_NAME: &str = "main-controller";
+pub type RcMainController = Rc<RefCell<MainController>>;
+
+#[derive(Debug,Clone)]
 pub struct MainController {
     pub gio_action_group: gtk::gio::SimpleActionGroup,
     controller_opt_rc: RefCell<Option<RcController>>,
@@ -30,31 +34,16 @@ impl Default for MainController {
     }
 }
 
-#[gtk::glib::object_subclass]
-impl ObjectSubclass for MainController {
-    const NAME: &'static str = "MainController";
-    type Type = super::MainController;
-    type ParentType = gtk::glib::Object;
-}
-
-impl ObjectImpl for MainController {
-    fn signals() -> &'static [Signal] {
-        static SIGNALS: OnceLock<Vec<Signal>> = OnceLock::new();
-
-        SIGNALS.get_or_init(|| {
-            vec![
-                Signal::builder("closed").build(),
-                Signal::builder("action").build(),
-            ]
-        })
-    }
-}
 
 impl MainController {
     pub fn new(controller_opt: Option<RcController>) -> Self {
         let mut obj = Self::default();
         obj.initialize(controller_opt);
         obj
+    }
+
+    pub fn gio_action_group(&self) -> gtk::gio::SimpleActionGroup {
+        self.gio_action_group.clone()
     }
 
     pub fn controller_rc_opt(&self) -> Option<RcController> {

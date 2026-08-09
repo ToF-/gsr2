@@ -2,6 +2,8 @@
 ## Gallery Show in Rust
 
 ## Todo
+- [ ] entry_view is launched for a given Action, and close iby escaping (cancelling) or by confirming, which activates a new action. 
+- [ ] have a correspondance Action -> input -> Action, e.g. EnterChange -> "Tag" ->  EnterAddTag, and e.g. EnterAddTag -> "foo,bar" -> AddTag("foo,bar")
 - [ ] explore subclassing window to to make the main_window *have* the controller instead of the controller having the main_window 
 - [ ] make helpers to convert any action into a gio_simple_action with the parameters correctly encoded and decode back any gio_simple_action into original action
 - [X] make a correspondance function mapping a key name in a context (mode, entry kind) to a main-controller.action

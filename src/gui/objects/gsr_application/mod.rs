@@ -20,7 +20,7 @@ glib::wrapper! {
 }
 
 impl GsrApplication {
-    pub fn new(application_id: &str, main_controller: &MainController) -> Self {
+    pub fn new(application_id: &str, main_controller: MainController) -> Self {
         let obj: Self = Object::builder()
             .property("application-id", application_id)
             .build();
@@ -28,7 +28,7 @@ impl GsrApplication {
         obj
     }
 
-    pub fn make_gsr_application(application_id: &str, main_controller: &MainController) -> Self {
+    pub fn make_gsr_application(application_id: &str, main_controller: MainController) -> Self {
         let application = GsrApplication::new(application_id, main_controller);
         application.connect_startup(|_| startup_gui());
         application
@@ -37,13 +37,13 @@ impl GsrApplication {
         self.imp().main_controller_rc()
     }
 
-    pub fn set_main_controller_rc(&self, main_controller: &MainController) {
+    pub fn set_main_controller_rc(&self, main_controller: MainController) {
         self.imp().set_main_controller_rc(main_controller)
     }
 
     pub fn connect_activation(&self, clargs: CommandLineArguments, position: usize) {
         let main_controller = self.main_controller_rc().borrow().clone();
-        let controller_rc_opt = main_controller.controlller_rc_opt().clone();
+        let controller_rc_opt = main_controller.controller_rc_opt().clone();
         if let Some(controller_rc) = controller_rc_opt {
             self.connect_activate(clone!(
                 #[strong]
