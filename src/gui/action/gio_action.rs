@@ -166,6 +166,10 @@ impl GioAction {
     pub fn parameter(&self) -> Option<GioActionParameter> {
         self.parameter.clone()
     }
+
+    pub fn parameter_as_variant(&self) -> Option<gtk::glib::Variant> {
+        self.parameter.clone().map(|p| p.variant().clone())
+    }
 }
 
 #[cfg(test)]

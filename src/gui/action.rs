@@ -97,6 +97,7 @@ impl Action {
             Control::RankThreeStars => Action::Rank(Rank::ThreeStars),
             Control::SetView => Action::PickViewOption,
             Control::SetOrder => Action::PickOrderSetting,
+            Control::ToggleThumbView => Action::ToggleThumbnailsView,
             _ => Action::Nothing,
         }
     }

@@ -120,6 +120,10 @@ impl Controller {
         Ok(controller)
     }
 
+    pub fn deal_with_action(&self, simple_action: &gtk::gio::SimpleAction, variant: Option<&gtk::glib::Variant>) {
+        println!("deal with action {simple_action:?}, variant {variant:?}");
+    }
+
     pub fn last_action(&self) -> Action {
         self.last_action_rc.borrow().clone()
     }

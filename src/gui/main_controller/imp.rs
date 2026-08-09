@@ -61,120 +61,38 @@ impl MainController {
         self.controller_opt_rc.borrow().clone()
     }
     pub fn initialize(&self, controller_opt: Option<RcController>) {
-        dbg!(&self);
         *self.controller_opt_rc.borrow_mut() = controller_opt.clone();
 
-        //let controller_rc = controller_opt.unwrap();
 
         let mut action_entries = vec![];
 
         // action_entries.push(Self::make_parameterless_action_entry(Action::AddCategory("foo".to_string(), "bar".to_string()), &controller_rc));
-        action_entries.push(Self::make_string_parameter_action_entry(Action::Label(
-            "foo".to_string(),
+        action_entries.push(Self::action_entry(GioActionTy::from(Action::ToggleThumbnailsView),
+        clone!( #[strong] controller_opt, move |_, object, variant| {
+            if let Some(controller_rc) = &controller_opt {
+                let controller = controller_rc.borrow();
+                controller.deal_with_action(object, variant)
+            } else {
+                println!("controller not set")
+            }
+        }
         )));
-        action_entries.push(Self::make_int32_parameter_action_entry(Action::Rank(
-            Rank::ThreeStars,
-        )));
-        action_entries.push(Self::make_parameterless_action_entry(Action::PickChange));
-        action_entries.push(Self::make_parameterless_action_entry(
-            Action::PickViewOption,
-        ));
-        action_entries.push(Self::make_parameterless_action_entry(
-            Action::PickOrderSetting,
-        ));
         dbg!(&action_entries);
         self.gio_action_group.add_action_entries(action_entries);
     }
 
-    pub fn make_action_entry<F>(
-        action: Action,
-        activate: F,
-    ) -> ActionEntry<gtk::gio::SimpleActionGroup>
-    where
-        F: Fn(&gtk::gio::SimpleActionGroup, &gtk::gio::SimpleAction, Option<&gtk::glib::Variant>)
-            + 'static,
-    {
-        dbg!(&action);
-        let gio_action_ty = GioActionTy::from(action);
-        let action_entry = ActionEntry::builder(&gio_action_ty.name())
-            .parameter_type(gio_action_ty.parameter_type().variant_ty())
-            .activate(activate)
-            .build();
-        action_entry
+    pub fn action_entry<F>(gio_action_ty: GioActionTy, activate: F,) -> ActionEntry<gtk::gio::SimpleActionGroup> 
+        where
+        F: Fn(&gtk::gio::SimpleActionGroup, &gtk::gio::SimpleAction, Option<&gtk::glib::Variant>) + 'static
+        {
+            ActionEntry::builder(&gio_action_ty.name())
+                .parameter_type(gio_action_ty.parameter_type().variant_ty())
+                .activate(activate)
+                .build()
+        }
+
+    pub fn deal_with_action(&self, object: &gtk::gio::SimpleAction, variant: Option<&gtk::glib::Variant>) {
+        println!( "object:{object:?},object.name:{0:?},\nvariant:{variant:?}", object.name());
     }
 
-    pub fn make_parameterless_action_entry(
-        action: Action,
-    ) -> ActionEntry<gtk::gio::SimpleActionGroup> {
-        let sample = action.clone();
-        Self::make_action_entry(
-            action,
-            clone!(
-                #[strong]
-                sample,
-                move |_, object, variant| {
-                    println!(
-                        "object:{object:?},object.name:{0:?},\nvariant:{variant:?}\nsample:{sample:?}",
-                        object.name()
-                    )
-                }
-            ),
-        )
-    }
-
-    pub fn make_string_parameter_action_entry(
-        action: Action,
-    ) -> ActionEntry<gtk::gio::SimpleActionGroup> {
-        let sample = action.clone();
-        Self::make_action_entry(
-            action,
-            clone!(
-                #[strong]
-                sample,
-                move |_, object, variant| {
-                    println!(
-                        "object:{object:?},object.name:{0:?},\nvariant:{variant:?}\nsample:{sample:?}",
-                        object.name()
-                    );
-                    let parameter: String = variant
-                        .expect("can't unwrap variant parameter")
-                        .get::<String>()
-                        .expect("can't get parameter value");
-                    let action = match sample {
-                        Action::Label(_) => Action::Label(parameter),
-                        _ => Action::Nothing,
-                    };
-                    println!("ready to lauch {action:?}");
-                }
-            ),
-        )
-    }
-
-    pub fn make_int32_parameter_action_entry(
-        action: Action,
-    ) -> ActionEntry<gtk::gio::SimpleActionGroup> {
-        let sample = action.clone();
-        Self::make_action_entry(
-            action,
-            clone!(
-                #[strong]
-                sample,
-                move |_, object, variant| {
-                    println!(
-                        "object:{object:?},object.name:{0:?},\nvariant:{variant:?}\nsample:{sample:?}",
-                        object.name()
-                    );
-                    let parameter: i32 = variant
-                        .expect("can't unwrap variant parameter")
-                        .get::<i32>()
-                        .expect("can't get parameter value");
-                    let action = match sample {
-                        Action::Rank(_) => Action::Rank(Rank::from(parameter as i64)),
-                        _ => Action::Nothing,
-                    };
-                    println!("ready to lauch {action:?}");
-                }
-            ),
-        )
-    }
 }

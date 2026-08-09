@@ -1,3 +1,4 @@
+use crate::gui::action::gio_action::GioAction;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::default_values::FOCUS_SYMBOL_1;
 use crate::env::default_values::QUARTER_OPACITY;
@@ -191,6 +192,7 @@ impl MainView {
         // TESTING
         application_window
             .insert_action_group("main-controller", Some(&main_controller.gio_action_group()));
+        application.set_accels_for_action("main-controller.toggle-thumbnails-view", &["<Ctrl>T"]);
         application.set_accels_for_action("application-group.close", &["<Ctrl>W"]);
         application.set_accels_for_action("main-controller.test::foobardelaw", &["<Ctrl>Z"]);
         attach_key_pressed_event_handlers(&application_window, controller_rc);
@@ -587,34 +589,20 @@ fn attach_key_pressed_event_handlers(
                 {
                     println!("{key_name:?} + {mode:?} = {control:?}");
                     let action = Action::from_control(control);
-                    let gio_action = GioActionTy::from(action.clone());
-                    if action == Action::Rank(Rank::ThreeStars) {
-                        println!("Action::Rank(Rank::ThreeStars) detected");
-                        let action_entry_name = gio_action.action_entry_name();
-                        let parameter = Some(&(i64::from(Rank::ThreeStars) as i32).to_variant());
-                        println!("activate_action({action_entry_name:?},{parameter:?})");
-                        match gtk::prelude::WidgetExt::activate_action(
-                            &application_window,
-                            &action_entry_name,
-                            parameter,
-                        ) {
-                            Ok(_) => {}
-                            Err(e) => {
-                                println!("error:{e}");
-                            }
-                        }
-                    } else {
+                    println!("action:{action:?}");
+                    let gio_action = GioAction::from(action);
+                    println!("activate_action({gio_action:?}");
                         match gtk::prelude::WidgetExt::activate_action(
                             &application_window,
                             &gio_action.action_entry_name(),
-                            None,
-                        ) {
+                            None) {
                             Ok(_) => {}
                             Err(e) => {
                                 println!("error:{e}");
                             }
                         }
-                    }
+                } else {
+                    println!("no control on key {key_name:?}");
                 };
             }
             Propagation::Stop
