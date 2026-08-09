@@ -1,3 +1,4 @@
+use crate::gui::action::gio_action::GioAction;
 use crate::cli::command::Command;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::Configuration;
@@ -120,8 +121,10 @@ impl Controller {
         Ok(controller)
     }
 
-    pub fn deal_with_action(&self, simple_action: &gtk::gio::SimpleAction, variant: Option<&gtk::glib::Variant>) {
-        println!("deal with action {simple_action:?}, variant {variant:?}");
+    pub fn deal_with_action(&self, simple_action: &gtk::gio::SimpleAction, variant_opt: Option<&gtk::glib::Variant>) {
+        dbg!("controller deal_with_action");
+        let gio_action = GioAction::from((simple_action, variant_opt));
+        dbg!(gio_action);
     }
 
     pub fn last_action(&self) -> Action {

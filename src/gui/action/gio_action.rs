@@ -8,13 +8,36 @@ use crate::model::order::Order;
 use gtk::glib::prelude::ToVariant;
 use crate::gui::action::GioActionTy;
 use crate::gui::action::Action;
+use gtk::gio::SimpleAction;
+use gtk::glib::Variant;
 use crate::gui::action::gio_action_parameter::GioActionParameter;
+use crate::gui::main_controller::MAIN_CONTROLLER_GROUP_NAME;
+use gtk::prelude::ActionExt;
+
 #[derive(Debug)]
 pub struct GioAction {
     name: String,
     action_entry_name: String,
     parameter: Option<GioActionParameter>,
 }
+
+
+impl From<(&SimpleAction, Option<&Variant>)> for GioAction {
+    fn from(tuple:(&SimpleAction, Option<&Variant>)) -> Self {
+        let simple_action: &SimpleAction = tuple.0;
+        let variant: Option<Variant> = match tuple.1 {
+            None => None,
+            Some(value) => Some(value.clone())
+        };
+        let name = simple_action.name().clone().to_string();
+        Self {
+            name: name.clone(),
+            action_entry_name: format!("{}.{}", MAIN_CONTROLLER_GROUP_NAME, name),
+            parameter: None,
+        }
+    }
+}
+
 
 impl From<Action> for GioAction {
     fn from(action: Action) -> Self {

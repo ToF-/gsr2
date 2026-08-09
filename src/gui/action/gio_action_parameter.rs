@@ -7,6 +7,7 @@ use crate::model::category::string_from_category;
 use crate::model::order::Order;
 use crate::model::view_option::ViewOption;
 use gtk::glib::prelude::ToVariant;
+use gtk::glib::Variant;
 
 #[derive(PartialEq, Clone, Debug)]
 pub struct GioActionParameter {
@@ -14,8 +15,16 @@ pub struct GioActionParameter {
 }
 
 impl GioActionParameter {
-    pub fn variant(&self) -> gtk::glib::Variant {
-        self.variant.clone()
+    pub fn variant(&self) -> &gtk::glib::Variant {
+        &self.variant
+    }
+}
+
+impl From<Variant> for GioActionParameter {
+    fn from(variant: Variant) -> Self {
+        Self {
+            variant: variant,
+        }
     }
 }
 

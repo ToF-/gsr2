@@ -68,7 +68,7 @@ impl MainController {
 
         // action_entries.push(Self::make_parameterless_action_entry(Action::AddCategory("foo".to_string(), "bar".to_string()), &controller_rc));
         action_entries.push(Self::action_entry(GioActionTy::from(Action::ToggleThumbnailsView),
-        clone!( #[strong] controller_opt, move |_, object, variant| {
+        clone!( #[strong] controller_opt, move |_group, object, variant| {
             if let Some(controller_rc) = &controller_opt {
                 let controller = controller_rc.borrow();
                 controller.deal_with_action(object, variant)
@@ -90,9 +90,4 @@ impl MainController {
                 .activate(activate)
                 .build()
         }
-
-    pub fn deal_with_action(&self, object: &gtk::gio::SimpleAction, variant: Option<&gtk::glib::Variant>) {
-        println!( "object:{object:?},object.name:{0:?},\nvariant:{variant:?}", object.name());
-    }
-
 }
