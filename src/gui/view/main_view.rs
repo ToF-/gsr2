@@ -1,3 +1,4 @@
+use gtk::glib::Variant;
 use crate::gui::action::gio_action::GioAction;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::default_values::FOCUS_SYMBOL_1;
@@ -587,20 +588,23 @@ fn attach_key_pressed_event_handlers(
                 if let Some(control) =
                     default_controls().get(&(key_name.clone().into(), mode.clone()))
                 {
-                    println!("{key_name:?} + {mode:?} = {control:?}");
+                    dbg!(control);
                     let action = Action::from_control(control);
-                    println!("action:{action:?}");
+                    dbg!(action.clone());
                     let gio_action = GioAction::from(action);
-                    println!("activate_action({gio_action:?}");
-                        match gtk::prelude::WidgetExt::activate_action(
-                            &application_window,
-                            &gio_action.action_entry_name(),
-                            None) {
-                            Ok(_) => {}
-                            Err(e) => {
-                                println!("error:{e}");
-                            }
+                    let binding = gio_action.parameter_as_variant();
+                    let variant = binding.as_ref();
+                    dbg!(&variant);
+                    match gtk::prelude::WidgetExt::activate_action(
+                        &application_window,
+                        &gio_action.action_entry_name(),
+                        variant) {
+                        Ok(_) => {}
+                        Err(e) => {
+                            dbg!(e);
+                            // println!("error:{e}");
                         }
+                    }
                 } else {
                     println!("no control on key {key_name:?}");
                 };

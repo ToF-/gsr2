@@ -97,7 +97,7 @@ impl From<Action> for GioActionTy {
             Action::QuitDirectory => {
                 GioActionTy::new("quit-directory", GioActionParameterType::None)
             }
-            Action::Rank(_) => GioActionTy::new("rank", GioActionParameterType::Int32),
+            Action::Rank(_) => GioActionTy::new("rank", GioActionParameterType::Int64),
             Action::RemoveCategory(_) => {
                 GioActionTy::new("remove-category", GioActionParameterType::String)
             }

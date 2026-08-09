@@ -24,16 +24,18 @@ pub struct GioAction {
 
 impl From<(&SimpleAction, Option<&Variant>)> for GioAction {
     fn from(tuple:(&SimpleAction, Option<&Variant>)) -> Self {
+        dbg!(tuple);
         let simple_action: &SimpleAction = tuple.0;
         let variant: Option<Variant> = match tuple.1 {
             None => None,
             Some(value) => Some(value.clone())
         };
+        let parameter: Option<GioActionParameter> = variant.map(|v| GioActionParameter::from(v));
         let name = simple_action.name().clone().to_string();
         Self {
             name: name.clone(),
             action_entry_name: format!("{}.{}", MAIN_CONTROLLER_GROUP_NAME, name),
-            parameter: None,
+            parameter: parameter,
         }
     }
 }

@@ -122,9 +122,11 @@ impl Controller {
     }
 
     pub fn deal_with_action(&self, simple_action: &gtk::gio::SimpleAction, variant_opt: Option<&gtk::glib::Variant>) {
-        dbg!("controller deal_with_action");
+        dbg!(&variant_opt);
         let gio_action = GioAction::from((simple_action, variant_opt));
-        dbg!(gio_action);
+        dbg!(&gio_action);
+        let action = Action::from(gio_action);
+        dbg!(&action);
     }
 
     pub fn last_action(&self) -> Action {

@@ -66,7 +66,6 @@ impl MainController {
 
         let mut action_entries = vec![];
 
-        // action_entries.push(Self::make_parameterless_action_entry(Action::AddCategory("foo".to_string(), "bar".to_string()), &controller_rc));
         action_entries.push(Self::action_entry(GioActionTy::from(Action::ToggleThumbnailsView),
         clone!( #[strong] controller_opt, move |_group, object, variant| {
             if let Some(controller_rc) = &controller_opt {
@@ -77,6 +76,17 @@ impl MainController {
             }
         }
         )));
+        action_entries.push(Self::action_entry(GioActionTy::from(Action::Rank(Rank::ThreeStars)),
+        clone!( #[strong] controller_opt, move |_group, object, variant| {
+            if let Some(controller_rc) = &controller_opt {
+                let controller = controller_rc.borrow();
+                controller.deal_with_action(object, variant)
+            } else {
+                println!("controller not set")
+            }
+        }
+        )));
+
         dbg!(&action_entries);
         self.gio_action_group.add_action_entries(action_entries);
     }
