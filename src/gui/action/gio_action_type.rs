@@ -48,14 +48,18 @@ impl From<Action> for GioActionType {
             Action::CancelSelectionRange => {
                 GioActionType::new("cancel-selection-range", GioActionParameterType::None)
             }
-            Action::Categorize(_) => GioActionType::new("categorize", GioActionParameterType::String),
+            Action::Categorize(_) => {
+                GioActionType::new("categorize", GioActionParameterType::String)
+            }
             Action::ConfirmDeleteFile => {
                 GioActionType::new("confirm-delete-file", GioActionParameterType::None)
             }
             Action::ConfirmMoveFile(_) => {
                 GioActionType::new("confirm-move-file", GioActionParameterType::String)
             }
-            Action::EnterAddTag => GioActionType::new("enter-add-tag", GioActionParameterType::None),
+            Action::EnterAddTag => {
+                GioActionType::new("enter-add-tag", GioActionParameterType::None)
+            }
             Action::EnterCategory => {
                 GioActionType::new("enter-category", GioActionParameterType::None)
             }
@@ -73,7 +77,9 @@ impl From<Action> for GioActionType {
             Action::JumpToIndex(_) => {
                 GioActionType::new("jump-to-index", GioActionParameterType::Int32)
             }
-            Action::JumpToMark(_) => GioActionType::new("jump-to-mark", GioActionParameterType::Char),
+            Action::JumpToMark(_) => {
+                GioActionType::new("jump-to-mark", GioActionParameterType::Char)
+            }
             Action::JumpToRandom => {
                 GioActionType::new("jump-to-random", GioActionParameterType::None)
             }
@@ -102,9 +108,13 @@ impl From<Action> for GioActionType {
             Action::RemoveCategory(_) => {
                 GioActionType::new("remove-category", GioActionParameterType::String)
             }
-            Action::RemoveTag(_) => GioActionType::new("remove-tag", GioActionParameterType::String),
+            Action::RemoveTag(_) => {
+                GioActionType::new("remove-tag", GioActionParameterType::String)
+            }
             Action::Rename(_) => GioActionType::new("rename", GioActionParameterType::String),
-            Action::RepeatAction => GioActionType::new("repeat-action", GioActionParameterType::None),
+            Action::RepeatAction => {
+                GioActionType::new("repeat-action", GioActionParameterType::None)
+            }
             Action::RepeatRangeSelection => {
                 GioActionType::new("repeat-range-selection", GioActionParameterType::None)
             }

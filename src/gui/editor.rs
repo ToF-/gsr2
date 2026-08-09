@@ -40,12 +40,7 @@ impl Editor {
         }
     }
 
-    pub fn begin(
-        &mut self,
-        main_view: &MainView,
-        entry_kind: EntryKind,
-        choice_opt: Option<Tags>,
-    ) {
+    pub fn begin(&mut self, main_view: &MainView, entry_kind: EntryKind, choice_opt: Option<Tags>) {
         println!("editor.begin");
         self.prompt = entry_prompt(entry_kind.clone());
         self.begin_input(entry_kind, choice_opt);

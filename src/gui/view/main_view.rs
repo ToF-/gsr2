@@ -1,11 +1,10 @@
-use gtk::glib::Variant;
-use crate::gui::action::gio_action::GioAction;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::default_values::FOCUS_SYMBOL_1;
 use crate::env::default_values::QUARTER_OPACITY;
 use crate::env::default_values::{FULL_OPACITY, HALF_OPACITY};
 use crate::file::paths::check_path_exists;
 use crate::gui::action::Action;
+use crate::gui::action::gio_action::GioAction;
 use crate::gui::action::gio_action_type::GioActionType;
 use crate::gui::control::Control;
 use crate::gui::control::default_controls;
@@ -14,13 +13,13 @@ use crate::gui::controller::RcController;
 use crate::gui::direction::Direction;
 use crate::gui::display::title_display;
 use crate::gui::event::Event::{KeyPressed, NextSlideDelay, PaneClicked};
-use crate::gui::objects::gsr_application::GsrApplication;
 use crate::gui::main_controller::MainController;
 use crate::gui::mode::Mode;
+use crate::gui::objects::gsr_application::GsrApplication;
 use crate::gui::view::entry_window::EntryWindow;
+use crate::gui::view::grid_view::GridView;
 use crate::gui::view::picture_cell_box::make_picture_cell_box;
 use crate::gui::view::picture_frame::PictureFrame;
-use crate::gui::view::grid_view::GridView;
 use crate::gui::view::treelist_view::TreeListView;
 use crate::model::catalog::Catalog;
 use crate::model::change::Change;
@@ -34,6 +33,7 @@ use gtk::gio::File as GtkFile;
 use gtk::gio::prelude::*;
 use gtk::gio::prelude::*;
 use gtk::glib;
+use gtk::glib::Variant;
 use gtk::glib::clone;
 use gtk::glib::subclass::Signal;
 use gtk::glib::subclass::prelude::*;
@@ -588,20 +588,18 @@ fn attach_key_pressed_event_handlers(
                 if let Some(control) =
                     default_controls().get(&(key_name.clone().into(), mode.clone()))
                 {
-                    dbg!(control);
                     let action = Action::from_control(control);
-                    dbg!(action.clone());
                     let gio_action = GioAction::from(action);
                     let (name, variant) = gio_action.to_simple_action_call();
                     let variant_ref: Option<&Variant> = match &variant {
                         None => None,
-                        Some(v) => Some(v.as_ref())
+                        Some(v) => Some(v.as_ref()),
                     };
-                    dbg!(&variant);
                     match gtk::prelude::WidgetExt::activate_action(
                         &application_window,
                         &name,
-                        variant_ref) {
+                        variant_ref,
+                    ) {
                         Ok(_) => {}
                         Err(e) => {
                             dbg!(e);

@@ -26,7 +26,7 @@ impl From<Direction> for i32 {
             Direction::PageStart => -7,
             Direction::PrevPage => -8,
             Direction::Right => -9,
-            Direction::Up => -10
+            Direction::Up => -10,
         }
     }
 }
@@ -44,8 +44,10 @@ impl From<i32> for Direction {
             -8 => Direction::PrevPage,
             -9 => Direction::Right,
             -10 => Direction::Up,
-            value if value >= 0 => Direction::Index { value: value as usize },
-            _ => todo!()
+            value if value >= 0 => Direction::Index {
+                value: value as usize,
+            },
+            _ => todo!(),
         }
     }
 }

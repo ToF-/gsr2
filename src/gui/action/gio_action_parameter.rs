@@ -1,13 +1,13 @@
-use crate::model::rank::Rank;
 use crate::gui::direction::Direction;
-use crate::model::find::Find;
 use crate::model::category::Category;
 use crate::model::category::category_from_string;
 use crate::model::category::string_from_category;
+use crate::model::find::Find;
 use crate::model::order::Order;
+use crate::model::rank::Rank;
 use crate::model::view_option::ViewOption;
-use gtk::glib::prelude::ToVariant;
 use gtk::glib::Variant;
+use gtk::glib::prelude::ToVariant;
 
 #[derive(PartialEq, Clone, Debug)]
 pub struct GioActionParameter {
@@ -22,9 +22,7 @@ impl GioActionParameter {
 
 impl From<Variant> for GioActionParameter {
     fn from(variant: Variant) -> Self {
-        Self {
-            variant: variant,
-        }
+        Self { variant: variant }
     }
 }
 
@@ -172,7 +170,7 @@ impl From<Find> for GioActionParameter {
 impl From<GioActionParameter> for Find {
     fn from(gio_action_parameter: GioActionParameter) -> Self {
         let parameter_value: i32 = gio_action_parameter.variant().get::<i32>().unwrap();
-           Find::from(parameter_value) 
+        Find::from(parameter_value)
     }
 }
 
@@ -187,7 +185,7 @@ impl From<Direction> for GioActionParameter {
 impl From<GioActionParameter> for Direction {
     fn from(gio_action_parameter: GioActionParameter) -> Self {
         let parameter_value: i32 = gio_action_parameter.variant().get::<i32>().unwrap();
-           Direction::from(parameter_value) 
+        Direction::from(parameter_value)
     }
 }
 
@@ -202,6 +200,6 @@ impl From<Rank> for GioActionParameter {
 impl From<GioActionParameter> for Rank {
     fn from(gio_action_parameter: GioActionParameter) -> Self {
         let parameter_value: i64 = gio_action_parameter.variant().get::<i64>().unwrap();
-           Rank::from(parameter_value) 
+        Rank::from(parameter_value)
     }
 }

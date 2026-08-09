@@ -1,17 +1,17 @@
+use crate::gui::action::Action;
+use crate::gui::action::gio_action_parameter::GioActionParameter;
 use crate::gui::action::gio_action_type::GioActionType;
-use crate::model::rank::Rank;
 use crate::gui::direction::Direction;
-use crate::model::find::Find;
+use crate::gui::main_controller::MAIN_CONTROLLER_GROUP_NAME;
 use crate::model::category::Category;
 use crate::model::category::category_from_string;
-use crate::model::view_option::ViewOption;
+use crate::model::find::Find;
 use crate::model::order::Order;
-use gtk::glib::prelude::ToVariant;
-use crate::gui::action::Action;
+use crate::model::rank::Rank;
+use crate::model::view_option::ViewOption;
 use gtk::gio::SimpleAction;
 use gtk::glib::Variant;
-use crate::gui::action::gio_action_parameter::GioActionParameter;
-use crate::gui::main_controller::MAIN_CONTROLLER_GROUP_NAME;
+use gtk::glib::prelude::ToVariant;
 use gtk::prelude::ActionExt;
 
 // GioAction is the conversion of a concrete Action (with parameters) into something activable via a glib or gtk object
@@ -22,14 +22,12 @@ pub struct GioAction {
     parameter: Option<GioActionParameter>,
 }
 
-
 impl From<(&SimpleAction, Option<&Variant>)> for GioAction {
-    fn from(tuple:(&SimpleAction, Option<&Variant>)) -> Self {
-        dbg!(tuple);
+    fn from(tuple: (&SimpleAction, Option<&Variant>)) -> Self {
         let simple_action: &SimpleAction = tuple.0;
         let variant: Option<Variant> = match tuple.1 {
             None => None,
-            Some(value) => Some(value.clone())
+            Some(value) => Some(value.clone()),
         };
         let parameter: Option<GioActionParameter> = variant.map(|v| GioActionParameter::from(v));
         let name = simple_action.name().clone().to_string();
@@ -41,26 +39,20 @@ impl From<(&SimpleAction, Option<&Variant>)> for GioAction {
     }
 }
 
-
 impl From<Action> for GioAction {
     fn from(action: Action) -> Self {
         let gio_action_ty = GioActionType::from(action.clone());
         let gio_action_parameter = match action.clone() {
-            Action::AddCategory(category_name,target_category_name) =>
-                Some(GioActionParameter::from((category_name, target_category_name))),
-            Action::AddTag(tag) =>
-                Some(GioActionParameter::from(tag)),
-            Action::ApplyOrderSetting(order) =>
-                Some(GioActionParameter::from(order)),
-            Action::ApplyViewSetting(view_option) =>
-                Some(GioActionParameter::from(view_option)),
-            Action::CancelSelectionRange =>
-                None,
-            Action::Categorize(category_opt) =>
-                Some(GioActionParameter::from(category_opt)),
+            Action::AddCategory(category_name, target_category_name) => Some(
+                GioActionParameter::from((category_name, target_category_name)),
+            ),
+            Action::AddTag(tag) => Some(GioActionParameter::from(tag)),
+            Action::ApplyOrderSetting(order) => Some(GioActionParameter::from(order)),
+            Action::ApplyViewSetting(view_option) => Some(GioActionParameter::from(view_option)),
+            Action::CancelSelectionRange => None,
+            Action::Categorize(category_opt) => Some(GioActionParameter::from(category_opt)),
             Action::ConfirmDeleteFile => None,
-            Action::ConfirmMoveFile(file_path) =>
-                Some(GioActionParameter::from(file_path)),
+            Action::ConfirmMoveFile(file_path) => Some(GioActionParameter::from(file_path)),
             Action::EnterAddTag => None,
             Action::EnterCategory => None,
             Action::EnterIndex => None,
@@ -75,8 +67,9 @@ impl From<Action> for GioAction {
             Action::JumpToRandom => None,
             Action::Label(label) => Some(GioActionParameter::from(label)),
             Action::Mark(mark) => Some(GioActionParameter::from(mark)),
-            Action::MoveCategory(category_name, target_category_name) =>
-                Some(GioActionParameter::from((category_name, target_category_name))),
+            Action::MoveCategory(category_name, target_category_name) => Some(
+                GioActionParameter::from((category_name, target_category_name)),
+            ),
             Action::MoveFile => None,
             Action::MoveTowards(direction) => Some(GioActionParameter::from(direction)),
             Action::Nothing => None,
@@ -118,16 +111,23 @@ impl From<GioAction> for Action {
     fn from(gio_action: GioAction) -> Self {
         match &gio_action.name() as &str {
             "add-category" => {
-                let string_pair: (String, String) = <(String, String)>::from(gio_action.parameter().unwrap());
+                let string_pair: (String, String) =
+                    <(String, String)>::from(gio_action.parameter().unwrap());
                 Action::AddCategory(string_pair.0, string_pair.1)
-            },
+            }
             "add-tag" => Action::AddTag(String::from(gio_action.parameter().unwrap())),
-            "apply-order-setting" => Action::ApplyOrderSetting(Order::from(gio_action.parameter().unwrap())),
-            "apply-view-setting" => Action::ApplyViewSetting(ViewOption::from(gio_action.parameter().unwrap())),
+            "apply-order-setting" => {
+                Action::ApplyOrderSetting(Order::from(gio_action.parameter().unwrap()))
+            }
+            "apply-view-setting" => {
+                Action::ApplyViewSetting(ViewOption::from(gio_action.parameter().unwrap()))
+            }
             "cancel-selection-range" => Action::CancelSelectionRange,
             "categorize" => Action::Categorize(Category::from(gio_action.parameter().unwrap())),
             "confirm-delete-file" => Action::ConfirmDeleteFile,
-            "confirm-move-file" => Action::ConfirmMoveFile(String::from(gio_action.parameter().unwrap())),
+            "confirm-move-file" => {
+                Action::ConfirmMoveFile(String::from(gio_action.parameter().unwrap()))
+            }
             "enter-add-tag" => Action::EnterAddTag,
             "enter-category" => Action::EnterCategory,
             "enter-index" => Action::EnterIndex,
@@ -136,16 +136,19 @@ impl From<GioAction> for Action {
             "enter-rename" => Action::EnterRename,
             "find" => Action::Find(Find::from(gio_action.parameter().unwrap())),
             "find-next" => Action::FindNext,
-            "go-to-directory" => Action::GotoDirectory(String::from(gio_action.parameter().unwrap())),
+            "go-to-directory" => {
+                Action::GotoDirectory(String::from(gio_action.parameter().unwrap()))
+            }
             "jump-to-index" => Action::JumpToIndex(usize::from(gio_action.parameter().unwrap())),
             "jump-to-mark" => Action::JumpToMark(char::from(gio_action.parameter().unwrap())),
             "jump-to-random" => Action::JumpToRandom,
             "label" => Action::Label(String::from(gio_action.parameter().unwrap())),
             "mark" => Action::Mark(char::from(gio_action.parameter().unwrap())),
             "move-category" => {
-                    let string_pair: (String, String) = <(String, String)>::from(gio_action.parameter().unwrap());
-                    Action::MoveCategory(string_pair.0, string_pair.1)
-            },
+                let string_pair: (String, String) =
+                    <(String, String)>::from(gio_action.parameter().unwrap());
+                Action::MoveCategory(string_pair.0, string_pair.1)
+            }
             "move-file" => Action::MoveFile,
             "move-towards" => Action::MoveTowards(Direction::from(gio_action.parameter().unwrap())),
             "nothing" => Action::Nothing,
@@ -155,7 +158,9 @@ impl From<GioAction> for Action {
             "quit" => Action::Quit,
             "quit-directory" => Action::QuitDirectory,
             "rank" => Action::Rank(Rank::from(gio_action.parameter().unwrap())),
-            "remove-category" => Action::RemoveCategory(String::from(gio_action.parameter().unwrap())),
+            "remove-category" => {
+                Action::RemoveCategory(String::from(gio_action.parameter().unwrap()))
+            }
             "remove-tag" => Action::RemoveTag(String::from(gio_action.parameter().unwrap())),
             "rename" => Action::Rename(String::from(gio_action.parameter().unwrap())),
             "repeat-action" => Action::RepeatAction,
@@ -163,12 +168,18 @@ impl From<GioAction> for Action {
             "select" => Action::Select(Find::from(gio_action.parameter().unwrap())),
             "set-selection-all" => Action::SetSelectionAll,
             "set-selection-page" => Action::SetSelectionPage,
-            "set-selection-range-end" => Action::SetSelectionRangeEnd(usize::from(gio_action.parameter().unwrap())),
-            "set-selection-range-start" => Action::SetSelectionRangeStart(usize::from(gio_action.parameter().unwrap())),
+            "set-selection-range-end" => {
+                Action::SetSelectionRangeEnd(usize::from(gio_action.parameter().unwrap()))
+            }
+            "set-selection-range-start" => {
+                Action::SetSelectionRangeStart(usize::from(gio_action.parameter().unwrap()))
+            }
             "test" => Action::Test(String::from(gio_action.parameter().unwrap())),
             "toggle-cover" => Action::ToggleCover,
             "toggle-covers-view" => Action::ToggleCoversView,
-            "toggle-selected" => Action::ToggleSelected(usize::from(gio_action.parameter().unwrap())),
+            "toggle-selected" => {
+                Action::ToggleSelected(usize::from(gio_action.parameter().unwrap()))
+            }
 
             "toggle-single-view" => Action::ToggleSingleView,
             "toggle-slide-show" => Action::ToggleSlideShow,
@@ -180,7 +191,6 @@ impl From<GioAction> for Action {
 }
 
 impl GioAction {
-
     pub fn name(&self) -> String {
         self.name.clone()
     }
@@ -210,8 +220,6 @@ mod tests {
         let source = action.clone();
         let gio_action = GioAction::from(source.clone());
         let target = Action::from(gio_action);
-        dbg!(target.clone());
-        dbg!(source.clone());
         assert_eq!(target, source);
     }
 
@@ -267,7 +275,5 @@ mod tests {
         check_action_to_and_from(Action::ToggleSlideShow);
         check_action_to_and_from(Action::ToggleThumbnailsView);
         check_action_to_and_from(Action::Unlabel);
+    }
 }
-
-}
-

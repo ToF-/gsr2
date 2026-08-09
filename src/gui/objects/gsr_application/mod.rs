@@ -28,10 +28,7 @@ impl GsrApplication {
         obj
     }
 
-    pub fn make_gsr_application(
-        application_id: &str,
-        main_controller: &MainController,
-    ) -> Self {
+    pub fn make_gsr_application(application_id: &str, main_controller: &MainController) -> Self {
         let application = GsrApplication::new(application_id, main_controller);
         application.connect_startup(|_| startup_gui());
         application
@@ -69,10 +66,10 @@ impl GsrApplication {
     }
 }
 
-    fn startup_gui() {
-        let css_provider = gtk::CssProvider::new();
-        css_provider.load_from_string(
-            "window { background-color:black;} 
+fn startup_gui() {
+    let css_provider = gtk::CssProvider::new();
+    css_provider.load_from_string(
+        "window { background-color:black;} 
         image { margin:1em ; } 
         label { color:white; 
                 font-family:sans-serif;
@@ -93,6 +90,6 @@ impl GsrApplication {
             color: white;
         }
         ",
-        );
-        gtk::style_context_add_provider_for_display(&Display::default().unwrap(), &css_provider, 1000);
-    }
+    );
+    gtk::style_context_add_provider_for_display(&Display::default().unwrap(), &css_provider, 1000);
+}

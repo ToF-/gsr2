@@ -94,9 +94,13 @@ impl Action {
     pub fn from_control(control: &Control) -> Self {
         match control {
             Control::EnterChange => Action::PickChange,
+            Control::Quit => Action::Quit,
+            Control::RankNoStar => Action::Rank(Rank::NoStar),
+            Control::RankOneStar => Action::Rank(Rank::OneStar),
             Control::RankThreeStars => Action::Rank(Rank::ThreeStars),
-            Control::SetView => Action::PickViewOption,
+            Control::RankTwoStars => Action::Rank(Rank::TwoStars),
             Control::SetOrder => Action::PickOrderSetting,
+            Control::SetView => Action::PickViewOption,
             Control::ToggleThumbView => Action::ToggleThumbnailsView,
             _ => Action::Nothing,
         }
@@ -120,6 +124,9 @@ mod tests {
         let action = Action::PickChange;
         let gio_action_type = GioActionTy::from(action);
         assert_eq!("pick-change", gio_action_type.name());
-        assert_eq!(GioActionParameterType::None, gio_action_type.parameter_type());
+        assert_eq!(
+            GioActionParameterType::None,
+            gio_action_type.parameter_type()
+        );
     }
 }

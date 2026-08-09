@@ -38,7 +38,7 @@ impl From<i32> for Find {
             3 => Find::Name,
             4 => Find::SomeTags,
             5 => Find::SubCategory,
-            _ => todo!()
+            _ => todo!(),
         }
     }
 }

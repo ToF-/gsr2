@@ -23,7 +23,7 @@ impl GioActionParameterType {
             GioActionParameterType::StringPair => {
                 static STRING_PAIR: OnceLock<&'static VariantTy> = OnceLock::new();
                 Some(STRING_PAIR.get_or_init(|| Box::leak(VariantTy::new("(ss)").unwrap().into())))
-            },
+            }
             GioActionParameterType::Usize => Some(VariantTy::UINT64),
         }
     }

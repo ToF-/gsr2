@@ -1,4 +1,3 @@
-use crate::gui::action::gio_action::GioAction;
 use crate::cli::command::Command;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::Configuration;
@@ -6,6 +5,7 @@ use crate::file::paths::check_path_exists;
 use crate::file::paths::grand_parent_directory;
 use crate::file::paths::parent_directory;
 use crate::gui::action::Action;
+use crate::gui::action::gio_action::GioAction;
 use crate::gui::control::{Control, Controls, default_controls, help_on_controls};
 use crate::gui::direction::Direction;
 use crate::gui::display_information::display_information;
@@ -121,12 +121,19 @@ impl Controller {
         Ok(controller)
     }
 
-    pub fn deal_with_action(&self, simple_action: &gtk::gio::SimpleAction, variant_opt: Option<&gtk::glib::Variant>) {
-        dbg!(&variant_opt);
+    pub fn process_action(
+        &self,
+        simple_action: &gtk::gio::SimpleAction,
+        variant_opt: Option<&gtk::glib::Variant>,
+    ) {
         let gio_action = GioAction::from((simple_action, variant_opt));
-        dbg!(&gio_action);
         let action = Action::from(gio_action);
-        dbg!(&action);
+        match &action {
+            Action::Rank(rank) => self.rank_selected_pictures(*rank),
+            _ => {
+                println!("todo");
+            }
+        }
     }
 
     pub fn last_action(&self) -> Action {
@@ -1476,10 +1483,7 @@ impl Controller {
     }
 
     fn help(&self) {
-        display_information(
-            &self.main_view().application_window(),
-            &help_on_controls(),
-        );
+        display_information(&self.main_view().application_window(), &help_on_controls());
     }
 
     fn information(&self) {

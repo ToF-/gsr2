@@ -63,41 +63,46 @@ impl MainController {
     pub fn initialize(&self, controller_opt: Option<RcController>) {
         *self.controller_opt_rc.borrow_mut() = controller_opt.clone();
 
-
         let mut action_entries = vec![];
 
-        action_entries.push(Self::action_entry(GioActionType::from(Action::ToggleThumbnailsView),
-        clone!( #[strong] controller_opt, move |_group, object, variant| {
-            if let Some(controller_rc) = &controller_opt {
-                let controller = controller_rc.borrow();
-                controller.deal_with_action(object, variant)
-            } else {
-                println!("controller not set")
+        let activate = clone!(
+            #[strong]
+            controller_opt,
+            move |
+            _group: &gtk::gio::SimpleActionGroup,
+            object: &gtk::gio::SimpleAction,
+            variant: Option<&gtk::glib::Variant>,
+            | {
+                if let Some(controller_rc) = &controller_opt {
+                    let controller = controller_rc.borrow();
+                    controller.process_action(object, variant);
+                } else {
+                    println!("controller not set");
+                }
             }
-        }
-        )));
-        action_entries.push(Self::action_entry(GioActionType::from(Action::Rank(Rank::ThreeStars)),
-        clone!( #[strong] controller_opt, move |_group, object, variant| {
-            if let Some(controller_rc) = &controller_opt {
-                let controller = controller_rc.borrow();
-                controller.deal_with_action(object, variant)
-            } else {
-                println!("controller not set")
-            }
-        }
-        )));
-
-        dbg!(&action_entries);
+        );
+        action_entries.push(Self::action_entry(
+            GioActionType::from(Action::ToggleThumbnailsView),
+            activate.clone(),
+        ));
+        action_entries.push(Self::action_entry(
+            GioActionType::from(Action::Rank(Rank::ThreeStars)),
+            activate.clone(),
+        ));
         self.gio_action_group.add_action_entries(action_entries);
     }
 
-    pub fn action_entry<F>(gio_action_ty: GioActionType, activate: F,) -> ActionEntry<gtk::gio::SimpleActionGroup> 
-        where
-        F: Fn(&gtk::gio::SimpleActionGroup, &gtk::gio::SimpleAction, Option<&gtk::glib::Variant>) + 'static
-        {
-            ActionEntry::builder(&gio_action_ty.name())
-                .parameter_type(gio_action_ty.parameter_type().variant_ty())
-                .activate(activate)
-                .build()
-        }
+    pub fn action_entry<F>(
+        gio_action_ty: GioActionType,
+        activate: F,
+    ) -> ActionEntry<gtk::gio::SimpleActionGroup>
+    where
+        F: Fn(&gtk::gio::SimpleActionGroup, &gtk::gio::SimpleAction, Option<&gtk::glib::Variant>)
+            + 'static,
+    {
+        ActionEntry::builder(&gio_action_ty.name())
+            .parameter_type(gio_action_ty.parameter_type().variant_ty())
+            .activate(activate)
+            .build()
+    }
 }
