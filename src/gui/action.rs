@@ -1,9 +1,9 @@
 pub mod gio_action;
 pub mod gio_action_parameter;
 pub mod gio_action_parameter_type;
-pub mod gio_action_ty;
+pub mod gio_action_type;
 use crate::gui::action::gio_action_parameter_type::GioActionParameterType;
-use crate::gui::action::gio_action_ty::GioActionTy;
+use crate::gui::action::gio_action_type::GioActionType;
 use crate::gui::control::Control;
 use crate::gui::direction::Direction;
 use crate::gui::main_controller::MAIN_CONTROLLER_GROUP_NAME;
@@ -111,15 +111,15 @@ mod tests {
     #[test]
     fn not_all_action_are_repeatable() {
         assert!(Action::Rank(Rank::ThreeStars).is_repeatable());
-        assert!(Action::Label(label_from("foo")).is_repeatable());
-        assert!(!Action::AddCategory("foo".into(), "bar".into()).is_repeatable());
+        assert!(Action::Label(label_from("gio_action_type")).is_repeatable());
+        assert!(!Action::AddCategory("gio_action_type".into(), "bar".into()).is_repeatable());
     }
 
     #[test]
-    fn gio_action_ty_from_action() {
+    fn gio_action_type_from_action() {
         let action = Action::PickChange;
-        let gio_action_ty = GioActionTy::from(action);
-        assert_eq!("pick-change", gio_action_ty.name());
-        assert_eq!(GioActionParameterType::None, gio_action_ty.parameter_type());
+        let gio_action_type = GioActionTy::from(action);
+        assert_eq!("pick-change", gio_action_type.name());
+        assert_eq!(GioActionParameterType::None, gio_action_type.parameter_type());
     }
 }

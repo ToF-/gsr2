@@ -1,6 +1,6 @@
 use crate::gui::action::Action;
 use crate::gui::action::gio_action_parameter_type::GioActionParameterType;
-use crate::gui::action::gio_action_ty::GioActionTy;
+use crate::gui::action::gio_action_type::GioActionType;
 use crate::gui::controller::Controller;
 use crate::gui::main_controller::RcController;
 use crate::model::change::Change;
@@ -66,7 +66,7 @@ impl MainController {
 
         let mut action_entries = vec![];
 
-        action_entries.push(Self::action_entry(GioActionTy::from(Action::ToggleThumbnailsView),
+        action_entries.push(Self::action_entry(GioActionType::from(Action::ToggleThumbnailsView),
         clone!( #[strong] controller_opt, move |_group, object, variant| {
             if let Some(controller_rc) = &controller_opt {
                 let controller = controller_rc.borrow();
@@ -76,7 +76,7 @@ impl MainController {
             }
         }
         )));
-        action_entries.push(Self::action_entry(GioActionTy::from(Action::Rank(Rank::ThreeStars)),
+        action_entries.push(Self::action_entry(GioActionType::from(Action::Rank(Rank::ThreeStars)),
         clone!( #[strong] controller_opt, move |_group, object, variant| {
             if let Some(controller_rc) = &controller_opt {
                 let controller = controller_rc.borrow();
@@ -91,7 +91,7 @@ impl MainController {
         self.gio_action_group.add_action_entries(action_entries);
     }
 
-    pub fn action_entry<F>(gio_action_ty: GioActionTy, activate: F,) -> ActionEntry<gtk::gio::SimpleActionGroup> 
+    pub fn action_entry<F>(gio_action_ty: GioActionType, activate: F,) -> ActionEntry<gtk::gio::SimpleActionGroup> 
         where
         F: Fn(&gtk::gio::SimpleActionGroup, &gtk::gio::SimpleAction, Option<&gtk::glib::Variant>) + 'static
         {

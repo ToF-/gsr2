@@ -1,3 +1,4 @@
+use crate::gui::action::gio_action_type::GioActionType;
 use crate::model::rank::Rank;
 use crate::gui::direction::Direction;
 use crate::model::find::Find;
@@ -6,7 +7,6 @@ use crate::model::category::category_from_string;
 use crate::model::view_option::ViewOption;
 use crate::model::order::Order;
 use gtk::glib::prelude::ToVariant;
-use crate::gui::action::GioActionTy;
 use crate::gui::action::Action;
 use gtk::gio::SimpleAction;
 use gtk::glib::Variant;
@@ -14,6 +14,7 @@ use crate::gui::action::gio_action_parameter::GioActionParameter;
 use crate::gui::main_controller::MAIN_CONTROLLER_GROUP_NAME;
 use gtk::prelude::ActionExt;
 
+// GioAction is the conversion of a concrete Action (with parameters) into something activable via a glib or gtk object
 #[derive(Debug)]
 pub struct GioAction {
     name: String,
@@ -43,7 +44,7 @@ impl From<(&SimpleAction, Option<&Variant>)> for GioAction {
 
 impl From<Action> for GioAction {
     fn from(action: Action) -> Self {
-        let gio_action_ty = GioActionTy::from(action.clone());
+        let gio_action_ty = GioActionType::from(action.clone());
         let gio_action_parameter = match action.clone() {
             Action::AddCategory(category_name,target_category_name) =>
                 Some(GioActionParameter::from((category_name, target_category_name))),
@@ -194,6 +195,10 @@ impl GioAction {
 
     pub fn parameter_as_variant(&self) -> Option<gtk::glib::Variant> {
         self.parameter.clone().map(|p| p.variant().clone())
+    }
+
+    pub fn to_simple_action_call(&self) -> (String, Option<Variant>) {
+        (self.action_entry_name(), self.parameter_as_variant())
     }
 }
 

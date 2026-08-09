@@ -6,7 +6,7 @@ use crate::env::default_values::QUARTER_OPACITY;
 use crate::env::default_values::{FULL_OPACITY, HALF_OPACITY};
 use crate::file::paths::check_path_exists;
 use crate::gui::action::Action;
-use crate::gui::action::gio_action_ty::GioActionTy;
+use crate::gui::action::gio_action_type::GioActionType;
 use crate::gui::control::Control;
 use crate::gui::control::default_controls;
 use crate::gui::controller::Controller;
@@ -592,17 +592,19 @@ fn attach_key_pressed_event_handlers(
                     let action = Action::from_control(control);
                     dbg!(action.clone());
                     let gio_action = GioAction::from(action);
-                    let binding = gio_action.parameter_as_variant();
-                    let variant = binding.as_ref();
+                    let (name, variant) = gio_action.to_simple_action_call();
+                    let variant_ref: Option<&Variant> = match &variant {
+                        None => None,
+                        Some(v) => Some(v.as_ref())
+                    };
                     dbg!(&variant);
                     match gtk::prelude::WidgetExt::activate_action(
                         &application_window,
-                        &gio_action.action_entry_name(),
-                        variant) {
+                        &name,
+                        variant_ref) {
                         Ok(_) => {}
                         Err(e) => {
                             dbg!(e);
-                            // println!("error:{e}");
                         }
                     }
                 } else {
