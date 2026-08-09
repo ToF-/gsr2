@@ -126,13 +126,30 @@ impl Controller {
         simple_action: &gtk::gio::SimpleAction,
         variant_opt: Option<&gtk::glib::Variant>,
     ) {
+        let old_slideshow_on = self.state().slideshow_on();
         let gio_action = GioAction::from((simple_action, variant_opt));
         let action = Action::from(gio_action);
         match &action {
             Action::Rank(rank) => self.rank_selected_pictures(*rank),
+            Action::TogglePalette => self.toggle_palette(),
             _ => {
-                println!("todo");
+                dbg!("todo");
             }
+        }
+        if self.state().slideshow_on() == old_slideshow_on {
+            let main_view = self.main_view();
+            let binding = self.navigator_rc.clone();
+            let mut navigator = binding.borrow_mut();
+            self.set_slideshow_off();
+            if self.state().single_view() != self.main_view().single_view() {
+                main_view.toggle_view_stack(self);
+            };
+            if navigator.page_changed() {
+                self.main_view().set_pictures(self);
+                navigator.set_page_unchanged();
+            };
+            self.set_label_text_for_current_picture();
+            self.main_view().set_title(self);
         }
     }
 

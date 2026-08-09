@@ -89,6 +89,10 @@ impl MainController {
             GioActionType::from(Action::Rank(Rank::ThreeStars)),
             activate.clone(),
         ));
+        action_entries.push(Self::action_entry(
+            GioActionType::from(Action::TogglePalette),
+            activate.clone(),
+        ));
         self.gio_action_group.add_action_entries(action_entries);
     }
 

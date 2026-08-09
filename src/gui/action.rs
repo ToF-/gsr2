@@ -67,6 +67,7 @@ pub enum Action {
     Test(String),                  // test action for development test
     ToggleCover,                   // toggle current picture set to cover or not
     ToggleCoversView,              // set the view on off to only covers
+    TogglePalette,                 // set the palette visible on / off
     ToggleSelected(usize),         // toggle current picture in or out the selection
     ToggleSingleView,              // set the view to single / back to multiple
     ToggleSlideShow,               // set the slide show on off
@@ -101,6 +102,7 @@ impl Action {
             Control::RankTwoStars => Action::Rank(Rank::TwoStars),
             Control::SetOrder => Action::PickOrderSetting,
             Control::SetView => Action::PickViewOption,
+            Control::TogglePalette => Action::TogglePalette,
             Control::ToggleThumbView => Action::ToggleThumbnailsView,
             _ => Action::Nothing,
         }
@@ -122,7 +124,7 @@ mod tests {
     #[test]
     fn gio_action_type_from_action() {
         let action = Action::PickChange;
-        let gio_action_type = GioActionTy::from(action);
+        let gio_action_type = GioActionType::from(action);
         assert_eq!("pick-change", gio_action_type.name());
         assert_eq!(
             GioActionParameterType::None,

@@ -92,6 +92,7 @@ impl From<Action> for GioAction {
             Action::Test(s) => Some(GioActionParameter::from(s)),
             Action::ToggleCover => None,
             Action::ToggleCoversView => None,
+            Action::TogglePalette => None,
             Action::ToggleSelected(index) => Some(GioActionParameter::from(index)),
             Action::ToggleSingleView => None,
             Action::ToggleSlideShow => None,
@@ -177,6 +178,7 @@ impl From<GioAction> for Action {
             "test" => Action::Test(String::from(gio_action.parameter().unwrap())),
             "toggle-cover" => Action::ToggleCover,
             "toggle-covers-view" => Action::ToggleCoversView,
+            "toggle-palette" => Action::TogglePalette,
             "toggle-selected" => {
                 Action::ToggleSelected(usize::from(gio_action.parameter().unwrap()))
             }
@@ -270,6 +272,7 @@ mod tests {
         check_action_to_and_from(Action::Test("foo".to_string()));
         check_action_to_and_from(Action::ToggleCover);
         check_action_to_and_from(Action::ToggleCoversView);
+        check_action_to_and_from(Action::TogglePalette);
         check_action_to_and_from(Action::ToggleSelected(4807));
         check_action_to_and_from(Action::ToggleSingleView);
         check_action_to_and_from(Action::ToggleSlideShow);
