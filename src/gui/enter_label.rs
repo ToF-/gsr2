@@ -30,19 +30,5 @@ pub fn enter_label(application_window: &gtk::ApplicationWindow, repository: &Rep
         .borrow()
         .attach_key_pressed_editor(&entry_editor_rc, BLINKING);
 
-    entry_editor_rc
-        .borrow()
-        .connect_key_pressed(|editor, key_name| {
-            editor.edit_entry(key_name);
-        });
-
-    entry_editor_rc.borrow().connect_closed(move |editor| {
-        if !editor.entry().is_empty() {
-            println!("here we should launch a controller function");
-        }
-        if let Some(entry_view) = editor.view() {
-            entry_view.close();
-        }
-    });
     entry_view_rc.borrow().present();
 }

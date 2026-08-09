@@ -171,9 +171,6 @@ impl Controller {
         self.selector_rc.borrow().clone()
     }
 
-    pub fn editor(&self) -> Editor {
-        self.editor_rc.borrow().clone()
-    }
     pub fn set_selected(&self, selected: &str) {
         self.selector_rc.borrow_mut().set_selected(selected);
     }
@@ -436,7 +433,7 @@ impl Controller {
                 if !selector.selecting() {
                     self.set_state_mode(Mode::View);
                     if !selector.selected().is_empty() {
-                        self.add_category(&self.editor().input(), &selector.selected())
+                        self.add_category(&(self.editor_rc.borrow()).input(), &selector.selected())
                     }
                 }
             }
@@ -486,7 +483,7 @@ impl Controller {
                 if !selector.selecting() {
                     self.set_state_mode(Mode::View);
                     if !selector.selected().is_empty() {
-                        self.find_first(&self.editor().input(), Find::SubCategory);
+                        self.find_first(&(self.editor_rc.borrow()).input(), Find::SubCategory);
                     }
                 }
             }
@@ -511,20 +508,20 @@ impl Controller {
                 }
             }
             Mode::Editing => {
-                self.editor().process(key);
-                if !self.editor().editing() {
+                (self.editor_rc.borrow_mut()).process(key);
+                if !(self.editor_rc.borrow()).editing() {
                     self.set_state_mode(Mode::View);
-                    match self.editor().entry_kind() {
+                    match (self.editor_rc.borrow()).entry_kind() {
                         EntryKind::AddCategory => {
-                            if !self.editor().input().is_empty() {
-                                self.adding_category(&self.editor().input())
+                            if !(self.editor_rc.borrow()).input().is_empty() {
+                                self.adding_category(&(self.editor_rc.borrow()).input())
                             }
                         }
                         EntryKind::MoveCategory => {}
                         EntryKind::RemoveCategory => {}
                         EntryKind::Catalog => {
-                            if !self.editor().input().is_empty() {
-                                match Change::from_str(&self.editor().input()) {
+                            if !(self.editor_rc.borrow()).input().is_empty() {
+                                match Change::from_str(&(self.editor_rc.borrow()).input()) {
                                     Ok(Change::AddCategory) => self.enter_add_category(),
                                     Ok(Change::MoveCategory) => self.enter_move_category(),
                                     Ok(Change::RemoveCategory) => self.enter_remove_category(),
@@ -533,9 +530,9 @@ impl Controller {
                             };
                         }
                         EntryKind::Change => {
-                            println!("self.editor().input(): {}", self.editor().input());
-                            if !self.editor().input().is_empty() {
-                                match Change::from_str(&self.editor().input()) {
+                            println!("(self.editor_rc.borrow()).input(): {}", (self.editor_rc.borrow()).input());
+                            if !(self.editor_rc.borrow()).input().is_empty() {
+                                match Change::from_str(&(self.editor_rc.borrow()).input()) {
                                     Ok(Change::AddTag) => self.add_tag(),
                                     Ok(Change::Catalog) => self.enter_change_catalog(),
                                     Ok(Change::Category) => self.categorize(),
@@ -549,20 +546,20 @@ impl Controller {
                             };
                         }
                         EntryKind::Rename => {
-                            if !self.editor().input().is_empty() {
-                                self.rename_selected_picture(&self.editor().input())
+                            if !(self.editor_rc.borrow()).input().is_empty() {
+                                self.rename_selected_picture(&(self.editor_rc.borrow()).input())
                             };
                             self.set_opacity_for_current_picture(1.00);
                         }
                         EntryKind::Categorize => {
-                            if !self.editor().input().is_empty() {
-                                self.categorize_selected_pictures(Some(self.editor().input()))
+                            if !(self.editor_rc.borrow()).input().is_empty() {
+                                self.categorize_selected_pictures(Some((self.editor_rc.borrow()).input()))
                             };
                             self.set_opacity_for_current_picture(1.00);
                         }
                         EntryKind::Select => {
-                            if !self.editor().input().is_empty() {
-                                match Find::from_str(&self.editor().input()) {
+                            if !(self.editor_rc.borrow()).input().is_empty() {
+                                match Find::from_str(&(self.editor_rc.borrow()).input()) {
                                     Ok(Find::Label) => self.enter_select_label(),
                                     Ok(Find::Name) => self.enter_select_name(),
                                     Ok(Find::Category) => self.enter_select_category(),
@@ -574,8 +571,8 @@ impl Controller {
                             }
                         }
                         EntryKind::Find => {
-                            if !self.editor().input().is_empty() {
-                                match Find::from_str(&self.editor().input()) {
+                            if !(self.editor_rc.borrow()).input().is_empty() {
+                                match Find::from_str(&(self.editor_rc.borrow()).input()) {
                                     Ok(Find::Label) => self.enter_find_label(),
                                     Ok(Find::Name) => self.enter_find_name(),
                                     Ok(Find::Category) => self.enter_find_category(),
@@ -587,110 +584,113 @@ impl Controller {
                             }
                         }
                         EntryKind::Label => {
-                            if !self.editor().input().is_empty() {
-                                self.label_selected_pictures(&self.editor().input())
+                            if !(self.editor_rc.borrow()).input().is_empty() {
+                                self.label_selected_pictures(&(self.editor_rc.borrow()).input())
                             };
                             self.set_opacity_for_current_picture(1.00);
                         }
                         EntryKind::AddTag => {
-                            if !self.editor().input().is_empty() {
-                                self.tag_selected_pictures(&self.editor().input())
+                            if !(self.editor_rc.borrow()).input().is_empty() {
+                                self.tag_selected_pictures(&(self.editor_rc.borrow()).input())
                             };
                             self.set_opacity_for_current_picture(1.00);
                         }
                         EntryKind::RemoveTag => {
-                            if !self.editor().input().is_empty() {
-                                self.untag_selected_pictures(&self.editor().input())
+                            if !(self.editor_rc.borrow()).input().is_empty() {
+                                self.untag_selected_pictures(&(self.editor_rc.borrow()).input())
                             };
                             self.set_opacity_for_current_picture(1.00);
                         }
                         EntryKind::Number => {
-                            if !self.editor().input().is_empty() {
-                                self.move_towards_index(self.editor().input().parse().unwrap())
+                            if !(self.editor_rc.borrow()).input().is_empty() {
+                                self.move_towards_index((self.editor_rc.borrow()).input().parse().unwrap())
                             };
                         }
-                        EntryKind::Order => self.set_order(&self.editor().input()),
-                        EntryKind::Rank => self.confirm_rank(&self.editor().input()),
-                        EntryKind::View => self.confirm_view(&self.editor().input()),
+                        EntryKind::Order => {
+                            let input = self.editor_rc.borrow().input();
+                            self.set_order(&input);
+                        },
+                        EntryKind::Rank => self.confirm_rank(&(self.editor_rc.borrow()).input()),
+                        EntryKind::View => self.confirm_view(&(self.editor_rc.borrow()).input()),
                         EntryKind::DeleteConfirmation => {
-                            if &self.editor().input() == "yes" {
+                            if &(self.editor_rc.borrow()).input() == "yes" {
                                 self.confirm_delete_picture()
                             } else {
                                 self.cancel_delete_picture()
                             }
                         }
                         EntryKind::MoveConfirmation => {
-                            if &self.editor().input() == "yes" {
+                            if &(self.editor_rc.borrow()).input() == "yes" {
                                 self.confirm_move_picture()
                             } else {
                                 self.cancel_move_picture()
                             }
                         }
                         EntryKind::MoveToLabelConfirmation(ref target) => {
-                            if &self.editor().input() == "yes" {
+                            if &(self.editor_rc.borrow()).input() == "yes" {
                                 self.confirm_move_picture_to_label(target)
                             } else {
                                 self.cancel_move_picture()
                             }
                         }
                         EntryKind::FindName => {
-                            if !self.editor().input().is_empty() {
-                                self.find_first(&self.editor().input(), Find::Name);
+                            if !(self.editor_rc.borrow()).input().is_empty() {
+                                self.find_first(&(self.editor_rc.borrow()).input(), Find::Name);
                             };
                         }
                         EntryKind::FindLabel => {
-                            if !self.editor().input().is_empty() {
-                                self.find_first(&self.editor().input(), Find::Label);
+                            if !(self.editor_rc.borrow()).input().is_empty() {
+                                self.find_first(&(self.editor_rc.borrow()).input(), Find::Label);
                             };
                         }
                         EntryKind::FindCategory => {
-                            if !self.editor().input().is_empty() {
-                                self.find_first(&self.editor().input(), Find::Category);
+                            if !(self.editor_rc.borrow()).input().is_empty() {
+                                self.find_first(&(self.editor_rc.borrow()).input(), Find::Category);
                             };
                         }
                         EntryKind::FindSubCategory => {
-                            if !self.editor().input().is_empty() {
-                                self.find_first(&self.editor().input(), Find::SubCategory);
+                            if !(self.editor_rc.borrow()).input().is_empty() {
+                                self.find_first(&(self.editor_rc.borrow()).input(), Find::SubCategory);
                             };
                         }
                         EntryKind::FindSomeTags => {
-                            if !self.editor().input().is_empty() {
-                                self.find_first(&self.editor().input(), Find::AllTags)
+                            if !(self.editor_rc.borrow()).input().is_empty() {
+                                self.find_first(&(self.editor_rc.borrow()).input(), Find::AllTags)
                             }
                         }
                         EntryKind::FindAllTags => {
-                            if !self.editor().input().is_empty() {
-                                self.find_first(&self.editor().input(), Find::AllTags)
+                            if !(self.editor_rc.borrow()).input().is_empty() {
+                                self.find_first(&(self.editor_rc.borrow()).input(), Find::AllTags)
                             };
                         }
                         EntryKind::SelectName => {
-                            if !self.editor().input().is_empty() {
-                                self.select(&self.editor().input(), Find::Name);
+                            if !(self.editor_rc.borrow()).input().is_empty() {
+                                self.select(&(self.editor_rc.borrow()).input(), Find::Name);
                             };
                         }
                         EntryKind::SelectLabel => {
-                            if !self.editor().input().is_empty() {
-                                self.select(&self.editor().input(), Find::Label);
+                            if !(self.editor_rc.borrow()).input().is_empty() {
+                                self.select(&(self.editor_rc.borrow()).input(), Find::Label);
                             };
                         }
                         EntryKind::SelectCategory => {
-                            if !self.editor().input().is_empty() {
-                                self.select(&self.editor().input(), Find::Category);
+                            if !(self.editor_rc.borrow()).input().is_empty() {
+                                self.select(&(self.editor_rc.borrow()).input(), Find::Category);
                             };
                         }
                         EntryKind::SelectSubCategory => {
-                            if !self.editor().input().is_empty() {
-                                self.select(&self.editor().input(), Find::SubCategory);
+                            if !(self.editor_rc.borrow()).input().is_empty() {
+                                self.select(&(self.editor_rc.borrow()).input(), Find::SubCategory);
                             };
                         }
                         EntryKind::SelectSomeTags => {
-                            if !self.editor().input().is_empty() {
-                                self.select(&self.editor().input(), Find::AllTags)
+                            if !(self.editor_rc.borrow()).input().is_empty() {
+                                self.select(&(self.editor_rc.borrow()).input(), Find::AllTags)
                             }
                         }
                         EntryKind::SelectAllTags => {
-                            if !self.editor().input().is_empty() {
-                                self.find_first(&self.editor().input(), Find::AllTags)
+                            if !(self.editor_rc.borrow()).input().is_empty() {
+                                self.find_first(&(self.editor_rc.borrow()).input(), Find::AllTags)
                             };
                         }
                         EntryKind::Information => {}
@@ -701,7 +701,7 @@ impl Controller {
         }
     }
 
-    fn set_order(&mut self, input: &str) {
+    fn set_order(&self, input: &str) {
         let choice: Control = match input {
             "Category" => Control::OrderByCategory,
             "ColorCount" => Control::OrderByColorCount,
@@ -1042,7 +1042,7 @@ impl Controller {
         self.main_view().set_pictures(self)
     }
 
-    fn process_control(&mut self, control: &Control) {
+    fn process_control(&self, control: &Control) {
         match control {
             Control::Test => self.test(),
             Control::AddTag => self.add_tag(),
@@ -1410,13 +1410,13 @@ impl Controller {
     fn rename(&self) {
         if self.navigator().has_selected() && self.navigator().selected_picture_count() == 1 {
             self.set_opacity_for_current_picture(0.25);
-            self.editor()
+            (self.editor_rc.borrow_mut())
                 .begin(&self.main_view(), EntryKind::Rename, None);
             self.set_state_mode(Mode::Editing);
         } else {
-            self.editor()
+            (self.editor_rc.borrow_mut())
                 .begin(&self.main_view(), EntryKind::Information, None);
-            self.editor()
+            (self.editor_rc.borrow_mut())
                 .set_input("Select the picture you want to rename first");
             self.set_state_mode(Mode::Editing);
         }
@@ -1494,7 +1494,7 @@ impl Controller {
     }
 
     fn jump(&self) {
-        self.editor()
+        (self.editor_rc.borrow_mut())
             .begin(&self.main_view(), EntryKind::Number, None);
         self.set_state_mode(Mode::Editing);
     }
@@ -1504,9 +1504,9 @@ impl Controller {
     }
 
     fn information(&self) {
-        self.editor()
+        (self.editor_rc.borrow_mut())
             .begin(&self.main_view(), EntryKind::Information, None);
-        self.editor()
+        (self.editor_rc.borrow_mut())
             .set_input(&self.current_picture().file_path().to_string());
         self.set_state_mode(Mode::Editing);
     }
@@ -1820,7 +1820,7 @@ impl Controller {
 
     fn delete_picture(&self) {
         if self.navigator().has_selected() {
-            self.editor()
+            (self.editor_rc.borrow_mut())
                 .begin(&self.main_view(), EntryKind::DeleteConfirmation, None);
             self.set_state_mode(Mode::Editing);
         }
@@ -1828,9 +1828,9 @@ impl Controller {
 
     fn move_picture(&self) {
         if let Some(target_dir) = &self.command_line_arguments().r#move {
-            self.editor()
+            (self.editor_rc.borrow_mut())
                 .begin(&self.main_view(), EntryKind::MoveConfirmation, None);
-            self.editor()
+            (self.editor_rc.borrow_mut())
                 .set_prompt(&format!("move these pictures to {} ?", target_dir));
             self.set_state_mode(Mode::Editing);
         }
@@ -1877,7 +1877,7 @@ impl Controller {
 
     fn move_picture_to_label(&self) {
         if let Some(target_dir) = self.check_move_destination_label() {
-            self.editor().begin(
+            (self.editor_rc.borrow_mut()).begin(
                 &self.main_view(),
                 EntryKind::MoveToLabelConfirmation(target_dir),
                 None,
@@ -1945,7 +1945,7 @@ impl Controller {
         };
     }
 
-    fn confirm_view(&mut self, input: &str) {
+    fn confirm_view(&self, input: &str) {
         if !input.is_empty() {
             match input {
                 "1" | "2" | "3" | "4" | "5" => self.change_grid_size(input.parse().unwrap()),

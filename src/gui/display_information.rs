@@ -21,18 +21,5 @@ pub fn display_information(application_window: &gtk::ApplicationWindow, message:
         CompletionDispenser::new(),
     );
     let entry_editor_rc = RefCell::new(entry_editor);
-
-    entry_view_rc
-        .borrow()
-        .attach_key_pressed_editor(&entry_editor_rc, false);
-
-    entry_editor_rc
-        .borrow()
-        .connect_key_pressed(|editor, _| editor.close());
-    entry_editor_rc.borrow().connect_closed(|editor| {
-        if let Some(entry_view) = editor.view() {
-            entry_view.close()
-        }
-    });
     entry_view_rc.borrow().present();
 }

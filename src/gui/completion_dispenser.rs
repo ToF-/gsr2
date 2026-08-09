@@ -1,7 +1,7 @@
 use crate::model::tags::Tags;
 use crate::model::tags::empty_tags;
 
-#[derive(Debug)]
+#[derive(Clone,Debug)]
 pub struct CompletionDispenser {
     tags: Tags,
 }
