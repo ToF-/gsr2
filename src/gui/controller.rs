@@ -1632,11 +1632,17 @@ impl Controller {
         }
     }
 
+    fn display_information(&self, message: &str) {
+        let application_window = self.main_view_opt_rc.borrow().as_ref().unwrap().application_window();
+        display_information(&application_window, message);
+    }
+
     fn toggle_palette(&self) {
         let mut state = self.state_rc.borrow_mut();
         state.toggle_palette();
         let mut navigator = self.navigator_rc.borrow_mut();
         navigator.set_page_changed()
+
     }
 
     fn toggle_slideshow(&self) {
