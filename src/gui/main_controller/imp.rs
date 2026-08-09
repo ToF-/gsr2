@@ -52,7 +52,7 @@ impl ObjectImpl for MainController {
 
 impl MainController {
     pub fn new(controller_opt: Option<RcController>) -> Self {
-        let obj = Self::default();
+        let mut obj = Self::default();
         obj.initialize(controller_opt);
         obj
     }
@@ -74,7 +74,7 @@ impl MainController {
             variant: Option<&gtk::glib::Variant>,
             | {
                 if let Some(controller_rc) = &controller_opt {
-                    let controller = controller_rc.borrow();
+                    let mut controller = controller_rc.borrow_mut();
                     controller.process_action(object, variant);
                 } else {
                     println!("controller not set");

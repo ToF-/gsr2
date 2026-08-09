@@ -439,7 +439,7 @@ impl MainView {
                 #[strong]
                 controller_rc,
                 move || {
-                    if let Ok(controller) = controller_rc.try_borrow() {
+                    if let Ok(mut controller) = controller_rc.try_borrow_mut() {
                         if controller.state().slideshow_on() {
                             controller.process_event(NextSlideDelay, &controller_rc);
                             ControlFlow::Continue
@@ -530,7 +530,7 @@ fn pane_gesture_click(
         #[strong]
         controller_rc,
         move |_, _, _, _| {
-            if let Ok(controller) = controller_rc.try_borrow() {
+            if let Ok(mut controller) = controller_rc.try_borrow_mut() {
                 controller.process_event(
                     PaneClicked {
                         button,

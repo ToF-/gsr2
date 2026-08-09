@@ -246,7 +246,7 @@ impl Controller {
         }
     }
 
-    pub fn process_event(&self, event: Event, controller_rc: &RcController) {
+    pub fn process_event(&mut self, event: Event, controller_rc: &RcController) {
         {
             if let Ok(_) = controller_rc.try_borrow() {
                 println!("controller.process_event controller_rc available");
@@ -308,7 +308,7 @@ impl Controller {
         self.set_label_text_for_current_picture();
     }
 
-    fn process_picture_double_clicked(&self, button: u32, col: i32, row: i32) {
+    fn process_picture_double_clicked(&mut self, button: u32, col: i32, row: i32) {
         let binding = self.navigator_rc.clone();
         let mut navigator = binding.borrow_mut();
         self.main_view()
@@ -343,7 +343,7 @@ impl Controller {
         self.set_label_text_for_current_picture();
     }
 
-    fn process_pane_clicked(&self, _button: usize, pane_number: usize) {
+    fn process_pane_clicked(&mut self, _button: usize, pane_number: usize) {
         self.process_control(if pane_number == LEFT_PANE {
             &Control::MovePrev
         } else {
@@ -355,7 +355,7 @@ impl Controller {
     }
 
     fn process_key_event(
-        &self,
+        &mut self,
         key: Key,
         _key_code: u32,
         _modifier_type: ModifierType,
@@ -398,7 +398,7 @@ impl Controller {
             .set_opacity_for_current_picture(self, opacity)
     }
 
-    fn process_key(&self, key: Key) {
+    fn process_key(&mut self, key: Key) {
         const SHIFT_L: &str = "Shift_L";
         const SHIFT_R: &str = "Shift_R";
         if let Some(name) = key.name()
@@ -701,7 +701,7 @@ impl Controller {
         }
     }
 
-    fn set_order(&self, input: &str) {
+    fn set_order(&mut self, input: &str) {
         let choice: Control = match input {
             "Category" => Control::OrderByCategory,
             "ColorCount" => Control::OrderByColorCount,
@@ -846,7 +846,7 @@ impl Controller {
         }
     }
 
-    fn set_setting(&self, setting: &Control, choice: &Control) {
+    fn set_setting(&mut self, setting: &Control, choice: &Control) {
         match setting {
             Control::SetMark => match choice {
                 Control::SetMarkChar(_) => self.process_control(choice),
@@ -1042,7 +1042,7 @@ impl Controller {
         self.main_view().set_pictures(self)
     }
 
-    fn process_control(&self, control: &Control) {
+    fn process_control(&mut self, control: &Control) {
         match control {
             Control::Test => self.test(),
             Control::AddTag => self.add_tag(),
@@ -1633,7 +1633,8 @@ impl Controller {
     }
 
     fn toggle_palette(&self) {
-        self.state().toggle_palette();
+        let mut state = self.state_rc.borrow_mut();
+        state.toggle_palette();
         let mut navigator = self.navigator_rc.borrow_mut();
         navigator.set_page_changed()
     }
@@ -1938,7 +1939,7 @@ impl Controller {
         };
     }
 
-    fn confirm_view(&self, input: &str) {
+    fn confirm_view(&mut self, input: &str) {
         if !input.is_empty() {
             match input {
                 "1" | "2" | "3" | "4" | "5" => self.change_grid_size(input.parse().unwrap()),
