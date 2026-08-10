@@ -41,8 +41,7 @@ impl GsrApplication {
         self.imp().set_main_controller_rc(main_controller)
     }
 
-    pub fn connect_activation(&self, clargs: CommandLineArguments, position: usize) {
-        let main_controller = self.main_controller_rc().borrow().clone();
+    pub fn connect_activation(&self, clargs: CommandLineArguments, position: usize, main_controller: MainController) {
         let controller_rc_opt = main_controller.controller_rc_opt().clone();
         if let Some(controller_rc) = controller_rc_opt {
             self.connect_activate(clone!(

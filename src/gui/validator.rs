@@ -1,7 +1,7 @@
 use crate::gui::entry_kind::EntryKind;
 use crate::model::order::Order;
 
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub struct Validator {
     entry_kind: EntryKind,
 }

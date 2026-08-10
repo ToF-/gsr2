@@ -530,7 +530,10 @@ impl Controller {
                             };
                         }
                         EntryKind::Change => {
-                            println!("(self.editor_rc.borrow()).input(): {}", (self.editor_rc.borrow()).input());
+                            println!(
+                                "(self.editor_rc.borrow()).input(): {}",
+                                (self.editor_rc.borrow()).input()
+                            );
                             if !(self.editor_rc.borrow()).input().is_empty() {
                                 match Change::from_str(&(self.editor_rc.borrow()).input()) {
                                     Ok(Change::AddTag) => self.add_tag(),
@@ -553,7 +556,9 @@ impl Controller {
                         }
                         EntryKind::Categorize => {
                             if !(self.editor_rc.borrow()).input().is_empty() {
-                                self.categorize_selected_pictures(Some((self.editor_rc.borrow()).input()))
+                                self.categorize_selected_pictures(Some(
+                                    (self.editor_rc.borrow()).input(),
+                                ))
                             };
                             self.set_opacity_for_current_picture(1.00);
                         }
@@ -603,13 +608,15 @@ impl Controller {
                         }
                         EntryKind::Number => {
                             if !(self.editor_rc.borrow()).input().is_empty() {
-                                self.move_towards_index((self.editor_rc.borrow()).input().parse().unwrap())
+                                self.move_towards_index(
+                                    (self.editor_rc.borrow()).input().parse().unwrap(),
+                                )
                             };
                         }
                         EntryKind::Order => {
                             let input = self.editor_rc.borrow().input();
                             self.set_order(&input);
-                        },
+                        }
                         EntryKind::Rank => self.confirm_rank(&(self.editor_rc.borrow()).input()),
                         EntryKind::View => self.confirm_view(&(self.editor_rc.borrow()).input()),
                         EntryKind::DeleteConfirmation => {
@@ -650,7 +657,10 @@ impl Controller {
                         }
                         EntryKind::FindSubCategory => {
                             if !(self.editor_rc.borrow()).input().is_empty() {
-                                self.find_first(&(self.editor_rc.borrow()).input(), Find::SubCategory);
+                                self.find_first(
+                                    &(self.editor_rc.borrow()).input(),
+                                    Find::SubCategory,
+                                );
                             };
                         }
                         EntryKind::FindSomeTags => {
@@ -1410,14 +1420,11 @@ impl Controller {
     fn rename(&self) {
         if self.navigator().has_selected() && self.navigator().selected_picture_count() == 1 {
             self.set_opacity_for_current_picture(0.25);
-            (self.editor_rc.borrow_mut())
-                .begin(&self.main_view(), EntryKind::Rename, None);
+            (self.editor_rc.borrow_mut()).begin(&self.main_view(), EntryKind::Rename, None);
             self.set_state_mode(Mode::Editing);
         } else {
-            (self.editor_rc.borrow_mut())
-                .begin(&self.main_view(), EntryKind::Information, None);
-            (self.editor_rc.borrow_mut())
-                .set_input("Select the picture you want to rename first");
+            (self.editor_rc.borrow_mut()).begin(&self.main_view(), EntryKind::Information, None);
+            (self.editor_rc.borrow_mut()).set_input("Select the picture you want to rename first");
             self.set_state_mode(Mode::Editing);
         }
     }
@@ -1494,8 +1501,7 @@ impl Controller {
     }
 
     fn jump(&self) {
-        (self.editor_rc.borrow_mut())
-            .begin(&self.main_view(), EntryKind::Number, None);
+        (self.editor_rc.borrow_mut()).begin(&self.main_view(), EntryKind::Number, None);
         self.set_state_mode(Mode::Editing);
     }
 
@@ -1504,10 +1510,8 @@ impl Controller {
     }
 
     fn information(&self) {
-        (self.editor_rc.borrow_mut())
-            .begin(&self.main_view(), EntryKind::Information, None);
-        (self.editor_rc.borrow_mut())
-            .set_input(&self.current_picture().file_path().to_string());
+        (self.editor_rc.borrow_mut()).begin(&self.main_view(), EntryKind::Information, None);
+        (self.editor_rc.borrow_mut()).set_input(&self.current_picture().file_path().to_string());
         self.set_state_mode(Mode::Editing);
     }
 
@@ -1633,7 +1637,12 @@ impl Controller {
     }
 
     fn display_information(&self, message: &str) {
-        let application_window = self.main_view_opt_rc.borrow().as_ref().unwrap().application_window();
+        let application_window = self
+            .main_view_opt_rc
+            .borrow()
+            .as_ref()
+            .unwrap()
+            .application_window();
         display_information(&application_window, message);
     }
 
@@ -1642,7 +1651,6 @@ impl Controller {
         state.toggle_palette();
         let mut navigator = self.navigator_rc.borrow_mut();
         navigator.set_page_changed()
-
     }
 
     fn toggle_slideshow(&self) {
@@ -1820,16 +1828,22 @@ impl Controller {
 
     fn delete_picture(&self) {
         if self.navigator().has_selected() {
-            (self.editor_rc.borrow_mut())
-                .begin(&self.main_view(), EntryKind::DeleteConfirmation, None);
+            (self.editor_rc.borrow_mut()).begin(
+                &self.main_view(),
+                EntryKind::DeleteConfirmation,
+                None,
+            );
             self.set_state_mode(Mode::Editing);
         }
     }
 
     fn move_picture(&self) {
         if let Some(target_dir) = &self.command_line_arguments().r#move {
-            (self.editor_rc.borrow_mut())
-                .begin(&self.main_view(), EntryKind::MoveConfirmation, None);
+            (self.editor_rc.borrow_mut()).begin(
+                &self.main_view(),
+                EntryKind::MoveConfirmation,
+                None,
+            );
             (self.editor_rc.borrow_mut())
                 .set_prompt(&format!("move these pictures to {} ?", target_dir));
             self.set_state_mode(Mode::Editing);

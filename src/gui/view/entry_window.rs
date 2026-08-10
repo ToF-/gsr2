@@ -20,7 +20,7 @@ use gtk::prelude::StyleContextExt;
 use gtk::prelude::WidgetExt;
 use std::time::Duration;
 
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub struct EntryWindow {
     window: gtk::Window,
     entry_editor: std::cell::RefCell<EntryEditor>,

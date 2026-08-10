@@ -1,4 +1,3 @@
-use std::rc::Rc;
 use crate::env::default_values::MAX_LABEL_LENGTH;
 use crate::env::default_values::MAX_LABELS_LENGTH;
 use crate::env::default_values::MAX_NAME_LENGTH;
@@ -13,10 +12,11 @@ use crate::model::tags::{Tags, empty_tags};
 use gdk::Key;
 use gtk::{self, gdk};
 use itertools::Itertools;
+use std::rc::Rc;
 
 pub mod entry_editor;
 
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub struct Editor {
     prompt: String,
     editing: bool,

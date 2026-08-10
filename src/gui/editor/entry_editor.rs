@@ -1,4 +1,3 @@
-use std::rc::Rc;
 use crate::gui::completion_dispenser::CompletionDispenser;
 use crate::gui::entry_kind::EntryKind;
 use crate::gui::validator::Validator;
@@ -9,10 +8,11 @@ use gtk::glib::subclass::Signal;
 use gtk::glib::subclass::prelude::*;
 use itertools::Itertools;
 use std::cell::RefCell;
+use std::rc::Rc;
 use std::sync::OnceLock;
 
 pub type RcEntryEditor = Rc<RefCell<EntryEditor>>;
-#[derive(Debug,Clone)]
+#[derive(Debug, Clone)]
 pub struct EntryEditor {
     pub entry_rc: RefCell<String>,
     pub prompt_rc: RefCell<String>,
@@ -26,7 +26,11 @@ impl EntryEditor {
         Self::default()
     }
 
-    pub fn new_with(entry_view_rc: RefCell<EntryView>, validator: Validator, completion_dispenser: CompletionDispenser) -> Self {
+    pub fn new_with(
+        entry_view_rc: RefCell<EntryView>,
+        validator: Validator,
+        completion_dispenser: CompletionDispenser,
+    ) -> Self {
         let obj = Self::default();
         obj.initialize(entry_view_rc, validator, completion_dispenser);
         obj
@@ -56,13 +60,9 @@ impl EntryEditor {
         self.entry_rc.borrow().clone()
     }
 
-    fn edit_return(&self) {
+    fn edit_return(&self) {}
 
-    }
-
-    pub fn key_pressed(&self, key_name: &str) {
-
-    }
+    pub fn key_pressed(&self, key_name: &str) {}
     fn edit_backspace(&self) {
         if self.entry().len() > 0 {
             let mut entry = self.entry();
