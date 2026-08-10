@@ -61,6 +61,7 @@ impl From<Action> for GioAction {
             Action::EnterRename => None,
             Action::Find(find) => Some(GioActionParameter::from(find)),
             Action::FindNext => None,
+            Action::FocusAt(col,row) => Some(GioActionParameter::from((col,row))),
             Action::GotoDirectory(name) => Some(GioActionParameter::from(name)),
             Action::JumpToIndex(index) => Some(GioActionParameter::from(index)),
             Action::JumpToMark(mark) => Some(GioActionParameter::from(mark)),
@@ -94,11 +95,11 @@ impl From<Action> for GioAction {
             Action::ToggleCoversView => None,
             Action::TogglePalette => None,
             Action::ToggleSelected(index) => Some(GioActionParameter::from(index)),
+            Action::ToggleSelectedAt(col, row) => Some(GioActionParameter::from((col, row))),
             Action::ToggleSingleView => None,
             Action::ToggleSlideShow => None,
             Action::ToggleThumbnailsView => None,
             Action::Unlabel => None,
-            _ => None,
         };
         Self {
             name: gio_action_ty.name(),
@@ -137,6 +138,12 @@ impl From<GioAction> for Action {
             "enter-rename" => Action::EnterRename,
             "find" => Action::Find(Find::from(gio_action.parameter().unwrap())),
             "find-next" => Action::FindNext,
+            "focus-at" => {
+                let i32_pair: (i32, i32) = 
+                    <(i32, i32)>::from(gio_action.parameter().unwrap());
+                dbg!(i32_pair);
+                Action::FocusAt(i32_pair.0, i32_pair.1)
+            }
             "go-to-directory" => {
                 Action::GotoDirectory(String::from(gio_action.parameter().unwrap()))
             }
@@ -181,8 +188,13 @@ impl From<GioAction> for Action {
             "toggle-palette" => Action::TogglePalette,
             "toggle-selected" => {
                 Action::ToggleSelected(usize::from(gio_action.parameter().unwrap()))
-            }
-
+            },
+            "toggle-selected-at" => {
+                let i32_pair: (i32, i32) =
+                    <(i32, i32)>::from(gio_action.parameter().unwrap());
+                dbg!(i32_pair);
+                Action::ToggleSelectedAt(i32_pair.0, i32_pair.1)
+            },
             "toggle-single-view" => Action::ToggleSingleView,
             "toggle-slide-show" => Action::ToggleSlideShow,
             "toggle-thumbnails-view" => Action::ToggleThumbnailsView,
@@ -243,6 +255,7 @@ mod tests {
         check_action_to_and_from(Action::EnterRename);
         check_action_to_and_from(Action::Find(Find::Label));
         check_action_to_and_from(Action::FindNext);
+        // check_action_to_and_from(Action::FocusAt(3, 8));
         check_action_to_and_from(Action::GotoDirectory("foo".to_string()));
         check_action_to_and_from(Action::JumpToIndex(4807));
         check_action_to_and_from(Action::JumpToMark('f'));
@@ -274,6 +287,7 @@ mod tests {
         check_action_to_and_from(Action::ToggleCoversView);
         check_action_to_and_from(Action::TogglePalette);
         check_action_to_and_from(Action::ToggleSelected(4807));
+        check_action_to_and_from(Action::ToggleSelectedAt(3,8));
         check_action_to_and_from(Action::ToggleSingleView);
         check_action_to_and_from(Action::ToggleSlideShow);
         check_action_to_and_from(Action::ToggleThumbnailsView);

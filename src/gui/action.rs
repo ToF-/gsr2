@@ -46,6 +46,7 @@ pub enum Action {
     Mark(char),                    // set the mark a|b|…|z to the current picture
     MoveCategory(String, String),  // move the sub category under a category
     MoveFile,                      // move selected picture files
+    FocusAt(i32, i32),             // set the picture at col,row the current picture
     MoveTowards(Direction),        // move to a direction
     Nothing,                       // do nothing (test)
     PickChange,                    // interactively select what change to make
@@ -69,6 +70,7 @@ pub enum Action {
     ToggleCoversView,              // set the view on off to only covers
     TogglePalette,                 // set the palette visible on / off
     ToggleSelected(usize),         // toggle current picture in or out the selection
+    ToggleSelectedAt(i32, i32),    // set the picture at col,row selected or deselected
     ToggleSingleView,              // set the view to single / back to multiple
     ToggleSlideShow,               // set the slide show on off
     ToggleThumbnailsView,          // set the view to thumbnails / back to previous

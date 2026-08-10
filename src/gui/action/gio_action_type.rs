@@ -71,6 +71,7 @@ impl From<Action> for GioActionType {
             Action::EnterRename => GioActionType::new("enter-rename", GioActionParameterType::None),
             Action::Find(_) => GioActionType::new("find", GioActionParameterType::String),
             Action::FindNext => GioActionType::new("find-next", GioActionParameterType::None),
+            Action::FocusAt(_,_) => GioActionType::new("focus-at", GioActionParameterType::Int32Pair),
             Action::GotoDirectory(_) => {
                 GioActionType::new("go-to-directory", GioActionParameterType::String)
             }
@@ -141,6 +142,9 @@ impl From<Action> for GioActionType {
             }
             Action::ToggleSelected(_) => {
                 GioActionType::new("toggle-selected", GioActionParameterType::None)
+            }
+            Action::ToggleSelectedAt(_,_) => {
+                GioActionType::new("toggle-selected-at", GioActionParameterType::Int32Pair)
             }
             Action::ToggleSingleView => {
                 GioActionType::new("toggle-single-view", GioActionParameterType::None)
