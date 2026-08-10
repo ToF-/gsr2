@@ -46,4 +46,27 @@ archetypes
     - Selection:
         - allow for applying an action on several pictures
 
+simplify this.
+
+    GsrApplicationWindow: 
+        - display things and interact with the user at the application level
+        - has properties that are we can bind to labels or other widget and that can be set or get
+        - has a (rc)State that it can consult and update
+        - is inserted the action group of a controller so that it can activate these actions on certain events
+        - has other gtkObject references that it gives access to
+        - can popup a GsrEntryWindow or a GsrTreeListWindow
+
+        no more view, the GsrApplicationWindow is the view
+
+    Controller:
+        - manage interactions between GsrApplication, State and the rest of the app
+        - define actions that are activable by GsrObjects
+        - lauch actions which themselves update the State and the rest of the app
+
+    State:
+        - knows and updates the current state of the word as seen by GsrObjects : view options, picture index position, etc.
+        - has a (rc)Gallery that have all the pictures in the current list of pictures
+        - has a (rc)Navigator that knows where the user is the list of pictures and where it can move
+        - has a (rc)Selection that allows applying an action on several pictures
+        
 
