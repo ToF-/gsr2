@@ -12,7 +12,6 @@ glib::wrapper! {
             gtk::Buildable,
             gtk::Orientable,
             gtk::ConstraintTarget;
-
 }
 
 impl GsrPictureGrid {

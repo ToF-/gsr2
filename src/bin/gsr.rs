@@ -44,8 +44,12 @@ fn main() {
 
 fn build_and_run_app(clargs: &CommandLineArguments, controller_rc: RcController, position: usize) {
     let main_controller: MainController = MainController::new(Some(controller_rc.clone()));
-    let gsr_application: GsrApplication =
-        make_gsr_application(APPLICATION_ID, main_controller.clone(), clargs.clone(), position);
+    let gsr_application: GsrApplication = make_gsr_application(
+        APPLICATION_ID,
+        main_controller.clone(),
+        clargs.clone(),
+        position,
+    );
     MainView::run_application(gsr_application);
 }
 
