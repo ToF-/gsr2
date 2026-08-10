@@ -1,7 +1,12 @@
-use gtk::{Align, Orientation};
+use crate::gui::action::Action;
+use crate::gui::action::gio_action::GioAction;
+use crate::gui::main_controller::MainController;
+use glib::Variant;
+use glib::clone;
 use gtk::glib;
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
+use gtk::{Align, Orientation};
 
 mod imp;
 
@@ -21,7 +26,6 @@ impl GsrPictureCellBox {
         obj.initialize(col, row);
         obj
     }
-
 }
 impl GsrPictureCellBox {
     pub fn initialize(&self, col: i32, row: i32) {
@@ -34,5 +38,48 @@ impl GsrPictureCellBox {
 
         self.set_col(col);
         self.set_row(row);
+    }
+    pub fn connect_main_controller(&self, main_controller: &MainController) {
+        self.insert_action_group("main-controller", Some(&main_controller.gio_action_group()));
+        let col = self.col();
+        let row = self.row();
+        let left_click_action_call =
+            GioAction::from(Action::FocusAt(col, row)).to_simple_action_call();
+        let right_click_action_call =
+            GioAction::from(Action::ToggleSelectedAt(col, row)).to_simple_action_call();
+        self.add_controller(self.make_gesture_click(1, left_click_action_call));
+        self.add_controller(self.make_gesture_click(3, right_click_action_call));
+    }
+
+    fn make_gesture_click(
+        &self,
+        button: u32,
+        action_call: (String, Option<Variant>),
+    ) -> gtk::GestureClick {
+        let gesture_click = gtk::GestureClick::new();
+        gesture_click.set_button(button);
+        gesture_click.connect_pressed(clone!(
+            #[strong(rename_to = this)]
+            self,
+            #[strong]
+            action_call,
+            move |_, n_pressed, _, _| {
+                let name = action_call.0.clone();
+                let variant = action_call.1.clone();
+                let variant_ref: Option<&Variant> = match &variant {
+                    None => None,
+                    Some(v) => Some(v.as_ref()),
+                };
+                if n_pressed == 1 {
+                    match this.activate_action(&name, variant_ref) {
+                        Ok(_) => {}
+                        Err(e) => panic!("{e}"),
+                    }
+                } else {
+                    println!("double click not yet implemented")
+                }
+            }
+        ));
+        gesture_click
     }
 }

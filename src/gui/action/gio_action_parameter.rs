@@ -126,10 +126,7 @@ impl From<(i32, i32)> for GioActionParameter {
 impl From<GioActionParameter> for (i32, i32) {
     fn from(gio_action_parameter: GioActionParameter) -> Self {
         println!("to (i32,i32)");
-        gio_action_parameter
-            .variant()
-            .get::<(i32, i32)>()
-            .unwrap()
+        gio_action_parameter.variant().get::<(i32, i32)>().unwrap()
     }
 }
 

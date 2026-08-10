@@ -4,12 +4,10 @@ use gtk::subclass::prelude::*;
 use std::cell::Cell;
 
 #[derive(Default)]
-pub struct GsrMainWindow {
-}
+pub struct GsrMainWindow {}
 
 impl GsrMainWindow {
-    pub fn initialize(&self, value: usize) {
-    }
+    pub fn initialize(&self, value: usize) {}
 }
 
 #[glib::object_subclass]

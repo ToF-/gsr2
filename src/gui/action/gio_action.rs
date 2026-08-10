@@ -61,7 +61,7 @@ impl From<Action> for GioAction {
             Action::EnterRename => None,
             Action::Find(find) => Some(GioActionParameter::from(find)),
             Action::FindNext => None,
-            Action::FocusAt(col,row) => Some(GioActionParameter::from((col,row))),
+            Action::FocusAt(col, row) => Some(GioActionParameter::from((col, row))),
             Action::GotoDirectory(name) => Some(GioActionParameter::from(name)),
             Action::JumpToIndex(index) => Some(GioActionParameter::from(index)),
             Action::JumpToMark(mark) => Some(GioActionParameter::from(mark)),
@@ -139,8 +139,7 @@ impl From<GioAction> for Action {
             "find" => Action::Find(Find::from(gio_action.parameter().unwrap())),
             "find-next" => Action::FindNext,
             "focus-at" => {
-                let i32_pair: (i32, i32) = 
-                    <(i32, i32)>::from(gio_action.parameter().unwrap());
+                let i32_pair: (i32, i32) = <(i32, i32)>::from(gio_action.parameter().unwrap());
                 dbg!(i32_pair);
                 Action::FocusAt(i32_pair.0, i32_pair.1)
             }
@@ -188,13 +187,12 @@ impl From<GioAction> for Action {
             "toggle-palette" => Action::TogglePalette,
             "toggle-selected" => {
                 Action::ToggleSelected(usize::from(gio_action.parameter().unwrap()))
-            },
+            }
             "toggle-selected-at" => {
-                let i32_pair: (i32, i32) =
-                    <(i32, i32)>::from(gio_action.parameter().unwrap());
+                let i32_pair: (i32, i32) = <(i32, i32)>::from(gio_action.parameter().unwrap());
                 dbg!(i32_pair);
                 Action::ToggleSelectedAt(i32_pair.0, i32_pair.1)
-            },
+            }
             "toggle-single-view" => Action::ToggleSingleView,
             "toggle-slide-show" => Action::ToggleSlideShow,
             "toggle-thumbnails-view" => Action::ToggleThumbnailsView,
@@ -287,7 +285,7 @@ mod tests {
         check_action_to_and_from(Action::ToggleCoversView);
         check_action_to_and_from(Action::TogglePalette);
         check_action_to_and_from(Action::ToggleSelected(4807));
-        check_action_to_and_from(Action::ToggleSelectedAt(3,8));
+        check_action_to_and_from(Action::ToggleSelectedAt(3, 8));
         check_action_to_and_from(Action::ToggleSingleView);
         check_action_to_and_from(Action::ToggleSlideShow);
         check_action_to_and_from(Action::ToggleThumbnailsView);

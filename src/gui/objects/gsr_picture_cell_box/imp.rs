@@ -1,13 +1,13 @@
-use gtk::glib::Properties;
-use std::cell::Cell;
 use gtk::glib;
+use gtk::glib::Properties;
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
+use std::cell::Cell;
 
 #[derive(Default, Properties)]
 #[properties(wrapper_type = super::GsrPictureCellBox)]
 pub struct GsrPictureCellBox {
-       #[property(get, set)]
+    #[property(get, set)]
     col: Cell<i32>,
 
     #[property(get, set)]
@@ -26,4 +26,3 @@ impl ObjectImpl for GsrPictureCellBox {}
 impl WidgetImpl for GsrPictureCellBox {}
 
 impl BoxImpl for GsrPictureCellBox {}
-

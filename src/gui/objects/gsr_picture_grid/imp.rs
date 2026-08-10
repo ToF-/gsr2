@@ -16,4 +16,3 @@ impl ObjectImpl for GsrPictureGrid {}
 impl WidgetImpl for GsrPictureGrid {}
 
 impl GridImpl for GsrPictureGrid {}
-

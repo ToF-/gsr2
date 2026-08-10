@@ -1,10 +1,10 @@
-use crate::gui::main_controller::MainController;
 use crate::env::default_values::MAX_LABEL_LENGTH;
 use crate::env::default_values::MAX_LABELS_LENGTH;
 use crate::env::default_values::MAX_NAME_LENGTH;
 use crate::gui::control::{Control, Controls, default_controls};
 use crate::gui::entry_kind::EntryKind;
 use crate::gui::entry_prompt::entry_prompt;
+use crate::gui::main_controller::MainController;
 use crate::gui::mode::Mode;
 use crate::gui::view::entry_window::EntryWindow;
 use crate::gui::view::main_view::MainView;
