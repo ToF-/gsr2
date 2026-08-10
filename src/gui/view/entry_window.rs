@@ -89,20 +89,6 @@ impl EntryWindow {
             std::cell::RefCell::new(EntryEditor::new());
         Self::attach_key_pressed_event_handler(&window, controller_rc, &entry_editor);
         Self::attach_cursor_blink_event(&window, controller_rc);
-        let main_controller = if let Some(application) = application_window.application() {
-            let gsr_application = application
-                .downcast::<GsrApplication>()
-                .expect("application is not a GsrApplication");
-            let main_controller_rc = gsr_application.main_controller_rc();
-            if let Ok(main_controller) = main_controller_rc.try_borrow() {
-                main_controller.clone()
-            } else {
-                panic!("can't borrow")
-            }
-        } else {
-            panic!("can't get application")
-        };
-        Self::attach_gio_action_group(&window, controller_rc, &main_controller);
         EntryWindow {
             window,
             entry_editor,

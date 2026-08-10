@@ -10,6 +10,7 @@ use gsr::gui::controller::Controller;
 use gsr::gui::controller::RcController;
 use gsr::gui::main_controller::MainController;
 use gsr::gui::objects::gsr_application::GsrApplication;
+use gsr::gui::objects::gsr_application::make_gsr_application;
 use gsr::gui::view::main_view::MainView;
 use std::cell::RefCell;
 use std::io::Error as IOError;
@@ -44,8 +45,7 @@ fn main() {
 fn build_and_run_app(clargs: &CommandLineArguments, controller_rc: RcController, position: usize) {
     let main_controller: MainController = MainController::new(Some(controller_rc.clone()));
     let gsr_application: GsrApplication =
-        GsrApplication::make_gsr_application(APPLICATION_ID, main_controller.clone());
-    gsr_application.connect_activation(clargs.clone(), position, main_controller);
+        make_gsr_application(APPLICATION_ID, main_controller.clone(), clargs.clone(), position);
     MainView::run_application(gsr_application);
 }
 

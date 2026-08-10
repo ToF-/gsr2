@@ -1,3 +1,4 @@
+use crate::gui::main_controller::MainController;
 use crate::env::default_values::MAX_LABEL_LENGTH;
 use crate::env::default_values::MAX_LABELS_LENGTH;
 use crate::env::default_values::MAX_NAME_LENGTH;
