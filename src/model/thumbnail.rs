@@ -10,6 +10,7 @@ use thumbnailer::ThumbnailSize;
 use thumbnailer::create_thumbnails;
 use thumbnailer::error::ThumbResult;
 
+// todo: put this picture in a FnOnce
 pub fn no_thumbnail_picture() -> gtk::Picture {
     let width = 256;
     let height = 256;

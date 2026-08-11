@@ -7,7 +7,6 @@ use std::cell::Cell;
 pub struct GsrPictureCellBox {
     pub col: Cell<i32>,
     pub row: Cell<i32>,
-    pub label: RefCell<String>,
     pub has_focus: Cell<bool>,
     time_out_rc: RefCell<Option<gtk::glib::SourceId>>,
 }
@@ -17,7 +16,6 @@ impl Default for GsrPictureCellBox {
         Self {
             col: Cell::new(0),
             row: Cell::new(0),
-            label: RefCell::new("".to_string()),
             has_focus: Cell::new(false),
             time_out_rc: RefCell::new(None),
         }
