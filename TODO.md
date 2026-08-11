@@ -2,6 +2,7 @@
 ## Gallery Show in Rust
 
 ## Todo
+- [ ] study the problem of color accuracy with pictures according to color state in gtk
 - [ ] entry_view is launched for a given Action, and close iby escaping (cancelling) or by confirming, which activates a new action. 
 - [ ] have a correspondance Action -> input -> Action, e.g. EnterChange -> "Tag" ->  EnterAddTag, and e.g. EnterAddTag -> "foo,bar" -> AddTag("foo,bar")
 - [ ] explore subclassing window to to make the main_window *have* the controller instead of the controller having the main_window 
