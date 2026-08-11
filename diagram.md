@@ -69,4 +69,55 @@ simplify this.
         - has a (rc)Navigator that knows where the user is the list of pictures and where it can move
         - has a (rc)Selection that allows applying an action on several pictures
         
+examples of user interaction effects
+
+- move left on a grid
+    - the picture grid is showing 100 pictures with their labels
+    - the first picture is having focus: every second a symbol just under the picture changes from ⭓ to ⭔ 
+    - the window title displays some picture information about the picture having focus
+    - the user presses the Left key
+    - the second picture is having focus, with the blinking shape
+    - the first picture is doesn't have a blinking shape anymore
+
+
+- move next page on a grid
+    - the picture grid is showing 100 pictures with their labels
+    - the first picture is having focus: every second a symbol just under the picture changes from ⭓ to ⭔ 
+    - the window title displays some picture information about the picture having focus
+    - the user presses the Next Page key
+    - the picture grid is showing 100 new pictures
+    - the focus is on the first picture
+
+- GsrApplicationWindow
+    - can show a single picture frame when in single view mode
+    - can show a picture grid with left and right panes buttons when in multiple view mode
+    - can change it's title
+    - can popup an information window, an entry window, a tree list window, all these windows are modal
+
+- GsrPictureFrame
+    - can show a picture
+    - can show the picture palette if asked to
+
+- Navigator
+    - knows which position in the gallery is the current position
+
+- SelectionRange
+    - is either unset (no start nor end position), half set (start position, no end position) or set (start position and end position)
+
+- GsrPictureGrid 
+    - knows how to set its pictures using the Navigator's position and the Gallery
+    - knows which picture file and thumbnail size -- should be set 
+    - knows not to create picture cells where there should not be picture (e.g last 25 of 125 pictures on a 10x10 grid)
+    - knows to draw a special picture for cells where picture file could not be set
+    - knows which cell should receive or leave the focus
+    - knows how to ask each picture cell to display it's palette
+    - knows how to ask each picture to decrease or increase opacity according if its in the current selection range
+        - unset : all picture cell should be full opacity
+        - half set : the start position, or end postion should be half opacity, the rest full
+        - set : all the picture cell within the range should be half opacity
+
+- GsrPictureCellBox 
+    - knows how to change its label with a shape every second if it receives the focus, stop this blinking if leaves the focus
+    - knows how to display or hide its palette when asked to
+    - knows how to decrease or increase its opacity when asked to
 
