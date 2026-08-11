@@ -1,6 +1,6 @@
 [package]
 name = "gsr"
-version = "1.5.0"
+version = "1.5.1"
 edition = "2024"
 authors = ["ToF-"]
 default-run = "gsr"
@@ -17,6 +17,10 @@ path = "src/bin/ctlg.rs"
 [[bin]]
 name = "gsr"
 path = "src/bin/gsr.rs"
+
+[build-dependencies]
+glib-build-tools = "0.22.8"
+
 
 [dependencies]
 chrono = "0.4.42"
