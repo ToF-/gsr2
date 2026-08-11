@@ -17,9 +17,9 @@ use crate::gui::main_controller::MainController;
 use crate::gui::main_controller::RcMainController;
 use crate::gui::mode::Mode;
 use crate::gui::objects::gsr_application::GsrApplication;
+use crate::gui::objects::gsr_picture_cell_box::GsrPictureCellBox;
 use crate::gui::view::entry_window::EntryWindow;
 use crate::gui::view::grid_view::GridView;
-use crate::gui::view::picture_cell_box::make_picture_cell_box;
 use crate::gui::view::picture_frame::PictureFrame;
 use crate::gui::view::treelist_view::TreeListView;
 use crate::model::catalog::Catalog;
@@ -260,11 +260,7 @@ impl MainView {
         self.application_window().set_title(Some(&title));
     }
 
-    pub fn set_pictures_for_multiple_view(
-        &mut self,
-        controller: &Controller,
-        pictures_per_row: i32,
-    ) {
+    pub fn set_pictures_for_multiple_view(&self, controller: &Controller, pictures_per_row: i32) {
         let navigator = controller.navigator();
         if let Ok(gallery) = controller.repository().gallery_rc().try_borrow() {
             let grid_view = self.grid_view.clone();
@@ -274,7 +270,7 @@ impl MainView {
                     let coords = (row as usize, col as usize);
                     let cell = match grid.child_at(col, row) {
                         Some(widget) => widget.downcast::<gtk::Box>().unwrap(),
-                        None => make_picture_cell_box(col, row, &self.controller_rc),
+                        None => GsrPictureCellBox::new(col, row).into(),
                     };
                     remove_children_from_box(&cell);
                     if let Some(index) = navigator.position_from_coords(coords.0, coords.1) {
@@ -327,7 +323,7 @@ impl MainView {
         }
     }
 
-    pub fn set_picture_for_single_view(&mut self, controller: &Controller) {
+    pub fn set_picture_for_single_view(&self, controller: &Controller) {
         let picture: Picture = controller.current_picture();
         let picture_file_path = picture.file_path();
         let gtk_picture =
@@ -342,7 +338,8 @@ impl MainView {
         self.set_title(controller);
     }
 
-    pub fn set_pictures(&mut self, controller: &Controller) {
+    pub fn set_pictures(&self, controller: &Controller) {
+        dbg!("set_pictures");
         if controller.state().single_view() {
             self.set_picture_for_single_view(controller)
         } else {
@@ -605,7 +602,7 @@ fn attach_key_pressed_event_handlers(
                     ) {
                         Ok(_) => {}
                         Err(e) => {
-                            dbg!(e);
+                            dbg!("{}:{}", e, name);
                         }
                     }
                 } else {

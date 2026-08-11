@@ -15,7 +15,7 @@ use gtk::glib::prelude::ToVariant;
 use gtk::prelude::ActionExt;
 
 // GioAction is the conversion of a concrete Action (with parameters) into something activable via a glib or gtk object
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct GioAction {
     name: String,
     action_entry_name: String,
@@ -229,6 +229,7 @@ mod tests {
     fn check_action_to_and_from(action: Action) {
         let source = action.clone();
         let gio_action = GioAction::from(source.clone());
+        dbg!(gio_action.clone());
         let target = Action::from(gio_action);
         assert_eq!(target, source);
     }
@@ -251,7 +252,7 @@ mod tests {
         check_action_to_and_from(Action::EnterRename);
         check_action_to_and_from(Action::Find(Find::Label));
         check_action_to_and_from(Action::FindNext);
-        // check_action_to_and_from(Action::FocusAt(3, 8));
+        check_action_to_and_from(Action::FocusAt(3, 8));
         check_action_to_and_from(Action::GotoDirectory("foo".to_string()));
         check_action_to_and_from(Action::JumpToIndex(4807));
         check_action_to_and_from(Action::JumpToMark('f'));
@@ -261,6 +262,7 @@ mod tests {
         check_action_to_and_from(Action::MoveCategory("foo".to_string(), "bar".to_string()));
         check_action_to_and_from(Action::MoveFile);
         check_action_to_and_from(Action::MoveTowards(Direction::Down));
+        check_action_to_and_from(Action::MoveTowards(Direction::NextPage));
         check_action_to_and_from(Action::Nothing);
         check_action_to_and_from(Action::PickChange);
         check_action_to_and_from(Action::PickOrderSetting);

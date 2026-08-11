@@ -3,6 +3,7 @@ use crate::gui::action::gio_action_parameter_type::GioActionParameterType;
 use crate::gui::action::gio_action_type::GioActionType;
 use crate::gui::controller::Controller;
 use crate::gui::controller::RcController;
+use crate::gui::direction::Direction;
 use crate::model::change::Change;
 use crate::model::rank::Rank;
 use gtk::gio::ActionEntry;
@@ -68,7 +69,11 @@ impl MainController {
             }
         );
         action_entries.push(Self::action_entry(
-            GioActionType::from(Action::ToggleThumbnailsView),
+            GioActionType::from(Action::MoveTowards(Direction::Left)),
+            activate.clone(),
+        ));
+        action_entries.push(Self::action_entry(
+            GioActionType::from(Action::FocusAt(0, 0)),
             activate.clone(),
         ));
         action_entries.push(Self::action_entry(
@@ -80,11 +85,15 @@ impl MainController {
             activate.clone(),
         ));
         action_entries.push(Self::action_entry(
-            GioActionType::from(Action::FocusAt(0, 0)),
+            GioActionType::from(Action::ToggleSelectedAt(0, 0)),
             activate.clone(),
         ));
         action_entries.push(Self::action_entry(
-            GioActionType::from(Action::ToggleSelectedAt(0, 0)),
+            GioActionType::from(Action::ToggleThumbnailsView),
+            activate.clone(),
+        ));
+        action_entries.push(Self::action_entry(
+            GioActionType::from(Action::Nothing),
             activate.clone(),
         ));
         self.gio_action_group.add_action_entries(action_entries);

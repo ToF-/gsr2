@@ -93,7 +93,7 @@ impl From<Action> for GioActionType {
             }
             Action::MoveFile => GioActionType::new("move-file", GioActionParameterType::None),
             Action::MoveTowards(_) => {
-                GioActionType::new("move-towards", GioActionParameterType::String)
+                GioActionType::new("move-towards", GioActionParameterType::Int32)
             }
             Action::Nothing => GioActionType::new("nothing", GioActionParameterType::None),
             Action::PickChange => GioActionType::new("pick-change", GioActionParameterType::None),

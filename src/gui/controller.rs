@@ -128,7 +128,7 @@ impl Controller {
         self.main_controller_rc_opt = Some(main_controller_rc);
     }
     pub fn process_action(
-        &mut self,
+        &self,
         simple_action: &gtk::gio::SimpleAction,
         variant_opt: Option<&gtk::glib::Variant>,
     ) {
@@ -136,6 +136,12 @@ impl Controller {
         let gio_action = GioAction::from((simple_action, variant_opt));
         let action = Action::from(gio_action);
         match action {
+            Action::Nothing => {
+                dbg!(action);
+            }
+            Action::MoveTowards(Direction::NextPage) => {
+                self.move_next();
+            }
             Action::Rank(rank) => self.rank_selected_pictures(rank),
             Action::TogglePalette => self.toggle_palette(),
             Action::FocusAt(col, row) => {
@@ -160,16 +166,23 @@ impl Controller {
         }
         if self.state().slideshow_on() == old_slideshow_on {
             let main_view = self.main_view();
-            let binding = self.navigator_rc.clone();
-            let mut navigator = binding.borrow_mut();
-            self.set_slideshow_off();
-            if self.state().single_view() != self.main_view().single_view() {
-                main_view.toggle_view_stack(self);
-            };
-            if navigator.page_changed() {
+            {
+                let binding = &self.navigator_rc;
+                let mut navigator = binding.borrow_mut();
+                self.set_slideshow_off();
+                if self.state().single_view() != self.main_view().single_view() {
+                    main_view.toggle_view_stack(self);
+                };
+            }
+            let page_changed = self.navigator_rc.borrow().page_changed();
+            if page_changed {
                 self.main_view().set_pictures(self);
-                navigator.set_page_unchanged();
-            };
+                {
+                    let binding = &self.navigator_rc;
+                    let mut navigator = binding.borrow_mut();
+                    navigator.set_page_unchanged();
+                }
+            }
             self.set_label_text_for_current_picture();
             self.main_view().set_title(self);
         }
@@ -265,7 +278,8 @@ impl Controller {
         }
     }
 
-    pub fn process_event(&mut self, event: Event) {
+    pub fn process_event(&self, event: Event) {
+        dbg!(&event);
         match event {
             Event::KeyPressed {
                 key,
@@ -300,12 +314,12 @@ impl Controller {
             state.set_slideshow_off();
         }
     }
-    fn process_picture_clicked(&mut self, button: u32, col: i32, row: i32) {
-            self.main_view()
-                .set_label_text_for_current_picture(self, None);
+    fn process_picture_clicked(&self, button: u32, col: i32, row: i32) {
+        self.main_view()
+            .set_label_text_for_current_picture(self, None);
         {
             let binding = &self.navigator_rc;
-        let mut navigator = binding.borrow_mut();
+            let mut navigator = binding.borrow_mut();
             if let Some(index) = navigator.position_from_coords(row as usize, col as usize)
                 && navigator.can_move(Direction::Index { value: index })
             {
@@ -314,14 +328,14 @@ impl Controller {
                 println!("cannot move");
             }
         }
-            if button == 3 {
-                self.toggle_selected();
-                self.main_view().set_pictures(self);
-                self.main_view().set_title(self);
-            }
+        if button == 3 {
+            self.toggle_selected();
+            self.main_view().set_pictures(self);
+            self.main_view().set_title(self);
+        }
     }
 
-    fn process_picture_double_clicked(&mut self, button: u32, col: i32, row: i32) {
+    fn process_picture_double_clicked(&self, button: u32, col: i32, row: i32) {
         self.main_view()
             .set_label_text_for_current_picture(self, None);
         let binding = self.navigator_rc.clone();
@@ -356,7 +370,7 @@ impl Controller {
         self.set_label_text_for_current_picture();
     }
 
-    fn process_pane_clicked(&mut self, _button: usize, pane_number: usize) {
+    fn process_pane_clicked(&self, _button: usize, pane_number: usize) {
         self.process_control(if pane_number == LEFT_PANE {
             &Control::MovePrev
         } else {
@@ -367,7 +381,7 @@ impl Controller {
         }
     }
 
-    fn process_key_event(&mut self, key: Key, _key_code: u32, _modifier_type: ModifierType) {
+    fn process_key_event(&self, key: Key, _key_code: u32, _modifier_type: ModifierType) {
         let binding = self.navigator_rc.clone();
         let mut navigator = binding.borrow_mut();
         let main_view = self.main_view();
@@ -389,7 +403,7 @@ impl Controller {
         }
     }
 
-    pub fn set_label_text_for_current_picture(&mut self) {
+    pub fn set_label_text_for_current_picture(&self) {
         {
             let mut state = self.state_rc.borrow_mut();
             if state.change_focus_symbol_on() {
@@ -405,7 +419,7 @@ impl Controller {
             .set_opacity_for_current_picture(self, opacity)
     }
 
-    fn process_key(&mut self, key: Key) {
+    fn process_key(&self, key: Key) {
         const SHIFT_L: &str = "Shift_L";
         const SHIFT_R: &str = "Shift_R";
         if let Some(name) = key.name()
@@ -866,7 +880,7 @@ impl Controller {
         }
     }
 
-    fn set_setting(&mut self, setting: &Control, choice: &Control) {
+    fn set_setting(&self, setting: &Control, choice: &Control) {
         match setting {
             Control::SetMark => match choice {
                 Control::SetMarkChar(_) => self.process_control(choice),
@@ -1932,8 +1946,6 @@ impl Controller {
     }
 
     fn move_towards(&self, direction: Direction) {
-        let binding = self.navigator_rc.clone();
-        let mut navigator = binding.borrow_mut();
         match direction {
             Direction::NextPage if self.state().single_view() => {
                 self.move_towards(Direction::Right)
@@ -1941,6 +1953,8 @@ impl Controller {
             Direction::PrevPage if self.state().single_view() => self.move_towards(Direction::Left),
             ref other => {
                 if self.can_move(other.clone()) {
+                    let binding = self.navigator_rc.clone();
+                    let mut navigator = binding.borrow_mut();
                     navigator.move_towards(other.clone());
                 }
             }

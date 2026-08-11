@@ -73,7 +73,7 @@ impl GridView {
     }
 
     pub fn set_label_text_at(
-        &mut self,
+        &self,
         picture: &Picture,
         col: i32,
         row: i32,
