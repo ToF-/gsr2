@@ -178,18 +178,19 @@ impl Controller {
                 };
             }
             {
-            let page_changed = self.navigator_rc.borrow().page_changed();
-            
-            if page_changed {
-                self.main_view().set_pictures(self);
-                {
-                    let binding = &self.navigator_rc;
-                    let mut navigator = binding.borrow_mut();
-                    navigator.set_page_unchanged();
+                let page_changed = self.navigator_rc.borrow().page_changed();
+
+                if page_changed {
+                    self.main_view().set_pictures(self);
+                    {
+                        let binding = &self.navigator_rc;
+                        let mut navigator = binding.borrow_mut();
+                        navigator.set_page_unchanged();
+                    }
                 }
+                self.set_label_text_for_current_picture();
+                self.main_view().set_title(self);
             }
-            self.set_label_text_for_current_picture();
-            self.main_view().set_title(self);
         }
     }
 

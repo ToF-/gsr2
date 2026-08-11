@@ -789,6 +789,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "506d23499707c7142898429757e8d9a3871d965239a2cb66dfa05052be6d6f19"
 dependencies = [
  "heck",
+ "proc-macro-crate",
  "proc-macro2",
  "quote",
  "syn",
@@ -903,6 +904,7 @@ dependencies = [
  "chrono",
  "clap",
  "glib 0.22.8",
+ "glib-macros 0.22.6",
  "gtk4",
  "image 0.25.8",
  "itertools 0.14.0",

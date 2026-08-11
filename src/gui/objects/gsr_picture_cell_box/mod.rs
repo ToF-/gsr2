@@ -38,6 +38,15 @@ impl GsrPictureCellBox {
         self.set_hexpand(true);
         self.set_vexpand(true);
     }
+
+    pub fn receive_focus(&self) {
+        self.imp().has_focus.set(true);
+    }
+
+    pub fn leave_focus(&self) {
+        self.imp().has_focus.set(false);
+    }
+
     pub fn connect_main_controller(&self, main_controller: &MainController) {
         self.insert_action_group("main-controller", Some(&main_controller.gio_action_group()));
         let col = self.imp().col.get();
