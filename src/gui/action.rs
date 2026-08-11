@@ -97,6 +97,7 @@ impl Action {
     pub fn from_control(control: &Control) -> Self {
         match control {
             Control::MoveNext => Action::MoveTowards(Direction::NextPage),
+            Control::Right => Action::MoveTowards(Direction::Right),
             Control::EnterChange => Action::PickChange,
             Control::Quit => Action::Quit,
             Control::RankNoStar => Action::Rank(Rank::NoStar),

@@ -262,6 +262,8 @@ impl MainView {
 
     pub fn set_pictures_for_multiple_view(&self, controller: &Controller, pictures_per_row: i32) {
         let navigator = controller.navigator();
+        dbg!("set_pictures_for_multiple_view");
+        dbg!(&navigator);
         if let Ok(gallery) = controller.repository().gallery_rc().try_borrow() {
             let grid_view = self.grid_view.clone();
             let grid = grid_view.grid();
@@ -339,7 +341,6 @@ impl MainView {
     }
 
     pub fn set_pictures(&self, controller: &Controller) {
-        dbg!("set_pictures");
         if controller.state().single_view() {
             self.set_picture_for_single_view(controller)
         } else {
@@ -353,6 +354,7 @@ impl MainView {
         with_focus: Option<char>,
     ) {
         let navigator = controller.navigator();
+        dbg!(navigator.position(), with_focus);
         let position = navigator.position();
         let picture = controller.current_picture();
         if !controller.state().single_view()

@@ -142,6 +142,9 @@ impl Controller {
             Action::MoveTowards(Direction::NextPage) => {
                 self.move_next();
             }
+            Action::MoveTowards(Direction::Right) => {
+                self.arrow_move(Direction::Right);
+            }
             Action::Rank(rank) => self.rank_selected_pictures(rank),
             Action::TogglePalette => self.toggle_palette(),
             Action::FocusAt(col, row) => {
@@ -174,7 +177,9 @@ impl Controller {
                     main_view.toggle_view_stack(self);
                 };
             }
+            {
             let page_changed = self.navigator_rc.borrow().page_changed();
+            
             if page_changed {
                 self.main_view().set_pictures(self);
                 {
@@ -279,7 +284,6 @@ impl Controller {
     }
 
     pub fn process_event(&self, event: Event) {
-        dbg!(&event);
         match event {
             Event::KeyPressed {
                 key,
@@ -1953,7 +1957,7 @@ impl Controller {
             Direction::PrevPage if self.state().single_view() => self.move_towards(Direction::Left),
             ref other => {
                 if self.can_move(other.clone()) {
-                    let binding = self.navigator_rc.clone();
+                    let binding = &self.navigator_rc;
                     let mut navigator = binding.borrow_mut();
                     navigator.move_towards(other.clone());
                 }
