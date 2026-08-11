@@ -1,3 +1,4 @@
+use crate::gui::main_controller::RcMainController;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::default_values::FOCUS_SYMBOL_1;
 use crate::env::default_values::QUARTER_OPACITY;
@@ -154,7 +155,7 @@ impl MainView {
         } else {
             panic!("can't borrow")
         };
-        let grid_view = GridView::new(pictures_per_row.try_into().unwrap(), controller_rc);
+        let grid_view = GridView::new(pictures_per_row.try_into().unwrap(), controller_rc, main_controller);
         let picture_frame = PictureFrame::new();
         let single_view_scrolled_window = make_scrolled_window();
         let multiple_view_scrolled_window = make_scrolled_window();
@@ -203,7 +204,7 @@ impl MainView {
         application_window.present();
     }
 
-    pub fn run_application(application: GsrApplication) {
+    pub fn run_application(application: GsrApplication, main_controller_rc: RcMainController) {
         let no_args: Vec<String> = vec![];
         application.run_with_args(&no_args);
     }
@@ -400,8 +401,8 @@ impl MainView {
         treelist_view.popup();
         treelist_view
     }
-    pub fn change_grid_size(&mut self, pictures_per_row: usize) {
-        self.grid_view.change_dimension(pictures_per_row as i32)
+    pub fn change_grid_size(&mut self, pictures_per_row: usize, main_controller: &MainController) {
+        self.grid_view.change_dimension(pictures_per_row as i32, main_controller)
     }
 
     pub fn toggle_view_stack(&self, controller: &Controller) {

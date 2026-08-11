@@ -1,3 +1,4 @@
+use crate::gui::main_controller::MainController;
 use crate::env::default_values::{
     GRID_PALETTE_AREA_HEIGHT, GRID_PALETTE_AREA_WIDTH, MAX_PICTURES_PER_ROW,
 };
@@ -30,13 +31,13 @@ impl GridView {
             grid: grid.clone(),
         }
     }
-    pub fn new(pictures_per_row: i32, controller_rc: &RcController) -> Self {
+    pub fn new(pictures_per_row: i32, controller_rc: &RcController, main_controller: &MainController) -> Self {
         let grid = make_grid();
         let grid_view = GridView {
             grid,
             controller_rc: controller_rc.clone(),
         };
-        grid_view.attach_cells(pictures_per_row);
+        grid_view.attach_cells(pictures_per_row, main_controller);
         grid_view.attach_focus_symbol_change_event();
         grid_view
     }
@@ -109,11 +110,12 @@ impl GridView {
         count
     }
 
-    pub fn attach_cells(&self, pictures_per_row: i32) {
+    pub fn attach_cells(&self, pictures_per_row: i32, main_controller: &MainController) {
         let grid = &self.grid;
         for col in 0..pictures_per_row {
             for row in 0..pictures_per_row {
-                let cell_box = GsrPictureCellBox::new(col, row); // make_picture_cell_box(col, row, &self.controller_rc);
+                let cell_box = GsrPictureCellBox::new(col, row);
+                cell_box.connect_main_controller(main_controller);
                 grid.attach(&cell_box, col, row, 1, 1)
             }
         }
@@ -181,9 +183,9 @@ impl GridView {
         }
     }
 
-    pub fn change_dimension(&mut self, pictures_per_row: i32) {
+    pub fn change_dimension(&mut self, pictures_per_row: i32, main_controller: &MainController) {
         self.remove_cells();
-        self.attach_cells(pictures_per_row);
+        self.attach_cells(pictures_per_row, main_controller);
     }
 }
 pub fn make_grid() -> gtk::Grid {

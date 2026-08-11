@@ -1,3 +1,4 @@
+use std::cell::Cell;
 use gsr::cli::command::Command;
 use gsr::cli::command::execute_command;
 use gsr::cli::command_line_arguments::CommandLineArguments;
@@ -8,6 +9,7 @@ use gsr::file::database::Database;
 use gsr::file::paths::file_exists;
 use gsr::gui::controller::Controller;
 use gsr::gui::controller::RcController;
+use gsr::gui::main_controller::RcMainController;
 use gsr::gui::main_controller::MainController;
 use gsr::gui::objects::gsr_application::GsrApplication;
 use gsr::gui::objects::gsr_application::make_gsr_application;
@@ -42,15 +44,43 @@ fn main() {
     }
 }
 
-fn build_and_run_app(clargs: &CommandLineArguments, controller_rc: RcController, position: usize) {
-    let main_controller: MainController = MainController::new(Some(controller_rc.clone()));
+fn run_application(config: &Configuration, clargs: &CommandLineArguments,) -> Result<Status> {
+    let result = Controller::new(config.clone(), clargs.clone()).and_then(|controller| {
+        let repository = controller.repository();
+        let controller_rc: RcController = Rc::new(RefCell::new(controller));
+        let main_controller = MainController::new(Some(controller_rc.clone()));
+        let main_controller_rc = Rc::new(RefCell::new(main_controller));
+        let result = execute_command(clargs.clone(), repository, config.clone());
+        if let Ok(Status::Ready(index)) = result {
+            build_and_run_app(clargs, controller_rc, index, main_controller_rc);
+            Ok(Status::Done)
+        } else {
+            result
+        }
+    });
+    match result {
+        Ok(Status::Done) | Ok(Status::Exit) | Ok(Status::Ready(_)) => exit(0),
+        Err(e) => {
+            eprintln!("{}", e);
+            exit(1)
+        }
+    }
+}
+fn build_and_run_app(clargs: &CommandLineArguments, controller_rc: RcController, position: usize, main_controller_rc: RcMainController) {
+     let binding = main_controller_rc.clone();
+     let main_controller = binding.borrow();
     let gsr_application: GsrApplication = make_gsr_application(
         APPLICATION_ID,
         main_controller.clone(),
         clargs.clone(),
         position,
     );
-    MainView::run_application(gsr_application);
+    if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+        controller.set_main_controller_rc(main_controller_rc.clone());
+    } else {
+        panic!("can't mutably borrow");
+    }
+    MainView::run_application(gsr_application, main_controller_rc);
 }
 
 fn initialize_database(config: &Configuration) -> Result<Status> {
@@ -69,23 +99,3 @@ fn initialize_database(config: &Configuration) -> Result<Status> {
     }
 }
 
-fn run_application(config: &Configuration, clargs: &CommandLineArguments) -> Result<Status> {
-    let result = Controller::new(config.clone(), clargs.clone()).and_then(|controller| {
-        let repository = controller.repository();
-        let controller_rc: RcController = Rc::new(RefCell::new(controller));
-        let result = execute_command(clargs.clone(), repository, config.clone());
-        if let Ok(Status::Ready(index)) = result {
-            build_and_run_app(clargs, controller_rc, index);
-            Ok(Status::Done)
-        } else {
-            result
-        }
-    });
-    match result {
-        Ok(Status::Done) | Ok(Status::Exit) | Ok(Status::Ready(_)) => exit(0),
-        Err(e) => {
-            eprintln!("{}", e);
-            exit(1)
-        }
-    }
-}

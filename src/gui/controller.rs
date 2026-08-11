@@ -1,3 +1,4 @@
+use crate::gui::main_controller::RcMainController;
 use crate::cli::command::Command;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::Configuration;
@@ -57,6 +58,7 @@ pub struct Controller {
     editor_rc: RefCell<Editor>,
     selector_rc: RefCell<Selector>,
     last_action_rc: RefCell<Action>,
+    main_controller_rc_opt: Option<RcMainController>,
 }
 
 pub type RcController = Rc<RefCell<Controller>>;
@@ -117,10 +119,14 @@ impl Controller {
             )),
             main_view_opt_rc: RefCell::new(None),
             last_action_rc: RefCell::new(Action::Nothing),
+            main_controller_rc_opt: None,
         };
         Ok(controller)
     }
 
+    pub fn set_main_controller_rc(&mut self, main_controller_rc: RcMainController) {
+        self.main_controller_rc_opt = Some(main_controller_rc);
+    }
     pub fn process_action(
         &self,
         simple_action: &gtk::gio::SimpleAction,
@@ -1694,7 +1700,8 @@ impl Controller {
         navigator.set_pictures_per_row(pictures_per_row);
         navigator.update_page_limits();
         navigator.set_page_changed();
-        self.main_view().change_grid_size(pictures_per_row);
+        let main_controller = self.main_controller_rc_opt.as_ref().unwrap().borrow();
+        self.main_view().change_grid_size(pictures_per_row, &main_controller);
     }
 
     fn set_selection_range(&self) {
