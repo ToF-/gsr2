@@ -19,8 +19,12 @@ use std::io::Error as IOError;
 use std::io::Result;
 use std::process::exit;
 use std::rc::Rc;
+use gtk::gio;
+
 
 fn main() {
+    gio::resources_register_include!("gsr.gresource")
+        .expect("Failed to register resources");
     let config = match Configuration::from_env() {
         Ok(config) => config,
         Err(err) => {

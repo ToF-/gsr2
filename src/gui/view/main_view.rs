@@ -354,7 +354,6 @@ impl MainView {
         with_focus: Option<char>,
     ) {
         let navigator = controller.navigator();
-        dbg!(navigator.position(), with_focus);
         let position = navigator.position();
         let picture = controller.current_picture();
         if !controller.state().single_view()

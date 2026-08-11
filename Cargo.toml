@@ -18,6 +18,9 @@ path = "src/bin/ctlg.rs"
 name = "gsr"
 path = "src/bin/gsr.rs"
 
+[build-dependencies]
+glib-build-tools = "0.22.8"
+
 [dependencies]
 chrono = "0.4.42"
 clap = { version = "4.5.4", features = ["derive"] }

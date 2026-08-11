@@ -1,4 +1,5 @@
 extern crate image;
+use std::cell::OnceCell;
 use gtk::gdk;
 use gtk::glib;
 use std::ffi::OsStr;
@@ -10,8 +11,8 @@ use thumbnailer::ThumbnailSize;
 use thumbnailer::create_thumbnails;
 use thumbnailer::error::ThumbResult;
 
-// todo: put this picture in a FnOnce
-pub fn no_thumbnail_picture() -> gtk::Picture {
+pub fn encode_no_thumbnail_picture() -> gtk::Picture {
+    const THICKNESS: i32 = 3;
     let width = 256;
     let height = 256;
     let stride = width * 4;
@@ -19,7 +20,11 @@ pub fn no_thumbnail_picture() -> gtk::Picture {
 
     for y in 0..height {
         for x in 0..width {
-            if x >= 32 && x < (width - 32) && x == y || x == (width - 1 - y) {
+            if x >= 32
+                && x < width - 32
+                    && (
+                        (x as i32 - y as i32).abs() < THICKNESS
+                        || (x as i32 - (width - 1 - y) as i32).abs() < THICKNESS) {
                 let offset = y * stride + x * 4;
                 pixels[offset] = 127;
                 pixels[offset + 1] = 127;
@@ -38,6 +43,19 @@ pub fn no_thumbnail_picture() -> gtk::Picture {
         stride,
     );
     gtk::Picture::for_paintable(&texture)
+}
+
+pub fn make_no_thumbnail_picture() -> gtk::Picture {
+    let texture = gtk::gdk::Texture::from_resource(
+        "/org/example/gsr/images/no_image_available.png",
+    );
+    gtk::Picture::for_paintable(&texture)
+}
+
+pub fn no_thumbnail_picture() -> gtk::Picture {
+    let cell = OnceCell::new();
+    let picture = cell.get_or_init(|| make_no_thumbnail_picture());
+    picture.clone()
 }
 
 pub fn thumbnail_size_display(size: ThumbnailSize) -> String {
