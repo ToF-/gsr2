@@ -5,7 +5,7 @@ use crate::gui::controller::RcController;
 use crate::gui::display::picture_label_display;
 use crate::gui::mode::Mode;
 use crate::gui::view::palette_area::make_palette_area;
-use crate::gui::view::picture_cell_box::make_picture_cell_box;
+use crate::gui::objects::gsr_picture_cell_box::GsrPictureCellBox;
 use crate::gui::view::picture_frame::make_label;
 use crate::model::picture::Picture;
 use gtk::glib::timeout_add_local;
@@ -113,7 +113,7 @@ impl GridView {
         let grid = &self.grid;
         for col in 0..pictures_per_row {
             for row in 0..pictures_per_row {
-                let cell_box = make_picture_cell_box(col, row, &self.controller_rc);
+                let cell_box = GsrPictureCellBox::new(col, row); // make_picture_cell_box(col, row, &self.controller_rc);
                 grid.attach(&cell_box, col, row, 1, 1)
             }
         }

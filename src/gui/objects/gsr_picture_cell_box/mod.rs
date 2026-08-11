@@ -23,26 +23,25 @@ glib::wrapper! {
 impl GsrPictureCellBox {
     pub fn new(col: i32, row: i32) -> Self {
         let obj: Self = glib::Object::new();
-        obj.initialize(col, row);
+        obj.initialize();
+        obj.imp().col.set(col);
+        obj.imp().row.set(row);
         obj
     }
 }
 impl GsrPictureCellBox {
-    pub fn initialize(&self, col: i32, row: i32) {
+    pub fn initialize(&self) {
         self.set_orientation(Orientation::Vertical);
         self.set_spacing(0);
         self.set_valign(Align::Center);
         self.set_halign(Align::Center);
         self.set_hexpand(true);
         self.set_vexpand(true);
-
-        self.set_col(col);
-        self.set_row(row);
     }
     pub fn connect_main_controller(&self, main_controller: &MainController) {
         self.insert_action_group("main-controller", Some(&main_controller.gio_action_group()));
-        let col = self.col();
-        let row = self.row();
+        let col = self.imp().col.get();
+        let row = self.imp().row.get();
         let left_click_action_call =
             GioAction::from(Action::FocusAt(col, row)).to_simple_action_call();
         let right_click_action_call =
@@ -72,7 +71,7 @@ impl GsrPictureCellBox {
                 };
                 if n_pressed == 1 {
                     match this.activate_action(&name, variant_ref) {
-                        Ok(_) => {}
+                        Ok(_) => { dbg!(name); },
                         Err(e) => panic!("{e}"),
                     }
                 } else {

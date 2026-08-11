@@ -4,16 +4,19 @@ use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 use std::cell::Cell;
 
-#[derive(Default, Properties)]
-#[properties(wrapper_type = super::GsrPictureCellBox)]
 pub struct GsrPictureCellBox {
-    #[property(get, set)]
-    col: Cell<i32>,
-
-    #[property(get, set)]
-    row: Cell<i32>,
+    pub col: Cell<i32>,
+    pub row: Cell<i32>,
 }
 
+impl Default for GsrPictureCellBox {
+    fn default() -> Self {
+        Self {
+            col: Cell::new(0),
+            row: Cell::new(0),
+        }
+    }
+}
 #[glib::object_subclass]
 impl ObjectSubclass for GsrPictureCellBox {
     const NAME: &'static str = "GsrPictureCellBox";
@@ -22,7 +25,6 @@ impl ObjectSubclass for GsrPictureCellBox {
 }
 
 impl ObjectImpl for GsrPictureCellBox {}
-
 impl WidgetImpl for GsrPictureCellBox {}
 
 impl BoxImpl for GsrPictureCellBox {}
