@@ -80,11 +80,11 @@ impl MainController {
             activate.clone(),
         ));
         action_entries.push(Self::action_entry(
-            GioActionType::from(Action::FocusAt(0,0)),
+            GioActionType::from(Action::FocusAt(0, 0)),
             activate.clone(),
         ));
         action_entries.push(Self::action_entry(
-            GioActionType::from(Action::ToggleSelectedAt(0,0)),
+            GioActionType::from(Action::ToggleSelectedAt(0, 0)),
             activate.clone(),
         ));
         self.gio_action_group.add_action_entries(action_entries);

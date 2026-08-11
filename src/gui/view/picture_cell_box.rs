@@ -38,11 +38,11 @@ fn make_gesture_click(
             if n_pressed == 1
                 && let Ok(mut controller) = controller_rc.try_borrow_mut()
             {
-                controller.process_event(PictureClicked { button, col, row }, &controller_rc);
+                controller.process_event(PictureClicked { button, col, row });
             } else if n_pressed == 2
                 && let Ok(mut controller) = controller_rc.try_borrow_mut()
             {
-                controller.process_event(PictureDoubleClicked { button, col, row }, &controller_rc);
+                controller.process_event(PictureDoubleClicked { button, col, row });
             }
         }
     ));

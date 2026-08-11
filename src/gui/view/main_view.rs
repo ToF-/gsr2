@@ -1,4 +1,3 @@
-use crate::gui::main_controller::RcMainController;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::default_values::FOCUS_SYMBOL_1;
 use crate::env::default_values::QUARTER_OPACITY;
@@ -15,6 +14,7 @@ use crate::gui::direction::Direction;
 use crate::gui::display::title_display;
 use crate::gui::event::Event::{KeyPressed, NextSlideDelay, PaneClicked};
 use crate::gui::main_controller::MainController;
+use crate::gui::main_controller::RcMainController;
 use crate::gui::mode::Mode;
 use crate::gui::objects::gsr_application::GsrApplication;
 use crate::gui::view::entry_window::EntryWindow;
@@ -155,7 +155,11 @@ impl MainView {
         } else {
             panic!("can't borrow")
         };
-        let grid_view = GridView::new(pictures_per_row.try_into().unwrap(), controller_rc, main_controller);
+        let grid_view = GridView::new(
+            pictures_per_row.try_into().unwrap(),
+            controller_rc,
+            main_controller,
+        );
         let picture_frame = PictureFrame::new();
         let single_view_scrolled_window = make_scrolled_window();
         let multiple_view_scrolled_window = make_scrolled_window();
@@ -402,7 +406,8 @@ impl MainView {
         treelist_view
     }
     pub fn change_grid_size(&mut self, pictures_per_row: usize, main_controller: &MainController) {
-        self.grid_view.change_dimension(pictures_per_row as i32, main_controller)
+        self.grid_view
+            .change_dimension(pictures_per_row as i32, main_controller)
     }
 
     pub fn toggle_view_stack(&self, controller: &Controller) {
@@ -442,7 +447,7 @@ impl MainView {
                 move || {
                     if let Ok(mut controller) = controller_rc.try_borrow_mut() {
                         if controller.state().slideshow_on() {
-                            controller.process_event(NextSlideDelay, &controller_rc);
+                            controller.process_event(NextSlideDelay);
                             ControlFlow::Continue
                         } else {
                             ControlFlow::Break
@@ -532,13 +537,10 @@ fn pane_gesture_click(
         controller_rc,
         move |_, _, _, _| {
             if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-                controller.process_event(
-                    PaneClicked {
-                        button,
-                        pane_number,
-                    },
-                    &controller_rc,
-                );
+                controller.process_event(PaneClicked {
+                    button,
+                    pane_number,
+                });
             } else {
                 panic!("can't borrow mut controller");
             }

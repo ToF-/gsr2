@@ -1,4 +1,3 @@
-use std::cell::Cell;
 use gsr::cli::command::Command;
 use gsr::cli::command::execute_command;
 use gsr::cli::command_line_arguments::CommandLineArguments;
@@ -9,11 +8,12 @@ use gsr::file::database::Database;
 use gsr::file::paths::file_exists;
 use gsr::gui::controller::Controller;
 use gsr::gui::controller::RcController;
-use gsr::gui::main_controller::RcMainController;
 use gsr::gui::main_controller::MainController;
+use gsr::gui::main_controller::RcMainController;
 use gsr::gui::objects::gsr_application::GsrApplication;
 use gsr::gui::objects::gsr_application::make_gsr_application;
 use gsr::gui::view::main_view::MainView;
+use std::cell::Cell;
 use std::cell::RefCell;
 use std::io::Error as IOError;
 use std::io::Result;
@@ -44,7 +44,7 @@ fn main() {
     }
 }
 
-fn run_application(config: &Configuration, clargs: &CommandLineArguments,) -> Result<Status> {
+fn run_application(config: &Configuration, clargs: &CommandLineArguments) -> Result<Status> {
     let result = Controller::new(config.clone(), clargs.clone()).and_then(|controller| {
         let repository = controller.repository();
         let controller_rc: RcController = Rc::new(RefCell::new(controller));
@@ -66,9 +66,14 @@ fn run_application(config: &Configuration, clargs: &CommandLineArguments,) -> Re
         }
     }
 }
-fn build_and_run_app(clargs: &CommandLineArguments, controller_rc: RcController, position: usize, main_controller_rc: RcMainController) {
-     let binding = main_controller_rc.clone();
-     let main_controller = binding.borrow();
+fn build_and_run_app(
+    clargs: &CommandLineArguments,
+    controller_rc: RcController,
+    position: usize,
+    main_controller_rc: RcMainController,
+) {
+    let binding = main_controller_rc.clone();
+    let main_controller = binding.borrow();
     let gsr_application: GsrApplication = make_gsr_application(
         APPLICATION_ID,
         main_controller.clone(),
@@ -98,4 +103,3 @@ fn initialize_database(config: &Configuration) -> Result<Status> {
         Err(IOError::other(format!("{} already exists", &database_file)))
     }
 }
-

@@ -116,14 +116,11 @@ impl TreeListView {
             controller_rc,
             move |_, key, key_code, modifier_type| {
                 if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-                    controller.process_event(
-                        Event::KeyPressed {
-                            key,
-                            key_code,
-                            modifier_type,
-                        },
-                        &controller_rc,
-                    );
+                    controller.process_event(Event::KeyPressed {
+                        key,
+                        key_code,
+                        modifier_type,
+                    });
                 };
                 Propagation::Stop
             }
@@ -210,14 +207,11 @@ fn build_list_view(root: SubCategory, controller_rc: &RcController) -> gtk::List
                     println!("Enter");
                     return glib::Propagation::Stop;
                 };
-                controller.process_event(
-                    Event::KeyPressed {
-                        key,
-                        key_code,
-                        modifier_type,
-                    },
-                    &controller_rc,
-                );
+                controller.process_event(Event::KeyPressed {
+                    key,
+                    key_code,
+                    modifier_type,
+                });
             };
             Propagation::Proceed
         }

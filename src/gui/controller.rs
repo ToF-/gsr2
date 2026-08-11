@@ -1,4 +1,3 @@
-use crate::gui::main_controller::RcMainController;
 use crate::cli::command::Command;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::Configuration;
@@ -15,6 +14,7 @@ use crate::gui::enter_label::enter_label;
 use crate::gui::entry_kind::EntryKind;
 use crate::gui::event::Event;
 use crate::gui::main_controller::MainController;
+use crate::gui::main_controller::RcMainController;
 use crate::gui::mode::Mode;
 use crate::gui::navigator::Navigator;
 use crate::gui::selector::Selector;
@@ -128,16 +128,32 @@ impl Controller {
         self.main_controller_rc_opt = Some(main_controller_rc);
     }
     pub fn process_action(
-        &self,
+        &mut self,
         simple_action: &gtk::gio::SimpleAction,
         variant_opt: Option<&gtk::glib::Variant>,
     ) {
         let old_slideshow_on = self.state().slideshow_on();
         let gio_action = GioAction::from((simple_action, variant_opt));
         let action = Action::from(gio_action);
-        match &action {
-            Action::Rank(rank) => self.rank_selected_pictures(*rank),
+        match action {
+            Action::Rank(rank) => self.rank_selected_pictures(rank),
             Action::TogglePalette => self.toggle_palette(),
+            Action::FocusAt(col, row) => {
+                self.process_event(Event::PictureClicked {
+                    button: 1,
+                    col,
+                    row,
+                });
+            }
+            Action::ToggleSelectedAt(col, row) => {
+                self.process_event(Event::PictureClicked {
+                    button: 3,
+                    col,
+                    row,
+                });
+                let mut navigator = self.navigator_rc.borrow_mut();
+                navigator.set_page_changed();
+            }
             _ => {
                 dbg!("todo");
             }
@@ -249,21 +265,14 @@ impl Controller {
         }
     }
 
-    pub fn process_event(&mut self, event: Event, controller_rc: &RcController) {
-        {
-            if let Ok(_) = controller_rc.try_borrow() {
-                println!("controller.process_event controller_rc available");
-            } else {
-                println!("controller.process_event controller_rc borrowed");
-            }
-        }
+    pub fn process_event(&mut self, event: Event) {
         match event {
             Event::KeyPressed {
                 key,
                 key_code,
                 modifier_type,
             } => {
-                self.process_key_event(key, key_code, modifier_type, controller_rc);
+                self.process_key_event(key, key_code, modifier_type);
             }
             Event::NextSlideDelay => self.next_slide_delay(),
             Event::PaneClicked {
@@ -291,31 +300,32 @@ impl Controller {
             state.set_slideshow_off();
         }
     }
-    fn process_picture_clicked(&self, button: u32, col: i32, row: i32) {
-        let binding = self.navigator_rc.clone();
-        let mut navigator = binding.borrow_mut();
-        {
+    fn process_picture_clicked(&mut self, button: u32, col: i32, row: i32) {
             self.main_view()
                 .set_label_text_for_current_picture(self, None);
+        {
+            let binding = &self.navigator_rc;
+        let mut navigator = binding.borrow_mut();
             if let Some(index) = navigator.position_from_coords(row as usize, col as usize)
                 && navigator.can_move(Direction::Index { value: index })
             {
                 navigator.move_towards(Direction::Index { value: index });
-                if button == 3 {
-                    self.toggle_selected();
-                    self.main_view().set_pictures(self);
-                    self.main_view().set_title(self);
-                }
+            } else {
+                println!("cannot move");
             }
         }
-        self.set_label_text_for_current_picture();
+            if button == 3 {
+                self.toggle_selected();
+                self.main_view().set_pictures(self);
+                self.main_view().set_title(self);
+            }
     }
 
     fn process_picture_double_clicked(&mut self, button: u32, col: i32, row: i32) {
-        let binding = self.navigator_rc.clone();
-        let mut navigator = binding.borrow_mut();
         self.main_view()
             .set_label_text_for_current_picture(self, None);
+        let binding = self.navigator_rc.clone();
+        let mut navigator = binding.borrow_mut();
         if let Some(index) = navigator.position_from_coords(row as usize, col as usize)
             && navigator.can_move(Direction::Index { value: index })
         {
@@ -357,13 +367,7 @@ impl Controller {
         }
     }
 
-    fn process_key_event(
-        &mut self,
-        key: Key,
-        _key_code: u32,
-        _modifier_type: ModifierType,
-        _controller_rc: &RcController,
-    ) {
+    fn process_key_event(&mut self, key: Key, _key_code: u32, _modifier_type: ModifierType) {
         let binding = self.navigator_rc.clone();
         let mut navigator = binding.borrow_mut();
         let main_view = self.main_view();
@@ -385,7 +389,7 @@ impl Controller {
         }
     }
 
-    pub fn set_label_text_for_current_picture(&self) {
+    pub fn set_label_text_for_current_picture(&mut self) {
         {
             let mut state = self.state_rc.borrow_mut();
             if state.change_focus_symbol_on() {
@@ -1701,7 +1705,8 @@ impl Controller {
         navigator.update_page_limits();
         navigator.set_page_changed();
         let main_controller = self.main_controller_rc_opt.as_ref().unwrap().borrow();
-        self.main_view().change_grid_size(pictures_per_row, &main_controller);
+        self.main_view()
+            .change_grid_size(pictures_per_row, &main_controller);
     }
 
     fn set_selection_range(&self) {

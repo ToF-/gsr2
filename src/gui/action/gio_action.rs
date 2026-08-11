@@ -140,7 +140,6 @@ impl From<GioAction> for Action {
             "find-next" => Action::FindNext,
             "focus-at" => {
                 let i32_pair: (i32, i32) = <(i32, i32)>::from(gio_action.parameter().unwrap());
-                dbg!(i32_pair);
                 Action::FocusAt(i32_pair.0, i32_pair.1)
             }
             "go-to-directory" => {
@@ -190,7 +189,6 @@ impl From<GioAction> for Action {
             }
             "toggle-selected-at" => {
                 let i32_pair: (i32, i32) = <(i32, i32)>::from(gio_action.parameter().unwrap());
-                dbg!(i32_pair);
                 Action::ToggleSelectedAt(i32_pair.0, i32_pair.1)
             }
             "toggle-single-view" => Action::ToggleSingleView,

@@ -71,7 +71,7 @@ impl GsrPictureCellBox {
                 };
                 if n_pressed == 1 {
                     match this.activate_action(&name, variant_ref) {
-                        Ok(_) => { dbg!(name); },
+                        Ok(_) => {}
                         Err(e) => panic!("{e}"),
                     }
                 } else {

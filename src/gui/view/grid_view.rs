@@ -1,12 +1,12 @@
-use crate::gui::main_controller::MainController;
 use crate::env::default_values::{
     GRID_PALETTE_AREA_HEIGHT, GRID_PALETTE_AREA_WIDTH, MAX_PICTURES_PER_ROW,
 };
 use crate::gui::controller::RcController;
 use crate::gui::display::picture_label_display;
+use crate::gui::main_controller::MainController;
 use crate::gui::mode::Mode;
-use crate::gui::view::palette_area::make_palette_area;
 use crate::gui::objects::gsr_picture_cell_box::GsrPictureCellBox;
+use crate::gui::view::palette_area::make_palette_area;
 use crate::gui::view::picture_frame::make_label;
 use crate::model::picture::Picture;
 use gtk::glib::timeout_add_local;
@@ -31,7 +31,11 @@ impl GridView {
             grid: grid.clone(),
         }
     }
-    pub fn new(pictures_per_row: i32, controller_rc: &RcController, main_controller: &MainController) -> Self {
+    pub fn new(
+        pictures_per_row: i32,
+        controller_rc: &RcController,
+        main_controller: &MainController,
+    ) -> Self {
         let grid = make_grid();
         let grid_view = GridView {
             grid,
