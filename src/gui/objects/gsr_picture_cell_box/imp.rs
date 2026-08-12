@@ -8,6 +8,7 @@ use std::cell::Cell;
 pub struct GsrPictureCellBox {
     pub col: Cell<i32>,
     pub row: Cell<i32>,
+    pub picture_index: Cell<usize>,
     pub pictures_per_row: Cell<i32>,
     pub palette_on: Cell<bool>,
     pub label: RefCell<Option<GtkLabel>>,
@@ -20,11 +21,13 @@ impl Default for GsrPictureCellBox {
         Self {
             col: Cell::new(0),
             row: Cell::new(0),
+            picture_index: Cell::new(0),
             pictures_per_row: Cell::new(0),
             palette_on: Cell::new(false),
             label: RefCell::new(None),
             has_focus: Cell::new(false),
             timeout_rc: RefCell::new(None),
+
         }
     }
 }

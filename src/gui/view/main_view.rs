@@ -1,3 +1,4 @@
+use crate::gui::navigator::Navigator;
 use std::cell::RefCell;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::default_values::FOCUS_SYMBOL_1;
@@ -260,7 +261,8 @@ impl MainView {
     }
 
     pub fn set_pictures_for_multiple_view(&self, controller: &Controller, pictures_per_row: i32, palette_on: bool) {
-        let navigator = controller.navigator();
+        let navigator: Navigator = controller.navigator();
+        let picture_index_start = navigator.page_start();
         dbg!("set_pictures_for_multiple_view");
         dbg!(&navigator);
         if let Ok(gallery) = controller.repository().gallery_rc().try_borrow() {
@@ -271,7 +273,7 @@ impl MainView {
                     let coords = (row as usize, col as usize);
                     let cell = match grid.child_at(col, row) {
                         Some(widget) => widget.downcast::<GsrPictureCellBox>().unwrap(),
-                        None => GsrPictureCellBox::new(col, row, pictures_per_row, palette_on).into(),
+                        None => GsrPictureCellBox::new(col, row, picture_index_start, pictures_per_row, palette_on).into(),
                     };
                     if let Some(index) = navigator.position_from_coords(coords.0, coords.1) {
                         let picture = gallery.picture(index);

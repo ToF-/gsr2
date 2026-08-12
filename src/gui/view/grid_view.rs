@@ -41,7 +41,7 @@ impl GridView {
             focus_coords: Cell::new((0,0)),
             controller_rc: controller_rc.clone(),
         };
-        grid_view.attach_cells(pictures_per_row, palette_on, main_controller);
+        grid_view.attach_cells(0, pictures_per_row, palette_on, main_controller);
         // grid_view.attach_focus_symbol_change_event();
         grid_view
     }
@@ -103,11 +103,12 @@ impl GridView {
         count
     }
 
-    pub fn attach_cells(&self, pictures_per_row: i32, palette_on: bool, main_controller: &MainController) {
+    pub fn attach_cells(&self, picture_index_start: usize, pictures_per_row: i32, palette_on: bool, main_controller: &MainController) {
         let grid = &self.grid;
         for col in 0..pictures_per_row {
             for row in 0..pictures_per_row {
-                let cell_box = GsrPictureCellBox::new(col, row, pictures_per_row, palette_on);
+                let picture_index = ((picture_index_start as i32) + (row * pictures_per_row) + col) as usize;
+                let cell_box = GsrPictureCellBox::new(col, row, picture_index, pictures_per_row, palette_on);
                 cell_box.connect_main_controller(main_controller);
                 grid.attach(&cell_box, col, row, 1, 1)
             }
@@ -167,7 +168,7 @@ impl GridView {
 
     pub fn change_dimension(&self, pictures_per_row: i32, palette_on: bool, main_controller: &MainController) {
         self.remove_cells();
-        self.attach_cells(pictures_per_row, palette_on, main_controller);
+        self.attach_cells(0, pictures_per_row, palette_on, main_controller);
     }
 }
 pub fn make_grid() -> gtk::Grid {

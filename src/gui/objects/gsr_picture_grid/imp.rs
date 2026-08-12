@@ -1,9 +1,30 @@
+use std::cell::Cell;
 use gtk::glib;
 use gtk::subclass::prelude::*;
 
-#[derive(Default)]
-pub struct GsrPictureGrid;
+pub struct GsrPictureGrid {
+    focus_at_coords: Cell<Option<(i32, i32)>>,
+    palette_on: Cell<bool>,
+    pictures_per_row: Cell<i32>,
+}
 
+impl Default for GsrPictureGrid {
+    fn default() -> Self {
+        Self {
+            focus_at_coords: Cell::new(None),
+            palette_on: Cell::new(false),
+            pictures_per_row: Cell::new(10),
+        }
+    }
+
+}
+impl GsrPictureGrid {
+    pub fn initialize(&self, pictures_per_row: i32, focus_at_coords: (i32, i32), palette_on: bool) {
+        self.focus_at_coords.set(Some(focus_at_coords));
+        self.pictures_per_row.set(pictures_per_row);
+        self.palette_on.set(palette_on);
+    }
+}
 #[glib::object_subclass]
 impl ObjectSubclass for GsrPictureGrid {
     const NAME: &'static str = "GsrPictureGrid";

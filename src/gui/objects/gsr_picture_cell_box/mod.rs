@@ -44,11 +44,12 @@ glib::wrapper! {
 }
 
 impl GsrPictureCellBox {
-    pub fn new(col: i32, row: i32, pictures_per_row: i32, palette_on: bool) -> Self {
+    pub fn new(col: i32, row: i32, picture_index: usize, pictures_per_row: i32, palette_on: bool) -> Self {
         let obj: Self = glib::Object::new();
         obj.initialize();
         obj.imp().col.set(col);
         obj.imp().row.set(row);
+        obj.imp().picture_index.set(picture_index);
         obj.imp().pictures_per_row.set(pictures_per_row);
         obj.imp().palette_on.set(palette_on);
         obj
