@@ -33,6 +33,7 @@ impl GridView {
     }
     pub fn new(
         pictures_per_row: i32,
+        palette_on: bool,
         controller_rc: &RcController,
         main_controller: &MainController,
     ) -> Self {
@@ -41,8 +42,8 @@ impl GridView {
             grid,
             controller_rc: controller_rc.clone(),
         };
-        grid_view.attach_cells(pictures_per_row, main_controller);
-        grid_view.attach_focus_symbol_change_event();
+        grid_view.attach_cells(pictures_per_row, palette_on, main_controller);
+        // grid_view.attach_focus_symbol_change_event();
         grid_view
     }
 
@@ -107,11 +108,11 @@ impl GridView {
         count
     }
 
-    pub fn attach_cells(&self, pictures_per_row: i32, main_controller: &MainController) {
+    pub fn attach_cells(&self, pictures_per_row: i32, palette_on: bool, main_controller: &MainController) {
         let grid = &self.grid;
         for col in 0..pictures_per_row {
             for row in 0..pictures_per_row {
-                let cell_box = GsrPictureCellBox::new(col, row);
+                let cell_box = GsrPictureCellBox::new(col, row, pictures_per_row, palette_on);
                 cell_box.connect_main_controller(main_controller);
                 grid.attach(&cell_box, col, row, 1, 1)
             }
@@ -129,47 +130,22 @@ impl GridView {
         }
     }
 
-    pub fn set_picture_from_file_path_at(
-        &self,
-        col: i32,
-        row: i32,
-        file_path: &str,
-        with_sample: Option<Vec<Color>>,
-    ) {
-        let grid = self.grid();
-        if let Some(widget) = grid.child_at(col, row) {
-            let cell_box: GsrPictureCellBox = widget.downcast::<GsrPictureCellBox>().unwrap();
-            cell_box.attach_picture(file_path, "", None);
-        };
-    }
     pub fn set_picture_at(
         &self,
         col: i32,
         row: i32,
-        picture: &gtk::Picture,
-        with_sample: Option<Vec<Color>>,
+        picture: &Picture,
     ) {
         let grid = self.grid();
         if let Some(widget) = grid.child_at(col, row) {
-            let cell_box: gtk::Box = widget.downcast::<gtk::Box>().unwrap();
-            while let Some(child) = cell_box.first_child() {
-                cell_box.remove(&child)
-            }
-            cell_box.append(picture);
-            cell_box.append(&make_label());
-            if let Some(sample) = with_sample {
-                cell_box.append(&make_palette_area(
-                    sample,
-                    GRID_PALETTE_AREA_WIDTH,
-                    GRID_PALETTE_AREA_HEIGHT,
-                ))
-            }
-        };
+            let cell_box: GsrPictureCellBox = widget.downcast::<GsrPictureCellBox>().unwrap();
+            cell_box.attach_picture(picture);
+        }
     }
 
-    fn cell_box_at(&self, col: i32, row: i32) -> Option<gtk::Box> {
+    fn cell_box_at(&self, col: i32, row: i32) -> Option<GsrPictureCellBox> {
         if let Some(widget) = self.grid.child_at(col, row) {
-            widget.downcast::<gtk::Box>().ok()
+            widget.downcast::<GsrPictureCellBox>().ok()
         } else {
             None
         }
@@ -193,9 +169,9 @@ impl GridView {
         }
     }
 
-    pub fn change_dimension(&mut self, pictures_per_row: i32, main_controller: &MainController) {
+    pub fn change_dimension(&mut self, pictures_per_row: i32, palette_on: bool, main_controller: &MainController) {
         self.remove_cells();
-        self.attach_cells(pictures_per_row, main_controller);
+        self.attach_cells(pictures_per_row, palette_on, main_controller);
     }
 }
 pub fn make_grid() -> gtk::Grid {

@@ -150,13 +150,15 @@ impl MainView {
         position: usize,
         main_controller: &MainController,
     ) {
-        let pictures_per_row = if let Ok(controller) = controller_rc.try_borrow() {
-            controller.state().pictures_per_row()
+        let (pictures_per_row, palette_on) = if let Ok(controller) = controller_rc.try_borrow() {
+            (controller.state().pictures_per_row(),
+            controller.state().palette_on())
         } else {
             panic!("can't borrow")
         };
         let grid_view = GridView::new(
             pictures_per_row.try_into().unwrap(),
+            palette_on,
             controller_rc,
             main_controller,
         );
@@ -260,7 +262,7 @@ impl MainView {
         self.application_window().set_title(Some(&title));
     }
 
-    pub fn set_pictures_for_multiple_view(&self, controller: &Controller, pictures_per_row: i32) {
+    pub fn set_pictures_for_multiple_view(&self, controller: &Controller, pictures_per_row: i32, palette_on: bool) {
         let navigator = controller.navigator();
         dbg!("set_pictures_for_multiple_view");
         dbg!(&navigator);
@@ -272,7 +274,7 @@ impl MainView {
                     let coords = (row as usize, col as usize);
                     let cell = match grid.child_at(col, row) {
                         Some(widget) => widget.downcast::<GsrPictureCellBox>().unwrap(),
-                        None => GsrPictureCellBox::new(col, row).into(),
+                        None => GsrPictureCellBox::new(col, row, pictures_per_row, palette_on).into(),
                     };
                     if let Some(index) = navigator.position_from_coords(coords.0, coords.1) {
                         let picture = gallery.picture(index);
@@ -290,7 +292,7 @@ impl MainView {
                             None
                         };
                         self.grid_view
-                            .set_picture_from_file_path_at(col, row, &picture_file_path, with_sample);
+                            .set_picture_at(col, row, &picture);
                         let opacity: f64 = if let Some(position) =
                             navigator.position_from_coords(row as usize, col as usize)
                         {
@@ -337,7 +339,8 @@ impl MainView {
             self.set_picture_for_single_view(controller)
         } else {
             let pictures_per_row = controller.state().pictures_per_row();
-            self.set_pictures_for_multiple_view(controller, pictures_per_row as i32)
+            let palette_on = controller.state().palette_on();
+            self.set_pictures_for_multiple_view(controller, pictures_per_row as i32, palette_on)
         }
     }
     pub fn set_label_text_for_current_picture(
@@ -395,9 +398,9 @@ impl MainView {
         treelist_view.popup();
         treelist_view
     }
-    pub fn change_grid_size(&mut self, pictures_per_row: usize, main_controller: &MainController) {
+    pub fn change_grid_size(&mut self, pictures_per_row: usize, palette_on: bool, main_controller: &MainController) {
         self.grid_view
-            .change_dimension(pictures_per_row as i32, main_controller)
+            .change_dimension(pictures_per_row as i32, palette_on, main_controller)
     }
 
     pub fn toggle_view_stack(&self, controller: &Controller) {

@@ -1,3 +1,5 @@
+use crate::gui::display::picture_label_display;
+use crate::model::picture::Picture;
 use std::path::Path;
 use crate::model::thumbnail::no_thumbnail_picture;
  use crate::file::paths::check_path_exists;
@@ -36,11 +38,13 @@ glib::wrapper! {
 }
 
 impl GsrPictureCellBox {
-    pub fn new(col: i32, row: i32) -> Self {
+    pub fn new(col: i32, row: i32, pictures_per_row: i32, palette_on: bool) -> Self {
         let obj: Self = glib::Object::new();
         obj.initialize();
         obj.imp().col.set(col);
         obj.imp().row.set(row);
+        obj.imp().pictures_per_row.set(pictures_per_row);
+        obj.imp().palette_on.set(palette_on);
         obj
     }
 }
@@ -84,21 +88,30 @@ impl GsrPictureCellBox {
         self.label().set_text(text);
     }
 
-    fn append_palette(&self, palette: Palette) {
+    fn append_palette(&self, palette_opt: Option<Palette>) {
+        if let Some(palette) = palette_opt {
         self.append(&make_palette_area(
                 palette.sample(),
                 GRID_PALETTE_AREA_WIDTH,
                 GRID_PALETTE_AREA_HEIGHT,
         ))
+        }
     }
-    pub fn attach_picture(&self, file_path: &str, text: &str, palette_opt: Option<Palette>) {
+    pub fn attach_picture(&self, picture: &Picture) {
         self.remove_children();
-        self.append(&make_picture(file_path));
-        let label = make_label(text);
+        let picture_file_path = picture.view_file_path(self.imp().pictures_per_row.get() as usize);
+        self.append(&make_picture(&picture_file_path));
+        let label = make_label(&picture_label_display(
+                &picture.label(),
+                picture.rank(),
+                picture.cover(),
+                None, // focus will be inserted / flipped / removed directly on the GtkLabel
+                picture.file_size(),
+        ));
         self.append(&label);
         *self.imp().label.borrow_mut() = Some(label);
-        if let Some(palette) = palette_opt {
-            self.append_palette(palette)
+        if self.imp().palette_on.get() {
+            self.append_palette(picture.palette())
         }
     }
     

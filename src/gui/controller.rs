@@ -1719,13 +1719,14 @@ impl Controller {
 
     fn apply_grid_size_change(&self) {
         let pictures_per_row = self.state().pictures_per_row();
+        let palette_on = self.state().palette_on();
         let mut navigator = self.navigator_rc.borrow_mut();
         navigator.set_pictures_per_row(pictures_per_row);
         navigator.update_page_limits();
         navigator.set_page_changed();
         let main_controller = self.main_controller_rc_opt.as_ref().unwrap().borrow();
         self.main_view()
-            .change_grid_size(pictures_per_row, &main_controller);
+            .change_grid_size(pictures_per_row, palette_on, &main_controller);
     }
 
     fn set_selection_range(&self) {

@@ -1,3 +1,4 @@
+use crate::model::palette::Palette;
 use crate::file::paths::{file_name_from, thumbnail_name_from};
 use crate::model::cover::Cover;
 use crate::model::image_data::FileSize;
@@ -105,6 +106,10 @@ impl Picture {
             .as_ref()
             .map(|d| d.label())
             .unwrap_or_default()
+    }
+
+    pub fn palette(&self) -> Option<Palette> {
+        self.image_data.as_ref().map(|image_data| image_data.palette())
     }
 
     pub fn category_name(&self) -> String {
