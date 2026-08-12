@@ -12,7 +12,7 @@ pub struct GsrPictureCellBox {
     pub palette_on: Cell<bool>,
     pub label: RefCell<Option<GtkLabel>>,
     pub has_focus: Cell<bool>,
-    time_out_rc: RefCell<Option<gtk::glib::SourceId>>,
+    pub timeout_rc: RefCell<Option<gtk::glib::SourceId>>,
 }
 
 impl Default for GsrPictureCellBox {
@@ -24,7 +24,7 @@ impl Default for GsrPictureCellBox {
             palette_on: Cell::new(false),
             label: RefCell::new(None),
             has_focus: Cell::new(false),
-            time_out_rc: RefCell::new(None),
+            timeout_rc: RefCell::new(None),
         }
     }
 }

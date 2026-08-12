@@ -1,29 +1,35 @@
-use crate::gui::display::picture_label_display;
-use crate::model::picture::Picture;
-use std::path::Path;
-use crate::model::thumbnail::no_thumbnail_picture;
- use crate::file::paths::check_path_exists;
-use std::path::PathBuf;
- use crate::gui::view::palette_area::make_palette_area;
- use crate::env::default_values::GRID_PALETTE_AREA_WIDTH;
- use crate::env::default_values::GRID_PALETTE_AREA_HEIGHT;
  use crate::env::default_values::FOCUS_SYMBOL_1;
  use crate::env::default_values::FOCUS_SYMBOL_2;
-use gtk::gio::File as GtkFile;
-use gtk::Picture as GtkPicture;
-use gtk::Label as GtkLabel;
-use gtk::Box as GtkBox;
-use crate::model::palette::Palette;
+ use crate::env::default_values::GRID_PALETTE_AREA_HEIGHT;
+ use crate::env::default_values::GRID_PALETTE_AREA_WIDTH;
+ use crate::file::paths::check_path_exists;
+ use crate::gui::view::palette_area::make_palette_area;
+use crate::env::default_values::FOCUS_BLINKING_DURATION;
 use crate::gui::action::Action;
 use crate::gui::action::gio_action::GioAction;
 use crate::gui::action::gio_action::SimpleActionCall;
+use crate::gui::display::picture_label_display;
 use crate::gui::main_controller::MainController;
+use crate::model::palette::Palette;
+use crate::model::picture::Picture;
+use crate::model::thumbnail::no_thumbnail_picture;
 use glib::Variant;
 use glib::clone;
+use gtk::Box as GtkBox;
+use gtk::Label as GtkLabel;
+use gtk::Picture as GtkPicture;
+use gtk::gio::File as GtkFile;
+use gtk::glib::SourceId;
+use gtk::glib::subclass::prelude::*;
+use gtk::glib::timeout_add_local;
+use gtk::glib::{ControlFlow, Propagation};
 use gtk::glib;
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 use gtk::{Align, Orientation};
+use std::path::Path;
+use std::path::PathBuf;
+use std::time::Duration;
 
 mod imp;
 
@@ -60,12 +66,36 @@ impl GsrPictureCellBox {
 
     pub fn receive_focus(&self) {
         self.imp().has_focus.set(true);
+        self.attach_focus_blink_event();
     }
 
     fn attach_focus_blink_event(&self) {
+        let label_rc = self.imp().label.clone();
+        *self.imp().timeout_rc.borrow_mut() = Some(timeout_add_local(
+                Duration::from_millis(FOCUS_BLINKING_DURATION),
+                clone!(
+                    #[strong]
+                    label_rc,
+                    move || {
+                        label_rc.borrow()
+                            .as_ref()
+                            .map(flip_focus_symbol_on_label);
+                        ControlFlow::Continue
+                    })
+                )
+            );
+
     }
+
     pub fn leave_focus(&self) {
         self.imp().has_focus.set(false);
+        self.detach_focus_blink_event();
+    }
+
+    fn detach_focus_blink_event(&self) {
+        if let Some(id) = self.imp().timeout_rc.borrow_mut().take() {
+            id.remove();
+        }
     }
 
     fn remove_children(&self)  {
@@ -113,13 +143,11 @@ impl GsrPictureCellBox {
         if self.imp().palette_on.get() {
             self.append_palette(picture.palette())
         }
-        if has_focus {
-            self.imp()
-                .label
-                .borrow()
-                .as_ref()
-                .map(flip_focus_symbol_on_label);
-            }
+        if has_focus && ! self.imp().has_focus.get() {
+            self.receive_focus();
+        } else if !has_focus && self.imp().has_focus.get() {
+            self.leave_focus()
+        }
     }
     
     pub fn connect_main_controller(&self, main_controller: &MainController) {
