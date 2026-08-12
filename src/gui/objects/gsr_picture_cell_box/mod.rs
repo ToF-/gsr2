@@ -135,7 +135,7 @@ impl GsrPictureCellBox {
         ))
         }
     }
-    pub fn attach_picture(&self, picture: &Picture, has_focus: bool) {
+    pub fn attach_picture(&self, picture: &Picture, picture_index: usize) {
         self.remove_children();
         let picture_file_path = picture.view_file_path(self.imp().pictures_per_row.get() as usize);
         self.append(&make_picture(&picture_file_path));
@@ -150,12 +150,8 @@ impl GsrPictureCellBox {
         *self.imp().label.borrow_mut() = Some(label);
         if self.imp().palette_on.get() {
             self.append_palette(picture.palette())
-        }
-        if has_focus && ! self.imp().has_focus.get() {
-            self.enter_focus();
-        } else if !has_focus && self.imp().has_focus.get() {
-            self.leave_focus()
-        }
+        };
+        self.imp().picture_index.set(picture_index);
     }
     
     pub fn connect_main_controller(&self, main_controller: &MainController) {

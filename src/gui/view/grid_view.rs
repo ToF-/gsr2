@@ -131,12 +131,12 @@ impl GridView {
         col: i32,
         row: i32,
         picture: &Picture,
-        has_focus: bool,
+        picture_index: usize,
     ) {
         let grid = self.grid();
         if let Some(widget) = grid.child_at(col, row) {
             let cell_box: GsrPictureCellBox = widget.downcast::<GsrPictureCellBox>().unwrap();
-            cell_box.attach_picture(picture, has_focus);
+            cell_box.attach_picture(picture, picture_index);
         }
     }
 

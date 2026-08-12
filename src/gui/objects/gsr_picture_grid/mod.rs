@@ -1,3 +1,4 @@
+use crate::gui::objects::gsr_picture_cell_box::GsrPictureCellBox;
 use crate::model::picture::Picture;
 use gtk::glib;
 use gtk::prelude::*;
@@ -22,7 +23,14 @@ impl GsrPictureGrid {
         obj
     }
 
-    pub fn set_picture_at(col: i32, row: i32, picture: &Picture, picture_index: usize) {
+    pub fn set_picture_at(&self, col: i32, row: i32, picture: &Picture, picture_index: usize) {
+        if let Some(widget) = self.child_at(col, row) {
+            let cell_box: GsrPictureCellBox = widget
+                .downcast::<GsrPictureCellBox>()
+                .unwrap();
+            cell_box.attach_picture(picture, picture_index);
+
+        }
     }
 
     pub fn set_focus_at(col: i32, row: i32) {

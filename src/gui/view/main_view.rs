@@ -262,35 +262,22 @@ impl MainView {
 
     pub fn set_pictures_for_multiple_view(&self, controller: &Controller, pictures_per_row: i32, palette_on: bool) {
         let navigator: Navigator = controller.navigator();
-        let picture_index_start = navigator.page_start();
         dbg!("set_pictures_for_multiple_view");
         dbg!(&navigator);
         if let Ok(gallery) = controller.repository().gallery_rc().try_borrow() {
             let grid_view = self.grid_view_rc.borrow();
-            let grid = grid_view.grid();
             for col in 0..pictures_per_row {
                 for row in 0..pictures_per_row {
                     let coords = (row as usize, col as usize);
-                    let cell = match grid.child_at(col, row) {
-                        Some(widget) => widget.downcast::<GsrPictureCellBox>().unwrap(),
-                        None => GsrPictureCellBox::new(col, row, picture_index_start, pictures_per_row, palette_on).into(),
-                    };
                     if let Some(index) = navigator.position_from_coords(coords.0, coords.1) {
                         let picture = gallery.picture(index);
                         let has_focus = index == navigator.position();
-                        grid_view.set_picture_at(col, row, &picture, has_focus);
-                        let opacity: f64 = if let Some(position) =
-                            navigator.position_from_coords(row as usize, col as usize)
-                        {
-                            if navigator.is_selected(position) {
-                                HALF_OPACITY
-                            } else if gallery.selection_criteria().is_empty()
-                                || gallery.selection_criteria().matches(picture.tags())
-                            {
-                                FULL_OPACITY
-                            } else {
-                                QUARTER_OPACITY
-                            }
+                        if has_focus {
+                            grid_view.set_focus_at(col, row);
+                        }
+                        grid_view.set_picture_at(col, row, &picture, index);
+                        let opacity =     if navigator.is_selected(index) {
+                            HALF_OPACITY
                         } else {
                             FULL_OPACITY
                         };
