@@ -64,16 +64,15 @@ impl GsrPictureCellBox {
         self.set_vexpand(true);
     }
 
-    pub fn receive_focus(&self) {
-        dbg!(self.imp().col.get(),self.imp().row.get());
+    pub fn enter_focus(&self) {
         self.imp().has_focus.set(true);
-        dbg!(&self.imp().timeout_rc);
+        let label_rc = self.imp().label.clone();
+        label_rc.borrow().as_ref().map(flip_focus_symbol_on_label);
         self.attach_focus_blink_event();
-        dbg!(&self.imp().timeout_rc);
+
     }
 
     fn attach_focus_blink_event(&self) {
-        dbg!("attach_focus_blink_event");
         let label_rc = self.imp().label.clone();
         *self.imp().timeout_rc.borrow_mut() = Some(timeout_add_local(
                 Duration::from_millis(FOCUS_BLINKING_DURATION),
@@ -92,17 +91,16 @@ impl GsrPictureCellBox {
     }
 
     pub fn leave_focus(&self) {
-        dbg!(self.imp().col.get(),self.imp().row.get());
-        dbg!(&self.imp().timeout_rc);
         self.imp().has_focus.set(false);
         self.detach_focus_blink_event();
-        dbg!(&self.imp().timeout_rc);
+        let label_rc = self.imp().label.clone();
+        label_rc.borrow()
+            .as_ref()
+            .map(remove_focus_symbol_from_label);
     }
 
     fn detach_focus_blink_event(&self) {
-        dbg!("detach_focus_blink_event");
         if let Some(id) = self.imp().timeout_rc.borrow_mut().take() {
-            dbg!("id.remove");
             id.remove();
         }
     }
@@ -153,7 +151,7 @@ impl GsrPictureCellBox {
             self.append_palette(picture.palette())
         }
         if has_focus && ! self.imp().has_focus.get() {
-            self.receive_focus();
+            self.enter_focus();
         } else if !has_focus && self.imp().has_focus.get() {
             self.leave_focus()
         }

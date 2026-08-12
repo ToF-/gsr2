@@ -1,27 +1,24 @@
+use std::cell::Cell;
 use crate::env::default_values::{
-    GRID_PALETTE_AREA_HEIGHT, GRID_PALETTE_AREA_WIDTH, MAX_PICTURES_PER_ROW,
+    MAX_PICTURES_PER_ROW,
 };
 use crate::gui::controller::RcController;
-use crate::gui::display::picture_label_display;
 use crate::gui::main_controller::MainController;
 use crate::gui::mode::Mode;
 use crate::gui::objects::gsr_picture_cell_box::GsrPictureCellBox;
-use crate::gui::view::palette_area::make_palette_area;
-use crate::gui::view::picture_frame::make_label;
 use crate::model::picture::Picture;
 use gtk::glib::timeout_add_local;
 use gtk::glib::{ControlFlow, clone};
-use gtk::prelude::BoxExt;
 use gtk::prelude::Cast;
 use gtk::prelude::GridExt;
 use gtk::prelude::WidgetExt;
-use palette_extract::Color;
 use std::time::Duration;
 
 #[derive(Clone, Debug)]
 pub struct GridView {
     grid: gtk::Grid,
     controller_rc: RcController,
+    focus_coords: Cell<(i32, i32)>,
 }
 
 impl GridView {
@@ -29,6 +26,7 @@ impl GridView {
         GridView {
             controller_rc: controller_rc.clone(),
             grid: grid.clone(),
+            focus_coords: Cell::new((0,0)),
         }
     }
     pub fn new(
@@ -40,6 +38,7 @@ impl GridView {
         let grid = make_grid();
         let grid_view = GridView {
             grid,
+            focus_coords: Cell::new((0,0)),
             controller_rc: controller_rc.clone(),
         };
         grid_view.attach_cells(pictures_per_row, palette_on, main_controller);
@@ -47,45 +46,30 @@ impl GridView {
         grid_view
     }
 
-    pub fn attach_focus_symbol_change_event(&self) {
-        let delay: u64 = 1;
-        let controller_rc = &self.controller_rc;
-        timeout_add_local(
-            Duration::new(delay, 0),
-            clone!(
-                #[strong]
-                controller_rc,
-                move || {
-                    if let Ok(mut controller) = controller_rc.try_borrow_mut()
-                        && controller.state().change_focus_symbol_on()
-                        && !controller.state().single_view()
-                        && controller.state().mode() == Mode::View
-                    {
-                        controller.set_label_text_for_current_picture()
-                    };
-                    ControlFlow::Continue
-                }
-            ),
-        );
-    }
 
     pub fn grid(&self) -> gtk::Grid {
         self.grid.clone()
     }
 
-    pub fn set_focus_at(&self, col: i32, row: i32, has_focus: bool) {
+    pub fn set_focus_at(&self, col: i32, row: i32) {
+        dbg!(&self.focus_coords);
+        let (current_col,current_row) = self.focus_coords.get();
+        println!("set_focus_at ({},{}) with current focus : ({},{})", col, row, current_col, current_row);
         let grid = self.grid();
+        if let Some(cell) = grid.child_at(current_col, current_row) {
+            let cell_box = cell
+                .downcast::<GsrPictureCellBox>()
+                .expect("not a GsrPictureCellBox");
+                cell_box.leave_focus()
+            }
         if let Some(cell) = grid.child_at(col, row) {
             let cell_box = cell
                 .downcast::<GsrPictureCellBox>()
                 .expect("not a GsrPictureCellBox");
-            if has_focus {
-                cell_box.receive_focus()
-            } else {
-                cell_box.leave_focus()
-            }
+                cell_box.enter_focus();
         }
-
+        self.focus_coords.set((col, row));
+        dbg!(&self.focus_coords);
     }
     pub fn set_label_text_at(
         &self,
@@ -101,7 +85,7 @@ impl GridView {
                 .expect("not a GsrPictureCellBox");
             match with_focus {
                 None => cell_box.leave_focus(),
-                Some(_) => cell_box.receive_focus(),
+                Some(_) => cell_box.enter_focus(),
             }
         }
     }
@@ -181,7 +165,7 @@ impl GridView {
         }
     }
 
-    pub fn change_dimension(&mut self, pictures_per_row: i32, palette_on: bool, main_controller: &MainController) {
+    pub fn change_dimension(&self, pictures_per_row: i32, palette_on: bool, main_controller: &MainController) {
         self.remove_cells();
         self.attach_cells(pictures_per_row, palette_on, main_controller);
     }

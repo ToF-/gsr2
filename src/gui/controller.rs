@@ -170,7 +170,7 @@ impl Controller {
             }
         }
         if self.state().slideshow_on() == old_slideshow_on {
-            self.main_view().set_focus_for_current_picture(self, false);
+            self.main_view().set_focus_for_current_picture(self);
             let main_view = self.main_view();
             {
                 let binding = &self.navigator_rc;
@@ -191,7 +191,7 @@ impl Controller {
                         navigator.set_page_unchanged();
                     }
                 }
-                self.main_view().set_focus_for_current_picture(self,true);
+                self.main_view().set_focus_for_current_picture(self);
                 self.main_view().set_title(self);
             }
         }

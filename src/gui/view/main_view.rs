@@ -1,3 +1,4 @@
+use std::cell::RefCell;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::default_values::FOCUS_SYMBOL_1;
 use crate::env::default_values::QUARTER_OPACITY;
@@ -61,7 +62,7 @@ pub const RIGHT_PANE: usize = 1;
 
 #[derive(Clone, Debug)]
 pub struct MainView {
-    grid_view: GridView,
+    grid_view_rc: RefCell<GridView>,
     picture_frame: PictureFrame,
     application_window: gtk::ApplicationWindow,
     stack: gtk::Stack,
@@ -134,7 +135,7 @@ impl MainView {
         let picture_frame = PictureFrame::new_from_frame(&frame);
 
         MainView {
-            grid_view: grid_view.clone(),
+            grid_view_rc: RefCell::new(grid_view),
             picture_frame: picture_frame.clone(),
             application_window: application_window.clone(),
             stack: stack.clone(),
@@ -219,10 +220,6 @@ impl MainView {
         self.application_window.clone()
     }
 
-    pub fn grid_view(&self) -> GridView {
-        self.grid_view.clone()
-    }
-
     pub fn picture_frame(&self) -> PictureFrame {
         self.picture_frame.clone()
     }
@@ -267,7 +264,7 @@ impl MainView {
         dbg!("set_pictures_for_multiple_view");
         dbg!(&navigator);
         if let Ok(gallery) = controller.repository().gallery_rc().try_borrow() {
-            let grid_view = self.grid_view.clone();
+            let grid_view = self.grid_view_rc.borrow();
             let grid = grid_view.grid();
             for col in 0..pictures_per_row {
                 for row in 0..pictures_per_row {
@@ -279,7 +276,7 @@ impl MainView {
                     if let Some(index) = navigator.position_from_coords(coords.0, coords.1) {
                         let picture = gallery.picture(index);
                         let has_focus = index == navigator.position();
-                        self.grid_view.set_picture_at(col, row, &picture, has_focus);
+                        grid_view.set_picture_at(col, row, &picture, has_focus);
                         let opacity: f64 = if let Some(position) =
                             navigator.position_from_coords(row as usize, col as usize)
                         {
@@ -295,7 +292,7 @@ impl MainView {
                         } else {
                             FULL_OPACITY
                         };
-                        self.grid_view.set_picture_opacity_at(col, row, opacity);
+                        grid_view.set_picture_opacity_at(col, row, opacity);
                         // self.grid_view.set_label_text_at(&picture, col, row, with_focus);
                     }
                 }
@@ -340,7 +337,7 @@ impl MainView {
         if !controller.state().single_view()
             && let Some((row, col)) = navigator.coords_from_position(position)
         {
-            let grid_view = self.grid_view();
+            let grid_view = self.grid_view_rc.borrow();
             grid_view.set_label_text_at(&picture, col as i32, row as i32, with_focus);
         }
     }
@@ -348,15 +345,14 @@ impl MainView {
     pub fn set_focus_for_current_picture(
         &self,
         controller: &Controller,
-        has_focus: bool,
     ) {
         let navigator = controller.navigator();
         let position = navigator.position();
         if !controller.state().single_view() 
             && let Some((row, col)) = navigator.coords_from_position(position)
         {
-            let grid_view = self.grid_view();
-            grid_view.set_focus_at(col as i32, row as i32, has_focus);
+            let grid_view = self.grid_view_rc.borrow();
+            grid_view.set_focus_at(col as i32, row as i32)
         }
     }
 
@@ -366,8 +362,8 @@ impl MainView {
         if !controller.state().single_view()
             && let Some((row, col)) = navigator.coords_from_position(position)
         {
-            self.grid_view
-                .set_picture_opacity_at(col as i32, row as i32, opacity);
+            let grid_view = self.grid_view_rc.borrow();
+            grid_view.set_picture_opacity_at(col as i32, row as i32, opacity);
         }
     }
 
@@ -400,8 +396,8 @@ impl MainView {
         treelist_view
     }
     pub fn change_grid_size(&mut self, pictures_per_row: usize, palette_on: bool, main_controller: &MainController) {
-        self.grid_view
-            .change_dimension(pictures_per_row as i32, palette_on, main_controller)
+        let grid_view = self.grid_view_rc.borrow();
+        grid_view.change_dimension(pictures_per_row as i32, palette_on, main_controller)
     }
 
     pub fn toggle_view_stack(&self, controller: &Controller) {
