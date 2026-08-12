@@ -278,21 +278,8 @@ impl MainView {
                     };
                     if let Some(index) = navigator.position_from_coords(coords.0, coords.1) {
                         let picture = gallery.picture(index);
-                        let with_focus = if index == navigator.position() {
-                            Some(FOCUS_SYMBOL_1)
-                        } else {
-                            None
-                        };
-                        let picture_file_path = picture.view_file_path(pictures_per_row as usize);
-                        let with_sample: Option<Vec<Color>> = if controller.state().palette_on() {
-                            picture
-                                .image_data()
-                                .map(|image_data| image_data.palette().sample())
-                        } else {
-                            None
-                        };
-                        self.grid_view
-                            .set_picture_at(col, row, &picture);
+                        let has_focus = index == navigator.position();
+                        self.grid_view.set_picture_at(col, row, &picture, has_focus);
                         let opacity: f64 = if let Some(position) =
                             navigator.position_from_coords(row as usize, col as usize)
                         {
@@ -309,8 +296,7 @@ impl MainView {
                             FULL_OPACITY
                         };
                         self.grid_view.set_picture_opacity_at(col, row, opacity);
-                        self.grid_view
-                            .set_label_text_at(&picture, col, row, with_focus);
+                        // self.grid_view.set_label_text_at(&picture, col, row, with_focus);
                     }
                 }
             }
