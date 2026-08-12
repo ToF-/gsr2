@@ -80,18 +80,11 @@ impl GridView {
         with_focus: Option<char>,
     ) {
         let grid = self.grid();
-        if let Some(cell_box) = grid.child_at(col, row) {
-            let gtk_picture = cell_box
-                .first_child()
-                .unwrap()
-                .downcast::<gtk::Picture>()
-                .unwrap();
-            let label = gtk_picture
-                .next_sibling()
-                .unwrap()
-                .downcast::<gtk::Label>()
-                .unwrap();
-            label.set_text(&picture_label_display(
+        if let Some(cell) = grid.child_at(col, row) {
+            let cell_box = cell
+                .downcast::<GsrPictureCellBox>()
+                .expect("not a GsrPictureCellBox");
+            cell_box.set_label(&picture_label_display(
                 &picture.label(),
                 picture.rank(),
                 picture.cover(),

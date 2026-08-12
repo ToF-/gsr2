@@ -1,3 +1,13 @@
+ use crate::gui::view::palette_area::make_palette_area;
+ use crate::env::default_values::GRID_PALETTE_AREA_WIDTH;
+ use crate::env::default_values::GRID_PALETTE_AREA_HEIGHT;
+ use crate::env::default_values::FOCUS_SYMBOL_1;
+ use crate::env::default_values::FOCUS_SYMBOL_2;
+use gtk::gio::File as GtkFile;
+use gtk::Picture as GtkPicture;
+use gtk::Label as GtkLabel;
+use gtk::Box as GtkBox;
+use crate::model::palette::Palette;
 use crate::gui::action::Action;
 use crate::gui::action::gio_action::GioAction;
 use crate::gui::action::gio_action::SimpleActionCall;
@@ -13,7 +23,7 @@ mod imp;
 
 glib::wrapper! {
     pub struct GsrPictureCellBox(ObjectSubclass<imp::GsrPictureCellBox>)
-        @extends gtk::Widget, gtk::Box,
+        @extends gtk::Widget, GtkBox,
         @implements
             gtk::Accessible,
             gtk::Buildable,
@@ -44,10 +54,50 @@ impl GsrPictureCellBox {
         self.imp().has_focus.set(true);
     }
 
+    fn attach_focus_blink_event(&self) {
+    }
     pub fn leave_focus(&self) {
         self.imp().has_focus.set(false);
     }
 
+    fn remove_children(&self)  {
+        while let Some(child) = self.first_child() {
+            self.remove(&child)
+        };
+        *self.imp().label.borrow_mut() = None;
+    }
+
+    fn label(&self) -> GtkLabel {
+        self.imp()
+            .label
+            .borrow()
+            .as_ref()
+            .expect("this GsrPictureCellBox has no label")
+            .clone()
+    }
+
+    pub fn set_label(&self, text: &str) {
+        self.label().set_text(text);
+    }
+
+    fn append_palette(&self, palette: Palette) {
+        self.append(&make_palette_area(
+                palette.sample(),
+                GRID_PALETTE_AREA_WIDTH,
+                GRID_PALETTE_AREA_HEIGHT,
+        ))
+    }
+    pub fn attach_picture(&self, file_path: &str, text: &str, palette_opt: Option<Palette>) {
+        self.remove_children();
+        self.append(&make_picture(file_path));
+        let label = make_label(text);
+        self.append(&label);
+        *self.imp().label.borrow_mut() = Some(label);
+        if let Some(palette) = palette_opt {
+            self.append_palette(palette)
+        }
+    }
+    
     pub fn connect_main_controller(&self, main_controller: &MainController) {
         self.insert_action_group("main-controller", Some(&main_controller.gio_action_group()));
         let col = self.imp().col.get();
@@ -90,5 +140,105 @@ impl GsrPictureCellBox {
             }
         ));
         gesture_click
+    }
+
+}
+fn make_label(text: &str) -> GtkLabel {
+    GtkLabel::builder()
+        .valign(Align::Center)
+        .halign(Align::Center)
+        .label(text)
+        .build()
+}
+
+
+fn make_picture(file_path: &str) -> gtk::Picture {
+    GtkPicture::builder()
+        .file(&GtkFile::for_path(file_path))
+        .hexpand(true)
+        .vexpand(true)
+        .build()
+}
+
+// flip or insert the focus symbol on the label
+// empty -> ⭓ 
+// ⭓ foo -> ⭔ foo
+// ⭔ foo -> ⭓ foo 
+// bar -> ⭓ bar
+
+fn flip_focus_symbol_on_label(label: &GtkLabel) {
+    label.set_text(&flip_focus_symbol(&label.text().to_string()));
+}
+
+fn flip_focus_symbol(label_text: &str) -> String {
+    let mut text = label_text.to_string();
+    if !text.is_empty() {
+        let first_char = text.remove(0);
+        match first_char {
+            FOCUS_SYMBOL_1 => text.insert(0, FOCUS_SYMBOL_2),
+            FOCUS_SYMBOL_2 => text.insert(0, FOCUS_SYMBOL_1),
+            first_label_char => {
+                text.insert(0, first_label_char);
+                text.insert(0, ' ');
+                text.insert(0, FOCUS_SYMBOL_1);
+            },
+        }
+    } else {
+        text.insert(0, FOCUS_SYMBOL_1);
+    }
+    text.to_string()
+}
+
+// remove the focus symbol from the label
+// empty -> empty
+// ⭓ foo -> foo
+// ⭔ foo -> foo 
+// bar -> bar
+fn remove_focus_symbol_from_label(label: &GtkLabel) {
+    label.set_text(&remove_focus_symbol(&label.text().to_string()));
+}
+
+fn remove_focus_symbol(label_text: &str) -> String {
+    let mut text = label_text.to_string();
+    if ! text.is_empty() {
+        let first_char = text.remove(0);
+        match first_char {
+            FOCUS_SYMBOL_1 | FOCUS_SYMBOL_2 => {
+                if ! text.is_empty() {
+                    let first_char = text.remove(0);
+                    match first_char {
+                        ' ' => {},
+                        first_label_char => {
+                            text.insert(0, first_label_char);
+                        },
+                    }
+                }
+            },
+            first_label_char => {
+                text.insert(0, first_label_char)
+            }
+        };
+    }
+    text.to_string()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn flipping_or_inserting_the_focus_symbol() {
+        assert_eq!("⭓", flip_focus_symbol(""));
+        assert_eq!("⭓ foo", flip_focus_symbol("foo"));
+        assert_eq!("⭔ foo", flip_focus_symbol("⭓ foo"));
+        assert_eq!("⭓ foo", flip_focus_symbol("⭔ foo"));
+
+    }
+    #[test]
+    fn removing_the_focus_symbol() {
+        assert_eq!("foo", remove_focus_symbol("⭓ foo"));
+        assert_eq!("foo", remove_focus_symbol("⭔ foo"));
+        assert_eq!("foo", remove_focus_symbol("foo"));
+        assert_eq!("", remove_focus_symbol(""));
     }
 }

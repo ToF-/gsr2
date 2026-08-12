@@ -13,6 +13,7 @@ pub const ENTRY_CURSOR_1: char = '▪';
 pub const ENTRY_CURSOR_2: char = '▫';
 pub const FOCUS_SYMBOL_1: char = '⭓'; // '◆';
 pub const FOCUS_SYMBOL_2: char = '⭔'; // '◇';
+pub const FOCUS_BLINKING_DURATION: u64 = 1000;
 pub const COVER_SYMBOL: &str = "🔶";
 pub const ORDER_SYMBOL: &str = "↑";
 pub const THREE_STARS_SYMBOL: &str = "☆☆☆";
