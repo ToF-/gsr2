@@ -14,6 +14,8 @@ use gtk::glib::Variant;
 use gtk::glib::prelude::ToVariant;
 use gtk::prelude::ActionExt;
 
+pub type SimpleActionCall = (String, Option<Variant>);
+
 // GioAction is the conversion of a concrete Action (with parameters) into something activable via a glib or gtk object
 #[derive(Debug, Clone)]
 pub struct GioAction {
@@ -217,7 +219,7 @@ impl GioAction {
         self.parameter.clone().map(|p| p.variant().clone())
     }
 
-    pub fn to_simple_action_call(&self) -> (String, Option<Variant>) {
+    pub fn to_simple_action_call(&self) -> SimpleActionCall {
         (self.action_entry_name(), self.parameter_as_variant())
     }
 }

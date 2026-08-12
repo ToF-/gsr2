@@ -592,14 +592,10 @@ fn attach_key_pressed_event_handlers(
                     let action = Action::from_control(control);
                     let gio_action = GioAction::from(action);
                     let (name, variant) = gio_action.to_simple_action_call();
-                    let variant_ref: Option<&Variant> = match &variant {
-                        None => None,
-                        Some(v) => Some(v.as_ref()),
-                    };
                     match gtk::prelude::WidgetExt::activate_action(
                         &application_window,
                         &name,
-                        variant_ref,
+                        variant.as_ref(),
                     ) {
                         Ok(_) => {}
                         Err(e) => {

@@ -1,5 +1,6 @@
 use crate::gui::action::Action;
 use crate::gui::action::gio_action::GioAction;
+use crate::gui::action::gio_action::SimpleActionCall;
 use crate::gui::main_controller::MainController;
 use glib::Variant;
 use glib::clone;
@@ -62,7 +63,7 @@ impl GsrPictureCellBox {
     fn make_gesture_click(
         &self,
         button: u32,
-        action_call: (String, Option<Variant>),
+        action_call: SimpleActionCall
     ) -> gtk::GestureClick {
         let gesture_click = gtk::GestureClick::new();
         gesture_click.set_button(button);
