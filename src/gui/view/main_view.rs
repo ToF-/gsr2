@@ -271,10 +271,9 @@ impl MainView {
                 for row in 0..pictures_per_row {
                     let coords = (row as usize, col as usize);
                     let cell = match grid.child_at(col, row) {
-                        Some(widget) => widget.downcast::<gtk::Box>().unwrap(),
+                        Some(widget) => widget.downcast::<GsrPictureCellBox>().unwrap(),
                         None => GsrPictureCellBox::new(col, row).into(),
                     };
-                    remove_children_from_box(&cell);
                     if let Some(index) = navigator.position_from_coords(coords.0, coords.1) {
                         let picture = gallery.picture(index);
                         let with_focus = if index == navigator.position() {
@@ -283,13 +282,6 @@ impl MainView {
                             None
                         };
                         let picture_file_path = picture.view_file_path(pictures_per_row as usize);
-                        let gtk_picture = if let Ok(file_path) =
-                            check_path_exists(&PathBuf::from(picture_file_path))
-                        {
-                            gtk_picture_from_file_path(file_path)
-                        } else {
-                            no_thumbnail_picture()
-                        };
                         let with_sample: Option<Vec<Color>> = if controller.state().palette_on() {
                             picture
                                 .image_data()
@@ -298,7 +290,7 @@ impl MainView {
                             None
                         };
                         self.grid_view
-                            .set_picture_at(col, row, &gtk_picture, with_sample);
+                            .set_picture_from_file_path_at(col, row, &picture_file_path, with_sample);
                         let opacity: f64 = if let Some(position) =
                             navigator.position_from_coords(row as usize, col as usize)
                         {

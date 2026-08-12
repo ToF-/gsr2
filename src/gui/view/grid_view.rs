@@ -129,6 +129,19 @@ impl GridView {
         }
     }
 
+    pub fn set_picture_from_file_path_at(
+        &self,
+        col: i32,
+        row: i32,
+        file_path: &str,
+        with_sample: Option<Vec<Color>>,
+    ) {
+        let grid = self.grid();
+        if let Some(widget) = grid.child_at(col, row) {
+            let cell_box: GsrPictureCellBox = widget.downcast::<GsrPictureCellBox>().unwrap();
+            cell_box.attach_picture(file_path, "", None);
+        };
+    }
     pub fn set_picture_at(
         &self,
         col: i32,

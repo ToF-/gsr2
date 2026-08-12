@@ -1,3 +1,7 @@
+use std::path::Path;
+use crate::model::thumbnail::no_thumbnail_picture;
+ use crate::file::paths::check_path_exists;
+use std::path::PathBuf;
  use crate::gui::view::palette_area::make_palette_area;
  use crate::env::default_values::GRID_PALETTE_AREA_WIDTH;
  use crate::env::default_values::GRID_PALETTE_AREA_HEIGHT;
@@ -152,12 +156,14 @@ fn make_label(text: &str) -> GtkLabel {
 }
 
 
-fn make_picture(file_path: &str) -> gtk::Picture {
-    GtkPicture::builder()
-        .file(&GtkFile::for_path(file_path))
-        .hexpand(true)
-        .vexpand(true)
-        .build()
+fn make_picture(picture_file_path: &str) -> GtkPicture {
+    if let Ok(file_path) =
+        check_path_exists(&PathBuf::from(picture_file_path))
+    {
+        gtk_picture_from_file_path(file_path)
+    } else {
+        no_thumbnail_picture()
+    }
 }
 
 // flip or insert the focus symbol on the label
@@ -241,4 +247,12 @@ mod tests {
         assert_eq!("foo", remove_focus_symbol("foo"));
         assert_eq!("", remove_focus_symbol(""));
     }
+}
+
+fn gtk_picture_from_file_path(file_path: &Path) -> gtk::Picture {
+    GtkPicture::builder()
+        .file(&GtkFile::for_path(file_path))
+        .hexpand(true)
+        .vexpand(true)
+        .build()
 }
