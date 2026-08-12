@@ -73,6 +73,20 @@ impl GridView {
         self.grid.clone()
     }
 
+    pub fn set_focus_at(&self, col: i32, row: i32, has_focus: bool) {
+        let grid = self.grid();
+        if let Some(cell) = grid.child_at(col, row) {
+            let cell_box = cell
+                .downcast::<GsrPictureCellBox>()
+                .expect("not a GsrPictureCellBox");
+            if has_focus {
+                cell_box.receive_focus()
+            } else {
+                cell_box.leave_focus()
+            }
+        }
+
+    }
     pub fn set_label_text_at(
         &self,
         picture: &Picture,
@@ -85,13 +99,10 @@ impl GridView {
             let cell_box = cell
                 .downcast::<GsrPictureCellBox>()
                 .expect("not a GsrPictureCellBox");
-            cell_box.set_label(&picture_label_display(
-                &picture.label(),
-                picture.rank(),
-                picture.cover(),
-                with_focus,
-                picture.image_data().map(|d| d.size()),
-            ))
+            match with_focus {
+                None => cell_box.leave_focus(),
+                Some(_) => cell_box.receive_focus(),
+            }
         }
     }
 

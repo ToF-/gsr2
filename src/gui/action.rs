@@ -98,6 +98,7 @@ impl Action {
         match control {
             Control::MoveNext => Action::MoveTowards(Direction::NextPage),
             Control::Right => Action::MoveTowards(Direction::Right),
+            Control::Left => Action::MoveTowards(Direction::Left),
             Control::EnterChange => Action::PickChange,
             Control::Quit => Action::Quit,
             Control::RankNoStar => Action::Rank(Rank::NoStar),

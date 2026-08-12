@@ -137,13 +137,15 @@ impl Controller {
         let action = Action::from(gio_action);
         match action {
             Action::Nothing => {
-                dbg!(action);
             }
             Action::MoveTowards(Direction::NextPage) => {
                 self.move_next();
             }
             Action::MoveTowards(Direction::Right) => {
                 self.arrow_move(Direction::Right);
+            }
+            Action::MoveTowards(Direction::Left) => {
+                self.arrow_move(Direction::Left);
             }
             Action::Rank(rank) => self.rank_selected_pictures(rank),
             Action::TogglePalette => self.toggle_palette(),
@@ -168,6 +170,7 @@ impl Controller {
             }
         }
         if self.state().slideshow_on() == old_slideshow_on {
+            self.main_view().set_focus_for_current_picture(self, false);
             let main_view = self.main_view();
             {
                 let binding = &self.navigator_rc;
@@ -188,7 +191,7 @@ impl Controller {
                         navigator.set_page_unchanged();
                     }
                 }
-                self.set_label_text_for_current_picture();
+                self.main_view().set_focus_for_current_picture(self,true);
                 self.main_view().set_title(self);
             }
         }
