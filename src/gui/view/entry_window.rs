@@ -97,11 +97,8 @@ impl EntryWindow {
         self.entry_editor.clone()
     }
 
-    fn attach_gio_action_group(
-        window: &gtk::Window,
-        main_controller: &MainController,
-    ) {
-            window.insert_action_group("main-controller", Some(&main_controller.gio_action_group()))
+    fn attach_gio_action_group(window: &gtk::Window, main_controller: &MainController) {
+        window.insert_action_group("main-controller", Some(&main_controller.gio_action_group()))
     }
 
     fn attach_key_pressed_event_handler(

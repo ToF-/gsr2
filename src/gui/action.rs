@@ -109,9 +109,9 @@ impl Action {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
     use crate::gui::action::gio_action_parameter_type::GioActionParameterType;
     use crate::gui::action::gio_action_type::GioActionType;
-    use super::*;
     use crate::model::label::label_from;
 
     #[test]

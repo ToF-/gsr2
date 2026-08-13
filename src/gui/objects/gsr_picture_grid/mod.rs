@@ -1,5 +1,9 @@
+use crate::env::default_values::FULL_OPACITY;
+use crate::env::default_values::HALF_OPACITY;
 use crate::env::default_values::MAX_PICTURES_PER_ROW;
+use crate::gui::navigator::Navigator;
 use crate::gui::objects::gsr_picture_cell_box::GsrPictureCellBox;
+use crate::model::gallery::Gallery;
 use crate::model::picture::Picture;
 use gtk::glib;
 use gtk::prelude::*;
@@ -25,15 +29,56 @@ impl GsrPictureGrid {
         obj
     }
 
+    pub fn initialize_pictures(&self, navigator: &Navigator, gallery: &Gallery) {
+        self.fill_with_cell_boxes();
+        let palette_on = self.imp().palette_on.get();
+        let pictures_per_row = self.imp().pictures_per_row.get();
+        for col in 0..pictures_per_row {
+            for row in 0..pictures_per_row {
+                if let Some(index) = navigator.position_from_coords(row as usize, col as usize) {
+                    let picture = gallery.picture(index);
+                    self.set_picture_at(col, row, &picture, index);
+                    let opacity: f64 = if navigator.is_selected(index) {
+                        HALF_OPACITY
+                    } else {
+                        FULL_OPACITY
+                    };
+                    self.set_picture_opacity_at(col, row, opacity);
+                }
+            }
+        }
+        dbg!(self.size());
+    }
     pub fn change_size(&self, pictures_per_row: i32, palette_on: bool) {
         self.imp().initialize(pictures_per_row, (0, 0), palette_on);
     }
 
-    pub fn set_picture_at(&self, col: i32, row: i32, picture: &Picture, picture_index: usize) {
-        if let Some(widget) = self.child_at(col, row) {
-            let cell_box: GsrPictureCellBox = widget.downcast::<GsrPictureCellBox>().unwrap();
-            cell_box.attach_picture(picture, picture_index);
+    fn fill_with_cell_boxes(&self) {
+        let pictures_per_row = self.imp().pictures_per_row.get();
+        let palette_on = self.imp().palette_on.get();
+        for col in 0..pictures_per_row {
+            for row in 0..pictures_per_row {
+                let picture_index: usize = (row * pictures_per_row + col) as usize;
+                if let Some(widget) = self.child_at(col, row) {
+                    self.remove(&widget);
+                };
+                let gsr_picture_cell_box =
+                    GsrPictureCellBox::new(col, row, picture_index, pictures_per_row, palette_on);
+                self.attach(&gsr_picture_cell_box, col, row, 1, 1);
+            }
         }
+    }
+
+    pub fn set_picture_at(&self, col: i32, row: i32, picture: &Picture, picture_index: usize) {
+        let pictures_per_row = self.imp().pictures_per_row.get();
+        let palette_on = self.imp().palette_on.get();
+        if let Some(widget) = self.child_at(col, row) {
+            self.remove(&widget);
+        };
+        let gsr_picture_cell_box =
+            GsrPictureCellBox::new(col, row, picture_index, pictures_per_row, palette_on);
+        gsr_picture_cell_box.attach_picture(picture, picture_index);
+        self.attach(&gsr_picture_cell_box, col, row, 1, 1);
     }
 
     pub fn set_label_from_picture_at(&self, picture: &Picture, col: i32, row: i32) {
@@ -69,7 +114,12 @@ impl GsrPictureGrid {
 
     pub fn set_palette_off(&self) {}
 
-    pub fn set_picture_opacity_at(&self, _col: i32, _row: i32, _opacity: f64) {}
+    pub fn set_picture_opacity_at(&self, col: i32, row: i32, opacity: f64) {
+        if let Some(widget) = self.child_at(col, row) {
+            let cell_box: GsrPictureCellBox = widget.downcast::<GsrPictureCellBox>().unwrap();
+            cell_box.set_opacity(opacity);
+        }
+    }
 
     pub fn size(&self) -> usize {
         let mut count: usize = 0;

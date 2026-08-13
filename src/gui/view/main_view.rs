@@ -141,8 +141,17 @@ impl MainView {
         } else {
             panic!("can't borrow")
         };
-        let gsr_picture_grid =
-            GsrPictureGrid::new(pictures_per_row.try_into().unwrap(), (0, 0), palette_on);
+        let gsr_picture_grid = {
+            let controller = controller_rc.borrow();
+            let navigator = controller.navigator();
+            let binding = controller.repository().gallery_rc().clone();
+            let gallery = binding.borrow();
+            let gsr_picture_grid =
+                GsrPictureGrid::new(pictures_per_row.try_into().unwrap(), (0, 0), palette_on);
+            gsr_picture_grid.initialize_pictures(&navigator, &gallery);
+            gsr_picture_grid
+        };
+        dbg!(gsr_picture_grid.size());
         let picture_frame = PictureFrame::new();
         let single_view_scrolled_window = make_scrolled_window();
         let multiple_view_scrolled_window = make_scrolled_window();
@@ -246,7 +255,7 @@ impl MainView {
         palette_on: bool,
     ) {
         let navigator: Navigator = controller.navigator();
-        dbg!("set_pictures_for_multiple_view");
+        dbg!(self.gsr_picture_grid.size());
         dbg!(&navigator);
         if let Ok(gallery) = controller.repository().gallery_rc().try_borrow() {
             for col in 0..pictures_per_row {

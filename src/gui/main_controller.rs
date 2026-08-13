@@ -1,7 +1,7 @@
-use crate::gui::direction::Direction;
-use crate::gui::action::gio_action_type::GioActionType;
 use crate::gui::action::Action;
+use crate::gui::action::gio_action_type::GioActionType;
 use crate::gui::controller::RcController;
+use crate::gui::direction::Direction;
 use crate::model::rank::Rank;
 use gtk::gio::ActionEntry;
 use gtk::gio::prelude::*;

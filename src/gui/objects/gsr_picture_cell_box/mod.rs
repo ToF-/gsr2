@@ -1,4 +1,3 @@
-
 use crate::env::default_values::FOCUS_BLINKING_DURATION;
 use crate::env::default_values::FOCUS_SYMBOL_1;
 use crate::env::default_values::FOCUS_SYMBOL_2;
@@ -21,9 +20,9 @@ use gtk::Label as GtkLabel;
 use gtk::Picture as GtkPicture;
 use gtk::gio::File as GtkFile;
 use gtk::glib;
+use gtk::glib::ControlFlow;
 use gtk::glib::subclass::prelude::*;
 use gtk::glib::timeout_add_local;
-use gtk::glib::{ControlFlow};
 use gtk::prelude::*;
 use gtk::{Align, Orientation};
 use std::path::Path;

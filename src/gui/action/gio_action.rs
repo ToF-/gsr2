@@ -224,8 +224,8 @@ impl GioAction {
 
 #[cfg(test)]
 mod tests {
-    use crate::model::category::category_from_string;
     use super::*;
+    use crate::model::category::category_from_string;
 
     fn check_action_to_and_from(action: Action) {
         let source = action.clone();
