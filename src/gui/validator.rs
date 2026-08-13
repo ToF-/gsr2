@@ -20,7 +20,6 @@ impl Validator {
     }
 
     pub fn append_char(&self, entry: &str, ch: char) -> Option<String> {
-        let mut input: String = entry.into();
         if self.valid_entry_char(ch) {
             self.convert_char(entry, ch)
         } else {

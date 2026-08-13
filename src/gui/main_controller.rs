@@ -1,21 +1,13 @@
-use crate::gui::action::Action;
-use crate::gui::action::gio_action_parameter_type::GioActionParameterType;
-use crate::gui::action::gio_action_type::GioActionType;
-use crate::gui::controller::Controller;
-use crate::gui::controller::RcController;
 use crate::gui::direction::Direction;
-use crate::model::change::Change;
+use crate::gui::action::gio_action_type::GioActionType;
+use crate::gui::action::Action;
+use crate::gui::controller::RcController;
 use crate::model::rank::Rank;
 use gtk::gio::ActionEntry;
 use gtk::gio::prelude::*;
-use gtk::glib;
 use gtk::glib::clone;
-use gtk::glib::subclass::Signal;
-use gtk::glib::subclass::prelude::*;
-use gtk::subclass::prelude::ObjectSubclassIsExt;
 use std::cell::RefCell;
 use std::rc::Rc;
-use std::sync::OnceLock;
 
 pub const MAIN_CONTROLLER_GROUP_NAME: &str = "main-controller";
 pub type RcMainController = Rc<RefCell<MainController>>;
@@ -37,7 +29,7 @@ impl Default for MainController {
 
 impl MainController {
     pub fn new(controller_opt: Option<RcController>) -> Self {
-        let mut obj = Self::default();
+        let obj = Self::default();
         obj.initialize(controller_opt);
         obj
     }
@@ -61,7 +53,7 @@ impl MainController {
                   object: &gtk::gio::SimpleAction,
                   variant: Option<&gtk::glib::Variant>| {
                 if let Some(controller_rc) = &controller_opt {
-                    let mut controller = controller_rc.borrow_mut();
+                    let controller = controller_rc.borrow_mut();
                     controller.process_action(object, variant);
                 } else {
                     println!("controller not set");

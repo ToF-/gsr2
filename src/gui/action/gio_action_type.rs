@@ -1,7 +1,6 @@
 use crate::gui::action::Action;
 use crate::gui::action::gio_action_parameter_type::GioActionParameterType;
 use crate::gui::main_controller::MAIN_CONTROLLER_GROUP_NAME;
-use std::sync::OnceLock;
 
 // GioActionType describe a GioAction in terms of name and type of parameter
 #[derive(Debug)]
@@ -158,7 +157,6 @@ impl From<Action> for GioActionType {
                 GioActionType::new("toggle-thumbnails-view", GioActionParameterType::None)
             }
             Action::Unlabel => GioActionType::new("unlabel", GioActionParameterType::None),
-            _ => GioActionType::new("test", GioActionParameterType::None),
         }
     }
 }

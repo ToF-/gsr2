@@ -4,14 +4,12 @@ use crate::gui::action::gio_action_type::GioActionType;
 use crate::gui::direction::Direction;
 use crate::gui::main_controller::MAIN_CONTROLLER_GROUP_NAME;
 use crate::model::category::Category;
-use crate::model::category::category_from_string;
 use crate::model::find::Find;
 use crate::model::order::Order;
 use crate::model::rank::Rank;
 use crate::model::view_option::ViewOption;
 use gtk::gio::SimpleAction;
 use gtk::glib::Variant;
-use gtk::glib::prelude::ToVariant;
 use gtk::prelude::ActionExt;
 
 pub type SimpleActionCall = (String, Option<Variant>);
@@ -226,6 +224,7 @@ impl GioAction {
 
 #[cfg(test)]
 mod tests {
+    use crate::model::category::category_from_string;
     use super::*;
 
     fn check_action_to_and_from(action: Action) {

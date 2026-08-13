@@ -3,13 +3,9 @@ use crate::gui::entry_kind::EntryKind;
 use crate::gui::validator::Validator;
 use crate::gui::view::entry_view::EntryView;
 use crate::model::tags::empty_tags;
-use gtk::glib;
-use gtk::glib::subclass::Signal;
-use gtk::glib::subclass::prelude::*;
 use itertools::Itertools;
 use std::cell::RefCell;
 use std::rc::Rc;
-use std::sync::OnceLock;
 
 pub type RcEntryEditor = Rc<RefCell<EntryEditor>>;
 #[derive(Debug, Clone)]
@@ -62,7 +58,8 @@ impl EntryEditor {
 
     fn edit_return(&self) {}
 
-    pub fn key_pressed(&self, key_name: &str) {}
+    pub fn key_pressed(&self, _key_name: &str) {}
+
     fn edit_backspace(&self) {
         if self.entry().len() > 0 {
             let mut entry = self.entry();

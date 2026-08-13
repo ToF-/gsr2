@@ -11,7 +11,6 @@ use crate::gui::direction::Direction;
 use crate::gui::display::title_display;
 use crate::gui::event::Event::{NextSlideDelay, PaneClicked};
 use crate::gui::main_controller::MainController;
-use crate::gui::main_controller::RcMainController;
 use crate::gui::mode::Mode;
 use crate::gui::navigator::Navigator;
 use crate::gui::objects::gsr_application::GsrApplication;
@@ -37,11 +36,8 @@ use gtk::prelude::{
     WidgetExt,
 };
 use gtk::{ApplicationWindow, Grid, Label, Picture as GtkPicture, ScrolledWindow};
-use palette_extract::Color;
-use std::cell::RefCell;
 use std::path::Path;
 use std::path::PathBuf;
-use std::sync::OnceLock;
 use std::time::Duration;
 
 pub const LEFT_PANE: usize = 0;
@@ -195,7 +191,7 @@ impl MainView {
         application_window.present();
     }
 
-    pub fn run_application(application: GsrApplication, main_controller_rc: RcMainController) {
+    pub fn run_application(application: GsrApplication) {
         let no_args: Vec<String> = vec![];
         application.run_with_args(&no_args);
     }

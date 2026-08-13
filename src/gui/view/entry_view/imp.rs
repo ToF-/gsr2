@@ -62,7 +62,7 @@ impl EntryView {
         application_window: &gtk::ApplicationWindow,
         prompt: &str,
         input: &str,
-        action_on_close: Action,
+        _action_on_close: Action,
     ) {
         *self.gtk_window_opt_rc.borrow_mut() =
             Some(Self::build_window(application_window, prompt, input))
@@ -170,6 +170,7 @@ impl EntryView {
             }
         ",
         );
+        #[allow(deprecated)]
         prompt_label.style_context().add_provider(
             &prompt_css_provider,
             gtk::STYLE_PROVIDER_PRIORITY_APPLICATION,
@@ -205,7 +206,7 @@ impl EntryView {
         event_controller_key.connect_key_pressed(clone!(
             #[strong]
             entry_editor_rc,
-            move |_, key, key_code, modifier_type| {
+            move |_, key, _key_code, _modifier_type| {
                 if let Ok(entry_editor) = entry_editor_rc.try_borrow() {
                     if let Some(key_name) = key.name() {
                         entry_editor.key_pressed(&key_name);

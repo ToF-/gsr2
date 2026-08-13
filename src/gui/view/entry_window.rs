@@ -2,10 +2,8 @@ use crate::env::default_values::{ENTRY_CURSOR_1, ENTRY_CURSOR_2};
 use crate::env::default_values::{ENTRY_WINDOW_HEIGHT, ENTRY_WINDOW_WIDTH};
 use crate::gui::controller::RcController;
 use crate::gui::editor::entry_editor::EntryEditor;
-use crate::gui::event::Event;
 use crate::gui::main_controller::MainController;
 use crate::gui::mode::Mode;
-use crate::gui::objects::gsr_application::GsrApplication;
 use gtk::Align;
 use gtk::CssProvider;
 use gtk::Orientation;
@@ -101,14 +99,9 @@ impl EntryWindow {
 
     fn attach_gio_action_group(
         window: &gtk::Window,
-        controller_rc: &RcController,
         main_controller: &MainController,
     ) {
-        if let Ok(controller) = controller_rc.try_borrow() {
             window.insert_action_group("main-controller", Some(&main_controller.gio_action_group()))
-        } else {
-            panic!("can't borrow")
-        }
     }
 
     fn attach_key_pressed_event_handler(

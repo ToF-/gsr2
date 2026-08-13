@@ -1,6 +1,5 @@
 use gtk::Label as GtkLabel;
 use gtk::glib;
-use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 use std::cell::Cell;
 use std::cell::RefCell;

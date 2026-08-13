@@ -87,7 +87,7 @@ fn build_and_run_app(
     } else {
         panic!("can't mutably borrow");
     }
-    MainView::run_application(gsr_application, main_controller_rc);
+    MainView::run_application(gsr_application);
 }
 
 fn initialize_database(config: &Configuration) -> Result<Status> {

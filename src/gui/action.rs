@@ -2,23 +2,16 @@ pub mod gio_action;
 pub mod gio_action_parameter;
 pub mod gio_action_parameter_type;
 pub mod gio_action_type;
-use crate::gui::action::gio_action_parameter_type::GioActionParameterType;
-use crate::gui::action::gio_action_type::GioActionType;
 use crate::gui::control::Control;
 use crate::gui::direction::Direction;
 use crate::gui::main_controller::MAIN_CONTROLLER_GROUP_NAME;
 use crate::gui::mode::Mode;
 use crate::model::category::Category;
-use crate::model::change::Change;
 use crate::model::find::Find;
 use crate::model::label::Label;
 use crate::model::order::Order;
 use crate::model::rank::Rank;
 use crate::model::view_option::ViewOption;
-use std::fmt::Display;
-use std::fmt::Error;
-use std::fmt::Formatter;
-use std::str::FromStr;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Action {
@@ -90,7 +83,7 @@ impl Action {
         }
     }
 
-    pub fn single_action_name(key_name: &str, mode: Mode) -> String {
+    pub fn single_action_name(_key_name: &str, _mode: Mode) -> String {
         format!("{}.{}", MAIN_CONTROLLER_GROUP_NAME, "test")
     }
 
@@ -116,6 +109,8 @@ impl Action {
 
 #[cfg(test)]
 mod tests {
+    use crate::gui::action::gio_action_parameter_type::GioActionParameterType;
+    use crate::gui::action::gio_action_type::GioActionType;
     use super::*;
     use crate::model::label::label_from;
 

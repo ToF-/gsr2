@@ -1,6 +1,5 @@
 use crate::gui::action::Action;
 use crate::gui::editor::entry_editor::EntryEditor;
-use gtk::prelude::GtkWindowExt;
 #[allow(deprecated)]
 use gtk::subclass::prelude::ObjectSubclassIsExt;
 mod imp;

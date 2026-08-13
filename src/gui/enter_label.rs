@@ -1,8 +1,6 @@
 use crate::env::default_values::BLINKING;
 use crate::gui::action::Action;
 use crate::gui::completion_dispenser::CompletionDispenser;
-use crate::gui::controller::Controller;
-use crate::gui::controller::RcController;
 use crate::gui::editor::entry_editor::EntryEditor;
 use crate::gui::entry_kind::EntryKind;
 use crate::gui::entry_prompt::entry_prompt;

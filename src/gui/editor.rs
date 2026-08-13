@@ -4,7 +4,6 @@ use crate::env::default_values::MAX_NAME_LENGTH;
 use crate::gui::control::{Control, Controls, default_controls};
 use crate::gui::entry_kind::EntryKind;
 use crate::gui::entry_prompt::entry_prompt;
-use crate::gui::main_controller::MainController;
 use crate::gui::mode::Mode;
 use crate::gui::view::entry_window::EntryWindow;
 use crate::gui::view::main_view::MainView;
@@ -13,7 +12,6 @@ use crate::model::tags::{Tags, empty_tags};
 use gdk::Key;
 use gtk::{self, gdk};
 use itertools::Itertools;
-use std::rc::Rc;
 
 pub mod entry_editor;
 

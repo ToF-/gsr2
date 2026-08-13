@@ -45,7 +45,7 @@ impl GsrPictureGrid {
         }
     }
 
-    pub fn set_label_text_at(&self, col: i32, row: i32, text: &str) {}
+    pub fn set_label_text_at(&self, _col: i32, _row: i32, _text: &str) {}
 
     pub fn set_focus_at(&self, col: i32, row: i32) {
         if let Some((current_col, current_row)) = self.imp().focus_at_coords.get() {
@@ -69,7 +69,7 @@ impl GsrPictureGrid {
 
     pub fn set_palette_off(&self) {}
 
-    pub fn set_picture_opacity_at(&self, col: i32, row: i32, opacity: f64) {}
+    pub fn set_picture_opacity_at(&self, _col: i32, _row: i32, _opacity: f64) {}
 
     pub fn size(&self) -> usize {
         let mut count: usize = 0;

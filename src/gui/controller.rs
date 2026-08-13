@@ -13,7 +13,6 @@ use crate::gui::editor::Editor;
 use crate::gui::enter_label::enter_label;
 use crate::gui::entry_kind::EntryKind;
 use crate::gui::event::Event;
-use crate::gui::main_controller::MainController;
 use crate::gui::main_controller::RcMainController;
 use crate::gui::mode::Mode;
 use crate::gui::navigator::Navigator;
@@ -33,7 +32,6 @@ use crate::model::rank::Rank;
 use crate::model::repository::Repository;
 use crate::model::selection_criteria::SelectionCriteria;
 use crate::model::tags::Tags;
-use crate::model::tags::tags_from_str;
 use gdk::{Key, ModifierType};
 use gtk::prelude::*;
 use gtk::{self, gdk};
@@ -90,7 +88,7 @@ impl Controller {
         if config.cover {
             cli.cover = !command_line_arguments.all;
         }
-        let mut repository = Repository::new(config.clone(), cli.clone(), false);
+        let repository = Repository::new(config.clone(), cli.clone(), false);
         match repository.initialize(None) {
             Ok(_) => {}
             Err(e) => panic!("can't initialize repository: {}", e),
@@ -172,8 +170,6 @@ impl Controller {
             self.main_view().set_focus_for_current_picture(self);
             let main_view = self.main_view();
             {
-                let binding = &self.navigator_rc;
-                let mut navigator = binding.borrow_mut();
                 self.set_slideshow_off();
                 if self.state().single_view() != self.main_view().single_view() {
                     main_view.toggle_view_stack(self);
@@ -1732,7 +1728,6 @@ impl Controller {
     }
 
     fn set_selection_range(&self) {
-        let pictures_per_row = self.state().pictures_per_row();
         let mut navigator = self.navigator_rc.borrow_mut();
         let position = navigator.position();
         navigator.set_selection_range(position);
@@ -1740,7 +1735,6 @@ impl Controller {
     }
 
     fn set_selection_range_all(&self) {
-        let pictures_per_row = self.state().pictures_per_row();
         let mut navigator = self.navigator_rc.borrow_mut();
         navigator.set_selection_range_all();
         navigator.set_page_changed()
