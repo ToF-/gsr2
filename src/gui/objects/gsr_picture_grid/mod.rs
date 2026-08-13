@@ -48,9 +48,11 @@ impl GsrPictureGrid {
             }
         }
         if let Some((col, row)) = self.imp().focus_at_coords.get() {
+            println!("set_focus while initializing pictures");
             self.set_focus_at(col, row);
         }
     }
+
     pub fn change_size(&self, pictures_per_row: i32, palette_on: bool) {
         self.imp().initialize(pictures_per_row, (0, 0), palette_on);
     }

@@ -70,7 +70,6 @@ impl GsrPictureCellBox {
     }
 
     pub fn enter_focus(&self) {
-        dbg!("enter focus");
         self.imp().has_focus.set(true);
         let label_rc = self.imp().label.clone();
         label_rc.borrow().as_ref().map(flip_focus_symbol_on_label);
@@ -234,6 +233,7 @@ fn make_picture(picture_file_path: &str) -> GtkPicture {
 
 fn flip_focus_symbol_on_label(label: &GtkLabel) {
     label.set_text(&flip_focus_symbol(&label.text().to_string()));
+    label.queue_draw();
 }
 
 fn flip_focus_symbol(label_text: &str) -> String {
