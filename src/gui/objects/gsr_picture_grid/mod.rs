@@ -29,9 +29,9 @@ impl GsrPictureGrid {
         obj
     }
 
-    pub fn initialize_pictures(&self, navigator: &Navigator, gallery: &Gallery) {
+    pub fn initialize_pictures(&self, navigator: &Navigator, gallery: &Gallery, palette_on: bool) {
         self.fill_with_cell_boxes();
-        let palette_on = self.imp().palette_on.get();
+        self.imp().palette_on.set(palette_on);
         let pictures_per_row = self.imp().pictures_per_row.get();
         for col in 0..pictures_per_row {
             for row in 0..pictures_per_row {
