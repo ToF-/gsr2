@@ -1,3 +1,4 @@
+use crate::gui::objects::gsr_picture_cell_box::GsrPictureCellBox;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::default_values::{FULL_OPACITY, HALF_OPACITY};
 use crate::file::paths::check_path_exists;
@@ -258,31 +259,8 @@ impl MainView {
         palette_on: bool,
     ) {
         let navigator: Navigator = controller.navigator();
-        dbg!(self.gsr_picture_grid.size());
-        dbg!(&navigator);
         if let Ok(gallery) = controller.repository().gallery_rc().try_borrow() {
-            for col in 0..pictures_per_row {
-                for row in 0..pictures_per_row {
-                    let coords = (row as usize, col as usize);
-                    if let Some(index) = navigator.position_from_coords(coords.0, coords.1) {
-                        let picture = gallery.picture(index);
-                        let has_focus = index == navigator.position();
-                        if has_focus {
-                            self.gsr_picture_grid.set_focus_at(col, row);
-                        }
-                        self.gsr_picture_grid
-                            .set_picture_at(col, row, &picture, index);
-                        let opacity = if navigator.is_selected(index) {
-                            HALF_OPACITY
-                        } else {
-                            FULL_OPACITY
-                        };
-                        self.gsr_picture_grid
-                            .set_picture_opacity_at(col, row, opacity);
-                        // self.self.gsr_picture_grid.set_label_text_at(&picture, col, row, with_focus);
-                    }
-                }
-            }
+            self.gsr_picture_grid.initialize_pictures(&navigator, &gallery);
         } else {
             panic!("can't borrow");
         }
@@ -624,3 +602,4 @@ pub fn make_entry_window(application_window: &ApplicationWindow, prompt: &str) -
     window.present();
     window
 }
+
