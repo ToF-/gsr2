@@ -123,7 +123,21 @@ impl GsrPictureCellBox {
     }
 
     pub fn set_label(&self, text: &str) {
-        self.label().set_text(text);
+        let label_opt = self.imp().label.borrow().clone();
+        if let Some(label) = label_opt {
+            label.set_text(text);
+        }
+    }
+
+    pub fn set_label_from_picture(&self, picture: &Picture) {
+        let text = picture_label_display(
+                &picture.label(),
+                picture.rank(),
+                picture.cover(),
+                None, // focus will be inserted / flipped / removed directly on the GtkLabel
+                picture.file_size(),
+        );
+        self.set_label(&text);
     }
 
     fn append_palette(&self, palette_opt: Option<Palette>) {

@@ -1,51 +1,38 @@
+use crate::gui::objects::gsr_picture_grid::GsrPictureGrid;
 use crate::gui::navigator::Navigator;
 use std::cell::RefCell;
 use crate::cli::command_line_arguments::CommandLineArguments;
-use crate::env::default_values::FOCUS_SYMBOL_1;
-use crate::env::default_values::QUARTER_OPACITY;
 use crate::env::default_values::{FULL_OPACITY, HALF_OPACITY};
 use crate::file::paths::check_path_exists;
 use crate::gui::action::Action;
 use crate::gui::action::gio_action::GioAction;
-use crate::gui::action::gio_action_type::GioActionType;
 use crate::gui::control::Control;
 use crate::gui::control::default_controls;
 use crate::gui::controller::Controller;
 use crate::gui::controller::RcController;
 use crate::gui::direction::Direction;
 use crate::gui::display::title_display;
-use crate::gui::event::Event::{KeyPressed, NextSlideDelay, PaneClicked};
+use crate::gui::event::Event::{NextSlideDelay, PaneClicked};
 use crate::gui::main_controller::MainController;
 use crate::gui::main_controller::RcMainController;
 use crate::gui::mode::Mode;
 use crate::gui::objects::gsr_application::GsrApplication;
-use crate::gui::objects::gsr_picture_cell_box::GsrPictureCellBox;
 use crate::gui::view::entry_window::EntryWindow;
 use crate::gui::view::grid_view::GridView;
 use crate::gui::view::picture_frame::PictureFrame;
 use crate::gui::view::treelist_view::TreeListView;
 use crate::model::catalog::Catalog;
-use crate::model::change::Change;
 use crate::model::picture::Picture;
-use crate::model::rank::Rank;
 use crate::model::thumbnail::no_thumbnail_picture;
-use gtk::gdk::ModifierType;
-use gtk::gio;
 use gtk::gio::ActionEntry;
 use gtk::gio::File as GtkFile;
 use gtk::gio::prelude::*;
-use gtk::gio::prelude::*;
 use gtk::glib;
-use gtk::glib::Variant;
 use gtk::glib::clone;
-use gtk::glib::subclass::Signal;
-use gtk::glib::subclass::prelude::*;
 use gtk::glib::timeout_add_local;
 use gtk::glib::{ControlFlow, Propagation};
-use gtk::prelude::ActionGroupExt;
 use gtk::prelude::AdjustmentExt;
 use gtk::prelude::BoxExt;
-use gtk::prelude::ToVariant;
 #[allow(deprecated)]
 use gtk::prelude::{
     ApplicationExtManual, Cast, GestureSingleExt, GridExt, GtkApplicationExt, GtkWindowExt,
@@ -63,6 +50,7 @@ pub const RIGHT_PANE: usize = 1;
 
 #[derive(Clone, Debug)]
 pub struct MainView {
+    gsr_picture_grid: GsrPictureGrid,
     grid_view_rc: RefCell<GridView>,
     picture_frame: PictureFrame,
     application_window: gtk::ApplicationWindow,
@@ -122,20 +110,22 @@ impl MainView {
             .downcast::<gtk::Viewport>()
             .expect("can't donwcast view port");
 
-        let grid = multiple_view_port
+        let gsr_picture_grid = multiple_view_port
             .first_child()
             .expect("can't get multiple view panel")
             .downcast::<gtk::Grid>()
             .expect("can't downcast panel to grid")
             .child_at(1, 0)
             .expect("can't find panel central child")
-            .downcast::<gtk::Grid>()
+            .downcast::<GsrPictureGrid>()
             .expect("can't dowcast panel central child to grid");
 
-        let grid_view = GridView::new_from_grid(&grid, controller_rc);
+        let grid_view = GridView::new_from_grid(&gsr_picture_grid, controller_rc);
         let picture_frame = PictureFrame::new_from_frame(&frame);
 
+
         MainView {
+            gsr_picture_grid,
             grid_view_rc: RefCell::new(grid_view),
             picture_frame: picture_frame.clone(),
             application_window: application_window.clone(),
@@ -167,7 +157,7 @@ impl MainView {
         let picture_frame = PictureFrame::new();
         let single_view_scrolled_window = make_scrolled_window();
         let multiple_view_scrolled_window = make_scrolled_window();
-        let panel = make_panel(&grid_view.grid());
+        let panel = make_panel(&grid_view.gsr_picture_grid);
         let frame: gtk::Box = picture_frame.frame();
         single_view_scrolled_window.set_child(Some(&frame));
         multiple_view_scrolled_window.set_child(Some(&panel));
@@ -327,7 +317,7 @@ impl MainView {
             && let Some((row, col)) = navigator.coords_from_position(position)
         {
             let grid_view = self.grid_view_rc.borrow();
-            grid_view.set_label_text_at(&picture, col as i32, row as i32, with_focus);
+            grid_view.set_label_text_at(&picture, col as i32, row as i32)
         }
     }
 
@@ -459,7 +449,7 @@ fn make_application_window(
     */
 }
 #[allow(deprecated)]
-fn make_panel(view_grid: &gtk::Grid) -> gtk::Grid {
+fn make_panel(gsr_picture_grid: &GsrPictureGrid) -> gtk::Grid {
     let panel = Grid::new();
     panel.set_hexpand(true);
     panel.set_vexpand(true);
@@ -472,7 +462,7 @@ fn make_panel(view_grid: &gtk::Grid) -> gtk::Grid {
     right_pane.set_width_chars(5);
     right_pane.add_css_class("pane");
     panel.attach(&left_pane, 0, 0, 1, 1);
-    panel.attach(view_grid, 1, 0, 1, 1);
+    panel.attach(gsr_picture_grid, 1, 0, 1, 1);
     panel.attach(&right_pane, 2, 0, 1, 1);
     panel
 }

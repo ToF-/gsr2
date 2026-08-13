@@ -1,32 +1,26 @@
-use std::cell::Cell;
+use crate::gui::objects::gsr_picture_grid::GsrPictureGrid;
 use crate::env::default_values::{
     MAX_PICTURES_PER_ROW,
 };
 use crate::gui::controller::RcController;
 use crate::gui::main_controller::MainController;
-use crate::gui::mode::Mode;
 use crate::gui::objects::gsr_picture_cell_box::GsrPictureCellBox;
 use crate::model::picture::Picture;
-use gtk::glib::timeout_add_local;
-use gtk::glib::{ControlFlow, clone};
 use gtk::prelude::Cast;
 use gtk::prelude::GridExt;
 use gtk::prelude::WidgetExt;
-use std::time::Duration;
 
 #[derive(Clone, Debug)]
 pub struct GridView {
-    grid: gtk::Grid,
+    pub gsr_picture_grid: GsrPictureGrid,
     controller_rc: RcController,
-    focus_coords: Cell<(i32, i32)>,
 }
 
 impl GridView {
-    pub fn new_from_grid(grid: &gtk::Grid, controller_rc: &RcController) -> Self {
+    pub fn new_from_grid(gsr_picture_grid: &GsrPictureGrid, controller_rc: &RcController) -> Self {
         GridView {
             controller_rc: controller_rc.clone(),
-            grid: grid.clone(),
-            focus_coords: Cell::new((0,0)),
+            gsr_picture_grid: gsr_picture_grid.clone(),
         }
     }
     pub fn new(
@@ -35,10 +29,8 @@ impl GridView {
         controller_rc: &RcController,
         main_controller: &MainController,
     ) -> Self {
-        let grid = make_grid();
         let grid_view = GridView {
-            grid,
-            focus_coords: Cell::new((0,0)),
+            gsr_picture_grid: GsrPictureGrid::new(10, (0, 0), false),
             controller_rc: controller_rc.clone(),
         };
         grid_view.attach_cells(0, pictures_per_row, palette_on, main_controller);
@@ -47,80 +39,40 @@ impl GridView {
     }
 
 
-    pub fn grid(&self) -> gtk::Grid {
-        self.grid.clone()
+    pub fn set_focus_at(&self, col: i32, row: i32) {
+        self.gsr_picture_grid.set_focus_at(col, row);
     }
 
-    pub fn set_focus_at(&self, col: i32, row: i32) {
-        dbg!(&self.focus_coords);
-        let (current_col,current_row) = self.focus_coords.get();
-        println!("set_focus_at ({},{}) with current focus : ({},{})", col, row, current_col, current_row);
-        let grid = self.grid();
-        if let Some(cell) = grid.child_at(current_col, current_row) {
-            let cell_box = cell
-                .downcast::<GsrPictureCellBox>()
-                .expect("not a GsrPictureCellBox");
-                cell_box.leave_focus()
-            }
-        if let Some(cell) = grid.child_at(col, row) {
-            let cell_box = cell
-                .downcast::<GsrPictureCellBox>()
-                .expect("not a GsrPictureCellBox");
-                cell_box.enter_focus();
-        }
-        self.focus_coords.set((col, row));
-        dbg!(&self.focus_coords);
-    }
     pub fn set_label_text_at(
         &self,
         picture: &Picture,
         col: i32,
         row: i32,
-        with_focus: Option<char>,
     ) {
-        let grid = self.grid();
-        if let Some(cell) = grid.child_at(col, row) {
-            let cell_box = cell
-                .downcast::<GsrPictureCellBox>()
-                .expect("not a GsrPictureCellBox");
-            match with_focus {
-                None => cell_box.leave_focus(),
-                Some(_) => cell_box.enter_focus(),
-            }
-        }
+        self.gsr_picture_grid.set_label_from_picture_at(picture, col, row);
     }
 
     #[allow(dead_code)]
     pub fn size(&self) -> usize {
-        let mut count: usize = 0;
-        for col in 0..MAX_PICTURES_PER_ROW {
-            for row in 0..MAX_PICTURES_PER_ROW {
-                if self.grid.child_at(col, row).is_some() {
-                    count += 1
-                }
-            }
-        }
-        count
+        self.gsr_picture_grid.size()
     }
 
     pub fn attach_cells(&self, picture_index_start: usize, pictures_per_row: i32, palette_on: bool, main_controller: &MainController) {
-        let grid = &self.grid;
         for col in 0..pictures_per_row {
             for row in 0..pictures_per_row {
                 let picture_index = ((picture_index_start as i32) + (row * pictures_per_row) + col) as usize;
                 let cell_box = GsrPictureCellBox::new(col, row, picture_index, pictures_per_row, palette_on);
                 cell_box.connect_main_controller(main_controller);
-                grid.attach(&cell_box, col, row, 1, 1)
+                self.gsr_picture_grid.attach(&cell_box, col, row, 1, 1)
             }
         }
     }
 
     pub fn remove_cells(&self) {
-        let grid = &self.grid;
         for col in 0..MAX_PICTURES_PER_ROW {
             for row in 0..MAX_PICTURES_PER_ROW {
-                if let Some(cell_box) = grid.child_at(col, row) {
-                    grid.remove(&cell_box)
+                if let Some(cell_box) = self.gsr_picture_grid.child_at(col, row) {
+                    self.gsr_picture_grid.remove(&cell_box)
                 }
             }
         }
@@ -133,15 +85,14 @@ impl GridView {
         picture: &Picture,
         picture_index: usize,
     ) {
-        let grid = self.grid();
-        if let Some(widget) = grid.child_at(col, row) {
+        if let Some(widget) = self.gsr_picture_grid.child_at(col, row) {
             let cell_box: GsrPictureCellBox = widget.downcast::<GsrPictureCellBox>().unwrap();
             cell_box.attach_picture(picture, picture_index);
         }
     }
 
     fn cell_box_at(&self, col: i32, row: i32) -> Option<GsrPictureCellBox> {
-        if let Some(widget) = self.grid.child_at(col, row) {
+        if let Some(widget) = self.gsr_picture_grid.child_at(col, row) {
             widget.downcast::<GsrPictureCellBox>().ok()
         } else {
             None
@@ -170,6 +121,7 @@ impl GridView {
         self.remove_cells();
         self.attach_cells(0, pictures_per_row, palette_on, main_controller);
     }
+
 }
 pub fn make_grid() -> gtk::Grid {
     gtk::Grid::builder()

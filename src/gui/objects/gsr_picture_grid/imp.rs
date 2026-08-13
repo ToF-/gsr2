@@ -3,9 +3,9 @@ use gtk::glib;
 use gtk::subclass::prelude::*;
 
 pub struct GsrPictureGrid {
-    focus_at_coords: Cell<Option<(i32, i32)>>,
-    palette_on: Cell<bool>,
-    pictures_per_row: Cell<i32>,
+    pub focus_at_coords: Cell<Option<(i32, i32)>>,
+    pub palette_on: Cell<bool>,
+    pub pictures_per_row: Cell<i32>,
 }
 
 impl Default for GsrPictureGrid {
