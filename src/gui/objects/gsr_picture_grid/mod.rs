@@ -24,6 +24,11 @@ glib::wrapper! {
 impl GsrPictureGrid {
     pub fn new(pictures_per_row: i32, focus_at_coords: (i32, i32), palette_on: bool) -> Self {
         let obj: Self = glib::Object::builder().build();
+        obj.set_row_homogeneous(true);
+        obj.set_column_homogeneous(true);
+        obj.set_hexpand(true);
+        obj.set_vexpand(true);
+
         obj.imp()
             .initialize(pictures_per_row, focus_at_coords, palette_on);
         obj
