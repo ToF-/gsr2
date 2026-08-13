@@ -1,9 +1,9 @@
 use gtk::Label as GtkLabel;
-use std::cell::RefCell;
 use gtk::glib;
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 use std::cell::Cell;
+use std::cell::RefCell;
 
 pub struct GsrPictureCellBox {
     pub col: Cell<i32>,
@@ -27,7 +27,6 @@ impl Default for GsrPictureCellBox {
             label: RefCell::new(None),
             has_focus: Cell::new(false),
             timeout_rc: RefCell::new(None),
-
         }
     }
 }

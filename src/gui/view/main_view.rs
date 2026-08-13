@@ -1,6 +1,3 @@
-use crate::gui::objects::gsr_picture_grid::GsrPictureGrid;
-use crate::gui::navigator::Navigator;
-use std::cell::RefCell;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::default_values::{FULL_OPACITY, HALF_OPACITY};
 use crate::file::paths::check_path_exists;
@@ -16,9 +13,10 @@ use crate::gui::event::Event::{NextSlideDelay, PaneClicked};
 use crate::gui::main_controller::MainController;
 use crate::gui::main_controller::RcMainController;
 use crate::gui::mode::Mode;
+use crate::gui::navigator::Navigator;
 use crate::gui::objects::gsr_application::GsrApplication;
+use crate::gui::objects::gsr_picture_grid::GsrPictureGrid;
 use crate::gui::view::entry_window::EntryWindow;
-use crate::gui::view::grid_view::GridView;
 use crate::gui::view::picture_frame::PictureFrame;
 use crate::gui::view::treelist_view::TreeListView;
 use crate::model::catalog::Catalog;
@@ -40,6 +38,7 @@ use gtk::prelude::{
 };
 use gtk::{ApplicationWindow, Grid, Label, Picture as GtkPicture, ScrolledWindow};
 use palette_extract::Color;
+use std::cell::RefCell;
 use std::path::Path;
 use std::path::PathBuf;
 use std::sync::OnceLock;
@@ -51,7 +50,6 @@ pub const RIGHT_PANE: usize = 1;
 #[derive(Clone, Debug)]
 pub struct MainView {
     gsr_picture_grid: GsrPictureGrid,
-    grid_view_rc: RefCell<GridView>,
     picture_frame: PictureFrame,
     application_window: gtk::ApplicationWindow,
     stack: gtk::Stack,
@@ -120,13 +118,10 @@ impl MainView {
             .downcast::<GsrPictureGrid>()
             .expect("can't dowcast panel central child to grid");
 
-        let grid_view = GridView::new_from_grid(&gsr_picture_grid, controller_rc);
         let picture_frame = PictureFrame::new_from_frame(&frame);
-
 
         MainView {
             gsr_picture_grid,
-            grid_view_rc: RefCell::new(grid_view),
             picture_frame: picture_frame.clone(),
             application_window: application_window.clone(),
             stack: stack.clone(),
@@ -143,21 +138,19 @@ impl MainView {
         main_controller: &MainController,
     ) {
         let (pictures_per_row, palette_on) = if let Ok(controller) = controller_rc.try_borrow() {
-            (controller.state().pictures_per_row(),
-            controller.state().palette_on())
+            (
+                controller.state().pictures_per_row(),
+                controller.state().palette_on(),
+            )
         } else {
             panic!("can't borrow")
         };
-        let grid_view = GridView::new(
-            pictures_per_row.try_into().unwrap(),
-            palette_on,
-            controller_rc,
-            main_controller,
-        );
+        let gsr_picture_grid =
+            GsrPictureGrid::new(pictures_per_row.try_into().unwrap(), (0, 0), palette_on);
         let picture_frame = PictureFrame::new();
         let single_view_scrolled_window = make_scrolled_window();
         let multiple_view_scrolled_window = make_scrolled_window();
-        let panel = make_panel(&grid_view.gsr_picture_grid);
+        let panel = make_panel(&gsr_picture_grid);
         let frame: gtk::Box = picture_frame.frame();
         single_view_scrolled_window.set_child(Some(&frame));
         multiple_view_scrolled_window.set_child(Some(&panel));
@@ -250,12 +243,16 @@ impl MainView {
         self.application_window().set_title(Some(&title));
     }
 
-    pub fn set_pictures_for_multiple_view(&self, controller: &Controller, pictures_per_row: i32, palette_on: bool) {
+    pub fn set_pictures_for_multiple_view(
+        &self,
+        controller: &Controller,
+        pictures_per_row: i32,
+        palette_on: bool,
+    ) {
         let navigator: Navigator = controller.navigator();
         dbg!("set_pictures_for_multiple_view");
         dbg!(&navigator);
         if let Ok(gallery) = controller.repository().gallery_rc().try_borrow() {
-            let grid_view = self.grid_view_rc.borrow();
             for col in 0..pictures_per_row {
                 for row in 0..pictures_per_row {
                     let coords = (row as usize, col as usize);
@@ -263,16 +260,18 @@ impl MainView {
                         let picture = gallery.picture(index);
                         let has_focus = index == navigator.position();
                         if has_focus {
-                            grid_view.set_focus_at(col, row);
+                            self.gsr_picture_grid.set_focus_at(col, row);
                         }
-                        grid_view.set_picture_at(col, row, &picture, index);
-                        let opacity =     if navigator.is_selected(index) {
+                        self.gsr_picture_grid
+                            .set_picture_at(col, row, &picture, index);
+                        let opacity = if navigator.is_selected(index) {
                             HALF_OPACITY
                         } else {
                             FULL_OPACITY
                         };
-                        grid_view.set_picture_opacity_at(col, row, opacity);
-                        // self.grid_view.set_label_text_at(&picture, col, row, with_focus);
+                        self.gsr_picture_grid
+                            .set_picture_opacity_at(col, row, opacity);
+                        // self.self.gsr_picture_grid.set_label_text_at(&picture, col, row, with_focus);
                     }
                 }
             }
@@ -316,22 +315,18 @@ impl MainView {
         if !controller.state().single_view()
             && let Some((row, col)) = navigator.coords_from_position(position)
         {
-            let grid_view = self.grid_view_rc.borrow();
-            grid_view.set_label_text_at(&picture, col as i32, row as i32)
+            self.gsr_picture_grid
+                .set_label_from_picture_at(&picture, col as i32, row as i32);
         }
     }
 
-    pub fn set_focus_for_current_picture(
-        &self,
-        controller: &Controller,
-    ) {
+    pub fn set_focus_for_current_picture(&self, controller: &Controller) {
         let navigator = controller.navigator();
         let position = navigator.position();
-        if !controller.state().single_view() 
+        if !controller.state().single_view()
             && let Some((row, col)) = navigator.coords_from_position(position)
         {
-            let grid_view = self.grid_view_rc.borrow();
-            grid_view.set_focus_at(col as i32, row as i32)
+            self.gsr_picture_grid.set_focus_at(col as i32, row as i32)
         }
     }
 
@@ -341,8 +336,8 @@ impl MainView {
         if !controller.state().single_view()
             && let Some((row, col)) = navigator.coords_from_position(position)
         {
-            let grid_view = self.grid_view_rc.borrow();
-            grid_view.set_picture_opacity_at(col as i32, row as i32, opacity);
+            self.gsr_picture_grid
+                .set_picture_opacity_at(col as i32, row as i32, opacity);
         }
     }
 
@@ -374,9 +369,14 @@ impl MainView {
         treelist_view.popup();
         treelist_view
     }
-    pub fn change_grid_size(&mut self, pictures_per_row: usize, palette_on: bool, main_controller: &MainController) {
-        let grid_view = self.grid_view_rc.borrow();
-        grid_view.change_dimension(pictures_per_row as i32, palette_on, main_controller)
+    pub fn change_grid_size(
+        &mut self,
+        pictures_per_row: usize,
+        palette_on: bool,
+        main_controller: &MainController,
+    ) {
+        self.gsr_picture_grid
+            .change_size(pictures_per_row as i32, palette_on)
     }
 
     pub fn toggle_view_stack(&self, controller: &Controller) {

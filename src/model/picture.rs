@@ -1,9 +1,9 @@
-use crate::model::palette::Palette;
 use crate::file::paths::{file_name_from, thumbnail_name_from};
 use crate::model::cover::Cover;
 use crate::model::image_data::FileSize;
 use crate::model::image_data::ImageData;
 use crate::model::image_data::datetime_from_time_stamp;
+use crate::model::palette::Palette;
 use crate::model::rank::Rank;
 use crate::model::selection_criteria::SelectionCriteria;
 use crate::model::tags::Tags;
@@ -109,7 +109,9 @@ impl Picture {
     }
 
     pub fn palette(&self) -> Option<Palette> {
-        self.image_data.as_ref().map(|image_data| image_data.palette())
+        self.image_data
+            .as_ref()
+            .map(|image_data| image_data.palette())
     }
 
     pub fn category_name(&self) -> String {

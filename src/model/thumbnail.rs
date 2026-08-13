@@ -1,7 +1,7 @@
 extern crate image;
-use std::cell::OnceCell;
 use gtk::gdk;
 use gtk::glib;
+use std::cell::OnceCell;
 use std::ffi::OsStr;
 use std::fs::File;
 use std::io::BufReader;
@@ -22,9 +22,9 @@ pub fn encode_no_thumbnail_picture() -> gtk::Picture {
         for x in 0..width {
             if x >= 32
                 && x < width - 32
-                    && (
-                        (x as i32 - y as i32).abs() < THICKNESS
-                        || (x as i32 - (width - 1 - y) as i32).abs() < THICKNESS) {
+                && ((x as i32 - y as i32).abs() < THICKNESS
+                    || (x as i32 - (width - 1 - y) as i32).abs() < THICKNESS)
+            {
                 let offset = y * stride + x * 4;
                 pixels[offset] = 127;
                 pixels[offset + 1] = 127;
@@ -46,9 +46,8 @@ pub fn encode_no_thumbnail_picture() -> gtk::Picture {
 }
 
 pub fn make_no_thumbnail_picture() -> gtk::Picture {
-    let texture = gtk::gdk::Texture::from_resource(
-        "/org/example/gsr/images/no_image_available.png",
-    );
+    let texture =
+        gtk::gdk::Texture::from_resource("/org/example/gsr/images/no_image_available.png");
     gtk::Picture::for_paintable(&texture)
 }
 

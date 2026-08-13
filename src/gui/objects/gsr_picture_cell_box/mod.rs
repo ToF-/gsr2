@@ -1,15 +1,16 @@
- use crate::env::default_values::FOCUS_SYMBOL_1;
- use crate::env::default_values::FOCUS_SYMBOL_2;
- use crate::env::default_values::GRID_PALETTE_AREA_HEIGHT;
- use crate::env::default_values::GRID_PALETTE_AREA_WIDTH;
- use crate::file::paths::check_path_exists;
- use crate::gui::view::palette_area::make_palette_area;
+
 use crate::env::default_values::FOCUS_BLINKING_DURATION;
+use crate::env::default_values::FOCUS_SYMBOL_1;
+use crate::env::default_values::FOCUS_SYMBOL_2;
+use crate::env::default_values::GRID_PALETTE_AREA_HEIGHT;
+use crate::env::default_values::GRID_PALETTE_AREA_WIDTH;
+use crate::file::paths::check_path_exists;
 use crate::gui::action::Action;
 use crate::gui::action::gio_action::GioAction;
 use crate::gui::action::gio_action::SimpleActionCall;
 use crate::gui::display::picture_label_display;
 use crate::gui::main_controller::MainController;
+use crate::gui::view::palette_area::make_palette_area;
 use crate::model::palette::Palette;
 use crate::model::picture::Picture;
 use crate::model::thumbnail::no_thumbnail_picture;
@@ -19,11 +20,11 @@ use gtk::Box as GtkBox;
 use gtk::Label as GtkLabel;
 use gtk::Picture as GtkPicture;
 use gtk::gio::File as GtkFile;
+use gtk::glib;
 use gtk::glib::SourceId;
 use gtk::glib::subclass::prelude::*;
 use gtk::glib::timeout_add_local;
 use gtk::glib::{ControlFlow, Propagation};
-use gtk::glib;
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 use gtk::{Align, Orientation};
@@ -44,7 +45,13 @@ glib::wrapper! {
 }
 
 impl GsrPictureCellBox {
-    pub fn new(col: i32, row: i32, picture_index: usize, pictures_per_row: i32, palette_on: bool) -> Self {
+    pub fn new(
+        col: i32,
+        row: i32,
+        picture_index: usize,
+        pictures_per_row: i32,
+        palette_on: bool,
+    ) -> Self {
         let obj: Self = glib::Object::new();
         obj.initialize();
         obj.imp().col.set(col);
@@ -70,32 +77,29 @@ impl GsrPictureCellBox {
         let label_rc = self.imp().label.clone();
         label_rc.borrow().as_ref().map(flip_focus_symbol_on_label);
         self.attach_focus_blink_event();
-
     }
 
     fn attach_focus_blink_event(&self) {
         let label_rc = self.imp().label.clone();
         *self.imp().timeout_rc.borrow_mut() = Some(timeout_add_local(
-                Duration::from_millis(FOCUS_BLINKING_DURATION),
-                clone!(
-                    #[strong]
-                    label_rc,
-                    move || {
-                        label_rc.borrow()
-                            .as_ref()
-                            .map(flip_focus_symbol_on_label);
-                        ControlFlow::Continue
-                    })
-                )
-            );
-
+            Duration::from_millis(FOCUS_BLINKING_DURATION),
+            clone!(
+                #[strong]
+                label_rc,
+                move || {
+                    label_rc.borrow().as_ref().map(flip_focus_symbol_on_label);
+                    ControlFlow::Continue
+                }
+            ),
+        ));
     }
 
     pub fn leave_focus(&self) {
         self.imp().has_focus.set(false);
         self.detach_focus_blink_event();
         let label_rc = self.imp().label.clone();
-        label_rc.borrow()
+        label_rc
+            .borrow()
             .as_ref()
             .map(remove_focus_symbol_from_label);
     }
@@ -106,10 +110,10 @@ impl GsrPictureCellBox {
         }
     }
 
-    fn remove_children(&self)  {
+    fn remove_children(&self) {
         while let Some(child) = self.first_child() {
             self.remove(&child)
-        };
+        }
         *self.imp().label.borrow_mut() = None;
     }
 
@@ -131,22 +135,22 @@ impl GsrPictureCellBox {
 
     pub fn set_label_from_picture(&self, picture: &Picture) {
         let text = picture_label_display(
-                &picture.label(),
-                picture.rank(),
-                picture.cover(),
-                None, // focus will be inserted / flipped / removed directly on the GtkLabel
-                picture.file_size(),
+            &picture.label(),
+            picture.rank(),
+            picture.cover(),
+            None, // focus will be inserted / flipped / removed directly on the GtkLabel
+            picture.file_size(),
         );
         self.set_label(&text);
     }
 
     fn append_palette(&self, palette_opt: Option<Palette>) {
         if let Some(palette) = palette_opt {
-        self.append(&make_palette_area(
+            self.append(&make_palette_area(
                 palette.sample(),
                 GRID_PALETTE_AREA_WIDTH,
                 GRID_PALETTE_AREA_HEIGHT,
-        ))
+            ))
         }
     }
     pub fn attach_picture(&self, picture: &Picture, picture_index: usize) {
@@ -154,11 +158,11 @@ impl GsrPictureCellBox {
         let picture_file_path = picture.view_file_path(self.imp().pictures_per_row.get() as usize);
         self.append(&make_picture(&picture_file_path));
         let label = make_label(&picture_label_display(
-                &picture.label(),
-                picture.rank(),
-                picture.cover(),
-                None, // focus will be inserted / flipped / removed directly on the GtkLabel
-                picture.file_size(),
+            &picture.label(),
+            picture.rank(),
+            picture.cover(),
+            None, // focus will be inserted / flipped / removed directly on the GtkLabel
+            picture.file_size(),
         ));
         self.append(&label);
         *self.imp().label.borrow_mut() = Some(label);
@@ -167,7 +171,7 @@ impl GsrPictureCellBox {
         };
         self.imp().picture_index.set(picture_index);
     }
-    
+
     pub fn connect_main_controller(&self, main_controller: &MainController) {
         self.insert_action_group("main-controller", Some(&main_controller.gio_action_group()));
         let col = self.imp().col.get();
@@ -180,11 +184,7 @@ impl GsrPictureCellBox {
         self.add_controller(self.make_gesture_click(3, right_click_action_call));
     }
 
-    fn make_gesture_click(
-        &self,
-        button: u32,
-        action_call: SimpleActionCall
-    ) -> gtk::GestureClick {
+    fn make_gesture_click(&self, button: u32, action_call: SimpleActionCall) -> gtk::GestureClick {
         let gesture_click = gtk::GestureClick::new();
         gesture_click.set_button(button);
         gesture_click.connect_pressed(clone!(
@@ -211,7 +211,6 @@ impl GsrPictureCellBox {
         ));
         gesture_click
     }
-
 }
 fn make_label(text: &str) -> GtkLabel {
     GtkLabel::builder()
@@ -221,11 +220,8 @@ fn make_label(text: &str) -> GtkLabel {
         .build()
 }
 
-
 fn make_picture(picture_file_path: &str) -> GtkPicture {
-    if let Ok(file_path) =
-        check_path_exists(&PathBuf::from(picture_file_path))
-    {
+    if let Ok(file_path) = check_path_exists(&PathBuf::from(picture_file_path)) {
         gtk_picture_from_file_path(file_path)
     } else {
         no_thumbnail_picture()
@@ -233,9 +229,9 @@ fn make_picture(picture_file_path: &str) -> GtkPicture {
 }
 
 // flip or insert the focus symbol on the label
-// empty -> ⭓ 
+// empty -> ⭓
 // ⭓ foo -> ⭔ foo
-// ⭔ foo -> ⭓ foo 
+// ⭔ foo -> ⭓ foo
 // bar -> ⭓ bar
 
 fn flip_focus_symbol_on_label(label: &GtkLabel) {
@@ -253,7 +249,7 @@ fn flip_focus_symbol(label_text: &str) -> String {
                 text.insert(0, first_label_char);
                 text.insert(0, ' ');
                 text.insert(0, FOCUS_SYMBOL_1);
-            },
+            }
         }
     } else {
         text.insert(0, FOCUS_SYMBOL_1);
@@ -264,7 +260,7 @@ fn flip_focus_symbol(label_text: &str) -> String {
 // remove the focus symbol from the label
 // empty -> empty
 // ⭓ foo -> foo
-// ⭔ foo -> foo 
+// ⭔ foo -> foo
 // bar -> bar
 fn remove_focus_symbol_from_label(label: &GtkLabel) {
     label.set_text(&remove_focus_symbol(&label.text().to_string()));
@@ -272,23 +268,21 @@ fn remove_focus_symbol_from_label(label: &GtkLabel) {
 
 fn remove_focus_symbol(label_text: &str) -> String {
     let mut text = label_text.to_string();
-    if ! text.is_empty() {
+    if !text.is_empty() {
         let first_char = text.remove(0);
         match first_char {
             FOCUS_SYMBOL_1 | FOCUS_SYMBOL_2 => {
-                if ! text.is_empty() {
+                if !text.is_empty() {
                     let first_char = text.remove(0);
                     match first_char {
-                        ' ' => {},
+                        ' ' => {}
                         first_label_char => {
                             text.insert(0, first_label_char);
-                        },
+                        }
                     }
                 }
-            },
-            first_label_char => {
-                text.insert(0, first_label_char)
             }
+            first_label_char => text.insert(0, first_label_char),
         };
     }
     text.to_string()
@@ -304,7 +298,6 @@ mod tests {
         assert_eq!("⭓ foo", flip_focus_symbol("foo"));
         assert_eq!("⭔ foo", flip_focus_symbol("⭓ foo"));
         assert_eq!("⭓ foo", flip_focus_symbol("⭔ foo"));
-
     }
     #[test]
     fn removing_the_focus_symbol() {

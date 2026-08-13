@@ -136,8 +136,7 @@ impl Controller {
         let gio_action = GioAction::from((simple_action, variant_opt));
         let action = Action::from(gio_action);
         match action {
-            Action::Nothing => {
-            }
+            Action::Nothing => {}
             Action::MoveTowards(Direction::NextPage) => {
                 self.move_next();
             }
