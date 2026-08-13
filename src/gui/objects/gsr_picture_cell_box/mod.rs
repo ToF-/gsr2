@@ -70,6 +70,7 @@ impl GsrPictureCellBox {
     }
 
     pub fn enter_focus(&self) {
+        dbg!("enter focus");
         self.imp().has_focus.set(true);
         let label_rc = self.imp().label.clone();
         label_rc.borrow().as_ref().map(flip_focus_symbol_on_label);

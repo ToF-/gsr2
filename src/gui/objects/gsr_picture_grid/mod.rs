@@ -47,7 +47,9 @@ impl GsrPictureGrid {
                 }
             }
         }
-        dbg!(self.size());
+        if let Some((col, row)) = self.imp().focus_at_coords.get() {
+            self.set_focus_at(col, row);
+        }
     }
     pub fn change_size(&self, pictures_per_row: i32, palette_on: bool) {
         self.imp().initialize(pictures_per_row, (0, 0), palette_on);
@@ -105,7 +107,7 @@ impl GsrPictureGrid {
             let gsr_picture_cell_box = widget
                 .downcast::<GsrPictureCellBox>()
                 .expect("can't downcast to GsrPictureCellBox");
-            gsr_picture_cell_box.leave_focus();
+            gsr_picture_cell_box.enter_focus();
             self.imp().focus_at_coords.set(Some((col, row)));
         }
     }
