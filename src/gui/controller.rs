@@ -125,6 +125,7 @@ impl Controller {
     pub fn set_main_controller_rc(&mut self, main_controller_rc: RcMainController) {
         self.main_controller_rc_opt = Some(main_controller_rc);
     }
+    // BAR
     pub fn process_action(
         &self,
         simple_action: &gtk::gio::SimpleAction,
@@ -135,8 +136,32 @@ impl Controller {
         let action = Action::from(gio_action);
         match action {
             Action::Nothing => {}
+            Action::Quit => {
+                self.quit()
+            }
+            Action::MoveTowards(Direction::Last) => {
+                self.move_towards(Direction::Last)
+            }
+            Action::MoveTowards(Direction::First) => {
+                self.move_towards(Direction::First)
+            }
+            Action::MoveTowards(Direction::PageEnd) => {
+                self.move_towards(Direction::PageEnd)
+            }
+            Action::MoveTowards(Direction::PageStart) => {
+                self.move_towards(Direction::PageStart)
+            }
+            Action::MoveTowards(Direction::Up) => {
+                self.move_towards(Direction::Up)
+            }
+            Action::MoveTowards(Direction::Down) => {
+                self.move_towards(Direction::Down)
+            }
             Action::MoveTowards(Direction::NextPage) => {
                 self.move_next();
+            }
+            Action::MoveTowards(Direction::PrevPage) => {
+                self.move_towards(Direction::PrevPage);
             }
             Action::MoveTowards(Direction::Right) => {
                 self.arrow_move(Direction::Right);

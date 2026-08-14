@@ -53,7 +53,6 @@ impl GsrPictureGrid {
             }
         }
         if let Some((col, row)) = self.imp().focus_at_coords.get() {
-            println!("set_focus while initializing pictures");
             self.set_focus_at(col, row);
         }
     }

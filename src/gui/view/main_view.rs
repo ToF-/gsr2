@@ -155,7 +155,6 @@ impl MainView {
             }
             gsr_picture_grid
         };
-        dbg!(gsr_picture_grid.size());
         let picture_frame = PictureFrame::new();
         let single_view_scrolled_window = make_scrolled_window();
         let multiple_view_scrolled_window = make_scrolled_window();

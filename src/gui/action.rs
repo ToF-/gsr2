@@ -87,11 +87,20 @@ impl Action {
         format!("{}.{}", MAIN_CONTROLLER_GROUP_NAME, "test")
     }
 
+    // FOO
     pub fn from_control(control: &Control) -> Self {
         match control {
+            Control::Quit => Action::Quit,
+            Control::MoveLast => Action::MoveTowards(Direction::Last),
+            Control::MoveFirst => Action::MoveTowards(Direction::First),
+            Control::MoveStartPage => Action::MoveTowards(Direction::PageStart),
+            Control::MoveEndPage => Action::MoveTowards(Direction::PageEnd),
+            Control::MovePrev => Action::MoveTowards(Direction::PrevPage),
             Control::MoveNext => Action::MoveTowards(Direction::NextPage),
             Control::Right => Action::MoveTowards(Direction::Right),
             Control::Left => Action::MoveTowards(Direction::Left),
+            Control::Up => Action::MoveTowards(Direction::Up),
+            Control::Down => Action::MoveTowards(Direction::Down),
             Control::EnterChange => Action::PickChange,
             Control::Quit => Action::Quit,
             Control::RankNoStar => Action::Rank(Rank::NoStar),

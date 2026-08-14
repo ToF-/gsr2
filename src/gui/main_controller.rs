@@ -41,6 +41,7 @@ impl MainController {
     pub fn controller_rc_opt(&self) -> Option<RcController> {
         self.controller_opt_rc.borrow().clone()
     }
+    // LAW
     pub fn initialize(&self, controller_opt: Option<RcController>) {
         *self.controller_opt_rc.borrow_mut() = controller_opt.clone();
 
@@ -60,6 +61,9 @@ impl MainController {
                 }
             }
         );
+        action_entries.push(Self::action_entry(
+                GioActionType::from(Action::Quit),
+                activate.clone()));
         action_entries.push(Self::action_entry(
             GioActionType::from(Action::MoveTowards(Direction::Left)),
             activate.clone(),
