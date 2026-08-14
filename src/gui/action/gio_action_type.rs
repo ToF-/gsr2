@@ -73,8 +73,8 @@ impl From<Action> for GioActionType {
             Action::FocusAt(_, _) => {
                 GioActionType::new("focus-at", GioActionParameterType::Int32Pair)
             }
-            Action::GotoDirectory(_) => {
-                GioActionType::new("go-to-directory", GioActionParameterType::String)
+            Action::GotoDirectory => {
+                GioActionType::new("go-to-directory", GioActionParameterType::None)
             }
             Action::JumpToIndex(_) => {
                 GioActionType::new("jump-to-index", GioActionParameterType::Int32)

@@ -1,4 +1,3 @@
-use crate::gui::objects::gsr_picture_cell_box::GsrPictureCellBox;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::default_values::{FULL_OPACITY, HALF_OPACITY};
 use crate::file::paths::check_path_exists;
@@ -15,6 +14,7 @@ use crate::gui::main_controller::MainController;
 use crate::gui::mode::Mode;
 use crate::gui::navigator::Navigator;
 use crate::gui::objects::gsr_application::GsrApplication;
+use crate::gui::objects::gsr_picture_cell_box::GsrPictureCellBox;
 use crate::gui::objects::gsr_picture_grid::GsrPictureGrid;
 use crate::gui::view::entry_window::EntryWindow;
 use crate::gui::view::picture_frame::PictureFrame;
@@ -259,7 +259,8 @@ impl MainView {
     ) {
         let navigator: Navigator = controller.navigator();
         if let Ok(gallery) = controller.repository().gallery_rc().try_borrow() {
-            self.gsr_picture_grid.initialize_pictures(&navigator, &gallery, palette_on);
+            self.gsr_picture_grid
+                .initialize_pictures(&navigator, &gallery, palette_on);
         } else {
             panic!("can't borrow");
         }
@@ -601,4 +602,3 @@ pub fn make_entry_window(application_window: &ApplicationWindow, prompt: &str) -
     window.present();
     window
 }
-

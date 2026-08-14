@@ -45,7 +45,7 @@ impl MainController {
     pub fn initialize(&self, controller_opt: Option<RcController>) {
         *self.controller_opt_rc.borrow_mut() = controller_opt.clone();
 
-        let mut action_entries = vec![];
+        let mut entries = vec![];
 
         let activate = clone!(
             #[strong]
@@ -61,40 +61,48 @@ impl MainController {
                 }
             }
         );
-        action_entries.push(Self::action_entry(
-                GioActionType::from(Action::Quit),
-                activate.clone()));
-        action_entries.push(Self::action_entry(
+        entries.push(Self::action_entry(
+            GioActionType::from(Action::Quit),
+            activate.clone(),
+        ));
+        entries.push(Self::action_entry(
+            GioActionType::from(Action::GotoDirectory),
+            activate.clone(),
+        ));
+        entries.push(Self::action_entry(
+            GioActionType::from(Action::QuitDirectory),
+            activate.clone(),
+        ));
+        entries.push(Self::action_entry(
             GioActionType::from(Action::MoveTowards(Direction::Left)),
             activate.clone(),
         ));
-        action_entries.push(Self::action_entry(
+        entries.push(Self::action_entry(
             GioActionType::from(Action::FocusAt(0, 0)),
             activate.clone(),
         ));
-        action_entries.push(Self::action_entry(
+        entries.push(Self::action_entry(
             GioActionType::from(Action::Rank(Rank::ThreeStars)),
             activate.clone(),
         ));
-        action_entries.push(Self::action_entry(
+        entries.push(Self::action_entry(
             GioActionType::from(Action::TogglePalette),
             activate.clone(),
         ));
-        action_entries.push(Self::action_entry(
+        entries.push(Self::action_entry(
             GioActionType::from(Action::ToggleSelectedAt(0, 0)),
             activate.clone(),
         ));
-        action_entries.push(Self::action_entry(
+        entries.push(Self::action_entry(
             GioActionType::from(Action::ToggleThumbnailsView),
             activate.clone(),
         ));
-        action_entries.push(Self::action_entry(
+        entries.push(Self::action_entry(
             GioActionType::from(Action::Nothing),
             activate.clone(),
         ));
-        self.gio_action_group.add_action_entries(action_entries);
+        self.gio_action_group.add_action_entries(entries);
     }
-
     pub fn action_entry<F>(
         gio_action_ty: GioActionType,
         activate: F,

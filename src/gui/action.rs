@@ -31,7 +31,7 @@ pub enum Action {
     EnterRename,                   // enter new name for selected picture
     Find(Find),                    // find the first picture matching the find criteria
     FindNext,                      // find the next picture matching the current criteria
-    GotoDirectory(String),         // view only pictures from a sub directory
+    GotoDirectory,                 // view only pictures from a sub directory
     JumpToIndex(usize),            // jump to picture #n
     JumpToMark(char),              // jump to picture marked a|b|…|z
     JumpToRandom,                  // jump to a random picture
@@ -102,7 +102,8 @@ impl Action {
             Control::Up => Action::MoveTowards(Direction::Up),
             Control::Down => Action::MoveTowards(Direction::Down),
             Control::EnterChange => Action::PickChange,
-            Control::Quit => Action::Quit,
+            Control::GotoDirectory => Action::GotoDirectory,
+            Control::BackFromDirectory => Action::QuitDirectory,
             Control::RankNoStar => Action::Rank(Rank::NoStar),
             Control::RankOneStar => Action::Rank(Rank::OneStar),
             Control::RankThreeStars => Action::Rank(Rank::ThreeStars),

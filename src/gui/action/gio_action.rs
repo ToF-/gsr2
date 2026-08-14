@@ -62,7 +62,7 @@ impl From<Action> for GioAction {
             Action::Find(find) => Some(GioActionParameter::from(find)),
             Action::FindNext => None,
             Action::FocusAt(col, row) => Some(GioActionParameter::from((col, row))),
-            Action::GotoDirectory(name) => Some(GioActionParameter::from(name)),
+            Action::GotoDirectory => None,
             Action::JumpToIndex(index) => Some(GioActionParameter::from(index)),
             Action::JumpToMark(mark) => Some(GioActionParameter::from(mark)),
             Action::JumpToRandom => None,
@@ -142,9 +142,7 @@ impl From<GioAction> for Action {
                 let i32_pair: (i32, i32) = <(i32, i32)>::from(gio_action.parameter().unwrap());
                 Action::FocusAt(i32_pair.0, i32_pair.1)
             }
-            "go-to-directory" => {
-                Action::GotoDirectory(String::from(gio_action.parameter().unwrap()))
-            }
+            "go-to-directory" => Action::GotoDirectory,
             "jump-to-index" => Action::JumpToIndex(usize::from(gio_action.parameter().unwrap())),
             "jump-to-mark" => Action::JumpToMark(char::from(gio_action.parameter().unwrap())),
             "jump-to-random" => Action::JumpToRandom,

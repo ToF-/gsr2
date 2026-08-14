@@ -136,27 +136,15 @@ impl Controller {
         let action = Action::from(gio_action);
         match action {
             Action::Nothing => {}
-            Action::Quit => {
-                self.quit()
-            }
-            Action::MoveTowards(Direction::Last) => {
-                self.move_towards(Direction::Last)
-            }
-            Action::MoveTowards(Direction::First) => {
-                self.move_towards(Direction::First)
-            }
-            Action::MoveTowards(Direction::PageEnd) => {
-                self.move_towards(Direction::PageEnd)
-            }
-            Action::MoveTowards(Direction::PageStart) => {
-                self.move_towards(Direction::PageStart)
-            }
-            Action::MoveTowards(Direction::Up) => {
-                self.move_towards(Direction::Up)
-            }
-            Action::MoveTowards(Direction::Down) => {
-                self.move_towards(Direction::Down)
-            }
+            Action::GotoDirectory => self.go_to_directory(),
+            Action::QuitDirectory => self.back_from_directory(),
+            Action::Quit => self.quit(),
+            Action::MoveTowards(Direction::Last) => self.move_towards(Direction::Last),
+            Action::MoveTowards(Direction::First) => self.move_towards(Direction::First),
+            Action::MoveTowards(Direction::PageEnd) => self.move_towards(Direction::PageEnd),
+            Action::MoveTowards(Direction::PageStart) => self.move_towards(Direction::PageStart),
+            Action::MoveTowards(Direction::Up) => self.move_towards(Direction::Up),
+            Action::MoveTowards(Direction::Down) => self.move_towards(Direction::Down),
             Action::MoveTowards(Direction::NextPage) => {
                 self.move_next();
             }
@@ -1198,36 +1186,62 @@ impl Controller {
     }
 
     fn go_to_directory(&self) {
-        let mut command_line_arguments = self.command_line_arguments_rc.borrow_mut();
-        if command_line_arguments.cover
-            && let Some(directory) = parent_directory(&self.current_picture().file_path())
-            && Some(directory.clone()) != command_line_arguments.directory
-            && !self.state().single_view()
+        // don't go if we are not in cover views
+        if !self.command_line_arguments().cover {
+            eprintln!("cannot go to a directory when not in cover view");
+            return;
+        }
+        // don't go if we are in single view mode
+        if self.state().single_view() {
+            eprintln!("cannot go to a directory when in single view");
+            return;
+        };
+        // don't go if we are already in the directory
+        if let Some(directory) = parent_directory(&self.current_picture().file_path())
+            && Some(directory.clone()) == self.command_line_arguments().directory
         {
-            command_line_arguments.index = Some(self.navigator().position());
-            let clargs = command_line_arguments.clone();
-            self.state()
-                .push_saved_command_line_arguments(clargs.clone(), &directory);
-            let new_clargs = CommandLineArguments {
-                directory: Some(directory),
-                cover: false,
-                ..clargs.clone()
-            };
-            *command_line_arguments = new_clargs.clone();
-            let binding = self.navigator_rc.clone();
-            let mut navigator = binding.borrow_mut();
-            match self.repository.initialize_for_args(&new_clargs, None) {
-                Ok(()) => {
-                    let _ = self.reload();
-                    navigator.set_page_changed();
-                }
-                Err(e) => eprintln!("{}", e),
+            eprintln!("cannot go to this directory: {}", directory);
+            return;
+        };
+        match parent_directory(&self.current_picture().file_path()) {
+            // don't go if we cannot find a parent directory for the filepath of current picture
+            None => {
+                eprintln!(
+                    "cannot find parent directory for {}",
+                    self.current_picture().file_path()
+                );
+                return;
             }
-        } else {
-            display_information(
-                &self.main_view().application_window(),
-                "cannot go to a directory when not in covers view",
-            )
+            Some(directory) => {
+                {
+                    let mut command_line_arguments = self.command_line_arguments_rc.borrow_mut();
+                    command_line_arguments.index = Some(self.navigator().position());
+                    let clargs = command_line_arguments.clone();
+                    {
+                        let mut state = self.state_rc.borrow_mut();
+                        state.push_saved_command_line_arguments(clargs.clone(), &directory);
+                    }
+                    let new_clargs = CommandLineArguments {
+                        directory: Some(directory),
+                        cover: false,
+                        ..clargs.clone()
+                    };
+                    *command_line_arguments = new_clargs.clone();
+                }
+
+                let binding = self.navigator_rc.clone();
+                let mut navigator = binding.borrow_mut();
+                match self
+                    .repository
+                    .initialize_for_args(&self.command_line_arguments(), None)
+                {
+                    Ok(()) => {
+                        let _ = self.reload();
+                        navigator.set_page_changed();
+                    }
+                    Err(e) => eprintln!("{}", e),
+                }
+            }
         }
     }
 
@@ -1272,26 +1286,31 @@ impl Controller {
     }
 
     fn back_from_directory(&self) {
-        let mut command_line_arguments = self.command_line_arguments_rc.borrow_mut();
-        if let Some((pictures_per_row, old_clargs)) =
-            self.state().pop_saved_command_line_arguments()
+        // don't go if not in directory currently
+        if self.state().pop_saved_command_line_arguments().is_none() {
+            eprintln!("not in a directory currently");
+            return;
+        };
+        let (old_pictures_per_row, old_clargs) =
+            self.state().pop_saved_command_line_arguments().unwrap();
         {
+            let mut command_line_arguments = self.command_line_arguments_rc.borrow_mut();
             *command_line_arguments = old_clargs.clone();
-            let binding = self.navigator_rc.clone();
-            let mut navigator = binding.borrow_mut();
-            match self.repository.initialize_for_args(&old_clargs, None) {
-                Ok(()) => {
-                    self.change_grid_size(pictures_per_row);
-                    let _ = self.reload();
-                    if let Some(index) = command_line_arguments.index
-                        && navigator.can_move(Direction::Index { value: index })
-                    {
-                        navigator.move_towards(Direction::Index { value: index })
-                    };
-                    navigator.set_page_changed()
-                }
-                Err(e) => eprintln!("{}", e),
+        }
+        let binding = self.navigator_rc.clone();
+        let mut navigator = binding.borrow_mut();
+        match self.repository.initialize_for_args(&old_clargs, None) {
+            Ok(()) => {
+                self.change_grid_size(old_pictures_per_row);
+                let _ = self.reload();
+                if let Some(index) = self.command_line_arguments().index
+                    && navigator.can_move(Direction::Index { value: index })
+                {
+                    navigator.move_towards(Direction::Index { value: index })
+                };
+                navigator.set_page_changed()
             }
+            Err(e) => eprintln!("{}", e),
         }
     }
 
