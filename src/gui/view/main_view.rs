@@ -538,15 +538,18 @@ fn attach_key_pressed_event_handlers(
         controller_rc,
         move |_, key, _key_code, _modifier_type| {
             if let Some(key_name) = key.name() {
+                dbg!(&key_name);
                 let mode = if let Ok(controller) = controller_rc.try_borrow() {
                     controller.state().mode()
                 } else {
                     panic!("can't borrow controller");
                 };
+
                 if let Some(control) =
                     default_controls().get(&(key_name.clone().into(), mode.clone()))
                 {
                     let action = Action::from_control(control);
+                    dbg!(&action);
                     let gio_action = GioAction::from(action);
                     let (name, variant) = gio_action.to_simple_action_call();
                     match gtk::prelude::WidgetExt::activate_action(

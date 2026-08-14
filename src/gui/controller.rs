@@ -1291,8 +1291,10 @@ impl Controller {
             eprintln!("not in a directory currently");
             return;
         };
-        let (old_pictures_per_row, old_clargs) =
-            self.state().pop_saved_command_line_arguments().unwrap();
+        let (old_pictures_per_row, old_clargs) = {
+            let mut state = self.state_rc.borrow_mut();
+            state.pop_saved_command_line_arguments().unwrap()
+        };
         {
             let mut command_line_arguments = self.command_line_arguments_rc.borrow_mut();
             *command_line_arguments = old_clargs.clone();
