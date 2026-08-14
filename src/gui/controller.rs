@@ -18,6 +18,7 @@ use crate::gui::mode::Mode;
 use crate::gui::navigator::Navigator;
 use crate::gui::selector::Selector;
 use crate::gui::state::State;
+use crate::gui::view::entry_view::EntryView;
 use crate::gui::view::main_view::{LEFT_PANE, MainView};
 use crate::model::catalog::Catalog;
 use crate::model::category::Category;
@@ -53,6 +54,7 @@ pub struct Controller {
     controls: Controls,
     state_rc: RefCell<State>,
     main_view_opt_rc: RefCell<Option<MainView>>,
+    entry_view_opt_rc: RefCell<Option<EntryView>>,
     editor_rc: RefCell<Editor>,
     selector_rc: RefCell<Selector>,
     last_action_rc: RefCell<Action>,
@@ -103,7 +105,7 @@ impl Controller {
                 )));
             }
         };
-        let controller = Controller {
+        let controller = Self {
             configuration_rc: RefCell::new(config.clone()),
             repository: repository.clone(),
             command_line_arguments_rc: RefCell::new(cli.clone()),
@@ -116,6 +118,7 @@ impl Controller {
                 cli.slideshow().is_some(),
             )),
             main_view_opt_rc: RefCell::new(None),
+            entry_view_opt_rc: RefCell::new(None),
             last_action_rc: RefCell::new(Action::Nothing),
             main_controller_rc_opt: None,
         };
@@ -135,6 +138,8 @@ impl Controller {
         let gio_action = GioAction::from((simple_action, variant_opt));
         let action = Action::from(gio_action);
         match action {
+            Action::ToggleThumbnailsView => self.toggle_thumbview(),
+            Action::Dismiss => self.dismiss(),
             Action::Nothing => {}
             Action::GotoDirectory => self.go_to_directory(),
             Action::QuitDirectory => self.back_from_directory(),
@@ -1002,10 +1007,10 @@ impl Controller {
         if !self.state().has_saved_command_line_arguments() {
             self.enter_editing(EntryKind::Select, None)
         } else {
-            display_information(
+            let _ = display_information(
                 &self.main_view().application_window(),
                 "selection not allowed while in a directory or a selection",
-            )
+            );
         }
     }
 
@@ -1188,12 +1193,18 @@ impl Controller {
     fn go_to_directory(&self) {
         // don't go if we are not in cover views
         if !self.command_line_arguments().cover {
-            eprintln!("cannot go to a directory when not in cover view");
+            display_information(
+                &self.main_view().application_window(),
+                "cannot go to a directory when not in cover view",
+            );
             return;
         }
         // don't go if we are in single view mode
         if self.state().single_view() {
-            eprintln!("cannot go to a directory when in single view");
+            display_information(
+                &self.main_view().application_window(),
+                "cannot go to a directory when in single view",
+            );
             return;
         };
         // don't go if we are already in the directory
@@ -1404,10 +1415,10 @@ impl Controller {
                 }
             }
         } else {
-            display_information(
+            let _ = display_information(
                 &self.main_view().application_window(),
                 "cannot toggle cover selection while in a directory",
-            )
+            );
         }
     }
 
@@ -1431,7 +1442,7 @@ impl Controller {
         {
             Ok(_) => {}
             Err(e) => {
-                display_information(&self.main_view().application_window(), &format!("{}", e))
+                *self.entry_view_opt_rc.borrow_mut() = Some(display_information(&self.main_view().application_window(), &format!("{}", e)));
             }
         }
     }
@@ -1447,7 +1458,7 @@ impl Controller {
         {
             Ok(_) => {}
             Err(e) => {
-                display_information(&self.main_view().application_window(), &format!("{}", e))
+                *self.entry_view_opt_rc.borrow_mut() = Some(display_information(&self.main_view().application_window(), &format!("{}", e)));
             }
         }
     }
@@ -1458,14 +1469,14 @@ impl Controller {
             match self.repository.remove_category(input) {
                 Ok(_) => {}
                 Err(e) => {
-                    display_information(&self.main_view().application_window(), &format!("{}", e))
+                    *self.entry_view_opt_rc.borrow_mut() = Some(display_information(&self.main_view().application_window(), &format!("{}", e)));
                 }
             }
         } else {
-            display_information(
+            *self.entry_view_opt_rc.borrow_mut() = Some(
+                display_information(
                 &self.main_view().application_window(),
-                &format!("category {} is being used and cannot be removed", input),
-            )
+                &format!("category {} is being used and cannot be removed", input)));
         }
     }
 
@@ -1716,7 +1727,7 @@ impl Controller {
             .as_ref()
             .unwrap()
             .application_window();
-        display_information(&application_window, message);
+        *self.entry_view_opt_rc.borrow_mut() = Some(display_information(&application_window, message));
     }
 
     fn toggle_palette(&self) {
@@ -2082,7 +2093,8 @@ impl Controller {
             }
         };
         if let Some(information) = information_opt {
-            display_information(&self.main_view().application_window(), &information)
+            *self.entry_view_opt_rc.borrow_mut() = Some(
+                display_information(&self.main_view().application_window(), &information));
         }
     }
 
@@ -2107,7 +2119,7 @@ impl Controller {
             Err(e) => Some(format!("{}", e)),
         };
         if let Some(information) = information_opt {
-            display_information(&self.main_view().application_window(), &information)
+            *self.entry_view_opt_rc.borrow_mut() = Some(display_information(&self.main_view().application_window(), &information));
         }
     }
 
@@ -2127,7 +2139,7 @@ impl Controller {
             panic!("can't borrow");
         };
         if let Some(information) = information_opt {
-            display_information(&self.main_view().application_window(), information)
+            *self.entry_view_opt_rc.borrow_mut() = Some(display_information(&self.main_view().application_window(), information));
         }
     }
 
@@ -2182,5 +2194,9 @@ impl Controller {
         self.set_state_mode(Mode::Editing);
         entry_view_rc.borrow().present();
         */
+    }
+
+    fn dismiss(&self) {
+        todo!()
     }
 }

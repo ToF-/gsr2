@@ -59,6 +59,7 @@ impl From<Action> for GioAction {
             Action::EnterLabel => None,
             Action::EnterRemoveTag => None,
             Action::EnterRename => None,
+            Action::Dismiss => None,
             Action::Find(find) => Some(GioActionParameter::from(find)),
             Action::FindNext => None,
             Action::FocusAt(col, row) => Some(GioActionParameter::from((col, row))),

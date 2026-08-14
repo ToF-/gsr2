@@ -23,6 +23,7 @@ pub enum Action {
     Categorize(Category),          // change the category of the selected pictures
     ConfirmDeleteFile,             // input a yes to deleting selected picture files
     ConfirmMoveFile(String),       // input a yes to moving selected picture files
+    Dismiss,                       // dismiss after presentation of an information
     EnterAddTag,                   // enter new tag(s) to add to the selected pictures
     EnterCategory,                 // enter category to apply to the selected pictures
     EnterIndex,                    // interactively enter index to jump to
