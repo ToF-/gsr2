@@ -253,6 +253,7 @@ impl EntryView {
             .expect("entry_view doesn't have an attached gtk window yet")
             .present()
     }
+
     pub fn close(&self) {
         let gtk_window = self
             .gtk_window_opt_rc

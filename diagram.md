@@ -50,13 +50,19 @@ simplify this.
 
     GsrApplicationWindow: 
         - display things and interact with the user at the application level
-        - has properties that are we can bind to labels or other widget and that can be set or get
+        - has properties that can be bound to labels or other widget and that can be set or get
         - has a (rc)State that it can consult and update
         - is inserted the action group of a controller so that it can activate these actions on certain events
         - has other gtkObject references that it gives access to
         - can popup a GsrEntryWindow or a GsrTreeListWindow
 
         no more view, the GsrApplicationWindow is the view
+
+    GsrEntryWindow:
+        - prompt the user for an input and interact with them at the level of an entry
+        - has a prompt propery that it displays
+        - has an entry that changes according to user key presses
+        - is inserted the action group of a controller so that it can activate these actions on certain events
 
     Controller:
         - manage interactions between GsrApplication, State and the rest of the app
