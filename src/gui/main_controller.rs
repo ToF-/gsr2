@@ -62,6 +62,10 @@ impl MainController {
             }
         );
         entries.push(Self::action_entry(
+            GioActionType::from(Action::Dismiss),
+            activate.clone(),
+        ));
+        entries.push(Self::action_entry(
             GioActionType::from(Action::Quit),
             activate.clone(),
         ));

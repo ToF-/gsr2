@@ -1,4 +1,3 @@
-use crate::gui::objects::gsr_entry_window::GsrEntryWindow;
 use crate::cli::command::Command;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::Configuration;
@@ -17,6 +16,7 @@ use crate::gui::event::Event;
 use crate::gui::main_controller::RcMainController;
 use crate::gui::mode::Mode;
 use crate::gui::navigator::Navigator;
+use crate::gui::objects::gsr_entry_window::GsrEntryWindow;
 use crate::gui::selector::Selector;
 use crate::gui::state::State;
 use crate::gui::view::entry_view::EntryView;
@@ -953,6 +953,10 @@ impl Controller {
     }
 
     fn adding_category(&self, category_name: &str) {
+        if self.main_controller_rc_opt.is_none() {
+            panic!("main_controller not set");
+        }
+        let main_controller = self.main_controller_rc_opt.unwrap().borrow();
         let mut selector = self.selector_rc.borrow_mut();
         if !self.repository.catalog().contains(category_name) {
             selector.begin(
@@ -964,6 +968,7 @@ impl Controller {
         } else {
             display_information(
                 &self.main_view().application_window(),
+                &main_controller,
                 &format!("the category {} already exists", category_name),
             );
         }
@@ -2232,6 +2237,12 @@ impl Controller {
     }
 
     fn dismiss(&self) {
-        todo!()
+        {
+            let gsr_entry_window_opt = self.gsr_entry_window_opt_rc.borrow();
+            if let Some(gsr_entry_window) = gsr_entry_window_opt.as_ref() {
+                gsr_entry_window.close()
+            };
+        }
+        *self.gsr_entry_window_opt_rc.borrow_mut() = None;
     }
 }
