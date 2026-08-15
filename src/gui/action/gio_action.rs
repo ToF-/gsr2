@@ -256,7 +256,7 @@ mod tests {
         check_action_to_and_from(Action::Find(Find::Label));
         check_action_to_and_from(Action::FindNext);
         check_action_to_and_from(Action::FocusAt(3, 8));
-        check_action_to_and_from(Action::GotoDirectory("foo".to_string()));
+        check_action_to_and_from(Action::GotoDirectory);
         check_action_to_and_from(Action::JumpToIndex(4807));
         check_action_to_and_from(Action::JumpToMark('f'));
         check_action_to_and_from(Action::JumpToRandom);

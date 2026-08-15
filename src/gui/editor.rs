@@ -13,6 +13,7 @@ use gtk::{self, gdk};
 use itertools::Itertools;
 
 pub mod entry_editor;
+pub mod entry_editor_status;
 
 #[derive(Clone, Debug)]
 pub struct Editor {
