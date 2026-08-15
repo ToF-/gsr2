@@ -61,7 +61,17 @@ impl GsrPictureGrid {
         self.imp().initialize(pictures_per_row, (0, 0), palette_on);
     }
 
+    fn remove_all_cell_boxes(&self) {
+        for col in 0..MAX_PICTURES_PER_ROW {
+            for row in 0..MAX_PICTURES_PER_ROW {
+                if let Some(widget) = self.child_at(col, row) {
+                    self.remove(&widget)
+                }
+            }
+        }
+    }
     fn fill_with_cell_boxes(&self) {
+        self.remove_all_cell_boxes();
         let pictures_per_row = self.imp().pictures_per_row.get();
         let palette_on = self.imp().palette_on.get();
         for col in 0..pictures_per_row {
