@@ -139,6 +139,7 @@ impl Controller {
         let action = Action::from(gio_action);
         match action {
             Action::ToggleThumbnailsView => self.toggle_thumbview(),
+            Action::ToggleTwoByTwoView => self.toggle_2x2_view(),
             Action::Dismiss => self.dismiss(),
             Action::Nothing => {}
             Action::GotoDirectory => self.go_to_directory(),
@@ -1349,6 +1350,20 @@ impl Controller {
         }
         self.change_grid_size(self.state().pictures_per_row());
     }
+
+    fn toggle_2x2_view(&self) {
+        dbg!();
+        {
+            let mut state = self.state_rc.borrow_mut();
+            if state.pictures_per_row() != 2 {
+                state.change_grid_size(2)
+            } else {
+                state.toggle_back_grid_size()
+            };
+        }
+        self.change_grid_size(self.state().pictures_per_row());
+    }
+
     fn toggle_cover(&self) {
         let index = self.navigator().position();
         let counts = self.repository.directory_count_at_index(index);

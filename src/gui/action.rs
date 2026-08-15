@@ -68,6 +68,7 @@ pub enum Action {
     ToggleSingleView,              // set the view to single / back to multiple
     ToggleSlideShow,               // set the slide show on off
     ToggleThumbnailsView,          // set the view to thumbnails / back to previous
+    ToggleTwoByTwoView,            // set the view to 2x2 / back to previous
     Unlabel,                       // remove label from the selected pictures
 }
 
@@ -113,6 +114,7 @@ impl Action {
             Control::SetView => Action::PickViewOption,
             Control::TogglePalette => Action::TogglePalette,
             Control::ToggleThumbView => Action::ToggleThumbnailsView,
+            Control::ToggleTwoByTwoView => Action::ToggleTwoByTwoView,
             _ => Action::Nothing,
         }
     }

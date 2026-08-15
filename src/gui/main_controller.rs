@@ -98,6 +98,10 @@ impl MainController {
             activate.clone(),
         ));
         entries.push(Self::action_entry(
+            GioActionType::from(Action::ToggleTwoByTwoView),
+            activate.clone(),
+        ));
+        entries.push(Self::action_entry(
             GioActionType::from(Action::Nothing),
             activate.clone(),
         ));

@@ -100,6 +100,7 @@ impl From<Action> for GioAction {
             Action::ToggleSingleView => None,
             Action::ToggleSlideShow => None,
             Action::ToggleThumbnailsView => None,
+            Action::ToggleTwoByTwoView => None,
             Action::Unlabel => None,
         };
         Self {
@@ -193,6 +194,7 @@ impl From<GioAction> for Action {
             "toggle-single-view" => Action::ToggleSingleView,
             "toggle-slide-show" => Action::ToggleSlideShow,
             "toggle-thumbnails-view" => Action::ToggleThumbnailsView,
+            "toggle-two-by-two-view" => Action::ToggleTwoByTwoView,
             "unlabel" => Action::Unlabel,
             _ => Action::Nothing,
         }

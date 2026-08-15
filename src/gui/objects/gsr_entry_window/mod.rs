@@ -1,10 +1,10 @@
-use gtk::glib
-use gtk::subclasse::prelude::*;
+use gtk::glib;
+use gtk::subclass::prelude::*;
 
 mod imp;
 
 glib::wrapper! {
-    pub struct GsrEntryWindow(ObjectSubclass<imp::GsrMainWindow>)
+    pub struct GsrEntryWindow(ObjectSubclass<imp::GsrEntryWindow>)
         @extends gtk::Widget, gtk::Window,
         @implements gtk::Accessible, gtk::Buildable, gtk::ConstraintTarget,
                     gtk::Native, gtk::Root, gtk::ShortcutManager;
@@ -19,7 +19,7 @@ impl GsrEntryWindow {
         application_window: &gtk::ApplicationWindow,
         prompt: &str,
         input: &str,
-    ) {
+    ) -> Self {
         let obj = Self::new();
         obj.imp()
             .initialize(application_window, prompt, input);

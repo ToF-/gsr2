@@ -159,6 +159,9 @@ impl From<Action> for GioActionType {
             Action::ToggleThumbnailsView => {
                 GioActionType::new("toggle-thumbnails-view", GioActionParameterType::None)
             }
+            Action::ToggleTwoByTwoView => {
+                GioActionType::new("toggle-two-by-two-view", GioActionParameterType::None)
+            }
             Action::Unlabel => GioActionType::new("unlabel", GioActionParameterType::None),
         }
     }
