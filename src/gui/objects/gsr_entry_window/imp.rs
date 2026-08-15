@@ -1,3 +1,5 @@
+use gtk::glib::Propagation;
+use gtk::glib::clone;
 use crate::env::default_values::ENTRY_WINDOW_HEIGHT;
 use crate::env::default_values::ENTRY_WINDOW_WIDTH;
 use gtk::Align;
@@ -76,6 +78,25 @@ impl GsrEntryWindow {
         entry_box.append(&prompt_label);
         entry_box.append(&entry_text);
         obj.set_child(Some(&entry_box));
+        // with no editor => first pressed key causes a closing
+        if self.editor_opt_rc.borrow().is_some() {
+            todo!();
+        } else {
+            Self::connect_key_pressed_to_close(&obj);
+        }
+    }
+
+    pub fn connect_key_pressed_to_close(gsr_entry_window: &super::GsrEntryWindow) {
+        let event_controller_key = gtk::EventControllerKey::new();
+        event_controller_key.connect_key_pressed(clone!(
+                #[strong (rename_to=this)]
+                gsr_entry_window,
+                move |_,_,_,_| {
+                    this.close();
+                    Propagation::Stop
+                }
+        ));
+        gsr_entry_window.add_controller(event_controller_key);
     }
 }
 
