@@ -97,7 +97,7 @@ examples of user interaction effects
 - GsrApplicationWindow
     - can show a single picture frame when in single view mode
     - can show a picture grid with left and right panes buttons when in multiple view mode
-    - can change it's title
+    - can change its title
     - can popup an information window, an entry window, a tree list window, all these windows are modal
 
 - GsrPictureFrame
@@ -126,4 +126,23 @@ examples of user interaction effects
     - knows how to change its label with a shape every second if it receives the focus, stop this blinking if leaves the focus
     - knows how to display or hide its palette when asked to
     - knows how to decrease or increase its opacity when asked to
+
+
+entry interaction
+
+- Controller launches a GsrEntryWindow
+  with actions from controller
+  with EntryEditor itself equipped with Validator and CompletionDispenser
+    - GsrEntryWindow starts
+        - sets its prompt and empty its input
+        -
+        - key_pressed follow this logic
+            if Escape or Confirm : activate the matching action
+            otherwise ask EntryEditor for the new content of input (and optionally prompt)
+            update its input (and optionnaly prompt)
+
+  on action Escape, controller simply closes the GsrEntryWindow
+  on action Enter, controller:
+    - clone the GsrEntryWindow's input value
+    - close the GsrEntryWindow
 
