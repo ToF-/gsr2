@@ -1,3 +1,4 @@
+use crate::gui::objects::gsr_entry_window::GsrEntryWindow;
 use crate::cli::command::Command;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::Configuration;
@@ -54,7 +55,7 @@ pub struct Controller {
     controls: Controls,
     state_rc: RefCell<State>,
     main_view_opt_rc: RefCell<Option<MainView>>,
-    entry_view_opt_rc: RefCell<Option<EntryView>>,
+    gsr_entry_window_opt_rc: RefCell<Option<GsrEntryWindow>>,
     editor_rc: RefCell<Editor>,
     selector_rc: RefCell<Selector>,
     last_action_rc: RefCell<Action>,
@@ -118,7 +119,7 @@ impl Controller {
                 cli.slideshow().is_some(),
             )),
             main_view_opt_rc: RefCell::new(None),
-            entry_view_opt_rc: RefCell::new(None),
+            gsr_entry_window_opt_rc: RefCell::new(None),
             last_action_rc: RefCell::new(Action::Nothing),
             main_controller_rc_opt: None,
         };
@@ -1300,7 +1301,8 @@ impl Controller {
     fn back_from_directory(&self) {
         // don't go if not in directory currently
         if self.state().pop_saved_command_line_arguments().is_none() {
-            eprintln!("not in a directory currently");
+            let application_window = &self.main_view().application_window();
+            display_information(application_window, "not in a directory currently");
             return;
         };
         let (old_pictures_per_row, old_clargs) = {
@@ -1457,7 +1459,7 @@ impl Controller {
         {
             Ok(_) => {}
             Err(e) => {
-                *self.entry_view_opt_rc.borrow_mut() = Some(display_information(
+                *self.gsr_entry_window_opt_rc.borrow_mut() = Some(display_information(
                     &self.main_view().application_window(),
                     &format!("{}", e),
                 ));
@@ -1476,7 +1478,7 @@ impl Controller {
         {
             Ok(_) => {}
             Err(e) => {
-                *self.entry_view_opt_rc.borrow_mut() = Some(display_information(
+                *self.gsr_entry_window_opt_rc.borrow_mut() = Some(display_information(
                     &self.main_view().application_window(),
                     &format!("{}", e),
                 ));
@@ -1490,14 +1492,14 @@ impl Controller {
             match self.repository.remove_category(input) {
                 Ok(_) => {}
                 Err(e) => {
-                    *self.entry_view_opt_rc.borrow_mut() = Some(display_information(
+                    *self.gsr_entry_window_opt_rc.borrow_mut() = Some(display_information(
                         &self.main_view().application_window(),
                         &format!("{}", e),
                     ));
                 }
             }
         } else {
-            *self.entry_view_opt_rc.borrow_mut() = Some(display_information(
+            *self.gsr_entry_window_opt_rc.borrow_mut() = Some(display_information(
                 &self.main_view().application_window(),
                 &format!("category {} is being used and cannot be removed", input),
             ));
@@ -1751,7 +1753,7 @@ impl Controller {
             .as_ref()
             .unwrap()
             .application_window();
-        *self.entry_view_opt_rc.borrow_mut() =
+        *self.gsr_entry_window_opt_rc.borrow_mut() =
             Some(display_information(&application_window, message));
     }
 
@@ -2118,7 +2120,7 @@ impl Controller {
             }
         };
         if let Some(information) = information_opt {
-            *self.entry_view_opt_rc.borrow_mut() = Some(display_information(
+            *self.gsr_entry_window_opt_rc.borrow_mut() = Some(display_information(
                 &self.main_view().application_window(),
                 &information,
             ));
@@ -2146,7 +2148,7 @@ impl Controller {
             Err(e) => Some(format!("{}", e)),
         };
         if let Some(information) = information_opt {
-            *self.entry_view_opt_rc.borrow_mut() = Some(display_information(
+            *self.gsr_entry_window_opt_rc.borrow_mut() = Some(display_information(
                 &self.main_view().application_window(),
                 &information,
             ));
@@ -2169,7 +2171,7 @@ impl Controller {
             panic!("can't borrow");
         };
         if let Some(information) = information_opt {
-            *self.entry_view_opt_rc.borrow_mut() = Some(display_information(
+            *self.gsr_entry_window_opt_rc.borrow_mut() = Some(display_information(
                 &self.main_view().application_window(),
                 information,
             ));
