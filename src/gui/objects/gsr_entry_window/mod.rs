@@ -1,3 +1,4 @@
+use crate::gui::editor::Editor;
 use gtk::glib;
 use gtk::subclass::prelude::*;
 
@@ -19,11 +20,11 @@ impl GsrEntryWindow {
         application_window: &gtk::ApplicationWindow,
         prompt: &str,
         input: &str,
+        editor_opt: Option<Editor>,
     ) -> Self {
         let obj = Self::new();
         obj.imp()
-            .initialize(application_window, prompt, input);
+            .initialize(application_window, prompt, input, editor_opt);
         obj
     }
-
 }

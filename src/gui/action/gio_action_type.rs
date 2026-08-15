@@ -56,9 +56,7 @@ impl From<Action> for GioActionType {
             Action::ConfirmMoveFile(_) => {
                 GioActionType::new("confirm-move-file", GioActionParameterType::String)
             }
-            Action::Dismiss => {
-                GioActionType::new("dismiss", GioActionParameterType::None)
-            }
+            Action::Dismiss => GioActionType::new("dismiss", GioActionParameterType::None),
             Action::EnterAddTag => {
                 GioActionType::new("enter-add-tag", GioActionParameterType::None)
             }

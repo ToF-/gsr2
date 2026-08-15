@@ -1457,7 +1457,10 @@ impl Controller {
         {
             Ok(_) => {}
             Err(e) => {
-                *self.entry_view_opt_rc.borrow_mut() = Some(display_information(&self.main_view().application_window(), &format!("{}", e)));
+                *self.entry_view_opt_rc.borrow_mut() = Some(display_information(
+                    &self.main_view().application_window(),
+                    &format!("{}", e),
+                ));
             }
         }
     }
@@ -1473,7 +1476,10 @@ impl Controller {
         {
             Ok(_) => {}
             Err(e) => {
-                *self.entry_view_opt_rc.borrow_mut() = Some(display_information(&self.main_view().application_window(), &format!("{}", e)));
+                *self.entry_view_opt_rc.borrow_mut() = Some(display_information(
+                    &self.main_view().application_window(),
+                    &format!("{}", e),
+                ));
             }
         }
     }
@@ -1484,14 +1490,17 @@ impl Controller {
             match self.repository.remove_category(input) {
                 Ok(_) => {}
                 Err(e) => {
-                    *self.entry_view_opt_rc.borrow_mut() = Some(display_information(&self.main_view().application_window(), &format!("{}", e)));
+                    *self.entry_view_opt_rc.borrow_mut() = Some(display_information(
+                        &self.main_view().application_window(),
+                        &format!("{}", e),
+                    ));
                 }
             }
         } else {
-            *self.entry_view_opt_rc.borrow_mut() = Some(
-                display_information(
+            *self.entry_view_opt_rc.borrow_mut() = Some(display_information(
                 &self.main_view().application_window(),
-                &format!("category {} is being used and cannot be removed", input)));
+                &format!("category {} is being used and cannot be removed", input),
+            ));
         }
     }
 
@@ -1742,7 +1751,8 @@ impl Controller {
             .as_ref()
             .unwrap()
             .application_window();
-        *self.entry_view_opt_rc.borrow_mut() = Some(display_information(&application_window, message));
+        *self.entry_view_opt_rc.borrow_mut() =
+            Some(display_information(&application_window, message));
     }
 
     fn toggle_palette(&self) {
@@ -2108,8 +2118,10 @@ impl Controller {
             }
         };
         if let Some(information) = information_opt {
-            *self.entry_view_opt_rc.borrow_mut() = Some(
-                display_information(&self.main_view().application_window(), &information));
+            *self.entry_view_opt_rc.borrow_mut() = Some(display_information(
+                &self.main_view().application_window(),
+                &information,
+            ));
         }
     }
 
@@ -2134,7 +2146,10 @@ impl Controller {
             Err(e) => Some(format!("{}", e)),
         };
         if let Some(information) = information_opt {
-            *self.entry_view_opt_rc.borrow_mut() = Some(display_information(&self.main_view().application_window(), &information));
+            *self.entry_view_opt_rc.borrow_mut() = Some(display_information(
+                &self.main_view().application_window(),
+                &information,
+            ));
         }
     }
 
@@ -2154,7 +2169,10 @@ impl Controller {
             panic!("can't borrow");
         };
         if let Some(information) = information_opt {
-            *self.entry_view_opt_rc.borrow_mut() = Some(display_information(&self.main_view().application_window(), information));
+            *self.entry_view_opt_rc.borrow_mut() = Some(display_information(
+                &self.main_view().application_window(),
+                information,
+            ));
         }
     }
 

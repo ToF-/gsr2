@@ -51,7 +51,8 @@ impl EntryView {
     pub fn attach_key_pressed_editor(
         &self,
         entry_editor_rc: &std::cell::RefCell<EntryEditor>,
-        blink: bool,) {
+        blink: bool,
+    ) {
         self.imp().attach_key_pressed_editor(entry_editor_rc, blink);
     }
 }
