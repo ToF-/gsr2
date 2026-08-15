@@ -2183,49 +2183,6 @@ impl Controller {
             "main-controller.test",
             Some(&"foo bar test action".to_variant()),
         );
-        /*
-        // first create a view with the app_window, a prompt, an initial entry
-        let entry_view = EntryView::new_with(
-            &application_window,
-            &entry_prompt(EntryKind::FindLabel),
-            "",
-            Action::Find(Find::Label),
-        );
-
-        // create a refcell to it for the editor to have
-        let entry_view_rc = RefCell::new(entry_view);
-
-        // create a validator for this editor to have
-        let validator = Validator::new(EntryKind::FindLabel);
-
-        // create the editor managing the control between view and rest of the app
-        let entry_editor = EntryEditor::new_with(
-            entry_view_rc.clone(),
-            validator,
-            CompletionDispenser::new_with(tags_from_str("foo,fog,bar,qux,law")),
-        );
-        let entry_editor_rc = RefCell::new(entry_editor);
-
-        // when view receives a key, it sends a signal to its editor
-        entry_view_rc
-            .borrow()
-            .attach_key_pressed_editor(&entry_editor_rc, true);
-
-        // when the editor is sent a key signal it reacts
-        // maybe closing if Escape whas pressed
-        entry_editor_rc
-            .borrow()
-            .connect_key_pressed(|editor, key_name| editor.edit_entry(key_name));
-
-        // when the editor is sent a close signal it does things, mainly closing its view
-        entry_editor_rc.borrow().connect_closed(|editor| {
-            if let Some(view) = editor.view() {
-                view.close()
-            }
-        });
-        self.set_state_mode(Mode::Editing);
-        entry_view_rc.borrow().present();
-        */
     }
 
     fn dismiss(&self) {

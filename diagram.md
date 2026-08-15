@@ -146,3 +146,23 @@ entry interaction
     - clone the GsrEntryWindow's input value
     - close the GsrEntryWindow
 
+Editor
+    - knows its entry kind, its validator and its completion dispenser
+    - validate keys entered in the GsrEntryWindow that owns it
+    - given an input, and a key, returns what should be the updated input, and optionnally which action to activate
+        - e.g. for entry kind = View, given input = "" and key = t, then resulting input = "Thumbs" and action is ApplyViewSetting(ViewOption::Thumbnails)
+        on its key_pressed event, GsrEntryWindow
+            - updates its input with the result input
+            - since an action is result rather than none, activate an action, then close itself
+
+        - e.g. for entry kind = FindLabel, if key is escape then resulting input = "" and action is Cancel 
+
+        on its key_pressed event GsrEntryWindow
+            - udptaes its input
+            - since action Cancel is result, close itself
+            
+
+
+
+    
+    
