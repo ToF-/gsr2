@@ -10,7 +10,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 pub const MAIN_CONTROLLER_GROUP_NAME: &str = "main-controller";
-pub type RcMainController = Rc<RefCell<MainController>>;
+pub type RcMainController = RefCell<MainController>;
 
 #[derive(Debug, Clone)]
 pub struct MainController {

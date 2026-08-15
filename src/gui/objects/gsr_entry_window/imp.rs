@@ -1,9 +1,10 @@
-use crate::gui::main_controller::MainController;
-use glib::Variant;
-use crate::gui::action::Action;
-use crate::gui::action::gio_action::GioAction;
 use crate::env::default_values::ENTRY_WINDOW_HEIGHT;
 use crate::env::default_values::ENTRY_WINDOW_WIDTH;
+use crate::gui::action::Action;
+use crate::gui::action::gio_action::GioAction;
+use crate::gui::main_controller::MainController;
+use crate::gui::main_controller::RcMainController;
+use glib::Variant;
 use gtk::Align;
 use gtk::CssProvider;
 use gtk::Orientation;
@@ -32,7 +33,7 @@ impl GsrEntryWindow {
     pub fn initialize(
         &self,
         application_window: &gtk::ApplicationWindow,
-        main_controller: &MainController,
+        main_controller_rc: &RcMainController,
         prompt: &str,
         input: &str,
         editor_opt: Option<Editor>,
@@ -84,13 +85,14 @@ impl GsrEntryWindow {
         entry_box.append(&entry_text);
         obj.set_child(Some(&entry_box));
         // with no editor => first pressed key causes a closing
-        dbg!();
         if self.editor_opt_rc.borrow().is_some() {
             todo!();
         } else {
             Self::connect_key_pressed_to_close(&obj);
         }
-        self.insert_action_group("main-controller", Some(&main_controller.gio_action_group()));
+        let main_controller = main_controller_rc.borrow();
+        self.obj()
+            .insert_action_group("main-controller", Some(&main_controller.gio_action_group()));
     }
 
     pub fn connect_key_pressed_to_close(gsr_entry_window: &super::GsrEntryWindow) {
@@ -99,16 +101,14 @@ impl GsrEntryWindow {
             #[strong (rename_to=this)]
             gsr_entry_window,
             move |_, _, _, _| {
-                let action_call = GioAction::from(Action::Dismiss)
-                    .to_simple_action_call();
+                let action_call = GioAction::from(Action::Dismiss).to_simple_action_call();
                 let name = action_call.0.clone();
                 let variant = action_call.1.clone();
                 let variant_ref: Option<&Variant> = match &variant {
                     None => None,
                     Some(v) => Some(v.as_ref()),
                 };
-                let result = this.activate_action(&name, variant_ref); 
-                dbg!(result);
+                let _ = this.activate_action(&name, variant_ref);
                 Propagation::Stop
             }
         ));
@@ -141,4 +141,3 @@ impl ObjectImpl for GsrEntryWindow {
 impl WidgetImpl for GsrEntryWindow {}
 
 impl WindowImpl for GsrEntryWindow {}
-

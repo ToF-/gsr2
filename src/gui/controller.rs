@@ -956,7 +956,6 @@ impl Controller {
         if self.main_controller_rc_opt.is_none() {
             panic!("main_controller not set");
         }
-        let main_controller = self.main_controller_rc_opt.unwrap().borrow();
         let mut selector = self.selector_rc.borrow_mut();
         if !self.repository.catalog().contains(category_name) {
             selector.begin(
@@ -966,9 +965,7 @@ impl Controller {
             );
             self.set_state_mode(Mode::AddingCategory);
         } else {
-            display_information(
-                &self.main_view().application_window(),
-                &main_controller,
+            self.display_information(
                 &format!("the category {} already exists", category_name),
             );
         }
@@ -1014,8 +1011,7 @@ impl Controller {
         if !self.state().has_saved_command_line_arguments() {
             self.enter_editing(EntryKind::Select, None)
         } else {
-            let _ = display_information(
-                &self.main_view().application_window(),
+            self.display_information(
                 "selection not allowed while in a directory or a selection",
             );
         }
@@ -1200,16 +1196,14 @@ impl Controller {
     fn go_to_directory(&self) {
         // don't go if we are not in cover views
         if !self.command_line_arguments().cover {
-            display_information(
-                &self.main_view().application_window(),
+            self.display_information(
                 "cannot go to a directory when not in cover view",
             );
             return;
         }
         // don't go if we are in single view mode
         if self.state().single_view() {
-            display_information(
-                &self.main_view().application_window(),
+            self.display_information(
                 "cannot go to a directory when in single view",
             );
             return;
@@ -1307,7 +1301,9 @@ impl Controller {
         // don't go if not in directory currently
         if self.state().pop_saved_command_line_arguments().is_none() {
             let application_window = &self.main_view().application_window();
-            display_information(application_window, "not in a directory currently");
+            self.display_information(
+                "not in a directory currently",
+            );
             return;
         };
         let (old_pictures_per_row, old_clargs) = {
@@ -1359,7 +1355,6 @@ impl Controller {
     }
 
     fn toggle_2x2_view(&self) {
-        dbg!();
         {
             let mut state = self.state_rc.borrow_mut();
             if state.pictures_per_row() != 2 {
@@ -1437,8 +1432,7 @@ impl Controller {
                 }
             }
         } else {
-            let _ = display_information(
-                &self.main_view().application_window(),
+            self.display_information(
                 "cannot toggle cover selection while in a directory",
             );
         }
@@ -1464,10 +1458,9 @@ impl Controller {
         {
             Ok(_) => {}
             Err(e) => {
-                *self.gsr_entry_window_opt_rc.borrow_mut() = Some(display_information(
-                    &self.main_view().application_window(),
+                self.display_information(
                     &format!("{}", e),
-                ));
+                );
             }
         }
     }
@@ -1483,10 +1476,9 @@ impl Controller {
         {
             Ok(_) => {}
             Err(e) => {
-                *self.gsr_entry_window_opt_rc.borrow_mut() = Some(display_information(
-                    &self.main_view().application_window(),
+                self.display_information(
                     &format!("{}", e),
-                ));
+                );
             }
         }
     }
@@ -1497,17 +1489,15 @@ impl Controller {
             match self.repository.remove_category(input) {
                 Ok(_) => {}
                 Err(e) => {
-                    *self.gsr_entry_window_opt_rc.borrow_mut() = Some(display_information(
-                        &self.main_view().application_window(),
+                    self.display_information(
                         &format!("{}", e),
-                    ));
+                    );
                 }
             }
         } else {
-            *self.gsr_entry_window_opt_rc.borrow_mut() = Some(display_information(
-                &self.main_view().application_window(),
+            self.display_information(
                 &format!("category {} is being used and cannot be removed", input),
-            ));
+            );
         }
     }
 
@@ -1621,7 +1611,9 @@ impl Controller {
     }
 
     fn help(&self) {
-        display_information(&self.main_view().application_window(), &help_on_controls());
+        self.display_information(
+            &help_on_controls(),
+        );
     }
 
     fn information(&self) {
@@ -1655,8 +1647,7 @@ impl Controller {
                 panic!("can't borrow")
             }
         } else {
-            display_information(
-                &self.main_view().application_window(),
+            self.display_information(
                 &format!("no picture with mark {}", mark),
             );
         }
@@ -1758,8 +1749,12 @@ impl Controller {
             .as_ref()
             .unwrap()
             .application_window();
-        *self.gsr_entry_window_opt_rc.borrow_mut() =
-            Some(display_information(&application_window, message));
+        let gsr_entry_window = display_information(
+            &application_window,
+            &self.main_controller_rc_opt.as_ref().unwrap(),
+            message,
+        );
+        *self.gsr_entry_window_opt_rc.borrow_mut() = Some(gsr_entry_window);
     }
 
     fn toggle_palette(&self) {
@@ -2125,10 +2120,9 @@ impl Controller {
             }
         };
         if let Some(information) = information_opt {
-            *self.gsr_entry_window_opt_rc.borrow_mut() = Some(display_information(
-                &self.main_view().application_window(),
+            self.display_information(
                 &information,
-            ));
+            );
         }
     }
 
@@ -2153,10 +2147,9 @@ impl Controller {
             Err(e) => Some(format!("{}", e)),
         };
         if let Some(information) = information_opt {
-            *self.gsr_entry_window_opt_rc.borrow_mut() = Some(display_information(
-                &self.main_view().application_window(),
+            self.display_information(
                 &information,
-            ));
+            );
         }
     }
 
@@ -2176,10 +2169,9 @@ impl Controller {
             panic!("can't borrow");
         };
         if let Some(information) = information_opt {
-            *self.gsr_entry_window_opt_rc.borrow_mut() = Some(display_information(
-                &self.main_view().application_window(),
+            self.display_information(
                 information,
-            ));
+            );
         }
     }
 
@@ -2241,6 +2233,8 @@ impl Controller {
             let gsr_entry_window_opt = self.gsr_entry_window_opt_rc.borrow();
             if let Some(gsr_entry_window) = gsr_entry_window_opt.as_ref() {
                 gsr_entry_window.close()
+            } else {
+                dbg!("not gsr_entry_window set");
             };
         }
         *self.gsr_entry_window_opt_rc.borrow_mut() = None;

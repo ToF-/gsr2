@@ -51,7 +51,7 @@ fn run_application(config: &Configuration, clargs: &CommandLineArguments) -> Res
         let repository = controller.repository();
         let controller_rc: RcController = Rc::new(RefCell::new(controller));
         let main_controller = MainController::new(Some(controller_rc.clone()));
-        let main_controller_rc = Rc::new(RefCell::new(main_controller));
+        let main_controller_rc = RefCell::new(main_controller);
         let result = execute_command(clargs.clone(), repository, config.clone());
         if let Ok(Status::Ready(index)) = result {
             build_and_run_app(clargs, controller_rc, index, main_controller_rc);

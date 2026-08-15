@@ -53,13 +53,13 @@ impl From<Action> for GioAction {
             Action::Categorize(category_opt) => Some(GioActionParameter::from(category_opt)),
             Action::ConfirmDeleteFile => None,
             Action::ConfirmMoveFile(file_path) => Some(GioActionParameter::from(file_path)),
+            Action::Dismiss => None,
             Action::EnterAddTag => None,
             Action::EnterCategory => None,
             Action::EnterIndex => None,
             Action::EnterLabel => None,
             Action::EnterRemoveTag => None,
             Action::EnterRename => None,
-            Action::Dismiss => None,
             Action::Find(find) => Some(GioActionParameter::from(find)),
             Action::FindNext => None,
             Action::FocusAt(col, row) => Some(GioActionParameter::from((col, row))),
@@ -102,6 +102,7 @@ impl From<Action> for GioAction {
             Action::ToggleThumbnailsView => None,
             Action::ToggleTwoByTwoView => None,
             Action::Unlabel => None,
+            _ => todo!(),
         };
         Self {
             name: gio_action_ty.name(),
@@ -132,6 +133,7 @@ impl From<GioAction> for Action {
             "confirm-move-file" => {
                 Action::ConfirmMoveFile(String::from(gio_action.parameter().unwrap()))
             }
+            "dismiss" => Action::Dismiss,
             "enter-add-tag" => Action::EnterAddTag,
             "enter-category" => Action::EnterCategory,
             "enter-index" => Action::EnterIndex,
@@ -231,7 +233,6 @@ mod tests {
     fn check_action_to_and_from(action: Action) {
         let source = action.clone();
         let gio_action = GioAction::from(source.clone());
-        dbg!(gio_action.clone());
         let target = Action::from(gio_action);
         assert_eq!(target, source);
     }
