@@ -1030,6 +1030,7 @@ impl Controller {
             Control::SetSelectionRangePage => self.set_selection_range_page(),
             Control::ToggleCover => self.toggle_cover(),
             Control::ToggleThumbView => self.toggle_thumbview(),
+            Control::ToggleTwoByTwoView => self.toggle_2x2_view(),
             Control::ToggleCoverSelection => self.toggle_cover_selection(),
             Control::ToggleExpand => self.toggle_expand(),
             Control::ToggleFullSize => self.toggle_full_size(),
@@ -1147,6 +1148,18 @@ impl Controller {
         self.state = state;
         self.change_grid_size(self.state().pictures_per_row());
     }
+
+    fn toggle_2x2_view(&mut self) {
+        let mut state = self.state();
+        if state.pictures_per_row() != 2 {
+            state.change_grid_size(2)
+        } else {
+            state.toggle_back_grid_size()
+        };
+        self.state = state;
+        self.change_grid_size(self.state().pictures_per_row());
+    }
+
     fn toggle_cover(&mut self) {
         let index = self.navigator().position();
         let counts = self.repository.directory_count_at_index(index);

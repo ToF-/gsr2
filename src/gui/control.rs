@@ -82,6 +82,7 @@ pub enum Control {
     TogglePalette,
     ToggleSelected,
     ToggleSingleView,
+    ToggleTwoByTwoView,
     ToggleThumbView,
     ToggleSlideShow,
     Uncategorize,
@@ -116,6 +117,7 @@ pub fn help_on_controls() -> String {
         N : rename picture\n\
         =/-/#: select pictures having some/all tags, cancel selection\n\
         v: set view grid size of 1,4,9,16,25 or 100 pictures per page, covers\n\
+        W/T: toggle 4 / toggle 100 pictures per pages\n\
         0,1,2,3: set rank, 4: enter rank\n\
         g: view this cover subgroup, G/q: back from subgroup\n\
         q: quit  H:help"
@@ -189,6 +191,7 @@ pub fn default_controls() -> Controls {
         ((String::from("c"), Mode::View), Control::EnterChange),
         ((String::from("Q"), Mode::View), Control::Quit),
         ((String::from("T"), Mode::View), Control::ToggleThumbView),
+        ((String::from("W"), Mode::View), Control::ToggleTwoByTwoView),
         ((String::from("Left"), Mode::View), Control::Left),
         ((String::from("t"), Mode::View), Control::Left),
         ((String::from("Right"), Mode::View), Control::Right),
