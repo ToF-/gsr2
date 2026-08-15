@@ -1,3 +1,4 @@
+use crate::gui::objects::gsr_entry_window::EntryEditor;
 use crate::env::default_values::ENTRY_WINDOW_HEIGHT;
 use crate::env::default_values::ENTRY_WINDOW_WIDTH;
 use crate::gui::action::Action;
@@ -25,8 +26,9 @@ use gtk::subclass::prelude::*;
 #[derive(Default)]
 pub struct GsrEntryWindow {
     pub prompt_rc: RefCell<String>,
+    pub candidates_rc: RefCell<String>,
     pub input_rc: RefCell<String>,
-    pub editor_opt_rc: RefCell<Option<Editor>>,
+    pub entry_editor_opt_rc: RefCell<Option<EntryEditor>>,
 }
 
 impl GsrEntryWindow {
@@ -36,11 +38,12 @@ impl GsrEntryWindow {
         main_controller_rc: &RcMainController,
         prompt: &str,
         input: &str,
-        editor_opt: Option<Editor>,
+        entry_editor_opt: Option<EntryEditor>,
     ) {
         *self.prompt_rc.borrow_mut() = prompt.to_owned();
         *self.input_rc.borrow_mut() = input.to_owned();
-        *self.editor_opt_rc.borrow_mut() = editor_opt;
+        *self.candidates_rc.borrow_mut() = "".to_owned();
+        *self.entry_editor_opt_rc.borrow_mut() = entry_editor_opt;
         let obj = self.obj();
         obj.set_decorated(false);
         obj.set_modal(true);
@@ -85,7 +88,7 @@ impl GsrEntryWindow {
         entry_box.append(&entry_text);
         obj.set_child(Some(&entry_box));
         // with no editor => first pressed key causes a closing
-        if self.editor_opt_rc.borrow().is_some() {
+        if self.entry_editor_opt_rc.borrow().is_some() {
             todo!();
         } else {
             Self::connect_key_pressed_to_close(&obj);

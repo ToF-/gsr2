@@ -19,7 +19,6 @@ use crate::gui::navigator::Navigator;
 use crate::gui::objects::gsr_entry_window::GsrEntryWindow;
 use crate::gui::selector::Selector;
 use crate::gui::state::State;
-use crate::gui::view::entry_view::EntryView;
 use crate::gui::view::main_view::{LEFT_PANE, MainView};
 use crate::model::catalog::Catalog;
 use crate::model::category::Category;

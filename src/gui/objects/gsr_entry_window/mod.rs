@@ -1,4 +1,4 @@
-use crate::gui::editor::Editor;
+use crate::gui::editor::entry_editor::EntryEditor;
 use crate::gui::main_controller::MainController;
 use crate::gui::main_controller::RcMainController;
 use gtk::glib;
@@ -23,7 +23,7 @@ impl GsrEntryWindow {
         main_controller_rc: &RcMainController,
         prompt: &str,
         input: &str,
-        editor_opt: Option<Editor>,
+        entry_editor_opt: Option<EntryEditor>,
     ) -> Self {
         let obj = Self::new();
         obj.imp().initialize(
@@ -31,7 +31,7 @@ impl GsrEntryWindow {
             main_controller_rc,
             prompt,
             input,
-            editor_opt,
+            entry_editor_opt,
         );
         obj
     }

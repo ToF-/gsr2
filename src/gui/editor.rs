@@ -5,7 +5,6 @@ use crate::gui::control::{Control, Controls, default_controls};
 use crate::gui::entry_kind::EntryKind;
 use crate::gui::entry_prompt::entry_prompt;
 use crate::gui::mode::Mode;
-use crate::gui::view::entry_window::EntryWindow;
 use crate::gui::view::main_view::MainView;
 use crate::model::order::Order;
 use crate::model::tags::{Tags, empty_tags};
@@ -22,7 +21,6 @@ pub struct Editor {
     input: String,
     controls: Controls,
     entry_kind: EntryKind,
-    entry_window_opt: Option<EntryWindow>,
     choice: Tags,
 }
 
@@ -35,7 +33,6 @@ impl Editor {
             controls: default_controls(),
             input: String::from(""),
             entry_kind: EntryKind::Label,
-            entry_window_opt: None,
             choice: empty_tags(),
         }
     }
@@ -44,7 +41,6 @@ impl Editor {
         println!("editor.begin");
         self.prompt = entry_prompt(entry_kind.clone());
         self.begin_input(entry_kind, choice_opt);
-        self.entry_window_opt = Some(main_view.popup_entry_window(&self.prompt, &self.input));
     }
 
     pub fn begin_input(&mut self, kind: EntryKind, choice_opt: Option<Tags>) {
@@ -104,13 +100,9 @@ impl Editor {
     pub fn cancel(&mut self) {
         self.input = String::from("");
         self.editing = false;
-        if let Some(entry_window) = self.entry_window_opt.clone() {
-            entry_window.close()
-        }
     }
 
     pub fn enter(&mut self) {
-        self.entry_window_opt.clone().unwrap().close();
         self.editing = false
     }
 
@@ -359,15 +351,9 @@ impl Editor {
     }
 
     fn refresh_prompt(&self, prompt: &str) {
-        if let Some(entry_window) = &self.entry_window_opt {
-            entry_window.set_prompt(prompt)
-        }
     }
 
     fn refresh_view(&self) {
-        if let Some(window) = &self.entry_window_opt {
-            window.set_text(&self.input);
-        }
     }
     fn max_edit_length(&self) -> usize {
         if self.entry_kind == EntryKind::Rename {

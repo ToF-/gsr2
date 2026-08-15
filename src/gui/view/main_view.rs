@@ -1,3 +1,4 @@
+use crate::gui::objects::gsr_entry_window::GsrEntryWindow;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::default_values::{FULL_OPACITY, HALF_OPACITY};
 use crate::file::paths::check_path_exists;
@@ -16,7 +17,6 @@ use crate::gui::navigator::Navigator;
 use crate::gui::objects::gsr_application::GsrApplication;
 use crate::gui::objects::gsr_picture_cell_box::GsrPictureCellBox;
 use crate::gui::objects::gsr_picture_grid::GsrPictureGrid;
-use crate::gui::view::entry_window::EntryWindow;
 use crate::gui::view::picture_frame::PictureFrame;
 use crate::gui::view::treelist_view::TreeListView;
 use crate::model::catalog::Catalog;
@@ -333,14 +333,8 @@ impl MainView {
         child_name == "single_view"
     }
 
-    pub fn popup_entry_window(&self, prompt: &str, text: &str) -> EntryWindow {
-        let entry_window = EntryWindow::new(
-            &self.application_window(),
-            prompt,
-            text,
-            &self.controller_rc,
-        );
-        entry_window.popup();
+    pub fn popup_entry_window(&self, prompt: &str, text: &str) -> GsrEntryWindow {
+        let entry_window = GsrEntryWindow::new();
         entry_window
     }
 

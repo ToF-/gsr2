@@ -160,7 +160,19 @@ Editor
         on its key_pressed event GsrEntryWindow
             - udptaes its input
             - since action Cancel is result, close itself
-            
+    - has a specific behavior on certain keys:
+        - Escape : return empty input and launch a dismiss action
+        - Return : 
+            - if the given input matches the validation criteria defined by the view then return the input and the action to launch
+            - otherwise if the given input can be univocally completed by the CompletionDispenser then return the completion and the action to launch
+        - Tab :
+            - if the given input can be univocally completed by CompletionDispenser then return the completion
+            - if the given input can be completed by several candidates then return the same imput, and the candidates
+            - if the given input cannot be completet then return the same input and no canditates
+        
+        
+
+
 
 
 
