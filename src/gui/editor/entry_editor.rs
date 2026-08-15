@@ -25,12 +25,12 @@ impl EntryEditor {
 
     pub fn edit(&self, input: &str, key_name: &str) -> EntryEditorStatus {
         let mut input = input.to_string();
-        input.push_str(key_name);
-        EntryEditorStatus::new(
-            &input,
-            None,
-            None,
-        )
+        if key_name != "Tab" {
+            input.push_str(key_name);
+            EntryEditorStatus::new( &input, None, None,)
+        } else {
+            EntryEditorStatus::new( &input, Some("".to_string()), None,)
+        }
     }
 }
 
@@ -40,7 +40,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn editor_for_entry_kind_label() {
+    fn editor_for_entry_kind_label_simple_key_strokes() {
         let entry_editor = EntryEditor::new(
             EntryKind::Label,
             Validator::new(EntryKind::Label),
@@ -50,6 +50,18 @@ mod tests {
         assert_eq!("fo", &status.input());
         let status = entry_editor.edit("b", "a");
         assert_eq!("ba", &status.input());
+    }
+
+    #[test]
+    fn editor_for_entry_kind_label_tab_key() {
+        let entry_editor = EntryEditor::new(
+            EntryKind::Label,
+            Validator::new(EntryKind::Label),
+            Some(CompletionDispenser::new_with(tags_from_str("foo,bar,barnaby,lab"))),
+            );
+        let status = entry_editor.edit("f", "Tab");
+        assert_eq!("f", &status.input());
+        assert_eq!(Some("".to_string()), status.candidate_list_tip());
     }
 }
 
