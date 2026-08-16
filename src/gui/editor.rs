@@ -1,3 +1,5 @@
+use crate::gui::editor::editor_status::EditorStatus;
+use crate::gui::action::Action;
 use crate::env::default_values::MAX_LABEL_LENGTH;
 use crate::env::default_values::MAX_LABELS_LENGTH;
 use crate::env::default_values::MAX_NAME_LENGTH;
@@ -14,8 +16,18 @@ use itertools::Itertools;
 
 pub mod entry_editor;
 pub mod entry_editor_status;
+pub mod editor_status;
 pub mod validator;
 
+trait EditorT {
+    fn new(entry_kind: EntryKind, completion_tags_opt: Option<Tags>,  action_result: Action) -> Self;
+
+    fn accept(&self, input: &str, ch: char) -> bool;
+
+    fn convert(&self, input: &str, ch: char) -> String;
+
+    fn edit(&self, input: &str, key: gtk::gdk::Key) -> EditorStatus ;
+}
 #[derive(Clone, Debug)]
 pub struct Editor {
     prompt: String,
