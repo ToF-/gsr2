@@ -351,11 +351,9 @@ impl Editor {
         self.refresh_view();
     }
 
-    fn refresh_prompt(&self, prompt: &str) {
-    }
+    fn refresh_prompt(&self, prompt: &str) {}
 
-    fn refresh_view(&self) {
-    }
+    fn refresh_view(&self) {}
     fn max_edit_length(&self) -> usize {
         if self.entry_kind == EntryKind::Rename {
             MAX_NAME_LENGTH

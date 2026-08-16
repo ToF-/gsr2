@@ -1,4 +1,3 @@
-use crate::gui::objects::gsr_entry_window::GsrEntryWindow;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::default_values::{FULL_OPACITY, HALF_OPACITY};
 use crate::file::paths::check_path_exists;
@@ -15,6 +14,7 @@ use crate::gui::main_controller::MainController;
 use crate::gui::mode::Mode;
 use crate::gui::navigator::Navigator;
 use crate::gui::objects::gsr_application::GsrApplication;
+use crate::gui::objects::gsr_entry_window::GsrEntryWindow;
 use crate::gui::objects::gsr_picture_cell_box::GsrPictureCellBox;
 use crate::gui::objects::gsr_picture_grid::GsrPictureGrid;
 use crate::gui::view::picture_frame::PictureFrame;

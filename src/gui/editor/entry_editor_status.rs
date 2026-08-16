@@ -8,7 +8,11 @@ pub struct EntryEditorStatus {
 }
 
 impl EntryEditorStatus {
-    pub fn new(input: &str, candidate_list_tip: Option<String>, result_action: Option<Action>) -> Self {
+    pub fn new(
+        input: &str,
+        candidate_list_tip: Option<String>,
+        result_action: Option<Action>,
+    ) -> Self {
         Self {
             input: input.to_string(),
             candidate_list_tip,

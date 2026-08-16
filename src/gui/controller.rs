@@ -964,9 +964,7 @@ impl Controller {
             );
             self.set_state_mode(Mode::AddingCategory);
         } else {
-            self.display_information(
-                &format!("the category {} already exists", category_name),
-            );
+            self.display_information(&format!("the category {} already exists", category_name));
         }
     }
     fn enter_move_category(&self) {
@@ -1010,9 +1008,7 @@ impl Controller {
         if !self.state().has_saved_command_line_arguments() {
             self.enter_editing(EntryKind::Select, None)
         } else {
-            self.display_information(
-                "selection not allowed while in a directory or a selection",
-            );
+            self.display_information("selection not allowed while in a directory or a selection");
         }
     }
 
@@ -1195,16 +1191,12 @@ impl Controller {
     fn go_to_directory(&self) {
         // don't go if we are not in cover views
         if !self.command_line_arguments().cover {
-            self.display_information(
-                "cannot go to a directory when not in cover view",
-            );
+            self.display_information("cannot go to a directory when not in cover view");
             return;
         }
         // don't go if we are in single view mode
         if self.state().single_view() {
-            self.display_information(
-                "cannot go to a directory when in single view",
-            );
+            self.display_information("cannot go to a directory when in single view");
             return;
         };
         // don't go if we are already in the directory
@@ -1300,9 +1292,7 @@ impl Controller {
         // don't go if not in directory currently
         if self.state().pop_saved_command_line_arguments().is_none() {
             let application_window = &self.main_view().application_window();
-            self.display_information(
-                "not in a directory currently",
-            );
+            self.display_information("not in a directory currently");
             return;
         };
         let (old_pictures_per_row, old_clargs) = {
@@ -1431,9 +1421,7 @@ impl Controller {
                 }
             }
         } else {
-            self.display_information(
-                "cannot toggle cover selection while in a directory",
-            );
+            self.display_information("cannot toggle cover selection while in a directory");
         }
     }
 
@@ -1457,9 +1445,7 @@ impl Controller {
         {
             Ok(_) => {}
             Err(e) => {
-                self.display_information(
-                    &format!("{}", e),
-                );
+                self.display_information(&format!("{}", e));
             }
         }
     }
@@ -1475,9 +1461,7 @@ impl Controller {
         {
             Ok(_) => {}
             Err(e) => {
-                self.display_information(
-                    &format!("{}", e),
-                );
+                self.display_information(&format!("{}", e));
             }
         }
     }
@@ -1488,15 +1472,14 @@ impl Controller {
             match self.repository.remove_category(input) {
                 Ok(_) => {}
                 Err(e) => {
-                    self.display_information(
-                        &format!("{}", e),
-                    );
+                    self.display_information(&format!("{}", e));
                 }
             }
         } else {
-            self.display_information(
-                &format!("category {} is being used and cannot be removed", input),
-            );
+            self.display_information(&format!(
+                "category {} is being used and cannot be removed",
+                input
+            ));
         }
     }
 
@@ -1610,9 +1593,7 @@ impl Controller {
     }
 
     fn help(&self) {
-        self.display_information(
-            &help_on_controls(),
-        );
+        self.display_information(&help_on_controls());
     }
 
     fn information(&self) {
@@ -1646,9 +1627,7 @@ impl Controller {
                 panic!("can't borrow")
             }
         } else {
-            self.display_information(
-                &format!("no picture with mark {}", mark),
-            );
+            self.display_information(&format!("no picture with mark {}", mark));
         }
     }
 
@@ -2119,9 +2098,7 @@ impl Controller {
             }
         };
         if let Some(information) = information_opt {
-            self.display_information(
-                &information,
-            );
+            self.display_information(&information);
         }
     }
 
@@ -2146,9 +2123,7 @@ impl Controller {
             Err(e) => Some(format!("{}", e)),
         };
         if let Some(information) = information_opt {
-            self.display_information(
-                &information,
-            );
+            self.display_information(&information);
         }
     }
 
@@ -2168,9 +2143,7 @@ impl Controller {
             panic!("can't borrow");
         };
         if let Some(information) = information_opt {
-            self.display_information(
-                information,
-            );
+            self.display_information(information);
         }
     }
 
