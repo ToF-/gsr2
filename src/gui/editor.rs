@@ -45,6 +45,9 @@ impl EditorRules for Editor {
         match key.name() {
             None => EditorStatus::no_change(initial_input),
             Some(key_name) => match default_controls().get(&(key_name.to_string(), Mode::Editing)) {
+                Some(Control::CancelEdition) => {
+                    EditorStatus::new("", None, Some(Action::Cancel))
+                }
                 Some(Control::Complete) => {
                     if let Some(completion_dispenser) = self.completion_dispenser_opt.as_ref() {
                         let candidates = completion_dispenser.candidates(initial_input);

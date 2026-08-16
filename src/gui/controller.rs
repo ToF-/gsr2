@@ -138,6 +138,7 @@ impl Controller {
         let gio_action = GioAction::from((simple_action, variant_opt));
         let action = Action::from(gio_action);
         match action {
+            Action::Cancel => self.cancel_edition(),
             Action::ToggleThumbnailsView => self.toggle_thumbview(),
             Action::ToggleTwoByTwoView => self.toggle_2x2_view(),
             Action::Dismiss => self.dismiss(),
@@ -2208,6 +2209,9 @@ impl Controller {
         );
     }
 
+    fn cancel_edition(&self) {
+        self.dismiss()
+    }
     fn dismiss(&self) {
         {
             let gsr_entry_window_opt = self.gsr_entry_window_opt_rc.borrow();

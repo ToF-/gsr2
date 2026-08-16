@@ -76,4 +76,10 @@ mod tests {
         let status = editor.edit("fib", Key::from_name("space").unwrap());
         assert_eq!("fib-", &status.input());
     }
+    #[test]
+    fn given_en_escape_then_it_returns_a_cancel_action() {
+        let editor = change_label_editor(tags_from_str("foo,bar,bartleby,law"));
+        let status = editor.edit("fib", Key::from_name("Escape").unwrap());
+        assert_eq!(Some(Action::Cancel), status.result_action());
+    }
 }

@@ -44,6 +44,9 @@ impl From<Action> for GioActionType {
             Action::ApplyViewSetting(_) => {
                 GioActionType::new("apply-view-setting", GioActionParameterType::String)
             }
+            Action::Cancel => {
+                GioActionType::new("cancel", GioActionParameterType::None)
+            }
             Action::CancelSelectionRange => {
                 GioActionType::new("cancel-selection-range", GioActionParameterType::None)
             }

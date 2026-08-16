@@ -19,6 +19,7 @@ pub enum Action {
     AddTag(Label),                 // add tag(s) to the selected pictures
     ApplyOrderSetting(Order),      // apply the order in which see the pictures
     ApplyViewSetting(ViewOption),  // change the view setting
+    Cancel,                        // cancel current interaction
     CancelSelectionRange,          // cancel selection
     Categorize(Category),          // change the category of the selected pictures
     ConfirmDeleteFile,             // input a yes to deleting selected picture files
@@ -92,6 +93,7 @@ impl Action {
     // FOO
     pub fn from_control(control: &Control) -> Self {
         match control {
+            Control::CancelEdition => Action::Cancel,
             Control::Quit => Action::Quit,
             Control::MoveLast => Action::MoveTowards(Direction::Last),
             Control::MoveFirst => Action::MoveTowards(Direction::First),
