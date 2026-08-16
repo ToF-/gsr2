@@ -1,3 +1,4 @@
+use crate::model::view_option::ViewOption;
 use crate::gui::action::Action;
 use crate::gui::completion_dispenser::CompletionDispenser;
 use crate::gui::editor::Control;
@@ -70,6 +71,11 @@ impl EntryEditor {
     }
 
     pub fn edit(&self, input: &str, key: Key) -> EntryEditorStatus {
+        // fake it
+        if self.entry_kind == EntryKind::View  {
+            return EntryEditorStatus::new("Thumbs", None, Some(Action::ApplyViewSetting(ViewOption::Thumbnails)))
+        };
+
         match key.name() {
             None => EntryEditorStatus::new(input, None, None),
             Some(key_name) => match self.controls.get(&(key_name.to_string(), Mode::Editing)) {
@@ -130,5 +136,13 @@ mod tests {
             Some("[ bar barnaby ]".to_string()),
             status.candidate_list_tip()
         );
+    }
+    #[test]
+    fn given_a_single_letter_choice_keying_the_letter_confirms_the_choice() {
+        let entry_editor = EntryEditor::new(EntryKind::View, Validator::new(EntryKind::View), None);
+        let status = entry_editor.edit("", Key::from_name("t").unwrap());
+        assert_eq!("Thumbs", &status.input());
+        assert_eq!(None, status.candidate_list_tip());
+        assert_eq!(Some(Action::ApplyViewSetting(ViewOption::Thumbnails)),status.result_action());
     }
 }

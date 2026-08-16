@@ -28,6 +28,6 @@ impl EntryEditorStatus {
     }
 
     pub fn result_action(&self) -> Option<Action> {
-        self.result_action()
+        self.result_action.clone()
     }
 }
