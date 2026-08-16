@@ -6,6 +6,7 @@ pub const DEFAULT_HEIGHT: i32 = 1000;
 pub const DEFAULT_WIDTH: i32 = 1000;
 pub const ENTRY_WINDOW_WIDTH: i32 = 250;
 pub const ENTRY_WINDOW_HEIGHT: i32 = 100;
+pub const SPACE_REPLACEMENT_CHAR_FOR_TAGS: char = '-';
 pub const TREELIST_WINDOW_WIDTH: i32 = 400;
 pub const TREELIST_WINDOW_HEIGHT: i32 = 800;
 pub const SMALL_PICTURE_SYMBOL: &str = "․";
