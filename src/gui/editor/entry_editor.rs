@@ -1,11 +1,11 @@
-use crate::gui::editor::Control;
-use crate::gui::mode::Mode;
-use crate::gui::editor::default_controls;
-use crate::gui::editor::Controls;
 use crate::gui::action::Action;
 use crate::gui::completion_dispenser::CompletionDispenser;
+use crate::gui::editor::Control;
+use crate::gui::editor::Controls;
+use crate::gui::editor::default_controls;
 use crate::gui::editor::entry_editor_status::EntryEditorStatus;
 use crate::gui::entry_kind::EntryKind;
+use crate::gui::mode::Mode;
 use crate::gui::validator::Validator;
 use crate::model::tags::Tags;
 use crate::model::tags::tags_from_str;
@@ -34,29 +34,47 @@ impl EntryEditor {
         }
     }
 
+    fn no_change(&self, input: &str) -> EntryEditorStatus {
+        EntryEditorStatus::new(input, None, None)
+    }
+
+    fn candidates(&self, input: &str, candidates: Vec<String>) -> EntryEditorStatus {
+        EntryEditorStatus::new(
+            input,
+            Some("[ ".to_owned() + &candidates.iter().join(" ") + " ]"),
+            None,
+        )
+    }
+
+    fn complete(&self, input: &str) -> EntryEditorStatus {
+        if let Some(completion_dispenser) = self.completion_dispenser_opt.as_ref() {
+            let candidates = completion_dispenser.candidates(input);
+            match candidates.len() {
+                0 => self.no_change(input),
+                1 => EntryEditorStatus::new(&candidates[0], None, None),
+                _ => self.candidates(input, candidates),
+            }
+        } else {
+            self.no_change(input)
+        }
+    }
+
+    fn append_char_from_key(&self, input: &str, key: Key) -> EntryEditorStatus {
+        if let Some(ch) = key.to_unicode() {
+            let mut input = input.to_string();
+            input.push(ch);
+            EntryEditorStatus::new(&input, None, None)
+        } else {
+            self.no_change(input)
+        }
+    }
+
     pub fn edit(&self, input: &str, key: Key) -> EntryEditorStatus {
         match key.name() {
             None => EntryEditorStatus::new(input, None, None),
             Some(key_name) => match self.controls.get(&(key_name.to_string(), Mode::Editing)) {
-                Some(Control::Complete) if let Some(completion_dispenser) = self.completion_dispenser_opt.as_ref() =>
-                    EntryEditorStatus::new(
-                        input,
-                        Some(
-                            "[ ".to_owned()
-                            + &completion_dispenser.candidates(input).iter().join(" ")
-                            + " ]",
-                    ),
-                    None,
-                ),
-                Some(_) | None => {
-                    if let Some(ch) = key.to_unicode() {
-                        let mut input: String = input.to_string();
-                        input.push(ch);
-                        EntryEditorStatus::new(&input, None, None)
-                    } else {
-                        EntryEditorStatus::new(&input, None, None)
-                    }
-                },
+                Some(Control::Complete) => self.complete(input),
+                Some(_) | None => self.append_char_from_key(input, key),
             },
         }
     }
@@ -93,9 +111,21 @@ mod tests {
         );
         let status = entry_editor.edit("f", Key::from_name("Tab").unwrap());
         assert_eq!("f", &status.input());
-        assert_eq!(Some("[  ]".to_string()), status.candidate_list_tip());
+        assert_eq!(None, status.candidate_list_tip());
+
+        let status = entry_editor.edit("fo", Key::from_name("Tab").unwrap());
+        assert_eq!("foo", &status.input());
+        assert_eq!(None, status.candidate_list_tip());
+
         let status = entry_editor.edit("ba", Key::from_name("Tab").unwrap());
         assert_eq!("ba", &status.input());
+        assert_eq!(
+            Some("[ bar barnaby ]".to_string()),
+            status.candidate_list_tip()
+        );
+
+        let status = entry_editor.edit("bar", Key::from_name("Tab").unwrap());
+        assert_eq!("bar", &status.input());
         assert_eq!(
             Some("[ bar barnaby ]".to_string()),
             status.candidate_list_tip()
