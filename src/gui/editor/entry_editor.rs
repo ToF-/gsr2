@@ -1,4 +1,3 @@
-use crate::gui::editor::EditorT;
 use crate::model::view_option::ViewOption;
 use crate::gui::action::Action;
 use crate::gui::completion_dispenser::CompletionDispenser;

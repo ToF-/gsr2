@@ -19,7 +19,7 @@ use gtk::prelude::StyleContextExt;
 use gtk::prelude::WidgetExt;
 use std::cell::RefCell;
 
-use crate::gui::editor::Editor;
+use crate::gui::editor::legacy_editor::LegacyEditor;
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 
