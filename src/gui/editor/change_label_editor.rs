@@ -1,4 +1,3 @@
-
 use crate::gui::editor::Action;
 use crate::gui::editor::Editor;
 use crate::gui::editor::EditorRules;
@@ -47,5 +46,25 @@ mod tests {
         let editor = change_label_editor(tags_from_str("foo,bar,bartelby,law"));
         let status = editor.edit("fi", Key::from_name("B").unwrap());
         assert_eq!("fib", &status.input());
+    }
+    #[test]
+    fn given_an_initial_input_that_is_too_short_complete_produce_no_candidates() {
+        let editor = change_label_editor(tags_from_str("foo,bar,bartelby,law"));
+        let status = editor.edit("f", Key::from_name("Tab").unwrap());
+        assert_eq!(None, status.candidate_list_tip());
+    }
+    #[test]
+    fn given_an_initial_input_that_completes_with_one_candidates_input_is_set_to_that() {
+        let editor = change_label_editor(tags_from_str("foo,bar,bartelby,law"));
+        let status = editor.edit("fo", Key::from_name("Tab").unwrap());
+        assert_eq!(None, status.candidate_list_tip());
+        assert_eq!("foo", &status.input());
+    }
+    #[test]
+    fn given_an_initial_input_that_completes_with_two_candidates_these_candidates_are_tipped() {
+        let editor = change_label_editor(tags_from_str("foo,bar,bartelby,law"));
+        let status = editor.edit("ba", Key::from_name("Tab").unwrap());
+        assert_eq!(Some("[ bar bartleby ]".to_string()), status.candidate_list_tip());
+        assert_eq!("ba", &status.input());
     }
 }

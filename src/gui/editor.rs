@@ -4,6 +4,7 @@ use crate::gui::control::{Control, Controls, default_controls};
 use crate::gui::editor::editor_rules::EditorRules;
 use crate::gui::editor::editor_status::EditorStatus;
 use crate::gui::entry_kind::EntryKind;
+use crate::gui::mode::Mode;
 use crate::model::tags::Tags;
 use std::sync::Arc;
 
@@ -41,16 +42,35 @@ impl EditorRules for Editor {
     }
 
     fn edit(&self, initial_input: &str, key: gtk::gdk::Key) -> EditorStatus {
-        let mut input = initial_input.to_string();
-        let accept = self.accepter.clone();
-        if let Some(ch) = key.to_unicode()
-            && accept(initial_input.to_string(), ch)
-        {
-            let convert = self.converter.clone();
-            let input = convert(initial_input.to_string(), ch);
-            EditorStatus::new(&input, None, None)
-        } else {
-            EditorStatus::no_change(initial_input)
+        match key.name() {
+            None => EditorStatus::no_change(initial_input),
+            Some(key_name) => match default_controls().get(&(key_name.to_string(), Mode::Editing)) {
+                Some(Control::Complete) => {
+                    if let Some(completion_dispenser) = self.completion_dispenser_opt.as_ref() {
+                        let candidates = completion_dispenser.candidates(initial_input);
+                        match candidates.len() {
+                            0 => EditorStatus::no_change(initial_input),
+                            1 => EditorStatus::new(&candidates[0], None, None),
+                            _ => EditorStatus::candidates(initial_input, candidates),
+                        }
+                    } else {
+                        EditorStatus::no_change(initial_input)
+                    }
+                }
+                Some(_) | None => {
+                    let mut input = initial_input.to_string();
+                    let accept = self.accepter.clone();
+                    if let Some(ch) = key.to_unicode()
+                        && accept(initial_input.to_string(), ch)
+                    {
+                        let convert = self.converter.clone();
+                        let input = convert(initial_input.to_string(), ch);
+                        EditorStatus::new(&input, None, None)
+                    } else {
+                        EditorStatus::no_change(initial_input)
+                    }
+                }
+            },
         }
     }
 }

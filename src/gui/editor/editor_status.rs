@@ -1,3 +1,4 @@
+use itertools::Itertools;
 use crate::gui::action::Action;
 
 #[derive(Debug, Clone)]
@@ -24,6 +25,14 @@ impl EditorStatus {
         Self {
             input: input.to_string(),
             candidate_list_tip: None,
+            result_action: None,
+        }
+    }
+
+    pub fn candidates(input: &str, candidates: Vec<String>) -> Self {
+        Self {
+            input: input.to_string(),
+            candidate_list_tip: Some("[ ".to_owned() + &candidates.iter().join(" ") + " ]"),
             result_action: None,
         }
     }
