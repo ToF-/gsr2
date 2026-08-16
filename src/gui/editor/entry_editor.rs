@@ -7,7 +7,7 @@ use crate::gui::editor::default_controls;
 use crate::gui::editor::entry_editor_status::EntryEditorStatus;
 use crate::gui::entry_kind::EntryKind;
 use crate::gui::mode::Mode;
-use crate::gui::validator::Validator;
+use crate::gui::editor::validator::Validator;
 use crate::model::tags::Tags;
 use crate::model::tags::tags_from_str;
 use gtk::gdk::Key;

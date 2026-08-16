@@ -16,5 +16,4 @@ pub mod navigator;
 pub mod objects;
 pub mod selector;
 pub mod state;
-pub mod validator;
 pub mod view;
