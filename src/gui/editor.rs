@@ -42,7 +42,9 @@ impl EditorRules for Editor {
 
     fn edit(&self, initial_input: &str, key: gtk::gdk::Key) -> EditorStatus {
         let mut input = initial_input.to_string();
-        if let Some(ch) = key.to_unicode() {
+        let accept = self.accepter.clone();
+        if let Some(ch) = key.to_unicode()
+            && accept(initial_input.to_string(), ch) {
             input.push(ch);
             EditorStatus::new(&input, None, None)
         } else {
