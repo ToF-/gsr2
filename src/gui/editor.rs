@@ -1,18 +1,18 @@
-use crate::gui::editor::editor_rules::EditorRules;
-use std::sync::Arc;
-use crate::gui::completion_dispenser::CompletionDispenser;
-use crate::gui::editor::editor_status::EditorStatus;
 use crate::gui::action::Action;
+use crate::gui::completion_dispenser::CompletionDispenser;
 use crate::gui::control::{Control, Controls, default_controls};
+use crate::gui::editor::editor_rules::EditorRules;
+use crate::gui::editor::editor_status::EditorStatus;
 use crate::gui::entry_kind::EntryKind;
 use crate::model::tags::Tags;
+use std::sync::Arc;
 
-pub mod editor_rules;
-pub mod legacy_editor;
 pub mod change_label_editor;
+pub mod editor_rules;
+pub mod editor_status;
 pub mod entry_editor;
 pub mod entry_editor_status;
-pub mod editor_status;
+pub mod legacy_editor;
 pub mod validator;
 
 pub struct Editor {
@@ -22,34 +22,35 @@ pub struct Editor {
 }
 
 impl EditorRules for Editor {
-    fn new<A: Fn(String, char) -> bool +'static,
-           C: Fn(String, char) -> String +'static,>
-               (entry_kind: EntryKind,
-                prompt: &str,
-                completion_tags_opt: Option<Tags>,
-                action_result: Action,
-                accepter: A,
-                converter: C) -> Self {
-                   Self {
-                   completion_dispenser_opt: match completion_tags_opt {
-                       None => None,
-                       Some(tags) => Some(CompletionDispenser::new_with(tags)),
-                   },
-                   accepter: Arc::new(accepter),
-                   converter: Arc::new(converter),
-                   }
-           }
+    fn new<A: Fn(String, char) -> bool + 'static, C: Fn(String, char) -> String + 'static>(
+        entry_kind: EntryKind,
+        prompt: &str,
+        completion_tags_opt: Option<Tags>,
+        action_result: Action,
+        accepter: A,
+        converter: C,
+    ) -> Self {
+        Self {
+            completion_dispenser_opt: match completion_tags_opt {
+                None => None,
+                Some(tags) => Some(CompletionDispenser::new_with(tags)),
+            },
+            accepter: Arc::new(accepter),
+            converter: Arc::new(converter),
+        }
+    }
 
     fn edit(&self, initial_input: &str, key: gtk::gdk::Key) -> EditorStatus {
         let mut input = initial_input.to_string();
         let accept = self.accepter.clone();
         if let Some(ch) = key.to_unicode()
-            && accept(initial_input.to_string(), ch) {
-            input.push(ch);
+            && accept(initial_input.to_string(), ch)
+        {
+            let convert = self.converter.clone();
+            let input = convert(initial_input.to_string(), ch);
             EditorStatus::new(&input, None, None)
         } else {
             EditorStatus::no_change(initial_input)
         }
     }
-
 }

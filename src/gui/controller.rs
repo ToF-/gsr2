@@ -479,7 +479,10 @@ impl Controller {
                 if !selector.selecting() {
                     self.set_state_mode(Mode::View);
                     if !selector.selected().is_empty() {
-                        self.add_category(&(self.legacy_editor_rc.borrow()).input(), &selector.selected())
+                        self.add_category(
+                            &(self.legacy_editor_rc.borrow()).input(),
+                            &selector.selected(),
+                        )
                     }
                 }
             }
@@ -529,7 +532,10 @@ impl Controller {
                 if !selector.selecting() {
                     self.set_state_mode(Mode::View);
                     if !selector.selected().is_empty() {
-                        self.find_first(&(self.legacy_editor_rc.borrow()).input(), Find::SubCategory);
+                        self.find_first(
+                            &(self.legacy_editor_rc.borrow()).input(),
+                            Find::SubCategory,
+                        );
                     }
                 }
             }
@@ -596,7 +602,9 @@ impl Controller {
                         }
                         EntryKind::Rename => {
                             if !(self.legacy_editor_rc.borrow()).input().is_empty() {
-                                self.rename_selected_picture(&(self.legacy_editor_rc.borrow()).input())
+                                self.rename_selected_picture(
+                                    &(self.legacy_editor_rc.borrow()).input(),
+                                )
                             };
                             self.set_opacity_for_current_picture(1.00);
                         }
@@ -636,19 +644,25 @@ impl Controller {
                         }
                         EntryKind::Label => {
                             if !(self.legacy_editor_rc.borrow()).input().is_empty() {
-                                self.label_selected_pictures(&(self.legacy_editor_rc.borrow()).input())
+                                self.label_selected_pictures(
+                                    &(self.legacy_editor_rc.borrow()).input(),
+                                )
                             };
                             self.set_opacity_for_current_picture(1.00);
                         }
                         EntryKind::AddTag => {
                             if !(self.legacy_editor_rc.borrow()).input().is_empty() {
-                                self.tag_selected_pictures(&(self.legacy_editor_rc.borrow()).input())
+                                self.tag_selected_pictures(
+                                    &(self.legacy_editor_rc.borrow()).input(),
+                                )
                             };
                             self.set_opacity_for_current_picture(1.00);
                         }
                         EntryKind::RemoveTag => {
                             if !(self.legacy_editor_rc.borrow()).input().is_empty() {
-                                self.untag_selected_pictures(&(self.legacy_editor_rc.borrow()).input())
+                                self.untag_selected_pictures(
+                                    &(self.legacy_editor_rc.borrow()).input(),
+                                )
                             };
                             self.set_opacity_for_current_picture(1.00);
                         }
@@ -663,8 +677,12 @@ impl Controller {
                             let input = self.legacy_editor_rc.borrow().input();
                             self.set_order(&input);
                         }
-                        EntryKind::Rank => self.confirm_rank(&(self.legacy_editor_rc.borrow()).input()),
-                        EntryKind::View => self.confirm_view(&(self.legacy_editor_rc.borrow()).input()),
+                        EntryKind::Rank => {
+                            self.confirm_rank(&(self.legacy_editor_rc.borrow()).input())
+                        }
+                        EntryKind::View => {
+                            self.confirm_view(&(self.legacy_editor_rc.borrow()).input())
+                        }
                         EntryKind::DeleteConfirmation => {
                             if &(self.legacy_editor_rc.borrow()).input() == "yes" {
                                 self.confirm_delete_picture()
@@ -688,17 +706,26 @@ impl Controller {
                         }
                         EntryKind::FindName => {
                             if !(self.legacy_editor_rc.borrow()).input().is_empty() {
-                                self.find_first(&(self.legacy_editor_rc.borrow()).input(), Find::Name);
+                                self.find_first(
+                                    &(self.legacy_editor_rc.borrow()).input(),
+                                    Find::Name,
+                                );
                             };
                         }
                         EntryKind::FindLabel => {
                             if !(self.legacy_editor_rc.borrow()).input().is_empty() {
-                                self.find_first(&(self.legacy_editor_rc.borrow()).input(), Find::Label);
+                                self.find_first(
+                                    &(self.legacy_editor_rc.borrow()).input(),
+                                    Find::Label,
+                                );
                             };
                         }
                         EntryKind::FindCategory => {
                             if !(self.legacy_editor_rc.borrow()).input().is_empty() {
-                                self.find_first(&(self.legacy_editor_rc.borrow()).input(), Find::Category);
+                                self.find_first(
+                                    &(self.legacy_editor_rc.borrow()).input(),
+                                    Find::Category,
+                                );
                             };
                         }
                         EntryKind::FindSubCategory => {
@@ -711,12 +738,18 @@ impl Controller {
                         }
                         EntryKind::FindSomeTags => {
                             if !(self.legacy_editor_rc.borrow()).input().is_empty() {
-                                self.find_first(&(self.legacy_editor_rc.borrow()).input(), Find::AllTags)
+                                self.find_first(
+                                    &(self.legacy_editor_rc.borrow()).input(),
+                                    Find::AllTags,
+                                )
                             }
                         }
                         EntryKind::FindAllTags => {
                             if !(self.legacy_editor_rc.borrow()).input().is_empty() {
-                                self.find_first(&(self.legacy_editor_rc.borrow()).input(), Find::AllTags)
+                                self.find_first(
+                                    &(self.legacy_editor_rc.borrow()).input(),
+                                    Find::AllTags,
+                                )
                             };
                         }
                         EntryKind::SelectName => {
@@ -731,22 +764,34 @@ impl Controller {
                         }
                         EntryKind::SelectCategory => {
                             if !(self.legacy_editor_rc.borrow()).input().is_empty() {
-                                self.select(&(self.legacy_editor_rc.borrow()).input(), Find::Category);
+                                self.select(
+                                    &(self.legacy_editor_rc.borrow()).input(),
+                                    Find::Category,
+                                );
                             };
                         }
                         EntryKind::SelectSubCategory => {
                             if !(self.legacy_editor_rc.borrow()).input().is_empty() {
-                                self.select(&(self.legacy_editor_rc.borrow()).input(), Find::SubCategory);
+                                self.select(
+                                    &(self.legacy_editor_rc.borrow()).input(),
+                                    Find::SubCategory,
+                                );
                             };
                         }
                         EntryKind::SelectSomeTags => {
                             if !(self.legacy_editor_rc.borrow()).input().is_empty() {
-                                self.select(&(self.legacy_editor_rc.borrow()).input(), Find::AllTags)
+                                self.select(
+                                    &(self.legacy_editor_rc.borrow()).input(),
+                                    Find::AllTags,
+                                )
                             }
                         }
                         EntryKind::SelectAllTags => {
                             if !(self.legacy_editor_rc.borrow()).input().is_empty() {
-                                self.find_first(&(self.legacy_editor_rc.borrow()).input(), Find::AllTags)
+                                self.find_first(
+                                    &(self.legacy_editor_rc.borrow()).input(),
+                                    Find::AllTags,
+                                )
                             };
                         }
                         EntryKind::Information => {}
@@ -1510,8 +1555,13 @@ impl Controller {
             (self.legacy_editor_rc.borrow_mut()).begin(&self.main_view(), EntryKind::Rename, None);
             self.set_state_mode(Mode::Editing);
         } else {
-            (self.legacy_editor_rc.borrow_mut()).begin(&self.main_view(), EntryKind::Information, None);
-            (self.legacy_editor_rc.borrow_mut()).set_input("Select the picture you want to rename first");
+            (self.legacy_editor_rc.borrow_mut()).begin(
+                &self.main_view(),
+                EntryKind::Information,
+                None,
+            );
+            (self.legacy_editor_rc.borrow_mut())
+                .set_input("Select the picture you want to rename first");
             self.set_state_mode(Mode::Editing);
         }
     }
@@ -1598,7 +1648,8 @@ impl Controller {
 
     fn information(&self) {
         (self.legacy_editor_rc.borrow_mut()).begin(&self.main_view(), EntryKind::Information, None);
-        (self.legacy_editor_rc.borrow_mut()).set_input(&self.current_picture().file_path().to_string());
+        (self.legacy_editor_rc.borrow_mut())
+            .set_input(&self.current_picture().file_path().to_string());
         self.set_state_mode(Mode::Editing);
     }
 

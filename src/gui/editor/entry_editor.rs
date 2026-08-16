@@ -1,15 +1,15 @@
-use crate::model::view_option::ViewOption;
 use crate::gui::action::Action;
 use crate::gui::completion_dispenser::CompletionDispenser;
 use crate::gui::editor::Control;
 use crate::gui::editor::Controls;
 use crate::gui::editor::default_controls;
 use crate::gui::editor::entry_editor_status::EntryEditorStatus;
+use crate::gui::editor::validator::Validator;
 use crate::gui::entry_kind::EntryKind;
 use crate::gui::mode::Mode;
-use crate::gui::editor::validator::Validator;
 use crate::model::tags::Tags;
 use crate::model::tags::tags_from_str;
+use crate::model::view_option::ViewOption;
 use gtk::gdk::Key;
 use itertools::Itertools;
 
@@ -72,8 +72,12 @@ impl EntryEditor {
 
     pub fn edit(&self, input: &str, key: Key) -> EntryEditorStatus {
         // fake it
-        if self.entry_kind == EntryKind::View  {
-            return EntryEditorStatus::new("Thumbs", None, Some(Action::ApplyViewSetting(ViewOption::Thumbnails)))
+        if self.entry_kind == EntryKind::View {
+            return EntryEditorStatus::new(
+                "Thumbs",
+                None,
+                Some(Action::ApplyViewSetting(ViewOption::Thumbnails)),
+            );
         };
 
         match key.name() {
@@ -143,6 +147,9 @@ mod tests {
         let status = entry_editor.edit("", Key::from_name("t").unwrap());
         assert_eq!("Thumbs", &status.input());
         assert_eq!(None, status.candidate_list_tip());
-        assert_eq!(Some(Action::ApplyViewSetting(ViewOption::Thumbnails)),status.result_action());
+        assert_eq!(
+            Some(Action::ApplyViewSetting(ViewOption::Thumbnails)),
+            status.result_action()
+        );
     }
 }
