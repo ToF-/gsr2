@@ -8,10 +8,9 @@ use crate::model::tags::Tags;
 
 pub fn change_label_editor(completion_tags: Tags) -> Editor {
     Editor::new(
-        EntryKind::Label,
         "Enter a label",
         Some(completion_tags),
-        Action::Label(Label::from("foo")),
+        true,
         |_, ch| matches!(ch, 'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' '),
         |s, ch| {
             let mut input = s;
@@ -24,6 +23,7 @@ pub fn change_label_editor(completion_tags: Tags) -> Editor {
             }
             input
         },
+        |s| Action::Label(s),
     )
 }
 #[cfg(test)]
@@ -67,7 +67,10 @@ mod tests {
     fn given_an_initial_input_that_completes_with_two_candidates_these_candidates_are_tipped() {
         let editor = change_label_editor(tags_from_str("foo,bar,bartleby,law"));
         let status = editor.edit("ba", Key::from_name("Tab").unwrap());
-        assert_eq!(Some("[ bar bartleby ]".to_string()), status.candidate_list_tip());
+        assert_eq!(
+            Some("[ bar bartleby ]".to_string()),
+            status.candidate_list_tip()
+        );
         assert_eq!("ba", &status.input());
     }
     #[test]
@@ -81,5 +84,15 @@ mod tests {
         let editor = change_label_editor(tags_from_str("foo,bar,bartleby,law"));
         let status = editor.edit("fib", Key::from_name("Escape").unwrap());
         assert_eq!(Some(Action::Cancel), status.result_action());
+    }
+    #[test]
+    fn given_a_return_then_it_returns_the_input_and_its_specific_label_action() {
+        let editor = change_label_editor(tags_from_str("foo,bar,bartleby,law"));
+        let status = editor.edit("fib", Key::from_name("Return").unwrap());
+        assert_eq!("fib", &status.input());
+        assert_eq!(
+            Some(Action::Label("fib".to_string())),
+            status.result_action()
+        );
     }
 }

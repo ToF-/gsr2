@@ -1,5 +1,5 @@
-use itertools::Itertools;
 use crate::gui::action::Action;
+use itertools::Itertools;
 
 #[derive(Debug, Clone)]
 pub struct EditorStatus {

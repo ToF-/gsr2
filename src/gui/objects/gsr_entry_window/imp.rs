@@ -2,6 +2,10 @@ use crate::env::default_values::ENTRY_WINDOW_HEIGHT;
 use crate::env::default_values::ENTRY_WINDOW_WIDTH;
 use crate::gui::action::Action;
 use crate::gui::action::gio_action::GioAction;
+use crate::gui::editor::Editor;
+use crate::gui::editor::change_label_editor::change_label_editor;
+use crate::gui::editor::display_information_editor::display_information_editor;
+use crate::gui::editor::editor_rules::EditorRules;
 use crate::gui::main_controller::MainController;
 use crate::gui::main_controller::RcMainController;
 use crate::gui::objects::gsr_entry_window::EntryEditor;
@@ -23,12 +27,16 @@ use crate::gui::editor::legacy_editor::LegacyEditor;
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 
-#[derive(Default)]
 pub struct GsrEntryWindow {
-    pub prompt_rc: RefCell<String>,
-    pub candidates_rc: RefCell<String>,
-    pub input_rc: RefCell<String>,
-    pub entry_editor_opt_rc: RefCell<Option<EntryEditor>>,
+    pub editor_rc: RefCell<Editor>,
+}
+
+impl Default for GsrEntryWindow {
+    fn default() -> Self {
+        Self {
+            editor_rc: RefCell::new(display_information_editor()),
+        }
+    }
 }
 
 impl GsrEntryWindow {
@@ -36,14 +44,10 @@ impl GsrEntryWindow {
         &self,
         application_window: &gtk::ApplicationWindow,
         main_controller_rc: &RcMainController,
-        prompt: &str,
-        input: &str,
-        entry_editor_opt: Option<EntryEditor>,
+        editor: Editor,
+        initial_input_opt: Option<&str>,
     ) {
-        *self.prompt_rc.borrow_mut() = prompt.to_owned();
-        *self.input_rc.borrow_mut() = input.to_owned();
-        *self.candidates_rc.borrow_mut() = "".to_owned();
-        *self.entry_editor_opt_rc.borrow_mut() = entry_editor_opt;
+        *self.editor_rc.borrow_mut() = editor;
         let obj = self.obj();
         obj.set_decorated(false);
         obj.set_modal(true);
@@ -53,9 +57,12 @@ impl GsrEntryWindow {
         let entry_text = gtk::Label::builder()
             .valign(Align::Center)
             .halign(Align::Center)
-            .label(input)
             .build();
+        if let Some(input) = initial_input_opt {
+            entry_text.set_label(&input)
+        };
         entry_text.add_css_class("entry");
+        let prompt = self.editor_rc.borrow().prompt();
         let prompt_label = gtk::Label::builder()
             .valign(Align::Center)
             .halign(Align::Center)
@@ -87,31 +94,41 @@ impl GsrEntryWindow {
         entry_box.append(&prompt_label);
         entry_box.append(&entry_text);
         obj.set_child(Some(&entry_box));
-        // with no editor => first pressed key causes a closing
-        if self.entry_editor_opt_rc.borrow().is_some() {
-            todo!();
-        } else {
-            Self::connect_key_pressed_to_close(&obj);
-        }
+        Self::connect_key_pressed_controller(&obj);
         let main_controller = main_controller_rc.borrow();
         self.obj()
             .insert_action_group("main-controller", Some(&main_controller.gio_action_group()));
     }
 
-    pub fn connect_key_pressed_to_close(gsr_entry_window: &super::GsrEntryWindow) {
+    pub fn connect_key_pressed_controller(gsr_entry_window: &super::GsrEntryWindow) {
         let event_controller_key = gtk::EventControllerKey::new();
         event_controller_key.connect_key_pressed(clone!(
             #[strong (rename_to=this)]
             gsr_entry_window,
-            move |_, _, _, _| {
-                let action_call = GioAction::from(Action::Dismiss).to_simple_action_call();
-                let name = action_call.0.clone();
-                let variant = action_call.1.clone();
-                let variant_ref: Option<&Variant> = match &variant {
-                    None => None,
-                    Some(v) => Some(v.as_ref()),
+            move |_, key, _, _| {
+                let editor = this.imp().editor_rc.borrow();
+                let input = this.entry_text();
+                let status = editor.edit(&input, key);
+                let action_opt = if editor.editable() {
+                    status.result_action()
+                }    else {
+                    Some(Action::Dismiss)
                 };
-                let _ = this.activate_action(&name, variant_ref);
+                if let Some(action) = action_opt {
+                    let action_call = GioAction::from(Action::Dismiss).to_simple_action_call();
+                    let name = action_call.0.clone();
+                    let variant = action_call.1.clone();
+                    let variant_ref: Option<&Variant> = match &variant {
+                        None => None,
+                        Some(v) => Some(v.as_ref()),
+                    };
+                    let _ = this.activate_action(&name, variant_ref);
+                } else {
+                    let new_input = status.input();
+                    if new_input != input {
+                        this.set_entry_text(&new_input)
+                    };
+                }
                 Propagation::Stop
             }
         ));
@@ -126,20 +143,7 @@ impl ObjectSubclass for GsrEntryWindow {
     type ParentType = gtk::Window;
 }
 
-impl ObjectImpl for GsrEntryWindow {
-    fn constructed(&self) {
-        self.parent_constructed();
-
-        let obj = self.obj();
-
-        obj.set_title(Some("My Custom Window"));
-        obj.set_default_size(800, 600);
-
-        let label = gtk::Label::new(Some("Hello from subclass"));
-
-        obj.set_child(Some(&label));
-    }
-}
+impl ObjectImpl for GsrEntryWindow {}
 
 impl WidgetImpl for GsrEntryWindow {}
 

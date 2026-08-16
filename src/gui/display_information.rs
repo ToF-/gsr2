@@ -1,4 +1,5 @@
 use crate::gui::action::Action;
+use crate::gui::editor::display_information_editor::display_information_editor;
 use crate::gui::entry_kind::EntryKind;
 use crate::gui::entry_prompt::entry_prompt;
 use crate::gui::main_controller::MainController;
@@ -14,9 +15,8 @@ pub fn display_information(
     let gsr_entry_window = GsrEntryWindow::new_with(
         application_window,
         main_controller_rc,
-        &entry_prompt(EntryKind::Information),
-        message,
-        None,
+        display_information_editor(),
+        Some(message),
     );
     gsr_entry_window.present();
     gsr_entry_window
