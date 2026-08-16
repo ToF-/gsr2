@@ -19,6 +19,14 @@ impl EditorStatus {
             result_action,
         }
     }
+
+    pub fn no_change(input: &str) -> Self {
+        Self {
+            input: input.to_string(),
+            candidate_list_tip: None,
+            result_action: None,
+        }
+    }
     pub fn input(&self) -> String {
         self.input.clone()
     }

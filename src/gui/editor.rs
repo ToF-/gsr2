@@ -14,17 +14,20 @@ use gdk::Key;
 use gtk::{self, gdk};
 use itertools::Itertools;
 
+pub mod change_label_editor;
 pub mod entry_editor;
 pub mod entry_editor_status;
 pub mod editor_status;
 pub mod validator;
 
 trait EditorT {
-    fn new(entry_kind: EntryKind, completion_tags_opt: Option<Tags>,  action_result: Action) -> Self;
-
-    fn accept(&self, input: &str, ch: char) -> bool;
-
-    fn convert(&self, input: &str, ch: char) -> String;
+    fn new<A: Fn(String, char) -> bool +'static,
+           C: Fn(String, char) -> String +'static,>
+               (entry_kind: EntryKind,
+                completion_tags_opt: Option<Tags>,
+                action_result: Action,
+                accepter: A,
+                converter: C) -> Self;
 
     fn edit(&self, input: &str, key: gtk::gdk::Key) -> EditorStatus ;
 }
