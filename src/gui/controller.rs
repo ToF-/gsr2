@@ -1454,41 +1454,53 @@ impl Controller {
     }
 
     fn toggle_cover_selection(&self) {
-        let mut command_line_arguments = self.command_line_arguments_rc.borrow_mut();
         println!("toggle cover selection");
+        let initial_command_line_arguments = { 
+            self.command_line_arguments_rc.borrow().clone()
+        };
         if !self.state().has_saved_command_line_arguments() {
-            if !command_line_arguments.cover && self.repository.covers() > 0 {
-                let new_clargs = CommandLineArguments {
-                    cover: true,
-                    ..command_line_arguments.clone()
-                };
-                *command_line_arguments = new_clargs;
-                match self
-                    .repository
-                    .initialize_for_args(&command_line_arguments, None)
+            if !initial_command_line_arguments.cover && self.repository.covers() > 0 {
                 {
-                    Ok(_) => match self.reload() {
-                        Ok(0) => {
-                            self.toggle_cover_selection();
-                        }
-                        Ok(_) => {}
-                        Err(e) => panic!("{}", e),
-                    },
-                    Err(e) => panic!("{}", e),
+                    let mut command_line_arguments = self.command_line_arguments_rc.borrow_mut();
+                    let new_clargs = CommandLineArguments {
+                        cover: true,
+                        ..command_line_arguments.clone()
+                    };
+                    *command_line_arguments = new_clargs;
                 }
-            } else if command_line_arguments.cover {
-                let new_clargs = CommandLineArguments {
-                    cover: false,
-                    ..command_line_arguments.clone()
-                };
-                *command_line_arguments = new_clargs;
+                {
+                    let new_command_line_arguments = self.command_line_arguments_rc.borrow();
+                    match self
+                        .repository
+                        .initialize_for_args(&new_command_line_arguments, None)
+                    {
+                        Ok(_) => match self.reload() {
+                            Ok(0) => {
+                                self.navigator().set_page_changed();
+                            }
+                            Ok(_) => {}
+                            Err(e) => panic!("{}", e),
+                        },
+                        Err(e) => panic!("{}", e),
+                    }
+                }
+            } else if initial_command_line_arguments.cover {
+                {
+                    let mut command_line_arguments = self.command_line_arguments_rc.borrow_mut();
+                    let new_clargs = CommandLineArguments {
+                        cover: false,
+                        ..command_line_arguments.clone()
+                    };
+                    *command_line_arguments = new_clargs;
+                }
+                let new_command_line_arguments = self.command_line_arguments_rc.borrow();
                 match self
                     .repository
-                    .initialize_for_args(&command_line_arguments, None)
+                    .initialize_for_args(&new_command_line_arguments, None)
                 {
                     Ok(_) => match self.reload() {
                         Ok(0) => {
-                            self.toggle_cover_selection();
+                            self.navigator().set_page_changed();
                         }
                         Ok(_) => {}
                         Err(e) => panic!("{}", e),
