@@ -44,6 +44,7 @@ pub enum Action {
     FocusAt(i32, i32),             // set the picture at col,row the current picture
     MoveTowards(Direction),        // move to a direction
     Nothing,                       // do nothing (test)
+    PickCatalogChange,             // interactively select what catalog change to make
     PickChange,                    // interactively select what change to make
     PickOrderSetting,              // interactively select which order setting to apply
     PickViewOption,                // interactively select what vieww setting to apply
@@ -93,32 +94,32 @@ impl Action {
     // FOO
     pub fn from_control(control: &Control) -> Self {
         match control {
-            Control::SetView => Action::PickViewOption,
+            Control::BackFromDirectory => Action::QuitDirectory,
             Control::CancelEdition => Action::Cancel,
-            Control::Quit => Action::Quit,
-            Control::MoveLast => Action::MoveTowards(Direction::Last),
-            Control::MoveFirst => Action::MoveTowards(Direction::First),
-            Control::MoveStartPage => Action::MoveTowards(Direction::PageStart),
-            Control::MoveEndPage => Action::MoveTowards(Direction::PageEnd),
-            Control::MovePrev => Action::MoveTowards(Direction::PrevPage),
-            Control::MoveNext => Action::MoveTowards(Direction::NextPage),
-            Control::Right => Action::MoveTowards(Direction::Right),
-            Control::Left => Action::MoveTowards(Direction::Left),
-            Control::Up => Action::MoveTowards(Direction::Up),
             Control::Down => Action::MoveTowards(Direction::Down),
             Control::EnterChange => Action::PickChange,
             Control::GotoDirectory => Action::GotoDirectory,
-            Control::BackFromDirectory => Action::QuitDirectory,
+            Control::Left => Action::MoveTowards(Direction::Left),
+            Control::MoveEndPage => Action::MoveTowards(Direction::PageEnd),
+            Control::MoveFirst => Action::MoveTowards(Direction::First),
+            Control::MoveLast => Action::MoveTowards(Direction::Last),
+            Control::MoveNext => Action::MoveTowards(Direction::NextPage),
+            Control::MovePrev => Action::MoveTowards(Direction::PrevPage),
+            Control::MoveStartPage => Action::MoveTowards(Direction::PageStart),
+            Control::Quit => Action::Quit,
             Control::RankNoStar => Action::Rank(Rank::NoStar),
             Control::RankOneStar => Action::Rank(Rank::OneStar),
             Control::RankThreeStars => Action::Rank(Rank::ThreeStars),
             Control::RankTwoStars => Action::Rank(Rank::TwoStars),
+            Control::Right => Action::MoveTowards(Direction::Right),
             Control::SetOrder => Action::PickOrderSetting,
+            Control::SetView => Action::PickViewOption,
             Control::ToggleFullSize => Action::ApplyViewSetting(ViewOption::FullSize),
             Control::TogglePalette => Action::TogglePalette,
             Control::ToggleSingleView => Action::ToggleSingleView,
             Control::ToggleThumbView => Action::ToggleThumbnailsView,
             Control::ToggleTwoByTwoView => Action::ToggleTwoByTwoView,
+            Control::Up => Action::MoveTowards(Direction::Up),
             _ => Action::Nothing,
         }
     }

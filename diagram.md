@@ -171,10 +171,31 @@ Editor
             - if the given input cannot be completet then return the same input and no canditates
         
         
+Note on control / action / gioaction
 
+# Action::from_control(control: &Control) -> Self  // FOO
 
+maps a Control to an Action, meaning an input token (a key, or a click) to an action, used by widgets in connect_key_pressed closures
 
+# Controller::process_action(&self, simple_action: &gtk::gio::SimpleAction, variant_opt: Option<&gtk::glib::Variant>) // BAR
 
+receive any gio simple action and its parameter activated by gtk widgets, and execute this action
 
-    
-    
+# MainController::initialize(&self, controller_opt: Option<RcController>)   // LAW
+
+creates the list of gio simple actions that can be activated by widgets adding these action entries to thir list
+
+# Action::from(gio_action: gioaction) -> Self // QUX
+
+maps a GioAction and its parameter to an Action
+
+# GioAction::from(action: Action) -> Self  // GUS
+
+maps an action and its parameter to a GioAction
+
+to make gsr recognize a new action :
+FOO : can I map a control to this action ?
+GUS : is this action correctly mapped to a GioAction and its variant parameter ?
+QUX : is the gio_action correctly mapped back to an Action and its parameter ?
+LAW : is the main controller registering this action entry ?
+FOO : is the controller acting on this action ?

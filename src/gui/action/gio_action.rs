@@ -39,6 +39,7 @@ impl From<(&SimpleAction, Option<&Variant>)> for GioAction {
     }
 }
 
+// GUS
 impl From<Action> for GioAction {
     fn from(action: Action) -> Self {
         let gio_action_ty = GioActionType::from(action.clone());

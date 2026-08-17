@@ -148,49 +148,27 @@ impl Controller {
             Action::ApplyViewSetting(view_option) => self.apply_view_setting(view_option),
             Action::Cancel => self.cancel_edition(),
             Action::Dismiss => self.dismiss(),
-            Action::FocusAt(col, row) => {
-                self.process_event(Event::PictureClicked {
-                    button: 1,
-                    col,
-                    row,
-                });
-            }
+            Action::FocusAt(col, row) => { self.process_event(Event::PictureClicked { button: 1, col, row, }); }
             Action::GotoDirectory => self.go_to_directory(),
             Action::MoveTowards(Direction::Down) => self.arrow_move(Direction::Down),
             Action::MoveTowards(Direction::First) => self.move_towards(Direction::First),
             Action::MoveTowards(Direction::Last) => self.move_towards(Direction::Last),
-            Action::MoveTowards(Direction::Left) => {
-                self.arrow_move(Direction::Left);
-            }
-            Action::MoveTowards(Direction::NextPage) => {
-                self.move_next();
-            }
+            Action::MoveTowards(Direction::Left) => { self.arrow_move(Direction::Left); }
+            Action::MoveTowards(Direction::NextPage) => { self.move_next(); }
             Action::MoveTowards(Direction::PageEnd) => self.move_towards(Direction::PageEnd),
             Action::MoveTowards(Direction::PageStart) => self.move_towards(Direction::PageStart),
-            Action::MoveTowards(Direction::PrevPage) => {
-                self.move_towards(Direction::PrevPage);
-            }
-            Action::MoveTowards(Direction::Right) => {
-                self.arrow_move(Direction::Right);
-            }
+            Action::MoveTowards(Direction::PrevPage) => { self.move_towards(Direction::PrevPage); }
+            Action::MoveTowards(Direction::Right) => { self.arrow_move(Direction::Right); }
             Action::MoveTowards(Direction::Up) => self.arrow_move(Direction::Up),
             Action::Nothing => {}
-            Action::PickOrderSetting => self.pick_order_setting(),
+            Action::PickChange => self.pick_change(),
             Action::PickOrderSetting => self.pick_order_setting(),
             Action::PickViewOption => self.pick_view_option(),
             Action::Quit => self.quit(),
             Action::QuitDirectory => self.back_from_directory(),
             Action::Rank(rank) => self.rank_selected_pictures(rank),
             Action::TogglePalette => self.toggle_palette(),
-            Action::ToggleSelectedAt(col, row) => {
-                self.process_event(Event::PictureClicked {
-                    button: 3,
-                    col,
-                    row,
-                });
-                let mut navigator = self.navigator_rc.borrow_mut();
-                navigator.set_page_changed();
-            }
+            Action::ToggleSelectedAt(col, row) => { self.process_event(Event::PictureClicked { button: 3, col, row, }); let mut navigator = self.navigator_rc.borrow_mut(); navigator.set_page_changed(); }
             Action::ToggleSingleView => self.toggle_single_view(),
             Action::ToggleThumbnailsView => self.toggle_thumbview(),
             Action::ToggleTwoByTwoView => self.toggle_2x2_view(),
@@ -2326,5 +2304,22 @@ impl Controller {
     fn apply_order_setting(&self, order_setting: Order) {
         self.order_by(order_setting);
         self.dismiss()
+    }
+
+    fn pick_change(&self) {
+        let application_window = self
+            .main_view_opt_rc
+            .borrow()
+            .as_ref()
+            .unwrap()
+            .application_window();
+        let gsr_entry_window = GsrEntryWindow::new_with(
+            &application_window,
+            &self.main_controller_rc_opt.as_ref().unwrap(),
+            order_menu(),
+            None,
+        );
+        gsr_entry_window.present();
+        *self.gsr_entry_window_opt_rc.borrow_mut() = Some(gsr_entry_window);
     }
 }

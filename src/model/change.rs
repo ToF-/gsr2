@@ -2,19 +2,39 @@ use std::fmt::Display;
 use std::fmt::Error;
 use std::fmt::Formatter;
 use std::str::FromStr;
+#[repr(i32)]
 #[derive(PartialEq, Eq, Copy, Clone, Debug)]
 pub enum Change {
-    AddCategory,
-    AddTag,
-    Catalog,
-    Category,
-    Cover,
-    Label,
-    MoveCategory,
-    Name,
-    RemoveCategory,
-    RemoveTag,
-    Unlabel,
+    AddCategory = 0,
+    AddTag = 1,
+    Catalog = 2,
+    Category = 3,
+    Cover = 4,
+    Label = 5,
+    MoveCategory = 6,
+    Name = 7,
+    RemoveCategory = 8,
+    RemoveTag = 9,
+    Unlabel = 10,
+}
+
+impl From<i32> for Change {
+    fn from(n: i32) -> Self {
+        match n {
+            0 => Change::AddCategory,
+            1 => Change::AddTag,
+            2 => Change::Catalog,
+            3 => Change::Category,
+            4 => Change::Cover,
+            5 => Change::Label,
+            6 => Change::MoveCategory,
+            7 => Change::Name,
+            8 => Change::RemoveCategory,
+            9 => Change::RemoveTag,
+            10 => Change::Unlabel,
+            _ => todo!(),
+        }
+    }
 }
 
 impl FromStr for Change {

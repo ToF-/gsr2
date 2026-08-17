@@ -97,6 +97,7 @@ impl From<Action> for GioActionType {
                 GioActionType::new("move-towards", GioActionParameterType::Int32)
             }
             Action::Nothing => GioActionType::new("nothing", GioActionParameterType::None),
+            Action::PickCatalogChange => GioActionType::new("pick-catalog-change", GioActionParameterType::None),
             Action::PickChange => GioActionType::new("pick-change", GioActionParameterType::None),
             Action::PickOrderSetting => {
                 GioActionType::new("pick-order-setting", GioActionParameterType::None)

@@ -1,3 +1,4 @@
+use crate::model::change::Change;
 use crate::gui::action::Action;
 use crate::gui::key_input::KeyInput;
 use crate::gui::key_input::key_input_mode::KeyInputMode;
@@ -84,6 +85,44 @@ pub fn order_menu() -> KeyInput {
     )
 }
 
+pub fn change_menu() -> KeyInput {
+    KeyInput::new(
+        "Enter what to change: c(A)talog (C)ategory (L)abel (N)ame (R)emove (T)ag (U)nlabel co(V)er on",
+        None,
+        KeyInputMode::Menu,
+        |_, ch| matches!(ch, 'a' | 'c' | 'l' | 'n' | 'r' | 't' | 'u' | 'v'),
+        |_, ch| {
+            let change = match ch {
+                't' => Change::AddTag,
+                'a' => Change::Catalog,
+                'c' => Change::Category,
+                'v' => Change::Cover,
+                'l' => Change::Label,
+                'n' => Change::Name,
+                'r' => Change::RemoveTag,
+                'u' => Change::Unlabel,
+                _ => todo!(),
+            };
+            let s: String = (change as i32).to_string();
+            s
+        },
+        |s| {
+            let n: i32 = s.parse::<i32>().unwrap();
+            let change = Change::from(n);
+            match change {
+                Change::AddTag => Action::EnterAddTag,
+                Change::Catalog => Action::PickCatalogChange,
+                Change::Category => Action::EnterCategory,
+                Change::Cover => Action::ToggleCover,
+                Change::Label => Action::EnterLabel,
+                Change::Name => Action::EnterRename,
+                Change::RemoveTag => Action::EnterRemoveTag,
+                Change::Unlabel => Action::Unlabel,
+                _ => Action::Nothing,
+            }
+        },
+    )
+}
 #[cfg(test)]
 mod tests {
     use crate::model::tags::tags_from_str;
