@@ -16,6 +16,7 @@ use crate::gui::key_input::KeyInput;
 use crate::gui::key_input::information;
 use crate::gui::key_input::information::information_key_input;
 use crate::gui::key_input::menu::view_menu;
+use crate::gui::key_input::menu::order_menu;
 use crate::gui::main_controller::RcMainController;
 use crate::gui::mode::Mode;
 use crate::gui::navigator::Navigator;
@@ -171,6 +172,7 @@ impl Controller {
             Action::MoveTowards(Direction::Left) => {
                 self.arrow_move(Direction::Left);
             }
+            Action::PickOrderSetting => self.pick_order_setting(),
             Action::Rank(rank) => self.rank_selected_pictures(rank),
             Action::TogglePalette => self.toggle_palette(),
             Action::FocusAt(col, row) => {
@@ -1455,9 +1457,7 @@ impl Controller {
 
     fn toggle_cover_selection(&self) {
         println!("toggle cover selection");
-        let initial_command_line_arguments = { 
-            self.command_line_arguments_rc.borrow().clone()
-        };
+        let initial_command_line_arguments = { self.command_line_arguments_rc.borrow().clone() };
         if !self.state().has_saved_command_line_arguments() {
             if !initial_command_line_arguments.cover && self.repository.covers() > 0 {
                 {
@@ -2302,5 +2302,8 @@ impl Controller {
             ViewOption::FullSize => self.toggle_full_size(),
         }
         self.dismiss();
+    }
+    fn pick_order_setting(&self) {
+        todo!()
     }
 }

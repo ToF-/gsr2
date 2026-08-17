@@ -1,3 +1,8 @@
+use crate::model::order::Order;
+use crate::model::order::Order::Date;
+use crate::model::change::Change::Cover;
+use crate::model::order::Order::ColorCount;
+use crate::model::change::Change::Category;
 use crate::gui::action::Action;
 use crate::gui::key_input::KeyInput;
 use crate::gui::key_input::key_input_mode::KeyInputMode;
@@ -41,11 +46,49 @@ pub fn view_menu() -> KeyInput {
         },
     )
 }
+
+pub fn order_menu() -> KeyInput {
+    KeyInput::new(
+        "Enter a sorting criteria: c(A)tegory (C)olors (D)ate (L)abel (M)ost views (N)ame (P)alette c(O)ver (R)andom (S)ize (V)alue ",
+        None,
+        KeyInputMode::Menu,
+        |_, ch| {
+            matches!(
+                ch,
+                'a' | 'c' | 'd' | 'l' | 'm' | 'n' | 'p' | 'o' | 'r' | 's' | 'v'
+            )
+        },
+        |_, ch| {
+            let order_setting = match ch {
+                'a' => Order::Category,
+                'c' => Order::ColorCount,
+                'o' => Order::Cover,
+                'd' => Order::Date,
+                'l' => Order::Label,
+                'n' => Order::Name,
+                'p' => Order::Palette,
+                'r' => Order::Random,
+                'm' => Order::Score,
+                's' => Order::Size,
+                'v' => Order::Value,
+                _ => todo!(),
+            };
+            let s: String = (order_setting as i32).to_string();
+            s
+        },
+        |s| {
+            let n: i32 = s.parse::<i32>().unwrap();
+            let order_setting = Order::from(n);
+            Action::ApplyOrderSetting(order_setting)
+        },
+    )
+}
+
 #[cfg(test)]
 mod tests {
-    use super::*;
     use crate::model::tags::tags_from_str;
     use gtk::gdk::Key;
+    use sper::*;
 
     #[test]
     fn given_a_simple_key_launches_the_corresponding_action() {
