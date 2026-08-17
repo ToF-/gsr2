@@ -1,18 +1,16 @@
+
 use crate::gui::action::Action;
-use crate::gui::editor::Editor;
-use crate::gui::editor::editor_mode::EditorMode;
-use crate::gui::editor::editor_rules::EditorRules;
-use crate::gui::entry_kind::EntryKind;
-use crate::model::label::Label;
-use crate::model::tags::Tags;
+use crate::gui::key_input::KeyInput;
+use crate::gui::key_input::key_input_mode::KeyInputMode;
+use crate::gui::key_input::key_input_rules::KeyInputRules;
 use crate::model::view_option::ViewOption;
 use std::str::FromStr;
 
-pub fn view_menu() -> Editor {
-    Editor::new(
+pub fn view_menu() -> KeyInput {
+    KeyInput::new(
         "View: 1x1 2x2 3x3 4x4 5x5 Thumbs Covers Date Path Size",
         None,
-        EditorMode::Menu,
+        KeyInputMode::Menu,
         |_, ch| {
             matches!(
                 ch,
@@ -53,15 +51,15 @@ mod tests {
     use gtk::gdk::Key;
 
     #[test]
-    fn given_a_simple_key_lauches_the_corresponding_action() {
-        let editor = view_menu();
-        let status = editor.edit("", Key::from_name("t").unwrap());
+    fn given_a_simple_key_launches_the_corresponding_action() {
+        let key_input = view_menu();
+        let status = key_input.edit("", Key::from_name("t").unwrap());
         assert_eq!(
             Some(Action::ApplyViewSetting(ViewOption::Thumbnails)),
             status.result_action()
         );
-        let editor = view_menu();
-        let status = editor.edit("", Key::from_name("c").unwrap());
+        let key_input = view_menu();
+        let status = key_input.edit("", Key::from_name("c").unwrap());
         assert_eq!(
             Some(Action::ApplyViewSetting(ViewOption::Covers)),
             status.result_action()
