@@ -1,4 +1,5 @@
 use crate::gui::action::Action;
+use crate::gui::editor::EditorMode;
 use crate::gui::editor::EditorStatus;
 
 use crate::gui::entry_kind::EntryKind;
@@ -12,7 +13,7 @@ pub trait EditorRules {
     >(
         prompt: &str,
         completion_tags_opt: Option<Tags>,
-        editable: bool,
+        editor_mode: EditorMode,
         accepter: A,
         converter: C,
         launcher: L,

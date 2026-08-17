@@ -61,16 +61,16 @@ impl Display for ViewOption {
             f,
             "{}",
             match self {
-                ViewOption::Single => "single",
-                ViewOption::Grid2x2 => "grid 2x2",
-                ViewOption::Grid3x3 => "grid 3x3",
-                ViewOption::Grid4x4 => "grid 4x4",
-                ViewOption::Grid5x5 => "grid 5x5",
-                ViewOption::Thumbnails => "thumbnails",
-                ViewOption::Covers => "covers",
-                ViewOption::FilePath => "file path",
-                ViewOption::FileDate => "file date",
-                ViewOption::FileSize => "file size",
+                ViewOption::Single => "Single",
+                ViewOption::Grid2x2 => "Grid2x2",
+                ViewOption::Grid3x3 => "Grid3x3",
+                ViewOption::Grid4x4 => "Grid4x4",
+                ViewOption::Grid5x5 => "Grid5x5",
+                ViewOption::Thumbnails => "Thumbnails",
+                ViewOption::Covers => "Covers",
+                ViewOption::FilePath => "FilePath",
+                ViewOption::FileDate => "FileDate",
+                ViewOption::FileSize => "FileSize",
             }
         )
     }

@@ -1,6 +1,7 @@
 use crate::env::default_values::SPACE_REPLACEMENT_CHAR_FOR_TAGS;
 use crate::gui::editor::Action;
 use crate::gui::editor::Editor;
+use crate::gui::editor::EditorMode;
 use crate::gui::editor::EditorRules;
 use crate::gui::entry_kind::EntryKind;
 use crate::model::label::Label;
@@ -10,7 +11,7 @@ pub fn change_label_editor(completion_tags: Tags) -> Editor {
     Editor::new(
         "Enter a label",
         Some(completion_tags),
-        true,
+        EditorMode::Entry,
         |_, ch| matches!(ch, 'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' '),
         |s, ch| {
             let mut input = s;

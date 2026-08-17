@@ -5,6 +5,7 @@ use crate::gui::action::gio_action::GioAction;
 use crate::gui::editor::Editor;
 use crate::gui::editor::change_label_editor::change_label_editor;
 use crate::gui::editor::display_information_editor::display_information_editor;
+use crate::gui::editor::editor_mode::EditorMode;
 use crate::gui::editor::editor_rules::EditorRules;
 use crate::gui::main_controller::MainController;
 use crate::gui::main_controller::RcMainController;
@@ -109,13 +110,9 @@ impl GsrEntryWindow {
                 let editor = this.imp().editor_rc.borrow();
                 let input = this.entry_text();
                 let status = editor.edit(&input, key);
-                let action_opt = if editor.editable() {
-                    status.result_action()
-                }    else {
-                    Some(Action::Dismiss)
-                };
+                let action_opt = status.result_action();
                 if let Some(action) = action_opt {
-                    let action_call = GioAction::from(Action::Dismiss).to_simple_action_call();
+                    let action_call = GioAction::from(action).to_simple_action_call();
                     let name = action_call.0.clone();
                     let variant = action_call.1.clone();
                     let variant_ref: Option<&Variant> = match &variant {
