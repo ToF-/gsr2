@@ -114,7 +114,7 @@ impl Action {
             Control::RankThreeStars => Action::Rank(Rank::ThreeStars),
             Control::RankTwoStars => Action::Rank(Rank::TwoStars),
             Control::SetOrder => Action::PickOrderSetting,
-            Control::SetView => Action::PickViewOption,
+            Control::ToggleFullSize => Action::ApplyViewSetting(ViewOption::FullSize),
             Control::TogglePalette => Action::TogglePalette,
             Control::ToggleSingleView => Action::ToggleSingleView,
             Control::ToggleThumbView => Action::ToggleThumbnailsView,
