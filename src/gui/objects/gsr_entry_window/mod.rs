@@ -1,5 +1,4 @@
-use crate::gui::editor::Editor;
-use crate::gui::editor::entry_editor::EntryEditor;
+use crate::gui::key_input::KeyInput;
 use crate::gui::main_controller::MainController;
 use crate::gui::main_controller::RcMainController;
 use gtk::glib;
@@ -24,14 +23,14 @@ impl GsrEntryWindow {
     pub fn new_with(
         application_window: &gtk::ApplicationWindow,
         main_controller_rc: &RcMainController,
-        editor: Editor,
+        key_input: KeyInput,
         initial_input_opt: Option<&str>,
     ) -> Self {
         let obj = Self::new();
         obj.imp().initialize(
             application_window,
             main_controller_rc,
-            editor,
+            key_input,
             initial_input_opt,
         );
         obj

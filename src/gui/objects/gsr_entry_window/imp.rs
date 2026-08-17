@@ -1,15 +1,13 @@
+use crate::gui::key_input::information::information_key_input;
+use crate::gui::key_input::KeyInput;
 use crate::env::default_values::ENTRY_WINDOW_HEIGHT;
 use crate::env::default_values::ENTRY_WINDOW_WIDTH;
 use crate::gui::action::Action;
 use crate::gui::action::gio_action::GioAction;
-use crate::gui::editor::Editor;
-use crate::gui::editor::change_label_editor::change_label_editor;
-use crate::gui::editor::display_information_editor::display_information_editor;
-use crate::gui::editor::editor_mode::EditorMode;
-use crate::gui::editor::editor_rules::EditorRules;
+use crate::gui::key_input::key_input_mode::KeyInputMode;
+use crate::gui::key_input::key_input_rules::KeyInputRules;
 use crate::gui::main_controller::MainController;
 use crate::gui::main_controller::RcMainController;
-use crate::gui::objects::gsr_entry_window::EntryEditor;
 use glib::Variant;
 use gtk::Align;
 use gtk::CssProvider;
@@ -29,13 +27,13 @@ use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 
 pub struct GsrEntryWindow {
-    pub editor_rc: RefCell<Editor>,
+    pub key_input_rc: RefCell<KeyInput>,
 }
 
 impl Default for GsrEntryWindow {
     fn default() -> Self {
         Self {
-            editor_rc: RefCell::new(display_information_editor()),
+            key_input_rc: RefCell::new(information_key_input()),
         }
     }
 }
@@ -45,10 +43,10 @@ impl GsrEntryWindow {
         &self,
         application_window: &gtk::ApplicationWindow,
         main_controller_rc: &RcMainController,
-        editor: Editor,
+        key_input: KeyInput,
         initial_input_opt: Option<&str>,
     ) {
-        *self.editor_rc.borrow_mut() = editor;
+        *self.key_input_rc.borrow_mut() = key_input;
         let obj = self.obj();
         obj.set_decorated(false);
         obj.set_modal(true);
@@ -63,7 +61,7 @@ impl GsrEntryWindow {
             entry_text.set_label(&input)
         };
         entry_text.add_css_class("entry");
-        let prompt = self.editor_rc.borrow().prompt();
+        let prompt = self.key_input_rc.borrow().prompt();
         let prompt_label = gtk::Label::builder()
             .valign(Align::Center)
             .halign(Align::Center)
@@ -107,9 +105,9 @@ impl GsrEntryWindow {
             #[strong (rename_to=this)]
             gsr_entry_window,
             move |_, key, _, _| {
-                let editor = this.imp().editor_rc.borrow();
+                let key_input = this.imp().key_input_rc.borrow();
                 let input = this.entry_text();
-                let status = editor.edit(&input, key);
+                let status = key_input.edit(&input, key);
                 let action_opt = status.result_action();
                 if let Some(action) = action_opt {
                     let action_call = GioAction::from(action).to_simple_action_call();

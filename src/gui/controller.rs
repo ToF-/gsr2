@@ -1,3 +1,5 @@
+use crate::gui::key_input::information::information_key_input;
+use crate::gui::key_input::KeyInput;
 use crate::cli::command::Command;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::Configuration;
@@ -8,7 +10,7 @@ use crate::gui::action::Action;
 use crate::gui::action::gio_action::GioAction;
 use crate::gui::control::{Control, Controls, default_controls, help_on_controls};
 use crate::gui::direction::Direction;
-use crate::gui::display_information::display_information;
+use crate::gui::key_input::information;
 use crate::gui::editor::legacy_editor::LegacyEditor;
 use crate::gui::enter_label::enter_label;
 use crate::gui::entry_kind::EntryKind;
@@ -1779,11 +1781,13 @@ impl Controller {
             .as_ref()
             .unwrap()
             .application_window();
-        let gsr_entry_window = display_information(
+        let gsr_entry_window = GsrEntryWindow::new_with(
             &application_window,
             &self.main_controller_rc_opt.as_ref().unwrap(),
-            message,
+            information_key_input(),
+            Some(message),
         );
+        gsr_entry_window.present();
         *self.gsr_entry_window_opt_rc.borrow_mut() = Some(gsr_entry_window);
     }
 
