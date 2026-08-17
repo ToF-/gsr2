@@ -18,5 +18,3 @@ pub mod entry_editor;
 pub mod entry_editor_status;
 pub mod legacy_editor;
 pub mod validator;
-
-

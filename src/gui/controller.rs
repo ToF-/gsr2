@@ -1,7 +1,3 @@
-use crate::model::view_option::ViewOption;
-use crate::gui::key_input::menu::view_menu;
-use crate::gui::key_input::information::information_key_input;
-use crate::gui::key_input::KeyInput;
 use crate::cli::command::Command;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::Configuration;
@@ -12,11 +8,14 @@ use crate::gui::action::Action;
 use crate::gui::action::gio_action::GioAction;
 use crate::gui::control::{Control, Controls, default_controls, help_on_controls};
 use crate::gui::direction::Direction;
-use crate::gui::key_input::information;
 use crate::gui::editor::legacy_editor::LegacyEditor;
 use crate::gui::enter_label::enter_label;
 use crate::gui::entry_kind::EntryKind;
 use crate::gui::event::Event;
+use crate::gui::key_input::KeyInput;
+use crate::gui::key_input::information;
+use crate::gui::key_input::information::information_key_input;
+use crate::gui::key_input::menu::view_menu;
 use crate::gui::main_controller::RcMainController;
 use crate::gui::mode::Mode;
 use crate::gui::navigator::Navigator;
@@ -37,6 +36,7 @@ use crate::model::rank::Rank;
 use crate::model::repository::Repository;
 use crate::model::selection_criteria::SelectionCriteria;
 use crate::model::tags::Tags;
+use crate::model::view_option::ViewOption;
 use gdk::{Key, ModifierType};
 use gtk::prelude::*;
 use gtk::{self, gdk};
@@ -143,7 +143,7 @@ impl Controller {
         let action = Action::from(gio_action.clone());
         dbg!(&gio_action, &action);
         match action {
-            Action::ApplyViewSetting(view_option) => self.apply_view_setting(view_option), 
+            Action::ApplyViewSetting(view_option) => self.apply_view_setting(view_option),
             Action::PickViewOption => self.pick_view_option(),
             Action::Cancel => self.cancel_edition(),
             Action::ToggleThumbnailsView => self.toggle_thumbview(),
@@ -1454,41 +1454,53 @@ impl Controller {
     }
 
     fn toggle_cover_selection(&self) {
-        let mut command_line_arguments = self.command_line_arguments_rc.borrow_mut();
         println!("toggle cover selection");
+        let initial_command_line_arguments = { 
+            self.command_line_arguments_rc.borrow().clone()
+        };
         if !self.state().has_saved_command_line_arguments() {
-            if !command_line_arguments.cover && self.repository.covers() > 0 {
-                let new_clargs = CommandLineArguments {
-                    cover: true,
-                    ..command_line_arguments.clone()
-                };
-                *command_line_arguments = new_clargs;
-                match self
-                    .repository
-                    .initialize_for_args(&command_line_arguments, None)
+            if !initial_command_line_arguments.cover && self.repository.covers() > 0 {
                 {
-                    Ok(_) => match self.reload() {
-                        Ok(0) => {
-                            self.toggle_cover_selection();
-                        }
-                        Ok(_) => {}
-                        Err(e) => panic!("{}", e),
-                    },
-                    Err(e) => panic!("{}", e),
+                    let mut command_line_arguments = self.command_line_arguments_rc.borrow_mut();
+                    let new_clargs = CommandLineArguments {
+                        cover: true,
+                        ..command_line_arguments.clone()
+                    };
+                    *command_line_arguments = new_clargs;
                 }
-            } else if command_line_arguments.cover {
-                let new_clargs = CommandLineArguments {
-                    cover: false,
-                    ..command_line_arguments.clone()
-                };
-                *command_line_arguments = new_clargs;
+                {
+                    let new_command_line_arguments = self.command_line_arguments_rc.borrow();
+                    match self
+                        .repository
+                        .initialize_for_args(&new_command_line_arguments, None)
+                    {
+                        Ok(_) => match self.reload() {
+                            Ok(0) => {
+                                self.navigator().set_page_changed();
+                            }
+                            Ok(_) => {}
+                            Err(e) => panic!("{}", e),
+                        },
+                        Err(e) => panic!("{}", e),
+                    }
+                }
+            } else if initial_command_line_arguments.cover {
+                {
+                    let mut command_line_arguments = self.command_line_arguments_rc.borrow_mut();
+                    let new_clargs = CommandLineArguments {
+                        cover: false,
+                        ..command_line_arguments.clone()
+                    };
+                    *command_line_arguments = new_clargs;
+                }
+                let new_command_line_arguments = self.command_line_arguments_rc.borrow();
                 match self
                     .repository
-                    .initialize_for_args(&command_line_arguments, None)
+                    .initialize_for_args(&new_command_line_arguments, None)
                 {
                     Ok(_) => match self.reload() {
                         Ok(0) => {
-                            self.toggle_cover_selection();
+                            self.navigator().set_page_changed();
                         }
                         Ok(_) => {}
                         Err(e) => panic!("{}", e),
@@ -2276,18 +2288,17 @@ impl Controller {
 
     fn apply_view_setting(&self, view_option: ViewOption) {
         match view_option {
-    ViewOption::Single => self.toggle_single_view(),
-    ViewOption::Grid2x2 => self.toggle_grid_size(2),
-    ViewOption::Grid3x3 => self.toggle_grid_size(3),
-    ViewOption::Grid4x4 => self.toggle_grid_size(4),
-    ViewOption::Grid5x5 => self.toggle_grid_size(5),
-    ViewOption::Thumbnails => self.toggle_thumbview(),
-    ViewOption::Covers => self.toggle_cover_selection(),
-    ViewOption::FilePath => self.toggle_display_path(), 
-    ViewOption::FileDate => self.toggle_display_date(),
-    ViewOption::FileSize => self.toggle_display_size(),
+            ViewOption::Single => self.toggle_single_view(),
+            ViewOption::Grid2x2 => self.toggle_grid_size(2),
+            ViewOption::Grid3x3 => self.toggle_grid_size(3),
+            ViewOption::Grid4x4 => self.toggle_grid_size(4),
+            ViewOption::Grid5x5 => self.toggle_grid_size(5),
+            ViewOption::Thumbnails => self.toggle_thumbview(),
+            ViewOption::Covers => self.toggle_cover_selection(),
+            ViewOption::FilePath => self.toggle_display_path(),
+            ViewOption::FileDate => self.toggle_display_date(),
+            ViewOption::FileSize => self.toggle_display_size(),
         }
         self.dismiss();
-
     }
 }

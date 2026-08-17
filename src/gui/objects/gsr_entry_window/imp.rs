@@ -1,9 +1,9 @@
-use crate::gui::key_input::information::information_key_input;
-use crate::gui::key_input::KeyInput;
 use crate::env::default_values::ENTRY_WINDOW_HEIGHT;
 use crate::env::default_values::ENTRY_WINDOW_WIDTH;
 use crate::gui::action::Action;
 use crate::gui::action::gio_action::GioAction;
+use crate::gui::key_input::KeyInput;
+use crate::gui::key_input::information::information_key_input;
 use crate::gui::key_input::key_input_mode::KeyInputMode;
 use crate::gui::key_input::key_input_rules::KeyInputRules;
 use crate::gui::main_controller::MainController;
@@ -119,7 +119,7 @@ impl GsrEntryWindow {
                         Some(v) => Some(v.as_ref()),
                     };
                     match this.activate_action(&name, variant_ref) {
-                        Ok(_) => {},
+                        Ok(_) => {}
                         Err(e) => eprintln!("{}", e),
                     }
                 } else {
