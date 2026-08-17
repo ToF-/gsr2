@@ -39,10 +39,10 @@ impl From<Action> for GioActionType {
             }
             Action::AddTag(_) => GioActionType::new("add-tag", GioActionParameterType::String),
             Action::ApplyOrderSetting(_) => {
-                GioActionType::new("apply-order-setting", GioActionParameterType::String)
+                GioActionType::new("apply-order-setting", GioActionParameterType::Int32)
             }
             Action::ApplyViewSetting(_) => {
-                GioActionType::new("apply-view-setting", GioActionParameterType::String)
+                GioActionType::new("apply-view-setting", GioActionParameterType::Int32)
             }
             Action::Cancel => GioActionType::new("cancel", GioActionParameterType::None),
             Action::CancelSelectionRange => {

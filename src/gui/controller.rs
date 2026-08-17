@@ -140,8 +140,8 @@ impl Controller {
     ) {
         let old_slideshow_on = self.state().slideshow_on();
         let gio_action = GioAction::from((simple_action, variant_opt));
-        let action = Action::from(gio_action);
-        dbg!(&action);
+        let action = Action::from(gio_action.clone());
+        dbg!(&gio_action, &action);
         match action {
             Action::ApplyViewSetting(view_option) => self.apply_view_setting(view_option), 
             Action::PickViewOption => self.pick_view_option(),
@@ -1396,11 +1396,34 @@ impl Controller {
         self.change_grid_size(self.state().pictures_per_row());
     }
 
+    fn toggle_grid_size(&self, size: usize) {
+        {
+            let mut state = self.state_rc.borrow_mut();
+            if state.pictures_per_row() != size {
+                state.change_grid_size(size)
+            } else {
+                state.toggle_back_grid_size()
+            };
+        }
+        self.change_grid_size(self.state().pictures_per_row());
+    }
     fn toggle_2x2_view(&self) {
         {
             let mut state = self.state_rc.borrow_mut();
             if state.pictures_per_row() != 2 {
                 state.change_grid_size(2)
+            } else {
+                state.toggle_back_grid_size()
+            };
+        }
+        self.change_grid_size(self.state().pictures_per_row());
+    }
+
+    fn toggle_3x3_view(&self) {
+        {
+            let mut state = self.state_rc.borrow_mut();
+            if state.pictures_per_row() != 3 {
+                state.change_grid_size(3)
             } else {
                 state.toggle_back_grid_size()
             };
@@ -2252,7 +2275,18 @@ impl Controller {
     }
 
     fn apply_view_setting(&self, view_option: ViewOption) {
-        println!("here I apply_view_setting {}", view_option);
+        match view_option {
+    ViewOption::Single => self.toggle_single_view(),
+    ViewOption::Grid2x2 => self.toggle_grid_size(2),
+    ViewOption::Grid3x3 => self.toggle_grid_size(3),
+    ViewOption::Grid4x4 => self.toggle_grid_size(4),
+    ViewOption::Grid5x5 => self.toggle_grid_size(5),
+    ViewOption::Thumbnails => self.toggle_thumbview(),
+    ViewOption::Covers => self.toggle_cover_selection(),
+    ViewOption::FilePath => self.toggle_display_path(), 
+    ViewOption::FileDate => self.toggle_display_date(),
+    ViewOption::FileSize => self.toggle_display_size(),
+        }
         self.dismiss();
 
     }

@@ -35,8 +35,9 @@ pub fn view_menu() -> KeyInput {
             view_option.to_string()
         },
         |s| {
-            dbg!(&s);
             if let Ok(view_option) = ViewOption::from_str(&s) {
+                dbg!(&s, view_option);
+
                 Action::ApplyViewSetting(view_option)
             } else {
                 Action::Dismiss
