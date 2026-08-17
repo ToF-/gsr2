@@ -1,4 +1,3 @@
-
 use crate::env::default_values::SPACE_REPLACEMENT_CHAR_FOR_TAGS;
 use crate::gui::key_input::Action;
 use crate::gui::key_input::KeyInput;

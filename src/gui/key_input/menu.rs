@@ -1,4 +1,3 @@
-
 use crate::gui::action::Action;
 use crate::gui::key_input::KeyInput;
 use crate::gui::key_input::key_input_mode::KeyInputMode;
@@ -8,13 +7,13 @@ use std::str::FromStr;
 
 pub fn view_menu() -> KeyInput {
     KeyInput::new(
-        "View: 1x1 2x2 3x3 4x4 5x5 Thumbs Covers Date Path Size",
+        "View: 1x1 2x2 3x3 4x4 5x5 Thumbs Covers Date Path Size Full",
         None,
         KeyInputMode::Menu,
         |_, ch| {
             matches!(
                 ch,
-                '1' | '2' | '3' | '4' | '5' | 't' | 'c' | 'd' | 'p' | 's'
+                '1' | '2' | '3' | '4' | '5' | 't' | 'c' | 'd' | 'p' | 's' | 'f'
             )
         },
         |_, ch| {
@@ -29,19 +28,16 @@ pub fn view_menu() -> KeyInput {
                 'd' => ViewOption::FileDate,
                 'p' => ViewOption::FilePath,
                 's' => ViewOption::FileSize,
+                'f' => ViewOption::FullSize,
                 _ => todo!(),
             };
-            dbg!(view_option.to_string());
-            view_option.to_string()
+            let s: String = (view_option as i32).to_string();
+            s
         },
         |s| {
-            if let Ok(view_option) = ViewOption::from_str(&s) {
-                dbg!(&s, view_option);
-
-                Action::ApplyViewSetting(view_option)
-            } else {
-                Action::Dismiss
-            }
+            let n: i32 = s.parse::<i32>().unwrap();
+            let view_option = ViewOption::from(n);
+            Action::ApplyViewSetting(view_option)
         },
     )
 }

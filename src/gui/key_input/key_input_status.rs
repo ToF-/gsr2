@@ -1,4 +1,3 @@
-
 use crate::gui::action::Action;
 use itertools::Itertools;
 

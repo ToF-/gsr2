@@ -1,5 +1,5 @@
-use crate::gui::action::Action;
 use crate::env::default_values::INFORMATION_SYMBOL;
+use crate::gui::action::Action;
 use crate::gui::key_input::KeyInput;
 use crate::gui::key_input::KeyInputMode;
 use crate::gui::key_input::KeyInputRules;

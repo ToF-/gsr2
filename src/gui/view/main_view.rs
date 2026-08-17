@@ -543,7 +543,9 @@ fn attach_key_pressed_event_handlers(
                 {
                     let action = Action::from_control(control);
                     let gio_action = GioAction::from(action);
-                    let (name, variant) = gio_action.to_simple_action_call();
+                    let simple_action_call = gio_action.to_simple_action_call();
+                    dbg!(&simple_action_call.clone());
+                    let (name, variant) = simple_action_call;
                     match gtk::prelude::WidgetExt::activate_action(
                         &application_window,
                         &name,

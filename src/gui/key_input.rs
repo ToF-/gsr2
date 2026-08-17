@@ -9,12 +9,11 @@ use crate::gui::mode::Mode;
 use crate::model::tags::Tags;
 use std::sync::Arc;
 
-
+pub mod entry;
+pub mod information;
 pub mod key_input_mode;
 pub mod key_input_rules;
 pub mod key_input_status;
-pub mod entry;
-pub mod information;
 pub mod menu;
 
 pub struct KeyInput {

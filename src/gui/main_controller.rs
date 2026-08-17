@@ -1,9 +1,9 @@
-use crate::model::view_option::ViewOption;
 use crate::gui::action::Action;
 use crate::gui::action::gio_action_type::GioActionType;
 use crate::gui::controller::RcController;
 use crate::gui::direction::Direction;
 use crate::model::rank::Rank;
+use crate::model::view_option::ViewOption;
 use gtk::gio::ActionEntry;
 use gtk::gio::prelude::*;
 use gtk::glib::clone;
@@ -64,16 +64,16 @@ impl MainController {
             }
         );
         entries.push(Self::action_entry(
-                GioActionType::from(Action::ApplyViewSetting(ViewOption::Grid2x2)),
-                activate.clone(),
+            GioActionType::from(Action::ApplyViewSetting(ViewOption::Grid2x2)),
+            activate.clone(),
         ));
         entries.push(Self::action_entry(
-                GioActionType::from(Action::Cancel),
-                activate.clone(),
+            GioActionType::from(Action::Cancel),
+            activate.clone(),
         ));
         entries.push(Self::action_entry(
-                GioActionType::from(Action::PickViewOption),
-                activate.clone(),
+            GioActionType::from(Action::PickViewOption),
+            activate.clone(),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::Dismiss),
