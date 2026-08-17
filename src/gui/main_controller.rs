@@ -1,8 +1,8 @@
-use crate::model::order::Order;
 use crate::gui::action::Action;
 use crate::gui::action::gio_action_type::GioActionType;
 use crate::gui::controller::RcController;
 use crate::gui::direction::Direction;
+use crate::model::order::Order;
 use crate::model::rank::Rank;
 use crate::model::view_option::ViewOption;
 use gtk::gio::ActionEntry;
@@ -119,6 +119,10 @@ impl MainController {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::ToggleSelectedAt(0, 0)),
+            activate.clone(),
+        ));
+        entries.push(Self::action_entry(
+            GioActionType::from(Action::ToggleSingleView),
             activate.clone(),
         ));
         entries.push(Self::action_entry(

@@ -15,8 +15,8 @@ use crate::gui::event::Event;
 use crate::gui::key_input::KeyInput;
 use crate::gui::key_input::information;
 use crate::gui::key_input::information::information_key_input;
-use crate::gui::key_input::menu::view_menu;
 use crate::gui::key_input::menu::order_menu;
+use crate::gui::key_input::menu::view_menu;
 use crate::gui::main_controller::RcMainController;
 use crate::gui::mode::Mode;
 use crate::gui::navigator::Navigator;
@@ -146,37 +146,8 @@ impl Controller {
         match action {
             Action::ApplyOrderSetting(order_setting) => self.apply_order_setting(order_setting),
             Action::ApplyViewSetting(view_option) => self.apply_view_setting(view_option),
-            Action::PickViewOption => self.pick_view_option(),
-            Action::PickOrderSetting => self.pick_order_setting(),
             Action::Cancel => self.cancel_edition(),
-            Action::ToggleThumbnailsView => self.toggle_thumbview(),
-            Action::ToggleTwoByTwoView => self.toggle_2x2_view(),
             Action::Dismiss => self.dismiss(),
-            Action::Nothing => {}
-            Action::GotoDirectory => self.go_to_directory(),
-            Action::QuitDirectory => self.back_from_directory(),
-            Action::Quit => self.quit(),
-            Action::MoveTowards(Direction::Last) => self.move_towards(Direction::Last),
-            Action::MoveTowards(Direction::First) => self.move_towards(Direction::First),
-            Action::MoveTowards(Direction::PageEnd) => self.move_towards(Direction::PageEnd),
-            Action::MoveTowards(Direction::PageStart) => self.move_towards(Direction::PageStart),
-            Action::MoveTowards(Direction::Up) => self.arrow_move(Direction::Up),
-            Action::MoveTowards(Direction::Down) => self.arrow_move(Direction::Down),
-            Action::MoveTowards(Direction::NextPage) => {
-                self.move_next();
-            }
-            Action::MoveTowards(Direction::PrevPage) => {
-                self.move_towards(Direction::PrevPage);
-            }
-            Action::MoveTowards(Direction::Right) => {
-                self.arrow_move(Direction::Right);
-            }
-            Action::MoveTowards(Direction::Left) => {
-                self.arrow_move(Direction::Left);
-            }
-            Action::PickOrderSetting => self.pick_order_setting(),
-            Action::Rank(rank) => self.rank_selected_pictures(rank),
-            Action::TogglePalette => self.toggle_palette(),
             Action::FocusAt(col, row) => {
                 self.process_event(Event::PictureClicked {
                     button: 1,
@@ -184,6 +155,33 @@ impl Controller {
                     row,
                 });
             }
+            Action::GotoDirectory => self.go_to_directory(),
+            Action::MoveTowards(Direction::Down) => self.arrow_move(Direction::Down),
+            Action::MoveTowards(Direction::First) => self.move_towards(Direction::First),
+            Action::MoveTowards(Direction::Last) => self.move_towards(Direction::Last),
+            Action::MoveTowards(Direction::Left) => {
+                self.arrow_move(Direction::Left);
+            }
+            Action::MoveTowards(Direction::NextPage) => {
+                self.move_next();
+            }
+            Action::MoveTowards(Direction::PageEnd) => self.move_towards(Direction::PageEnd),
+            Action::MoveTowards(Direction::PageStart) => self.move_towards(Direction::PageStart),
+            Action::MoveTowards(Direction::PrevPage) => {
+                self.move_towards(Direction::PrevPage);
+            }
+            Action::MoveTowards(Direction::Right) => {
+                self.arrow_move(Direction::Right);
+            }
+            Action::MoveTowards(Direction::Up) => self.arrow_move(Direction::Up),
+            Action::Nothing => {}
+            Action::PickOrderSetting => self.pick_order_setting(),
+            Action::PickOrderSetting => self.pick_order_setting(),
+            Action::PickViewOption => self.pick_view_option(),
+            Action::Quit => self.quit(),
+            Action::QuitDirectory => self.back_from_directory(),
+            Action::Rank(rank) => self.rank_selected_pictures(rank),
+            Action::TogglePalette => self.toggle_palette(),
             Action::ToggleSelectedAt(col, row) => {
                 self.process_event(Event::PictureClicked {
                     button: 3,
@@ -193,8 +191,11 @@ impl Controller {
                 let mut navigator = self.navigator_rc.borrow_mut();
                 navigator.set_page_changed();
             }
+            Action::ToggleSingleView => self.toggle_single_view(),
+            Action::ToggleThumbnailsView => self.toggle_thumbview(),
+            Action::ToggleTwoByTwoView => self.toggle_2x2_view(),
             _ => {
-                dbg!("todo");
+                dbg!("action not yet recognized by controller. todo");
             }
         }
         if self.state().slideshow_on() == old_slideshow_on {

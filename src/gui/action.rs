@@ -116,6 +116,7 @@ impl Action {
             Control::SetOrder => Action::PickOrderSetting,
             Control::SetView => Action::PickViewOption,
             Control::TogglePalette => Action::TogglePalette,
+            Control::ToggleSingleView => Action::ToggleSingleView,
             Control::ToggleThumbView => Action::ToggleThumbnailsView,
             Control::ToggleTwoByTwoView => Action::ToggleTwoByTwoView,
             _ => Action::Nothing,
