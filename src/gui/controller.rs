@@ -144,8 +144,10 @@ impl Controller {
         let action = Action::from(gio_action.clone());
         dbg!(&gio_action, &action);
         match action {
+            Action::ApplyOrderSetting(order_setting) => self.apply_order_setting(order_setting),
             Action::ApplyViewSetting(view_option) => self.apply_view_setting(view_option),
             Action::PickViewOption => self.pick_view_option(),
+            Action::PickOrderSetting => self.pick_order_setting(),
             Action::Cancel => self.cancel_edition(),
             Action::ToggleThumbnailsView => self.toggle_thumbview(),
             Action::ToggleTwoByTwoView => self.toggle_2x2_view(),
@@ -2304,6 +2306,24 @@ impl Controller {
         self.dismiss();
     }
     fn pick_order_setting(&self) {
-        todo!()
+        let application_window = self
+            .main_view_opt_rc
+            .borrow()
+            .as_ref()
+            .unwrap()
+            .application_window();
+        let gsr_entry_window = GsrEntryWindow::new_with(
+            &application_window,
+            &self.main_controller_rc_opt.as_ref().unwrap(),
+            order_menu(),
+            None,
+        );
+        gsr_entry_window.present();
+        *self.gsr_entry_window_opt_rc.borrow_mut() = Some(gsr_entry_window);
+    }
+
+    fn apply_order_setting(&self, order_setting: Order) {
+        self.order_by(order_setting);
+        self.dismiss()
     }
 }

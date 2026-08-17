@@ -1,3 +1,4 @@
+use crate::model::order::Order;
 use crate::gui::action::Action;
 use crate::gui::action::gio_action_type::GioActionType;
 use crate::gui::controller::RcController;
@@ -63,12 +64,21 @@ impl MainController {
                 }
             }
         );
+
+        entries.push(Self::action_entry(
+            GioActionType::from(Action::ApplyOrderSetting(Order::Name)),
+            activate.clone(),
+        ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::ApplyViewSetting(ViewOption::Grid2x2)),
             activate.clone(),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::Cancel),
+            activate.clone(),
+        ));
+        entries.push(Self::action_entry(
+            GioActionType::from(Action::PickOrderSetting),
             activate.clone(),
         ));
         entries.push(Self::action_entry(
