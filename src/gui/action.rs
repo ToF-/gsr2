@@ -93,6 +93,7 @@ impl Action {
     // FOO
     pub fn from_control(control: &Control) -> Self {
         match control {
+            Control::SetView => Action::PickViewOption,
             Control::CancelEdition => Action::Cancel,
             Control::Quit => Action::Quit,
             Control::MoveLast => Action::MoveTowards(Direction::Last),

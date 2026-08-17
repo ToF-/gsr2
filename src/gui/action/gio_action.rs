@@ -49,6 +49,7 @@ impl From<Action> for GioAction {
             Action::AddTag(tag) => Some(GioActionParameter::from(tag)),
             Action::ApplyOrderSetting(order) => Some(GioActionParameter::from(order)),
             Action::ApplyViewSetting(view_option) => Some(GioActionParameter::from(view_option)),
+            Action::Cancel => None,
             Action::CancelSelectionRange => None,
             Action::Categorize(category_opt) => Some(GioActionParameter::from(category_opt)),
             Action::ConfirmDeleteFile => None,
@@ -72,6 +73,7 @@ impl From<Action> for GioAction {
             Action::MoveCategory(category_name, target_category_name) => Some(
                 GioActionParameter::from((category_name, target_category_name)),
             ),
+            Action::Cancel => None,
             Action::MoveFile => None,
             Action::MoveTowards(direction) => Some(GioActionParameter::from(direction)),
             Action::Nothing => None,
@@ -111,7 +113,7 @@ impl From<Action> for GioAction {
         }
     }
 }
-
+// QUX
 impl From<GioAction> for Action {
     fn from(gio_action: GioAction) -> Self {
         match &gio_action.name() as &str {
@@ -127,6 +129,7 @@ impl From<GioAction> for Action {
             "apply-view-setting" => {
                 Action::ApplyViewSetting(ViewOption::from(gio_action.parameter().unwrap()))
             }
+            "cancel" => Action::Cancel,
             "cancel-selection-range" => Action::CancelSelectionRange,
             "categorize" => Action::Categorize(Category::from(gio_action.parameter().unwrap())),
             "confirm-delete-file" => Action::ConfirmDeleteFile,

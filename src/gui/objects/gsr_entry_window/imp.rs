@@ -117,7 +117,10 @@ impl GsrEntryWindow {
                         None => None,
                         Some(v) => Some(v.as_ref()),
                     };
-                    let _ = this.activate_action(&name, variant_ref);
+                    match this.activate_action(&name, variant_ref) {
+                        Ok(_) => {},
+                        Err(e) => eprintln!("{}", e),
+                    }
                 } else {
                     let new_input = status.input();
                     if new_input != input {

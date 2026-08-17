@@ -1,3 +1,4 @@
+use crate::model::view_option::ViewOption;
 use crate::gui::action::Action;
 use crate::gui::action::gio_action_type::GioActionType;
 use crate::gui::controller::RcController;
@@ -55,12 +56,25 @@ impl MainController {
                   variant: Option<&gtk::glib::Variant>| {
                 if let Some(controller_rc) = &controller_opt {
                     let controller = controller_rc.borrow_mut();
+                    dbg!(&object.name(), &variant);
                     controller.process_action(object, variant);
                 } else {
                     println!("controller not set");
                 }
             }
         );
+        entries.push(Self::action_entry(
+                GioActionType::from(Action::ApplyViewSetting(ViewOption::Grid2x2)),
+                activate.clone(),
+        ));
+        entries.push(Self::action_entry(
+                GioActionType::from(Action::Cancel),
+                activate.clone(),
+        ));
+        entries.push(Self::action_entry(
+                GioActionType::from(Action::PickViewOption),
+                activate.clone(),
+        ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::Dismiss),
             activate.clone(),

@@ -1,3 +1,5 @@
+use crate::model::view_option::ViewOption;
+use crate::gui::key_input::menu::view_menu;
 use crate::gui::key_input::information::information_key_input;
 use crate::gui::key_input::KeyInput;
 use crate::cli::command::Command;
@@ -139,7 +141,10 @@ impl Controller {
         let old_slideshow_on = self.state().slideshow_on();
         let gio_action = GioAction::from((simple_action, variant_opt));
         let action = Action::from(gio_action);
+        dbg!(&action);
         match action {
+            Action::ApplyViewSetting(view_option) => self.apply_view_setting(view_option), 
+            Action::PickViewOption => self.pick_view_option(),
             Action::Cancel => self.cancel_edition(),
             Action::ToggleThumbnailsView => self.toggle_thumbview(),
             Action::ToggleTwoByTwoView => self.toggle_2x2_view(),
@@ -2214,6 +2219,7 @@ impl Controller {
     }
 
     fn cancel_edition(&self) {
+        println!("cancel_editon…");
         self.dismiss()
     }
     fn dismiss(&self) {
@@ -2226,5 +2232,28 @@ impl Controller {
             };
         }
         *self.gsr_entry_window_opt_rc.borrow_mut() = None;
+    }
+
+    fn pick_view_option(&self) {
+        let application_window = self
+            .main_view_opt_rc
+            .borrow()
+            .as_ref()
+            .unwrap()
+            .application_window();
+        let gsr_entry_window = GsrEntryWindow::new_with(
+            &application_window,
+            &self.main_controller_rc_opt.as_ref().unwrap(),
+            view_menu(),
+            None,
+        );
+        gsr_entry_window.present();
+        *self.gsr_entry_window_opt_rc.borrow_mut() = Some(gsr_entry_window);
+    }
+
+    fn apply_view_setting(&self, view_option: ViewOption) {
+        println!("here I apply_view_setting {}", view_option);
+        self.dismiss();
+
     }
 }
