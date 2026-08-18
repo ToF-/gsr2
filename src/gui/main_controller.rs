@@ -65,25 +65,27 @@ impl MainController {
             }
         );
 
-        entries.push(Self::action_entry( GioActionType::from(Action::ApplyOrderSetting(Order::Name)), activate.clone(),));
-        entries.push(Self::action_entry( GioActionType::from(Action::ApplyViewSetting(ViewOption::Grid2x2)), activate.clone(),));
-        entries.push(Self::action_entry( GioActionType::from(Action::Cancel), activate.clone(),));
-        entries.push(Self::action_entry( GioActionType::from(Action::Dismiss), activate.clone(),));
-        entries.push(Self::action_entry( GioActionType::from(Action::FocusAt(0, 0)), activate.clone(),));
-        entries.push(Self::action_entry( GioActionType::from(Action::GotoDirectory), activate.clone(),));
-        entries.push(Self::action_entry( GioActionType::from(Action::MoveTowards(Direction::Left)), activate.clone(),));
-        entries.push(Self::action_entry( GioActionType::from(Action::Nothing), activate.clone(),));
+        entries.push(Self::action_entry( GioActionType::from(Action::ApplyOrderSetting(Order::Name)), activate.clone()));
+        entries.push(Self::action_entry( GioActionType::from(Action::ApplyViewSetting(ViewOption::Grid2x2)), activate.clone()));
+        entries.push(Self::action_entry( GioActionType::from(Action::Cancel), activate.clone()));
+        entries.push(Self::action_entry( GioActionType::from(Action::Dismiss), activate.clone()));
+        entries.push(Self::action_entry( GioActionType::from(Action::EnterLabel), activate.clone()));
+        entries.push(Self::action_entry( GioActionType::from(Action::FocusAt(0, 0)), activate.clone()));
+        entries.push(Self::action_entry( GioActionType::from(Action::GotoDirectory), activate.clone()));
+        entries.push(Self::action_entry( GioActionType::from(Action::Label("foo".to_string())), activate.clone()));
+        entries.push(Self::action_entry( GioActionType::from(Action::MoveTowards(Direction::Left)), activate.clone()));
+        entries.push(Self::action_entry( GioActionType::from(Action::Nothing), activate.clone()));
         entries.push(Self::action_entry( GioActionType::from(Action::PickChange), activate.clone(), ));
-        entries.push(Self::action_entry( GioActionType::from(Action::PickOrderSetting), activate.clone(),));
-        entries.push(Self::action_entry( GioActionType::from(Action::PickViewOption), activate.clone(),));
-        entries.push(Self::action_entry( GioActionType::from(Action::Quit), activate.clone(),));
-        entries.push(Self::action_entry( GioActionType::from(Action::QuitDirectory), activate.clone(),));
-        entries.push(Self::action_entry( GioActionType::from(Action::Rank(Rank::ThreeStars)), activate.clone(),));
-        entries.push(Self::action_entry( GioActionType::from(Action::TogglePalette), activate.clone(),));
-        entries.push(Self::action_entry( GioActionType::from(Action::ToggleSelectedAt(0, 0)), activate.clone(),));
-        entries.push(Self::action_entry( GioActionType::from(Action::ToggleSingleView), activate.clone(),));
-        entries.push(Self::action_entry( GioActionType::from(Action::ToggleThumbnailsView), activate.clone(),));
-        entries.push(Self::action_entry( GioActionType::from(Action::ToggleTwoByTwoView), activate.clone(),));
+        entries.push(Self::action_entry( GioActionType::from(Action::PickOrderSetting), activate.clone()));
+        entries.push(Self::action_entry( GioActionType::from(Action::PickViewOption), activate.clone()));
+        entries.push(Self::action_entry( GioActionType::from(Action::Quit), activate.clone()));
+        entries.push(Self::action_entry( GioActionType::from(Action::QuitDirectory), activate.clone()));
+        entries.push(Self::action_entry( GioActionType::from(Action::Rank(Rank::ThreeStars)), activate.clone()));
+        entries.push(Self::action_entry( GioActionType::from(Action::TogglePalette), activate.clone()));
+        entries.push(Self::action_entry( GioActionType::from(Action::ToggleSelectedAt(0, 0)), activate.clone()));
+        entries.push(Self::action_entry( GioActionType::from(Action::ToggleSingleView), activate.clone()));
+        entries.push(Self::action_entry( GioActionType::from(Action::ToggleThumbnailsView), activate.clone()));
+        entries.push(Self::action_entry( GioActionType::from(Action::ToggleTwoByTwoView), activate.clone()));
 
         self.gio_action_group.add_action_entries(entries);
     }

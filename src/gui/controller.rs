@@ -1,3 +1,5 @@
+use crate::gui::key_input::entry::label_change_entry;
+use crate::gui::key_input::menu::change_menu;
 use crate::cli::command::Command;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::Configuration;
@@ -148,8 +150,10 @@ impl Controller {
             Action::ApplyViewSetting(view_option) => self.apply_view_setting(view_option),
             Action::Cancel => self.cancel_edition(),
             Action::Dismiss => self.dismiss(),
+            Action::EnterLabel => self.enter_label(),
             Action::FocusAt(col, row) => { self.process_event(Event::PictureClicked { button: 1, col, row, }); }
             Action::GotoDirectory => self.go_to_directory(),
+            Action::Label(label) => self.confirm_label(&label),
             Action::MoveTowards(Direction::Down) => self.arrow_move(Direction::Down),
             Action::MoveTowards(Direction::First) => self.move_towards(Direction::First),
             Action::MoveTowards(Direction::Last) => self.move_towards(Direction::Last),
@@ -2316,10 +2320,33 @@ impl Controller {
         let gsr_entry_window = GsrEntryWindow::new_with(
             &application_window,
             &self.main_controller_rc_opt.as_ref().unwrap(),
-            order_menu(),
+            change_menu(),
             None,
         );
         gsr_entry_window.present();
         *self.gsr_entry_window_opt_rc.borrow_mut() = Some(gsr_entry_window);
+    }
+
+    fn enter_label(&self) {
+        self.dismiss();
+        let application_window = self
+            .main_view_opt_rc
+            .borrow()
+            .as_ref()
+            .unwrap()
+            .application_window();
+        let gsr_entry_window = GsrEntryWindow::new_with(
+            &application_window,
+            &self.main_controller_rc_opt.as_ref().unwrap(),
+            label_change_entry(self.repository.all_labels()),
+            None,
+        );
+        gsr_entry_window.present();
+        *self.gsr_entry_window_opt_rc.borrow_mut() = Some(gsr_entry_window);
+    }
+
+    fn confirm_label(&self, label: &str) {
+        self.dismiss();
+        self.label_selected_pictures(label);
     }
 }

@@ -5,7 +5,7 @@ use crate::gui::key_input::KeyInputMode;
 use crate::gui::key_input::KeyInputRules;
 use crate::model::tags::Tags;
 
-pub fn change_label_key_input(completion_tags: Tags) -> KeyInput {
+pub fn label_change_entry(completion_tags: Tags) -> KeyInput {
     KeyInput::new(
         "Enter a label",
         Some(completion_tags),
@@ -33,38 +33,38 @@ mod tests {
 
     #[test]
     fn given_a_simple_key_append_that_to_the_input() {
-        let key_input = change_label_key_input(tags_from_str("foo,bar,bartleby,law"));
+        let key_input = label_change_entry(tags_from_str("foo,bar,bartleby,law"));
         let status = key_input.edit("fi", Key::from_name("b").unwrap());
         assert_eq!("fib", &status.input());
     }
     #[test]
     fn given_an_illegal_key_input_does_not_change() {
-        let key_input = change_label_key_input(tags_from_str("foo,bar,bartleby,law"));
+        let key_input = label_change_entry(tags_from_str("foo,bar,bartleby,law"));
         let status = key_input.edit("fi", Key::from_name("numbersign").unwrap());
         assert_eq!("fi", &status.input());
     }
     #[test]
     fn given_an_uppercase_key_input_is_converted_to_lowercase() {
-        let key_input = change_label_key_input(tags_from_str("foo,bar,bartleby,law"));
+        let key_input = label_change_entry(tags_from_str("foo,bar,bartleby,law"));
         let status = key_input.edit("fi", Key::from_name("B").unwrap());
         assert_eq!("fib", &status.input());
     }
     #[test]
     fn given_an_initial_input_that_is_too_short_complete_produce_no_candidates() {
-        let key_input = change_label_key_input(tags_from_str("foo,bar,bartleby,law"));
+        let key_input = label_change_entry(tags_from_str("foo,bar,bartleby,law"));
         let status = key_input.edit("f", Key::from_name("Tab").unwrap());
         assert_eq!(None, status.candidate_list_tip());
     }
     #[test]
     fn given_an_initial_input_that_completes_with_one_candidates_input_is_set_to_that() {
-        let key_input = change_label_key_input(tags_from_str("foo,bar,bartleby,law"));
+        let key_input = label_change_entry(tags_from_str("foo,bar,bartleby,law"));
         let status = key_input.edit("fo", Key::from_name("Tab").unwrap());
         assert_eq!(None, status.candidate_list_tip());
         assert_eq!("foo", &status.input());
     }
     #[test]
     fn given_an_initial_input_that_completes_with_two_candidates_these_candidates_are_tipped() {
-        let key_input = change_label_key_input(tags_from_str("foo,bar,bartleby,law"));
+        let key_input = label_change_entry(tags_from_str("foo,bar,bartleby,law"));
         let status = key_input.edit("ba", Key::from_name("Tab").unwrap());
         assert_eq!(
             Some("[ bar bartleby ]".to_string()),
@@ -74,19 +74,19 @@ mod tests {
     }
     #[test]
     fn given_a_space_then_it_is_converted_to_dash() {
-        let key_input = change_label_key_input(tags_from_str("foo,bar,bartleby,law"));
+        let key_input = label_change_entry(tags_from_str("foo,bar,bartleby,law"));
         let status = key_input.edit("fib", Key::from_name("space").unwrap());
         assert_eq!("fib-", &status.input());
     }
     #[test]
     fn given_en_escape_then_it_returns_a_cancel_action() {
-        let key_input = change_label_key_input(tags_from_str("foo,bar,bartleby,law"));
+        let key_input = label_change_entry(tags_from_str("foo,bar,bartleby,law"));
         let status = key_input.edit("fib", Key::from_name("Escape").unwrap());
         assert_eq!(Some(Action::Cancel), status.result_action());
     }
     #[test]
     fn given_a_return_then_it_returns_the_input_and_its_specific_label_action() {
-        let key_input = change_label_key_input(tags_from_str("foo,bar,bartleby,law"));
+        let key_input = label_change_entry(tags_from_str("foo,bar,bartleby,law"));
         let status = key_input.edit("fib", Key::from_name("Return").unwrap());
         assert_eq!("fib", &status.input());
         assert_eq!(
