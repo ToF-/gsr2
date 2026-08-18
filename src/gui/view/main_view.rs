@@ -147,6 +147,7 @@ impl MainView {
             let navigator = controller.navigator();
             let binding = controller.repository().gallery_rc().clone();
             let gallery = binding.borrow();
+            dbg!(navigator.position());
             let gsr_picture_grid =
                 GsrPictureGrid::new(pictures_per_row.try_into().unwrap(), (0, 0), palette_on);
             gsr_picture_grid.initialize_pictures(&navigator, &gallery, palette_on);
