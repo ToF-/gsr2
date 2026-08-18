@@ -28,13 +28,15 @@ impl GsrPictureGrid {
         obj.set_column_homogeneous(true);
         obj.set_hexpand(true);
         obj.set_vexpand(true);
-
+        obj.imp().focus_at_coords.set(Some(focus_at_coords));
         obj.imp()
             .initialize(pictures_per_row, focus_at_coords, palette_on);
+        dbg!(&obj.imp().focus_at_coords).get();
         obj
     }
 
     pub fn initialize_pictures(&self, navigator: &Navigator, gallery: &Gallery, palette_on: bool) {
+        dbg!(self.imp().focus_at_coords.get());
         self.fill_with_cell_boxes();
         self.imp().palette_on.set(palette_on);
         let pictures_per_row = self.imp().pictures_per_row.get();

@@ -19,7 +19,6 @@ impl Default for GsrPictureGrid {
 }
 impl GsrPictureGrid {
     pub fn initialize(&self, pictures_per_row: i32, focus_at_coords: (i32, i32), palette_on: bool) {
-        dbg!(focus_at_coords);
         self.focus_at_coords.set(Some(focus_at_coords));
         self.pictures_per_row.set(pictures_per_row);
         self.palette_on.set(palette_on);

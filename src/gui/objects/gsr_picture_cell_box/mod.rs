@@ -77,6 +77,7 @@ impl GsrPictureCellBox {
     }
 
     fn attach_focus_blink_event(&self) {
+        dbg!("bar");
         let label_rc = self.imp().label.clone();
         *self.imp().timeout_rc.borrow_mut() = Some(timeout_add_local(
             Duration::from_millis(FOCUS_BLINKING_DURATION),
