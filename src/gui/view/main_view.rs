@@ -63,6 +63,7 @@ impl MainView {
         application: &GsrApplication,
         controller_rc: &RcController,
     ) -> Self {
+        dbg!("new from application");
         let application_window = application
             .active_window()
             .expect("can't get application active window")
@@ -134,6 +135,7 @@ impl MainView {
         position: usize,
         main_controller: &MainController,
     ) {
+        dbg!("activate");
         let (pictures_per_row, palette_on) = if let Ok(controller) = controller_rc.try_borrow() {
             (
                 controller.state().pictures_per_row(),
@@ -416,6 +418,7 @@ fn make_application_window(
     application: &GsrApplication,
     clargs: &CommandLineArguments,
 ) -> ApplicationWindow {
+    dbg!("make application window, attaching window to application");
     let gsrWindow = ApplicationWindow::new(application);
     gsrWindow.set_title(Some("gsr2"));
     gsrWindow.set_default_width(clargs.width.unwrap());

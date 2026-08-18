@@ -1,4 +1,10 @@
+use crate::gui::navigator::Navigator;
+use std::cell::Cell;
+use crate::cli::command_line_arguments::CommandLineArguments;
+use crate::gui::objects::gsr_application::GsrApplication;
+use crate::env::default_values::APPLICATION_NAME;
 use gtk::glib;
+
 use gtk::subclass::prelude::*;
 use std::cell::RefCell;
 
@@ -7,7 +13,11 @@ mod imp {
 
     #[derive(Default)]
     pub struct GsrApplicationWindow {
-        pub document_id: RefCell<Option<String>>,
+        pub navigator: Option<RefCell<Navigator>>,
+        pub palette_on: Cell<bool>,
+        pub pictures_per_row: Cell<i32>, 
+        pub last_pictures_per_row: Cell<i32>, 
+        pub full_size_on: Cell<bool>,
     }
 
    #[gtk::glib::object_subclass]
@@ -41,17 +51,50 @@ glib::wrapper! {
 }
 
 impl GsrApplicationWindow {
-    pub fn new(app: &gtk::Application) -> Self {
-        glib::Object::builder()
-            .property("application", app)
-            .build()
+    pub fn new(application: &GsrApplication, clargs: &CommandLineArguments) -> Self {
+        let obj: Self = glib::Object::builder()
+            .property("application", application)
+            .property("title", (Some(APPLICATION_NAME)))
+            .property("default_width", clargs.width.unwrap())
+            .property("default_height", clargs.height.unwrap())
+            .build();
+        obj.initialize();
+        obj
     }
 
-    pub fn set_document_id(&self, id: impl Into<String>) {
-        self.imp().document_id.replace(Some(id.into()));
+    fn initialize(&self) {
+        // build the components
+        // self.set_child(Some(view_stack));
+        // connect the events
+        // navigate to current position
     }
 
-    pub fn document_id(&self) -> Option<String> {
-        self.imp().document_id.borrow().clone()
+    pub fn toggle_palette_on(&self) {
+        self.imp().palette_on.set(! self.imp().palette_on.get());
     }
+
+    pub fn palette_on(&self) -> bool {
+        self.imp().palette_on.get()
+    }
+
+    pub fn toggle_pictures_per_row(&self, n: i32) {
+        if self.imp().pictures_per_row.get() != n {
+            self.imp().last_pictures_per_row.set(n);
+            self.imp().pictures_per_row.swap(
+                &self.imp().last_pictures_per_row);
+        }
+    }
+
+    pub fn pictures_per_row(&self) -> i32 {
+        self.imp().pictures_per_row.get()
+    }
+
+    pub fn set_full_size_on(&self, yes_no: bool) {
+        self.imp().full_size_on.set(yes_no)
+    }
+
+    pub fn full_size_on(&self) -> bool {
+        self.imp().full_size_on.get()
+    }
+
 }

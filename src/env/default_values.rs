@@ -1,4 +1,5 @@
 use crate::model::image_data::FileSize;
+pub const APPLICATION_NAME: &str = "gsr2";
 pub const BLINKING: bool = true;
 pub const NO_BLINKING: bool = false;
 pub const BLINKING_DURATION: u64 = 500;
