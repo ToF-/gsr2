@@ -1,3 +1,4 @@
+use gtk::prelude::ApplicationExtManual;
 use gsr::cli::command::Command;
 use gsr::cli::command::execute_command;
 use gsr::cli::command_line_arguments::CommandLineArguments;
@@ -87,7 +88,9 @@ fn build_and_run_app(
     } else {
         panic!("can't mutably borrow");
     }
-    MainView::run_application(gsr_application);
+    let no_args: Vec<String> = vec![];
+    dbg!("go");
+    gsr_application.run_with_args(&no_args);
 }
 
 fn initialize_database(config: &Configuration) -> Result<Status> {
