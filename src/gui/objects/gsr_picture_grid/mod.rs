@@ -113,6 +113,7 @@ impl GsrPictureGrid {
     pub fn set_label_text_at(&self, _col: i32, _row: i32, _text: &str) {}
 
     pub fn set_focus_at(&self, col: i32, row: i32) {
+        dbg!("set_focus_at");
         if let Some((current_col, current_row)) = self.imp().focus_at_coords.get() {
             if let Some(widget) = self.child_at(current_col, current_row) {
                 let gsr_picture_cell_box = widget

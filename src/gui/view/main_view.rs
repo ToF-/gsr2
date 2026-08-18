@@ -192,7 +192,6 @@ impl MainView {
         };
         attach_panel_event_handlers(&panel, controller_rc);
         add_actions(&application_window, controller_rc);
-        // TESTING
         application_window
             .insert_action_group("main-controller", Some(&main_controller.gio_action_group()));
         application.set_accels_for_action("main-controller.toggle-thumbnails-view", &["<Ctrl>T"]);
@@ -202,6 +201,7 @@ impl MainView {
         if let Some(seconds) = clargs.slideshow {
             Self::attach_slideshow_event(seconds, controller_rc);
         }
+        dbg!("now present");
         application_window.present();
     }
 

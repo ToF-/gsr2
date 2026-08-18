@@ -77,7 +77,6 @@ impl GsrPictureCellBox {
     }
 
     fn attach_focus_blink_event(&self) {
-        dbg!("bar");
         let label_rc = self.imp().label.clone();
         *self.imp().timeout_rc.borrow_mut() = Some(timeout_add_local(
             Duration::from_millis(FOCUS_BLINKING_DURATION),
@@ -234,7 +233,6 @@ fn make_picture(picture_file_path: &str) -> GtkPicture {
 
 fn flip_focus_symbol_on_label(label: &GtkLabel) {
     label.set_text(&flip_focus_symbol(&label.text().to_string()));
-    label.queue_draw();
 }
 
 fn flip_focus_symbol(label_text: &str) -> String {
