@@ -199,3 +199,33 @@ GUS : is this action correctly mapped to a GioAction and its variant parameter ?
 QUX : is the gio_action correctly mapped back to an Action and its parameter ?
 LAW : is the main controller registering this action entry ?
 FOO : is the controller acting on this action ?
+
+what does a GsrWindow do ?
+
+- build its own structure:
+    
+    ApplicationWindow   (set_view single/multiple, set_fullsize on/off set_pictures set_focus_at, set_picture_at, set_label_at, set_palette/on off)
+                             [activate_action] [timeout_local (slide_show)]
+        -> Stack                                            (set_visible_child)
+            -> ScrolledWindow named "single_view"           (set full size on/off) [on_key_pressed (arrow keys in full size)]
+                -> Box                                      (set_picture, set palette/on off)
+                    -> Picture
+                    -> DrawingArea
+            -> ScrolledWindow name "multiple_view"
+                -> Grid                                    
+                    -> Label                                [on_click (prev_page)]
+                    -> GsrPictureGrid                       (set_focus_at, set_picture_at, set_label_at set_palette/on off) [on_click] [on_key_pressed]
+
+                        -> … GsrPictureCell                 (enter_focus, leave_focus) [timeout_local (focus_blink)]
+                            -> Picture
+                            -> Label
+                            -> DrawingArea
+                    -> Label                                [on_click (next_page)]
+                    
+
+- GsrPictureCell subclass gtk::Box
+- GsrPictureGrid subclass gtk::Grid
+
+- GsrApplicationWindow wrap gtk::ApplicationWindow
+            
+
