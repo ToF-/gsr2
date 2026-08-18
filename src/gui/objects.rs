@@ -1,3 +1,4 @@
+pub mod gsr_application_window;
 pub mod gsr_application;
 pub mod gsr_entry_window;
 pub mod gsr_main_window;
