@@ -1,3 +1,5 @@
+use crate::cli::status::Status;
+use crate::env::configuration::Configuration;
 use crate::file::paths::parent_directory;
 use crate::file::paths::{file_exists, file_path_as_retrieved, file_path_as_stored};
 use crate::model::catalog::Catalog;
@@ -43,6 +45,21 @@ pub struct RetrieveCriteria {
 }
 
 impl Database {
+    pub fn initialize(config: &Configuration) -> IOResult<Status> {
+        let database_file = config.database_file.clone();
+        if !file_exists(&database_file) {
+            println!("creating new database file {}", &database_file);
+            match Database::from_connection(&database_file, true) {
+                Ok(database) => match database.rusqlite_create_schema() {
+                    Ok(_) => Ok(Status::Done),
+                    Err(err) => Err(IOError::other(err)),
+                },
+                Err(err) => Err(err),
+            }
+        } else {
+            Err(IOError::other(format!("{} already exists", &database_file)))
+        }
+    }
     pub fn from_connection(connection_string: &str, create: bool) -> IOResult<Self> {
         match Self::rusqlite_from_connection(connection_string, create) {
             Ok(database) => Ok(database),

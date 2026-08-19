@@ -21,28 +21,29 @@ use std::io::Result;
 use std::process::exit;
 use std::rc::Rc;
 
+pub fn error_exit(error: &IOError) {
+    eprintln!("{}", error);
+    exit(1)
+}
+
 fn main() {
     gio::resources_register_include!("gsr.gresource").expect("Failed to register resources");
-    let config = match Configuration::from_env() {
-        Ok(config) => config,
-        Err(err) => {
-            eprintln!("{}", err);
-            exit(1)
-        }
-    };
-    let result = CommandLineArguments::parse_and_check(None, &config).and_then(|clargs| {
-        if let Some(Command::Initialize) = clargs.clone().command {
-            initialize_database(&config)
-        } else {
-            run_application(&config, &clargs)
-        }
-    });
-    match result {
-        Ok(_) => {}
-        Err(err) => {
-            eprintln!("{}", err);
-            exit(1)
-        }
+
+    let config_result = Configuration::from_env();
+    if config_result.is_err() {
+        error_exit(config_result.as_ref().err().unwrap());
+    }
+    let config = config_result.unwrap();
+    let app_result = CommandLineArguments::parse_and_check(None, &config)
+        .and_then(|clargs| {
+            if let Some(Command::Initialize) = clargs.clone().command {
+                Database::initialize(&config)
+            } else {
+                run_application(&config, &clargs)
+            }
+        });
+    if app_result.is_err() {
+        error_exit(app_result.as_ref().err().unwrap());
     }
 }
 
@@ -60,14 +61,12 @@ fn run_application(config: &Configuration, clargs: &CommandLineArguments) -> Res
             result
         }
     });
-    match result {
-        Ok(Status::Done) | Ok(Status::Exit) | Ok(Status::Ready(_)) => exit(0),
-        Err(e) => {
-            eprintln!("{}", e);
-            exit(1)
-        }
+    if result.is_err() {
+        error_exit(result.as_ref().err().unwrap());
     }
+    exit(1)
 }
+
 fn build_and_run_app(
     clargs: &CommandLineArguments,
     controller_rc: RcController,
@@ -76,14 +75,6 @@ fn build_and_run_app(
 ) {
     let binding = main_controller_rc.clone();
     let main_controller = binding.borrow();
-    /*
-    let gsr_application: GsrApplication = make_gsr_application(
-        APPLICATION_ID,
-        main_controller.clone(),
-        clargs.clone(),
-        position,
-    );
-    */
     let mut controller = controller_rc.borrow_mut();
     controller.set_main_controller_rc(main_controller_rc.clone());
     let gsr_application = GsrApplication::default();
@@ -91,18 +82,3 @@ fn build_and_run_app(
     gsr_application.run_with_args(&no_args);
 }
 
-fn initialize_database(config: &Configuration) -> Result<Status> {
-    let database_file = config.database_file.clone();
-    if !file_exists(&database_file) {
-        println!("creating new database file {}", &database_file);
-        match Database::from_connection(&database_file, true) {
-            Ok(database) => match database.rusqlite_create_schema() {
-                Ok(_) => Ok(Status::Done),
-                Err(err) => Err(IOError::other(err)),
-            },
-            Err(err) => Err(err),
-        }
-    } else {
-        Err(IOError::other(format!("{} already exists", &database_file)))
-    }
-}
