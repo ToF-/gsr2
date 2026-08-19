@@ -1,6 +1,6 @@
+use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::gui::main_controller::MainController;
-use crate::gui::view::main_view::MainView;
 use gtk::Application;
 use gtk::gdk::Display;
 use gtk::glib::clone;
@@ -18,11 +18,11 @@ pub fn make_gsr_application(
         .application_id(application_id)
         .build();
     gsr_application.connect_startup(|_| startup_gui());
-    connect_activate(&gsr_application, clargs, position, main_controller);
+    connect_activate_application(&gsr_application, clargs, position, main_controller);
     gsr_application
 }
 
-fn connect_activate(
+fn connect_activate_application(
     gsr_application: &GsrApplication,
     clargs: CommandLineArguments,
     position: usize,
@@ -36,13 +36,7 @@ fn connect_activate(
             #[strong]
             controller_rc,
             move |gsr_application: &GsrApplication| {
-                MainView::activate(
-                    gsr_application,
-                    &clargs,
-                    &controller_rc,
-                    position,
-                    &main_controller,
-                )
+                GsrApplicationWindow::new(gsr_application, &clargs);
             }
         ));
     } else {

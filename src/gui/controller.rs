@@ -25,7 +25,6 @@ use crate::gui::navigator::Navigator;
 use crate::gui::objects::gsr_entry_window::GsrEntryWindow;
 use crate::gui::selector::Selector;
 use crate::gui::state::State;
-use crate::gui::view::main_view::{LEFT_PANE, MainView};
 use crate::model::catalog::Catalog;
 use crate::model::category::Category;
 use crate::model::category::category_from_string;
@@ -60,7 +59,6 @@ pub struct Controller {
     navigator_rc: RefCell<Navigator>,
     controls: Controls,
     state_rc: RefCell<State>,
-    main_view_opt_rc: RefCell<Option<MainView>>,
     gsr_entry_window_opt_rc: RefCell<Option<GsrEntryWindow>>,
     legacy_editor_rc: RefCell<LegacyEditor>,
     selector_rc: RefCell<Selector>,
@@ -249,18 +247,6 @@ impl Controller {
     pub fn set_selected(&self, selected: &str) {
         self.selector_rc.borrow_mut().set_selected(selected);
     }
-    pub fn main_view(&self) -> MainView {
-        let main_view_opt = self.main_view_opt_rc.borrow().clone();
-        if let Some(main_view) = main_view_opt {
-            main_view.clone()
-        } else {
-            panic!("main_view is not set");
-        }
-    }
-    pub fn set_main_view(&self, main_view: MainView) {
-        *self.main_view_opt_rc.borrow_mut() = Some(main_view)
-    }
-
     pub fn state(&self) -> State {
         self.state_rc.borrow().clone()
     }

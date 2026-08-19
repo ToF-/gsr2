@@ -2,7 +2,6 @@ use crate::gui::control::Control;
 use crate::gui::control::Controls;
 use crate::gui::control::default_controls;
 use crate::gui::mode::Mode;
-use crate::gui::view::main_view::MainView;
 use crate::gui::view::treelist_view::TreeListView;
 use crate::model::catalog::Catalog;
 use gtk::gdk::Key;

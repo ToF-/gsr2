@@ -156,9 +156,6 @@ impl MainView {
 
             dbg!(coords_from_position);
             let gsr_picture_grid = GsrPictureGrid::new(
-                pictures_per_row.try_into().unwrap(),
-                coords_from_position,
-                palette_on,
             );
             gsr_picture_grid
         };

@@ -7,7 +7,6 @@ use crate::gui::editor::editor_status::EditorStatus;
 use crate::gui::entry_kind::EntryKind;
 use crate::gui::entry_prompt::entry_prompt;
 use crate::gui::mode::Mode;
-use crate::gui::view::main_view::MainView;
 use crate::model::order::Order;
 use crate::model::tags::{Tags, empty_tags};
 use gdk::Key;
