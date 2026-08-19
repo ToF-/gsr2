@@ -22,5 +22,7 @@ impl GsrPictureFrame {
     pub fn new(view: Shared<View>, navigator: Shared<Navigator>, gallery: Shared<Gallery>) -> Self {
         let obj: Self = glib::Object::new();
         obj.imp().initialize(view, navigator, gallery);
+        obj
+
     }
 }

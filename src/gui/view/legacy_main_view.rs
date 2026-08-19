@@ -1,3 +1,4 @@
+use std::rc::Rc;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::default_values::{FULL_OPACITY, HALF_OPACITY};
 use crate::file::paths::check_path_exists;
@@ -158,9 +159,9 @@ impl LegacyMainView {
 
             dbg!(coords_from_position);
             let gsr_picture_grid = GsrPictureGrid::new(
-                RefCell::new(View::default()),
-                RefCell::new(Navigator::default()),
-                RefCell::new(Gallery::default()),
+                Rc::new(RefCell::new(View::default())),
+                Rc::new(RefCell::new(Navigator::default())),
+                Rc::new(RefCell::new(Gallery::default())),
             );
             gsr_picture_grid
         };

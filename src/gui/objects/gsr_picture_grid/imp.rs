@@ -9,31 +9,39 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 pub struct GsrPictureGrid {
-    pub view: Shared<View>,
-    pub navigator: Shared<Navigator>,
-    pub gallery: Shared<Gallery>,
+    pub view:      RefCell<Option<Shared<View>>>,
+    pub navigator: RefCell<Option<Shared<Navigator>>>,
+    pub gallery:   RefCell<Option<Shared<Gallery>>>,
 }
 
 impl Default for GsrPictureGrid {
     fn default() -> Self {
         Self {
-            view: Rc::new(RefCell::new(View::default())),
-            navigator: Rc::new(RefCell::new(Navigator::default())),
-            gallery: Rc::new(RefCell::new(Gallery::default())),
+            view:      RefCell::new(None),
+            navigator: RefCell::new(None),
+            gallery:   RefCell::new(None),
         }
     }
 }
 impl GsrPictureGrid {
-    pub fn initialize(
-        &self,
-        view: RefCell<View>,
-        navigator: RefCell<Navigator>,
-        gallery: RefCell<Gallery>,
+    pub fn initialize(&self,
+        view: Shared<View>,
+        navigator: Shared<Navigator>,
+        gallery: Shared<Gallery>,
     ) {
-        // register the shared tools
-        *self.view.borrow_mut() = view.borrow().clone();
-        *self.navigator.borrow_mut() = navigator.borrow().clone();
-        *self.gallery.borrow_mut() = gallery.borrow().clone();
+        *(self.view.borrow_mut()) = Some(view);
+        *(self.navigator.borrow_mut()) = Some(navigator);
+        *(self.gallery.borrow_mut()) = Some(gallery);
+    }
+
+    pub fn view(&self) -> View {
+        self.view.borrow().as_ref().unwrap().borrow().clone()
+    }
+    pub fn navigator(&self) -> Navigator {
+        self.navigator.borrow().as_ref().unwrap().borrow().clone()
+    }
+    pub fn gallery(&self) -> Gallery {
+        self.gallery.borrow().as_ref().unwrap().borrow().clone()
     }
 }
 #[glib::object_subclass]

@@ -1,12 +1,32 @@
+use gtk::gdk::Display;
+use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::gui::main_controller::MainController;
-use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
-use gtk::Application;
-use gtk::gdk::Display;
+use std::cell::RefCell;
 use gtk::glib::clone;
-use gtk::prelude::ApplicationExt;
+mod imp;
 
-pub type GsrApplication = gtk::Application;
+use gtk::glib;
+use gtk::prelude::*;
+use gtk::subclass::prelude::*;
+
+glib::wrapper! {
+    pub struct GsrApplication(ObjectSubclass<imp::GsrApplication>)
+        @extends gtk::Application, gio::Application,
+        @implements gio::ActionGroup, gio::ActionMap;
+}
+
+
+impl GsrApplication {
+    pub fn new(application_id: &str,
+        main_controller: MainController,
+        clargs: CommandLineArguments,
+        position: usize) -> Self {
+        glib::Object::builder()
+            .property("application-id", "com.example.Gsr")
+            .build()
+    }
+}
 
 pub fn make_gsr_application(
     application_id: &str,

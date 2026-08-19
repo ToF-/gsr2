@@ -7,11 +7,20 @@ use gtk::subclass::prelude::*;
 use std::cell::Cell;
 use std::cell::RefCell;
 
-#[derive(Default)]
 pub struct GsrPictureFrame {
-    pub view: RefCell<View>,
-    pub navigator: RefCell<Navigator>,
-    pub gallery: RefCell<Gallery>,
+    pub view: RefCell<Option<Shared<View>>>,
+    pub navigator: RefCell<Option<Shared<Navigator>>>,
+    pub gallery: RefCell<Option<Shared<Gallery>>>,
+}
+
+impl Default for GsrPictureFrame {
+    fn default() -> Self {
+        Self {
+            view: RefCell::new(None),
+            navigator: RefCell::new(None),
+            gallery: RefCell::new(None),
+        }
+    }
 }
 
 impl GsrPictureFrame {
@@ -21,7 +30,19 @@ impl GsrPictureFrame {
         navigator: Shared<Navigator>,
         gallery: Shared<Gallery>,
     ) {
-        *self.view.borrow_mut() = view.borrow();
+        *(self.view.borrow_mut()) = Some(view);
+        *(self.navigator.borrow_mut()) = Some(navigator);
+        *(self.gallery.borrow_mut()) = Some(gallery);
+    }
+
+    pub fn view(&self) -> View {
+        self.view.borrow().as_ref().unwrap().borrow().clone()
+    }
+    pub fn navigator(&self) -> Navigator {
+        self.navigator.borrow().as_ref().unwrap().borrow().clone()
+    }
+    pub fn gallery(&self) -> Gallery {
+        self.gallery.borrow().as_ref().unwrap().borrow().clone()
     }
 }
 

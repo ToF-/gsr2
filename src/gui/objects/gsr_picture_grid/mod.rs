@@ -1,3 +1,4 @@
+use crate::model::shared::Shared;
 use crate::env::default_values::FULL_OPACITY;
 use crate::env::default_values::HALF_OPACITY;
 use crate::env::default_values::MAX_PICTURES_PER_ROW;
@@ -25,9 +26,9 @@ glib::wrapper! {
 
 impl GsrPictureGrid {
     pub fn new(
-        view: RefCell<View>,
-        navigator: RefCell<Navigator>,
-        gallery: RefCell<Gallery>,
+        view: Shared<View>,
+        navigator: Shared<Navigator>,
+        gallery: Shared<Gallery>,
     ) -> Self {
         let obj: Self = glib::Object::builder().build();
         obj.set_row_homogeneous(true);
@@ -38,19 +39,16 @@ impl GsrPictureGrid {
         obj
     }
 
-    pub fn initialize_pictures(&self, navigator: &Navigator, gallery: &Gallery, palette_on: bool) {
+    pub fn initialize_pictures(&self) {
+        
         self.fill_with_cell_boxes();
-        {
-            let mut view = self.imp().view.borrow_mut();
-            view.set_palette_on(palette_on);
-        }
-        let pictures_per_row = self.imp().view.borrow().pictures_per_row();
+        let pictures_per_row = self.view().pictures_per_row();
         for col in 0..pictures_per_row {
             for row in 0..pictures_per_row {
-                if let Some(index) = navigator.position_from_coords(row as usize, col as usize) {
-                    let picture = gallery.picture(index);
+                if let Some(index) = self.navigator().position_from_coords(row as usize, col as usize) {
+                    let picture = self.gallery().picture(index);
                     self.set_picture_at(col, row, &picture, index);
-                    let opacity: f64 = if navigator.is_selected(index) {
+                    let opacity: f64 = if self.navigator().is_selected(index) {
                         HALF_OPACITY
                     } else {
                         FULL_OPACITY

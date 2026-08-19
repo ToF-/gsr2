@@ -28,12 +28,21 @@ pub const RIGHT_PANE: usize = 1;
 mod imp {
     use super::*;
 
-    #[derive(Default)]
     pub struct GsrApplicationWindow {
         pub view: Shared<View>,
-        pub navigator: Shared<View>,
-        pub gallery: Shared<View>,
+        pub navigator: Shared<Navigator>,
+        pub gallery: Shared<Gallery>,
     }
+    impl Default for GsrApplicationWindow {
+        fn default() -> Self {
+            Self {
+        view: Rc::new(RefCell::new(View::default())),
+        navigator: Rc::new(RefCell::new(Navigator::default())),
+        gallery: Rc::new(RefCell::new(Gallery::default())),
+            }
+        }
+    }
+
 
     #[gtk::glib::object_subclass]
     impl ObjectSubclass for GsrApplicationWindow {
@@ -73,28 +82,22 @@ impl GsrApplicationWindow {
             .property("default_width", clargs.width.unwrap())
             .property("default_height", clargs.height.unwrap())
             .build();
-        let view = Rc::new(RefCell::new(View::default()));
-        let navigator = Rc::new(RefCell::new(Navigator::default()));
-        let gallery = Rc::new(RefCell::new(Gallery::default()));
-        obj.initialize(view, navigator, gallery);
+        obj.initialize();
         obj
     }
 
-    fn initialize(
-        &self,
-        view: Shared<View>,
-        navigator: Shared<Navigator>,
-        gallery: Shared<Gallery>,
-    ) {
+    fn initialize(&self) {
         dbg!("GsrApplication::initialize");
-        // register the shared tools
-        *(self.imp().view.borrow_mut()) = *view.borrow();
-        *(self.imp().navigator.borrow_mut()) = *navigator.borrow();
-        *(self.imp().gallery.borrow_mut())= *gallery.borrow();
         // build the components
-        let frame = GsrPictureFrame::new(view, navigator, gallery);
+        let frame = GsrPictureFrame::new(
+            self.imp().view.clone(),
+            self.imp().navigator.clone(),
+            self.imp().gallery.clone(),);
         let frame_scrolled_window = make_scrolled_window_with_child(&frame);
-        let gsr_picture_grid = GsrPictureGrid::new(view, navigator, gallery);
+        let gsr_picture_grid = GsrPictureGrid::new(
+            self.imp().view.clone(),
+            self.imp().navigator.clone(),
+            self.imp().gallery.clone(),);
         let panel = make_panel_with_child(&gsr_picture_grid);
         let grid_scrolled_window = make_scrolled_window_with_child(&panel);
         let stack = gtk::Stack::builder().hexpand(true).vexpand(true).build();
