@@ -16,6 +16,7 @@ pub mod picture;
 pub mod rank;
 pub mod repository;
 pub mod selection_criteria;
+pub mod shared;
 pub mod sub_category;
 pub mod tags;
 pub mod thumbnail;

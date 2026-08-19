@@ -1,6 +1,7 @@
-use crate::model::gallery::Gallery;
 use crate::gui::navigator::Navigator;
 use crate::gui::view::View;
+use crate::model::gallery::Gallery;
+use crate::model::shared::Shared;
 use gtk::glib;
 use gtk::subclass::prelude::*;
 use std::cell::Cell;
@@ -11,6 +12,17 @@ pub struct GsrPictureFrame {
     pub view: RefCell<View>,
     pub navigator: RefCell<Navigator>,
     pub gallery: RefCell<Gallery>,
+}
+
+impl GsrPictureFrame {
+    pub fn initialize(
+        &self,
+        view: Shared<View>,
+        navigator: Shared<Navigator>,
+        gallery: Shared<Gallery>,
+    ) {
+        *self.view.borrow_mut() = view.borrow();
+    }
 }
 
 #[glib::object_subclass]

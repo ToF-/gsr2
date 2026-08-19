@@ -1,23 +1,25 @@
 use crate::gui::navigator::Navigator;
 use crate::gui::view::View;
 use crate::model::gallery::Gallery;
+use crate::model::shared::Shared;
 use gtk::glib;
 use gtk::subclass::prelude::*;
 use std::cell::Cell;
 use std::cell::RefCell;
+use std::rc::Rc;
 
 pub struct GsrPictureGrid {
-    pub view: RefCell<View>,
-    pub navigator: RefCell<Navigator>,
-    pub gallery: RefCell<Gallery>,
+    pub view: Shared<View>,
+    pub navigator: Shared<Navigator>,
+    pub gallery: Shared<Gallery>,
 }
 
 impl Default for GsrPictureGrid {
     fn default() -> Self {
         Self {
-            view: RefCell::new(View::default()),
-            navigator: RefCell::new(Navigator::default()),
-            gallery: RefCell::new(Gallery::default()),
+            view: Rc::new(RefCell::new(View::default())),
+            navigator: Rc::new(RefCell::new(Navigator::default())),
+            gallery: Rc::new(RefCell::new(Gallery::default())),
         }
     }
 }

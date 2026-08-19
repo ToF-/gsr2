@@ -6,15 +6,18 @@ use crate::gui::controller::Controller;
 use crate::gui::direction::Direction;
 use crate::gui::navigator::Navigator;
 use crate::gui::objects::gsr_application::GsrApplication;
+use crate::gui::objects::gsr_picture_frame::GsrPictureFrame;
 use crate::gui::objects::gsr_picture_grid::GsrPictureGrid;
 use crate::gui::view::View;
 use crate::gui::view::picture_frame::PictureFrame;
 use crate::gui::view::treelist_view::TreeListView;
 use crate::model::catalog::Catalog;
 use crate::model::gallery::Gallery;
+use crate::model::shared::Shared;
 use gtk::glib;
 use gtk::prelude::*;
 use std::cell::Cell;
+use std::rc::Rc;
 
 use gtk::subclass::prelude::*;
 use std::cell::RefCell;
@@ -27,9 +30,9 @@ mod imp {
 
     #[derive(Default)]
     pub struct GsrApplicationWindow {
-        pub view: RefCell<View>,
-        pub navigator: RefCell<Navigator>,
-        pub gallery: RefCell<Gallery>,
+        pub view: Shared<View>,
+        pub navigator: Shared<View>,
+        pub gallery: Shared<View>,
     }
 
     #[gtk::glib::object_subclass]
@@ -70,26 +73,26 @@ impl GsrApplicationWindow {
             .property("default_width", clargs.width.unwrap())
             .property("default_height", clargs.height.unwrap())
             .build();
-        let view = RefCell::new(View::default());
-        let navigator = RefCell::new(Navigator::default());
-        let gallery = RefCell::new(Gallery::default());
+        let view = Rc::new(RefCell::new(View::default()));
+        let navigator = Rc::new(RefCell::new(Navigator::default()));
+        let gallery = Rc::new(RefCell::new(Gallery::default()));
         obj.initialize(view, navigator, gallery);
         obj
     }
 
     fn initialize(
         &self,
-        view: RefCell<View>,
-        navigator: RefCell<Navigator>,
-        gallery: RefCell<Gallery>,
+        view: Shared<View>,
+        navigator: Shared<Navigator>,
+        gallery: Shared<Gallery>,
     ) {
         dbg!("GsrApplication::initialize");
         // register the shared tools
-        *self.imp().view.borrow_mut() = view.borrow().clone();
-        *self.imp().navigator.borrow_mut() = navigator.borrow().clone();
-        *self.imp().gallery.borrow_mut() = gallery.borrow().clone();
+        *(self.imp().view.borrow_mut()) = *view.borrow();
+        *(self.imp().navigator.borrow_mut()) = *navigator.borrow();
+        *(self.imp().gallery.borrow_mut())= *gallery.borrow();
         // build the components
-        let frame = PictureFrame::new().frame(); // TODO make PictureFrame a subclass of gkt::Box 
+        let frame = GsrPictureFrame::new(view, navigator, gallery);
         let frame_scrolled_window = make_scrolled_window_with_child(&frame);
         let gsr_picture_grid = GsrPictureGrid::new(view, navigator, gallery);
         let panel = make_panel_with_child(&gsr_picture_grid);
