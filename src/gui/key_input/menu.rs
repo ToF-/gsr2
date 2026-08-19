@@ -127,7 +127,7 @@ pub fn change_menu() -> KeyInput {
 mod tests {
     use crate::model::tags::tags_from_str;
     use gtk::gdk::Key;
-    use sper::*;
+    use super::*;
 
     #[test]
     fn given_a_simple_key_launches_the_corresponding_action() {

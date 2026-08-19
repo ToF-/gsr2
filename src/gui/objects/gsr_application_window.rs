@@ -54,7 +54,7 @@ impl GsrApplicationWindow {
     pub fn new(application: &GsrApplication, clargs: &CommandLineArguments) -> Self {
         let obj: Self = glib::Object::builder()
             .property("application", application)
-            .property("title", (Some(APPLICATION_NAME)))
+            .property("title", Some(APPLICATION_NAME))
             .property("default_width", clargs.width.unwrap())
             .property("default_height", clargs.height.unwrap())
             .build();
