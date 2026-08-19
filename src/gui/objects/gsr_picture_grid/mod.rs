@@ -40,7 +40,8 @@ impl GsrPictureGrid {
     }
 
     pub fn initialize_pictures(&self) {
-        
+        todo!() 
+            /*
         self.fill_with_cell_boxes();
         let pictures_per_row = self.view().pictures_per_row();
         for col in 0..pictures_per_row {
@@ -59,6 +60,7 @@ impl GsrPictureGrid {
         }
         let (col, row) = (self.imp().view.borrow()).focus_at_coords().clone();
         self.set_focus_at(col, row);
+            */
     }
 
     pub fn change_size(&self, pictures_per_row: i32, palette_on: bool) {
@@ -75,6 +77,8 @@ impl GsrPictureGrid {
         }
     }
     fn fill_with_cell_boxes(&self) {
+        todo!() 
+            /*
         let view = self.imp().view.borrow();
         let pictures_per_row = view.pictures_per_row();
         let palette_on = view.palette_on();
@@ -90,12 +94,14 @@ impl GsrPictureGrid {
                 self.attach(&gsr_picture_cell_box, col, row, 1, 1);
             }
         }
+            */
     }
 
     pub fn set_picture_at(&self, col: i32, row: i32, picture: &Picture, picture_index: usize) {
+        todo!();
         let view = self.imp().view.borrow();
-        let pictures_per_row = view.pictures_per_row();
-        let palette_on = view.palette_on();
+        let pictures_per_row = 1; // view.pictures_per_row();
+        let palette_on = false; // view.palette_on();
         if let Some(widget) = self.child_at(col, row) {
             self.remove(&widget);
         };
@@ -117,8 +123,9 @@ impl GsrPictureGrid {
     pub fn set_label_text_at(&self, _col: i32, _row: i32, _text: &str) {}
 
     pub fn set_focus_at(&self, col: i32, row: i32) {
+        todo!();
         let view = self.imp().view.borrow();
-        let (current_col, current_row) = view.focus_at_coords();
+        let (current_col, current_row) = (0,0); // view.focus_at_coords();
         if let Some(widget) = self.child_at(current_col, current_row) {
             let gsr_picture_cell_box = widget
                 .downcast::<GsrPictureCellBox>()
@@ -132,7 +139,8 @@ impl GsrPictureGrid {
             gsr_picture_cell_box.enter_focus();
             {
                 let mut view = self.imp().view.borrow_mut();
-                view.set_focus_at_coords((col, row));
+                todo!();
+                // view.set_focus_at_coords((col, row));
             }
         }
     }

@@ -271,8 +271,8 @@ impl LegacyMainView {
     ) {
         let navigator: Navigator = controller.navigator();
         if let Ok(gallery) = controller.repository().gallery_rc().try_borrow() {
-            self.gsr_picture_grid
-                .initialize_pictures(&navigator, &gallery, palette_on);
+            todo!();
+            // self.gsr_picture_grid.initialize_pictures(&navigator, &gallery, palette_on);
         } else {
             panic!("can't borrow");
         }

@@ -1,15 +1,12 @@
 use crate::gui::main_controller::MainController;
-use std::rc::Rc;
 use crate::gui::view::View;
 use crate::model::shared::Shared;
+use gtk::{glib, prelude::*, subclass::prelude::*};
 use std::cell::RefCell;
-use gtk::glib;
-use gtk::subclass::prelude::*;
-use glib::prelude::*;
+use std::rc::Rc;
 
 #[derive(Default)]
 pub struct GsrApplication {
-    pub view: RefCell<Option<Shared<View>>>,
 }
 
 #[glib::object_subclass]
@@ -21,23 +18,12 @@ impl ObjectSubclass for GsrApplication {
 }
 
 impl ObjectImpl for GsrApplication {}
-
-impl ApplicationImpl for GsrApplication {}
+impl ApplicationImpl for GsrApplication {
+    fn activate(&self) {
+        self.parent_activate();
+    }
+}
 
 impl GtkApplicationImpl for GsrApplication {}
 
 
-impl GsrApplication {
-    pub fn set_view(&self, view: Rc<RefCell<View>>) {
-        *self.imp().view.borrow_mut() = Some(view);
-    }
-
-    pub fn view(&self) -> Rc<RefCell<View>> {
-        self.imp()
-            .view
-            .borrow()
-            .as_ref()
-            .expect("View has not been initialized")
-            .clone()
-    }
-}

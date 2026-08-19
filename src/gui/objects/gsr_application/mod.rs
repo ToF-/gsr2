@@ -1,3 +1,4 @@
+use crate::env::default_values::APPLICATION_ID;
 use gtk::gdk::Display;
 use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
 use crate::cli::command_line_arguments::CommandLineArguments;
@@ -7,6 +8,7 @@ use gtk::glib::clone;
 mod imp;
 
 use gtk::glib;
+use gtk::gio;
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 
@@ -17,6 +19,13 @@ glib::wrapper! {
 }
 
 
+impl Default for GsrApplication {
+    fn default() -> Self {
+        glib::Object::builder()
+            .property("application-id", APPLICATION_ID)
+            .build()
+    }
+}
 impl GsrApplication {
     pub fn new(application_id: &str,
         main_controller: MainController,
@@ -28,19 +37,6 @@ impl GsrApplication {
     }
 }
 
-pub fn make_gsr_application(
-    application_id: &str,
-    main_controller: MainController,
-    clargs: CommandLineArguments,
-    position: usize,
-) -> GsrApplication {
-    let gsr_application = Application::builder()
-        .application_id(application_id)
-        .build();
-    gsr_application.connect_startup(|_| startup_gui());
-    connect_activate_application(&gsr_application, clargs, position, main_controller);
-    gsr_application
-}
 
 fn connect_activate_application(
     gsr_application: &GsrApplication,

@@ -11,7 +11,6 @@ use gsr::gui::controller::RcController;
 use gsr::gui::main_controller::MainController;
 use gsr::gui::main_controller::RcMainController;
 use gsr::gui::objects::gsr_application::GsrApplication;
-use gsr::gui::objects::gsr_application::make_gsr_application;
 use gsr::gui::view::legacy_main_view::LegacyMainView;
 use gtk::gio;
 use gtk::prelude::ApplicationExtManual;
@@ -77,14 +76,17 @@ fn build_and_run_app(
 ) {
     let binding = main_controller_rc.clone();
     let main_controller = binding.borrow();
+    /*
     let gsr_application: GsrApplication = make_gsr_application(
         APPLICATION_ID,
         main_controller.clone(),
         clargs.clone(),
         position,
     );
+    */
     let mut controller = controller_rc.borrow_mut();
     controller.set_main_controller_rc(main_controller_rc.clone());
+    let gsr_application = GsrApplication::default();
     let no_args: Vec<String> = vec![];
     gsr_application.run_with_args(&no_args);
 }

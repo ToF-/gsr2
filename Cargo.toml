@@ -30,8 +30,8 @@ chrono = "0.4.42"
 clap = { version = "4.5.4", features = ["derive"] }
 glib = "0.22.8"
 glib-macros = "0.22.6"
-gtk = { version = "0.10.1", package = "gtk4", features = ["v4_20"] }
-
+gtk = { version = "0.11", package = "gtk4", features = ["v4_20"] }
+gio = {version = "0.22", features = ["v2_66"]}
 image = "0.25.8"
 itertools = "0.14.0"
 lexpr = "0.2.7"
