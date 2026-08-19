@@ -1,3 +1,8 @@
+use crate::model::gallery::Gallery;
+use crate::gui::view::View;
+use std::cell::RefCell;
+use crate::gui::objects::gsr_application_window::RIGHT_PANE;
+use crate::gui::objects::gsr_application_window::LEFT_PANE;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::default_values::{FULL_OPACITY, HALF_OPACITY};
 use crate::file::paths::check_path_exists;
@@ -41,11 +46,8 @@ use std::path::Path;
 use std::path::PathBuf;
 use std::time::Duration;
 
-pub const LEFT_PANE: usize = 0;
-pub const RIGHT_PANE: usize = 1;
-
 #[derive(Clone, Debug)]
-pub struct MainView {
+pub struct LegacyMainView {
     gsr_picture_grid: GsrPictureGrid,
     picture_frame: PictureFrame,
     application_window: gtk::ApplicationWindow,
@@ -54,7 +56,7 @@ pub struct MainView {
     controller_rc: RcController,
 }
 
-impl MainView {
+impl LegacyMainView {
     // pub fn new(application: &gtk::Application, args: &CommandLineArguments, controller_rc: &RcController) -> Self {
     //     // main_view_opt_rc.borrow().clone().unwrap()
     // }
@@ -118,7 +120,7 @@ impl MainView {
 
         let picture_frame = PictureFrame::new_from_frame(&frame);
 
-        MainView {
+        LegacyMainView {
             gsr_picture_grid,
             picture_frame: picture_frame.clone(),
             application_window: application_window.clone(),
@@ -156,8 +158,10 @@ impl MainView {
 
             dbg!(coords_from_position);
             let gsr_picture_grid = GsrPictureGrid::new(
-            );
-            gsr_picture_grid
+                RefCell::new(View::default()),
+                RefCell::new(Navigator::default()), 
+                RefCell::new(Gallery::default()));
+                gsr_picture_grid
         };
         let picture_frame = PictureFrame::new();
         let single_view_scrolled_window = make_scrolled_window();
@@ -177,9 +181,9 @@ impl MainView {
         let application_window = make_application_window(application, clargs);
         application_window.set_child(Some(&view_stack));
         {
-            let main_view = MainView::new_from_application(application, controller_rc);
+            let main_view = LegacyMainView::new_from_application(application, controller_rc);
             if let Ok(controller) = controller_rc.try_borrow() {
-                controller.set_main_view(main_view);
+                // controller.set_main_view(main_view);
                 let mut navigator = controller.navigator();
                 if navigator.can_move(Direction::Index { value: position }) {
                     navigator.move_towards(Direction::Index { value: position });
@@ -189,7 +193,7 @@ impl MainView {
             }
             if let Ok(mut controller) = controller_rc.try_borrow() {
                 controller.main_view().set_pictures(&mut controller);
-                controller.main_view().set_title(&controller);
+                controller.main_view().set_title_for_current_picture(&controller);
             }
         };
         attach_panel_event_handlers(&panel, controller_rc);

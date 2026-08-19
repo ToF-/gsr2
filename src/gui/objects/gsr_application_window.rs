@@ -1,3 +1,7 @@
+use crate::gui::view::treelist_view::TreeListView;
+use crate::model::catalog::Catalog;
+use crate::gui::direction::Direction;
+use crate::gui::controller::Controller;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::default_values::APPLICATION_NAME;
 use crate::env::default_values::FRAME_WINDOW_NAME;
@@ -14,6 +18,9 @@ use std::cell::Cell;
 
 use gtk::subclass::prelude::*;
 use std::cell::RefCell;
+
+pub const LEFT_PANE: usize = 0;
+pub const RIGHT_PANE: usize = 1;
 
 mod imp {
     use super::*;
@@ -77,9 +84,9 @@ impl GsrApplicationWindow {
         gallery: RefCell<Gallery>,
     ) {
         // register the shared tools
-        *self.imp().view.borrow_mut() = *view.borrow();
-        *self.imp().navigator.borrow_mut() = *navigator.borrow();
-        *self.imp().gallery.borrow_mut() = *gallery.borrow();
+        *self.imp().view.borrow_mut() = view.borrow().clone();
+        *self.imp().navigator.borrow_mut() = navigator.borrow().clone();
+        *self.imp().gallery.borrow_mut() = gallery.borrow().clone();
         // build the components
         let frame = PictureFrame::new().frame(); // TODO make PictureFrame a subclass of gkt::Box 
         let frame_scrolled_window = make_scrolled_window_with_child(&frame);
@@ -95,7 +102,53 @@ impl GsrApplicationWindow {
     }
 
     // change what is visible  according the the state of view
-    pub fn change_view() {}
+    pub fn change_view(&self) {
+        todo!()
+    }
+
+    pub fn set_focus_for_current_picture(&self, controller: &Controller) {
+        todo!()
+    }
+
+    pub fn set_pictures(&self, controller: &Controller) {
+        todo!()
+    }
+
+    pub fn toggle_view_stack(&self, controller: &Controller) {
+        todo!()
+    }
+
+    pub fn set_title_for_current_picture(&self, controller: &Controller) {
+        todo!()
+    }
+
+    pub fn set_label_text_for_current_picture(&self, controller: &Controller, label: Option<char>) {
+        todo!()
+    }
+
+    pub fn set_opacity_for_current_picture(&self, controller: &Controller, opacity: f64) {
+        todo!()
+    }
+
+    pub fn single_view(&self) -> bool {
+        todo!()
+    }
+
+    pub fn reattach_slideshow_event(&self, seconds: i32) {
+        todo!();
+    }
+
+    pub fn change_grid_size(&self, pictures_per_row: i32, palette_on: bool) {
+        todo!();
+    }
+
+    pub fn full_size_arrow_move(&self, direction: Direction) {
+        todo!();
+    }
+
+    pub fn popup_treelist_view(&self, prompt: &str, catalog: &Catalog) -> TreeListView {
+        todo!()
+    }
 }
 
 fn make_scrolled_window_with_child<W>(child: &W) -> gtk::ScrolledWindow

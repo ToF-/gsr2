@@ -12,7 +12,7 @@ use gsr::gui::main_controller::MainController;
 use gsr::gui::main_controller::RcMainController;
 use gsr::gui::objects::gsr_application::GsrApplication;
 use gsr::gui::objects::gsr_application::make_gsr_application;
-use gsr::gui::view::main_view::MainView;
+use gsr::gui::view::legacy_main_view::LegacyMainView;
 use gtk::gio;
 use gtk::prelude::ApplicationExtManual;
 use std::cell::Cell;

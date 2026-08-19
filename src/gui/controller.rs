@@ -1,3 +1,5 @@
+use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
+use crate::gui::objects::gsr_application_window::LEFT_PANE;
 use crate::cli::command::Command;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::Configuration;
@@ -60,6 +62,7 @@ pub struct Controller {
     controls: Controls,
     state_rc: RefCell<State>,
     gsr_entry_window_opt_rc: RefCell<Option<GsrEntryWindow>>,
+    gsr_application_window_rc: RefCell<Option<GsrApplicationWindow>>,
     legacy_editor_rc: RefCell<LegacyEditor>,
     selector_rc: RefCell<Selector>,
     last_action_rc: RefCell<Action>,
@@ -122,14 +125,20 @@ impl Controller {
                 pictures_per_row as usize,
                 cli.slideshow().is_some(),
             )),
-            main_view_opt_rc: RefCell::new(None),
             gsr_entry_window_opt_rc: RefCell::new(None),
+            gsr_application_window_rc: RefCell::new(None),
             last_action_rc: RefCell::new(Action::Nothing),
             main_controller_rc_opt: None,
         };
         Ok(controller)
     }
 
+    pub fn application_window(&self) -> GsrApplicationWindow {
+        self.gsr_application_window_rc.borrow().as_ref().unwrap().clone()
+    }
+    pub fn main_view(&self) -> GsrApplicationWindow {
+        self.application_window()
+    }
     pub fn set_main_controller_rc(&mut self, main_controller_rc: RcMainController) {
         self.main_controller_rc_opt = Some(main_controller_rc);
     }
@@ -221,7 +230,7 @@ impl Controller {
                     }
                 }
                 self.main_view().set_focus_for_current_picture(self);
-                self.main_view().set_title(self);
+                self.main_view().set_title_for_current_picture(self);
             }
         }
     }
@@ -356,7 +365,7 @@ impl Controller {
         if button == 3 {
             self.toggle_selected();
             self.main_view().set_pictures(self);
-            self.main_view().set_title(self);
+            self.main_view().set_title_for_current_picture(self);
         }
     }
 
@@ -384,12 +393,12 @@ impl Controller {
                         navigator.set_page_unchanged();
                     };
                     self.set_label_text_for_current_picture();
-                    self.main_view().set_title(self);
+                    self.main_view().set_title_for_current_picture(self);
                 }
             } else if button == 3 {
                 self.toggle_selected();
                 self.main_view().set_pictures(self);
-                self.main_view().set_title(self);
+                self.main_view().set_title_for_current_picture(self);
             }
         }
         self.set_label_text_for_current_picture();
@@ -424,7 +433,7 @@ impl Controller {
                 navigator.set_page_unchanged();
             };
             self.set_label_text_for_current_picture();
-            self.main_view().set_title(self);
+            self.main_view().set_title_for_current_picture(self);
         }
     }
 
@@ -1339,7 +1348,7 @@ impl Controller {
     fn back_from_directory(&self) {
         // don't go if not in directory currently
         if self.state().pop_saved_command_line_arguments().is_none() {
-            let application_window = &self.main_view().application_window();
+            let application_window = &self.main_view();
             self.display_information("not in a directory currently");
             return;
         };
@@ -1581,7 +1590,7 @@ impl Controller {
     }
 
     fn label_(&self) {
-        let application_window = self.main_view().application_window();
+        let application_window = self.application_window();
         enter_label(&application_window, &self.repository);
     }
 
@@ -1732,7 +1741,7 @@ impl Controller {
             };
             configuration.current_order = Some(self.repository.order());
             let _ = configuration.save();
-            let application_window = self.main_view().application_window();
+            let application_window = self.application_window();
             self.repository.update_picture_scores(self.state().scores());
             application_window.close()
         }
@@ -1768,7 +1777,7 @@ impl Controller {
             self.state().toggle_display_path();
         };
         self.state().toggle_display_date();
-        self.main_view().set_title(self);
+        self.main_view().set_title_for_current_picture(self);
         println!(
             "display date {}",
             if self.state().display_date_on() {
@@ -1788,7 +1797,7 @@ impl Controller {
             self.state().toggle_display_path();
         };
         self.state().toggle_display_size();
-        self.main_view().set_title(self);
+        self.main_view().set_title_for_current_picture(self);
         println!(
             "display size {}",
             if self.state().display_size_on() {
@@ -1809,12 +1818,7 @@ impl Controller {
     }
 
     fn display_information(&self, message: &str) {
-        let application_window = self
-            .main_view_opt_rc
-            .borrow()
-            .as_ref()
-            .unwrap()
-            .application_window();
+        let application_window = self.application_window();
         let gsr_entry_window = GsrEntryWindow::new_with(
             &application_window,
             &self.main_controller_rc_opt.as_ref().unwrap(),
@@ -1876,7 +1880,7 @@ impl Controller {
         navigator.set_page_changed();
         let main_controller = self.main_controller_rc_opt.as_ref().unwrap().borrow();
         self.main_view()
-            .change_grid_size(pictures_per_row, palette_on, &main_controller);
+            .change_grid_size(pictures_per_row.try_into().unwrap(), palette_on);
     }
 
     fn set_selection_range(&self) {
@@ -2238,13 +2242,7 @@ impl Controller {
     }
 
     fn test(&self) {
-        println!("…test…");
-        let application_window = self.main_view().application_window();
-        gtk::prelude::ActionGroupExt::activate_action(
-            &application_window,
-            "main-controller.test",
-            Some(&"foo bar test action".to_variant()),
-        );
+        todo!();
     }
 
     fn cancel_edition(&self) {
@@ -2264,12 +2262,7 @@ impl Controller {
     }
 
     fn pick_view_option(&self) {
-        let application_window = self
-            .main_view_opt_rc
-            .borrow()
-            .as_ref()
-            .unwrap()
-            .application_window();
+        let application_window = self.application_window();
         let gsr_entry_window = GsrEntryWindow::new_with(
             &application_window,
             &self.main_controller_rc_opt.as_ref().unwrap(),
@@ -2297,12 +2290,7 @@ impl Controller {
         self.dismiss();
     }
     fn pick_order_setting(&self) {
-        let application_window = self
-            .main_view_opt_rc
-            .borrow()
-            .as_ref()
-            .unwrap()
-            .application_window();
+        let application_window = self.application_window();
         let gsr_entry_window = GsrEntryWindow::new_with(
             &application_window,
             &self.main_controller_rc_opt.as_ref().unwrap(),
@@ -2319,12 +2307,7 @@ impl Controller {
     }
 
     fn pick_change(&self) {
-        let application_window = self
-            .main_view_opt_rc
-            .borrow()
-            .as_ref()
-            .unwrap()
-            .application_window();
+        let application_window = self.application_window();
         let gsr_entry_window = GsrEntryWindow::new_with(
             &application_window,
             &self.main_controller_rc_opt.as_ref().unwrap(),
@@ -2337,12 +2320,7 @@ impl Controller {
 
     fn enter_label(&self) {
         self.dismiss();
-        let application_window = self
-            .main_view_opt_rc
-            .borrow()
-            .as_ref()
-            .unwrap()
-            .application_window();
+        let application_window = self.application_window();
         let gsr_entry_window = GsrEntryWindow::new_with(
             &application_window,
             &self.main_controller_rc_opt.as_ref().unwrap(),

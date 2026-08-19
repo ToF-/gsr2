@@ -29,9 +29,9 @@ impl GsrPictureGrid {
         gallery: RefCell<Gallery>,
     ) {
         // register the shared tools
-        *self.view.borrow_mut() = *view.borrow();
-        *self.navigator.borrow_mut() = *navigator.borrow();
-        *self.gallery.borrow_mut() = *gallery.borrow();
+        *self.view.borrow_mut() = view.borrow().clone();
+        *self.navigator.borrow_mut() = navigator.borrow().clone();
+        *self.gallery.borrow_mut() = gallery.borrow().clone();
     }
 }
 #[glib::object_subclass]

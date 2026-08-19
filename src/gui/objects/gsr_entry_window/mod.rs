@@ -1,3 +1,4 @@
+use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
 use crate::gui::key_input::KeyInput;
 use crate::gui::main_controller::MainController;
 use crate::gui::main_controller::RcMainController;
@@ -21,7 +22,7 @@ impl GsrEntryWindow {
     }
 
     pub fn new_with(
-        application_window: &gtk::ApplicationWindow,
+        application_window: &GsrApplicationWindow,
         main_controller_rc: &RcMainController,
         key_input: KeyInput,
         initial_input_opt: Option<&str>,

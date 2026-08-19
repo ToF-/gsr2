@@ -1,3 +1,4 @@
+use crate::gui::objects::gsr_entry_window::GsrApplicationWindow;
 use crate::env::default_values::ENTRY_WINDOW_HEIGHT;
 use crate::env::default_values::ENTRY_WINDOW_WIDTH;
 use crate::gui::action::Action;
@@ -41,7 +42,7 @@ impl Default for GsrEntryWindow {
 impl GsrEntryWindow {
     pub fn initialize(
         &self,
-        application_window: &gtk::ApplicationWindow,
+        application_window: &GsrApplicationWindow,
         main_controller_rc: &RcMainController,
         key_input: KeyInput,
         initial_input_opt: Option<&str>,

@@ -1,7 +1,9 @@
+pub mod legacy_main_view;
 pub mod palette_area;
 pub mod picture_frame;
 pub mod treelist_view;
 
+#[derive(Clone, Debug)]
 pub struct View {
     pictures_per_row: i32,
     last_pictures_per_row: i32,
