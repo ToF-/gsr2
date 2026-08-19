@@ -83,13 +83,9 @@ fn build_and_run_app(
         clargs.clone(),
         position,
     );
-    if let Ok(mut controller) = controller_rc.try_borrow_mut() {
-        controller.set_main_controller_rc(main_controller_rc.clone());
-    } else {
-        panic!("can't mutably borrow");
-    }
+    let mut controller = controller_rc.borrow_mut();
+    controller.set_main_controller_rc(main_controller_rc.clone());
     let no_args: Vec<String> = vec![];
-    dbg!("go");
     gsr_application.run_with_args(&no_args);
 }
 

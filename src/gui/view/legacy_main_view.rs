@@ -1,8 +1,3 @@
-use crate::model::gallery::Gallery;
-use crate::gui::view::View;
-use std::cell::RefCell;
-use crate::gui::objects::gsr_application_window::RIGHT_PANE;
-use crate::gui::objects::gsr_application_window::LEFT_PANE;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::default_values::{FULL_OPACITY, HALF_OPACITY};
 use crate::file::paths::check_path_exists;
@@ -19,12 +14,16 @@ use crate::gui::main_controller::MainController;
 use crate::gui::mode::Mode;
 use crate::gui::navigator::Navigator;
 use crate::gui::objects::gsr_application::GsrApplication;
+use crate::gui::objects::gsr_application_window::LEFT_PANE;
+use crate::gui::objects::gsr_application_window::RIGHT_PANE;
 use crate::gui::objects::gsr_entry_window::GsrEntryWindow;
 use crate::gui::objects::gsr_picture_cell_box::GsrPictureCellBox;
 use crate::gui::objects::gsr_picture_grid::GsrPictureGrid;
+use crate::gui::view::View;
 use crate::gui::view::picture_frame::PictureFrame;
 use crate::gui::view::treelist_view::TreeListView;
 use crate::model::catalog::Catalog;
+use crate::model::gallery::Gallery;
 use crate::model::picture::Picture;
 use crate::model::thumbnail::no_thumbnail_picture;
 use gtk::gio::ActionEntry;
@@ -42,6 +41,7 @@ use gtk::prelude::{
     WidgetExt,
 };
 use gtk::{ApplicationWindow, Grid, Label, Picture as GtkPicture, ScrolledWindow};
+use std::cell::RefCell;
 use std::path::Path;
 use std::path::PathBuf;
 use std::time::Duration;
@@ -159,9 +159,10 @@ impl LegacyMainView {
             dbg!(coords_from_position);
             let gsr_picture_grid = GsrPictureGrid::new(
                 RefCell::new(View::default()),
-                RefCell::new(Navigator::default()), 
-                RefCell::new(Gallery::default()));
-                gsr_picture_grid
+                RefCell::new(Navigator::default()),
+                RefCell::new(Gallery::default()),
+            );
+            gsr_picture_grid
         };
         let picture_frame = PictureFrame::new();
         let single_view_scrolled_window = make_scrolled_window();
@@ -193,7 +194,9 @@ impl LegacyMainView {
             }
             if let Ok(mut controller) = controller_rc.try_borrow() {
                 controller.main_view().set_pictures(&mut controller);
-                controller.main_view().set_title_for_current_picture(&controller);
+                controller
+                    .main_view()
+                    .set_title_for_current_picture(&controller);
             }
         };
         attach_panel_event_handlers(&panel, controller_rc);

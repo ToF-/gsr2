@@ -41,7 +41,7 @@ impl GsrPictureGrid {
     pub fn initialize_pictures(&self, navigator: &Navigator, gallery: &Gallery, palette_on: bool) {
         self.fill_with_cell_boxes();
         {
-            let mut view =  self.imp().view.borrow_mut();
+            let mut view = self.imp().view.borrow_mut();
             view.set_palette_on(palette_on);
         }
         let pictures_per_row = self.imp().view.borrow().pictures_per_row();
@@ -133,7 +133,7 @@ impl GsrPictureGrid {
                 .expect("can't downcast to GsrPictureCellBox");
             gsr_picture_cell_box.enter_focus();
             {
-            let mut view = self.imp().view.borrow_mut();
+                let mut view = self.imp().view.borrow_mut();
                 view.set_focus_at_coords((col, row));
             }
         }

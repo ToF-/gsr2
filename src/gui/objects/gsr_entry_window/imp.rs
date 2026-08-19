@@ -1,4 +1,3 @@
-use crate::gui::objects::gsr_entry_window::GsrApplicationWindow;
 use crate::env::default_values::ENTRY_WINDOW_HEIGHT;
 use crate::env::default_values::ENTRY_WINDOW_WIDTH;
 use crate::gui::action::Action;
@@ -9,6 +8,7 @@ use crate::gui::key_input::key_input_mode::KeyInputMode;
 use crate::gui::key_input::key_input_rules::KeyInputRules;
 use crate::gui::main_controller::MainController;
 use crate::gui::main_controller::RcMainController;
+use crate::gui::objects::gsr_entry_window::GsrApplicationWindow;
 use glib::Variant;
 use gtk::Align;
 use gtk::CssProvider;

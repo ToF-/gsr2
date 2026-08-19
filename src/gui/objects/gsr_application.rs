@@ -1,6 +1,6 @@
-use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::gui::main_controller::MainController;
+use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
 use gtk::Application;
 use gtk::gdk::Display;
 use gtk::glib::clone;

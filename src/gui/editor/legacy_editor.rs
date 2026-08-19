@@ -1,5 +1,3 @@
-use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
-use crate::gui::view::legacy_main_view::LegacyMainView;
 use crate::env::default_values::MAX_LABEL_LENGTH;
 use crate::env::default_values::MAX_LABELS_LENGTH;
 use crate::env::default_values::MAX_NAME_LENGTH;
@@ -9,6 +7,8 @@ use crate::gui::editor::editor_status::EditorStatus;
 use crate::gui::entry_kind::EntryKind;
 use crate::gui::entry_prompt::entry_prompt;
 use crate::gui::mode::Mode;
+use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
+use crate::gui::view::legacy_main_view::LegacyMainView;
 use crate::model::order::Order;
 use crate::model::tags::{Tags, empty_tags};
 use gdk::Key;
@@ -38,7 +38,12 @@ impl LegacyEditor {
         }
     }
 
-    pub fn begin(&mut self, main_view: &GsrApplicationWindow, entry_kind: EntryKind, choice_opt: Option<Tags>) {
+    pub fn begin(
+        &mut self,
+        main_view: &GsrApplicationWindow,
+        entry_kind: EntryKind,
+        choice_opt: Option<Tags>,
+    ) {
         println!("editor.begin");
         self.prompt = entry_prompt(entry_kind.clone());
         self.begin_input(entry_kind, choice_opt);

@@ -1,5 +1,3 @@
-use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
-use crate::gui::objects::gsr_application_window::LEFT_PANE;
 use crate::cli::command::Command;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::Configuration;
@@ -24,6 +22,8 @@ use crate::gui::key_input::menu::view_menu;
 use crate::gui::main_controller::RcMainController;
 use crate::gui::mode::Mode;
 use crate::gui::navigator::Navigator;
+use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
+use crate::gui::objects::gsr_application_window::LEFT_PANE;
 use crate::gui::objects::gsr_entry_window::GsrEntryWindow;
 use crate::gui::selector::Selector;
 use crate::gui::state::State;
@@ -134,7 +134,11 @@ impl Controller {
     }
 
     pub fn application_window(&self) -> GsrApplicationWindow {
-        self.gsr_application_window_rc.borrow().as_ref().unwrap().clone()
+        self.gsr_application_window_rc
+            .borrow()
+            .as_ref()
+            .unwrap()
+            .clone()
     }
     pub fn main_view(&self) -> GsrApplicationWindow {
         self.application_window()

@@ -1,16 +1,16 @@
-use crate::gui::view::treelist_view::TreeListView;
-use crate::model::catalog::Catalog;
-use crate::gui::direction::Direction;
-use crate::gui::controller::Controller;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::default_values::APPLICATION_NAME;
 use crate::env::default_values::FRAME_WINDOW_NAME;
 use crate::env::default_values::GRID_WINDOW_NAME;
+use crate::gui::controller::Controller;
+use crate::gui::direction::Direction;
 use crate::gui::navigator::Navigator;
 use crate::gui::objects::gsr_application::GsrApplication;
 use crate::gui::objects::gsr_picture_grid::GsrPictureGrid;
 use crate::gui::view::View;
 use crate::gui::view::picture_frame::PictureFrame;
+use crate::gui::view::treelist_view::TreeListView;
+use crate::model::catalog::Catalog;
 use crate::model::gallery::Gallery;
 use gtk::glib;
 use gtk::prelude::*;
@@ -83,6 +83,7 @@ impl GsrApplicationWindow {
         navigator: RefCell<Navigator>,
         gallery: RefCell<Gallery>,
     ) {
+        dbg!("GsrApplication::initialize");
         // register the shared tools
         *self.imp().view.borrow_mut() = view.borrow().clone();
         *self.imp().navigator.borrow_mut() = navigator.borrow().clone();
