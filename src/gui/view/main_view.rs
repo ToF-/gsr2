@@ -149,14 +149,17 @@ impl MainView {
             let navigator = controller.navigator();
             let binding = controller.repository().gallery_rc().clone();
             let gallery = binding.borrow();
-            let coords_from_position =  match navigator.coords_from_position(position) {
-     Some((col, row)) => (col as i32, row as i32),
-         None => (0, 0),
+            let coords_from_position = match navigator.coords_from_position(position) {
+                Some((col, row)) => (col as i32, row as i32),
+                None => (0, 0),
             };
 
             dbg!(coords_from_position);
-            let gsr_picture_grid =
-                GsrPictureGrid::new(pictures_per_row.try_into().unwrap(), coords_from_position, palette_on);
+            let gsr_picture_grid = GsrPictureGrid::new(
+                pictures_per_row.try_into().unwrap(),
+                coords_from_position,
+                palette_on,
+            );
             gsr_picture_grid
         };
         let picture_frame = PictureFrame::new();

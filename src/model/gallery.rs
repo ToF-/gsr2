@@ -22,14 +22,20 @@ pub struct Gallery {
     pub finder: Finder,
 }
 
-impl Gallery {
-    pub fn new() -> Self {
-        Gallery {
+impl Default for Gallery {
+    fn default() -> Self {
+        Self {
             pictures: Vec::new(),
             order: Order::Name,
             selection_criteria: SelectionCriteria::empty(),
             finder: Finder::new(Vec::new()),
         }
+    }
+}
+
+impl Gallery {
+    pub fn new() -> Self {
+        Self::default()
     }
 
     #[allow(dead_code)]
@@ -247,11 +253,6 @@ impl Gallery {
     }
 }
 
-impl Default for Gallery {
-    fn default() -> Self {
-        Self::new()
-    }
-}
 #[cfg(test)]
 mod tests {
 

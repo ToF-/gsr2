@@ -20,17 +20,17 @@ pub struct Navigator {
 impl Default for Navigator {
     fn default() -> Self {
         Self {
-    limit: 0,
-    pictures_per_row: 1,
-    position: 0,
-    old_position: 0,
-    page_start: 0,
-    page_end: 1,
-    page_changed: false,
-    selection_range_start: None,
-    selection_range_end: None,
-    selection_range_opt: None,
-    selected_pictures: HashSet::new(),
+            limit: 0,
+            pictures_per_row: 1,
+            position: 0,
+            old_position: 0,
+            page_start: 0,
+            page_end: 1,
+            page_changed: false,
+            selection_range_start: None,
+            selection_range_end: None,
+            selection_range_opt: None,
+            selected_pictures: HashSet::new(),
         }
     }
 }

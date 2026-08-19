@@ -42,9 +42,7 @@ glib::wrapper! {
 
 impl MyWindow {
     pub fn new(app: &gtk::Application) -> Self {
-        glib::Object::builder()
-            .property("application", app)
-            .build()
+        glib::Object::builder().property("application", app).build()
     }
 
     pub fn set_document_id(&self, id: impl Into<String>) {

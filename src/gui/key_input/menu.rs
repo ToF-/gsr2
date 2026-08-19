@@ -1,8 +1,8 @@
-use crate::model::change::Change;
 use crate::gui::action::Action;
 use crate::gui::key_input::KeyInput;
 use crate::gui::key_input::key_input_mode::KeyInputMode;
 use crate::gui::key_input::key_input_rules::KeyInputRules;
+use crate::model::change::Change;
 use crate::model::change::Change::Category;
 use crate::model::change::Change::Cover;
 use crate::model::order::Order;
@@ -125,9 +125,9 @@ pub fn change_menu() -> KeyInput {
 }
 #[cfg(test)]
 mod tests {
+    use super::*;
     use crate::model::tags::tags_from_str;
     use gtk::gdk::Key;
-    use super::*;
 
     #[test]
     fn given_a_simple_key_launches_the_corresponding_action() {

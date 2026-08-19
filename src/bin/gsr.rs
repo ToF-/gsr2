@@ -1,4 +1,3 @@
-use gtk::prelude::ApplicationExtManual;
 use gsr::cli::command::Command;
 use gsr::cli::command::execute_command;
 use gsr::cli::command_line_arguments::CommandLineArguments;
@@ -15,6 +14,7 @@ use gsr::gui::objects::gsr_application::GsrApplication;
 use gsr::gui::objects::gsr_application::make_gsr_application;
 use gsr::gui::view::main_view::MainView;
 use gtk::gio;
+use gtk::prelude::ApplicationExtManual;
 use std::cell::Cell;
 use std::cell::RefCell;
 use std::io::Error as IOError;

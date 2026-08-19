@@ -3,11 +3,13 @@ use crate::env::default_values::HALF_OPACITY;
 use crate::env::default_values::MAX_PICTURES_PER_ROW;
 use crate::gui::navigator::Navigator;
 use crate::gui::objects::gsr_picture_cell_box::GsrPictureCellBox;
+use crate::gui::view::View;
 use crate::model::gallery::Gallery;
 use crate::model::picture::Picture;
 use gtk::glib;
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
+use std::cell::RefCell;
 
 mod imp;
 
@@ -22,24 +24,27 @@ glib::wrapper! {
 }
 
 impl GsrPictureGrid {
-    pub fn new(pictures_per_row: i32, focus_at_coords: (i32, i32), palette_on: bool) -> Self {
+    pub fn new(
+        view: RefCell<View>,
+        navigator: RefCell<Navigator>,
+        gallery: RefCell<Gallery>,
+    ) -> Self {
         let obj: Self = glib::Object::builder().build();
         obj.set_row_homogeneous(true);
         obj.set_column_homogeneous(true);
         obj.set_hexpand(true);
         obj.set_vexpand(true);
-        obj.imp().focus_at_coords.set(Some(focus_at_coords));
-        obj.imp()
-            .initialize(pictures_per_row, focus_at_coords, palette_on);
-        dbg!(&obj.imp().focus_at_coords).get();
+        obj.imp().initialize(view, navigator, gallery);
         obj
     }
 
     pub fn initialize_pictures(&self, navigator: &Navigator, gallery: &Gallery, palette_on: bool) {
-        dbg!(self.imp().focus_at_coords.get());
         self.fill_with_cell_boxes();
-        self.imp().palette_on.set(palette_on);
-        let pictures_per_row = self.imp().pictures_per_row.get();
+        {
+            let mut view: View = *self.imp().view.borrow_mut();
+            view.set_palette_on(palette_on);
+        }
+        let pictures_per_row = self.imp().view.borrow().pictures_per_row();
         for col in 0..pictures_per_row {
             for row in 0..pictures_per_row {
                 if let Some(index) = navigator.position_from_coords(row as usize, col as usize) {
@@ -54,13 +59,12 @@ impl GsrPictureGrid {
                 }
             }
         }
-        if let Some((col, row)) = self.imp().focus_at_coords.get() {
-            self.set_focus_at(col, row);
-        }
+        let (col, row) = (self.imp().view.borrow()).focus_at_coords().clone();
+        self.set_focus_at(col, row);
     }
 
     pub fn change_size(&self, pictures_per_row: i32, palette_on: bool) {
-        self.imp().initialize(pictures_per_row, (0, 0), palette_on);
+        todo!();
     }
 
     fn remove_all_cell_boxes(&self) {
@@ -73,9 +77,10 @@ impl GsrPictureGrid {
         }
     }
     fn fill_with_cell_boxes(&self) {
+        let view = self.imp().view.borrow();
+        let pictures_per_row = view.pictures_per_row();
+        let palette_on = view.palette_on();
         self.remove_all_cell_boxes();
-        let pictures_per_row = self.imp().pictures_per_row.get();
-        let palette_on = self.imp().palette_on.get();
         for col in 0..pictures_per_row {
             for row in 0..pictures_per_row {
                 let picture_index: usize = (row * pictures_per_row + col) as usize;
@@ -90,8 +95,9 @@ impl GsrPictureGrid {
     }
 
     pub fn set_picture_at(&self, col: i32, row: i32, picture: &Picture, picture_index: usize) {
-        let pictures_per_row = self.imp().pictures_per_row.get();
-        let palette_on = self.imp().palette_on.get();
+        let view = self.imp().view.borrow();
+        let pictures_per_row = view.pictures_per_row();
+        let palette_on = view.palette_on();
         if let Some(widget) = self.child_at(col, row) {
             self.remove(&widget);
         };
@@ -113,21 +119,23 @@ impl GsrPictureGrid {
     pub fn set_label_text_at(&self, _col: i32, _row: i32, _text: &str) {}
 
     pub fn set_focus_at(&self, col: i32, row: i32) {
-        dbg!("set_focus_at");
-        if let Some((current_col, current_row)) = self.imp().focus_at_coords.get() {
-            if let Some(widget) = self.child_at(current_col, current_row) {
-                let gsr_picture_cell_box = widget
-                    .downcast::<GsrPictureCellBox>()
-                    .expect("can't downcast to GsrPictureCellBox");
-                gsr_picture_cell_box.leave_focus();
-            }
+        let view = self.imp().view.borrow();
+        let (current_col, current_row) = view.focus_at_coords();
+        if let Some(widget) = self.child_at(current_col, current_row) {
+            let gsr_picture_cell_box = widget
+                .downcast::<GsrPictureCellBox>()
+                .expect("can't downcast to GsrPictureCellBox");
+            gsr_picture_cell_box.leave_focus();
         }
         if let Some(widget) = self.child_at(col, row) {
             let gsr_picture_cell_box = widget
                 .downcast::<GsrPictureCellBox>()
                 .expect("can't downcast to GsrPictureCellBox");
             gsr_picture_cell_box.enter_focus();
-            self.imp().focus_at_coords.set(Some((col, row)));
+            {
+            let mut view = self.imp().view.borrow_mut();
+                view.set_focus_at_coords((col, row));
+            }
         }
     }
 

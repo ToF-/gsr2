@@ -1,9 +1,16 @@
-use crate::gui::navigator::Navigator;
-use std::cell::Cell;
 use crate::cli::command_line_arguments::CommandLineArguments;
-use crate::gui::objects::gsr_application::GsrApplication;
 use crate::env::default_values::APPLICATION_NAME;
+use crate::env::default_values::FRAME_WINDOW_NAME;
+use crate::env::default_values::GRID_WINDOW_NAME;
+use crate::gui::navigator::Navigator;
+use crate::gui::objects::gsr_application::GsrApplication;
+use crate::gui::objects::gsr_picture_grid::GsrPictureGrid;
+use crate::gui::view::View;
+use crate::gui::view::picture_frame::PictureFrame;
+use crate::model::gallery::Gallery;
 use gtk::glib;
+use gtk::prelude::*;
+use std::cell::Cell;
 
 use gtk::subclass::prelude::*;
 use std::cell::RefCell;
@@ -13,14 +20,12 @@ mod imp {
 
     #[derive(Default)]
     pub struct GsrApplicationWindow {
-        pub navigator: Option<RefCell<Navigator>>,
-        pub palette_on: Cell<bool>,
-        pub pictures_per_row: Cell<i32>, 
-        pub last_pictures_per_row: Cell<i32>, 
-        pub full_size_on: Cell<bool>,
+        pub view: RefCell<View>,
+        pub navigator: RefCell<Navigator>,
+        pub gallery: RefCell<Gallery>,
     }
 
-   #[gtk::glib::object_subclass]
+    #[gtk::glib::object_subclass]
     impl ObjectSubclass for GsrApplicationWindow {
         const NAME: &'static str = "GsrApplicationWindow";
         type Type = super::GsrApplicationWindow;
@@ -58,43 +63,72 @@ impl GsrApplicationWindow {
             .property("default_width", clargs.width.unwrap())
             .property("default_height", clargs.height.unwrap())
             .build();
-        obj.initialize();
+        let view = RefCell::new(View::default());
+        let navigator = RefCell::new(Navigator::default());
+        let gallery = RefCell::new(Gallery::default());
+        obj.initialize(view, navigator, gallery);
         obj
     }
 
-    fn initialize(&self) {
+    fn initialize(
+        &self,
+        view: RefCell<View>,
+        navigator: RefCell<Navigator>,
+        gallery: RefCell<Gallery>,
+    ) {
+        // register the shared tools
+        *self.imp().view.borrow_mut() = *view.borrow();
+        *self.imp().navigator.borrow_mut() = *navigator.borrow();
+        *self.imp().gallery.borrow_mut() = *gallery.borrow();
         // build the components
-        // self.set_child(Some(view_stack));
+        let frame = PictureFrame::new().frame(); // TODO make PictureFrame a subclass of gkt::Box 
+        let frame_scrolled_window = make_scrolled_window_with_child(&frame);
+        let gsr_picture_grid = GsrPictureGrid::new(view, navigator, gallery);
+        let panel = make_panel_with_child(&gsr_picture_grid);
+        let grid_scrolled_window = make_scrolled_window_with_child(&panel);
+        let stack = gtk::Stack::builder().hexpand(true).vexpand(true).build();
+        let _ = stack.add_named(&frame_scrolled_window, Some(FRAME_WINDOW_NAME));
+        let _ = stack.add_named(&grid_scrolled_window, Some(GRID_WINDOW_NAME));
+        self.set_child(Some(&stack));
         // connect the events
         // navigate to current position
     }
 
-    pub fn toggle_palette_on(&self) {
-        self.imp().palette_on.set(! self.imp().palette_on.get());
-    }
+    // change what is visible  according the the state of view
+    pub fn change_view() {}
+}
 
-    pub fn palette_on(&self) -> bool {
-        self.imp().palette_on.get()
-    }
+fn make_scrolled_window_with_child<W>(child: &W) -> gtk::ScrolledWindow
+where
+    W: IsA<gtk::Widget>,
+{
+    let window = gtk::ScrolledWindow::builder()
+        .hscrollbar_policy(gtk::PolicyType::Automatic)
+        .vscrollbar_policy(gtk::PolicyType::Automatic)
+        .build();
+    window.set_child(Some(child));
+    window
+}
 
-    pub fn toggle_pictures_per_row(&self, n: i32) {
-        if self.imp().pictures_per_row.get() != n {
-            self.imp().last_pictures_per_row.set(n);
-            self.imp().pictures_per_row.swap(
-                &self.imp().last_pictures_per_row);
-        }
-    }
+fn make_stack() -> gtk::Stack {
+    gtk::Stack::builder().hexpand(true).vexpand(true).build()
+}
 
-    pub fn pictures_per_row(&self) -> i32 {
-        self.imp().pictures_per_row.get()
-    }
-
-    pub fn set_full_size_on(&self, yes_no: bool) {
-        self.imp().full_size_on.set(yes_no)
-    }
-
-    pub fn full_size_on(&self) -> bool {
-        self.imp().full_size_on.get()
-    }
-
+#[allow(deprecated)]
+fn make_panel_with_child(gsr_picture_grid: &GsrPictureGrid) -> gtk::Grid {
+    let panel = gtk::Grid::new();
+    panel.set_hexpand(true);
+    panel.set_vexpand(true);
+    panel.set_row_homogeneous(true);
+    panel.set_column_homogeneous(false);
+    let left_pane = gtk::Label::new(Some("←"));
+    let right_pane = gtk::Label::new(Some("→"));
+    left_pane.set_width_chars(5);
+    left_pane.add_css_class("pane");
+    right_pane.set_width_chars(5);
+    right_pane.add_css_class("pane");
+    panel.attach(&left_pane, 0, 0, 1, 1);
+    panel.attach(gsr_picture_grid, 1, 0, 1, 1);
+    panel.attach(&right_pane, 2, 0, 1, 1);
+    panel
 }

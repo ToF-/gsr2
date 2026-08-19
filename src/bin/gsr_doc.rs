@@ -1,4 +1,3 @@
-
 fn main() {
     let src = r#"
 graph LR

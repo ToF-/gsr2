@@ -1,27 +1,37 @@
+use crate::gui::navigator::Navigator;
+use crate::gui::view::View;
+use crate::model::gallery::Gallery;
 use gtk::glib;
 use gtk::subclass::prelude::*;
 use std::cell::Cell;
+use std::cell::RefCell;
 
 pub struct GsrPictureGrid {
-    pub focus_at_coords: Cell<Option<(i32, i32)>>,
-    pub palette_on: Cell<bool>,
-    pub pictures_per_row: Cell<i32>,
+    pub view: RefCell<View>,
+    pub navigator: RefCell<Navigator>,
+    pub gallery: RefCell<Gallery>,
 }
 
 impl Default for GsrPictureGrid {
     fn default() -> Self {
         Self {
-            focus_at_coords: Cell::new(None),
-            palette_on: Cell::new(false),
-            pictures_per_row: Cell::new(10),
+            view: RefCell::new(View::default()),
+            navigator: RefCell::new(Navigator::default()),
+            gallery: RefCell::new(Gallery::default()),
         }
     }
 }
 impl GsrPictureGrid {
-    pub fn initialize(&self, pictures_per_row: i32, focus_at_coords: (i32, i32), palette_on: bool) {
-        self.focus_at_coords.set(Some(focus_at_coords));
-        self.pictures_per_row.set(pictures_per_row);
-        self.palette_on.set(palette_on);
+    pub fn initialize(
+        &self,
+        view: RefCell<View>,
+        navigator: RefCell<Navigator>,
+        gallery: RefCell<Gallery>,
+    ) {
+        // register the shared tools
+        *self.view.borrow_mut() = *view.borrow();
+        *self.navigator.borrow_mut() = *navigator.borrow();
+        *self.gallery.borrow_mut() = *gallery.borrow();
     }
 }
 #[glib::object_subclass]
