@@ -34,31 +34,12 @@ impl Default for GsrApplication {
     }
 }
 impl GsrApplication { 
+
     pub fn set_state(&self,
         clargs: CommandLineArguments,
         controller: Controller,
-        ) {
-        dbg!("set_state");
-        *self.imp().command_line_arguments.borrow_mut() = Some(Rc::new(RefCell::new(clargs.clone())));
-
-        let main_controller = MainController::new(Some(Rc::new(RefCell::new(controller))));
-        *self.imp().main_controller.borrow_mut() = Some(Rc::new(RefCell::new(main_controller)));
-    
-        let configuration = CONFIGURATION.get().unwrap();
-        *self.imp().configuration.borrow_mut() = Some(Rc::new(RefCell::new(configuration.clone())));
-
-        let mut view = View::default();
-        let current_picture_file_path = &CONFIGURATION.get().unwrap().current_picture;
-        view.set_pictures_per_row(clargs.pictures_per_row());
-        *self.imp().view.borrow_mut() = Some(Rc::new(RefCell::new(view)));
-
-        let navigator = Navigator::default();
-        *self.imp().navigator.borrow_mut() = Some(Rc::new(RefCell::new(navigator)));
-
-        let gallery = Gallery::default();
-        *self.imp().gallery.borrow_mut() = Some(Rc::new(RefCell::new(gallery)));
-
-
+    ) {
+        self.imp().set_state(clargs, controller)
     }
 
 }

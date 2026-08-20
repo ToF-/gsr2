@@ -1,3 +1,6 @@
+use crate::gui::objects::gsr_application::CONFIGURATION;
+use std::rc::Rc;
+use crate::gui::objects::gsr_application::Controller;
 use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
 use crate::model::gallery::Gallery;
 use crate::gui::navigator::Navigator;
@@ -20,6 +23,33 @@ pub struct GsrApplication {
 }
 
 impl GsrApplication {
+
+    pub fn set_state(&self,
+        clargs: CommandLineArguments,
+        controller: Controller,
+        ) {
+        dbg!("set_state");
+        *self.command_line_arguments.borrow_mut() = Some(Rc::new(RefCell::new(clargs.clone())));
+
+        let main_controller = MainController::new(Some(Rc::new(RefCell::new(controller))));
+        *self.main_controller.borrow_mut() = Some(Rc::new(RefCell::new(main_controller)));
+    
+        let configuration = CONFIGURATION.get().unwrap();
+        *self.configuration.borrow_mut() = Some(Rc::new(RefCell::new(configuration.clone())));
+
+        let mut view = View::default();
+        let current_picture_file_path = &CONFIGURATION.get().unwrap().current_picture;
+        view.set_pictures_per_row(clargs.pictures_per_row());
+        *self.view.borrow_mut() = Some(Rc::new(RefCell::new(view)));
+
+        let navigator = Navigator::default();
+        *self.navigator.borrow_mut() = Some(Rc::new(RefCell::new(navigator)));
+
+        let gallery = Gallery::default();
+        *self.gallery.borrow_mut() = Some(Rc::new(RefCell::new(gallery)));
+
+
+    }
     pub fn shared_view(&self) -> Shared<View> {
         (*self.view.borrow()).as_ref().unwrap().clone()
     }
@@ -55,10 +85,8 @@ impl ObjectImpl for GsrApplication {}
 impl ApplicationImpl for GsrApplication {
 
     fn activate(&self) {
-        dbg!("imp activate");
         let app = self.obj();
         let gsr_application_window = GsrApplicationWindow::new(&app);
-        dbg!("foo");
         gsr_application_window.imp().set_state(
             self.shared_command_line_arguments(),
             self.shared_configuration(),
