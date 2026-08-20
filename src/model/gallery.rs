@@ -94,6 +94,7 @@ impl Gallery {
     pub fn current_picture(&self) -> Picture {
         self.picture(self.current_picture_index())
     }
+
     pub fn load_from_directory(&mut self, path: &str) -> Result<usize> {
         println!("loading directory…");
         match get_all_picture_file_paths(path) {
@@ -136,6 +137,9 @@ impl Gallery {
     }
 
     pub fn sort_by(&mut self, order: Order) {
+        if self.len() == 0 {
+            return 
+        };
         let current_picture_file_path = self.current_picture().file_path();
         self.order = order;
         let selection_criteria = self.selection_criteria.clone();
