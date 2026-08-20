@@ -61,7 +61,7 @@ fn run_application(config: &Configuration, clargs: &CommandLineArguments) -> Res
     if result.is_err() {
         error_exit(result.as_ref().err().unwrap());
     }
-    exit(1)
+    exit(0)
 }
 
 fn build_and_run_app(
