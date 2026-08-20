@@ -1,3 +1,5 @@
+use crate::gui::main_controller::MainController;
+use crate::env::configuration::Configuration;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::default_values::APPLICATION_NAME;
 use crate::env::default_values::FRAME_WINDOW_NAME;
@@ -28,22 +30,33 @@ pub const RIGHT_PANE: usize = 1;
 mod imp {
     use super::*;
 
+    #[derive(Default)]
     pub struct GsrApplicationWindow {
-        pub view: Shared<View>,
-        pub navigator: Shared<Navigator>,
-        pub gallery: Shared<Gallery>,
+    pub command_line_arguments: RefCell<Option<Shared<CommandLineArguments>>>,
+    pub configuration: RefCell<Option<Shared<Configuration>>>,
+    pub main_controller: RefCell<Option<Shared<MainController>>>,
+    pub view: RefCell<Option<Shared<View>>>,
+    pub navigator: RefCell<Option<Shared<Navigator>>>,
+    pub gallery: RefCell<Option<Shared<Gallery>>>,
     }
-    impl Default for GsrApplicationWindow {
-        fn default() -> Self {
-            Self {
-        view: Rc::new(RefCell::new(View::default())),
-        navigator: Rc::new(RefCell::new(Navigator::default())),
-        gallery: Rc::new(RefCell::new(Gallery::default())),
-            }
+
+    impl GsrApplicationWindow {
+        pub fn set_state(&self,
+            command_line_arguments: Shared<CommandLineArguments>,
+            configuration: Shared<Configuration>,
+            main_controller: Shared<MainController>,
+            view: Shared<View>,
+            navigator: Shared<Navigator>,
+            gallery: Shared<Gallery>,
+        ) {
+            *self.command_line_arguments.borrow_mut() = Some(command_line_arguments);
+            *self.configuration.borrow_mut() = Some(configuration);
+            *self.main_controller.borrow_mut() = Some(main_controller);
+            *self.view.borrow_mut() = Some(view);
+            *self.navigator.borrow_mut() = Some(navigator);
+            *self.gallery.borrow_mut() = Some(gallery);
         }
     }
-
-
     #[gtk::glib::object_subclass]
     impl ObjectSubclass for GsrApplicationWindow {
         const NAME: &'static str = "GsrApplicationWindow";
@@ -75,29 +88,18 @@ glib::wrapper! {
 }
 
 impl GsrApplicationWindow {
-    pub fn new(application: &GsrApplication, clargs: &CommandLineArguments) -> Self {
-        let obj: Self = glib::Object::builder()
+    pub fn new(application: &GsrApplication) -> Self {
+        glib::Object::builder()
             .property("application", application)
-            .property("title", Some(APPLICATION_NAME))
-            .property("default_width", clargs.width.unwrap())
-            .property("default_height", clargs.height.unwrap())
-            .build();
-        obj.initialize();
-        obj
+            .build()
     }
 
-    fn initialize(&self) {
+    pub fn initialize(&self) {
         dbg!("GsrApplication::initialize");
         // build the components
-        let frame = GsrPictureFrame::new(
-            self.imp().view.clone(),
-            self.imp().navigator.clone(),
-            self.imp().gallery.clone(),);
+        let frame = GsrPictureFrame::new(self.shared_view(), self.shared_navigator(), self.shared_gallery());
         let frame_scrolled_window = make_scrolled_window_with_child(&frame);
-        let gsr_picture_grid = GsrPictureGrid::new(
-            self.imp().view.clone(),
-            self.imp().navigator.clone(),
-            self.imp().gallery.clone(),);
+        let gsr_picture_grid = GsrPictureGrid::new(self.shared_view(), self.shared_navigator(), self.shared_gallery());
         let panel = make_panel_with_child(&gsr_picture_grid);
         let grid_scrolled_window = make_scrolled_window_with_child(&panel);
         let stack = gtk::Stack::builder().hexpand(true).vexpand(true).build();

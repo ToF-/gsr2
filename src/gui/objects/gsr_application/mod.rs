@@ -36,6 +36,7 @@ impl GsrApplication {
         clargs: CommandLineArguments,
         controller: Controller,
         ) {
+        dbg!("set_state");
         *self.imp().command_line_arguments.borrow_mut() = Some(Rc::new(RefCell::new(clargs.clone())));
         let main_controller = MainController::new(Some(Rc::new(RefCell::new(controller))));
         *self.imp().main_controller.borrow_mut() = Some(Rc::new(RefCell::new(main_controller)));
@@ -44,6 +45,7 @@ impl GsrApplication {
         view.set_pictures_per_row(clargs.pictures_per_row());
         *self.imp().view.borrow_mut() = Some(Rc::new(RefCell::new(view)));
     }
+
 }
 
 
@@ -61,7 +63,10 @@ fn connect_activate_application(
             #[strong]
             controller_rc,
             move |gsr_application: &GsrApplication| {
-                GsrApplicationWindow::new(gsr_application, &clargs);
+                let gsr_application_window = GsrApplicationWindow::new(gsr_application);
+                dbg!("foo");
+                gsr_application_window.initialize();
+
             }
         ));
     } else {

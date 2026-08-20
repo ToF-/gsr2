@@ -1,3 +1,4 @@
+use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
 use crate::model::gallery::Gallery;
 use crate::gui::navigator::Navigator;
 use crate::gui::objects::gsr_application::MainController;
@@ -6,7 +7,7 @@ use crate::gui::objects::gsr_application::CommandLineArguments;
 use crate::gui::view::View;
 use crate::model::shared::Shared;
 use std::cell::RefCell;
-use gtk::{glib, subclass::prelude::*};
+use gtk::{glib, prelude::*, subclass::prelude::*};
 
 #[derive(Default)]
 pub struct GsrApplication {
@@ -29,9 +30,12 @@ impl ObjectSubclass for GsrApplication {
 impl ObjectImpl for GsrApplication {}
 impl ApplicationImpl for GsrApplication {
     fn activate(&self) {
-        self.parent_activate();
+        dbg!("imp activate");
         let app = self.obj();
-        println!("here I'm acvitating {:?}", app);
+        let gsr_application_window = GsrApplicationWindow::new(&app);
+        dbg!("foo");
+        gsr_application_window.initialize();
+        gsr_application_window.present();
     }
 }
 
