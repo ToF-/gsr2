@@ -43,7 +43,6 @@ impl View {
         self.full_size = false;
     }
 
-
     pub fn expand_on(&self) -> bool {
         self.expand_on
     }

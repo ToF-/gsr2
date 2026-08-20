@@ -95,30 +95,30 @@ impl GsrPictureFrame {
     }
 
     pub fn set_palette_area(&self, gtk_drawing_area: gtk::DrawingArea) {
-            self.append(&gtk_drawing_area)
+        self.append(&gtk_drawing_area)
     }
 
     pub fn set_picture(&self, picture_opt: Option<Picture>) {
         if let Some(picture) = picture_opt {
             let picture_file_path = picture.file_path();
-            let gtk_picture =
-                if let Ok(file_path) =
-                    check_path_exists(&PathBuf::from(picture_file_path.clone()))
-                {
-                    gtk_picture_from_file_path(file_path)
-                } else {
-                    no_thumbnail_picture()
-                };
+            let gtk_picture = if let Ok(file_path) =
+                check_path_exists(&PathBuf::from(picture_file_path.clone()))
+            {
+                gtk_picture_from_file_path(file_path)
+            } else {
+                no_thumbnail_picture()
+            };
             self.set_gtk_picture(gtk_picture);
             let view = self.imp().view();
             if view.palette_on()
-                && let Some(image_data) = picture.image_data() {
-                    let palette_area = make_palette_area(
-                        image_data.palette().sample(),
-                        FRAME_PALETTE_AREA_WIDTH,
-                        FRAME_PALETTE_AREA_HEIGHT,
-                    );
-                    self.set_palette_area(palette_area);
+                && let Some(image_data) = picture.image_data()
+            {
+                let palette_area = make_palette_area(
+                    image_data.palette().sample(),
+                    FRAME_PALETTE_AREA_WIDTH,
+                    FRAME_PALETTE_AREA_HEIGHT,
+                );
+                self.set_palette_area(palette_area);
             }
         } else {
             let gtk_picture = no_thumbnail_picture();

@@ -1,15 +1,15 @@
-use rand::prelude::SliceRandom;
-use rand::rng;
-use crate::model::cover::cover_sort_key;
-use crate::model::label::sort_key;
-use std::cmp::Reverse;
-use crate::model::finder::Finder;
-use crate::model::picture::Picture;
 use crate::file::paths::parent_directory;
 use crate::file::picture_file::{get_all_picture_file_paths, get_picture_file_path};
+use crate::model::cover::cover_sort_key;
+use crate::model::finder::Finder;
+use crate::model::label::sort_key;
 use crate::model::order::Order;
+use crate::model::picture::Picture;
 use crate::model::selection_criteria::SelectionCriteria;
+use rand::prelude::SliceRandom;
+use rand::rng;
 use std::cmp::Ordering;
+use std::cmp::Reverse;
 use std::collections::BTreeSet;
 use std::collections::HashMap;
 use std::io::Result;
@@ -138,7 +138,7 @@ impl Gallery {
 
     pub fn sort_by(&mut self, order: Order) {
         if self.len() == 0 {
-            return 
+            return;
         };
         let current_picture_file_path = self.current_picture().file_path();
         self.order = order;
@@ -217,7 +217,11 @@ impl Gallery {
             Order::Random => self.pictures.shuffle(&mut rng()),
         };
         self.finder = Finder::new(self.pictures.clone());
-        if let Some(index) = self.pictures.iter().position(|p| p.file_path() == current_picture_file_path) {
+        if let Some(index) = self
+            .pictures
+            .iter()
+            .position(|p| p.file_path() == current_picture_file_path)
+        {
             self.set_current_picture_index(index);
         }
     }

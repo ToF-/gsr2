@@ -41,8 +41,15 @@ impl GsrApplication {
         let navigator = Navigator::default();
         *self.navigator.borrow_mut() = Some(Rc::new(RefCell::new(navigator)));
 
-        let gallery = Gallery::default();
-        *self.gallery.borrow_mut() = Some(Rc::new(RefCell::new(gallery)));
+        let controller_rc = self.shared_main_controller()
+            .borrow()
+            .controller_opt_rc
+            .borrow()
+            .clone()
+            .expect("controller not initialized");
+        let controller = controller_rc.borrow();
+        let gallery = &controller.repository().gallery_rc().borrow().clone();
+        *self.gallery.borrow_mut() = Some(Rc::new(RefCell::new(gallery.clone())));
     }
     pub fn shared_view(&self) -> Shared<View> {
         (*self.view.borrow()).as_ref().unwrap().clone()

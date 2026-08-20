@@ -3,23 +3,14 @@ use gsr::cli::command::execute_command;
 use gsr::cli::command_line_arguments::CommandLineArguments;
 use gsr::cli::status::Status;
 use gsr::env::configuration::Configuration;
-use gsr::env::default_values::APPLICATION_ID;
 use gsr::file::database::Database;
-use gsr::file::paths::file_exists;
 use gsr::gui::controller::Controller;
-use gsr::gui::controller::RcController;
-use gsr::gui::main_controller::MainController;
-use gsr::gui::main_controller::RcMainController;
 use gsr::gui::objects::gsr_application::GsrApplication;
-use gsr::gui::view::legacy_main_view::LegacyMainView;
 use gtk::gio;
 use gtk::prelude::ApplicationExtManual;
-use std::cell::Cell;
-use std::cell::RefCell;
 use std::io::Error as IOError;
 use std::io::Result;
 use std::process::exit;
-use std::rc::Rc;
 
 pub fn error_exit(error: &IOError) {
     eprintln!("{}", error);
@@ -49,8 +40,10 @@ fn main() {
 fn run_application(config: &Configuration, clargs: &CommandLineArguments) -> Result<Status> {
     let result = Controller::new(config.clone(), clargs.clone()).and_then(|controller| {
         let repository = controller.repository();
-        let result = execute_command(clargs.clone(), repository, config.clone());
+        let result = execute_command(clargs.clone(), repository.clone(), config.clone());
         if let Ok(Status::Ready(initial_position)) = result {
+            let gallery = repository.gallery_rc().borrow();
+            println!("{} picture(s)", gallery.len());
             build_and_run_app(clargs, controller);
             Ok(Status::Done)
         } else {
