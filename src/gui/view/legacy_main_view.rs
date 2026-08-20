@@ -1,5 +1,3 @@
-use crate::model::shared::Shared;
-use std::rc::Rc;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::default_values::{FULL_OPACITY, HALF_OPACITY};
 use crate::file::paths::check_path_exists;
@@ -27,6 +25,7 @@ use crate::gui::view::treelist_view::TreeListView;
 use crate::model::catalog::Catalog;
 use crate::model::gallery::Gallery;
 use crate::model::picture::Picture;
+use crate::model::shared::Shared;
 use crate::model::thumbnail::no_thumbnail_picture;
 use gtk::gio::ActionEntry;
 use gtk::gio::File as GtkFile;
@@ -46,6 +45,7 @@ use gtk::{ApplicationWindow, Grid, Label, Picture as GtkPicture, ScrolledWindow}
 use std::cell::RefCell;
 use std::path::Path;
 use std::path::PathBuf;
+use std::rc::Rc;
 use std::time::Duration;
 
 #[derive(Clone, Debug)]

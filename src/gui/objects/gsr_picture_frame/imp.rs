@@ -44,7 +44,6 @@ impl GsrPictureFrame {
     pub fn gallery(&self) -> Gallery {
         self.gallery.borrow().as_ref().unwrap().borrow().clone()
     }
-
 }
 
 #[glib::object_subclass]

@@ -1,12 +1,11 @@
-
-use crate::gui::main_controller::MainController;
-use crate::env::configuration::Configuration;
 use crate::cli::command_line_arguments::CommandLineArguments;
+use crate::env::configuration::Configuration;
 use crate::env::default_values::APPLICATION_NAME;
 use crate::env::default_values::FRAME_WINDOW_NAME;
 use crate::env::default_values::GRID_WINDOW_NAME;
 use crate::gui::controller::Controller;
 use crate::gui::direction::Direction;
+use crate::gui::main_controller::MainController;
 use crate::gui::navigator::Navigator;
 use crate::gui::objects::gsr_application::GsrApplication;
 use crate::gui::objects::gsr_picture_frame::GsrPictureFrame;
@@ -64,15 +63,23 @@ impl GsrApplicationWindow {
     }
 
     pub fn shared_command_line_arguments(&self) -> Shared<CommandLineArguments> {
-        (*self.imp().command_line_arguments.borrow()).as_ref().unwrap().clone()
+        (*self.imp().command_line_arguments.borrow())
+            .as_ref()
+            .unwrap()
+            .clone()
     }
-    pub fn shared_configuration(&self) ->  Shared<Configuration> {
-        (*self.imp().configuration.borrow()).   as_ref().unwrap().clone()
+    pub fn shared_configuration(&self) -> Shared<Configuration> {
+        (*self.imp().configuration.borrow())
+            .as_ref()
+            .unwrap()
+            .clone()
     }
     pub fn shared_main_controller(&self) -> Shared<MainController> {
-        (*self.imp().main_controller.borrow()).as_ref().unwrap().clone()
+        (*self.imp().main_controller.borrow())
+            .as_ref()
+            .unwrap()
+            .clone()
     }
-
 
     pub fn stack(&self) -> gtk::Stack {
         self.first_child()
@@ -82,7 +89,8 @@ impl GsrApplicationWindow {
     }
 
     pub fn frame(&self) -> GsrPictureFrame {
-        self.stack().child_by_name(FRAME_WINDOW_NAME)
+        self.stack()
+            .child_by_name(FRAME_WINDOW_NAME)
             .expect("frame scrolled window not set")
             .downcast::<gtk::ScrolledWindow>()
             .expect("can't downcast frame scrolled window")
@@ -95,9 +103,17 @@ impl GsrApplicationWindow {
     pub fn initialize(&self) {
         dbg!("GsrApplication::initialize");
         // build the components
-        let frame = GsrPictureFrame::new(self.shared_view(), self.shared_navigator(), self.shared_gallery());
+        let frame = GsrPictureFrame::new(
+            self.shared_view(),
+            self.shared_navigator(),
+            self.shared_gallery(),
+        );
         let frame_scrolled_window = make_scrolled_window_with_child(&frame);
-        let gsr_picture_grid = GsrPictureGrid::new(self.shared_view(), self.shared_navigator(), self.shared_gallery());
+        let gsr_picture_grid = GsrPictureGrid::new(
+            self.shared_view(),
+            self.shared_navigator(),
+            self.shared_gallery(),
+        );
         let panel = make_panel_with_child(&gsr_picture_grid);
         let grid_scrolled_window = make_scrolled_window_with_child(&panel);
         let stack = gtk::Stack::builder().hexpand(true).vexpand(true).build();

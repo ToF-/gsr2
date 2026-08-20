@@ -1,16 +1,16 @@
-use crate::gui::objects::gsr_application::CONFIGURATION;
-use std::rc::Rc;
-use crate::gui::objects::gsr_application::Controller;
-use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
-use crate::model::gallery::Gallery;
-use crate::gui::navigator::Navigator;
-use crate::gui::objects::gsr_application::MainController;
 use crate::env::configuration::Configuration;
+use crate::gui::navigator::Navigator;
+use crate::gui::objects::gsr_application::CONFIGURATION;
 use crate::gui::objects::gsr_application::CommandLineArguments;
+use crate::gui::objects::gsr_application::Controller;
+use crate::gui::objects::gsr_application::MainController;
+use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
 use crate::gui::view::View;
+use crate::model::gallery::Gallery;
 use crate::model::shared::Shared;
-use std::cell::RefCell;
 use gtk::{glib, prelude::*, subclass::prelude::*};
+use std::cell::RefCell;
+use std::rc::Rc;
 
 #[derive(Default)]
 pub struct GsrApplication {
@@ -23,17 +23,13 @@ pub struct GsrApplication {
 }
 
 impl GsrApplication {
-
-    pub fn set_state(&self,
-        clargs: CommandLineArguments,
-        controller: Controller,
-        ) {
+    pub fn set_state(&self, clargs: CommandLineArguments, controller: Controller) {
         dbg!("set_state");
         *self.command_line_arguments.borrow_mut() = Some(Rc::new(RefCell::new(clargs.clone())));
 
         let main_controller = MainController::new(Some(Rc::new(RefCell::new(controller))));
         *self.main_controller.borrow_mut() = Some(Rc::new(RefCell::new(main_controller)));
-    
+
         let configuration = CONFIGURATION.get().unwrap();
         *self.configuration.borrow_mut() = Some(Rc::new(RefCell::new(configuration.clone())));
 
@@ -47,8 +43,6 @@ impl GsrApplication {
 
         let gallery = Gallery::default();
         *self.gallery.borrow_mut() = Some(Rc::new(RefCell::new(gallery)));
-
-
     }
     pub fn shared_view(&self) -> Shared<View> {
         (*self.view.borrow()).as_ref().unwrap().clone()
@@ -63,15 +57,17 @@ impl GsrApplication {
     }
 
     pub fn shared_command_line_arguments(&self) -> Shared<CommandLineArguments> {
-        (*self.command_line_arguments.borrow()).as_ref().unwrap().clone()
+        (*self.command_line_arguments.borrow())
+            .as_ref()
+            .unwrap()
+            .clone()
     }
-    pub fn shared_configuration(&self) ->  Shared<Configuration> {
+    pub fn shared_configuration(&self) -> Shared<Configuration> {
         (*self.configuration.borrow()).as_ref().unwrap().clone()
     }
     pub fn shared_main_controller(&self) -> Shared<MainController> {
         (*self.main_controller.borrow()).as_ref().unwrap().clone()
     }
-
 }
 #[glib::object_subclass]
 impl ObjectSubclass for GsrApplication {
@@ -83,7 +79,6 @@ impl ObjectSubclass for GsrApplication {
 
 impl ObjectImpl for GsrApplication {}
 impl ApplicationImpl for GsrApplication {
-
     fn activate(&self) {
         let app = self.obj();
         let gsr_application_window = GsrApplicationWindow::new(&app);
@@ -94,13 +89,10 @@ impl ApplicationImpl for GsrApplication {
             self.shared_view(),
             self.shared_navigator(),
             self.shared_gallery(),
-            );
+        );
         gsr_application_window.initialize();
         gsr_application_window.present();
     }
 }
 
-impl GtkApplicationImpl for GsrApplication {
-}
-
-
+impl GtkApplicationImpl for GsrApplication {}

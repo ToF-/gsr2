@@ -34,14 +34,13 @@ fn main() {
         error_exit(config_result.as_ref().err().unwrap());
     }
     let config = config_result.unwrap();
-    let app_result = CommandLineArguments::parse_and_check(None, &config)
-        .and_then(|clargs| {
-            if let Some(Command::Initialize) = clargs.clone().command {
-                Database::initialize(&config)
-            } else {
-                run_application(&config, &clargs)
-            }
-        });
+    let app_result = CommandLineArguments::parse_and_check(None, &config).and_then(|clargs| {
+        if let Some(Command::Initialize) = clargs.clone().command {
+            Database::initialize(&config)
+        } else {
+            run_application(&config, &clargs)
+        }
+    });
     if app_result.is_err() {
         error_exit(app_result.as_ref().err().unwrap());
     }
@@ -64,13 +63,9 @@ fn run_application(config: &Configuration, clargs: &CommandLineArguments) -> Res
     exit(0)
 }
 
-fn build_and_run_app(
-    clargs: &CommandLineArguments,
-    controller: Controller,
-) {
+fn build_and_run_app(clargs: &CommandLineArguments, controller: Controller) {
     let gsr_application = GsrApplication::default();
-    gsr_application.set_state(clargs.clone(), controller); 
+    gsr_application.set_state(clargs.clone(), controller);
     let no_args: Vec<String> = vec![];
     gsr_application.run_with_args(&no_args);
 }
-

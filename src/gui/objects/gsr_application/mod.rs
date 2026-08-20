@@ -1,21 +1,21 @@
-use crate::model::gallery::Gallery;
-use crate::gui::navigator::Navigator;
+use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
-use crate::gui::view::View;
-use crate::gui::controller::Controller;
-use std::rc::Rc;
 use crate::env::configuration::Configuration;
 use crate::env::default_values::APPLICATION_ID;
-use gtk::gdk::Display;
-use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
-use crate::cli::command_line_arguments::CommandLineArguments;
+use crate::gui::controller::Controller;
 use crate::gui::main_controller::MainController;
-use std::cell::RefCell;
+use crate::gui::navigator::Navigator;
+use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
+use crate::gui::view::View;
+use crate::model::gallery::Gallery;
+use gtk::gdk::Display;
 use gtk::glib::clone;
+use std::cell::RefCell;
+use std::rc::Rc;
 mod imp;
 
-use gtk::glib;
 use gtk::gio;
+use gtk::glib;
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 
@@ -25,7 +25,6 @@ glib::wrapper! {
         @implements gio::ActionGroup, gio::ActionMap;
 }
 
-
 impl Default for GsrApplication {
     fn default() -> Self {
         glib::Object::builder()
@@ -33,17 +32,11 @@ impl Default for GsrApplication {
             .build()
     }
 }
-impl GsrApplication { 
-
-    pub fn set_state(&self,
-        clargs: CommandLineArguments,
-        controller: Controller,
-    ) {
+impl GsrApplication {
+    pub fn set_state(&self, clargs: CommandLineArguments, controller: Controller) {
         self.imp().set_state(clargs, controller)
     }
-
 }
-
 
 fn connect_activate_application(
     gsr_application: &GsrApplication,
@@ -62,7 +55,6 @@ fn connect_activate_application(
                 let gsr_application_window = GsrApplicationWindow::new(gsr_application);
                 dbg!("foo");
                 gsr_application_window.initialize();
-
             }
         ));
     } else {

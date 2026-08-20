@@ -1,15 +1,15 @@
-use crate::file::paths::parent_directory;
-use crate::file::picture_file::{get_all_picture_file_paths, get_picture_file_path};
-use crate::model::cover::cover_sort_key;
-use crate::model::finder::Finder;
-use crate::model::label::sort_key;
-use crate::model::order::Order;
-use crate::model::picture::Picture;
-use crate::model::selection_criteria::SelectionCriteria;
 use rand::prelude::SliceRandom;
 use rand::rng;
-use std::cmp::Ordering;
+use crate::model::cover::cover_sort_key;
+use crate::model::label::sort_key;
 use std::cmp::Reverse;
+use crate::model::finder::Finder;
+use crate::model::picture::Picture;
+use crate::file::paths::parent_directory;
+use crate::file::picture_file::{get_all_picture_file_paths, get_picture_file_path};
+use crate::model::order::Order;
+use crate::model::selection_criteria::SelectionCriteria;
+use std::cmp::Ordering;
 use std::collections::BTreeSet;
 use std::collections::HashMap;
 use std::io::Result;
@@ -19,6 +19,7 @@ pub struct Gallery {
     pictures: Vec<Picture>,
     order: Order,
     selection_criteria: SelectionCriteria,
+    current_picture_index: usize,
     pub finder: Finder,
 }
 
@@ -28,6 +29,7 @@ impl Default for Gallery {
             pictures: Vec::new(),
             order: Order::Name,
             selection_criteria: SelectionCriteria::empty(),
+            current_picture_index: 0,
             finder: Finder::new(Vec::new()),
         }
     }
@@ -44,6 +46,7 @@ impl Gallery {
             pictures: pictures.clone(),
             order: Order::Name,
             selection_criteria: SelectionCriteria::empty(),
+            current_picture_index: 0,
             finder: Finder::new(pictures),
         }
     }
@@ -78,6 +81,19 @@ impl Gallery {
         self.finder.set_items(self.pictures.clone());
     }
 
+    pub fn current_picture_index(&self) -> usize {
+        self.current_picture_index
+    }
+
+    pub fn set_current_picture_index(&mut self, index: usize) {
+        if index < self.len() {
+            self.current_picture_index = index;
+        }
+    }
+
+    pub fn current_picture(&self) -> Picture {
+        self.picture(self.current_picture_index())
+    }
     pub fn load_from_directory(&mut self, path: &str) -> Result<usize> {
         println!("loading directory…");
         match get_all_picture_file_paths(path) {
@@ -89,6 +105,7 @@ impl Gallery {
                     }
                 }
                 self.finder = Finder::new(self.pictures.clone());
+                self.set_current_picture_index(0);
                 Ok(self.pictures.len())
             }
             Err(err) => Err(err),
@@ -100,6 +117,7 @@ impl Gallery {
             Ok(path) => match Picture::new_with_file_image_data(&path, "") {
                 Ok(picture) => {
                     self.pictures.push(picture);
+                    self.set_current_picture_index(0);
                     Ok(1)
                 }
                 Err(err) => Err(err),
@@ -118,6 +136,7 @@ impl Gallery {
     }
 
     pub fn sort_by(&mut self, order: Order) {
+        let current_picture_file_path = self.current_picture().file_path();
         self.order = order;
         let selection_criteria = self.selection_criteria.clone();
         match order {
@@ -194,6 +213,9 @@ impl Gallery {
             Order::Random => self.pictures.shuffle(&mut rng()),
         };
         self.finder = Finder::new(self.pictures.clone());
+        if let Some(index) = self.pictures.iter().position(|p| p.file_path() == current_picture_file_path) {
+            self.set_current_picture_index(index);
+        }
     }
 
     pub fn find_file_path(&self, file_path: &str) -> Option<usize> {
@@ -257,15 +279,9 @@ impl Gallery {
 mod tests {
 
     use super::*;
-    use crate::env::default_values::TEST_DATABASE_FILE;
-    use crate::file::database::Database;
-    use crate::file::database::tests::{dummy_args, my_args, my_db};
-    use crate::file::paths::test::current_directory;
     use crate::model::finder::Predicate;
-    use crate::test_data;
     use crate::test_data::*;
     use serial_test::serial;
-    use std::env::current_dir;
     use std::sync::Arc;
 
     #[test]
@@ -294,6 +310,21 @@ mod tests {
             String::from(white_square_file_path()),
             gallery.picture(3).file_path()
         );
+    }
+
+    #[test]
+    #[serial]
+    fn current_picture_is_the_same_picture_before_and_after_sorting() {
+        let mut gallery = Gallery::new();
+        gallery
+            .load_from_directory(&test_directory())
+            .expect("can't load from directory");
+        gallery.sort_by(Order::Name);
+        let file_path_before = gallery.current_picture().file_path();
+        let index_before = gallery.current_picture_index();
+        gallery.sort_by(Order::Date);
+        assert_eq!(file_path_before, gallery.current_picture().file_path());
+        assert!(index_before != gallery.current_picture_index());
     }
 
     #[test]

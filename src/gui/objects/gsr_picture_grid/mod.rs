@@ -1,4 +1,3 @@
-use crate::model::shared::Shared;
 use crate::env::default_values::FULL_OPACITY;
 use crate::env::default_values::HALF_OPACITY;
 use crate::env::default_values::MAX_PICTURES_PER_ROW;
@@ -7,6 +6,7 @@ use crate::gui::objects::gsr_picture_cell_box::GsrPictureCellBox;
 use crate::gui::view::View;
 use crate::model::gallery::Gallery;
 use crate::model::picture::Picture;
+use crate::model::shared::Shared;
 use gtk::glib;
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
@@ -25,11 +25,7 @@ glib::wrapper! {
 }
 
 impl GsrPictureGrid {
-    pub fn new(
-        view: Shared<View>,
-        navigator: Shared<Navigator>,
-        gallery: Shared<Gallery>,
-    ) -> Self {
+    pub fn new(view: Shared<View>, navigator: Shared<Navigator>, gallery: Shared<Gallery>) -> Self {
         let obj: Self = glib::Object::builder().build();
         obj.set_row_homogeneous(true);
         obj.set_column_homogeneous(true);
@@ -40,8 +36,8 @@ impl GsrPictureGrid {
     }
 
     pub fn initialize_pictures(&self) {
-        todo!() 
-            /*
+        todo!()
+        /*
         self.fill_with_cell_boxes();
         let pictures_per_row = self.view().pictures_per_row();
         for col in 0..pictures_per_row {
@@ -77,8 +73,8 @@ impl GsrPictureGrid {
         }
     }
     fn fill_with_cell_boxes(&self) {
-        todo!() 
-            /*
+        todo!()
+        /*
         let view = self.imp().view.borrow();
         let pictures_per_row = view.pictures_per_row();
         let palette_on = view.palette_on();
@@ -125,7 +121,7 @@ impl GsrPictureGrid {
     pub fn set_focus_at(&self, col: i32, row: i32) {
         todo!();
         let view = self.imp().view.borrow();
-        let (current_col, current_row) = (0,0); // view.focus_at_coords();
+        let (current_col, current_row) = (0, 0); // view.focus_at_coords();
         if let Some(widget) = self.child_at(current_col, current_row) {
             let gsr_picture_cell_box = widget
                 .downcast::<GsrPictureCellBox>()

@@ -9,22 +9,23 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 pub struct GsrPictureGrid {
-    pub view:      RefCell<Option<Shared<View>>>,
+    pub view: RefCell<Option<Shared<View>>>,
     pub navigator: RefCell<Option<Shared<Navigator>>>,
-    pub gallery:   RefCell<Option<Shared<Gallery>>>,
+    pub gallery: RefCell<Option<Shared<Gallery>>>,
 }
 
 impl Default for GsrPictureGrid {
     fn default() -> Self {
         Self {
-            view:      RefCell::new(None),
+            view: RefCell::new(None),
             navigator: RefCell::new(None),
-            gallery:   RefCell::new(None),
+            gallery: RefCell::new(None),
         }
     }
 }
 impl GsrPictureGrid {
-    pub fn initialize(&self,
+    pub fn initialize(
+        &self,
         view: Shared<View>,
         navigator: Shared<Navigator>,
         gallery: Shared<Gallery>,

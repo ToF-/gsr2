@@ -1,29 +1,29 @@
-use crate::gui::main_controller::MainController;
-use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
 use crate::env::default_values::FRAME_PALETTE_AREA_HEIGHT;
 use crate::env::default_values::FRAME_PALETTE_AREA_WIDTH;
-use crate::gui::view::palette_area::make_palette_area;
 use crate::gui::controller::Controller;
-use gtk::gio::File as GtkFile;
-use std::path::Path;
+use crate::gui::main_controller::MainController;
+use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
+use crate::gui::view::palette_area::make_palette_area;
 use gtk::Align;
 use gtk::Orientation;
 use gtk::Picture as GtkPicture;
+use gtk::gio::File as GtkFile;
 use gtk::prelude::BoxExt;
 use gtk::prelude::WidgetExt;
+use std::path::Path;
 
-use crate::model::thumbnail::no_thumbnail_picture;
-use crate::gui::view::legacy_main_view::gtk_picture_from_file_path;
-use std::path::PathBuf;
 use crate::file::paths::check_path_exists;
-use crate::model::picture::Picture;
 use crate::gui::navigator::Navigator;
 use crate::gui::view::View;
+use crate::gui::view::legacy_main_view::gtk_picture_from_file_path;
 use crate::model::gallery::Gallery;
+use crate::model::picture::Picture;
 use crate::model::shared::Shared;
+use crate::model::thumbnail::no_thumbnail_picture;
 use gtk::glib;
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
+use std::path::PathBuf;
 
 mod imp;
 
@@ -66,20 +66,18 @@ impl GsrPictureFrame {
         self.append(&label);
     }
 
-
-    fn get_application_window(&self) -> Option<GsrApplicationWindow>
-    {
+    fn get_application_window(&self) -> Option<GsrApplicationWindow> {
         self.root()
             .and_then(|root| root.downcast::<GsrApplicationWindow>().ok())
     }
 
     pub fn gtk_picture_from_file_path(file_path: &Path) -> gtk::Picture {
-    GtkPicture::builder()
-        .file(&GtkFile::for_path(file_path))
-        .hexpand(true)
-        .vexpand(true)
-        .build()
-}
+        GtkPicture::builder()
+            .file(&GtkFile::for_path(file_path))
+            .hexpand(true)
+            .vexpand(true)
+            .build()
+    }
 
     pub fn set_gtk_picture(&self, controller: &Controller, picture: &gtk::Picture) {
         self.remove_children();
@@ -109,15 +107,27 @@ impl GsrPictureFrame {
         if let Some(application_window) = self.get_application_window() {
             // application_window::main_controller : RefCell<Option<Shared<MainController>>>;
             //
-            let shared_main_controller: Shared<MainController>  = application_window.imp().main_controller.borrow().clone().unwrap();
+            let shared_main_controller: Shared<MainController> = application_window
+                .imp()
+                .main_controller
+                .borrow()
+                .clone()
+                .unwrap();
             let main_controller: MainController = shared_main_controller.borrow().clone();
-            let controller_rc = main_controller.controller_opt_rc.borrow().as_ref().unwrap().clone();
+            let controller_rc = main_controller
+                .controller_opt_rc
+                .borrow()
+                .as_ref()
+                .unwrap()
+                .clone();
             let mut controller = controller_rc.borrow_mut();
 
             self.remove_children();
             self.add_chidren();
             let picture_file_path = picture.file_path();
-            let gtk_picture = if let Ok(file_path) = check_path_exists(&PathBuf::from(picture_file_path.clone())) {
+            let gtk_picture = if let Ok(file_path) =
+                check_path_exists(&PathBuf::from(picture_file_path.clone()))
+            {
                 gtk_picture_from_file_path(file_path)
             } else {
                 no_thumbnail_picture()
@@ -133,7 +143,6 @@ impl GsrPictureFrame {
         // controller.increment_picture_score(&picture_file_path);
         // self.set_title(controller);
     }
-
 }
 
 fn make_frame() -> gtk::Box {
@@ -158,4 +167,3 @@ pub fn make_label() -> gtk::Label {
     label.set_halign(Align::Center);
     label
 }
-
