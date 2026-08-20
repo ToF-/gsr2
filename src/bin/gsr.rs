@@ -50,12 +50,9 @@ fn main() {
 fn run_application(config: &Configuration, clargs: &CommandLineArguments) -> Result<Status> {
     let result = Controller::new(config.clone(), clargs.clone()).and_then(|controller| {
         let repository = controller.repository();
-        let controller_rc: RcController = Rc::new(RefCell::new(controller));
-        let main_controller = MainController::new(Some(controller_rc.clone()));
-        let main_controller_rc = RefCell::new(main_controller);
         let result = execute_command(clargs.clone(), repository, config.clone());
-        if let Ok(Status::Ready(index)) = result {
-            build_and_run_app(clargs, controller_rc, index, main_controller_rc);
+        if let Ok(Status::Ready(initial_position)) = result {
+            build_and_run_app(clargs, controller);
             Ok(Status::Done)
         } else {
             result
@@ -69,15 +66,10 @@ fn run_application(config: &Configuration, clargs: &CommandLineArguments) -> Res
 
 fn build_and_run_app(
     clargs: &CommandLineArguments,
-    controller_rc: RcController,
-    position: usize,
-    main_controller_rc: RcMainController,
+    controller: Controller,
 ) {
-    let binding = main_controller_rc.clone();
-    let main_controller = binding.borrow();
-    let mut controller = controller_rc.borrow_mut();
-    controller.set_main_controller_rc(main_controller_rc.clone());
     let gsr_application = GsrApplication::default();
+    gsr_application.set_state(clargs.clone(), controller); 
     let no_args: Vec<String> = vec![];
     gsr_application.run_with_args(&no_args);
 }

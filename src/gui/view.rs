@@ -10,6 +10,7 @@ pub struct View {
     palette_on: bool,
     full_size: bool,
     focus_at_coords: (i32, i32),
+    current_picture_file_path: Option<String>,
 }
 
 impl Default for View {
@@ -20,6 +21,7 @@ impl Default for View {
             palette_on: false,
             full_size: false,
             focus_at_coords: (0, 0),
+            current_picture_file_path: None,
         }
     }
 }

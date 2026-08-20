@@ -1,3 +1,8 @@
+use crate::env::configuration::CONFIGURATION;
+use crate::gui::view::View;
+use crate::gui::controller::Controller;
+use std::rc::Rc;
+use crate::env::configuration::Configuration;
 use crate::env::default_values::APPLICATION_ID;
 use gtk::gdk::Display;
 use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
@@ -26,14 +31,18 @@ impl Default for GsrApplication {
             .build()
     }
 }
-impl GsrApplication {
-    pub fn new(application_id: &str,
-        main_controller: MainController,
+impl GsrApplication { 
+    pub fn set_state(&self,
         clargs: CommandLineArguments,
-        position: usize) -> Self {
-        glib::Object::builder()
-            .property("application-id", "com.example.Gsr")
-            .build()
+        controller: Controller,
+        ) {
+        *self.imp().command_line_arguments.borrow_mut() = Some(Rc::new(RefCell::new(clargs.clone())));
+        let main_controller = MainController::new(Some(Rc::new(RefCell::new(controller))));
+        *self.imp().main_controller.borrow_mut() = Some(Rc::new(RefCell::new(main_controller)));
+        let mut view = View::default();
+        let current_picture_file_path = &CONFIGURATION.get().unwrap().current_picture;
+        view.set_pictures_per_row(clargs.pictures_per_row());
+        *self.imp().view.borrow_mut() = Some(Rc::new(RefCell::new(view)));
     }
 }
 
