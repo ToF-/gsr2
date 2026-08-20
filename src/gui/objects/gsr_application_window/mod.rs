@@ -74,6 +74,24 @@ impl GsrApplicationWindow {
     }
 
 
+    pub fn stack(&self) -> gtk::Stack {
+        self.first_child()
+            .expect("no child on stack")
+            .downcast::<gtk::Stack>()
+            .expect("can't donwcast stack")
+    }
+
+    pub fn frame(&self) -> GsrPictureFrame {
+        self.stack().child_by_name(FRAME_WINDOW_NAME)
+            .expect("frame scrolled window not set")
+            .downcast::<gtk::ScrolledWindow>()
+            .expect("can't downcast frame scrolled window")
+            .first_child()
+            .expect("gsr picture frame not set")
+            .downcast::<GsrPictureFrame>()
+            .expect("can't downcast to GsrPictureFrame")
+    }
+
     pub fn initialize(&self) {
         dbg!("GsrApplication::initialize");
         // build the components
@@ -86,6 +104,13 @@ impl GsrApplicationWindow {
         let _ = stack.add_named(&frame_scrolled_window, Some(FRAME_WINDOW_NAME));
         let _ = stack.add_named(&grid_scrolled_window, Some(GRID_WINDOW_NAME));
         self.set_child(Some(&stack));
+        let pictures_per_row = self.shared_view().borrow().pictures_per_row();
+        if pictures_per_row == 1 {
+            stack.set_visible_child(&frame_scrolled_window);
+        } else {
+            stack.set_visible_child(&grid_scrolled_window);
+        }
+
         // connect the events
         // navigate to current position
     }

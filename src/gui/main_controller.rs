@@ -17,7 +17,7 @@ pub type RcMainController = RefCell<MainController>;
 #[derive(Debug, Clone)]
 pub struct MainController {
     pub gio_action_group: gtk::gio::SimpleActionGroup,
-    controller_opt_rc: RefCell<Option<RcController>>,
+    pub controller_opt_rc: RefCell<Option<RcController>>,
 }
 
 impl Default for MainController {
