@@ -45,9 +45,10 @@ glib::wrapper! {
 
 impl GsrApplicationWindow {
     pub fn new(application: &GsrApplication) -> Self {
-        glib::Object::builder()
+        let obj = glib::Object::builder()
             .property("application", application)
-            .build()
+            .build();
+        obj
     }
 
     pub fn shared_view(&self) -> Shared<View> {
@@ -102,6 +103,9 @@ impl GsrApplicationWindow {
 
     pub fn initialize(&self) {
         dbg!("GsrApplication::initialize");
+        let command_line_arguments = self.shared_command_line_arguments().borrow().clone();
+        self.set_default_width(command_line_arguments.width.unwrap());
+        self.set_default_height(command_line_arguments.height.unwrap());
         // build the components
         let frame = GsrPictureFrame::new(
             self.shared_view(),
@@ -126,7 +130,11 @@ impl GsrApplicationWindow {
         } else {
             stack.set_visible_child(&grid_scrolled_window);
         }
-
+        let gallery = self.shared_gallery().borrow().clone();
+        frame.set_current_picture();
+        if gallery.len() == 0 {
+            self.set_title(Some("gallery is empty"));
+        }
         // connect the events
         // navigate to current position
     }

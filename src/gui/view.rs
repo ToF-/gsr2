@@ -8,6 +8,7 @@ pub struct View {
     pictures_per_row: i32,
     last_pictures_per_row: i32,
     palette_on: bool,
+    expand_on: bool,
     full_size: bool,
     focus_at_coords: (i32, i32),
     current_picture_file_path: Option<String>,
@@ -18,6 +19,7 @@ impl Default for View {
         Self {
             pictures_per_row: 10,
             last_pictures_per_row: 1,
+            expand_on: false,
             palette_on: false,
             full_size: false,
             focus_at_coords: (0, 0),
@@ -41,6 +43,19 @@ impl View {
         self.full_size = false;
     }
 
+
+    pub fn expand_on(&self) -> bool {
+        self.expand_on
+    }
+
+    pub fn set_expand_on(&mut self, on: bool) {
+        self.expand_on = on
+    }
+
+    pub fn toggle_expand_on(&mut self) {
+        self.expand_on = !self.expand_on
+    }
+
     pub fn palette_on(&self) -> bool {
         self.palette_on
     }
@@ -48,13 +63,20 @@ impl View {
     pub fn set_palette_on(&mut self, on: bool) {
         self.palette_on = on
     }
-
     pub fn toggle_palette_on(&mut self) {
         self.palette_on = !self.palette_on
     }
 
-    pub fn full_size(&self) -> bool {
+    pub fn full_size_on(&self) -> bool {
         self.full_size
+    }
+
+    pub fn set_full_size(&mut self, on_off: bool) {
+        if on_off && self.single_view() {
+            self.full_size = true
+        } else {
+            self.full_size = false
+        }
     }
 
     pub fn toggle_full_size(&mut self) -> bool {
