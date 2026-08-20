@@ -94,6 +94,29 @@ impl GsrApplicationWindow {
             .build()
     }
 
+    pub fn shared_view(&self) -> Shared<View> {
+        (*self.imp().view.borrow()).as_ref().unwrap().clone()
+    }
+
+    pub fn shared_navigator(&self) -> Shared<Navigator> {
+        (*self.imp().navigator.borrow()).as_ref().unwrap().clone()
+    }
+
+    pub fn shared_gallery(&self) -> Shared<Gallery> {
+        (*self.imp().gallery.borrow()).as_ref().unwrap().clone()
+    }
+
+    pub fn shared_command_line_arguments(&self) -> Shared<CommandLineArguments> {
+        (*self.imp().command_line_arguments.borrow()).as_ref().unwrap().clone()
+    }
+    pub fn shared_configuration(&self) ->  Shared<Configuration> {
+        (*self.imp().configuration.borrow()).   as_ref().unwrap().clone()
+    }
+    pub fn shared_main_controller(&self) -> Shared<MainController> {
+        (*self.imp().main_controller.borrow()).as_ref().unwrap().clone()
+    }
+
+
     pub fn initialize(&self) {
         dbg!("GsrApplication::initialize");
         // build the components

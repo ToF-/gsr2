@@ -30,9 +30,9 @@ impl GsrPictureFrame {
         navigator: Shared<Navigator>,
         gallery: Shared<Gallery>,
     ) {
-        *(self.view.borrow_mut()) = Some(view);
-        *(self.navigator.borrow_mut()) = Some(navigator);
-        *(self.gallery.borrow_mut()) = Some(gallery);
+        *(self.view.borrow_mut()) = Some(view.clone());
+        *(self.navigator.borrow_mut()) = Some(navigator.clone());
+        *(self.gallery.borrow_mut()) = Some(gallery.clone());
     }
 
     pub fn view(&self) -> View {

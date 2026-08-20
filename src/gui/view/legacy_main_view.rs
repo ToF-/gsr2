@@ -1,3 +1,4 @@
+use crate::model::shared::Shared;
 use std::rc::Rc;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::default_values::{FULL_OPACITY, HALF_OPACITY};
@@ -132,9 +133,12 @@ impl LegacyMainView {
     }
 
     pub fn activate(
-        application: &GsrApplication,
-        clargs: &CommandLineArguments,
-        controller_rc: &RcController,
+        shared_view: Shared<View>,
+        shared_navigator: Shared<Navigator>,
+        shared_gallery: Shared<Gallery>,
+        application: GsrApplication,
+        clargs: CommandLineArguments,
+        controller_rc: RcController,
         position: usize,
         main_controller: &MainController,
     ) {
@@ -158,12 +162,7 @@ impl LegacyMainView {
             };
 
             dbg!(coords_from_position);
-            let gsr_picture_grid = GsrPictureGrid::new(
-                Rc::new(RefCell::new(View::default())),
-                Rc::new(RefCell::new(Navigator::default())),
-                Rc::new(RefCell::new(Gallery::default())),
-            );
-            gsr_picture_grid
+            GsrPictureGrid::new(shared_view, shared_navigator, shared_gallery)
         };
         let picture_frame = PictureFrame::new();
         let single_view_scrolled_window = make_scrolled_window();
@@ -180,10 +179,10 @@ impl LegacyMainView {
         } else {
             view_stack.set_visible_child(&multiple_view_scrolled_window);
         }
-        let application_window = make_application_window(application, clargs);
+        let application_window = make_application_window(&application, &clargs);
         application_window.set_child(Some(&view_stack));
         {
-            let main_view = LegacyMainView::new_from_application(application, controller_rc);
+            let main_view = LegacyMainView::new_from_application(&application, &controller_rc);
             if let Ok(controller) = controller_rc.try_borrow() {
                 // controller.set_main_view(main_view);
                 let mut navigator = controller.navigator();
@@ -200,16 +199,16 @@ impl LegacyMainView {
                     .set_title_for_current_picture(&controller);
             }
         };
-        attach_panel_event_handlers(&panel, controller_rc);
-        add_actions(&application_window, controller_rc);
+        attach_panel_event_handlers(&panel, &controller_rc);
+        add_actions(&application_window, &controller_rc);
         application_window
             .insert_action_group("main-controller", Some(&main_controller.gio_action_group()));
         application.set_accels_for_action("main-controller.toggle-thumbnails-view", &["<Ctrl>T"]);
         application.set_accels_for_action("application-group.close", &["<Ctrl>W"]);
         application.set_accels_for_action("main-controller.test::foobardelaw", &["<Ctrl>Z"]);
-        attach_key_pressed_event_handlers(&application_window, controller_rc);
+        attach_key_pressed_event_handlers(&application_window, &controller_rc);
         if let Some(seconds) = clargs.slideshow {
-            Self::attach_slideshow_event(seconds, controller_rc);
+            Self::attach_slideshow_event(seconds, &controller_rc);
         }
         dbg!("now present");
         application_window.present();

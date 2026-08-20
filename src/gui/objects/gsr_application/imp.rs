@@ -19,6 +19,30 @@ pub struct GsrApplication {
     pub gallery: RefCell<Option<Shared<Gallery>>>,
 }
 
+impl GsrApplication {
+    pub fn shared_view(&self) -> Shared<View> {
+        (*self.view.borrow()).as_ref().unwrap().clone()
+    }
+
+    pub fn shared_navigator(&self) -> Shared<Navigator> {
+        (*self.navigator.borrow()).as_ref().unwrap().clone()
+    }
+
+    pub fn shared_gallery(&self) -> Shared<Gallery> {
+        (*self.gallery.borrow()).as_ref().unwrap().clone()
+    }
+
+    pub fn shared_command_line_arguments(&self) -> Shared<CommandLineArguments> {
+        (*self.command_line_arguments.borrow()).as_ref().unwrap().clone()
+    }
+    pub fn shared_configuration(&self) ->  Shared<Configuration> {
+        (*self.configuration.borrow()).as_ref().unwrap().clone()
+    }
+    pub fn shared_main_controller(&self) -> Shared<MainController> {
+        (*self.main_controller.borrow()).as_ref().unwrap().clone()
+    }
+
+}
 #[glib::object_subclass]
 impl ObjectSubclass for GsrApplication {
     const NAME: &'static str = "GsrApplication";
@@ -29,11 +53,20 @@ impl ObjectSubclass for GsrApplication {
 
 impl ObjectImpl for GsrApplication {}
 impl ApplicationImpl for GsrApplication {
+
     fn activate(&self) {
         dbg!("imp activate");
         let app = self.obj();
         let gsr_application_window = GsrApplicationWindow::new(&app);
         dbg!("foo");
+        gsr_application_window.imp().set_state(
+            self.shared_command_line_arguments(),
+            self.shared_configuration(),
+            self.shared_main_controller(),
+            self.shared_view(),
+            self.shared_navigator(),
+            self.shared_gallery(),
+            );
         gsr_application_window.initialize();
         gsr_application_window.present();
     }
