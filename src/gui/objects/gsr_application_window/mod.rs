@@ -87,8 +87,10 @@ impl GsrApplicationWindow {
         {
             let binding = self.gsr_application().shared_view();
             let mut view = binding.borrow_mut();
-            view.set_full_size(true);
-            view.set_palette_on(true);
+            // TEST SETUP
+            view.set_full_size(false);
+            view.set_palette_on(false);
+            view.set_pictures_per_row(10);
             let pictures_per_row = &view.pictures_per_row();
             if *pictures_per_row == 1 {
                 stack.set_visible_child(&frame_scrolled_window);
@@ -96,6 +98,7 @@ impl GsrApplicationWindow {
                 stack.set_visible_child(&grid_scrolled_window);
             }
         }
+        gsr_picture_grid.initialize_pictures();
         let gallery = self.gsr_application().shared_gallery().borrow().clone();
         frame.set_current_picture();
         if gallery.len() == 0 {

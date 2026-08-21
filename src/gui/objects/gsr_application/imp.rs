@@ -31,13 +31,13 @@ impl GsrApplication {
         let mut view = View::default();
         let _current_picture_file_path = &CONFIGURATION.get().unwrap().current_picture;
         view.set_pictures_per_row(clargs.pictures_per_row());
-        *self.view.borrow_mut() = Some(Rc::new(RefCell::new(view)));
-
-        let navigator = Navigator::default();
-        *self.navigator.borrow_mut() = Some(Rc::new(RefCell::new(navigator)));
+        *self.view.borrow_mut() = Some(Rc::new(RefCell::new(view.clone())));
 
         let gallery = &controller.repository().gallery_rc().borrow().clone();
         *self.gallery.borrow_mut() = Some(Rc::new(RefCell::new(gallery.clone())));
+
+        let navigator = Navigator::new(gallery.len(), view.pictures_per_row() as usize);
+        *self.navigator.borrow_mut() = Some(Rc::new(RefCell::new(navigator)));
     }
 }
 #[glib::object_subclass]

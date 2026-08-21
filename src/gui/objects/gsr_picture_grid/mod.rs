@@ -27,7 +27,6 @@ impl GsrPictureGrid {
         obj.set_column_homogeneous(true);
         obj.set_hexpand(true);
         obj.set_vexpand(true);
-        obj.initialize_pictures();
         obj
     }
 
@@ -49,10 +48,16 @@ impl GsrPictureGrid {
         for col in 0..pictures_per_row {
             for row in 0..pictures_per_row {
                 if let Some(index) = navigator.position_from_coords(row as usize, col as usize) {
+                    dbg!(index);
                     let picture = gallery.picture(index);
                     if self.child_at(col, row).is_none() {
-                        let gsr_picture_cell_box =
-                            GsrPictureCellBox::new(col, row, index, view.pictures_per_row(), view.palette_on());
+                        let gsr_picture_cell_box = GsrPictureCellBox::new(
+                            col,
+                            row,
+                            index,
+                            view.pictures_per_row(),
+                            view.palette_on(),
+                        );
                         self.attach(&gsr_picture_cell_box, col, row, 1, 1);
                     }
                     self.set_picture_at(col, row, &picture, index);
@@ -65,8 +70,6 @@ impl GsrPictureGrid {
                 }
             }
         }
-        let (col, row) = view.focus_at_coords();
-        self.set_focus_at(col, row);
     }
 
     pub fn change_size(&self, _pictures_per_row: i32, _palette_on: bool) {
@@ -97,9 +100,12 @@ impl GsrPictureGrid {
     }
 
     pub fn set_focus_at(&self, col: i32, row: i32) {
-        let binding = self.gsr_application().shared_view();
-        let view = binding.borrow();
-        let (current_col, current_row) = view.focus_at_coords();
+        dbg!(self.gsr_application().shared_view());
+        let (current_col, current_row) = {
+            let binding = self.gsr_application().shared_view();
+            let view = binding.borrow();
+            view.focus_at_coords()
+        };
         if let Some(widget) = self.child_at(current_col, current_row) {
             let gsr_picture_cell_box = widget
                 .downcast::<GsrPictureCellBox>()
