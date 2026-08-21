@@ -24,9 +24,7 @@ impl Default for GsrApplication {
         let obj: Self = glib::Object::builder()
             .property("application-id", APPLICATION_ID)
             .build();
-        obj.connect_startup(|_|
-            style_context_add_provider_for_display()
-        );
+        obj.connect_startup(|_| style_context_add_provider_for_display());
         obj
     }
 }

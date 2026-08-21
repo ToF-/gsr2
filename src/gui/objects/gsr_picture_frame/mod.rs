@@ -1,15 +1,21 @@
+use gtk::prelude::{
+    ApplicationExtManual, Cast, GestureSingleExt, GridExt, GtkApplicationExt, GtkWindowExt,
+    WidgetExt,
+};
+use gtk::{ApplicationWindow, Grid, Label, Picture as GtkPicture, ScrolledWindow, Window};
+
 use crate::env::default_values::FRAME_PALETTE_AREA_HEIGHT;
 use crate::env::default_values::FRAME_PALETTE_AREA_WIDTH;
 use crate::gui::controller::Controller;
+use crate::gui::direction::Direction;
 use crate::gui::main_controller::MainController;
 use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
 use crate::gui::view::palette_area::make_palette_area;
 use gtk::Align;
 use gtk::Orientation;
-use gtk::Picture as GtkPicture;
 use gtk::gio::File as GtkFile;
+use gtk::prelude::AdjustmentExt;
 use gtk::prelude::BoxExt;
-use gtk::prelude::WidgetExt;
 use std::path::Path;
 
 use crate::file::paths::check_path_exists;
@@ -38,7 +44,7 @@ glib::wrapper! {
 }
 
 impl GsrPictureFrame {
-    pub fn new(view: Shared<View>, navigator: Shared<Navigator>, gallery: Shared<Gallery>) -> Self {
+    pub fn new() -> Self {
         let obj: Self = glib::Object::builder()
             .property("orientation", Orientation::Vertical)
             .property("spacing", 0)

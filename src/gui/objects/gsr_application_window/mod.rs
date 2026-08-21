@@ -5,6 +5,7 @@ use crate::env::default_values::FRAME_WINDOW_NAME;
 use crate::env::default_values::GRID_WINDOW_NAME;
 use crate::gui::controller::Controller;
 use crate::gui::direction::Direction;
+use crate::gui::event::Event::KeyPressed;
 use crate::gui::main_controller::MainController;
 use crate::gui::navigator::Navigator;
 use crate::gui::objects::gsr_application::GsrApplication;
@@ -17,6 +18,8 @@ use crate::model::catalog::Catalog;
 use crate::model::gallery::Gallery;
 use crate::model::shared::Shared;
 use gtk::glib;
+use gtk::glib::Propagation;
+use gtk::glib::clone;
 use gtk::prelude::*;
 use std::cell::Cell;
 use std::rc::Rc;
@@ -107,11 +110,7 @@ impl GsrApplicationWindow {
         self.set_default_width(command_line_arguments.width.unwrap());
         self.set_default_height(command_line_arguments.height.unwrap());
         // build the components
-        let frame = GsrPictureFrame::new(
-            self.shared_view(),
-            self.shared_navigator(),
-            self.shared_gallery(),
-        );
+        let frame = GsrPictureFrame::new();
         let frame_scrolled_window = make_scrolled_window_with_child(&frame);
         let gsr_picture_grid = GsrPictureGrid::new(
             self.shared_view(),
@@ -134,7 +133,7 @@ impl GsrApplicationWindow {
         {
             let view_rc = self.imp().view.borrow().as_ref().unwrap().clone();
             let mut view = view_rc.borrow_mut();
-            view.set_full_size(false);
+            view.set_full_size(true);
             view.set_palette_on(true);
         }
         frame.set_current_picture();
@@ -142,6 +141,7 @@ impl GsrApplicationWindow {
             self.set_title(Some("gallery is empty"));
         }
         // connect the events
+        self.attach_key_pressed_event_handlers();
         // navigate to current position
     }
 
@@ -150,6 +150,55 @@ impl GsrApplicationWindow {
         todo!()
     }
 
+    pub fn frame_scrolled_window(&self) -> gtk::ScrolledWindow {
+        self.first_child()
+            .expect("application winodow stack not set")
+            .downcast::<gtk::Stack>()
+            .expect("not a stack")
+            .first_child()
+            .expect("application window frame scrolled window not set")
+            .downcast::<gtk::ScrolledWindow>()
+            .expect("not a scrolled window")
+    }
+    pub fn full_size_arrow_move(&self, direction: Direction) {
+        let full_size_on = self.shared_view().borrow().full_size_on();
+        if self.stack().visible_child_name().unwrap() == FRAME_WINDOW_NAME && full_size_on {
+            let step: f64 = 100.0;
+            let window = self.frame_scrolled_window();
+            let h = window.hadjustment();
+            let v = window.vadjustment();
+            match direction {
+                Direction::Right => h.set_value(h.value() + step),
+                Direction::Left => h.set_value(h.value() - step),
+                Direction::Down => v.set_value(v.value() + step),
+                Direction::Up => v.set_value(v.value() - step),
+                _ => {}
+            }
+        }
+    }
+    fn attach_key_pressed_event_handlers(&self) {
+        let event_controller_key = gtk::EventControllerKey::new();
+        event_controller_key.connect_key_pressed(clone!(
+                #[strong (rename_to = this)]
+                self,
+            move |_, key, _key_code, _modifier_type| {
+                if let Some(key_name) = key.name() {
+                    let key_name = key.name().unwrap_or_default();
+                    let key_name = key_name.as_str();
+                    match key_name {
+                        "Right" | "Left" | "Up" | "Down" => {
+                            let direction = Direction::from(key_name);
+                            this.full_size_arrow_move(direction)
+                        }
+                        _ => {}
+                    }
+                } else {
+                }
+                Propagation::Proceed
+            }
+        ));
+        self.add_controller(event_controller_key);
+    }
     pub fn set_focus_for_current_picture(&self, controller: &Controller) {
         todo!()
     }
@@ -183,10 +232,6 @@ impl GsrApplicationWindow {
     }
 
     pub fn change_grid_size(&self, pictures_per_row: i32, palette_on: bool) {
-        todo!();
-    }
-
-    pub fn full_size_arrow_move(&self, direction: Direction) {
         todo!();
     }
 

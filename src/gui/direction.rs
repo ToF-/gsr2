@@ -51,3 +51,21 @@ impl From<i32> for Direction {
         }
     }
 }
+
+impl From<&str> for Direction {
+    fn from(s: &str) -> Self {
+        match s {
+            "Down" => Direction::Down,
+            "First" => Direction::First,
+            "Last" => Direction::Last,
+            "Left" => Direction::Left,
+            "NextPage" => Direction::NextPage,
+            "PageEnd" => Direction::PageEnd,
+            "PageStart" => Direction::PageStart,
+            "PrevPage" => Direction::PrevPage,
+            "Right" => Direction::Right,
+            "Up" => Direction::Up,
+            _ => todo!(),
+        }
+    }
+}
