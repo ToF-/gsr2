@@ -1,3 +1,5 @@
+use crate::env::default_values::FULL_OPACITY;
+use crate::env::default_values::HALF_OPACITY;
 use crate::env::default_values::MAX_PICTURES_PER_ROW;
 use crate::gui::objects::gsr_application::GsrApplication;
 use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
@@ -25,6 +27,7 @@ impl GsrPictureGrid {
         obj.set_column_homogeneous(true);
         obj.set_hexpand(true);
         obj.set_vexpand(true);
+        obj.initialize_pictures();
         obj
     }
 
@@ -35,16 +38,25 @@ impl GsrPictureGrid {
             .gsr_application()
     }
     pub fn initialize_pictures(&self) {
-        todo!()
-        /*
-        self.fill_with_cell_boxes();
-        let pictures_per_row = self.view().pictures_per_row();
+        let shared_view = self.gsr_application().shared_view();
+        let view = shared_view.borrow();
+        let shared_navigator = self.gsr_application().shared_navigator();
+        let navigator = shared_navigator.borrow();
+        let shared_gallery = self.gsr_application().shared_gallery();
+        let gallery = shared_gallery.borrow();
+
+        let pictures_per_row = view.pictures_per_row();
         for col in 0..pictures_per_row {
             for row in 0..pictures_per_row {
-                if let Some(index) = self.navigator().position_from_coords(row as usize, col as usize) {
-                    let picture = self.gallery().picture(index);
+                if let Some(index) = navigator.position_from_coords(row as usize, col as usize) {
+                    let picture = gallery.picture(index);
+                    if self.child_at(col, row).is_none() {
+                        let gsr_picture_cell_box =
+                            GsrPictureCellBox::new(col, row, index, view.pictures_per_row(), view.palette_on());
+                        self.attach(&gsr_picture_cell_box, col, row, 1, 1);
+                    }
                     self.set_picture_at(col, row, &picture, index);
-                    let opacity: f64 = if self.navigator().is_selected(index) {
+                    let opacity: f64 = if navigator.is_selected(index) {
                         HALF_OPACITY
                     } else {
                         FULL_OPACITY
@@ -53,9 +65,8 @@ impl GsrPictureGrid {
                 }
             }
         }
-        let (col, row) = (self.imp().view.borrow()).focus_at_coords().clone();
+        let (col, row) = view.focus_at_coords();
         self.set_focus_at(col, row);
-            */
     }
 
     pub fn change_size(&self, _pictures_per_row: i32, _palette_on: bool) {

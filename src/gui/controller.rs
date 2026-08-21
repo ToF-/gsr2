@@ -1424,7 +1424,6 @@ impl Controller {
         self.change_grid_size(self.state().pictures_per_row());
     }
 
-
     fn toggle_cover(&self) {
         let index = self.navigator().position();
         let counts = self.repository.directory_count_at_index(index);
@@ -1908,7 +1907,6 @@ impl Controller {
         navigator.cancel_range();
         navigator.set_page_changed()
     }
-
 
     fn move_selected_pictures_to_target(&self, target_dir: &str) {
         let mut picture_count = 0;

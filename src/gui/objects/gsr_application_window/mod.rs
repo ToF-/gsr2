@@ -177,7 +177,11 @@ impl GsrApplicationWindow {
         todo!()
     }
 
-    pub fn set_label_text_for_current_picture(&self, _controller: &Controller, _label: Option<char>) {
+    pub fn set_label_text_for_current_picture(
+        &self,
+        _controller: &Controller,
+        _label: Option<char>,
+    ) {
         todo!()
     }
 
