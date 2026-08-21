@@ -1,17 +1,11 @@
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
-use crate::env::configuration::Configuration;
 use crate::env::default_values::APPLICATION_ID;
 use crate::gui::controller::Controller;
 use crate::gui::main_controller::MainController;
-use crate::gui::navigator::Navigator;
 use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
-use crate::gui::view::View;
-use crate::model::gallery::Gallery;
 use gtk::gdk::Display;
 use gtk::glib::clone;
-use std::cell::RefCell;
-use std::rc::Rc;
 mod imp;
 
 use gtk::gio;
@@ -27,9 +21,13 @@ glib::wrapper! {
 
 impl Default for GsrApplication {
     fn default() -> Self {
-        glib::Object::builder()
+        let obj: Self = glib::Object::builder()
             .property("application-id", APPLICATION_ID)
-            .build()
+            .build();
+        obj.connect_startup(|_|
+            style_context_add_provider_for_display()
+        );
+        obj
     }
 }
 impl GsrApplication {
@@ -62,7 +60,7 @@ fn connect_activate_application(
     }
 }
 
-fn startup_gui() {
+pub fn style_context_add_provider_for_display() {
     let css_provider = gtk::CssProvider::new();
     css_provider.load_from_string(
         "window { background-color:black;} 

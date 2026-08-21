@@ -134,7 +134,8 @@ impl GsrApplicationWindow {
         {
             let view_rc = self.imp().view.borrow().as_ref().unwrap().clone();
             let mut view = view_rc.borrow_mut();
-            view.set_full_size(true);
+            view.set_full_size(false);
+            view.set_palette_on(true);
         }
         frame.set_current_picture();
         if gallery.len() == 0 {

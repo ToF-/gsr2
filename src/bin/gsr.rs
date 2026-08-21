@@ -6,6 +6,7 @@ use gsr::env::configuration::Configuration;
 use gsr::file::database::Database;
 use gsr::gui::controller::Controller;
 use gsr::gui::objects::gsr_application::GsrApplication;
+use gsr::gui::objects::gsr_application::style_context_add_provider_for_display;
 use gtk::gio;
 use gtk::prelude::ApplicationExtManual;
 use std::io::Error as IOError;
