@@ -3,13 +3,8 @@ use crate::gui::key_input::KeyInput;
 use crate::gui::key_input::key_input_mode::KeyInputMode;
 use crate::gui::key_input::key_input_rules::KeyInputRules;
 use crate::model::change::Change;
-use crate::model::change::Change::Category;
-use crate::model::change::Change::Cover;
 use crate::model::order::Order;
-use crate::model::order::Order::ColorCount;
-use crate::model::order::Order::Date;
 use crate::model::view_option::ViewOption;
-use std::str::FromStr;
 
 pub fn view_menu() -> KeyInput {
     KeyInput::new(

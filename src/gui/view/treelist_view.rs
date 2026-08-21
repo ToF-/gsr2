@@ -115,7 +115,7 @@ impl TreeListView {
             #[strong]
             controller_rc,
             move |_, key, key_code, modifier_type| {
-                if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+                if let Ok(controller) = controller_rc.try_borrow_mut() {
                     controller.process_event(Event::KeyPressed {
                         key,
                         key_code,
@@ -199,10 +199,10 @@ fn build_list_view(root: SubCategory, controller_rc: &RcController) -> gtk::List
             } else {
                 "".to_string()
             };
-            if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+            if let Ok(controller) = controller_rc.try_borrow_mut() {
                 controller.set_selected(&selected);
             }
-            if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+            if let Ok(controller) = controller_rc.try_borrow_mut() {
                 if key == gtk::gdk::Key::KP_Enter {
                     println!("Enter");
                     return glib::Propagation::Stop;

@@ -74,7 +74,6 @@ impl From<Action> for GioAction {
             Action::MoveCategory(category_name, target_category_name) => Some(
                 GioActionParameter::from((category_name, target_category_name)),
             ),
-            Action::Cancel => None,
             Action::MoveFile => None,
             Action::MoveTowards(direction) => Some(GioActionParameter::from(direction)),
             Action::Nothing => None,

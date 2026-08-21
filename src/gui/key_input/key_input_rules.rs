@@ -1,8 +1,6 @@
 use crate::gui::action::Action;
 use crate::gui::key_input::KeyInputMode;
 use crate::gui::key_input::KeyInputStatus;
-
-use crate::gui::entry_kind::EntryKind;
 use crate::model::tags::Tags;
 
 pub trait KeyInputRules {

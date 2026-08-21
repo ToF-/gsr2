@@ -114,15 +114,6 @@ impl GsrPictureCellBox {
         *self.imp().label.borrow_mut() = None;
     }
 
-    fn label(&self) -> GtkLabel {
-        self.imp()
-            .label
-            .borrow()
-            .as_ref()
-            .expect("this GsrPictureCellBox has no label")
-            .clone()
-    }
-
     pub fn set_label(&self, text: &str) {
         let label_opt = self.imp().label.borrow().clone();
         if let Some(label) = label_opt {

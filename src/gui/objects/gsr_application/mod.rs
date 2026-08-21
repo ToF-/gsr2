@@ -3,9 +3,11 @@ use crate::env::configuration::CONFIGURATION;
 use crate::env::default_values::APPLICATION_ID;
 use crate::gui::controller::Controller;
 use crate::gui::main_controller::MainController;
-use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
+use crate::gui::navigator::Navigator;
+use crate::gui::view::View;
+use crate::model::gallery::Gallery;
+use crate::model::shared::Shared;
 use gtk::gdk::Display;
-use gtk::glib::clone;
 mod imp;
 
 use gtk::gio;
@@ -32,29 +34,23 @@ impl GsrApplication {
     pub fn set_state(&self, clargs: CommandLineArguments, controller: &Controller) {
         self.imp().set_state(clargs, controller)
     }
-}
+    pub fn shared_view(&self) -> Shared<View> {
+        (*self.imp().view.borrow()).as_ref().unwrap().clone()
+    }
 
-fn connect_activate_application(
-    gsr_application: &GsrApplication,
-    clargs: CommandLineArguments,
-    position: usize,
-    main_controller: MainController,
-) {
-    let controller_rc_opt = main_controller.controller_rc_opt().clone();
-    if let Some(controller_rc) = controller_rc_opt {
-        gsr_application.connect_activate(clone!(
-            #[strong]
-            clargs,
-            #[strong]
-            controller_rc,
-            move |gsr_application: &GsrApplication| {
-                let gsr_application_window = GsrApplicationWindow::new(gsr_application);
-                dbg!("foo");
-                gsr_application_window.initialize();
-            }
-        ));
-    } else {
-        panic!("controller_rc is not set")
+    pub fn shared_navigator(&self) -> Shared<Navigator> {
+        (*self.imp().navigator.borrow()).as_ref().unwrap().clone()
+    }
+
+    pub fn shared_gallery(&self) -> Shared<Gallery> {
+        (*self.imp().gallery.borrow()).as_ref().unwrap().clone()
+    }
+
+    pub fn shared_command_line_arguments(&self) -> Shared<CommandLineArguments> {
+        (*self.imp().command_line_arguments.borrow())
+            .as_ref()
+            .unwrap()
+            .clone()
     }
 }
 

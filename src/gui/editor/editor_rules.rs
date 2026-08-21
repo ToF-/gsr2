@@ -2,7 +2,6 @@ use crate::gui::action::Action;
 use crate::gui::editor::EditorMode;
 use crate::gui::editor::EditorStatus;
 
-use crate::gui::entry_kind::EntryKind;
 use crate::model::tags::Tags;
 
 pub trait EditorRules {

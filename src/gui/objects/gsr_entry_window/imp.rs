@@ -1,12 +1,9 @@
 use crate::env::default_values::ENTRY_WINDOW_HEIGHT;
 use crate::env::default_values::ENTRY_WINDOW_WIDTH;
-use crate::gui::action::Action;
 use crate::gui::action::gio_action::GioAction;
 use crate::gui::key_input::KeyInput;
 use crate::gui::key_input::information::information_key_input;
-use crate::gui::key_input::key_input_mode::KeyInputMode;
 use crate::gui::key_input::key_input_rules::KeyInputRules;
-use crate::gui::main_controller::MainController;
 use crate::gui::main_controller::RcMainController;
 use crate::gui::objects::gsr_entry_window::GsrApplicationWindow;
 use glib::Variant;
@@ -23,7 +20,6 @@ use gtk::prelude::StyleContextExt;
 use gtk::prelude::WidgetExt;
 use std::cell::RefCell;
 
-use crate::gui::editor::legacy_editor::LegacyEditor;
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 

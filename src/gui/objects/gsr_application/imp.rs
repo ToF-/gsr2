@@ -29,7 +29,7 @@ impl GsrApplication {
         *self.command_line_arguments.borrow_mut() = Some(Rc::new(RefCell::new(clargs.clone())));
 
         let mut view = View::default();
-        let current_picture_file_path = &CONFIGURATION.get().unwrap().current_picture;
+        let _current_picture_file_path = &CONFIGURATION.get().unwrap().current_picture;
         view.set_pictures_per_row(clargs.pictures_per_row());
         *self.view.borrow_mut() = Some(Rc::new(RefCell::new(view)));
 
@@ -38,24 +38,6 @@ impl GsrApplication {
 
         let gallery = &controller.repository().gallery_rc().borrow().clone();
         *self.gallery.borrow_mut() = Some(Rc::new(RefCell::new(gallery.clone())));
-    }
-    pub fn shared_view(&self) -> Shared<View> {
-        (*self.view.borrow()).as_ref().unwrap().clone()
-    }
-
-    pub fn shared_navigator(&self) -> Shared<Navigator> {
-        (*self.navigator.borrow()).as_ref().unwrap().clone()
-    }
-
-    pub fn shared_gallery(&self) -> Shared<Gallery> {
-        (*self.gallery.borrow()).as_ref().unwrap().clone()
-    }
-
-    pub fn shared_command_line_arguments(&self) -> Shared<CommandLineArguments> {
-        (*self.command_line_arguments.borrow())
-            .as_ref()
-            .unwrap()
-            .clone()
     }
 }
 #[glib::object_subclass]

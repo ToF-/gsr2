@@ -1,5 +1,4 @@
 use crate::gui::key_input::KeyInput;
-use crate::gui::main_controller::MainController;
 use crate::gui::main_controller::RcMainController;
 use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
 use gtk::glib;

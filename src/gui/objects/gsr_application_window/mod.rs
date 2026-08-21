@@ -1,31 +1,16 @@
-use crate::cli::command_line_arguments::CommandLineArguments;
-use crate::env::configuration::Configuration;
-use crate::env::default_values::APPLICATION_NAME;
 use crate::env::default_values::FRAME_WINDOW_NAME;
 use crate::env::default_values::GRID_WINDOW_NAME;
 use crate::gui::controller::Controller;
 use crate::gui::direction::Direction;
-use crate::gui::event::Event::KeyPressed;
-use crate::gui::main_controller::MainController;
-use crate::gui::navigator::Navigator;
 use crate::gui::objects::gsr_application::GsrApplication;
 use crate::gui::objects::gsr_picture_frame::GsrPictureFrame;
 use crate::gui::objects::gsr_picture_grid::GsrPictureGrid;
-use crate::gui::view::View;
-use crate::gui::view::picture_frame::PictureFrame;
 use crate::gui::view::treelist_view::TreeListView;
 use crate::model::catalog::Catalog;
-use crate::model::gallery::Gallery;
-use crate::model::shared::Shared;
 use gtk::glib;
 use gtk::glib::Propagation;
 use gtk::glib::clone;
 use gtk::prelude::*;
-use std::cell::Cell;
-use std::rc::Rc;
-
-use gtk::subclass::prelude::*;
-use std::cell::RefCell;
 
 pub const LEFT_PANE: usize = 0;
 pub const RIGHT_PANE: usize = 1;
@@ -83,7 +68,6 @@ impl GsrApplicationWindow {
         dbg!("GsrApplication::initialize");
         let command_line_arguments = self
             .gsr_application()
-            .imp()
             .shared_command_line_arguments()
             .borrow()
             .clone();
@@ -101,7 +85,7 @@ impl GsrApplicationWindow {
         let _ = stack.add_named(&grid_scrolled_window, Some(GRID_WINDOW_NAME));
         self.set_child(Some(&stack));
         {
-            let binding = self.gsr_application().imp().shared_view();
+            let binding = self.gsr_application().shared_view();
             let mut view = binding.borrow_mut();
             view.set_full_size(true);
             view.set_palette_on(true);
@@ -112,12 +96,7 @@ impl GsrApplicationWindow {
                 stack.set_visible_child(&grid_scrolled_window);
             }
         }
-        let gallery = self
-            .gsr_application()
-            .imp()
-            .shared_gallery()
-            .borrow()
-            .clone();
+        let gallery = self.gsr_application().shared_gallery().borrow().clone();
         frame.set_current_picture();
         if gallery.len() == 0 {
             self.set_title(Some("gallery is empty"));
@@ -143,8 +122,7 @@ impl GsrApplicationWindow {
             .expect("not a scrolled window")
     }
     pub fn full_size_arrow_move(&self, direction: Direction) {
-        let full_size_on = self.gsr_application()
-            .imp().shared_view().borrow().full_size_on();
+        let full_size_on = self.gsr_application().shared_view().borrow().full_size_on();
         if self.stack().visible_child_name().unwrap() == FRAME_WINDOW_NAME && full_size_on {
             let step: f64 = 100.0;
             let window = self.frame_scrolled_window();
@@ -165,48 +143,45 @@ impl GsrApplicationWindow {
             #[strong (rename_to = this)]
             self,
             move |_, key, _key_code, _modifier_type| {
-                if let Some(key_name) = key.name() {
-                    let key_name = key.name().unwrap_or_default();
-                    let key_name = key_name.as_str();
-                    match key_name {
-                        "Right" | "Left" | "Up" | "Down" => {
-                            let direction = Direction::from(key_name);
-                            this.full_size_arrow_move(direction)
-                        }
-                        "Q" => {
-                            // TEMPORARY
-                            this.close()
-                        }
-                        _ => {}
+                let key_name = key.name().unwrap_or_default();
+                let key_name = key_name.as_str();
+                match key_name {
+                    "Right" | "Left" | "Up" | "Down" => {
+                        let direction = Direction::from(key_name);
+                        this.full_size_arrow_move(direction)
                     }
-                } else {
+                    "Q" => {
+                        // TEMPORARY
+                        this.close()
+                    }
+                    _ => {}
                 }
                 Propagation::Proceed
             }
         ));
         self.add_controller(event_controller_key);
     }
-    pub fn set_focus_for_current_picture(&self, controller: &Controller) {
+    pub fn set_focus_for_current_picture(&self, _controller: &Controller) {
         todo!()
     }
 
-    pub fn set_pictures(&self, controller: &Controller) {
+    pub fn set_pictures(&self, _controller: &Controller) {
         todo!()
     }
 
-    pub fn toggle_view_stack(&self, controller: &Controller) {
+    pub fn toggle_view_stack(&self, _controller: &Controller) {
         todo!()
     }
 
-    pub fn set_title_for_current_picture(&self, controller: &Controller) {
+    pub fn set_title_for_current_picture(&self, _controller: &Controller) {
         todo!()
     }
 
-    pub fn set_label_text_for_current_picture(&self, controller: &Controller, label: Option<char>) {
+    pub fn set_label_text_for_current_picture(&self, _controller: &Controller, _label: Option<char>) {
         todo!()
     }
 
-    pub fn set_opacity_for_current_picture(&self, controller: &Controller, opacity: f64) {
+    pub fn set_opacity_for_current_picture(&self, _controller: &Controller, _opacity: f64) {
         todo!()
     }
 
@@ -214,15 +189,15 @@ impl GsrApplicationWindow {
         todo!()
     }
 
-    pub fn reattach_slideshow_event(&self, seconds: i32) {
+    pub fn reattach_slideshow_event(&self, _seconds: i32) {
         todo!();
     }
 
-    pub fn change_grid_size(&self, pictures_per_row: i32, palette_on: bool) {
+    pub fn change_grid_size(&self, _pictures_per_row: i32, _palette_on: bool) {
         todo!();
     }
 
-    pub fn popup_treelist_view(&self, prompt: &str, catalog: &Catalog) -> TreeListView {
+    pub fn popup_treelist_view(&self, _prompt: &str, _catalog: &Catalog) -> TreeListView {
         todo!()
     }
 }
@@ -237,10 +212,6 @@ where
         .build();
     window.set_child(Some(child));
     window
-}
-
-fn make_stack() -> gtk::Stack {
-    gtk::Stack::builder().hexpand(true).vexpand(true).build()
 }
 
 #[allow(deprecated)]

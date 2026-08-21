@@ -1,5 +1,4 @@
 use crate::cli::command_line_arguments::CommandLineArguments;
-use crate::env::default_values::{FULL_OPACITY, HALF_OPACITY};
 use crate::file::paths::check_path_exists;
 use crate::gui::action::Action;
 use crate::gui::action::gio_action::GioAction;
@@ -17,7 +16,6 @@ use crate::gui::objects::gsr_application::GsrApplication;
 use crate::gui::objects::gsr_application_window::LEFT_PANE;
 use crate::gui::objects::gsr_application_window::RIGHT_PANE;
 use crate::gui::objects::gsr_entry_window::GsrEntryWindow;
-use crate::gui::objects::gsr_picture_cell_box::GsrPictureCellBox;
 use crate::gui::objects::gsr_picture_grid::GsrPictureGrid;
 use crate::gui::view::View;
 use crate::gui::view::picture_frame::PictureFrame;
@@ -42,10 +40,8 @@ use gtk::prelude::{
     WidgetExt,
 };
 use gtk::{ApplicationWindow, Grid, Label, Picture as GtkPicture, ScrolledWindow};
-use std::cell::RefCell;
 use std::path::Path;
 use std::path::PathBuf;
-use std::rc::Rc;
 use std::time::Duration;
 
 #[derive(Clone, Debug)]
@@ -133,9 +129,9 @@ impl LegacyMainView {
     }
 
     pub fn activate(
-        shared_view: Shared<View>,
-        shared_navigator: Shared<Navigator>,
-        shared_gallery: Shared<Gallery>,
+        _shared_view: Shared<View>,
+        _shared_navigator: Shared<Navigator>,
+        _shared_gallery: Shared<Gallery>,
         application: GsrApplication,
         clargs: CommandLineArguments,
         controller_rc: RcController,
@@ -143,7 +139,7 @@ impl LegacyMainView {
         main_controller: &MainController,
     ) {
         dbg!("activate");
-        let (pictures_per_row, palette_on) = if let Ok(controller) = controller_rc.try_borrow() {
+        let (pictures_per_row, _palette_on) = if let Ok(controller) = controller_rc.try_borrow() {
             (
                 controller.state().pictures_per_row(),
                 controller.state().palette_on(),
@@ -155,7 +151,7 @@ impl LegacyMainView {
             let controller = controller_rc.borrow();
             let navigator = controller.navigator();
             let binding = controller.repository().gallery_rc().clone();
-            let gallery = binding.borrow();
+            let _gallery = binding.borrow();
             let coords_from_position = match navigator.coords_from_position(position) {
                 Some((col, row)) => (col as i32, row as i32),
                 None => (0, 0),
@@ -182,7 +178,7 @@ impl LegacyMainView {
         let application_window = make_application_window(&application, &clargs);
         application_window.set_child(Some(&view_stack));
         {
-            let main_view = LegacyMainView::new_from_application(&application, &controller_rc);
+            let _main_view = LegacyMainView::new_from_application(&application, &controller_rc);
             if let Ok(controller) = controller_rc.try_borrow() {
                 // controller.set_main_view(main_view);
                 let mut navigator = controller.navigator();
@@ -265,11 +261,11 @@ impl LegacyMainView {
     pub fn set_pictures_for_multiple_view(
         &self,
         controller: &Controller,
-        pictures_per_row: i32,
-        palette_on: bool,
+        _pictures_per_row: i32,
+        _palette_on: bool,
     ) {
-        let navigator: Navigator = controller.navigator();
-        if let Ok(gallery) = controller.repository().gallery_rc().try_borrow() {
+        let _navigator: Navigator = controller.navigator();
+        if let Ok(_gallery) = controller.repository().gallery_rc().try_borrow() {
             todo!();
             // self.gsr_picture_grid.initialize_pictures(&navigator, &gallery, palette_on);
         } else {
@@ -304,7 +300,7 @@ impl LegacyMainView {
     pub fn set_label_text_for_current_picture(
         &self,
         controller: &Controller,
-        with_focus: Option<char>,
+        _with_focus: Option<char>,
     ) {
         let navigator = controller.navigator();
         let position = navigator.position();
@@ -344,7 +340,7 @@ impl LegacyMainView {
         child_name == "single_view"
     }
 
-    pub fn popup_entry_window(&self, prompt: &str, text: &str) -> GsrEntryWindow {
+    pub fn popup_entry_window(&self, _prompt: &str, _text: &str) -> GsrEntryWindow {
         let entry_window = GsrEntryWindow::new();
         entry_window
     }
@@ -364,7 +360,7 @@ impl LegacyMainView {
         &mut self,
         pictures_per_row: usize,
         palette_on: bool,
-        main_controller: &MainController,
+        _main_controller: &MainController,
     ) {
         self.gsr_picture_grid
             .change_size(pictures_per_row as i32, palette_on)
@@ -405,7 +401,7 @@ impl LegacyMainView {
                 #[strong]
                 controller_rc,
                 move || {
-                    if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+                    if let Ok(controller) = controller_rc.try_borrow_mut() {
                         if controller.state().slideshow_on() {
                             controller.process_event(NextSlideDelay);
                             ControlFlow::Continue
@@ -426,11 +422,11 @@ fn make_application_window(
     clargs: &CommandLineArguments,
 ) -> ApplicationWindow {
     dbg!("make application window, attaching window to application");
-    let gsrWindow = ApplicationWindow::new(application);
-    gsrWindow.set_title(Some("gsr2"));
-    gsrWindow.set_default_width(clargs.width.unwrap());
-    gsrWindow.set_default_height(clargs.height.unwrap());
-    gsrWindow
+    let gsr_application_window = ApplicationWindow::new(application);
+    gsr_application_window.set_title(Some("gsr2"));
+    gsr_application_window.set_default_width(clargs.width.unwrap());
+    gsr_application_window.set_default_height(clargs.height.unwrap());
+    gsr_application_window
     /*
     ApplicationWindow::builder()
         .application(application)
@@ -497,7 +493,7 @@ fn pane_gesture_click(
         #[strong]
         controller_rc,
         move |_, _, _, _| {
-            if let Ok(mut controller) = controller_rc.try_borrow_mut() {
+            if let Ok(controller) = controller_rc.try_borrow_mut() {
                 controller.process_event(PaneClicked {
                     button,
                     pane_number,

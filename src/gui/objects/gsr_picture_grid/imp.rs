@@ -1,12 +1,5 @@
-use crate::gui::navigator::Navigator;
-use crate::gui::view::View;
-use crate::model::gallery::Gallery;
-use crate::model::shared::Shared;
 use gtk::glib;
 use gtk::subclass::prelude::*;
-use std::cell::Cell;
-use std::cell::RefCell;
-use std::rc::Rc;
 
 #[derive(Default)]
 pub struct GsrPictureGrid {}

@@ -7,8 +7,6 @@ use crate::gui::editor::entry_editor_status::EntryEditorStatus;
 use crate::gui::editor::validator::Validator;
 use crate::gui::entry_kind::EntryKind;
 use crate::gui::mode::Mode;
-use crate::model::tags::Tags;
-use crate::model::tags::tags_from_str;
 use crate::model::view_option::ViewOption;
 use gtk::gdk::Key;
 use itertools::Itertools;
@@ -17,20 +15,20 @@ use itertools::Itertools;
 pub struct EntryEditor {
     entry_kind: EntryKind,
     controls: Controls,
-    validator: Validator,
+    _validator: Validator,
     completion_dispenser_opt: Option<CompletionDispenser>,
 }
 
 impl EntryEditor {
     pub fn new(
         entry_kind: EntryKind,
-        validator: Validator,
+        _validator: Validator,
         completion_dispenser_opt: Option<CompletionDispenser>,
     ) -> Self {
         Self {
             entry_kind,
             controls: default_controls(),
-            validator,
+            _validator,
             completion_dispenser_opt,
         }
     }

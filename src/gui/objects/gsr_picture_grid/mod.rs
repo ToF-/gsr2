@@ -1,18 +1,10 @@
-use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
-use crate::gui::objects::gsr_application::GsrApplication;
-use crate::env::default_values::FULL_OPACITY;
-use crate::env::default_values::HALF_OPACITY;
 use crate::env::default_values::MAX_PICTURES_PER_ROW;
-use crate::gui::navigator::Navigator;
+use crate::gui::objects::gsr_application::GsrApplication;
+use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
 use crate::gui::objects::gsr_picture_cell_box::GsrPictureCellBox;
-use crate::gui::view::View;
-use crate::model::gallery::Gallery;
 use crate::model::picture::Picture;
-use crate::model::shared::Shared;
 use gtk::glib;
 use gtk::prelude::*;
-use gtk::subclass::prelude::*;
-use std::cell::RefCell;
 
 mod imp;
 
@@ -37,10 +29,10 @@ impl GsrPictureGrid {
     }
 
     pub fn gsr_application(&self) -> GsrApplication {
-            self.root()
+        self.root()
             .and_then(|root| root.downcast::<GsrApplicationWindow>().ok())
             .expect("GsrPictureGrid is not inside a Window")
-        .gsr_application()
+            .gsr_application()
     }
     pub fn initialize_pictures(&self) {
         todo!()
@@ -66,46 +58,15 @@ impl GsrPictureGrid {
             */
     }
 
-    pub fn change_size(&self, pictures_per_row: i32, palette_on: bool) {
+    pub fn change_size(&self, _pictures_per_row: i32, _palette_on: bool) {
         todo!();
-    }
-
-    fn remove_all_cell_boxes(&self) {
-        for col in 0..MAX_PICTURES_PER_ROW {
-            for row in 0..MAX_PICTURES_PER_ROW {
-                if let Some(widget) = self.child_at(col, row) {
-                    self.remove(&widget)
-                }
-            }
-        }
-    }
-    fn fill_with_cell_boxes(&self) {
-        todo!()
-        /*
-        let view = self.imp().view.borrow();
-        let pictures_per_row = view.pictures_per_row();
-        let palette_on = view.palette_on();
-        self.remove_all_cell_boxes();
-        for col in 0..pictures_per_row {
-            for row in 0..pictures_per_row {
-                let picture_index: usize = (row * pictures_per_row + col) as usize;
-                if let Some(widget) = self.child_at(col, row) {
-                    self.remove(&widget);
-                };
-                let gsr_picture_cell_box =
-                    GsrPictureCellBox::new(col, row, picture_index, pictures_per_row, palette_on);
-                self.attach(&gsr_picture_cell_box, col, row, 1, 1);
-            }
-        }
-            */
     }
 
     pub fn set_picture_at(&self, col: i32, row: i32, picture: &Picture, picture_index: usize) {
-        todo!();
-        let view = self.gsr_application()
-            .imp().view.borrow();
-        let pictures_per_row = 1; // view.pictures_per_row();
-        let palette_on = false; // view.palette_on();
+        let binding = self.gsr_application().shared_view();
+        let view = binding.borrow();
+        let pictures_per_row = view.pictures_per_row();
+        let palette_on = view.palette_on();
         if let Some(widget) = self.child_at(col, row) {
             self.remove(&widget);
         };
@@ -124,13 +85,10 @@ impl GsrPictureGrid {
         }
     }
 
-    pub fn set_label_text_at(&self, _col: i32, _row: i32, _text: &str) {}
-
     pub fn set_focus_at(&self, col: i32, row: i32) {
-        todo!();
-        let view = self.gsr_application()
-            .imp().shared_view().borrow();
-        let (current_col, current_row) = (0, 0); // view.focus_at_coords();
+        let binding = self.gsr_application().shared_view();
+        let view = binding.borrow();
+        let (current_col, current_row) = view.focus_at_coords();
         if let Some(widget) = self.child_at(current_col, current_row) {
             let gsr_picture_cell_box = widget
                 .downcast::<GsrPictureCellBox>()
@@ -143,17 +101,12 @@ impl GsrPictureGrid {
                 .expect("can't downcast to GsrPictureCellBox");
             gsr_picture_cell_box.enter_focus();
             {
-                let mut view = self.gsr_application()
-                    .imp().shared_view().borrow_mut();
-                todo!();
-                // view.set_focus_at_coords((col, row));
+                let binding = self.gsr_application().shared_view();
+                let mut view = binding.borrow_mut();
+                view.set_focus_at_coords((col, row));
             }
         }
     }
-
-    pub fn set_palette_on(&self) {}
-
-    pub fn set_palette_off(&self) {}
 
     pub fn set_picture_opacity_at(&self, col: i32, row: i32, opacity: f64) {
         if let Some(widget) = self.child_at(col, row) {

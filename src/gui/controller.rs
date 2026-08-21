@@ -9,12 +9,9 @@ use crate::gui::action::gio_action::GioAction;
 use crate::gui::control::{Control, Controls, default_controls, help_on_controls};
 use crate::gui::direction::Direction;
 use crate::gui::editor::legacy_editor::LegacyEditor;
-use crate::gui::enter_label::enter_label;
 use crate::gui::entry_kind::EntryKind;
 use crate::gui::event::Event;
-use crate::gui::key_input::KeyInput;
 use crate::gui::key_input::entry::label_change_entry;
-use crate::gui::key_input::information;
 use crate::gui::key_input::information::information_key_input;
 use crate::gui::key_input::menu::change_menu;
 use crate::gui::key_input::menu::order_menu;
@@ -1352,7 +1349,7 @@ impl Controller {
     fn back_from_directory(&self) {
         // don't go if not in directory currently
         if self.state().pop_saved_command_line_arguments().is_none() {
-            let application_window = &self.main_view();
+            let _application_window = &self.main_view();
             self.display_information("not in a directory currently");
             return;
         };
@@ -1427,17 +1424,6 @@ impl Controller {
         self.change_grid_size(self.state().pictures_per_row());
     }
 
-    fn toggle_3x3_view(&self) {
-        {
-            let mut state = self.state_rc.borrow_mut();
-            if state.pictures_per_row() != 3 {
-                state.change_grid_size(3)
-            } else {
-                state.toggle_back_grid_size()
-            };
-        }
-        self.change_grid_size(self.state().pictures_per_row());
-    }
 
     fn toggle_cover(&self) {
         let index = self.navigator().position();
@@ -1591,11 +1577,6 @@ impl Controller {
     fn label(&self) {
         self.set_opacity_for_current_picture(0.25);
         self.enter_editing(EntryKind::Label, Some(self.repository.all_labels()));
-    }
-
-    fn label_(&self) {
-        let application_window = self.application_window();
-        enter_label(&application_window, &self.repository);
     }
 
     fn rename(&self) {
@@ -1882,7 +1863,7 @@ impl Controller {
         navigator.set_pictures_per_row(pictures_per_row);
         navigator.update_page_limits();
         navigator.set_page_changed();
-        let main_controller = self.main_controller_rc_opt.as_ref().unwrap().borrow();
+        let _main_controller = self.main_controller_rc_opt.as_ref().unwrap().borrow();
         self.main_view()
             .change_grid_size(pictures_per_row.try_into().unwrap(), palette_on);
     }
@@ -1928,16 +1909,6 @@ impl Controller {
         navigator.set_page_changed()
     }
 
-    fn delete_selected_pictures(&self) {
-        for index in self.navigator().selection() {
-            match self.repository.delete_picture_at_index(index) {
-                Ok(_) => {}
-                Err(err) => {
-                    println!("{}", err);
-                }
-            }
-        }
-    }
 
     fn move_selected_pictures_to_target(&self, target_dir: &str) {
         let mut picture_count = 0;

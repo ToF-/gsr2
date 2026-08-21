@@ -1,30 +1,18 @@
-use gtk::prelude::{
-    ApplicationExtManual, Cast, GestureSingleExt, GridExt, GtkApplicationExt, GtkWindowExt,
-    WidgetExt,
-};
-use gtk::{ApplicationWindow, Grid, Label, Picture as GtkPicture, ScrolledWindow, Window};
+use gtk::Picture as GtkPicture;
 
 use crate::env::default_values::FRAME_PALETTE_AREA_HEIGHT;
 use crate::env::default_values::FRAME_PALETTE_AREA_WIDTH;
-use crate::gui::controller::Controller;
-use crate::gui::direction::Direction;
-use crate::gui::main_controller::MainController;
 use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
 use crate::gui::view::palette_area::make_palette_area;
 use gtk::Align;
 use gtk::Orientation;
 use gtk::gio::File as GtkFile;
-use gtk::prelude::AdjustmentExt;
 use gtk::prelude::BoxExt;
 use std::path::Path;
 
 use crate::file::paths::check_path_exists;
-use crate::gui::navigator::Navigator;
-use crate::gui::view::View;
 use crate::gui::view::legacy_main_view::gtk_picture_from_file_path;
-use crate::model::gallery::Gallery;
 use crate::model::picture::Picture;
-use crate::model::shared::Shared;
 use crate::model::thumbnail::no_thumbnail_picture;
 use gtk::glib;
 use gtk::prelude::*;
@@ -61,18 +49,6 @@ impl GsrPictureFrame {
         while let Some(child) = self.first_child() {
             self.remove(&child);
         }
-    }
-
-    fn add_chidren(&self) {
-        let picture = make_picture();
-        let label = make_label();
-        self.append(&picture);
-        self.append(&label);
-    }
-
-    fn get_application_window(&self) -> Option<GsrApplicationWindow> {
-        self.root()
-            .and_then(|root| root.downcast::<GsrApplicationWindow>().ok())
     }
 
     pub fn gtk_picture_from_file_path(file_path: &Path) -> gtk::Picture {
@@ -142,22 +118,6 @@ impl GsrPictureFrame {
         };
         self.set_picture(picture_opt);
     }
-}
-
-fn make_frame() -> gtk::Box {
-    gtk::Box::builder()
-        .orientation(Orientation::Vertical)
-        .spacing(0)
-        .halign(Align::Fill)
-        .valign(Align::Fill)
-        .hexpand(true)
-        .vexpand(true)
-        .homogeneous(false)
-        .build()
-}
-
-fn make_picture() -> gtk::Picture {
-    GtkPicture::builder().hexpand(true).vexpand(true).build()
 }
 
 pub fn make_label() -> gtk::Label {
