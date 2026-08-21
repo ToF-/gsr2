@@ -30,15 +30,17 @@ impl GsrPictureGrid {
         obj
     }
 
-    pub fn gsr_application(&self) -> GsrApplication {
+    fn gsr_application(&self) -> GsrApplication {
         self.root()
             .and_then(|root| root.downcast::<GsrApplicationWindow>().ok())
             .expect("GsrPictureGrid is not inside a Window")
             .gsr_application()
     }
     pub fn initialize_pictures(&self) {
+        self.remove_all_picture_cells();
         let shared_view = self.gsr_application().shared_view();
         let view = shared_view.borrow();
+        dbg!(&view);
         let shared_navigator = self.gsr_application().shared_navigator();
         let navigator = shared_navigator.borrow();
         let shared_gallery = self.gsr_application().shared_gallery();
@@ -67,6 +69,16 @@ impl GsrPictureGrid {
                         FULL_OPACITY
                     };
                     self.set_picture_opacity_at(col, row, opacity);
+                }
+            }
+        }
+    }
+
+    fn remove_all_picture_cells(&self) {
+        for col in 0..10 {
+            for row in 0..10 {
+                if let Some(widget) = self.child_at(col, row) {
+                    self.remove(&widget)
                 }
             }
         }

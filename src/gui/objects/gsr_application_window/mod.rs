@@ -124,6 +124,18 @@ impl GsrApplicationWindow {
         self.gsr_picture_grid().initialize_pictures();
     }
 
+    pub fn set_pictures_per_row(&self, n: i32) {
+        {
+            let shared_view = self.gsr_application().shared_view();
+            let mut view = shared_view.borrow_mut();
+            view.set_pictures_per_row(n);
+            let shared_navigator = self.gsr_application().shared_navigator();
+            let mut navigator = shared_navigator.borrow_mut();
+            navigator.set_pictures_per_row(view.pictures_per_row() as usize);
+        }
+        self.gsr_picture_grid().initialize_pictures();
+    }
+
     pub fn frame_scrolled_window(&self) -> gtk::ScrolledWindow {
         self.first_child()
             .expect("application window stack not set")
@@ -149,11 +161,13 @@ impl GsrApplicationWindow {
     fn gsr_picture_grid(&self) -> GsrPictureGrid {
         let gsw = self.grid_scrolled_window();
         dbg!(&gsw);
-        let vp = gsw.first_child()
+        let vp = gsw
+            .first_child()
             .expect("grid scrolled window has no panel child")
             .downcast::<gtk::Viewport>()
             .expect("panel is not a viewport");
-        let grid = vp.first_child()
+        let grid = vp
+            .first_child()
             .expect("panel has no children")
             .downcast::<gtk::Grid>()
             .expect("panel has no grid")
@@ -161,7 +175,7 @@ impl GsrApplicationWindow {
             .expect("panel grid has no middle child")
             .downcast::<GsrPictureGrid>()
             .expect("middle child is not a gsr_picture_grid");
-            grid
+        grid
     }
     pub fn full_size_arrow_move(&self, direction: Direction) {
         let full_size_on = self.gsr_application().shared_view().borrow().full_size_on();
@@ -195,6 +209,12 @@ impl GsrApplicationWindow {
                     "Q" => {
                         // TEMPORARY
                         this.close()
+                    }
+                    "T" => {
+                        this.set_pictures_per_row(10);
+                    }
+                    "W" => {
+                        this.set_pictures_per_row(2);
                     }
                     _ => {}
                 }
