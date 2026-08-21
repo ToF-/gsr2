@@ -5,6 +5,7 @@ use crate::gui::direction::Direction;
 use crate::gui::objects::gsr_application::GsrApplication;
 use crate::gui::objects::gsr_picture_frame::GsrPictureFrame;
 use crate::gui::objects::gsr_picture_grid::GsrPictureGrid;
+use crate::gui::view::View;
 use crate::gui::view::treelist_view::TreeListView;
 use crate::model::catalog::Catalog;
 use gtk::glib;
@@ -31,6 +32,7 @@ glib::wrapper! {
             gtk::gio::ActionMap;
 }
 
+// GSR_WINDOW
 impl GsrApplicationWindow {
     pub fn new(application: &GsrApplication) -> Self {
         let obj = glib::Object::builder()
@@ -89,7 +91,7 @@ impl GsrApplicationWindow {
             let mut view = binding.borrow_mut();
             // TEST SETUP
             view.set_full_size(false);
-            view.set_palette_on(false);
+            view.set_palette_on(true);
             view.set_pictures_per_row(10);
             let pictures_per_row = &view.pictures_per_row();
             if *pictures_per_row == 1 {
@@ -98,7 +100,7 @@ impl GsrApplicationWindow {
                 stack.set_visible_child(&grid_scrolled_window);
             }
         }
-        gsr_picture_grid.initialize_pictures();
+        self.gsr_picture_grid().initialize_pictures();
         let gallery = self.gsr_application().shared_gallery().borrow().clone();
         frame.set_current_picture();
         if gallery.len() == 0 {
@@ -109,20 +111,57 @@ impl GsrApplicationWindow {
         // navigate to current position
     }
 
-    // change what is visible  according the the state of view
-    pub fn change_view(&self) {
-        todo!()
+    // change what is visible  according the given view
+    pub fn change_view(&self, new_view: View) {
+        {
+            let shared_view = self.gsr_application().shared_view();
+            let mut view = shared_view.borrow_mut();
+            *view = new_view;
+            let shared_navigator = self.gsr_application().shared_navigator();
+            let mut navigator = shared_navigator.borrow_mut();
+            navigator.set_pictures_per_row(view.pictures_per_row() as usize);
+        }
+        self.gsr_picture_grid().initialize_pictures();
     }
 
     pub fn frame_scrolled_window(&self) -> gtk::ScrolledWindow {
         self.first_child()
-            .expect("application winodow stack not set")
+            .expect("application window stack not set")
             .downcast::<gtk::Stack>()
             .expect("not a stack")
             .first_child()
             .expect("application window frame scrolled window not set")
             .downcast::<gtk::ScrolledWindow>()
             .expect("not a scrolled window")
+    }
+    pub fn grid_scrolled_window(&self) -> gtk::ScrolledWindow {
+        self.first_child()
+            .expect("application window stack not set")
+            .downcast::<gtk::Stack>()
+            .expect("not a stack")
+            .first_child()
+            .expect("application window frame scrolled window not set")
+            .next_sibling()
+            .expect("application window grid scrolled window not set")
+            .downcast::<gtk::ScrolledWindow>()
+            .expect("not a scrolled window")
+    }
+    fn gsr_picture_grid(&self) -> GsrPictureGrid {
+        let gsw = self.grid_scrolled_window();
+        dbg!(&gsw);
+        let vp = gsw.first_child()
+            .expect("grid scrolled window has no panel child")
+            .downcast::<gtk::Viewport>()
+            .expect("panel is not a viewport");
+        let grid = vp.first_child()
+            .expect("panel has no children")
+            .downcast::<gtk::Grid>()
+            .expect("panel has no grid")
+            .child_at(1, 0)
+            .expect("panel grid has no middle child")
+            .downcast::<GsrPictureGrid>()
+            .expect("middle child is not a gsr_picture_grid");
+            grid
     }
     pub fn full_size_arrow_move(&self, direction: Direction) {
         let full_size_on = self.gsr_application().shared_view().borrow().full_size_on();

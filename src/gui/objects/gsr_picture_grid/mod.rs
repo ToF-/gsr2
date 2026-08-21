@@ -43,7 +43,7 @@ impl GsrPictureGrid {
         let navigator = shared_navigator.borrow();
         let shared_gallery = self.gsr_application().shared_gallery();
         let gallery = shared_gallery.borrow();
-dbg!(&navigator);
+        dbg!(&navigator);
         let pictures_per_row = view.pictures_per_row();
         for col in 0..pictures_per_row {
             for row in 0..pictures_per_row {

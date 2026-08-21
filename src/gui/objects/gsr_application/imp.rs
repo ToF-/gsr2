@@ -22,6 +22,7 @@ pub struct GsrApplication {
     pub gallery: RefCell<Option<Shared<Gallery>>>,
 }
 
+// GSR_APPLICATION
 impl GsrApplication {
     // stored for sharing: command line args, view state, navigator and gallery
     pub fn set_state(&self, clargs: CommandLineArguments, controller: &Controller) {
@@ -33,6 +34,7 @@ impl GsrApplication {
         // TESTING
         // view.set_pictures_per_row(clargs.pictures_per_row());
         view.set_pictures_per_row(10);
+        view.set_palette_on(true);
         *self.view.borrow_mut() = Some(Rc::new(RefCell::new(view.clone())));
 
         let gallery = &controller.repository().gallery_rc().borrow().clone();
@@ -50,6 +52,7 @@ impl ObjectSubclass for GsrApplication {
     type ParentType = gtk::Application;
 }
 
+// ACTIVATE
 impl ObjectImpl for GsrApplication {}
 impl ApplicationImpl for GsrApplication {
     fn activate(&self) {
@@ -57,6 +60,10 @@ impl ApplicationImpl for GsrApplication {
         let gsr_application_window = GsrApplicationWindow::new(&app);
         gsr_application_window.initialize();
         gsr_application_window.present();
+        let shared_view = self.view.borrow();
+        let mut new_view = shared_view.clone().unwrap().as_ref().borrow().clone();
+        new_view.set_pictures_per_row(2);
+        gsr_application_window.change_view(new_view);
     }
 }
 

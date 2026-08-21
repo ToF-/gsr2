@@ -30,6 +30,7 @@ impl Default for GsrApplication {
         obj
     }
 }
+
 impl GsrApplication {
     pub fn set_state(&self, clargs: CommandLineArguments, controller: &Controller) {
         self.imp().set_state(clargs, controller)
