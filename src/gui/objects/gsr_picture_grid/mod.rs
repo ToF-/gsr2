@@ -1,3 +1,5 @@
+use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
+use crate::gui::objects::gsr_application::GsrApplication;
 use crate::env::default_values::FULL_OPACITY;
 use crate::env::default_values::HALF_OPACITY;
 use crate::env::default_values::MAX_PICTURES_PER_ROW;
@@ -25,16 +27,21 @@ glib::wrapper! {
 }
 
 impl GsrPictureGrid {
-    pub fn new(view: Shared<View>, navigator: Shared<Navigator>, gallery: Shared<Gallery>) -> Self {
+    pub fn new() -> Self {
         let obj: Self = glib::Object::builder().build();
         obj.set_row_homogeneous(true);
         obj.set_column_homogeneous(true);
         obj.set_hexpand(true);
         obj.set_vexpand(true);
-        obj.imp().initialize(view, navigator, gallery);
         obj
     }
 
+    pub fn gsr_application(&self) -> GsrApplication {
+            self.root()
+            .and_then(|root| root.downcast::<GsrApplicationWindow>().ok())
+            .expect("GsrPictureGrid is not inside a Window")
+        .gsr_application()
+    }
     pub fn initialize_pictures(&self) {
         todo!()
         /*
@@ -95,7 +102,8 @@ impl GsrPictureGrid {
 
     pub fn set_picture_at(&self, col: i32, row: i32, picture: &Picture, picture_index: usize) {
         todo!();
-        let view = self.imp().view.borrow();
+        let view = self.gsr_application()
+            .imp().view.borrow();
         let pictures_per_row = 1; // view.pictures_per_row();
         let palette_on = false; // view.palette_on();
         if let Some(widget) = self.child_at(col, row) {
@@ -120,7 +128,8 @@ impl GsrPictureGrid {
 
     pub fn set_focus_at(&self, col: i32, row: i32) {
         todo!();
-        let view = self.imp().view.borrow();
+        let view = self.gsr_application()
+            .imp().shared_view().borrow();
         let (current_col, current_row) = (0, 0); // view.focus_at_coords();
         if let Some(widget) = self.child_at(current_col, current_row) {
             let gsr_picture_cell_box = widget
@@ -134,7 +143,8 @@ impl GsrPictureGrid {
                 .expect("can't downcast to GsrPictureCellBox");
             gsr_picture_cell_box.enter_focus();
             {
-                let mut view = self.imp().view.borrow_mut();
+                let mut view = self.gsr_application()
+                    .imp().shared_view().borrow_mut();
                 todo!();
                 // view.set_focus_at_coords((col, row));
             }

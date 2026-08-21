@@ -23,15 +23,10 @@ pub struct GsrApplication {
 }
 
 impl GsrApplication {
-    pub fn set_state(&self, clargs: CommandLineArguments, controller: Controller) {
+    // stored for sharing: command line args, view state, navigator and gallery
+    pub fn set_state(&self, clargs: CommandLineArguments, controller: &Controller) {
         dbg!("set_state");
         *self.command_line_arguments.borrow_mut() = Some(Rc::new(RefCell::new(clargs.clone())));
-
-        let main_controller = MainController::new(Some(Rc::new(RefCell::new(controller))));
-        *self.main_controller.borrow_mut() = Some(Rc::new(RefCell::new(main_controller)));
-
-        let configuration = CONFIGURATION.get().unwrap();
-        *self.configuration.borrow_mut() = Some(Rc::new(RefCell::new(configuration.clone())));
 
         let mut view = View::default();
         let current_picture_file_path = &CONFIGURATION.get().unwrap().current_picture;
@@ -41,14 +36,6 @@ impl GsrApplication {
         let navigator = Navigator::default();
         *self.navigator.borrow_mut() = Some(Rc::new(RefCell::new(navigator)));
 
-        let controller_rc = self
-            .shared_main_controller()
-            .borrow()
-            .controller_opt_rc
-            .borrow()
-            .clone()
-            .expect("controller not initialized");
-        let controller = controller_rc.borrow();
         let gallery = &controller.repository().gallery_rc().borrow().clone();
         *self.gallery.borrow_mut() = Some(Rc::new(RefCell::new(gallery.clone())));
     }
@@ -70,12 +57,6 @@ impl GsrApplication {
             .unwrap()
             .clone()
     }
-    pub fn shared_configuration(&self) -> Shared<Configuration> {
-        (*self.configuration.borrow()).as_ref().unwrap().clone()
-    }
-    pub fn shared_main_controller(&self) -> Shared<MainController> {
-        (*self.main_controller.borrow()).as_ref().unwrap().clone()
-    }
 }
 #[glib::object_subclass]
 impl ObjectSubclass for GsrApplication {
@@ -90,14 +71,6 @@ impl ApplicationImpl for GsrApplication {
     fn activate(&self) {
         let app = self.obj();
         let gsr_application_window = GsrApplicationWindow::new(&app);
-        gsr_application_window.imp().set_state(
-            self.shared_command_line_arguments(),
-            self.shared_configuration(),
-            self.shared_main_controller(),
-            self.shared_view(),
-            self.shared_navigator(),
-            self.shared_gallery(),
-        );
         gsr_application_window.initialize();
         gsr_application_window.present();
     }

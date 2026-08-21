@@ -30,40 +30,9 @@ pub const RIGHT_PANE: usize = 1;
 use super::*;
 
 #[derive(Default)]
-pub struct GsrApplicationWindow {
-    pub command_line_arguments: RefCell<Option<Shared<CommandLineArguments>>>,
-    pub configuration: RefCell<Option<Shared<Configuration>>>,
-    pub main_controller: RefCell<Option<Shared<MainController>>>,
-    pub view: RefCell<Option<Rc<RefCell<View>>>>,
-    pub navigator: RefCell<Option<Shared<Navigator>>>,
-    pub gallery: RefCell<Option<Shared<Gallery>>>,
-}
+pub struct GsrApplicationWindow {}
 
-impl GsrApplicationWindow {
-    pub fn set_state(
-        &self,
-        command_line_arguments: Shared<CommandLineArguments>,
-        configuration: Shared<Configuration>,
-        main_controller: Shared<MainController>,
-        view: Shared<View>,
-        navigator: Shared<Navigator>,
-        gallery: Shared<Gallery>,
-    ) {
-        *self.command_line_arguments.borrow_mut() = Some(command_line_arguments);
-        *self.configuration.borrow_mut() = Some(configuration);
-        *self.main_controller.borrow_mut() = Some(main_controller);
-        *self.view.borrow_mut() = Some(view);
-        *self.navigator.borrow_mut() = Some(navigator);
-        *self.gallery.borrow_mut() = Some(gallery);
-    }
-    pub fn shared_view(&self) -> Rc<RefCell<View>> {
-        self.view.borrow().as_ref().unwrap().clone()
-    }
-
-    pub fn shared_gallery(&self) -> Rc<RefCell<Gallery>> {
-        self.gallery.borrow().as_ref().unwrap().clone()
-    }
-}
+impl GsrApplicationWindow {}
 #[gtk::glib::object_subclass]
 impl ObjectSubclass for GsrApplicationWindow {
     const NAME: &'static str = "GsrApplicationWindow";

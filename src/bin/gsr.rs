@@ -43,9 +43,10 @@ fn run_application(config: &Configuration, clargs: &CommandLineArguments) -> Res
         let repository = controller.repository();
         let result = execute_command(clargs.clone(), repository.clone(), config.clone());
         if let Ok(Status::Ready(initial_position)) = result {
-            let gallery = repository.gallery_rc().borrow();
+            let mut gallery = repository.gallery_rc().borrow_mut();
+            gallery.set_current_picture_index(initial_position);
             println!("{} picture(s)", gallery.len());
-            build_and_run_app(clargs, controller);
+            build_and_run_app(clargs, &controller);
             Ok(Status::Done)
         } else {
             result
@@ -57,7 +58,7 @@ fn run_application(config: &Configuration, clargs: &CommandLineArguments) -> Res
     exit(0)
 }
 
-fn build_and_run_app(clargs: &CommandLineArguments, controller: Controller) {
+fn build_and_run_app(clargs: &CommandLineArguments, controller: &Controller) {
     let gsr_application = GsrApplication::default();
     gsr_application.set_state(clargs.clone(), controller);
     let no_args: Vec<String> = vec![];

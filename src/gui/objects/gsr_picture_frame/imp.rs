@@ -1,4 +1,5 @@
 use crate::gui::navigator::Navigator;
+use crate::gui::objects::gsr_application::GsrApplication;
 use crate::gui::objects::gsr_picture_frame::GsrApplicationWindow;
 use crate::gui::view::View;
 use crate::model::gallery::Gallery;
@@ -14,23 +15,19 @@ use std::rc::Rc;
 pub struct GsrPictureFrame {}
 
 impl GsrPictureFrame {
-    pub fn shared_view(&self) -> Rc<RefCell<View>> {
+    pub fn gsr_application(&self) -> GsrApplication {
         self.obj()
             .root()
             .unwrap()
             .downcast::<GsrApplicationWindow>()
             .expect("GsrPictureFrame not inside a GsrApplicationWindow")
-            .imp()
-            .shared_view()
+            .gsr_application()
+    }
+    pub fn shared_view(&self) -> Rc<RefCell<View>> {
+        self.gsr_application().imp().shared_view()
     }
     pub fn shared_gallery(&self) -> Rc<RefCell<Gallery>> {
-        self.obj()
-            .root()
-            .unwrap()
-            .downcast::<GsrApplicationWindow>()
-            .expect("GsrPictureFrame not inside a GsrApplicationWindow")
-            .imp()
-            .shared_gallery()
+        self.gsr_application().imp().shared_gallery()
     }
 }
 

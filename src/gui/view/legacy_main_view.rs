@@ -162,7 +162,7 @@ impl LegacyMainView {
             };
 
             dbg!(coords_from_position);
-            GsrPictureGrid::new(shared_view, shared_navigator, shared_gallery)
+            GsrPictureGrid::new()
         };
         let picture_frame = PictureFrame::new();
         let single_view_scrolled_window = make_scrolled_window();

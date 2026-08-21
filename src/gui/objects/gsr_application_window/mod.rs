@@ -54,37 +54,6 @@ impl GsrApplicationWindow {
         obj
     }
 
-    pub fn shared_view(&self) -> Shared<View> {
-        (*self.imp().view.borrow()).as_ref().unwrap().clone()
-    }
-
-    pub fn shared_navigator(&self) -> Shared<Navigator> {
-        (*self.imp().navigator.borrow()).as_ref().unwrap().clone()
-    }
-
-    pub fn shared_gallery(&self) -> Shared<Gallery> {
-        (*self.imp().gallery.borrow()).as_ref().unwrap().clone()
-    }
-
-    pub fn shared_command_line_arguments(&self) -> Shared<CommandLineArguments> {
-        (*self.imp().command_line_arguments.borrow())
-            .as_ref()
-            .unwrap()
-            .clone()
-    }
-    pub fn shared_configuration(&self) -> Shared<Configuration> {
-        (*self.imp().configuration.borrow())
-            .as_ref()
-            .unwrap()
-            .clone()
-    }
-    pub fn shared_main_controller(&self) -> Shared<MainController> {
-        (*self.imp().main_controller.borrow())
-            .as_ref()
-            .unwrap()
-            .clone()
-    }
-
     pub fn stack(&self) -> gtk::Stack {
         self.first_child()
             .expect("no child on stack")
@@ -104,38 +73,51 @@ impl GsrApplicationWindow {
             .expect("can't downcast to GsrPictureFrame")
     }
 
+    pub fn gsr_application(&self) -> GsrApplication {
+        self.application()
+            .expect("no application set")
+            .downcast::<GsrApplication>()
+            .expect("not a GsrApplication")
+    }
     pub fn initialize(&self) {
         dbg!("GsrApplication::initialize");
-        let command_line_arguments = self.shared_command_line_arguments().borrow().clone();
+        let command_line_arguments = self
+            .gsr_application()
+            .imp()
+            .shared_command_line_arguments()
+            .borrow()
+            .clone();
+
         self.set_default_width(command_line_arguments.width.unwrap());
         self.set_default_height(command_line_arguments.height.unwrap());
         // build the components
         let frame = GsrPictureFrame::new();
         let frame_scrolled_window = make_scrolled_window_with_child(&frame);
-        let gsr_picture_grid = GsrPictureGrid::new(
-            self.shared_view(),
-            self.shared_navigator(),
-            self.shared_gallery(),
-        );
+        let gsr_picture_grid = GsrPictureGrid::new();
         let panel = make_panel_with_child(&gsr_picture_grid);
         let grid_scrolled_window = make_scrolled_window_with_child(&panel);
         let stack = gtk::Stack::builder().hexpand(true).vexpand(true).build();
         let _ = stack.add_named(&frame_scrolled_window, Some(FRAME_WINDOW_NAME));
         let _ = stack.add_named(&grid_scrolled_window, Some(GRID_WINDOW_NAME));
         self.set_child(Some(&stack));
-        let pictures_per_row = self.shared_view().borrow().pictures_per_row();
-        if pictures_per_row == 1 {
-            stack.set_visible_child(&frame_scrolled_window);
-        } else {
-            stack.set_visible_child(&grid_scrolled_window);
-        }
-        let gallery = self.shared_gallery().borrow().clone();
         {
-            let view_rc = self.imp().view.borrow().as_ref().unwrap().clone();
-            let mut view = view_rc.borrow_mut();
+            let binding = self.gsr_application().imp().shared_view();
+            let mut view = binding.borrow_mut();
             view.set_full_size(true);
             view.set_palette_on(true);
+            let pictures_per_row = &view.pictures_per_row();
+            if *pictures_per_row == 1 {
+                stack.set_visible_child(&frame_scrolled_window);
+            } else {
+                stack.set_visible_child(&grid_scrolled_window);
+            }
         }
+        let gallery = self
+            .gsr_application()
+            .imp()
+            .shared_gallery()
+            .borrow()
+            .clone();
         frame.set_current_picture();
         if gallery.len() == 0 {
             self.set_title(Some("gallery is empty"));
@@ -161,7 +143,8 @@ impl GsrApplicationWindow {
             .expect("not a scrolled window")
     }
     pub fn full_size_arrow_move(&self, direction: Direction) {
-        let full_size_on = self.shared_view().borrow().full_size_on();
+        let full_size_on = self.gsr_application()
+            .imp().shared_view().borrow().full_size_on();
         if self.stack().visible_child_name().unwrap() == FRAME_WINDOW_NAME && full_size_on {
             let step: f64 = 100.0;
             let window = self.frame_scrolled_window();
@@ -179,8 +162,8 @@ impl GsrApplicationWindow {
     fn attach_key_pressed_event_handlers(&self) {
         let event_controller_key = gtk::EventControllerKey::new();
         event_controller_key.connect_key_pressed(clone!(
-                #[strong (rename_to = this)]
-                self,
+            #[strong (rename_to = this)]
+            self,
             move |_, key, _key_code, _modifier_type| {
                 if let Some(key_name) = key.name() {
                     let key_name = key.name().unwrap_or_default();
@@ -189,6 +172,10 @@ impl GsrApplicationWindow {
                         "Right" | "Left" | "Up" | "Down" => {
                             let direction = Direction::from(key_name);
                             this.full_size_arrow_move(direction)
+                        }
+                        "Q" => {
+                            // TEMPORARY
+                            this.close()
                         }
                         _ => {}
                     }
