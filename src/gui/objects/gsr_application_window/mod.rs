@@ -131,6 +131,11 @@ impl GsrApplicationWindow {
             stack.set_visible_child(&grid_scrolled_window);
         }
         let gallery = self.shared_gallery().borrow().clone();
+        {
+            let view_rc = self.imp().view.borrow().as_ref().unwrap().clone();
+            let mut view = view_rc.borrow_mut();
+            view.set_full_size(true);
+        }
         frame.set_current_picture();
         if gallery.len() == 0 {
             self.set_title(Some("gallery is empty"));

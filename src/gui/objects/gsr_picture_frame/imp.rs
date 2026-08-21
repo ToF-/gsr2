@@ -1,8 +1,11 @@
+use std::rc::Rc;
 use crate::gui::navigator::Navigator;
+use crate::gui::objects::gsr_picture_frame::GsrApplicationWindow;
 use crate::gui::view::View;
 use crate::model::gallery::Gallery;
 use crate::model::shared::Shared;
 use gtk::glib;
+use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 use std::cell::Cell;
 use std::cell::RefCell;
@@ -43,6 +46,16 @@ impl GsrPictureFrame {
     }
     pub fn gallery(&self) -> Gallery {
         self.gallery.borrow().as_ref().unwrap().borrow().clone()
+    }
+
+    pub fn shared_view(&self) -> Rc<RefCell<View>> {
+        self.obj()
+            .root()
+            .unwrap()
+            .downcast::<GsrApplicationWindow>()
+            .expect("GsrPictureFrame not inside a GsrApplicationWindow")
+            .imp()
+            .shared_view()
     }
 }
 

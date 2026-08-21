@@ -109,7 +109,8 @@ impl GsrPictureFrame {
                 no_thumbnail_picture()
             };
             self.set_gtk_picture(gtk_picture);
-            let view = self.imp().view();
+            let binding = self.imp().shared_view();
+            let view = binding.borrow();
             if view.palette_on()
                 && let Some(image_data) = picture.image_data()
             {

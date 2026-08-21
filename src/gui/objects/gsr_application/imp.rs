@@ -41,7 +41,8 @@ impl GsrApplication {
         let navigator = Navigator::default();
         *self.navigator.borrow_mut() = Some(Rc::new(RefCell::new(navigator)));
 
-        let controller_rc = self.shared_main_controller()
+        let controller_rc = self
+            .shared_main_controller()
             .borrow()
             .controller_opt_rc
             .borrow()

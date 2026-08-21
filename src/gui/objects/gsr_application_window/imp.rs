@@ -34,7 +34,7 @@ pub struct GsrApplicationWindow {
     pub command_line_arguments: RefCell<Option<Shared<CommandLineArguments>>>,
     pub configuration: RefCell<Option<Shared<Configuration>>>,
     pub main_controller: RefCell<Option<Shared<MainController>>>,
-    pub view: RefCell<Option<Shared<View>>>,
+    pub view: RefCell<Option<Rc<RefCell<View>>>>,
     pub navigator: RefCell<Option<Shared<Navigator>>>,
     pub gallery: RefCell<Option<Shared<Gallery>>>,
 }
@@ -55,6 +55,9 @@ impl GsrApplicationWindow {
         *self.view.borrow_mut() = Some(view);
         *self.navigator.borrow_mut() = Some(navigator);
         *self.gallery.borrow_mut() = Some(gallery);
+    }
+    pub fn shared_view(&self) -> Rc<RefCell<View>> {
+        self.view.borrow().as_ref().unwrap().clone()
     }
 }
 #[gtk::glib::object_subclass]
