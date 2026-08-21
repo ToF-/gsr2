@@ -30,7 +30,9 @@ impl GsrApplication {
 
         let mut view = View::default();
         let _current_picture_file_path = &CONFIGURATION.get().unwrap().current_picture;
-        view.set_pictures_per_row(clargs.pictures_per_row());
+        // TESTING
+        // view.set_pictures_per_row(clargs.pictures_per_row());
+        view.set_pictures_per_row(10);
         *self.view.borrow_mut() = Some(Rc::new(RefCell::new(view.clone())));
 
         let gallery = &controller.repository().gallery_rc().borrow().clone();

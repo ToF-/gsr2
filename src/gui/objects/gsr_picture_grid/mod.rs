@@ -43,23 +43,23 @@ impl GsrPictureGrid {
         let navigator = shared_navigator.borrow();
         let shared_gallery = self.gsr_application().shared_gallery();
         let gallery = shared_gallery.borrow();
-
+dbg!(&navigator);
         let pictures_per_row = view.pictures_per_row();
         for col in 0..pictures_per_row {
             for row in 0..pictures_per_row {
+                if self.child_at(col, row).is_none() {
+                    let gsr_picture_cell_box = GsrPictureCellBox::new(
+                        col,
+                        row,
+                        0,
+                        view.pictures_per_row(),
+                        view.palette_on(),
+                    );
+                    self.attach(&gsr_picture_cell_box, col, row, 1, 1);
+                }
                 if let Some(index) = navigator.position_from_coords(row as usize, col as usize) {
                     dbg!(index);
                     let picture = gallery.picture(index);
-                    if self.child_at(col, row).is_none() {
-                        let gsr_picture_cell_box = GsrPictureCellBox::new(
-                            col,
-                            row,
-                            index,
-                            view.pictures_per_row(),
-                            view.palette_on(),
-                        );
-                        self.attach(&gsr_picture_cell_box, col, row, 1, 1);
-                    }
                     self.set_picture_at(col, row, &picture, index);
                     let opacity: f64 = if navigator.is_selected(index) {
                         HALF_OPACITY
