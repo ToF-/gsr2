@@ -59,6 +59,10 @@ impl GsrApplicationWindow {
     pub fn shared_view(&self) -> Rc<RefCell<View>> {
         self.view.borrow().as_ref().unwrap().clone()
     }
+
+    pub fn shared_gallery(&self) -> Rc<RefCell<Gallery>> {
+        self.gallery.borrow().as_ref().unwrap().clone()
+    }
 }
 #[gtk::glib::object_subclass]
 impl ObjectSubclass for GsrApplicationWindow {

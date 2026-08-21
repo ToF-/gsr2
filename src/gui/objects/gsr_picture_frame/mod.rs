@@ -48,8 +48,6 @@ impl GsrPictureFrame {
             .property("vexpand", true)
             .property("homogeneous", false)
             .build();
-
-        obj.imp().initialize(view, navigator, gallery);
         obj
     }
 
@@ -80,8 +78,9 @@ impl GsrPictureFrame {
     }
 
     pub fn set_gtk_picture(&self, gtk_picture: gtk::Picture) {
+        let binding = self.imp().shared_view();
+        let view = binding.borrow();
         self.remove_children();
-        let view = self.imp().view();
         if view.expand_on() {
             gtk_picture.set_valign(Align::Fill);
             gtk_picture.set_halign(Align::Fill);
@@ -128,7 +127,8 @@ impl GsrPictureFrame {
     }
 
     pub fn set_current_picture(&self) {
-        let gallery = self.imp().gallery();
+        let binding = self.imp().shared_gallery();
+        let gallery = binding.borrow();
         let picture_opt = if gallery.len() > 0 {
             Some(gallery.current_picture())
         } else {
