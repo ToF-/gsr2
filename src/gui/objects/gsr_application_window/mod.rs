@@ -211,6 +211,10 @@ impl GsrApplicationWindow {
             #[strong (rename_to = this)]
             self,
             move |_, key, _key_code, _modifier_type| {
+                let view = {
+                    let shared_view = this.gsr_application().shared_view();
+                    shared_view.borrow().clone()
+                };
                 let key_name = key.name().unwrap_or_default();
                 let key_name = key_name.as_str();
                 let key_name = key_name.to_string();
@@ -218,7 +222,13 @@ impl GsrApplicationWindow {
                     match control {
                         Control::Right | Control::Left | Control::Up | Control::Down => {
                             let direction = Direction::from(control.clone());
-                            this.full_size_arrow_move(direction)
+                            if view.single_view() {
+                                if view.full_size_on() {
+                                    this.full_size_arrow_move(direction)
+                                }
+                            } else {
+                                this.single_view_move(direction)
+                            }
                         }
                         Control::Quit => {
                             // TEMPORARY, should call a quit action that saves things
@@ -255,6 +265,15 @@ impl GsrApplicationWindow {
             self.gsr_picture_grid().initialize_pictures();
             self.gsr_picture_grid().set_focus_symbol();
         }
+    }
+
+    fn single_view_move(&self, direction: Direction) {
+        let direction = match direction {
+            Direction::Right | Direction::Down => Direction::NextPage,
+            Direction::Left | Direction::Up => Direction::PrevPage,
+            _ => todo!(),
+        };
+        todo!();
     }
     pub fn set_focus_for_current_picture(&self, _controller: &Controller) {
         todo!()
