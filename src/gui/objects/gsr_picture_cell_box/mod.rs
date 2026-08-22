@@ -9,6 +9,7 @@ use crate::gui::action::gio_action::GioAction;
 use crate::gui::action::gio_action::SimpleActionCall;
 use crate::gui::display::picture_label_display;
 use crate::gui::main_controller::MainController;
+use crate::gui::objects::gsr_picture_grid::GsrPictureGrid;
 use crate::gui::view::palette_area::make_palette_area;
 use crate::model::palette::Palette;
 use crate::model::picture::Picture;
@@ -69,6 +70,13 @@ impl GsrPictureCellBox {
         self.set_vexpand(true);
     }
 
+    fn parent_grid(&self) -> GsrPictureGrid {
+        self.parent()
+            .expect("cell doesn't have a parent")
+            .downcast::<GsrPictureGrid>()
+            .expect("cell parent is not a GsrPictureGrid")
+    }
+
     pub fn enter_focus(&self) {
         self.imp().has_focus.set(true);
         let label_rc = self.imp().label.clone();
@@ -89,20 +97,21 @@ impl GsrPictureCellBox {
                 #[strong]
                 index,
                 move || {
-                    if this.imp().has_focus.get() {
+                    let shared_view = this.parent_grid().gsr_application().shared_view();
+                    let view = shared_view.borrow();
+                    if this.imp().has_focus.get() && view.blinking_on() {
                         label_rc.borrow().as_ref().map(flip_focus_symbol_on_label);
                         ControlFlow::Continue
                     } else {
+                        this.detach_focus_blink_event();
                         ControlFlow::Break
                     }
                 }
             ),
         ));
-        dbg!("{:?}", self.imp().timeout_rc.borrow());
     }
 
     pub fn leave_focus(&self) {
-        dbg!("leave focus");
         self.imp().has_focus.set(false);
         self.detach_focus_blink_event();
         let label_rc = self.imp().label.clone();
@@ -114,7 +123,6 @@ impl GsrPictureCellBox {
 
     fn detach_focus_blink_event(&self) {
         if let Some(id) = self.imp().timeout_rc.borrow_mut().take() {
-            dbg!("detach_focus_blink_event");
             id.remove();
         }
     }

@@ -122,7 +122,6 @@ impl GsrApplicationWindow {
             let mut navigator = shared_navigator.borrow_mut();
             navigator.set_pictures_per_row(view.pictures_per_row() as usize);
         }
-        self.gsr_picture_grid().unset_focus_symbol();
         self.gsr_picture_grid().initialize_pictures();
         self.gsr_picture_grid().set_focus_symbol();
     }
@@ -134,6 +133,7 @@ impl GsrApplicationWindow {
             view.toggle_palette_on();
         }
         self.gsr_picture_grid().initialize_pictures();
+        self.gsr_picture_grid().set_focus_symbol();
     }
 
     pub fn set_pictures_per_row(&self, n: i32) {
@@ -224,6 +224,7 @@ impl GsrApplicationWindow {
                             // TEMPORARY, should call a quit action that saves things
                             this.close()
                         }
+                        Control::ToggleBlinking => this.toggle_blinking(),
                         Control::TogglePalette => {
                             this.toggle_palette();
                         }
@@ -240,6 +241,20 @@ impl GsrApplicationWindow {
             }
         ));
         self.add_controller(event_controller_key);
+    }
+
+    fn toggle_blinking(&self) {
+        let on = {
+            let shared_view = self.gsr_application().shared_view();
+            let mut view = shared_view.borrow_mut();
+            let on_off = view.blinking_on();
+            view.set_blinking_on(!on_off);
+            !on_off
+        };
+        if on == true {
+            self.gsr_picture_grid().initialize_pictures();
+            self.gsr_picture_grid().set_focus_symbol();
+        }
     }
     pub fn set_focus_for_current_picture(&self, _controller: &Controller) {
         todo!()

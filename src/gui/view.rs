@@ -11,6 +11,7 @@ pub struct View {
     expand_on: bool,
     full_size: bool,
     focus_at_coords: (i32, i32),
+    blinking_on: bool,
 }
 
 impl Default for View {
@@ -22,6 +23,7 @@ impl Default for View {
             palette_on: false,
             full_size: false,
             focus_at_coords: (0, 0),
+            blinking_on: true,
         }
     }
 }
@@ -99,6 +101,14 @@ impl View {
 
     pub fn set_focus_at_coords(&mut self, coords: (i32, i32)) {
         self.focus_at_coords = coords
+    }
+
+    pub fn blinking_on(&self) -> bool {
+        self.blinking_on
+    }
+
+    pub fn set_blinking_on(&mut self, on: bool) {
+        self.blinking_on = on
     }
 }
 

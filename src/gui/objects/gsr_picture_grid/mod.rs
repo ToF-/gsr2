@@ -31,7 +31,7 @@ impl GsrPictureGrid {
         obj
     }
 
-    fn gsr_application(&self) -> GsrApplication {
+    pub fn gsr_application(&self) -> GsrApplication {
         self.root()
             .and_then(|root| root.downcast::<GsrApplicationWindow>().ok())
             .expect("GsrPictureGrid is not inside a Window")
@@ -76,6 +76,11 @@ impl GsrPictureGrid {
         for col in 0..10 {
             for row in 0..10 {
                 if let Some(widget) = self.child_at(col, row) {
+                    widget
+                        .clone()
+                        .downcast::<GsrPictureCellBox>()
+                        .expect("cell is not a GsrPictureCellBox")
+                        .leave_focus();
                     self.remove(&widget)
                 }
             }
@@ -135,7 +140,6 @@ impl GsrPictureGrid {
             gsr_picture_cell_box.leave_focus();
         }
         if let Some(widget) = self.child_at(new_col, new_row) {
-            dbg!((new_col, new_row));
             let gsr_picture_cell_box = widget
                 .downcast::<GsrPictureCellBox>()
                 .expect("can't downcast to GsrPictureCellBox");
