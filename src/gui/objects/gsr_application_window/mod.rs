@@ -102,7 +102,6 @@ impl GsrApplicationWindow {
                 stack.set_visible_child(&grid_scrolled_window);
             }
         }
-        self.gsr_picture_grid().initialize_pictures();
         let gallery = self.gsr_application().shared_gallery().borrow().clone();
         frame.set_current_picture();
         if gallery.len() == 0 {
@@ -123,6 +122,7 @@ impl GsrApplicationWindow {
             let mut navigator = shared_navigator.borrow_mut();
             navigator.set_pictures_per_row(view.pictures_per_row() as usize);
         }
+        self.gsr_picture_grid().unset_focus_symbol();
         self.gsr_picture_grid().initialize_pictures();
         self.gsr_picture_grid().set_focus_symbol();
     }
@@ -146,6 +146,7 @@ impl GsrApplicationWindow {
             navigator.set_pictures_per_row(view.pictures_per_row() as usize);
         }
         self.gsr_picture_grid().initialize_pictures();
+        self.gsr_picture_grid().set_focus_symbol();
     }
 
     pub fn frame_scrolled_window(&self) -> gtk::ScrolledWindow {

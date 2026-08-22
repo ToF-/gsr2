@@ -59,11 +59,11 @@ impl ApplicationImpl for GsrApplication {
         let app = self.obj();
         let gsr_application_window = GsrApplicationWindow::new(&app);
         gsr_application_window.initialize();
-        gsr_application_window.present();
         let shared_view = self.view.borrow();
         let mut new_view = shared_view.clone().unwrap().as_ref().borrow().clone();
         new_view.set_pictures_per_row(2);
         gsr_application_window.change_view(new_view);
+        gsr_application_window.present();
     }
 }
 

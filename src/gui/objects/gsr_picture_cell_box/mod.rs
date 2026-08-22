@@ -78,12 +78,16 @@ impl GsrPictureCellBox {
 
     fn attach_focus_blink_event(&self) {
         let label_rc = self.imp().label.clone();
+        let index = self.imp().picture_index.clone();
         *self.imp().timeout_rc.borrow_mut() = Some(timeout_add_local(
             Duration::from_millis(FOCUS_BLINKING_DURATION),
             clone!(
                 #[strong]
                 label_rc,
+                #[strong]
+                index,
                 move || {
+                    println!("{:?}", &index);
                     label_rc.borrow().as_ref().map(flip_focus_symbol_on_label);
                     ControlFlow::Continue
                 }
