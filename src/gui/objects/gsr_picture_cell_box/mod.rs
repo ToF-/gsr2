@@ -93,9 +93,11 @@ impl GsrPictureCellBox {
                 }
             ),
         ));
+        dbg!("{:?}", self.imp().timeout_rc.borrow());
     }
 
     pub fn leave_focus(&self) {
+        dbg!("leave focus");
         self.imp().has_focus.set(false);
         self.detach_focus_blink_event();
         let label_rc = self.imp().label.clone();
@@ -107,6 +109,7 @@ impl GsrPictureCellBox {
 
     fn detach_focus_blink_event(&self) {
         if let Some(id) = self.imp().timeout_rc.borrow_mut().take() {
+            dbg!("detach_focus_blink_event");
             id.remove();
         }
     }

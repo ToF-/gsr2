@@ -110,12 +110,15 @@ impl GsrPictureGrid {
     }
 
     pub fn unset_focus_symbol(&self) {
-        let (current_col, current_row) = self.imp().focus_at_coords.get();
-        if let Some(widget) = self.child_at(current_col, current_row) {
-            let gsr_picture_cell_box = widget
-                .downcast::<GsrPictureCellBox>()
-                .expect("can't downcast to GsrPictureCellBox");
-            gsr_picture_cell_box.leave_focus();
+        for col in 0..10 {
+            for row in 0..10 {
+                if let Some(widget) = self.child_at(col, row) {
+                    widget
+                        .downcast::<GsrPictureCellBox>()
+                        .expect("cell is not a GsrPictureCellBox")
+                        .leave_focus()
+                }
+            }
         }
     }
     pub fn set_focus_symbol(&self) {
