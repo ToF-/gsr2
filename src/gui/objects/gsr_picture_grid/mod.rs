@@ -40,12 +40,10 @@ impl GsrPictureGrid {
         self.remove_all_picture_cells();
         let shared_view = self.gsr_application().shared_view();
         let view = shared_view.borrow();
-        dbg!(&view);
         let shared_navigator = self.gsr_application().shared_navigator();
         let navigator = shared_navigator.borrow();
         let shared_gallery = self.gsr_application().shared_gallery();
         let gallery = shared_gallery.borrow();
-        dbg!(&navigator);
         let pictures_per_row = view.pictures_per_row();
         for col in 0..pictures_per_row {
             for row in 0..pictures_per_row {
@@ -60,7 +58,6 @@ impl GsrPictureGrid {
                     self.attach(&gsr_picture_cell_box, col, row, 1, 1);
                 }
                 if let Some(index) = navigator.position_from_coords(row as usize, col as usize) {
-                    dbg!(index);
                     let picture = gallery.picture(index);
                     self.set_picture_at(col, row, &picture, index);
                     let opacity: f64 = if navigator.is_selected(index) {
@@ -112,7 +109,6 @@ impl GsrPictureGrid {
     }
 
     pub fn set_focus_at(&self, col: i32, row: i32) {
-        dbg!(self.gsr_application().shared_view());
         let (current_col, current_row) = {
             let binding = self.gsr_application().shared_view();
             let view = binding.borrow();

@@ -1,10 +1,10 @@
-use crate::gui::control::Control;
-use crate::gui::mode::Mode;
-use crate::gui::control::default_controls;
 use crate::env::default_values::FRAME_WINDOW_NAME;
 use crate::env::default_values::GRID_WINDOW_NAME;
+use crate::gui::control::Control;
+use crate::gui::control::default_controls;
 use crate::gui::controller::Controller;
 use crate::gui::direction::Direction;
+use crate::gui::mode::Mode;
 use crate::gui::objects::gsr_application::GsrApplication;
 use crate::gui::objects::gsr_picture_frame::GsrPictureFrame;
 use crate::gui::objects::gsr_picture_grid::GsrPictureGrid;
@@ -70,7 +70,6 @@ impl GsrApplicationWindow {
             .expect("not a GsrApplication")
     }
     pub fn initialize(&self) {
-        dbg!("GsrApplication::initialize");
         let command_line_arguments = self
             .gsr_application()
             .shared_command_line_arguments()
@@ -127,6 +126,15 @@ impl GsrApplicationWindow {
         self.gsr_picture_grid().initialize_pictures();
     }
 
+    pub fn toggle_palette(&self) {
+        {
+            let shared_view = self.gsr_application().shared_view();
+            let mut view = shared_view.borrow_mut();
+            view.toggle_palette_on();
+        }
+        self.gsr_picture_grid().initialize_pictures();
+    }
+
     pub fn set_pictures_per_row(&self, n: i32) {
         {
             let shared_view = self.gsr_application().shared_view();
@@ -163,7 +171,6 @@ impl GsrApplicationWindow {
     }
     fn gsr_picture_grid(&self) -> GsrPictureGrid {
         let gsw = self.grid_scrolled_window();
-        dbg!(&gsw);
         let vp = gsw
             .first_child()
             .expect("grid scrolled window has no panel child")
@@ -214,6 +221,9 @@ impl GsrApplicationWindow {
                         Control::Quit => {
                             // TEMPORARY, should call a quit action that saves things
                             this.close()
+                        }
+                        Control::TogglePalette => {
+                            this.toggle_palette();
                         }
                         Control::ToggleThumbView => {
                             this.set_pictures_per_row(10);
