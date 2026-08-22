@@ -1,3 +1,4 @@
+use crate::gui::control::Control;
 #[derive(PartialEq, Clone, Debug)]
 pub enum Direction {
     Down,
@@ -65,6 +66,23 @@ impl From<&str> for Direction {
             "PrevPage" => Direction::PrevPage,
             "Right" => Direction::Right,
             "Up" => Direction::Up,
+            _ => todo!(),
+        }
+    }
+}
+impl From<Control> for Direction {
+    fn from(control: Control) -> Self {
+        match control {
+            Control::Down => Direction::Down,
+            Control::MoveFirst => Direction::First,
+            Control::MoveLast => Direction::Last,
+            Control::Left => Direction::Left,
+            Control::MoveNext => Direction::NextPage,
+            Control::MoveEndPage => Direction::PageEnd,
+            Control::MoveStartPage => Direction::PageStart,
+            Control::MovePrev => Direction::PrevPage,
+            Control::Right => Direction::Right,
+            Control::Up => Direction::Up,
             _ => todo!(),
         }
     }

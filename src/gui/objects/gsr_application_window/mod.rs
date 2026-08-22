@@ -1,3 +1,6 @@
+use crate::gui::control::Control;
+use crate::gui::mode::Mode;
+use crate::gui::control::default_controls;
 use crate::env::default_values::FRAME_WINDOW_NAME;
 use crate::env::default_values::GRID_WINDOW_NAME;
 use crate::gui::controller::Controller;
@@ -201,22 +204,25 @@ impl GsrApplicationWindow {
             move |_, key, _key_code, _modifier_type| {
                 let key_name = key.name().unwrap_or_default();
                 let key_name = key_name.as_str();
-                match key_name {
-                    "Right" | "Left" | "Up" | "Down" => {
-                        let direction = Direction::from(key_name);
-                        this.full_size_arrow_move(direction)
+                let key_name = key_name.to_string();
+                if let Some(control) = default_controls().get(&(key_name, Mode::View)) {
+                    match control {
+                        Control::Right | Control::Left | Control::Up | Control::Down => {
+                            let direction = Direction::from(control.clone());
+                            this.full_size_arrow_move(direction)
+                        }
+                        Control::Quit => {
+                            // TEMPORARY, should call a quit action that saves things
+                            this.close()
+                        }
+                        Control::ToggleThumbView => {
+                            this.set_pictures_per_row(10);
+                        }
+                        Control::ToggleTwoByTwoView => {
+                            this.set_pictures_per_row(2);
+                        }
+                        _ => {}
                     }
-                    "Q" => {
-                        // TEMPORARY
-                        this.close()
-                    }
-                    "T" => {
-                        this.set_pictures_per_row(10);
-                    }
-                    "W" => {
-                        this.set_pictures_per_row(2);
-                    }
-                    _ => {}
                 }
                 Propagation::Proceed
             }
