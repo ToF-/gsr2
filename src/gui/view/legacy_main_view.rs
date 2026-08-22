@@ -319,7 +319,7 @@ impl LegacyMainView {
         if !controller.state().single_view()
             && let Some((row, col)) = navigator.coords_from_position(position)
         {
-            self.gsr_picture_grid.set_focus_at(col as i32, row as i32)
+            self.gsr_picture_grid.set_focus_symbol()
         }
     }
 

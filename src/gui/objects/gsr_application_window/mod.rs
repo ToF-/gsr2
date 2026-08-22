@@ -124,6 +124,7 @@ impl GsrApplicationWindow {
             navigator.set_pictures_per_row(view.pictures_per_row() as usize);
         }
         self.gsr_picture_grid().initialize_pictures();
+        self.gsr_picture_grid().set_focus_symbol();
     }
 
     pub fn toggle_palette(&self) {

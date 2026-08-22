@@ -1,8 +1,11 @@
+use std::cell::Cell;
 use gtk::glib;
 use gtk::subclass::prelude::*;
 
 #[derive(Default)]
-pub struct GsrPictureGrid {}
+pub struct GsrPictureGrid {
+    pub focus_at_coords: Cell<(i32, i32)>,
+}
 
 impl GsrPictureGrid {}
 

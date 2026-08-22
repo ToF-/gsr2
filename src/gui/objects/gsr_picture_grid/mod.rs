@@ -1,3 +1,4 @@
+use gtk::subclass::prelude::ObjectSubclassIsExt;
 use crate::env::default_values::FULL_OPACITY;
 use crate::env::default_values::HALF_OPACITY;
 use crate::env::default_values::MAX_PICTURES_PER_ROW;
@@ -108,8 +109,9 @@ impl GsrPictureGrid {
         }
     }
 
-    pub fn set_focus_at(&self, col: i32, row: i32) {
-        let (current_col, current_row) = {
+    pub fn set_focus_symbol(&self) {
+        let (current_col, current_row) = self.imp().focus_at_coords.get();
+        let (new_col, new_row) = {
             let binding = self.gsr_application().shared_view();
             let view = binding.borrow();
             view.focus_at_coords()
@@ -120,16 +122,11 @@ impl GsrPictureGrid {
                 .expect("can't downcast to GsrPictureCellBox");
             gsr_picture_cell_box.leave_focus();
         }
-        if let Some(widget) = self.child_at(col, row) {
+        if let Some(widget) = self.child_at(new_col, new_row) {
+            dbg!((new_col, new_row));
             let gsr_picture_cell_box = widget
                 .downcast::<GsrPictureCellBox>()
                 .expect("can't downcast to GsrPictureCellBox");
-            gsr_picture_cell_box.enter_focus();
-            {
-                let binding = self.gsr_application().shared_view();
-                let mut view = binding.borrow_mut();
-                view.set_focus_at_coords((col, row));
-            }
         }
     }
 
