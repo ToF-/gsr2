@@ -350,7 +350,17 @@ impl GsrApplicationWindow {
             Direction::Left | Direction::Up => Direction::PrevPage,
             _ => todo!(),
         };
-        dbg!("todo");
+        let navigator = {
+            let shared_navigator = self.gsr_application().shared_navigator();
+            let mut navigator = shared_navigator.borrow_mut();
+            if navigator.can_move(&direction) {
+                navigator.move_towards(&direction);
+            }
+            navigator.clone()
+        };
+        if navigator.has_moved() {
+            self.frame().set_current_picture();
+        }
     }
     fn grid_view_move(&self, direction: &Direction) {
         let navigator = {

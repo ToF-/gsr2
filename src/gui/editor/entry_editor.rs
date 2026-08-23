@@ -1,4 +1,3 @@
-use crate::model::tags::tags_from_str;
 use crate::gui::action::Action;
 use crate::gui::completion_dispenser::CompletionDispenser;
 use crate::gui::editor::Control;
@@ -8,6 +7,7 @@ use crate::gui::editor::entry_editor_status::EntryEditorStatus;
 use crate::gui::editor::validator::Validator;
 use crate::gui::entry_kind::EntryKind;
 use crate::gui::mode::Mode;
+use crate::model::tags::tags_from_str;
 use crate::model::view_option::ViewOption;
 use gtk::gdk::Key;
 use itertools::Itertools;

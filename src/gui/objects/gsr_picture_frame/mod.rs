@@ -1,3 +1,4 @@
+use crate::gui::objects::gsr_application::GsrApplication;
 use gtk::Picture as GtkPicture;
 
 use crate::env::default_values::FRAME_PALETTE_AREA_HEIGHT;
@@ -43,6 +44,13 @@ impl GsrPictureFrame {
             .property("homogeneous", false)
             .build();
         obj
+    }
+
+    pub fn gsr_application(&self) -> GsrApplication {
+        self.root()
+            .and_then(|root| root.downcast::<GsrApplicationWindow>().ok())
+            .expect("GsrPictureGrid is not inside a Window")
+            .gsr_application()
     }
 
     fn remove_children(&self) {
@@ -109,12 +117,17 @@ impl GsrPictureFrame {
     }
 
     pub fn set_current_picture(&self) {
-        let binding = self.imp().shared_gallery();
-        let gallery = binding.borrow();
-        let picture_opt = if gallery.len() > 0 {
-            Some(gallery.current_picture())
-        } else {
-            None
+        let picture_opt = {
+            let shared_navigator = self.gsr_application().shared_navigator();
+            let navigator = shared_navigator.borrow();
+            let shared_gallery = self.imp().shared_gallery();
+            let mut gallery = shared_gallery.borrow_mut();
+            gallery.set_current_picture_index(navigator.position());
+            if gallery.len() > 0 {
+                Some(gallery.current_picture())
+            } else {
+                None
+            }
         };
         self.set_picture(picture_opt);
     }
