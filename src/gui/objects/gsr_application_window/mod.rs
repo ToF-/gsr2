@@ -140,13 +140,18 @@ impl GsrApplicationWindow {
     }
 
     pub fn toggle_palette(&self) {
-        {
+        let single_view = {
             let shared_view = self.gsr_application().shared_view();
             let mut view = shared_view.borrow_mut();
             view.toggle_palette_on();
-        }
+            view.single_view()
+        };
+        if single_view {
+            self.frame().set_current_picture();
+        } else {
         self.gsr_picture_grid().initialize_pictures();
         self.gsr_picture_grid().move_current_picture_focus_symbol();
+        }
     }
 
     pub fn set_pictures_per_row(&self, n: i32) {
@@ -307,6 +312,7 @@ impl GsrApplicationWindow {
                             this.close()
                         }
                         Control::ToggleBlinking => this.toggle_blinking(),
+                        Control::ToggleExpand => this.toggle_expand(),
                         Control::TogglePalette => {
                             this.toggle_palette();
                         }
@@ -328,6 +334,24 @@ impl GsrApplicationWindow {
         self.add_controller(event_controller_key);
     }
 
+    fn toggle_expand(&self) {
+        let pictures_per_row = {
+            let shared_view = self.gsr_application().shared_view();
+            let mut view = shared_view.borrow_mut();
+            if view.pictures_per_row() == 1 {
+                view.toggle_expand_on();
+            }
+            view.pictures_per_row()
+        };
+
+        {
+            let shared_view = self.gsr_application().shared_view();
+            let view = shared_view.borrow();
+        }
+        if pictures_per_row == 1 {
+            self.frame().set_current_picture();
+        }
+    }
     fn toggle_blinking(&self) {
         let on = {
             let shared_view = self.gsr_application().shared_view();
@@ -342,13 +366,11 @@ impl GsrApplicationWindow {
         }
     }
 
-    fn move_next_page(&self) {}
-
     fn single_view_move(&self, direction: &Direction) {
         let direction = match direction {
             Direction::Right | Direction::Down => Direction::NextPage,
             Direction::Left | Direction::Up => Direction::PrevPage,
-            _ => todo!(),
+            other => other.clone(),
         };
         let navigator = {
             let shared_navigator = self.gsr_application().shared_navigator();

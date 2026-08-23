@@ -72,6 +72,7 @@ impl GsrPictureFrame {
         let view = binding.borrow();
         self.remove_children();
         if view.expand_on() {
+            dbg!("set_gtk_picture with expand");
             gtk_picture.set_valign(Align::Fill);
             gtk_picture.set_halign(Align::Fill);
         } else {
