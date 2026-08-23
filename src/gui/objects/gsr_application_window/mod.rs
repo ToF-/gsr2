@@ -149,8 +149,8 @@ impl GsrApplicationWindow {
         if single_view {
             self.frame().set_current_picture();
         } else {
-        self.gsr_picture_grid().initialize_pictures();
-        self.gsr_picture_grid().move_current_picture_focus_symbol();
+            self.gsr_picture_grid().initialize_pictures();
+            self.gsr_picture_grid().move_current_picture_focus_symbol();
         }
     }
 

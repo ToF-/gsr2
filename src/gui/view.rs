@@ -12,6 +12,9 @@ pub struct View {
     full_size: bool,
     focus_at_coords: (i32, i32),
     blinking_on: bool,
+    display_file_path_on: bool,
+    display_file_date_on: bool,
+    display_file_size_on: bool,
 }
 
 impl Default for View {
@@ -24,6 +27,9 @@ impl Default for View {
             full_size: false,
             focus_at_coords: (0, 0),
             blinking_on: true,
+            display_file_path_on: false,
+            display_file_date_on: false,
+            display_file_size_on: false,
         }
     }
 }
@@ -116,6 +122,27 @@ impl View {
     pub fn set_blinking_on(&mut self, on: bool) {
         self.blinking_on = on
     }
+
+    pub fn display_file_date_on(&self) -> bool {
+        self.display_file_date_on
+    }
+
+    pub fn display_file_size_on(&self) -> bool {
+        self.display_file_size_on
+    }
+
+    pub fn toggle_display_file_size_on(&mut self) {
+        self.display_file_size_on = !self.display_file_size_on
+    }
+
+    pub fn display_file_path_on(&self) -> bool {
+        self.display_file_path_on
+    }
+
+    pub fn toggle_display_file_path_on(&mut self) {
+        self.display_file_path_on = !self.display_file_path_on
+    }
+
 }
 
 #[cfg(test)]
