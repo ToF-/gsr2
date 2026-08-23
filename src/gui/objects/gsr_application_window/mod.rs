@@ -195,7 +195,7 @@ impl GsrApplicationWindow {
             .expect("middle child is not a gsr_picture_grid");
         grid
     }
-    pub fn full_size_arrow_move(&self, direction: Direction) {
+    pub fn full_size_arrow_move(&self, direction: &Direction) {
         let full_size_on = self.gsr_application().shared_view().borrow().full_size_on();
         if self.stack().visible_child_name().unwrap() == FRAME_WINDOW_NAME && full_size_on {
             let step: f64 = 100.0;
@@ -230,12 +230,54 @@ impl GsrApplicationWindow {
                             let direction = Direction::from(control.clone());
                             if view.single_view() {
                                 if view.full_size_on() {
-                                    this.full_size_arrow_move(direction)
+                                    this.full_size_arrow_move(&direction)
                                 } else {
-                                    this.single_view_move(direction)
+                                    this.single_view_move(&direction)
                                 }
                             } else {
                                 this.grid_view_move(&direction)
+                            }
+                        }
+                        Control::MovePrev => {
+                            if view.single_view() {
+                                this.single_view_move(&Direction::Left)
+                            } else {
+                                this.grid_view_move(&Direction::PrevPage)
+                            }
+                        }
+                        Control::MoveNext => {
+                            if view.single_view() {
+                                this.single_view_move(&Direction::Right)
+                            } else {
+                                this.grid_view_move(&Direction::NextPage)
+                            }
+                        }
+                        Control::MoveStartPage => {
+                            if view.single_view() {
+                                this.single_view_move(&Direction::First)
+                            } else {
+                                this.grid_view_move(&Direction::PageStart)
+                            }
+                        }
+                        Control::MoveEndPage => {
+                            if view.single_view() {
+                                this.single_view_move(&Direction::Last)
+                            } else {
+                                this.grid_view_move(&Direction::PageEnd)
+                            }
+                        }
+                        Control::MoveFirst => {
+                            if view.single_view() {
+                                this.single_view_move(&Direction::First)
+                            } else {
+                                this.grid_view_move(&Direction::First)
+                            }
+                        }
+                        Control::MoveLast => {
+                            if view.single_view() {
+                                this.single_view_move(&Direction::Last)
+                            } else {
+                                this.grid_view_move(&Direction::Last)
                             }
                         }
                         Control::Quit => {
@@ -275,7 +317,11 @@ impl GsrApplicationWindow {
         }
     }
 
-    fn single_view_move(&self, direction: Direction) {
+    fn move_next_page(&self) {
+
+    }
+
+    fn single_view_move(&self, direction: &Direction) {
         let direction = match direction {
             Direction::Right | Direction::Down => Direction::NextPage,
             Direction::Left | Direction::Up => Direction::PrevPage,

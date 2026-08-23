@@ -168,11 +168,11 @@ impl Controller {
             }
             Action::GotoDirectory => self.go_to_directory(),
             Action::Label(label) => self.confirm_label(&label),
-            Action::MoveTowards(Direction::Down) => self.arrow_move(Direction::Down),
+            Action::MoveTowards(Direction::Down) => self.arrow_move(&Direction::Down),
             Action::MoveTowards(Direction::First) => self.move_towards(Direction::First),
             Action::MoveTowards(Direction::Last) => self.move_towards(Direction::Last),
             Action::MoveTowards(Direction::Left) => {
-                self.arrow_move(Direction::Left);
+                self.arrow_move(&Direction::Left);
             }
             Action::MoveTowards(Direction::NextPage) => {
                 self.move_next();
@@ -183,9 +183,9 @@ impl Controller {
                 self.move_towards(Direction::PrevPage);
             }
             Action::MoveTowards(Direction::Right) => {
-                self.arrow_move(Direction::Right);
+                self.arrow_move(&Direction::Right);
             }
-            Action::MoveTowards(Direction::Up) => self.arrow_move(Direction::Up),
+            Action::MoveTowards(Direction::Up) => self.arrow_move(&Direction::Up),
             Action::Nothing => {}
             Action::PickChange => self.pick_change(),
             Action::PickOrderSetting => self.pick_order_setting(),
@@ -1165,7 +1165,7 @@ impl Controller {
             Control::DeletePicture => self.delete_picture(),
             Control::DisplayDate => self.toggle_display_date(),
             Control::DisplaySize => self.toggle_display_size(),
-            Control::Down => self.arrow_move(Direction::Down),
+            Control::Down => self.arrow_move(&Direction::Down),
             Control::EnterChange => self.enter_change(),
             Control::EnterFind => self.enter_find(),
             Control::EnterSelect => self.enter_select(),
@@ -1181,7 +1181,7 @@ impl Controller {
             Control::Jump => self.jump(),
             Control::JumpMarkChar(ch) => self.find_mark(*ch),
             Control::Label => self.label(),
-            Control::Left => self.arrow_move(Direction::Left),
+            Control::Left => self.arrow_move(&Direction::Left),
             Control::MoveEndPage => self.move_towards(Direction::PageEnd),
             Control::MoveFirst => self.move_towards(Direction::First),
             Control::MoveLast => self.move_towards(Direction::Last),
@@ -1220,7 +1220,7 @@ impl Controller {
             }
             Control::RepeatLastAction => self.repeat_last_action(),
             Control::RepeatRange => self.repeat_range(),
-            Control::Right => self.arrow_move(Direction::Right),
+            Control::Right => self.arrow_move(&Direction::Right),
             Control::SelectCategory => self.set_category_selection(),
             Control::SetDisplay => self.setting_display(),
             Control::SetMark => self.setting_mark(),
@@ -1241,7 +1241,7 @@ impl Controller {
             Control::ToggleSlideShow => self.toggle_slideshow(),
             Control::Uncategorize => self.uncategorize_selected_pictures(),
             Control::Unlabel => self.unlabel_selected_pictures(),
-            Control::Up => self.arrow_move(Direction::Up),
+            Control::Up => self.arrow_move(&Direction::Up),
             _ => {}
         }
     }
@@ -2057,9 +2057,9 @@ impl Controller {
         }
     }
 
-    fn arrow_move(&self, direction: Direction) {
+    fn arrow_move(&self, direction: &Direction) {
         if self.state().single_view() && self.state().full_size_on() {
-            self.full_size_arrow_move(direction)
+            self.full_size_arrow_move(&direction)
         } else {
             let mut navigator = self.navigator_rc.borrow_mut();
             if navigator.can_move(&direction.clone()) {
@@ -2068,8 +2068,8 @@ impl Controller {
         }
     }
 
-    fn full_size_arrow_move(&self, direction: Direction) {
-        self.main_view().full_size_arrow_move(direction.clone())
+    fn full_size_arrow_move(&self, direction: &Direction) {
+        self.main_view().full_size_arrow_move(&direction.clone())
     }
 
     fn can_move(&self, direction: Direction) -> bool {
