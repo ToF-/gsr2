@@ -102,27 +102,23 @@ impl GsrApplicationWindow {
         let _ = stack.add_named(&grid_scrolled_window, Some(GRID_WINDOW_NAME));
         self.set_child(Some(&stack));
         {
-            let binding = self.gsr_application().shared_view();
-            let mut view = binding.borrow_mut();
-            // TEST SETUP
-            view.set_full_size(false);
-            view.set_palette_on(true);
-            view.set_pictures_per_row(10);
-            let pictures_per_row = &view.pictures_per_row();
-            if *pictures_per_row == 1 {
+            let pictures_per_row = {
+                let shared_view = self.gsr_application().shared_view();
+                let view = shared_view.borrow_mut();
+                let pictures_per_row = view.pictures_per_row();
+                pictures_per_row
+            };
+            if pictures_per_row == 1 {
                 stack.set_visible_child(&frame_scrolled_window);
+                frame.set_current_picture();
             } else {
                 stack.set_visible_child(&grid_scrolled_window);
+                self.gsr_picture_grid().initialize_pictures();
+                self.gsr_picture_grid().move_current_picture_focus_symbol();
             }
-        }
-        let gallery = self.gsr_application().shared_gallery().borrow().clone();
-        frame.set_current_picture();
-        if gallery.len() == 0 {
-            self.set_title(Some("gallery is empty"));
         }
         // connect the events
         self.attach_key_pressed_event_handlers();
-        // navigate to current position
     }
 
     // change what is visible  according the given view

@@ -32,8 +32,8 @@ impl Default for GsrApplication {
 }
 
 impl GsrApplication {
-    pub fn set_state(&self, clargs: CommandLineArguments, controller: &Controller) {
-        self.imp().set_state(clargs, controller)
+    pub fn set_state(&self, clargs: CommandLineArguments, gallery: &Gallery) {
+        self.imp().set_state(clargs, gallery)
     }
     pub fn shared_view(&self) -> Shared<View> {
         (*self.imp().view.borrow()).as_ref().unwrap().clone()

@@ -1,3 +1,4 @@
+use crate::cli::command_line_arguments::CommandLineArguments;
 pub mod legacy_main_view;
 pub mod palette_area;
 pub mod picture_frame;
@@ -7,6 +8,7 @@ pub mod treelist_view;
 pub struct View {
     pictures_per_row: i32,
     last_pictures_per_row: i32,
+    covers_only: bool,
     palette_on: bool,
     expand_on: bool,
     full_size: bool,
@@ -22,8 +24,9 @@ impl Default for View {
         Self {
             pictures_per_row: 10,
             last_pictures_per_row: 1,
-            expand_on: false,
+            covers_only: false,
             palette_on: false,
+            expand_on: false,
             full_size: false,
             focus_at_coords: (0, 0),
             blinking_on: true,
@@ -35,6 +38,13 @@ impl Default for View {
 }
 
 impl View {
+    pub fn from_command_line_arguments(clargs: &CommandLineArguments) -> Self {
+        let default = Self::default();
+        Self {
+            pictures_per_row: clargs.pictures_per_row(),
+        ..default
+        }
+    }
     pub fn pictures_per_row(&self) -> i32 {
         self.pictures_per_row
     }

@@ -25,19 +25,16 @@ pub struct GsrApplication {
 // GSR_APPLICATION
 impl GsrApplication {
     // stored for sharing: command line args, view state, navigator and gallery
-    pub fn set_state(&self, clargs: CommandLineArguments, controller: &Controller) {
+    pub fn set_state(&self, clargs: CommandLineArguments, gallery: &Gallery) {
         dbg!("set_state");
         *self.command_line_arguments.borrow_mut() = Some(Rc::new(RefCell::new(clargs.clone())));
 
-        let mut view = View::default();
+        let configuration = CONFIGURATION.get();
+        let mut view = View::from_command_line_arguments(&clargs);
+        dbg!(&view);
         let _current_picture_file_path = &CONFIGURATION.get().unwrap().current_picture;
-        // TESTING
-        // view.set_pictures_per_row(clargs.pictures_per_row());
-        view.set_pictures_per_row(10);
-        view.set_palette_on(true);
         *self.view.borrow_mut() = Some(Rc::new(RefCell::new(view.clone())));
 
-        let gallery = &controller.repository().gallery_rc().borrow().clone();
         *self.gallery.borrow_mut() = Some(Rc::new(RefCell::new(gallery.clone())));
 
         let navigator = Navigator::new(gallery.len(), view.pictures_per_row() as usize);
@@ -59,10 +56,6 @@ impl ApplicationImpl for GsrApplication {
         let app = self.obj();
         let gsr_application_window = GsrApplicationWindow::new(&app);
         gsr_application_window.initialize();
-        let shared_view = self.view.borrow();
-        let mut new_view = shared_view.clone().unwrap().as_ref().borrow().clone();
-        new_view.set_pictures_per_row(2);
-        gsr_application_window.change_view(new_view);
         gsr_application_window.present();
     }
 }

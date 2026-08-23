@@ -1,3 +1,4 @@
+use gsr::model::gallery::Gallery;
 use gsr::cli::command::Command;
 use gsr::cli::command::execute_command;
 use gsr::cli::command_line_arguments::CommandLineArguments;
@@ -42,10 +43,16 @@ fn run_application(config: &Configuration, clargs: &CommandLineArguments) -> Res
         let repository = controller.repository();
         let result = execute_command(clargs.clone(), repository.clone(), config.clone());
         if let Ok(Status::Ready(initial_position)) = result {
+            {
             let mut gallery = repository.gallery_rc().borrow_mut();
             gallery.set_current_picture_index(initial_position);
+            }
+            let gallery = {
+                let gallery = repository.gallery_rc().borrow();
+                gallery.clone()
+            };
             println!("{} picture(s)", gallery.len());
-            build_and_run_app(clargs, &controller);
+            build_and_run_app(clargs, &gallery);
             Ok(Status::Done)
         } else {
             result
@@ -57,9 +64,9 @@ fn run_application(config: &Configuration, clargs: &CommandLineArguments) -> Res
     exit(0)
 }
 
-fn build_and_run_app(clargs: &CommandLineArguments, controller: &Controller) {
+fn build_and_run_app(clargs: &CommandLineArguments, gallery: &Gallery) {
     let gsr_application = GsrApplication::default();
-    gsr_application.set_state(clargs.clone(), controller);
+    gsr_application.set_state(clargs.clone(), gallery);
     let no_args: Vec<String> = vec![];
     gsr_application.run_with_args(&no_args);
 }
