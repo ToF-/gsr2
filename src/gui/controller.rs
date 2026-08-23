@@ -356,9 +356,9 @@ impl Controller {
             let binding = &self.navigator_rc;
             let mut navigator = binding.borrow_mut();
             if let Some(index) = navigator.position_from_coords(row as usize, col as usize)
-                && navigator.can_move(Direction::Index { value: index })
+                && navigator.can_move(&Direction::Index { value: index })
             {
-                navigator.move_towards(Direction::Index { value: index });
+                navigator.move_towards(&Direction::Index { value: index });
             } else {
                 println!("cannot move");
             }
@@ -376,9 +376,9 @@ impl Controller {
         let binding = self.navigator_rc.clone();
         let mut navigator = binding.borrow_mut();
         if let Some(index) = navigator.position_from_coords(row as usize, col as usize)
-            && navigator.can_move(Direction::Index { value: index })
+            && navigator.can_move(&Direction::Index { value: index })
         {
-            navigator.move_towards(Direction::Index { value: index });
+            navigator.move_towards(&Direction::Index { value: index });
             if button == 1 {
                 let main_view = self.main_view();
                 main_view.set_label_text_for_current_picture(self, None);
@@ -955,8 +955,8 @@ impl Controller {
     fn move_towards_index(&self, index: usize) {
         let mut navigator = self.navigator_rc.borrow_mut();
         let direction = Direction::Index { value: index };
-        if navigator.can_move(direction.clone()) {
-            navigator.move_towards(direction)
+        if navigator.can_move(&direction.clone()) {
+            navigator.move_towards(&direction)
         }
     }
 
@@ -1368,9 +1368,9 @@ impl Controller {
                 self.change_grid_size(old_pictures_per_row);
                 let _ = self.reload();
                 if let Some(index) = self.command_line_arguments().index
-                    && navigator.can_move(Direction::Index { value: index })
+                    && navigator.can_move(&Direction::Index { value: index })
                 {
-                    navigator.move_towards(Direction::Index { value: index })
+                    navigator.move_towards(&Direction::Index { value: index })
                 };
                 navigator.set_page_changed()
             }
@@ -1510,9 +1510,9 @@ impl Controller {
             .set_selection_criteria(SelectionCriteria::empty());
         let mut navigator = self.navigator_rc.borrow_mut();
         if let Some(index) = self.repository.find_index_for_file_path(&current_file_path) {
-            navigator.move_towards(Direction::Index { value: index })
+            navigator.move_towards(&Direction::Index { value: index })
         } else {
-            navigator.move_towards(Direction::First)
+            navigator.move_towards(&Direction::First)
         };
         navigator.set_page_changed();
     }
@@ -1698,7 +1698,7 @@ impl Controller {
                     .position(|picture| picture.file_path() == *file_path)
                 {
                     let mut navigator = self.navigator_rc.borrow_mut();
-                    navigator.move_towards(Direction::Index { value: index });
+                    navigator.move_towards(&Direction::Index { value: index });
                     navigator.set_page_changed()
                 } else {
                     // display_information(&self.main_view().application_window(),&format!("mark: {} not found", mark));
@@ -1843,9 +1843,9 @@ impl Controller {
         };
         let mut navigator = self.navigator_rc.borrow_mut();
         if let Some(index) = new_position {
-            navigator.move_towards(Direction::Index { value: index })
+            navigator.move_towards(&Direction::Index { value: index })
         } else {
-            navigator.move_towards(Direction::First)
+            navigator.move_towards(&Direction::First)
         };
         navigator.set_page_changed()
     }
@@ -2062,8 +2062,8 @@ impl Controller {
             self.full_size_arrow_move(direction)
         } else {
             let mut navigator = self.navigator_rc.borrow_mut();
-            if navigator.can_move(direction.clone()) {
-                navigator.move_towards(direction)
+            if navigator.can_move(&direction.clone()) {
+                navigator.move_towards(&direction)
             }
         }
     }
@@ -2073,7 +2073,7 @@ impl Controller {
     }
 
     fn can_move(&self, direction: Direction) -> bool {
-        !self.state().full_size_on() && self.navigator().can_move(direction)
+        !self.state().full_size_on() && self.navigator().can_move(&direction)
     }
 
     fn move_towards(&self, direction: Direction) {
@@ -2086,7 +2086,7 @@ impl Controller {
                 if self.can_move(other.clone()) {
                     let binding = &self.navigator_rc;
                     let mut navigator = binding.borrow_mut();
-                    navigator.move_towards(other.clone());
+                    navigator.move_towards(&other.clone());
                 }
             }
         }
@@ -2176,7 +2176,7 @@ impl Controller {
                     let finder = &mut gallery.finder;
                     if let Some(index) = finder.find_first(predicate) {
                         let mut navigator = self.navigator_rc.borrow_mut();
-                        navigator.move_towards(Direction::Index { value: index });
+                        navigator.move_towards(&Direction::Index { value: index });
                         navigator.set_page_changed();
                         self.state().set_search_in_progress(true);
                         None
@@ -2199,7 +2199,7 @@ impl Controller {
         {
             if let Some(index) = gallery.finder.find_next() {
                 let mut navigator = self.navigator_rc.borrow_mut();
-                navigator.move_towards(Direction::Index { value: index });
+                navigator.move_towards(&Direction::Index { value: index });
                 navigator.set_page_changed();
                 None
             } else {

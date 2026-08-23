@@ -182,8 +182,8 @@ impl LegacyMainView {
             if let Ok(controller) = controller_rc.try_borrow() {
                 // controller.set_main_view(main_view);
                 let mut navigator = controller.navigator();
-                if navigator.can_move(Direction::Index { value: position }) {
-                    navigator.move_towards(Direction::Index { value: position });
+                if navigator.can_move(&Direction::Index { value: position }) {
+                    navigator.move_towards(&Direction::Index { value: position });
                     navigator.set_page_changed();
                     controller.set_navigator(navigator);
                 }
@@ -319,7 +319,7 @@ impl LegacyMainView {
         if !controller.state().single_view()
             && let Some((row, col)) = navigator.coords_from_position(position)
         {
-            self.gsr_picture_grid.set_focus_symbol()
+            self.gsr_picture_grid.move_current_picture_focus_symbol()
         }
     }
 

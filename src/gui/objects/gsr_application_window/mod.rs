@@ -123,7 +123,7 @@ impl GsrApplicationWindow {
             navigator.set_pictures_per_row(view.pictures_per_row() as usize);
         }
         self.gsr_picture_grid().initialize_pictures();
-        self.gsr_picture_grid().set_focus_symbol();
+        self.gsr_picture_grid().move_current_picture_focus_symbol();
     }
 
     pub fn toggle_palette(&self) {
@@ -133,7 +133,7 @@ impl GsrApplicationWindow {
             view.toggle_palette_on();
         }
         self.gsr_picture_grid().initialize_pictures();
-        self.gsr_picture_grid().set_focus_symbol();
+        self.gsr_picture_grid().move_current_picture_focus_symbol();
     }
 
     pub fn set_pictures_per_row(&self, n: i32) {
@@ -146,7 +146,7 @@ impl GsrApplicationWindow {
             navigator.set_pictures_per_row(view.pictures_per_row() as usize);
         }
         self.gsr_picture_grid().initialize_pictures();
-        self.gsr_picture_grid().set_focus_symbol();
+        self.gsr_picture_grid().move_current_picture_focus_symbol();
     }
 
     pub fn frame_scrolled_window(&self) -> gtk::ScrolledWindow {
@@ -225,9 +225,11 @@ impl GsrApplicationWindow {
                             if view.single_view() {
                                 if view.full_size_on() {
                                     this.full_size_arrow_move(direction)
+                                } else {
+                                    this.single_view_move(direction)
                                 }
                             } else {
-                                this.single_view_move(direction)
+                                this.grid_view_move(&direction)
                             }
                         }
                         Control::Quit => {
@@ -263,7 +265,7 @@ impl GsrApplicationWindow {
         };
         if on == true {
             self.gsr_picture_grid().initialize_pictures();
-            self.gsr_picture_grid().set_focus_symbol();
+            self.gsr_picture_grid().move_current_picture_focus_symbol();
         }
     }
 
@@ -274,6 +276,29 @@ impl GsrApplicationWindow {
             _ => todo!(),
         };
         todo!();
+    }
+    fn grid_view_move(&self, direction: &Direction) {
+        let navigator = {
+            let shared_navigator = self.gsr_application().shared_navigator();
+            let mut navigator = shared_navigator.borrow_mut();
+            if navigator.can_move(direction) {
+                navigator.move_towards(direction);
+            }
+            navigator.clone()
+        };
+        if navigator.has_moved() {
+            {
+                if let Some((row, col)) = navigator.coords_from_position(navigator.position()) {
+                    let shared_view = self.gsr_application().shared_view();
+                    let mut view = shared_view.borrow_mut();
+                    view.set_focus_at_coords((col as i32, row as i32));
+                }
+                if navigator.has_moved() {
+                    self.gsr_picture_grid().initialize_pictures();
+                }
+                self.gsr_picture_grid().move_current_picture_focus_symbol();
+            }
+        }
     }
     pub fn set_focus_for_current_picture(&self, _controller: &Controller) {
         todo!()

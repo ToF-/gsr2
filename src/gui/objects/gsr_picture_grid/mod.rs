@@ -114,7 +114,7 @@ impl GsrPictureGrid {
         }
     }
 
-    pub fn unset_focus_symbol(&self) {
+    pub fn remove_focus_symbol(&self) {
         for col in 0..10 {
             for row in 0..10 {
                 if let Some(widget) = self.child_at(col, row) {
@@ -126,7 +126,7 @@ impl GsrPictureGrid {
             }
         }
     }
-    pub fn set_focus_symbol(&self) {
+    pub fn move_current_picture_focus_symbol(&self) {
         let (current_col, current_row) = self.imp().focus_at_coords.get();
         let (new_col, new_row) = {
             let binding = self.gsr_application().shared_view();

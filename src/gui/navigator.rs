@@ -217,22 +217,22 @@ impl Navigator {
         }
     }
 
-    pub fn can_move(&mut self, direction: Direction) -> bool {
+    pub fn can_move(&mut self, direction: &Direction) -> bool {
         assert!(self.limit > 0);
         let can_move = match direction {
             Direction::First => true,
             Direction::Last => true,
             Direction::Left => self.position > 0,
             Direction::Right => self.position < self.limit - 1,
-            Direction::Index { value } => value < self.limit,
+            Direction::Index { value } => *value < self.limit,
             Direction::Down => self.position + self.pictures_per_row < self.limit,
             Direction::Up => self.position >= self.pictures_per_row,
             Direction::PageStart => true,
             Direction::PageEnd => true,
-            Direction::PrevPage => self.can_move(Direction::Index {
+            Direction::PrevPage => self.can_move(&Direction::Index {
                 value: self.prev_page_start(),
             }),
-            Direction::NextPage => self.can_move(Direction::Index {
+            Direction::NextPage => self.can_move(&Direction::Index {
                 value: self.next_page_start(),
             }),
         };
@@ -243,25 +243,25 @@ impl Navigator {
         can_move
     }
 
-    pub fn move_towards(&mut self, direction: Direction) {
+    pub fn move_towards(&mut self, direction: &Direction) {
         self.old_position = self.position;
         match direction {
             Direction::Right => self.position += 1,
             Direction::Left => self.position -= 1,
             Direction::Last => self.position = self.limit - 1,
             Direction::First => self.position = 0,
-            Direction::Index { value } => self.position = value,
+            Direction::Index { value } => self.position = *value,
             Direction::Down => self.position += self.pictures_per_row,
             Direction::Up => self.position = self.position.saturating_sub(self.pictures_per_row),
             Direction::PageStart => self.position = self.page_start,
             Direction::PageEnd => self.position = self.page_end,
             Direction::PrevPage => {
-                return self.move_towards(Direction::Index {
+                return self.move_towards(&Direction::Index {
                     value: self.prev_page_start(),
                 });
             }
             Direction::NextPage => {
-                return self.move_towards(Direction::Index {
+                return self.move_towards(&Direction::Index {
                     value: self.next_page_start(),
                 });
             }
