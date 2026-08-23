@@ -51,6 +51,16 @@ impl GsrApplicationWindow {
             .expect("can't donwcast stack")
     }
 
+    fn set_stack_visible_child(&self, pictures_per_row: i32) {
+        let visible_child: gtk::ScrolledWindow = 
+        if pictures_per_row > 1 {
+            self.frame_scrolled_window()
+        } else {
+            self.grid_scrolled_window()
+        };
+        self.stack().set_visible_child(&visible_child);
+    }
+
     pub fn frame(&self) -> GsrPictureFrame {
         self.stack()
             .child_by_name(FRAME_WINDOW_NAME)
@@ -151,8 +161,14 @@ impl GsrApplicationWindow {
             let mut view = shared_view.borrow_mut();
             view.set_focus_at_coords((col as i32, row as i32));
         }
+        self.set_stack_visible_child(n);
+        dbg!(n);
+        if n > 1 { 
         self.gsr_picture_grid().initialize_pictures();
         self.gsr_picture_grid().move_current_picture_focus_symbol();
+        } else {
+            self.frame().set_current_picture();
+        }
     }
 
     pub fn frame_scrolled_window(&self) -> gtk::ScrolledWindow {
@@ -288,6 +304,9 @@ impl GsrApplicationWindow {
                         Control::TogglePalette => {
                             this.toggle_palette();
                         }
+                        Control::ToggleSingleView => {
+                            this.set_pictures_per_row(1);
+                        }
                         Control::ToggleThumbView => {
                             this.set_pictures_per_row(10);
                         }
@@ -327,7 +346,7 @@ impl GsrApplicationWindow {
             Direction::Left | Direction::Up => Direction::PrevPage,
             _ => todo!(),
         };
-        todo!();
+        dbg!("todo");
     }
     fn grid_view_move(&self, direction: &Direction) {
         let navigator = {
