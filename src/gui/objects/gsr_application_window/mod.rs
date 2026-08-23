@@ -52,8 +52,7 @@ impl GsrApplicationWindow {
     }
 
     fn set_stack_visible_child(&self, pictures_per_row: i32) {
-        let visible_child: gtk::ScrolledWindow = 
-        if pictures_per_row > 1 {
+        let visible_child: gtk::ScrolledWindow = if pictures_per_row > 1 {
             self.frame_scrolled_window()
         } else {
             self.grid_scrolled_window()
@@ -67,6 +66,10 @@ impl GsrApplicationWindow {
             .expect("frame scrolled window not set")
             .downcast::<gtk::ScrolledWindow>()
             .expect("can't downcast frame scrolled window")
+            .first_child()
+            .expect("gsr frame scrolled windew viewport not set")
+            .downcast::<gtk::Viewport>()
+            .expect("can't downcast frame scrolled window viewport")
             .first_child()
             .expect("gsr picture frame not set")
             .downcast::<GsrPictureFrame>()
@@ -161,14 +164,13 @@ impl GsrApplicationWindow {
             let mut view = shared_view.borrow_mut();
             view.set_focus_at_coords((col as i32, row as i32));
         }
-        self.set_stack_visible_child(n);
-        dbg!(n);
-        if n > 1 { 
-        self.gsr_picture_grid().initialize_pictures();
-        self.gsr_picture_grid().move_current_picture_focus_symbol();
+        if n > 1 {
+            self.gsr_picture_grid().initialize_pictures();
+            self.gsr_picture_grid().move_current_picture_focus_symbol();
         } else {
             self.frame().set_current_picture();
         }
+        self.set_stack_visible_child(n);
     }
 
     pub fn frame_scrolled_window(&self) -> gtk::ScrolledWindow {
@@ -336,9 +338,7 @@ impl GsrApplicationWindow {
         }
     }
 
-    fn move_next_page(&self) {
-
-    }
+    fn move_next_page(&self) {}
 
     fn single_view_move(&self, direction: &Direction) {
         let direction = match direction {
