@@ -1,3 +1,4 @@
+use crate::model::tags::tags_from_str;
 use crate::gui::action::Action;
 use crate::gui::completion_dispenser::CompletionDispenser;
 use crate::gui::editor::Control;

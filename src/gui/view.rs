@@ -33,9 +33,15 @@ impl View {
         self.pictures_per_row
     }
 
+    //   if setting a new size, keep track of the current size
+    //   if setting the same size, swap track and current
     pub fn set_pictures_per_row(&mut self, n: i32) {
-        self.last_pictures_per_row = n;
-        self.toggle_pictures_per_row();
+        if n != self.pictures_per_row {
+            self.last_pictures_per_row = self.pictures_per_row;
+            self.pictures_per_row = n
+        } else {
+            self.toggle_pictures_per_row()
+        }
     }
 
     pub fn toggle_pictures_per_row(&mut self) {
@@ -121,7 +127,7 @@ mod tests {
         let view = View::default();
         assert_eq!(10, view.pictures_per_row());
         assert_eq!(false, view.palette_on());
-        assert_eq!(false, view.full_size());
+        assert_eq!(false, view.full_size_on());
     }
 
     #[test]
@@ -154,12 +160,31 @@ mod tests {
         assert!(!view.single_view());
         assert!(view.thumbnail_view());
         assert!(!view.toggle_full_size());
-        assert!(!view.full_size());
+        assert!(!view.full_size_on());
         view.set_pictures_per_row(1);
         assert!(view.single_view());
         assert!(view.toggle_full_size());
-        assert!(view.full_size());
+        assert!(view.full_size_on());
         view.toggle_pictures_per_row();
-        assert!(!view.full_size());
+        assert!(!view.full_size_on());
+    }
+    #[test]
+    fn setting_and_toggling_pictures_per_row() {
+        let mut view = View::default();
+        assert_eq!(10, view.pictures_per_row());
+        view.set_pictures_per_row(2);
+        assert_eq!(2, view.pictures_per_row());
+        view.set_pictures_per_row(2);
+        assert_eq!(10, view.pictures_per_row());
+        view.set_pictures_per_row(1);
+        assert_eq!(1, view.pictures_per_row());
+        view.set_pictures_per_row(1);
+        assert_eq!(10, view.pictures_per_row());
+        view.set_pictures_per_row(2);
+        assert_eq!(2, view.pictures_per_row());
+        view.set_pictures_per_row(1);
+        assert_eq!(1, view.pictures_per_row());
+        view.set_pictures_per_row(1);
+        assert_eq!(2, view.pictures_per_row());
     }
 }

@@ -319,29 +319,29 @@ mod tests {
     fn navigator_cannot_move_past_gallery_limit() {
         let mut navigator = Navigator::new(3, ONE_PICTURE_PER_ROW);
         assert_eq!(0, navigator.position());
-        assert!(navigator.can_move(Direction::Right));
-        navigator.move_towards(Direction::Right);
+        assert!(navigator.can_move(&Direction::Right));
+        navigator.move_towards(&Direction::Right);
         assert_eq!(1, navigator.position());
-        navigator.move_towards(Direction::Right);
-        assert!(!navigator.can_move(Direction::Right));
+        navigator.move_towards(&Direction::Right);
+        assert!(!navigator.can_move(&Direction::Right));
     }
 
     #[test]
     fn navigator_cannot_move_before_first_position() {
         let mut navigator = Navigator::new(3, ONE_PICTURE_PER_ROW);
-        assert!(!navigator.can_move(Direction::Left));
-        navigator.move_towards(Direction::Right);
-        assert!(navigator.can_move(Direction::Left));
-        navigator.move_towards(Direction::Left);
+        assert!(!navigator.can_move(&Direction::Left));
+        navigator.move_towards(&Direction::Right);
+        assert!(navigator.can_move(&Direction::Left));
+        navigator.move_towards(&Direction::Left);
         assert_eq!(0, navigator.position());
     }
 
     #[test]
     fn navigator_can_move_to_first_and_last_position() {
         let mut navigator = Navigator::new(3, ONE_PICTURE_PER_ROW);
-        navigator.move_towards(Direction::Last);
+        navigator.move_towards(&Direction::Last);
         assert_eq!(2, navigator.position());
-        navigator.move_towards(Direction::First);
+        navigator.move_towards(&Direction::First);
         assert_eq!(0, navigator.position());
     }
 
@@ -368,7 +368,7 @@ mod tests {
         let mut navigator = Navigator::new(10, 2);
         assert_eq!(Some(3), navigator.position_from_coords(1, 1));
         for _ in 1..=4 {
-            navigator.move_towards(Direction::Right)
+            navigator.move_towards(&Direction::Right)
         }
         assert_eq!(4, navigator.position());
         assert_eq!(Some(4), navigator.position_from_coords(0, 0));
@@ -380,107 +380,107 @@ mod tests {
         assert!(!navigator.page_changed());
         assert_eq!(Some(3), navigator.position_from_coords(1, 1));
         for _ in 1..=4 {
-            navigator.move_towards(Direction::Right);
+            navigator.move_towards(&Direction::Right);
         }
         assert!(navigator.page_changed());
     }
     #[test]
     fn given_a_destination_index_can_move_if_within_limit() {
         let mut navigator = Navigator::new(10, 2);
-        assert!(!navigator.can_move(Direction::Index { value: 10 }));
-        assert!(navigator.can_move(Direction::Index { value: 7 }));
+        assert!(!navigator.can_move(&Direction::Index { value: 10 }));
+        assert!(navigator.can_move(&Direction::Index { value: 7 }));
     }
     #[test]
     fn moving_to_a_specific_index() {
         let mut navigator = Navigator::new(10, 2);
-        navigator.move_towards(Direction::Index { value: 7 });
+        navigator.move_towards(&Direction::Index { value: 7 });
         assert_eq!(7, navigator.position());
     }
     #[test]
     fn next_page_start_is_page_start_plus_page_size_modulo_limit() {
         let mut navigator = Navigator::new(10, 2);
-        navigator.move_towards(Direction::Right);
+        navigator.move_towards(&Direction::Right);
         assert_eq!(1, navigator.position());
         assert_eq!(4, navigator.next_page_start());
-        assert!(navigator.can_move(Direction::NextPage));
-        navigator.move_towards(Direction::NextPage);
-        assert!(navigator.can_move(Direction::NextPage));
-        navigator.move_towards(Direction::NextPage);
+        assert!(navigator.can_move(&Direction::NextPage));
+        navigator.move_towards(&Direction::NextPage);
+        assert!(navigator.can_move(&Direction::NextPage));
+        navigator.move_towards(&Direction::NextPage);
         assert_eq!(8, navigator.page_start());
         assert_eq!(12, navigator.next_page_start());
     }
     #[test]
     fn prev_page_start_is_page_start_minus_page_size() {
         let mut navigator = Navigator::new(10, 2);
-        navigator.move_towards(Direction::Right);
+        navigator.move_towards(&Direction::Right);
         assert_eq!(1, navigator.position());
         assert_eq!(0, navigator.prev_page_start());
-        navigator.move_towards(Direction::NextPage);
-        navigator.move_towards(Direction::NextPage);
+        navigator.move_towards(&Direction::NextPage);
+        navigator.move_towards(&Direction::NextPage);
         assert_eq!(8, navigator.page_start());
         assert_eq!(4, navigator.prev_page_start());
-        assert!(navigator.can_move(Direction::PrevPage));
-        navigator.move_towards(Direction::PrevPage);
+        assert!(navigator.can_move(&Direction::PrevPage));
+        navigator.move_towards(&Direction::PrevPage);
         assert_eq!(4, navigator.position());
     }
     #[test]
     fn moving_down_moves_to_entry_one_row_further() {
         let mut navigator = Navigator::new(10, 2);
         assert_eq!(0, navigator.position());
-        navigator.move_towards(Direction::Down);
+        navigator.move_towards(&Direction::Down);
         assert_eq!(2, navigator.position());
-        navigator.move_towards(Direction::Right);
-        navigator.move_towards(Direction::Down);
+        navigator.move_towards(&Direction::Right);
+        navigator.move_towards(&Direction::Down);
         assert_eq!(5, navigator.position());
     }
     #[test]
     fn cannot_move_down_if_beyond_limit() {
         let mut navigator = Navigator::new(10, 2);
-        navigator.move_towards(Direction::Down);
-        navigator.move_towards(Direction::Down);
-        navigator.move_towards(Direction::Down);
-        assert!(navigator.can_move(Direction::Down));
-        navigator.move_towards(Direction::Down);
-        assert!(!navigator.can_move(Direction::Down));
+        navigator.move_towards(&Direction::Down);
+        navigator.move_towards(&Direction::Down);
+        navigator.move_towards(&Direction::Down);
+        assert!(navigator.can_move(&Direction::Down));
+        navigator.move_towards(&Direction::Down);
+        assert!(!navigator.can_move(&Direction::Down));
     }
     #[test]
     fn moving_up_moves_to_entry_one_row_above() {
         let mut navigator = Navigator::new(10, 2);
-        navigator.move_towards(Direction::Down);
-        navigator.move_towards(Direction::Down);
-        navigator.move_towards(Direction::Right);
-        navigator.move_towards(Direction::Up);
+        navigator.move_towards(&Direction::Down);
+        navigator.move_towards(&Direction::Down);
+        navigator.move_towards(&Direction::Right);
+        navigator.move_towards(&Direction::Up);
         assert_eq!(3, navigator.position());
-        navigator.move_towards(Direction::Up);
+        navigator.move_towards(&Direction::Up);
         assert_eq!(1, navigator.position());
     }
     #[test]
     fn cannot_move_up_if_before_limit() {
         let mut navigator = Navigator::new(10, 2);
-        navigator.move_towards(Direction::Down);
-        assert!(navigator.can_move(Direction::Up));
-        navigator.move_towards(Direction::Right);
-        navigator.move_towards(Direction::Up);
-        assert!(!navigator.can_move(Direction::Up));
+        navigator.move_towards(&Direction::Down);
+        assert!(navigator.can_move(&Direction::Up));
+        navigator.move_towards(&Direction::Right);
+        navigator.move_towards(&Direction::Up);
+        assert!(!navigator.can_move(&Direction::Up));
     }
     #[test]
     fn moving_to_beginning_of_page() {
         let mut navigator = Navigator::new(10, 2);
-        navigator.move_towards(Direction::Down);
-        navigator.move_towards(Direction::Down);
-        navigator.move_towards(Direction::Right);
-        navigator.move_towards(Direction::PageStart);
+        navigator.move_towards(&Direction::Down);
+        navigator.move_towards(&Direction::Down);
+        navigator.move_towards(&Direction::Right);
+        navigator.move_towards(&Direction::PageStart);
         assert_eq!(4, navigator.position());
     }
     #[test]
     fn moving_to_end_of_page() {
         let mut navigator = Navigator::new(10, 2);
-        navigator.move_towards(Direction::Down);
-        navigator.move_towards(Direction::Down);
-        navigator.move_towards(Direction::PageEnd);
+        navigator.move_towards(&Direction::Down);
+        navigator.move_towards(&Direction::Down);
+        navigator.move_towards(&Direction::PageEnd);
         assert_eq!(7, navigator.position());
-        navigator.move_towards(Direction::Right);
-        navigator.move_towards(Direction::PageEnd);
+        navigator.move_towards(&Direction::Right);
+        navigator.move_towards(&Direction::PageEnd);
         assert_eq!(9, navigator.position());
     }
     #[test]
@@ -489,7 +489,7 @@ mod tests {
         assert_eq!(Some(0), navigator.position_from_coords(0, 0));
         assert_eq!(Some(1), navigator.position_from_coords(0, 1));
         assert_eq!(Some(3), navigator.position_from_coords(1, 1));
-        navigator.move_towards(Direction::Index {
+        navigator.move_towards(&Direction::Index {
             value: navigator.next_page_start(),
         });
         assert_eq!(Some(7), navigator.position_from_coords(1, 1));
@@ -501,7 +501,7 @@ mod tests {
         assert_eq!(Some((0, 0)), navigator.coords_from_position(0));
         assert_eq!(Some((0, 1)), navigator.coords_from_position(1));
         assert_eq!(Some((1, 0)), navigator.coords_from_position(2));
-        navigator.move_towards(Direction::Last);
+        navigator.move_towards(&Direction::Last);
         assert_eq!(9, navigator.position());
         assert_eq!(Some((0, 1)), navigator.coords_from_position(9));
     }
@@ -510,25 +510,25 @@ mod tests {
         let mut navigator = Navigator::new(10, 2);
         assert!(navigator.position() == navigator.old_position());
         assert!(!navigator.has_moved());
-        navigator.move_towards(Direction::Right);
+        navigator.move_towards(&Direction::Right);
         assert!(navigator.has_moved());
-        navigator.move_towards(Direction::Last);
+        navigator.move_towards(&Direction::Last);
         assert!(navigator.has_moved());
-        navigator.move_towards(Direction::Last);
+        navigator.move_towards(&Direction::Last);
         assert!(!navigator.has_moved());
     }
     #[test]
     fn current_page_according_to_position_pictures_per_row() {
         let mut navigator = Navigator::new(10, 2);
         assert_eq!(navigator.current_page(), 1);
-        navigator.move_towards(Direction::Index {
+        navigator.move_towards(&Direction::Index {
             value: navigator.next_page_start(),
         });
         assert_eq!(navigator.current_page(), 2);
-        navigator.move_towards(Direction::Right);
-        navigator.move_towards(Direction::Right);
-        navigator.move_towards(Direction::Right);
-        navigator.move_towards(Direction::Right);
+        navigator.move_towards(&Direction::Right);
+        navigator.move_towards(&Direction::Right);
+        navigator.move_towards(&Direction::Right);
+        navigator.move_towards(&Direction::Right);
         assert_eq!(navigator.current_page(), 3);
     }
     #[test]
