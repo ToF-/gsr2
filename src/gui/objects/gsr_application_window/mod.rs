@@ -137,13 +137,19 @@ impl GsrApplicationWindow {
     }
 
     pub fn set_pictures_per_row(&self, n: i32) {
-        {
+        let navigator = {
             let shared_view = self.gsr_application().shared_view();
             let mut view = shared_view.borrow_mut();
             view.set_pictures_per_row(n);
             let shared_navigator = self.gsr_application().shared_navigator();
             let mut navigator = shared_navigator.borrow_mut();
             navigator.set_pictures_per_row(view.pictures_per_row() as usize);
+            navigator.clone()
+        };
+        if let Some((row, col)) = navigator.coords_from_position(navigator.position()) {
+            let shared_view = self.gsr_application().shared_view();
+            let mut view = shared_view.borrow_mut();
+            view.set_focus_at_coords((col as i32, row as i32));
         }
         self.gsr_picture_grid().initialize_pictures();
         self.gsr_picture_grid().move_current_picture_focus_symbol();
