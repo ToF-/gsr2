@@ -1,4 +1,3 @@
-use crate::gui::view_state::navigator::Navigator;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::file::paths::check_path_exists;
 use crate::gui::action::Action;
@@ -20,6 +19,7 @@ use crate::gui::objects::gsr_picture_grid::GsrPictureGrid;
 use crate::gui::view::View;
 use crate::gui::view::picture_frame::PictureFrame;
 use crate::gui::view::treelist_view::TreeListView;
+use crate::gui::view_state::navigator::Navigator;
 use crate::model::catalog::Catalog;
 use crate::model::gallery::Gallery;
 use crate::model::picture::Picture;

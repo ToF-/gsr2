@@ -1,4 +1,3 @@
-use crate::gui::view_state::navigator::Navigator;
 use crate::env::configuration::Configuration;
 use crate::gui::objects::gsr_application::CONFIGURATION;
 use crate::gui::objects::gsr_application::CommandLineArguments;
@@ -6,6 +5,7 @@ use crate::gui::objects::gsr_application::Controller;
 use crate::gui::objects::gsr_application::MainController;
 use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
 use crate::gui::view::View;
+use crate::gui::view_state::navigator::Navigator;
 use crate::model::gallery::Gallery;
 use crate::model::shared::Shared;
 use gtk::{glib, prelude::*, subclass::prelude::*};

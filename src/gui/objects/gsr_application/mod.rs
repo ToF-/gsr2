@@ -1,10 +1,10 @@
-use crate::gui::view_state::navigator::Navigator;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::default_values::APPLICATION_ID;
 use crate::gui::controller::Controller;
 use crate::gui::main_controller::MainController;
 use crate::gui::view::View;
+use crate::gui::view_state::navigator::Navigator;
 use crate::model::gallery::Gallery;
 use crate::model::shared::Shared;
 use gtk::gdk::Display;

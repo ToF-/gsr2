@@ -1,4 +1,3 @@
-use crate::gui::view_state::navigator::Navigator;
 use crate::cli::command::Command;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::Configuration;
@@ -24,6 +23,7 @@ use crate::gui::objects::gsr_application_window::LEFT_PANE;
 use crate::gui::objects::gsr_entry_window::GsrEntryWindow;
 use crate::gui::selector::Selector;
 use crate::gui::state::State;
+use crate::gui::view_state::navigator::Navigator;
 use crate::model::catalog::Catalog;
 use crate::model::category::Category;
 use crate::model::category::category_from_string;

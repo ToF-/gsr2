@@ -109,22 +109,22 @@ impl Settings {
     }
 
     pub fn toggle_covers_only(&mut self) -> bool {
-        self.covers_only = ! self.covers_only;
+        self.covers_only = !self.covers_only;
         self.covers_only
     }
 
     pub fn toggle_file_date(&mut self) -> bool {
-        self.file_date_on = ! self.file_date_on;
+        self.file_date_on = !self.file_date_on;
         self.file_date_on
     }
 
     pub fn toggle_file_path(&mut self) -> bool {
-        self.file_path_on = ! self.file_path_on;
+        self.file_path_on = !self.file_path_on;
         self.file_path_on
     }
 
     pub fn toggle_file_size(&mut self) -> bool {
-        self.file_size_on = ! self.file_size_on;
+        self.file_size_on = !self.file_size_on;
         self.file_size_on
     }
 }
