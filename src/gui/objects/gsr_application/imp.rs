@@ -1,5 +1,5 @@
+use crate::gui::view_state::navigator::Navigator;
 use crate::env::configuration::Configuration;
-use crate::gui::navigator::Navigator;
 use crate::gui::objects::gsr_application::CONFIGURATION;
 use crate::gui::objects::gsr_application::CommandLineArguments;
 use crate::gui::objects::gsr_application::Controller;

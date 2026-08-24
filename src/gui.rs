@@ -14,7 +14,6 @@ pub mod key_input;
 pub mod main_controller;
 pub mod menu;
 pub mod mode;
-pub mod navigator;
 pub mod objects;
 pub mod selector;
 pub mod state;

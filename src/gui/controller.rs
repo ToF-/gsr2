@@ -1,3 +1,4 @@
+use crate::gui::view_state::navigator::Navigator;
 use crate::cli::command::Command;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::Configuration;
@@ -18,7 +19,6 @@ use crate::gui::key_input::menu::order_menu;
 use crate::gui::key_input::menu::view_menu;
 use crate::gui::main_controller::RcMainController;
 use crate::gui::mode::Mode;
-use crate::gui::navigator::Navigator;
 use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
 use crate::gui::objects::gsr_application_window::LEFT_PANE;
 use crate::gui::objects::gsr_entry_window::GsrEntryWindow;

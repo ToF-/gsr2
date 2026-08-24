@@ -1,3 +1,4 @@
+use crate::gui::view_state::navigator::Navigator;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::file::paths::check_path_exists;
 use crate::gui::action::Action;
@@ -11,7 +12,6 @@ use crate::gui::display::title_display;
 use crate::gui::event::Event::{NextSlideDelay, PaneClicked};
 use crate::gui::main_controller::MainController;
 use crate::gui::mode::Mode;
-use crate::gui::navigator::Navigator;
 use crate::gui::objects::gsr_application::GsrApplication;
 use crate::gui::objects::gsr_application_window::LEFT_PANE;
 use crate::gui::objects::gsr_application_window::RIGHT_PANE;
