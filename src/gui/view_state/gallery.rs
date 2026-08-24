@@ -1,2 +1,1 @@
-pub struct Gallery {
-}
+pub struct Gallery {}

@@ -1,2 +1,1 @@
-pub struct Navigator {
-}
+pub struct Navigator {}

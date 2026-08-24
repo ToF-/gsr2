@@ -29,14 +29,16 @@ impl GsrApplication {
         // store clargs
         *self.command_line_arguments.borrow_mut() = Some(Rc::new(RefCell::new(clargs.clone())));
 
-
         let mut view = View::from_command_line_arguments(&clargs);
         // no grid or thumbnails option, try cfg
-        if clargs.grid.is_none() && ! clargs.thumbnails
-            && let Some(pictures_per_row) = CONFIGURATION.get()
+        if clargs.grid.is_none()
+            && !clargs.thumbnails
+            && let Some(pictures_per_row) = CONFIGURATION
+                .get()
                 .expect("Configuration not set")
-                .current_pictures_per_row {
-                    view.set_pictures_per_row(pictures_per_row as i32)
+                .current_pictures_per_row
+        {
+            view.set_pictures_per_row(pictures_per_row as i32)
         };
         dbg!(&view);
         let _current_picture_file_path = &CONFIGURATION.get().unwrap().current_picture;

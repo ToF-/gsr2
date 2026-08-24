@@ -1,4 +1,3 @@
-use gsr::model::gallery::Gallery;
 use gsr::cli::command::Command;
 use gsr::cli::command::execute_command;
 use gsr::cli::command_line_arguments::CommandLineArguments;
@@ -7,6 +6,7 @@ use gsr::env::configuration::Configuration;
 use gsr::file::database::Database;
 use gsr::gui::controller::Controller;
 use gsr::gui::objects::gsr_application::GsrApplication;
+use gsr::model::gallery::Gallery;
 use gtk::gio;
 use gtk::prelude::ApplicationExtManual;
 use std::io::Error as IOError;
@@ -44,8 +44,8 @@ fn run_application(config: &Configuration, clargs: &CommandLineArguments) -> Res
         let result = execute_command(clargs.clone(), repository.clone(), config.clone());
         if let Ok(Status::Ready(initial_position)) = result {
             {
-            let mut gallery = repository.gallery_rc().borrow_mut();
-            gallery.set_current_picture_index(initial_position);
+                let mut gallery = repository.gallery_rc().borrow_mut();
+                gallery.set_current_picture_index(initial_position);
             }
             let gallery = {
                 let gallery = repository.gallery_rc().borrow();

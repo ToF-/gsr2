@@ -1,1 +1,1 @@
-pub struct Selection { }
+pub struct Selection {}

@@ -42,7 +42,7 @@ impl View {
         let default = Self::default();
         Self {
             pictures_per_row: clargs.pictures_per_row(),
-        ..default
+            ..default
         }
     }
     pub fn pictures_per_row(&self) -> i32 {
@@ -152,7 +152,6 @@ impl View {
     pub fn toggle_display_file_path_on(&mut self) {
         self.display_file_path_on = !self.display_file_path_on
     }
-
 }
 
 #[cfg(test)]

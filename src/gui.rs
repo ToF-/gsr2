@@ -1,5 +1,4 @@
 pub mod action;
-pub mod view_state;
 pub mod completion_dispenser;
 pub mod control;
 pub mod controller;
@@ -20,4 +19,5 @@ pub mod objects;
 pub mod selector;
 pub mod state;
 pub mod view;
+pub mod view_state;
 pub mod window_title;
