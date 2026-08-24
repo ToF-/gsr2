@@ -2,11 +2,16 @@
 ## Gallery Show in Rust
 
 ## Todo
-- [ ] study the problem of color accuracy with pictures according to color state in gtk
-- [ ] entry_view is launched for a given Action, and close iby escaping (cancelling) or by confirming, which activates a new action. 
+- [ ] design the view state as a compound struct:
+    - [ ] settings ( palette, full_size, extend, pictures per row etc)
+    - [ ] navigator
+    - [ ] selection range
+    - [ ] gallery
+- [X] study the problem of color accuracy with pictures according to color state in gtk
+- [X] entry_view is launched for a given Action, and close iby escaping (cancelling) or by confirming, which activates a new action. 
 - [ ] have a correspondance Action -> input -> Action, e.g. EnterChange -> "Tag" ->  EnterAddTag, and e.g. EnterAddTag -> "foo,bar" -> AddTag("foo,bar")
-- [ ] explore subclassing window to to make the main_window *have* the controller instead of the controller having the main_window 
-- [ ] make helpers to convert any action into a gio_simple_action with the parameters correctly encoded and decode back any gio_simple_action into original action
+- [X] explore subclassing window to to make the main_window *have* the controller instead of the controller having the main_window 
+- [X] make helpers to convert any action into a gio_simple_action with the parameters correctly encoded and decode back any gio_simple_action into original action
 - [X] make a correspondance function mapping a key name in a context (mode, entry kind) to a main-controller.action
 - [ ] make the Controller a glib Object with trait ActionMap so that it will itself receive the action entries signals
     - [ ] requires a mod where Controller is wrapped as ObjectSubClass with imp 
