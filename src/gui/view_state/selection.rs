@@ -90,7 +90,7 @@ impl Selection {
         if self.range().is_some() {
             self.cancel_range()
         }
-        if self.range_start.is_some() {
+        if self.range_start.is_none() {
             self.range_start = Some(index);
             self.select(index);
         } else {
