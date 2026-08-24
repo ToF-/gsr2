@@ -26,11 +26,18 @@ pub struct GsrApplication {
 impl GsrApplication {
     // stored for sharing: command line args, view state, navigator and gallery
     pub fn set_state(&self, clargs: CommandLineArguments, gallery: &Gallery) {
-        dbg!("set_state");
+        // store clargs
         *self.command_line_arguments.borrow_mut() = Some(Rc::new(RefCell::new(clargs.clone())));
 
-        let configuration = CONFIGURATION.get();
+
         let mut view = View::from_command_line_arguments(&clargs);
+        // no grid or thumbnails option, try cfg
+        if clargs.grid.is_none() && ! clargs.thumbnails
+            && let Some(pictures_per_row) = CONFIGURATION.get()
+                .expect("Configuration not set")
+                .current_pictures_per_row {
+                    view.set_pictures_per_row(pictures_per_row as i32)
+        };
         dbg!(&view);
         let _current_picture_file_path = &CONFIGURATION.get().unwrap().current_picture;
         *self.view.borrow_mut() = Some(Rc::new(RefCell::new(view.clone())));
