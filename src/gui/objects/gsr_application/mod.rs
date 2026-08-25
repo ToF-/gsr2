@@ -1,11 +1,8 @@
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::default_values::APPLICATION_ID;
-use crate::gui::controller::Controller;
 use crate::gui::main_controller::MainController;
-use crate::gui::view::View;
 use crate::gui::view_state::ViewState;
-use crate::gui::view_state::navigator::Navigator;
 use crate::model::gallery::Gallery;
 use crate::model::shared::Shared;
 use gtk::gdk::Display;
@@ -41,10 +38,7 @@ impl GsrApplication {
     }
 
     pub fn shared_command_line_arguments(&self) -> Shared<CommandLineArguments> {
-        (*self.imp().command_line_arguments.borrow())
-            .as_ref()
-            .unwrap()
-            .clone()
+        self.imp().command_line_arguments.clone()
     }
 }
 

@@ -314,11 +314,7 @@ impl LegacyMainView {
     }
 
     pub fn set_focus_for_current_picture(&self, controller: &Controller) {
-        let navigator = controller.navigator();
-        let position = navigator.position();
-        if !controller.state().single_view()
-            && let Some((row, col)) = navigator.coords_from_position(position)
-        {
+        if !controller.state().single_view() {
             self.gsr_picture_grid.move_current_picture_focus_symbol()
         }
     }

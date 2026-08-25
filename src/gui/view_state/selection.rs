@@ -3,35 +3,22 @@ use std::mem;
 
 #[derive(Debug, Clone)]
 pub struct Selection {
-    limit: usize,
     range_start: Option<usize>,
     range_end: Option<usize>,
-    range_opt: Option<(usize, usize)>,
     selected: HashSet<usize>,
 }
 
 impl Default for Selection {
     fn default() -> Self {
         Self {
-            limit: 0,
             range_start: None,
             range_end: None,
-            range_opt: None,
             selected: HashSet::new(),
         }
     }
 }
 
 impl Selection {
-    pub fn new(limit: usize) -> Self {
-        Self {
-            limit,
-            range_start: None,
-            range_end: None,
-            range_opt: None,
-            selected: HashSet::new(),
-        }
-    }
 
     pub fn range_start(&self) -> Option<usize> {
         self.range_start
@@ -113,7 +100,7 @@ mod tests {
     use super::*;
     #[test]
     fn selection_can_define_a_range() {
-        let mut selection = Selection::new(10);
+        let mut selection = Selection::default();
         assert_eq!(None, selection.range_start());
         assert_eq!(None, selection.range_end());
         selection.set_range(2);
@@ -124,7 +111,7 @@ mod tests {
 
     #[test]
     fn selection_can_define_a_range_backwards() {
-        let mut selection = Selection::new(10);
+        let mut selection = Selection::default();
         assert_eq!(None, selection.range_start());
         assert_eq!(None, selection.range_end());
         selection.set_range(6);
@@ -134,7 +121,7 @@ mod tests {
     }
     #[test]
     fn has_a_range_if_range_start_and_range_end_are_set() {
-        let mut selection = Selection::new(10);
+        let mut selection = Selection::default();
         assert_eq!(None, selection.range());
         selection.set_range(2);
         assert_eq!(None, selection.range());
@@ -143,7 +130,7 @@ mod tests {
     }
     #[test]
     fn starting_a_new_range_cancels_current_range() {
-        let mut selection = Selection::new(10);
+        let mut selection = Selection::default();
         assert_eq!(None, selection.range_start());
         assert_eq!(None, selection.range_end());
         selection.set_range(6);
@@ -154,7 +141,7 @@ mod tests {
     }
     #[test]
     fn can_cancel_a_range() {
-        let mut selection = Selection::new(10);
+        let mut selection = Selection::default();
         selection.set_range(6);
         selection.set_range(2);
         assert_eq!(Some((2, 6)), selection.range());
@@ -165,7 +152,7 @@ mod tests {
 
     #[test]
     fn can_select_and_unselect_an_picture_index() {
-        let mut selection = Selection::new(10);
+        let mut selection = Selection::default();
         assert!(!selection.is_selected(0));
         selection.select(9);
         assert!(selection.is_selected(9));
@@ -175,7 +162,7 @@ mod tests {
 
     #[test]
     fn setting_a_range_selects_included_pictures() {
-        let mut selection = Selection::new(10);
+        let mut selection = Selection::default();
         selection.set_range(6);
         assert!(selection.is_selected(6));
         selection.set_range(2);
@@ -191,7 +178,7 @@ mod tests {
     }
     #[test]
     fn cancelling_a_range_unselects_included_pictures() {
-        let mut selection = Selection::new(10);
+        let mut selection = Selection::default();
         selection.set_range(6);
         selection.set_range(2);
         selection.cancel_range();
@@ -203,7 +190,7 @@ mod tests {
     }
     #[test]
     fn unselect_all_cancel_ranges_and_selected() {
-        let mut selection = Selection::new(10);
+        let mut selection = Selection::default();
         selection.set_range(6);
         selection.set_range(2);
         selection.select(9);
@@ -213,7 +200,7 @@ mod tests {
     }
     #[test]
     fn can_yield_an_ordered_list_of_selected() {
-        let mut selection = Selection::new(10);
+        let mut selection = Selection::default();
         selection.set_range(6);
         selection.set_range(2);
         assert_eq!(vec![2, 3, 4, 5, 6], selection.indices());

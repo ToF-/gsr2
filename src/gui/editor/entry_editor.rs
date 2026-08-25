@@ -7,7 +7,6 @@ use crate::gui::editor::entry_editor_status::EntryEditorStatus;
 use crate::gui::editor::validator::Validator;
 use crate::gui::entry_kind::EntryKind;
 use crate::gui::mode::Mode;
-use crate::model::tags::tags_from_str;
 use crate::model::view_option::ViewOption;
 use gtk::gdk::Key;
 use itertools::Itertools;
@@ -91,8 +90,9 @@ impl EntryEditor {
 
 #[cfg(test)]
 mod tests {
-
+    #[allow(unused_imports)]
     use super::*;
+    use crate::model::tags::tags_from_str;
 
     #[test]
     fn editor_for_entry_kind_label_simple_key_strokes() {

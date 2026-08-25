@@ -139,8 +139,9 @@ impl Settings {
         self.file_size_on
     }
 }
+#[cfg(test)]
 mod tests {
-    use super::*;
+    use crate::gui::view_state::Settings;
 
     #[test]
     fn default_settings() {

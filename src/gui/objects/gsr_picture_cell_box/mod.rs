@@ -86,7 +86,6 @@ impl GsrPictureCellBox {
 
     fn attach_focus_blink_event(&self) {
         let label_rc = self.imp().label.clone();
-        let index = self.imp().picture_index.clone();
         *self.imp().timeout_rc.borrow_mut() = Some(timeout_add_local(
             Duration::from_millis(FOCUS_BLINKING_DURATION),
             clone!(
@@ -94,8 +93,6 @@ impl GsrPictureCellBox {
                 self,
                 #[strong]
                 label_rc,
-                #[strong]
-                index,
                 move || {
                     let shared_view_state =
                         this.parent_grid().gsr_application().shared_view_state();

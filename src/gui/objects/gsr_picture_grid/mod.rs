@@ -42,7 +42,6 @@ impl GsrPictureGrid {
         let shared_view_state = self.gsr_application().shared_view_state();
         let view_state = shared_view_state.borrow();
         let pictures_per_row = view_state.settings.pictures_per_row();
-        let navigator_pictures_per_row = view_state.navigator.pictures_per_row();
         for col in 0..pictures_per_row {
             for row in 0..pictures_per_row {
                 if let Some(index) = view_state

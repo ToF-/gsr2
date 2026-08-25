@@ -27,6 +27,7 @@ use std::path::PathBuf;
 "
     )
 )]
+#[derive(Default)]
 pub struct CommandLineArguments {
     #[command(subcommand)]
     pub command: Option<Command>,

@@ -9,7 +9,7 @@ use std::fs;
 use std::io::Result;
 use std::sync::OnceLock;
 
-#[derive(Debug, Deserialize, Serialize, Clone)]
+#[derive(Default, Debug, Deserialize, Serialize, Clone)]
 pub struct Configuration {
     pub width: i32,
     pub height: i32,

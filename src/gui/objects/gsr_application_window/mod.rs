@@ -8,9 +8,7 @@ use crate::gui::mode::Mode;
 use crate::gui::objects::gsr_application::GsrApplication;
 use crate::gui::objects::gsr_picture_frame::GsrPictureFrame;
 use crate::gui::objects::gsr_picture_grid::GsrPictureGrid;
-use crate::gui::view::View;
 use crate::gui::view::treelist_view::TreeListView;
-use crate::gui::view_state::ViewState;
 use crate::model::catalog::Catalog;
 use gtk::glib;
 use gtk::glib::Propagation;
@@ -119,20 +117,6 @@ impl GsrApplicationWindow {
         }
         // connect the events
         self.attach_key_pressed_event_handlers();
-    }
-
-    // change what is visible  according the given view
-    pub fn change_view(&self, new_view: View) {
-        {
-            let shared_view_state = self.gsr_application().shared_view_state();
-            let mut view_state = shared_view_state.borrow_mut();
-            let pictures_per_row = view_state.settings.pictures_per_row();
-            view_state
-                .navigator
-                .set_pictures_per_row(pictures_per_row as usize);
-        }
-        self.gsr_picture_grid().initialize_pictures();
-        self.gsr_picture_grid().move_current_picture_focus_symbol();
     }
 
     pub fn toggle_palette(&self) {
@@ -353,10 +337,6 @@ impl GsrApplicationWindow {
             view_state.settings.pictures_per_row()
         };
 
-        {
-            let shared_view_state = self.gsr_application().shared_view_state();
-            let view_state = shared_view_state.borrow();
-        }
         if pictures_per_row == 1 {
             self.frame().set_current_picture();
         }
@@ -365,7 +345,6 @@ impl GsrApplicationWindow {
         let on = {
             let shared_view_state = self.gsr_application().shared_view_state();
             let mut view_state = shared_view_state.borrow_mut();
-            let on_off = view_state.settings.blinking_on();
             view_state.settings.toggle_blinking();
             view_state.settings.blinking_on()
         };

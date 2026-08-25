@@ -8,7 +8,6 @@ pub mod treelist_view;
 pub struct View {
     pictures_per_row: i32,
     last_pictures_per_row: i32,
-    covers_only: bool,
     palette_on: bool,
     expand_on: bool,
     full_size: bool,
@@ -24,7 +23,6 @@ impl Default for View {
         Self {
             pictures_per_row: 10,
             last_pictures_per_row: 1,
-            covers_only: false,
             palette_on: false,
             expand_on: false,
             full_size: false,

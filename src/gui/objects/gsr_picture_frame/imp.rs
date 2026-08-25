@@ -1,14 +1,10 @@
 use crate::gui::objects::gsr_application::GsrApplication;
 use crate::gui::objects::gsr_picture_frame::GsrApplicationWindow;
-use crate::gui::view::View;
 use crate::gui::view_state::ViewState;
-use crate::model::gallery::Gallery;
 use crate::model::shared::Shared;
 use gtk::glib;
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
-use std::cell::RefCell;
-use std::rc::Rc;
 
 #[derive(Default)]
 pub struct GsrPictureFrame {}

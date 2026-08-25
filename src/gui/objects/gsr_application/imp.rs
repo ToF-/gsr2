@@ -1,24 +1,20 @@
 use crate::env::configuration::Configuration;
 use crate::gui::objects::gsr_application::CONFIGURATION;
 use crate::gui::objects::gsr_application::CommandLineArguments;
-use crate::gui::objects::gsr_application::Controller;
 use crate::gui::objects::gsr_application::MainController;
 use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
-use crate::gui::view::View;
 use crate::gui::view_state::ViewState;
 use crate::gui::view_state::navigator::Navigator;
 use crate::model::gallery::Gallery;
 use crate::model::shared::Shared;
 use gtk::{glib, prelude::*, subclass::prelude::*};
-use std::cell::RefCell;
-use std::rc::Rc;
 
 #[derive(Default)]
 pub struct GsrApplication {
-    pub command_line_arguments: RefCell<Option<Shared<CommandLineArguments>>>,
-    pub configuration: RefCell<Option<Shared<Configuration>>>,
-    pub main_controller: RefCell<Option<Shared<MainController>>>,
-    pub view_state: Rc<RefCell<ViewState>>,
+    pub command_line_arguments: Shared<CommandLineArguments>,
+    pub configuration: Shared<Configuration>,
+    pub main_controller: Shared<MainController>,
+    pub view_state: Shared<ViewState>,
 }
 
 // GSR_APPLICATION
@@ -26,7 +22,7 @@ impl GsrApplication {
     // stored for sharing: command line args, view state, navigator and gallery
     pub fn set_state(&self, clargs: CommandLineArguments, gallery: &Gallery) {
         // store clargs
-        *self.command_line_arguments.borrow_mut() = Some(Rc::new(RefCell::new(clargs.clone())));
+        *self.command_line_arguments.borrow_mut() = clargs.clone();
 
         let pictures_per_row = {
             // no grid or thumbnails option, try cfg
