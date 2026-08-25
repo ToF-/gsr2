@@ -5,6 +5,7 @@ use crate::gui::objects::gsr_application::Controller;
 use crate::gui::objects::gsr_application::MainController;
 use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
 use crate::gui::view::View;
+use crate::gui::view_state::ViewState;
 use crate::gui::view_state::navigator::Navigator;
 use crate::model::gallery::Gallery;
 use crate::model::shared::Shared;
@@ -17,9 +18,7 @@ pub struct GsrApplication {
     pub command_line_arguments: RefCell<Option<Shared<CommandLineArguments>>>,
     pub configuration: RefCell<Option<Shared<Configuration>>>,
     pub main_controller: RefCell<Option<Shared<MainController>>>,
-    pub view: RefCell<Option<Shared<View>>>,
-    pub navigator: RefCell<Option<Shared<Navigator>>>,
-    pub gallery: RefCell<Option<Shared<Gallery>>>,
+    pub view_state: Rc<RefCell<ViewState>>,
 }
 
 // GSR_APPLICATION
@@ -28,6 +27,29 @@ impl GsrApplication {
     pub fn set_state(&self, clargs: CommandLineArguments, gallery: &Gallery) {
         // store clargs
         *self.command_line_arguments.borrow_mut() = Some(Rc::new(RefCell::new(clargs.clone())));
+
+        let pictures_per_row = {
+            // no grid or thumbnails option, try cfg
+            if clargs.grid.is_none()
+                && !clargs.thumbnails
+                && let Some(pictures_per_row) = CONFIGURATION
+                    .get()
+                    .expect("Configuration not set")
+                    .current_pictures_per_row
+            {
+                pictures_per_row as i32
+            } else {
+                clargs.pictures_per_row()
+            }
+        };
+        let gallery = gallery.clone();
+        let navigator = Navigator::new(gallery.len(), pictures_per_row as usize);
+        let mut view_state = self.view_state.borrow_mut();
+        view_state
+            .settings
+            .toggle_pictures_per_row(clargs.pictures_per_row());
+        view_state.gallery = gallery.clone();
+        view_state.navigator = navigator.clone();
 
         let mut view = View::from_command_line_arguments(&clargs);
         // no grid or thumbnails option, try cfg
@@ -40,14 +62,6 @@ impl GsrApplication {
         {
             view.set_pictures_per_row(pictures_per_row as i32)
         };
-        dbg!(&view);
-        let _current_picture_file_path = &CONFIGURATION.get().unwrap().current_picture;
-        *self.view.borrow_mut() = Some(Rc::new(RefCell::new(view.clone())));
-
-        *self.gallery.borrow_mut() = Some(Rc::new(RefCell::new(gallery.clone())));
-
-        let navigator = Navigator::new(gallery.len(), view.pictures_per_row() as usize);
-        *self.navigator.borrow_mut() = Some(Rc::new(RefCell::new(navigator)));
     }
 }
 #[glib::object_subclass]

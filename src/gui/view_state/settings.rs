@@ -1,3 +1,4 @@
+#[derive(Debug,Clone)]
 pub struct Settings {
     current_pictures_per_row: i32,
     last_pictures_per_row: i32,

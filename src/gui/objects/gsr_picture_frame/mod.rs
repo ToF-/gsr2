@@ -68,10 +68,10 @@ impl GsrPictureFrame {
     }
 
     pub fn set_gtk_picture(&self, gtk_picture: gtk::Picture) {
-        let binding = self.imp().shared_view();
-        let view = binding.borrow();
+        let shared_view_state = self.imp().shared_view_state();
+        let view_state = shared_view_state.borrow();
         self.remove_children();
-        if view.expand_on() {
+        if view_state.settings.expand_on() {
             dbg!("set_gtk_picture with expand");
             gtk_picture.set_valign(Align::Fill);
             gtk_picture.set_halign(Align::Fill);
@@ -80,7 +80,7 @@ impl GsrPictureFrame {
             gtk_picture.set_halign(Align::Center);
         };
 
-        gtk_picture.set_can_shrink(!view.full_size_on());
+        gtk_picture.set_can_shrink(!view_state.settings.full_size_on());
         self.append(&gtk_picture);
     }
 
@@ -99,9 +99,9 @@ impl GsrPictureFrame {
                 no_thumbnail_picture()
             };
             self.set_gtk_picture(gtk_picture);
-            let binding = self.imp().shared_view();
-            let view = binding.borrow();
-            if view.palette_on()
+            let shared_view_state = self.imp().shared_view_state();
+            let view_state = shared_view_state.borrow();
+            if view_state.settings.palette_on()
                 && let Some(image_data) = picture.image_data()
             {
                 let palette_area = make_palette_area(
@@ -118,14 +118,18 @@ impl GsrPictureFrame {
     }
 
     pub fn set_current_picture(&self) {
+        let position = {
+            let shared_view_state = self.gsr_application().shared_view_state();
+            let view_state = shared_view_state.borrow();
+            let position = view_state.navigator.position();
+            position 
+        };
         let picture_opt = {
-            let shared_navigator = self.gsr_application().shared_navigator();
-            let navigator = shared_navigator.borrow();
-            let shared_gallery = self.imp().shared_gallery();
-            let mut gallery = shared_gallery.borrow_mut();
-            gallery.set_current_picture_index(navigator.position());
-            if gallery.len() > 0 {
-                Some(gallery.current_picture())
+            let shared_view_state = self.gsr_application().shared_view_state();
+            let mut view_state = shared_view_state.borrow_mut();
+            view_state.gallery.set_current_picture_index(position);
+            if view_state.gallery.len() > 0 {
+                Some(view_state.gallery.current_picture())
             } else {
                 None
             }

@@ -1,3 +1,5 @@
+use crate::gui::view_state::ViewState;
+use crate::model::shared::Shared;
 use crate::gui::objects::gsr_application::GsrApplication;
 use crate::gui::objects::gsr_picture_frame::GsrApplicationWindow;
 use crate::gui::view::View;
@@ -20,11 +22,8 @@ impl GsrPictureFrame {
             .expect("GsrPictureFrame not inside a GsrApplicationWindow")
             .gsr_application()
     }
-    pub fn shared_view(&self) -> Rc<RefCell<View>> {
-        self.gsr_application().shared_view()
-    }
-    pub fn shared_gallery(&self) -> Rc<RefCell<Gallery>> {
-        self.gsr_application().shared_gallery()
+    pub fn shared_view_state(&self) -> Shared<ViewState> {
+        self.gsr_application().shared_view_state()
     }
 }
 

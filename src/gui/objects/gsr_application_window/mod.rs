@@ -1,3 +1,4 @@
+use crate::gui::view_state::ViewState;
 use crate::env::default_values::FRAME_WINDOW_NAME;
 use crate::env::default_values::GRID_WINDOW_NAME;
 use crate::gui::control::Control;
@@ -103,10 +104,9 @@ impl GsrApplicationWindow {
         self.set_child(Some(&stack));
         {
             let pictures_per_row = {
-                let shared_view = self.gsr_application().shared_view();
-                let view = shared_view.borrow_mut();
-                let pictures_per_row = view.pictures_per_row();
-                pictures_per_row
+                let shared_view_state = self.gsr_application().shared_view_state();
+                let view_state = shared_view_state.borrow();
+                view_state.settings.pictures_per_row()
             };
             if pictures_per_row == 1 {
                 stack.set_visible_child(&frame_scrolled_window);
@@ -124,12 +124,10 @@ impl GsrApplicationWindow {
     // change what is visible  according the given view
     pub fn change_view(&self, new_view: View) {
         {
-            let shared_view = self.gsr_application().shared_view();
-            let mut view = shared_view.borrow_mut();
-            *view = new_view;
-            let shared_navigator = self.gsr_application().shared_navigator();
-            let mut navigator = shared_navigator.borrow_mut();
-            navigator.set_pictures_per_row(view.pictures_per_row() as usize);
+            let shared_view_state = self.gsr_application().shared_view_state();
+            let mut view_state = shared_view_state.borrow_mut();
+            let pictures_per_row = view_state.settings.pictures_per_row();
+            view_state.navigator.set_pictures_per_row(pictures_per_row as usize);
         }
         self.gsr_picture_grid().initialize_pictures();
         self.gsr_picture_grid().move_current_picture_focus_symbol();
@@ -137,10 +135,10 @@ impl GsrApplicationWindow {
 
     pub fn toggle_palette(&self) {
         let single_view = {
-            let shared_view = self.gsr_application().shared_view();
-            let mut view = shared_view.borrow_mut();
-            view.toggle_palette_on();
-            view.single_view()
+            let shared_view_state = self.gsr_application().shared_view_state();
+            let mut view_state = shared_view_state.borrow_mut();
+            view_state.settings.toggle_palette();
+            view_state.settings.single_view()
         };
         if single_view {
             self.frame().set_current_picture();
@@ -150,24 +148,22 @@ impl GsrApplicationWindow {
         }
     }
 
-    pub fn set_pictures_per_row(&self, n: i32) {
+    pub fn set_pictures_per_row(&self, pictures_per_row: i32) {
         let navigator = {
-            let shared_view = self.gsr_application().shared_view();
-            let mut view = shared_view.borrow_mut();
-            view.set_pictures_per_row(n);
-            let shared_navigator = self.gsr_application().shared_navigator();
-            let mut navigator = shared_navigator.borrow_mut();
-            navigator.set_pictures_per_row(view.pictures_per_row() as usize);
-            navigator.clone()
+            let shared_view_state = self.gsr_application().shared_view_state();
+            let mut view_state = shared_view_state.borrow_mut();
+            view_state.settings.toggle_pictures_per_row(pictures_per_row);
+            view_state.navigator.set_pictures_per_row(pictures_per_row as usize);
+            view_state.navigator.clone()
         };
         if let Some((row, col)) = navigator.coords_from_position(navigator.position()) {
-            let shared_view = self.gsr_application().shared_view();
-            let mut view = shared_view.borrow_mut();
-            view.set_focus_at_coords((col as i32, row as i32));
+            let shared_view_state = self.gsr_application().shared_view_state();
+            let mut view_state = shared_view_state.borrow_mut();
+            view_state.focus_at_coords = (col as i32, row as i32);
         }
         let pictures_per_row = {
-            let shared_view = self.gsr_application().shared_view();
-            shared_view.borrow().pictures_per_row()
+            let shared_view_state = self.gsr_application().shared_view_state();
+            shared_view_state.borrow().settings.pictures_per_row()
         };
         self.set_stack_visible_child(pictures_per_row);
         if pictures_per_row > 1 {
@@ -219,7 +215,7 @@ impl GsrApplicationWindow {
         grid
     }
     pub fn full_size_arrow_move(&self, direction: &Direction) {
-        let full_size_on = self.gsr_application().shared_view().borrow().full_size_on();
+        let full_size_on = self.gsr_application().shared_view_state().borrow().settings.full_size_on();
         if self.stack().visible_child_name().unwrap() == FRAME_WINDOW_NAME && full_size_on {
             let step: f64 = 100.0;
             let window = self.frame_scrolled_window();
@@ -240,9 +236,10 @@ impl GsrApplicationWindow {
             #[strong (rename_to = this)]
             self,
             move |_, key, _key_code, _modifier_type| {
-                let view = {
-                    let shared_view = this.gsr_application().shared_view();
-                    shared_view.borrow().clone()
+                let settings = {
+                    let shared_view_state = this.gsr_application().shared_view_state();
+                    let view_state = shared_view_state.borrow();
+                    view_state.settings.clone()
                 };
                 let key_name = key.name().unwrap_or_default();
                 let key_name = key_name.as_str();
@@ -251,8 +248,8 @@ impl GsrApplicationWindow {
                     match control {
                         Control::Right | Control::Left | Control::Up | Control::Down => {
                             let direction = Direction::from(control.clone());
-                            if view.single_view() {
-                                if view.full_size_on() {
+                            if settings.single_view() {
+                                if settings.full_size_on() {
                                     this.full_size_arrow_move(&direction)
                                 } else {
                                     this.single_view_move(&direction)
@@ -262,42 +259,42 @@ impl GsrApplicationWindow {
                             }
                         }
                         Control::MovePrev => {
-                            if view.single_view() {
+                            if settings.single_view() {
                                 this.single_view_move(&Direction::Left)
                             } else {
                                 this.grid_view_move(&Direction::PrevPage)
                             }
                         }
                         Control::MoveNext => {
-                            if view.single_view() {
+                            if settings.single_view() {
                                 this.single_view_move(&Direction::Right)
                             } else {
                                 this.grid_view_move(&Direction::NextPage)
                             }
                         }
                         Control::MoveStartPage => {
-                            if view.single_view() {
+                            if settings.single_view() {
                                 this.single_view_move(&Direction::First)
                             } else {
                                 this.grid_view_move(&Direction::PageStart)
                             }
                         }
                         Control::MoveEndPage => {
-                            if view.single_view() {
+                            if settings.single_view() {
                                 this.single_view_move(&Direction::Last)
                             } else {
                                 this.grid_view_move(&Direction::PageEnd)
                             }
                         }
                         Control::MoveFirst => {
-                            if view.single_view() {
+                            if settings.single_view() {
                                 this.single_view_move(&Direction::First)
                             } else {
                                 this.grid_view_move(&Direction::First)
                             }
                         }
                         Control::MoveLast => {
-                            if view.single_view() {
+                            if settings.single_view() {
                                 this.single_view_move(&Direction::Last)
                             } else {
                                 this.grid_view_move(&Direction::Last)
@@ -332,17 +329,17 @@ impl GsrApplicationWindow {
 
     fn toggle_expand(&self) {
         let pictures_per_row = {
-            let shared_view = self.gsr_application().shared_view();
-            let mut view = shared_view.borrow_mut();
-            if view.pictures_per_row() == 1 {
-                view.toggle_expand_on();
+            let shared_view_state = self.gsr_application().shared_view_state();
+            let mut view_state = shared_view_state.borrow_mut();
+            if view_state.settings.pictures_per_row() == 1 {
+                view_state.settings.toggle_expand();
             }
-            view.pictures_per_row()
+            view_state.settings.pictures_per_row()
         };
 
         {
-            let shared_view = self.gsr_application().shared_view();
-            let view = shared_view.borrow();
+            let shared_view_state = self.gsr_application().shared_view_state();
+            let view_state = shared_view_state.borrow();
         }
         if pictures_per_row == 1 {
             self.frame().set_current_picture();
@@ -350,11 +347,11 @@ impl GsrApplicationWindow {
     }
     fn toggle_blinking(&self) {
         let on = {
-            let shared_view = self.gsr_application().shared_view();
-            let mut view = shared_view.borrow_mut();
-            let on_off = view.blinking_on();
-            view.set_blinking_on(!on_off);
-            !on_off
+            let shared_view_state = self.gsr_application().shared_view_state();
+            let mut view_state = shared_view_state.borrow_mut();
+            let on_off = view_state.settings.blinking_on();
+            view_state.settings.toggle_blinking();
+            view_state.settings.blinking_on()
         };
         if on == true {
             self.gsr_picture_grid().initialize_pictures();
@@ -369,12 +366,12 @@ impl GsrApplicationWindow {
             other => other.clone(),
         };
         let navigator = {
-            let shared_navigator = self.gsr_application().shared_navigator();
-            let mut navigator = shared_navigator.borrow_mut();
-            if navigator.can_move(&direction) {
-                navigator.move_towards(&direction);
+            let shared_view_state = self.gsr_application().shared_view_state();
+            let mut view_state = shared_view_state.borrow_mut();
+            if view_state.navigator.can_move(&direction) {
+                view_state.navigator.move_towards(&direction);
             }
-            navigator.clone()
+            view_state.navigator.clone()
         };
         if navigator.has_moved() {
             self.frame().set_current_picture();
@@ -382,19 +379,19 @@ impl GsrApplicationWindow {
     }
     fn grid_view_move(&self, direction: &Direction) {
         let navigator = {
-            let shared_navigator = self.gsr_application().shared_navigator();
-            let mut navigator = shared_navigator.borrow_mut();
-            if navigator.can_move(direction) {
-                navigator.move_towards(direction);
+            let shared_view_state = self.gsr_application().shared_view_state();
+            let mut view_state = shared_view_state.borrow_mut();
+            if view_state.navigator.can_move(&direction) {
+                view_state.navigator.move_towards(&direction);
             }
-            navigator.clone()
+            view_state.navigator.clone()
         };
         if navigator.has_moved() {
             {
                 if let Some((row, col)) = navigator.coords_from_position(navigator.position()) {
-                    let shared_view = self.gsr_application().shared_view();
-                    let mut view = shared_view.borrow_mut();
-                    view.set_focus_at_coords((col as i32, row as i32));
+                    let shared_view_state = self.gsr_application().shared_view_state();
+                    let mut view_state = shared_view_state.borrow_mut();
+                    view_state.focus_at_coords = (col as i32, row as i32);
                 }
                 if navigator.has_moved() {
                     self.gsr_picture_grid().initialize_pictures();

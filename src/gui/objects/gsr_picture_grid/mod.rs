@@ -39,13 +39,9 @@ impl GsrPictureGrid {
     }
     pub fn initialize_pictures(&self) {
         self.remove_all_picture_cells();
-        let shared_view = self.gsr_application().shared_view();
-        let view = shared_view.borrow();
-        let shared_navigator = self.gsr_application().shared_navigator();
-        let navigator = shared_navigator.borrow();
-        let shared_gallery = self.gsr_application().shared_gallery();
-        let gallery = shared_gallery.borrow();
-        let pictures_per_row = view.pictures_per_row();
+        let shared_view_state = self.gsr_application().shared_view_state();
+        let view_state = shared_view_state.borrow();
+        let pictures_per_row = view_state.settings.pictures_per_row();
         for col in 0..pictures_per_row {
             for row in 0..pictures_per_row {
                 if self.child_at(col, row).is_none() {
@@ -53,15 +49,15 @@ impl GsrPictureGrid {
                         col,
                         row,
                         0,
-                        view.pictures_per_row(),
-                        view.palette_on(),
+                        view_state.settings.pictures_per_row(),
+                        view_state.settings.palette_on(),
                     );
                     self.attach(&gsr_picture_cell_box, col, row, 1, 1);
                 }
-                if let Some(index) = navigator.position_from_coords(row as usize, col as usize) {
-                    let picture = gallery.picture(index);
+                if let Some(index) = view_state.navigator.position_from_coords(row as usize, col as usize) {
+                    let picture = view_state.gallery.picture(index);
                     self.set_picture_at(col, row, &picture, index);
-                    let opacity: f64 = if navigator.is_selected(index) {
+                    let opacity: f64 = if view_state.navigator.is_selected(index) {
                         HALF_OPACITY
                     } else {
                         FULL_OPACITY
@@ -92,10 +88,10 @@ impl GsrPictureGrid {
     }
 
     pub fn set_picture_at(&self, col: i32, row: i32, picture: &Picture, picture_index: usize) {
-        let binding = self.gsr_application().shared_view();
-        let view = binding.borrow();
-        let pictures_per_row = view.pictures_per_row();
-        let palette_on = view.palette_on();
+        let shared_view_state = self.gsr_application().shared_view_state();
+        let view_state = shared_view_state.borrow();
+        let pictures_per_row = view_state.settings.pictures_per_row();
+        let palette_on = view_state.settings.palette_on();
         if let Some(widget) = self.child_at(col, row) {
             self.remove(&widget);
         };
@@ -129,9 +125,9 @@ impl GsrPictureGrid {
     pub fn move_current_picture_focus_symbol(&self) {
         let (current_col, current_row) = self.imp().focus_at_coords.get();
         let (new_col, new_row) = {
-            let binding = self.gsr_application().shared_view();
-            let view = binding.borrow();
-            view.focus_at_coords()
+            let shared_view_state = self.gsr_application().shared_view_state();
+            let view_state = shared_view_state.borrow();
+            view_state.focus_at_coords
         };
         if let Some(widget) = self.child_at(current_col, current_row) {
             let gsr_picture_cell_box = widget

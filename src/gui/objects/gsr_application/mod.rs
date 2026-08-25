@@ -1,3 +1,4 @@
+use crate::gui::view_state::ViewState;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::default_values::APPLICATION_ID;
@@ -35,16 +36,8 @@ impl GsrApplication {
     pub fn set_state(&self, clargs: CommandLineArguments, gallery: &Gallery) {
         self.imp().set_state(clargs, gallery)
     }
-    pub fn shared_view(&self) -> Shared<View> {
-        (*self.imp().view.borrow()).as_ref().unwrap().clone()
-    }
-
-    pub fn shared_navigator(&self) -> Shared<Navigator> {
-        (*self.imp().navigator.borrow()).as_ref().unwrap().clone()
-    }
-
-    pub fn shared_gallery(&self) -> Shared<Gallery> {
-        (*self.imp().gallery.borrow()).as_ref().unwrap().clone()
+    pub fn shared_view_state(&self) -> Shared<ViewState> {
+        self.imp().view_state.clone()
     }
 
     pub fn shared_command_line_arguments(&self) -> Shared<CommandLineArguments> {
