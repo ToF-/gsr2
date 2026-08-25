@@ -1,4 +1,4 @@
-#[derive(Debug,Clone)]
+#[derive(Debug, Clone)]
 pub struct Settings {
     current_pictures_per_row: i32,
     last_pictures_per_row: i32,
@@ -75,10 +75,10 @@ impl Settings {
     }
 
     fn swap_pictures_per_row(&mut self) {
-            std::mem::swap(
-                &mut self.current_pictures_per_row,
-                &mut self.last_pictures_per_row,
-            );
+        std::mem::swap(
+            &mut self.current_pictures_per_row,
+            &mut self.last_pictures_per_row,
+        );
     }
 
     pub fn set_pictures_per_row(&mut self, new: i32) -> i32 {

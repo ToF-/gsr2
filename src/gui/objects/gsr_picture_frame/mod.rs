@@ -122,7 +122,7 @@ impl GsrPictureFrame {
             let shared_view_state = self.gsr_application().shared_view_state();
             let view_state = shared_view_state.borrow();
             let position = view_state.navigator.position();
-            position 
+            position
         };
         let picture_opt = {
             let shared_view_state = self.gsr_application().shared_view_state();

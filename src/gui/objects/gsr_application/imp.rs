@@ -45,9 +45,7 @@ impl GsrApplication {
         let gallery = gallery.clone();
         let navigator = Navigator::new(gallery.len(), pictures_per_row as usize);
         let mut view_state = self.view_state.borrow_mut();
-        view_state
-            .settings
-            .set_pictures_per_row(pictures_per_row);
+        view_state.settings.set_pictures_per_row(pictures_per_row);
         view_state.gallery = gallery.clone();
         view_state.navigator = navigator.clone();
     }

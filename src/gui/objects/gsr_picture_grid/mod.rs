@@ -42,19 +42,24 @@ impl GsrPictureGrid {
         let shared_view_state = self.gsr_application().shared_view_state();
         let view_state = shared_view_state.borrow();
         let pictures_per_row = view_state.settings.pictures_per_row();
+        let navigator_pictures_per_row = view_state.navigator.pictures_per_row();
         for col in 0..pictures_per_row {
             for row in 0..pictures_per_row {
-                if self.child_at(col, row).is_none() {
-                    let gsr_picture_cell_box = GsrPictureCellBox::new(
-                        col,
-                        row,
-                        0,
-                        view_state.settings.pictures_per_row(),
-                        view_state.settings.palette_on(),
-                    );
-                    self.attach(&gsr_picture_cell_box, col, row, 1, 1);
-                }
-                if let Some(index) = view_state.navigator.position_from_coords(row as usize, col as usize) {
+                if let Some(index) = view_state
+                    .navigator
+                    .position_from_coords(row as usize, col as usize)
+                {
+                    dbg!(pictures_per_row,navigator_pictures_per_row,col,row,index);
+                    if self.child_at(col, row).is_none() {
+                        let gsr_picture_cell_box = GsrPictureCellBox::new(
+                            col,
+                            row,
+                            0,
+                            view_state.settings.pictures_per_row(),
+                            view_state.settings.palette_on(),
+                        );
+                        self.attach(&gsr_picture_cell_box, col, row, 1, 1);
+                    }
                     let picture = view_state.gallery.picture(index);
                     self.set_picture_at(col, row, &picture, index);
                     let opacity: f64 = if view_state.navigator.is_selected(index) {
@@ -63,6 +68,17 @@ impl GsrPictureGrid {
                         FULL_OPACITY
                     };
                     self.set_picture_opacity_at(col, row, opacity);
+                } else {
+                    if self.child_at(col, row).is_none() {
+                        let gsr_picture_cell_box = GsrPictureCellBox::new(
+                            col,
+                            row,
+                            0,
+                            view_state.settings.pictures_per_row(),
+                            view_state.settings.palette_on(),
+                        );
+                        self.attach(&gsr_picture_cell_box, col, row, 1, 1);
+                    }
                 }
             }
         }

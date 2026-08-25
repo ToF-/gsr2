@@ -1,4 +1,3 @@
-use crate::gui::view_state::ViewState;
 use crate::env::default_values::FRAME_WINDOW_NAME;
 use crate::env::default_values::GRID_WINDOW_NAME;
 use crate::gui::control::Control;
@@ -11,6 +10,7 @@ use crate::gui::objects::gsr_picture_frame::GsrPictureFrame;
 use crate::gui::objects::gsr_picture_grid::GsrPictureGrid;
 use crate::gui::view::View;
 use crate::gui::view::treelist_view::TreeListView;
+use crate::gui::view_state::ViewState;
 use crate::model::catalog::Catalog;
 use gtk::glib;
 use gtk::glib::Propagation;
@@ -127,7 +127,9 @@ impl GsrApplicationWindow {
             let shared_view_state = self.gsr_application().shared_view_state();
             let mut view_state = shared_view_state.borrow_mut();
             let pictures_per_row = view_state.settings.pictures_per_row();
-            view_state.navigator.set_pictures_per_row(pictures_per_row as usize);
+            view_state
+                .navigator
+                .set_pictures_per_row(pictures_per_row as usize);
         }
         self.gsr_picture_grid().initialize_pictures();
         self.gsr_picture_grid().move_current_picture_focus_symbol();
@@ -149,11 +151,17 @@ impl GsrApplicationWindow {
     }
 
     pub fn set_pictures_per_row(&self, pictures_per_row: i32) {
+        dbg!("set_pictures_per_row");
         let navigator = {
             let shared_view_state = self.gsr_application().shared_view_state();
             let mut view_state = shared_view_state.borrow_mut();
-            view_state.settings.toggle_pictures_per_row(pictures_per_row);
-            view_state.navigator.set_pictures_per_row(pictures_per_row as usize);
+            view_state
+                .settings
+                .toggle_pictures_per_row(pictures_per_row);
+            view_state
+                .navigator
+                .set_pictures_per_row(pictures_per_row as usize);
+            view_state.navigator.update_page_limits();
             view_state.navigator.clone()
         };
         if let Some((row, col)) = navigator.coords_from_position(navigator.position()) {
@@ -215,7 +223,12 @@ impl GsrApplicationWindow {
         grid
     }
     pub fn full_size_arrow_move(&self, direction: &Direction) {
-        let full_size_on = self.gsr_application().shared_view_state().borrow().settings.full_size_on();
+        let full_size_on = self
+            .gsr_application()
+            .shared_view_state()
+            .borrow()
+            .settings
+            .full_size_on();
         if self.stack().visible_child_name().unwrap() == FRAME_WINDOW_NAME && full_size_on {
             let step: f64 = 100.0;
             let window = self.frame_scrolled_window();

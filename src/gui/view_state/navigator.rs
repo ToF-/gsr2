@@ -56,6 +56,11 @@ impl Navigator {
     pub fn limit(&self) -> usize {
         self.limit
     }
+
+    pub fn pictures_per_row(&self) -> usize {
+        self.pictures_per_row
+    }
+
     pub fn position(&self) -> usize {
         self.position
     }
@@ -270,6 +275,7 @@ impl Navigator {
     }
 
     pub fn update_page_limits(&mut self) {
+        dbg!(self.pictures_per_row);
         if self.limit > 0 {
             let old_page_start: usize = self.page_start;
             self.page_start = (self.position / self.page_size()) * self.page_size();

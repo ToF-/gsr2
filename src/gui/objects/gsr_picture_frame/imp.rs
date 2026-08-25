@@ -1,9 +1,9 @@
-use crate::gui::view_state::ViewState;
-use crate::model::shared::Shared;
 use crate::gui::objects::gsr_application::GsrApplication;
 use crate::gui::objects::gsr_picture_frame::GsrApplicationWindow;
 use crate::gui::view::View;
+use crate::gui::view_state::ViewState;
 use crate::model::gallery::Gallery;
+use crate::model::shared::Shared;
 use gtk::glib;
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;

@@ -97,7 +97,8 @@ impl GsrPictureCellBox {
                 #[strong]
                 index,
                 move || {
-                    let shared_view_state = this.parent_grid().gsr_application().shared_view_state();
+                    let shared_view_state =
+                        this.parent_grid().gsr_application().shared_view_state();
                     let view_state = shared_view_state.borrow();
                     if this.imp().has_focus.get() && view_state.settings.blinking_on() {
                         label_rc.borrow().as_ref().map(flip_focus_symbol_on_label);
