@@ -47,21 +47,9 @@ impl GsrApplication {
         let mut view_state = self.view_state.borrow_mut();
         view_state
             .settings
-            .toggle_pictures_per_row(clargs.pictures_per_row());
+            .set_pictures_per_row(pictures_per_row);
         view_state.gallery = gallery.clone();
         view_state.navigator = navigator.clone();
-
-        let mut view = View::from_command_line_arguments(&clargs);
-        // no grid or thumbnails option, try cfg
-        if clargs.grid.is_none()
-            && !clargs.thumbnails
-            && let Some(pictures_per_row) = CONFIGURATION
-                .get()
-                .expect("Configuration not set")
-                .current_pictures_per_row
-        {
-            view.set_pictures_per_row(pictures_per_row as i32)
-        };
     }
 }
 #[glib::object_subclass]

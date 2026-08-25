@@ -74,15 +74,25 @@ impl Settings {
         self.file_size_on
     }
 
+    fn swap_pictures_per_row(&mut self) {
+            std::mem::swap(
+                &mut self.current_pictures_per_row,
+                &mut self.last_pictures_per_row,
+            );
+    }
+
+    pub fn set_pictures_per_row(&mut self, new: i32) -> i32 {
+        self.last_pictures_per_row = new;
+        self.swap_pictures_per_row();
+        self.current_pictures_per_row
+    }
+
     pub fn toggle_pictures_per_row(&mut self, new: i32) -> i32 {
         if new != self.current_pictures_per_row {
             self.last_pictures_per_row = self.current_pictures_per_row;
             self.current_pictures_per_row = new
         } else {
-            std::mem::swap(
-                &mut self.current_pictures_per_row,
-                &mut self.last_pictures_per_row,
-            )
+            self.swap_pictures_per_row()
         };
         if self.current_pictures_per_row != 1 {
             self.full_size_on = false;

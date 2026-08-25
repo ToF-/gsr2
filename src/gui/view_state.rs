@@ -6,7 +6,7 @@ pub mod navigator;
 pub mod selection;
 pub mod settings;
 
-#[derive(Default)]
+#[derive(Debug,Default)]
 pub struct ViewState {
     pub settings: Settings,
     pub navigator: Navigator,
