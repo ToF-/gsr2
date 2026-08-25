@@ -49,7 +49,6 @@ impl GsrPictureGrid {
                     .navigator
                     .position_from_coords(row as usize, col as usize)
                 {
-                    dbg!(pictures_per_row,navigator_pictures_per_row,col,row,index);
                     if self.child_at(col, row).is_none() {
                         let gsr_picture_cell_box = GsrPictureCellBox::new(
                             col,

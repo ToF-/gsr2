@@ -150,17 +150,20 @@ impl GsrApplicationWindow {
         }
     }
 
-    pub fn set_pictures_per_row(&self, pictures_per_row: i32) {
-        dbg!("set_pictures_per_row");
-        let navigator = {
+    pub fn toggle_pictures_per_row(&self, pictures_per_row: i32) {
+        let new_pictures_per_row = {
             let shared_view_state = self.gsr_application().shared_view_state();
             let mut view_state = shared_view_state.borrow_mut();
             view_state
                 .settings
-                .toggle_pictures_per_row(pictures_per_row);
+                .toggle_pictures_per_row(pictures_per_row)
+        };
+        let navigator = {
+            let shared_view_state = self.gsr_application().shared_view_state();
+            let mut view_state = shared_view_state.borrow_mut();
             view_state
                 .navigator
-                .set_pictures_per_row(pictures_per_row as usize);
+                .set_pictures_per_row(new_pictures_per_row as usize);
             view_state.navigator.update_page_limits();
             view_state.navigator.clone()
         };
@@ -323,13 +326,13 @@ impl GsrApplicationWindow {
                             this.toggle_palette();
                         }
                         Control::ToggleSingleView => {
-                            this.set_pictures_per_row(1);
+                            this.toggle_pictures_per_row(1);
                         }
                         Control::ToggleThumbView => {
-                            this.set_pictures_per_row(10);
+                            this.toggle_pictures_per_row(10);
                         }
                         Control::ToggleTwoByTwoView => {
-                            this.set_pictures_per_row(2);
+                            this.toggle_pictures_per_row(2);
                         }
                         _ => {}
                     }

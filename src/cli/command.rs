@@ -137,7 +137,7 @@ pub fn execute_command(
                 Ok(Status::Exit)
             }
             Ok(count) => {
-                println!("{} pictures", count);
+                println!("directory length: {} pictures", count);
                 Ok(Status::Ready(0))
             }
         },
@@ -156,7 +156,7 @@ pub fn execute_command(
                     gallery.print_tags();
                     Ok(Status::Exit)
                 } else {
-                    println!("{} pictures", &gallery.len());
+                    println!("gallery length: {} pictures", &gallery.len());
                     if let Some(initial_position) = command_line_arguments.index {
                         Ok(Status::Ready(initial_position))
                     } else if let Some(file_path) = config.current_picture

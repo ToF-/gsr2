@@ -51,7 +51,6 @@ fn run_application(config: &Configuration, clargs: &CommandLineArguments) -> Res
                 let gallery = repository.gallery_rc().borrow();
                 gallery.clone()
             };
-            println!("{} picture(s)", gallery.len());
             build_and_run_app(clargs, &gallery);
             Ok(Status::Done)
         } else {

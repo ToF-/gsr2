@@ -100,7 +100,6 @@ impl Controller {
             Ok(_) => {}
             Err(e) => panic!("can't initialize repository: {}", e),
         };
-        println!("{} pictures", repository.len());
         let catalog: Catalog = match Catalog::from_file(&config.catalog_filepath) {
             Ok(cat) => cat,
             Err(e) => {
