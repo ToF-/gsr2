@@ -1,3 +1,4 @@
+use crate::gui::objects::gsr_application_window::picture_opacity;
 use crate::env::default_values::FULL_OPACITY;
 use crate::env::default_values::HALF_OPACITY;
 use crate::env::default_values::MAX_PICTURES_PER_ROW;
@@ -60,11 +61,8 @@ impl GsrPictureGrid {
                     }
                     let picture = view_state.gallery.picture(index);
                     self.set_picture_at(col, row, &picture, index);
-                    let opacity: f64 = if view_state.navigator.is_selected(index) {
-                        HALF_OPACITY
-                    } else {
-                        FULL_OPACITY
-                    };
+                    
+                    let opacity = picture_opacity(view_state.navigator.is_selected(index));
                     self.set_picture_opacity_at(col, row, opacity);
                 } else {
                     if self.child_at(col, row).is_none() {
@@ -145,7 +143,7 @@ impl GsrPictureGrid {
             gsr_picture_cell_box.leave_focus();
         }
     }
-    pub fn enter_current_picture_focus(&self)  {
+    pub fn enter_current_picture_focus(&self) {
         let (new_col, new_row) = {
             let shared_view_state = self.gsr_application().shared_view_state();
             let view_state = shared_view_state.borrow();

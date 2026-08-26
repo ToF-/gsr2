@@ -317,7 +317,6 @@ impl LegacyMainView {
         if !controller.state().single_view() {
             self.gsr_picture_grid.leave_current_picture_focus();
             self.gsr_picture_grid.enter_current_picture_focus();
-
         }
     }
 

@@ -1,3 +1,4 @@
+use crate::gui::objects::gsr_application_window::picture_opacity;
 use crate::gui::objects::gsr_application::GsrApplication;
 use gtk::Picture as GtkPicture;
 
@@ -71,9 +72,7 @@ impl GsrPictureFrame {
         let shared_view_state = self.imp().shared_view_state();
         let view_state = shared_view_state.borrow();
         self.remove_children();
-        dbg!(view_state.settings.expand_on());
         if view_state.settings.expand_on() {
-            dbg!("set_gtk_picture with expand");
             gtk_picture.set_valign(Align::Fill);
             gtk_picture.set_halign(Align::Fill);
         } else {
@@ -87,6 +86,10 @@ impl GsrPictureFrame {
 
     pub fn set_palette_area(&self, gtk_drawing_area: gtk::DrawingArea) {
         self.append(&gtk_drawing_area)
+    }
+
+    pub fn set_picture_opacity(&self, opacity: f64) {
+        self.set_opacity(opacity);
     }
 
     pub fn set_picture(&self, picture_opt: Option<Picture>) {
@@ -119,11 +122,12 @@ impl GsrPictureFrame {
     }
 
     pub fn set_current_picture(&self) {
-        let position = {
+        let (position, selected) = {
             let shared_view_state = self.gsr_application().shared_view_state();
             let view_state = shared_view_state.borrow();
             let position = view_state.navigator.position();
-            position
+            let selected = view_state.navigator.is_selected(position);
+            (position,selected)
         };
         let picture_opt = {
             let shared_view_state = self.gsr_application().shared_view_state();
@@ -136,6 +140,9 @@ impl GsrPictureFrame {
             }
         };
         self.set_picture(picture_opt);
+        self.set_picture_opacity(picture_opacity(selected));
+
+
     }
 }
 

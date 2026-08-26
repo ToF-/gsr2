@@ -1,3 +1,5 @@
+use crate::env::default_values::HALF_OPACITY;
+use crate::env::default_values::FULL_OPACITY;
 use crate::env::default_values::FRAME_WINDOW_NAME;
 use crate::env::default_values::GRID_WINDOW_NAME;
 use crate::gui::control::Control;
@@ -154,6 +156,9 @@ impl GsrApplicationWindow {
                 view_state.focus_at_coords = (col as i32, row as i32);
             }
         };
+        self.refresh_view()
+    }
+    fn refresh_view(&self) {
         let pictures_per_row = {
             let shared_view_state = self.gsr_application().shared_view_state();
             shared_view_state.borrow().settings.pictures_per_row()
@@ -307,6 +312,7 @@ impl GsrApplicationWindow {
                         Control::ToggleExpand => this.toggle_expand(),
                         Control::TogglePalette => this.toggle_palette(),
                         Control::ToggleFullSize => this.toggle_full_size(),
+                        Control::ToggleSelected => this.toggle_selected(),
                         Control::ToggleSingleView => this.toggle_pictures_per_row(1),
                         Control::ToggleThumbView => this.toggle_pictures_per_row(10),
                         Control::ToggleTwoByTwoView => this.toggle_pictures_per_row(2),
@@ -359,6 +365,22 @@ impl GsrApplicationWindow {
             self.frame().set_current_picture();
         }
     }
+
+    fn toggle_selected(&self) {
+        {
+            let shared_view_state = self.gsr_application().shared_view_state();
+            let mut view_state = shared_view_state.borrow_mut();
+            let position = view_state.navigator.position();
+            if view_state.navigator.is_selected(position) {
+                view_state.navigator.unselect(position)
+            } else {
+                view_state.navigator.select(position)
+            }
+            view_state.navigator.set_page_changed()
+        }
+        self.refresh_view()
+    }
+
     fn single_view_move(&self, direction: &Direction) {
         let direction = match direction {
             Direction::Right | Direction::Down => Direction::NextPage,
@@ -477,4 +499,12 @@ fn make_panel_with_child(gsr_picture_grid: &GsrPictureGrid) -> gtk::Grid {
     panel.attach(gsr_picture_grid, 1, 0, 1, 1);
     panel.attach(&right_pane, 2, 0, 1, 1);
     panel
+}
+
+
+pub fn picture_opacity(selected: bool) -> f64 {
+    match selected {
+        false => FULL_OPACITY,
+        true => HALF_OPACITY,
+    }
 }
