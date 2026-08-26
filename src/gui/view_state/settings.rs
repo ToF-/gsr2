@@ -108,6 +108,9 @@ impl Settings {
     pub fn toggle_full_size(&mut self) -> bool {
         if self.pictures_per_row() == 1 {
             self.full_size_on = !self.full_size_on;
+            if self.full_size_on {
+                self.expand_on = true
+            };
         }
         self.full_size_on
     }
@@ -178,6 +181,19 @@ mod tests {
         assert!(settings.single_view());
         assert!(settings.toggle_full_size());
         assert!(settings.full_size_on());
+        assert_eq!(10, settings.toggle_pictures_per_row(1));
+    }
+    #[test]
+    fn switching_full_size_also_switch_to_expand() {
+        let mut settings = Settings::default();
+        assert!(!settings.toggle_full_size());
+        assert!(!settings.expand_on());
+        assert!(!settings.full_size_on());
+        settings.toggle_pictures_per_row(1);
+        assert!(settings.single_view());
+        assert!(settings.toggle_full_size());
+        assert!(settings.full_size_on());
+        assert!(settings.expand_on());
         assert_eq!(10, settings.toggle_pictures_per_row(1));
     }
 
