@@ -306,6 +306,7 @@ impl GsrApplicationWindow {
                         }
                         Control::CancelRange => this.cancel_range(),
                         Control::Quit => this.close(), // TEMPORARY, should call a quit action that saves things
+                        Control::RepeatRange => this.repeat_range(),
                         Control::SetSelectionRangeEnd => this.set_selection_range_end(),
                         Control::SetSelectionRangeAll => this.set_selection_range_all(),
                         Control::SetSelectionRangePage => this.set_selection_range_page(),
@@ -334,6 +335,17 @@ impl GsrApplicationWindow {
         }
         self.refresh_view();
     }
+
+    fn repeat_range(&self) {
+        {
+            let shared_view_state = self.gsr_application().shared_view_state();
+            let mut view_state = shared_view_state.borrow_mut();
+            view_state.selection.repeat();
+            view_state.navigator.set_page_changed();
+        }
+        self.refresh_view();
+    }
+
     fn set_selection_range_end(&self) {
         {
             let shared_view_state = self.gsr_application().shared_view_state();

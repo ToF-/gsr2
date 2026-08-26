@@ -6,6 +6,7 @@ pub struct Selection {
     range_start: Option<usize>,
     range_end: Option<usize>,
     selected: HashSet<usize>,
+    last: Option<(usize, usize)>,
 }
 
 impl Default for Selection {
@@ -14,6 +15,7 @@ impl Default for Selection {
             range_start: None,
             range_end: None,
             selected: HashSet::new(),
+            last: None,
         }
     }
 }
@@ -75,19 +77,12 @@ impl Selection {
         self.range_end = None
     }
 
-    fn update_selected(&mut self) {
-        if let Some((start, end)) = self.range() {
-            self.selected.clear();
-            for index in start..=end {
-                self.select(index)
-            }
-        }
-    }
     pub fn set_range(&mut self, start: usize, end: usize) {
         self.range_start = Some(start);
         self.range_end = Some(end);
         self.update_selected();
     }
+
     pub fn set_range_end(&mut self, index: usize) {
         if self.range().is_some() {
             self.cancel()
@@ -104,12 +99,26 @@ impl Selection {
         self.update_selected();
     }
     pub fn positions(&mut self) -> Vec<usize> {
-        let mut result: Vec<usize> = self.selected.clone().into_iter().collect();
-        result.sort();
-        result
+        self.indices()
     }
     pub fn is_empty(&self) -> bool {
         self.selected.is_empty()
+    }
+    pub fn repeat(&mut self) {
+        if let Some((start, end)) = self.last {
+            self.range_start = Some(start);
+            self.range_end = Some(end);
+            self.update_selected();
+        }
+    }
+    fn update_selected(&mut self) {
+        if let Some((start, end)) = self.range() {
+            self.last = self.range();
+            self.selected.clear();
+            for index in start..=end {
+                self.select(index)
+            }
+        }
     }
 }
 
@@ -163,7 +172,7 @@ mod tests {
         selection.set_range_end(6);
         selection.set_range_end(2);
         assert_eq!(Some((2, 6)), selection.range());
-        selection.cancel_range();
+        selection.cancel();
         assert_eq!(None, selection.range_start());
         assert_eq!(None, selection.range_end());
     }
@@ -199,7 +208,7 @@ mod tests {
         let mut selection = Selection::default();
         selection.set_range_end(6);
         selection.set_range_end(2);
-        selection.cancel_range();
+        selection.cancel();
         assert!(!selection.contains(2));
         assert!(!selection.contains(3));
         assert!(!selection.contains(4));
@@ -219,8 +228,16 @@ mod tests {
     #[test]
     fn can_yield_an_ordered_list_of_selected() {
         let mut selection = Selection::default();
-        selection.set_range_end(6);
-        selection.set_range_end(2);
+        selection.set_range(2,6);
+        assert_eq!(vec![2, 3, 4, 5, 6], selection.indices());
+    }
+    #[test]
+    fn can_repeat_the_last_range() {
+        let mut selection = Selection::default();
+        selection.set_range(2,6);
+        selection.cancel();
+        assert!(selection.indices().is_empty());
+        selection.repeat();
         assert_eq!(vec![2, 3, 4, 5, 6], selection.indices());
     }
 }
