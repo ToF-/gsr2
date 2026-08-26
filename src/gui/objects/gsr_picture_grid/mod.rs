@@ -136,19 +136,22 @@ impl GsrPictureGrid {
             }
         }
     }
-    pub fn move_current_picture_focus_symbol(&self) {
+    pub fn leave_current_picture_focus(&self) {
         let (current_col, current_row) = self.imp().focus_at_coords.get();
-        let (new_col, new_row) = {
-            let shared_view_state = self.gsr_application().shared_view_state();
-            let view_state = shared_view_state.borrow();
-            view_state.focus_at_coords
-        };
         if let Some(widget) = self.child_at(current_col, current_row) {
             let gsr_picture_cell_box = widget
                 .downcast::<GsrPictureCellBox>()
                 .expect("can't downcast to GsrPictureCellBox");
             gsr_picture_cell_box.leave_focus();
         }
+    }
+    pub fn enter_current_picture_focus(&self)  {
+        let (new_col, new_row) = {
+            let shared_view_state = self.gsr_application().shared_view_state();
+            let view_state = shared_view_state.borrow();
+            view_state.focus_at_coords
+        };
+        self.imp().focus_at_coords.set((new_col, new_row));
         if let Some(widget) = self.child_at(new_col, new_row) {
             let gsr_picture_cell_box = widget
                 .downcast::<GsrPictureCellBox>()

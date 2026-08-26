@@ -315,7 +315,9 @@ impl LegacyMainView {
 
     pub fn set_focus_for_current_picture(&self, controller: &Controller) {
         if !controller.state().single_view() {
-            self.gsr_picture_grid.move_current_picture_focus_symbol()
+            self.gsr_picture_grid.leave_current_picture_focus();
+            self.gsr_picture_grid.enter_current_picture_focus();
+
         }
     }
 

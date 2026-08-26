@@ -19,7 +19,6 @@ impl Default for Selection {
 }
 
 impl Selection {
-
     pub fn range_start(&self) -> Option<usize> {
         self.range_start
     }

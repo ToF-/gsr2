@@ -94,10 +94,6 @@ impl Settings {
         } else {
             self.swap_pictures_per_row()
         };
-        if self.current_pictures_per_row != 1 {
-            self.full_size_on = false;
-            self.expand_on = false;
-        }
         self.current_pictures_per_row
     }
 
@@ -105,7 +101,9 @@ impl Settings {
         self.palette_on = !self.palette_on
     }
 
-    pub fn toggle_expand(&mut self) {}
+    pub fn toggle_expand(&mut self) {
+        self.expand_on = !self.expand_on
+    }
 
     pub fn toggle_full_size(&mut self) -> bool {
         if self.pictures_per_row() == 1 {
@@ -153,6 +151,14 @@ mod tests {
     }
 
     #[test]
+    fn switching_expand_on() {
+        let mut settings = Settings::default();
+        settings.toggle_expand();
+        assert!(settings.expand_on());
+        settings.toggle_expand();
+        assert!(!settings.expand_on());
+    }
+    #[test]
     fn switching_palette_on() {
         let mut settings = Settings::default();
         settings.toggle_palette();
@@ -173,7 +179,6 @@ mod tests {
         assert!(settings.toggle_full_size());
         assert!(settings.full_size_on());
         assert_eq!(10, settings.toggle_pictures_per_row(1));
-        assert!(!settings.full_size_on());
     }
 
     #[test]

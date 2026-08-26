@@ -71,6 +71,7 @@ impl GsrPictureFrame {
         let shared_view_state = self.imp().shared_view_state();
         let view_state = shared_view_state.borrow();
         self.remove_children();
+        dbg!(view_state.settings.expand_on());
         if view_state.settings.expand_on() {
             dbg!("set_gtk_picture with expand");
             gtk_picture.set_valign(Align::Fill);

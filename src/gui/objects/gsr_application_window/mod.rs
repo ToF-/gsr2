@@ -112,7 +112,8 @@ impl GsrApplicationWindow {
             } else {
                 stack.set_visible_child(&grid_scrolled_window);
                 self.gsr_picture_grid().initialize_pictures();
-                self.gsr_picture_grid().move_current_picture_focus_symbol();
+                self.gsr_picture_grid().leave_current_picture_focus();
+                self.gsr_picture_grid().enter_current_picture_focus();
             }
         }
         // connect the events
@@ -130,32 +131,29 @@ impl GsrApplicationWindow {
             self.frame().set_current_picture();
         } else {
             self.gsr_picture_grid().initialize_pictures();
-            self.gsr_picture_grid().move_current_picture_focus_symbol();
+            self.gsr_picture_grid().leave_current_picture_focus();
+            self.gsr_picture_grid().enter_current_picture_focus();
         }
     }
 
     pub fn toggle_pictures_per_row(&self, pictures_per_row: i32) {
-        let new_pictures_per_row = {
-            let shared_view_state = self.gsr_application().shared_view_state();
+        let shared_view_state = self.gsr_application().shared_view_state();
+        {
             let mut view_state = shared_view_state.borrow_mut();
-            view_state
+            let new_pictures_per_row = view_state
                 .settings
-                .toggle_pictures_per_row(pictures_per_row)
-        };
-        let navigator = {
-            let shared_view_state = self.gsr_application().shared_view_state();
-            let mut view_state = shared_view_state.borrow_mut();
+                .toggle_pictures_per_row(pictures_per_row);
             view_state
                 .navigator
                 .set_pictures_per_row(new_pictures_per_row as usize);
             view_state.navigator.update_page_limits();
-            view_state.navigator.clone()
+            if let Some((row, col)) = view_state
+                .navigator
+                .coords_from_position(view_state.navigator.position())
+            {
+                view_state.focus_at_coords = (col as i32, row as i32);
+            }
         };
-        if let Some((row, col)) = navigator.coords_from_position(navigator.position()) {
-            let shared_view_state = self.gsr_application().shared_view_state();
-            let mut view_state = shared_view_state.borrow_mut();
-            view_state.focus_at_coords = (col as i32, row as i32);
-        }
         let pictures_per_row = {
             let shared_view_state = self.gsr_application().shared_view_state();
             shared_view_state.borrow().settings.pictures_per_row()
@@ -163,7 +161,8 @@ impl GsrApplicationWindow {
         self.set_stack_visible_child(pictures_per_row);
         if pictures_per_row > 1 {
             self.gsr_picture_grid().initialize_pictures();
-            self.gsr_picture_grid().move_current_picture_focus_symbol();
+            self.gsr_picture_grid().leave_current_picture_focus();
+            self.gsr_picture_grid().enter_current_picture_focus();
         } else {
             self.frame().set_current_picture();
         }
@@ -306,18 +305,11 @@ impl GsrApplicationWindow {
                         }
                         Control::ToggleBlinking => this.toggle_blinking(),
                         Control::ToggleExpand => this.toggle_expand(),
-                        Control::TogglePalette => {
-                            this.toggle_palette();
-                        }
-                        Control::ToggleSingleView => {
-                            this.toggle_pictures_per_row(1);
-                        }
-                        Control::ToggleThumbView => {
-                            this.toggle_pictures_per_row(10);
-                        }
-                        Control::ToggleTwoByTwoView => {
-                            this.toggle_pictures_per_row(2);
-                        }
+                        Control::TogglePalette => this.toggle_palette(),
+                        Control::ToggleFullSize => this.toggle_full_size(),
+                        Control::ToggleSingleView => this.toggle_pictures_per_row(1),
+                        Control::ToggleThumbView => this.toggle_pictures_per_row(10),
+                        Control::ToggleTwoByTwoView => this.toggle_pictures_per_row(2),
                         _ => {}
                     }
                 }
@@ -325,6 +317,20 @@ impl GsrApplicationWindow {
             }
         ));
         self.add_controller(event_controller_key);
+    }
+
+    fn toggle_blinking(&self) {
+        let on = {
+            let shared_view_state = self.gsr_application().shared_view_state();
+            let mut view_state = shared_view_state.borrow_mut();
+            view_state.settings.toggle_blinking();
+            view_state.settings.blinking_on()
+        };
+        if on == true {
+            self.gsr_picture_grid().initialize_pictures();
+            self.gsr_picture_grid().leave_current_picture_focus();
+            self.gsr_picture_grid().enter_current_picture_focus();
+        }
     }
 
     fn toggle_expand(&self) {
@@ -336,24 +342,23 @@ impl GsrApplicationWindow {
             }
             view_state.settings.pictures_per_row()
         };
-
         if pictures_per_row == 1 {
             self.frame().set_current_picture();
         }
     }
-    fn toggle_blinking(&self) {
-        let on = {
+    fn toggle_full_size(&self) {
+        let pictures_per_row = {
             let shared_view_state = self.gsr_application().shared_view_state();
             let mut view_state = shared_view_state.borrow_mut();
-            view_state.settings.toggle_blinking();
-            view_state.settings.blinking_on()
+            if view_state.settings.pictures_per_row() == 1 {
+                view_state.settings.toggle_full_size();
+            }
+            view_state.settings.pictures_per_row()
         };
-        if on == true {
-            self.gsr_picture_grid().initialize_pictures();
-            self.gsr_picture_grid().move_current_picture_focus_symbol();
+        if pictures_per_row == 1 {
+            self.frame().set_current_picture();
         }
     }
-
     fn single_view_move(&self, direction: &Direction) {
         let direction = match direction {
             Direction::Right | Direction::Down => Direction::NextPage,
@@ -383,15 +388,18 @@ impl GsrApplicationWindow {
         };
         if navigator.has_moved() {
             {
+                self.gsr_picture_grid().leave_current_picture_focus();
                 if let Some((row, col)) = navigator.coords_from_position(navigator.position()) {
-                    let shared_view_state = self.gsr_application().shared_view_state();
-                    let mut view_state = shared_view_state.borrow_mut();
-                    view_state.focus_at_coords = (col as i32, row as i32);
+                    {
+                        let shared_view_state = self.gsr_application().shared_view_state();
+                        let mut view_state = shared_view_state.borrow_mut();
+                        view_state.focus_at_coords = (col as i32, row as i32);
+                    }
                 }
-                if navigator.has_moved() {
+                if navigator.page_changed() {
                     self.gsr_picture_grid().initialize_pictures();
                 }
-                self.gsr_picture_grid().move_current_picture_focus_symbol();
+                self.gsr_picture_grid().enter_current_picture_focus();
             }
         }
     }
