@@ -126,7 +126,7 @@ impl GsrPictureFrame {
             let shared_view_state = self.gsr_application().shared_view_state();
             let view_state = shared_view_state.borrow();
             let position = view_state.navigator.position();
-            let selected = view_state.navigator.is_selected(position);
+            let selected = view_state.selection.contains(position);
             (position, selected)
         };
         let picture_opt = {

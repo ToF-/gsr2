@@ -304,10 +304,8 @@ impl GsrApplicationWindow {
                                 this.grid_view_move(&Direction::Last)
                             }
                         }
-                        Control::Quit => {
-                            // TEMPORARY, should call a quit action that saves things
-                            this.close()
-                        }
+                        Control::Quit => this.close(), // TEMPORARY, should call a quit action that saves things
+                        Control::SetSelectionRange => this.set_selection_range(),
                         Control::ToggleBlinking => this.toggle_blinking(),
                         Control::ToggleExpand => this.toggle_expand(),
                         Control::TogglePalette => this.toggle_palette(),
@@ -325,6 +323,16 @@ impl GsrApplicationWindow {
         self.add_controller(event_controller_key);
     }
 
+    fn set_selection_range(&self) {
+        {
+            let shared_view_state = self.gsr_application().shared_view_state();
+            let mut view_state = shared_view_state.borrow_mut();
+            let position = view_state.navigator.position();
+            view_state.selection.set_range_end(position);
+            view_state.navigator.set_page_changed();
+        }
+        self.refresh_view();
+    }
     fn toggle_blinking(&self) {
         let on = {
             let shared_view_state = self.gsr_application().shared_view_state();
@@ -371,10 +379,10 @@ impl GsrApplicationWindow {
             let shared_view_state = self.gsr_application().shared_view_state();
             let mut view_state = shared_view_state.borrow_mut();
             let position = view_state.navigator.position();
-            if view_state.navigator.is_selected(position) {
-                view_state.navigator.unselect(position)
+            if view_state.selection.contains(position) {
+                view_state.selection.unselect(position)
             } else {
-                view_state.navigator.select(position)
+                view_state.selection.select(position)
             }
             view_state.navigator.set_page_changed()
         }
