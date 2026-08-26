@@ -304,8 +304,11 @@ impl GsrApplicationWindow {
                                 this.grid_view_move(&Direction::Last)
                             }
                         }
+                        Control::CancelRange => this.cancel_range(),
                         Control::Quit => this.close(), // TEMPORARY, should call a quit action that saves things
-                        Control::SetSelectionRange => this.set_selection_range(),
+                        Control::SetSelectionRangeEnd => this.set_selection_range_end(),
+                        Control::SetSelectionRangeAll => this.set_selection_range_all(),
+                        Control::SetSelectionRangePage => this.set_selection_range_page(),
                         Control::ToggleBlinking => this.toggle_blinking(),
                         Control::ToggleExpand => this.toggle_expand(),
                         Control::TogglePalette => this.toggle_palette(),
@@ -323,7 +326,15 @@ impl GsrApplicationWindow {
         self.add_controller(event_controller_key);
     }
 
-    fn set_selection_range(&self) {
+    fn cancel_range(&self) {
+        {
+            let shared_view_state = self.gsr_application().shared_view_state();
+            let mut view_state = shared_view_state.borrow_mut();
+            view_state.selection.cancel();
+        }
+        self.refresh_view();
+    }
+    fn set_selection_range_end(&self) {
         {
             let shared_view_state = self.gsr_application().shared_view_state();
             let mut view_state = shared_view_state.borrow_mut();
@@ -333,6 +344,30 @@ impl GsrApplicationWindow {
         }
         self.refresh_view();
     }
+
+    fn set_selection_range_all(&self) {
+        {
+            let shared_view_state = self.gsr_application().shared_view_state();
+            let mut view_state = shared_view_state.borrow_mut();
+            let limit = &view_state.navigator.limit();
+            view_state.selection.set_range(0, *limit);
+            view_state.navigator.set_page_changed();
+        }
+        self.refresh_view();
+    }
+
+    fn set_selection_range_page(&self) {
+        {
+            let shared_view_state = self.gsr_application().shared_view_state();
+            let mut view_state = shared_view_state.borrow_mut();
+            let page_start = &view_state.navigator.page_start();
+            let page_end = &view_state.navigator.page_end();
+            view_state.selection.set_range(*page_start, *page_end);
+            view_state.navigator.set_page_changed();
+        }
+        self.refresh_view();
+    }
+
     fn toggle_blinking(&self) {
         let on = {
             let shared_view_state = self.gsr_application().shared_view_state();

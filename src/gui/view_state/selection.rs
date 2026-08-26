@@ -61,15 +61,15 @@ impl Selection {
     pub fn unselect(&mut self, index: usize) {
         let _ = self.selected.remove(&index);
         if self.selected.is_empty() {
-            self.cancel_range();
+            self.cancel();
         }
     }
 
     pub fn unselect_all(&mut self) {
-        self.cancel_range();
+        self.cancel();
     }
 
-    pub fn cancel_range(&mut self) {
+    pub fn cancel(&mut self) {
         self.selected.clear();
         self.range_start = None;
         self.range_end = None
@@ -90,7 +90,7 @@ impl Selection {
     }
     pub fn set_range_end(&mut self, index: usize) {
         if self.range().is_some() {
-            self.cancel_range()
+            self.cancel()
         }
         if self.range_start.is_none() {
             self.range_start = Some(index);

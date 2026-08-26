@@ -70,7 +70,7 @@ pub enum Control {
     SetMark,
     SetMarkChar(char),
     SetOrder,
-    SetSelectionRange,
+    SetSelectionRangeEnd,
     SetSelectionRangeAll,
     SetSelectionRangePage,
     SetRank,
@@ -148,7 +148,7 @@ pub fn default_controls() -> Controls {
         ((String::from("Tab"), Mode::Editing), Control::Complete),
         (
             (String::from("Return"), Mode::View),
-            Control::SetSelectionRange,
+            Control::SetSelectionRangeEnd,
         ),
         ((String::from("ampersand"), Mode::View), Control::Test),
         (
@@ -368,7 +368,7 @@ mod tests {
             default_controls().get(&(String::from("Return"), Mode::Editing))
         );
         assert_eq!(
-            Some(&Control::SetSelectionRange),
+            Some(&Control::SetSelectionRangeEnd),
             default_controls().get(&(String::from("Return"), Mode::View))
         );
     }
