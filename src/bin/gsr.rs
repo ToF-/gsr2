@@ -4,9 +4,9 @@ use gsr::cli::command_line_arguments::CommandLineArguments;
 use gsr::cli::status::Status;
 use gsr::env::configuration::Configuration;
 use gsr::file::database::Database;
-use gsr::gui::controller::Controller;
 use gsr::gui::objects::gsr_application::GsrApplication;
 use gsr::model::gallery::Gallery;
+use gsr::model::repository::Repository;
 use gtk::gio;
 use gtk::prelude::ApplicationExtManual;
 use std::io::Error as IOError;
@@ -36,11 +36,17 @@ fn main() {
     if app_result.is_err() {
         error_exit(app_result.as_ref().err().unwrap());
     }
+    exit(0)
 }
 
 fn run_application(config: &Configuration, clargs: &CommandLineArguments) -> Result<Status> {
-    let result = Controller::new(config.clone(), clargs.clone()).and_then(|controller| {
-        let repository = controller.repository();
+    let result = {
+        // TODO check legacy controller new setup routine is was doing useful things...
+        let mut repository = Repository::new(config.clone(), clargs.clone(), false);
+        match repository.initialize(None) {
+            Ok(_) => {}
+            Err(e) => panic!("can't initialize repository: {}", e),
+        };
         let result = execute_command(clargs.clone(), repository.clone(), config.clone());
         if let Ok(Status::Ready(initial_position)) = result {
             {
@@ -56,11 +62,8 @@ fn run_application(config: &Configuration, clargs: &CommandLineArguments) -> Res
         } else {
             result
         }
-    });
-    if result.is_err() {
-        error_exit(result.as_ref().err().unwrap());
-    }
-    exit(0)
+    };
+    result
 }
 
 fn build_and_run_app(clargs: &CommandLineArguments, gallery: &Gallery) {

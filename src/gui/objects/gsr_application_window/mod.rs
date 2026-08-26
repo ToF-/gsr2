@@ -1,16 +1,16 @@
-use crate::env::default_values::HALF_OPACITY;
-use crate::env::default_values::FULL_OPACITY;
 use crate::env::default_values::FRAME_WINDOW_NAME;
+use crate::env::default_values::FULL_OPACITY;
 use crate::env::default_values::GRID_WINDOW_NAME;
+use crate::env::default_values::HALF_OPACITY;
 use crate::gui::control::Control;
 use crate::gui::control::default_controls;
-use crate::gui::controller::Controller;
 use crate::gui::direction::Direction;
 use crate::gui::mode::Mode;
 use crate::gui::objects::gsr_application::GsrApplication;
 use crate::gui::objects::gsr_picture_frame::GsrPictureFrame;
 use crate::gui::objects::gsr_picture_grid::GsrPictureGrid;
 use crate::gui::view::treelist_view::TreeListView;
+use crate::gui::view::treelist_window::TreeListWindow;
 use crate::model::catalog::Catalog;
 use gtk::glib;
 use gtk::glib::Propagation;
@@ -425,48 +425,10 @@ impl GsrApplicationWindow {
             }
         }
     }
-    pub fn set_focus_for_current_picture(&self, _controller: &Controller) {
-        todo!()
-    }
-
-    pub fn set_pictures(&self, _controller: &Controller) {
-        todo!()
-    }
-
-    pub fn toggle_view_stack(&self, _controller: &Controller) {
-        todo!()
-    }
-
-    pub fn set_title_for_current_picture(&self, _controller: &Controller) {
-        todo!()
-    }
-
-    pub fn set_label_text_for_current_picture(
-        &self,
-        _controller: &Controller,
-        _label: Option<char>,
-    ) {
-        todo!()
-    }
-
-    pub fn set_opacity_for_current_picture(&self, _controller: &Controller, _opacity: f64) {
-        todo!()
-    }
-
-    pub fn single_view(&self) -> bool {
-        todo!()
-    }
-
-    pub fn reattach_slideshow_event(&self, _seconds: i32) {
-        todo!();
-    }
-
-    pub fn change_grid_size(&self, _pictures_per_row: i32, _palette_on: bool) {
-        todo!();
-    }
-
-    pub fn popup_treelist_view(&self, _prompt: &str, _catalog: &Catalog) -> TreeListView {
-        todo!()
+    pub fn popup_treelist_window(&self, prompt: &str, catalog: &Catalog) -> TreeListWindow {
+        let treelist_window = TreeListWindow::new(&self, prompt, "", catalog);
+        treelist_window.popup();
+        treelist_window
     }
 }
 
@@ -500,7 +462,6 @@ fn make_panel_with_child(gsr_picture_grid: &GsrPictureGrid) -> gtk::Grid {
     panel.attach(&right_pane, 2, 0, 1, 1);
     panel
 }
-
 
 pub fn picture_opacity(selected: bool) -> f64 {
     match selected {

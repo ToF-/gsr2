@@ -1,9 +1,9 @@
-use crate::gui::objects::gsr_application_window::picture_opacity;
 use crate::env::default_values::FULL_OPACITY;
 use crate::env::default_values::HALF_OPACITY;
 use crate::env::default_values::MAX_PICTURES_PER_ROW;
 use crate::gui::objects::gsr_application::GsrApplication;
 use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
+use crate::gui::objects::gsr_application_window::picture_opacity;
 use crate::gui::objects::gsr_picture_cell_box::GsrPictureCellBox;
 use crate::model::picture::Picture;
 use gtk::glib;
@@ -61,7 +61,7 @@ impl GsrPictureGrid {
                     }
                     let picture = view_state.gallery.picture(index);
                     self.set_picture_at(col, row, &picture, index);
-                    
+
                     let opacity = picture_opacity(view_state.navigator.is_selected(index));
                     self.set_picture_opacity_at(col, row, opacity);
                 } else {

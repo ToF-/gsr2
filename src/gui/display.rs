@@ -2,7 +2,7 @@ use crate::env::default_values::{
     COVER_SYMBOL, EXPAND_ON_SYMBOL, FULL_SIZE_ON_SYMBOL, ORDER_SYMBOL, PICTURE_SIZE_THRESHOLD,
     SMALL_PICTURE_SYMBOL,
 };
-use crate::gui::controller::Controller;
+use crate::gui::view_state::ViewState;
 use crate::model::cover::Cover;
 use crate::model::image_data::FileSize;
 use crate::model::label::Label;
@@ -26,14 +26,14 @@ fn full_size_display(on: bool) -> String {
     }
 }
 
-fn page_display(controller: &Controller) -> String {
-    if controller.state().single_view() {
+fn page_display(view_state: &ViewState) -> String {
+    if view_state.settings.single_view() {
         String::from("")
     } else {
         format!(
             "p{}/{}",
-            controller.navigator().current_page(),
-            controller.navigator().total_pages(),
+            view_state.navigator.current_page(),
+            view_state.navigator.total_pages(),
         )
     }
 }
@@ -58,12 +58,10 @@ pub fn picture_label_display(
     )
 }
 
-fn directory_display(controller: &Controller) -> String {
-    match controller.state().directory() {
-        Some(directory) => format!("[{}]", directory),
-        None => "".to_string(),
-    }
+fn directory_display(view_state: &ViewState) -> String {
+    todo!()
 }
+
 fn cover_display(cover: Cover) -> String {
     match cover {
         None | Some(0) => "".to_string(),
@@ -118,16 +116,21 @@ pub fn small_picture_display(size_opt: Option<FileSize>) -> String {
     .to_string()
 }
 
-fn selected_count_display(controller: &Controller) -> String {
+fn selected_count_display(view_state: &ViewState) -> String {
+    todo!();
+    /*
     let count = controller.navigator().selected_picture_count();
     if count > 0 {
         format!("[{}]", count)
     } else {
         "".to_string()
     }
+    */
 }
 
-pub fn title_display(controller: &Controller) -> String {
+pub fn title_display(view_state: &ViewState) -> String {
+    todo!();
+    /*
     if controller.state().display_path_on() {
         controller.current_picture().file_path().to_string()
     } else {
@@ -178,5 +181,5 @@ pub fn title_display(controller: &Controller) -> String {
             full_size_display(controller.state().full_size_on()),
             display_selection(&selection_criteria),
         )
-    }
+    }*/
 }

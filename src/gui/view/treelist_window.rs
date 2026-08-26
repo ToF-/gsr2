@@ -1,3 +1,5 @@
+use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
+
 use crate::env::default_values::{TREELIST_WINDOW_HEIGHT, TREELIST_WINDOW_WIDTH};
 use crate::gui::event::Event;
 use crate::model::catalog::Catalog;
@@ -24,14 +26,14 @@ use gtk::{
 };
 
 #[derive(Clone, Debug)]
-pub struct TreeListView {
+pub struct TreeListWindow {
     window: gtk::Window,
 }
 
 #[allow(deprecated)]
-impl TreeListView {
+impl TreeListWindow {
     pub fn new(
-        application_window: &gtk::ApplicationWindow,
+        gsr_application_window: &GsrApplicationWindow,
         prompt: &str,
         _selected: &str,
         catalog: &Catalog,
@@ -81,7 +83,7 @@ impl TreeListView {
             .modal(true)
             .default_width(TREELIST_WINDOW_WIDTH)
             .default_height(TREELIST_WINDOW_HEIGHT)
-            .transient_for(application_window)
+            .transient_for(gsr_application_window)
             .build();
         window.style_context().add_provider(
             &window_css_provider,
@@ -94,7 +96,7 @@ impl TreeListView {
             &window_css_provider,
             gtk::STYLE_PROVIDER_PRIORITY_APPLICATION,
         );
-        TreeListView { window }
+        TreeListWindow { window }
     }
     pub fn popup(&self) {
         self.window.present()
@@ -107,7 +109,6 @@ impl TreeListView {
     fn attach_key_pressed_event_handler(window: &gtk::ScrolledWindow) {
         let event_controller_key = gtk::EventControllerKey::new();
         event_controller_key.connect_key_pressed(clone!(move |_, key, key_code, modifier_type| {
-            todo!();
             Propagation::Stop
         }));
         window.add_controller(event_controller_key);

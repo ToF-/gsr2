@@ -1,7 +1,6 @@
 pub mod action;
 pub mod completion_dispenser;
 pub mod control;
-pub mod controller;
 pub mod direction;
 pub mod display;
 pub mod display_information;

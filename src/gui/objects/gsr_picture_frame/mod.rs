@@ -1,5 +1,6 @@
-use crate::gui::objects::gsr_application_window::picture_opacity;
 use crate::gui::objects::gsr_application::GsrApplication;
+use crate::gui::objects::gsr_application_window::picture_opacity;
+use crate::gui::view::gtk_picture_from_file_path;
 use gtk::Picture as GtkPicture;
 
 use crate::env::default_values::FRAME_PALETTE_AREA_HEIGHT;
@@ -13,7 +14,6 @@ use gtk::prelude::BoxExt;
 use std::path::Path;
 
 use crate::file::paths::check_path_exists;
-use crate::gui::view::legacy_main_view::gtk_picture_from_file_path;
 use crate::model::picture::Picture;
 use crate::model::thumbnail::no_thumbnail_picture;
 use gtk::glib;
@@ -127,7 +127,7 @@ impl GsrPictureFrame {
             let view_state = shared_view_state.borrow();
             let position = view_state.navigator.position();
             let selected = view_state.navigator.is_selected(position);
-            (position,selected)
+            (position, selected)
         };
         let picture_opt = {
             let shared_view_state = self.gsr_application().shared_view_state();
@@ -141,8 +141,6 @@ impl GsrPictureFrame {
         };
         self.set_picture(picture_opt);
         self.set_picture_opacity(picture_opacity(selected));
-
-
     }
 }
 

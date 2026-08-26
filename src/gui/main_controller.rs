@@ -1,6 +1,5 @@
 use crate::gui::action::Action;
 use crate::gui::action::gio_action_type::GioActionType;
-use crate::gui::controller::RcController;
 use crate::gui::direction::Direction;
 use crate::model::order::Order;
 use crate::model::rank::Rank;
@@ -16,22 +15,20 @@ pub type RcMainController = RefCell<MainController>;
 #[derive(Debug, Clone)]
 pub struct MainController {
     pub gio_action_group: gtk::gio::SimpleActionGroup,
-    pub controller_opt_rc: RefCell<Option<RcController>>,
 }
 
 impl Default for MainController {
     fn default() -> Self {
         Self {
             gio_action_group: gtk::gio::SimpleActionGroup::new(),
-            controller_opt_rc: RefCell::new(None),
         }
     }
 }
 
 impl MainController {
-    pub fn new(controller_opt: Option<RcController>) -> Self {
+    pub fn new() -> Self {
         let obj = Self::default();
-        obj.initialize(controller_opt);
+        obj.initialize();
         obj
     }
 
@@ -39,30 +36,17 @@ impl MainController {
         self.gio_action_group.clone()
     }
 
-    pub fn controller_rc_opt(&self) -> Option<RcController> {
-        self.controller_opt_rc.borrow().clone()
-    }
     // LAW
-    pub fn initialize(&self, controller_opt: Option<RcController>) {
-        *self.controller_opt_rc.borrow_mut() = controller_opt.clone();
-
+    pub fn initialize(&self) {
         let mut entries = vec![];
 
-        let activate = clone!(
-            #[strong]
-            controller_opt,
-            move |_group: &gtk::gio::SimpleActionGroup,
-                  object: &gtk::gio::SimpleAction,
-                  variant: Option<&gtk::glib::Variant>| {
-                if let Some(controller_rc) = &controller_opt {
-                    let controller = controller_rc.borrow_mut();
-                    dbg!(&object.name(), &variant);
-                    controller.process_action(object, variant);
-                } else {
-                    println!("controller not set");
-                }
-            }
-        );
+        let activate =
+            clone!(move |_group: &gtk::gio::SimpleActionGroup,
+                         object: &gtk::gio::SimpleAction,
+                         variant: Option<&gtk::glib::Variant>| {
+                dbg!(&object.name(), &variant);
+                todo!();
+            });
 
         entries.push(Self::action_entry(
             GioActionType::from(Action::ApplyOrderSetting(Order::Name)),
