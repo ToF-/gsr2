@@ -120,8 +120,55 @@ impl GsrApplicationWindow {
         }
         // connect the events
         self.attach_key_pressed_event_handlers();
+        let left_panel = panel.child_at(0,0)
+            .expect("left panel not set")
+            .downcast::<gtk::Label>()
+            .expect("left panel not a label");
+    
+        let right_panel = panel.child_at(2,0)
+            .expect("right panel not set")
+            .downcast::<gtk::Label>()
+            .expect("right panel not a label");
+
+        left_panel.add_controller(Self::left_panel_click_gesture(self));
+        right_panel.add_controller(Self::right_panel_click_gesture(self));
     }
 
+    fn left_panel_click_gesture(gsr_application_window: &Self) -> gtk::GestureClick {
+        let gesture_click = gtk::GestureClick::new();
+        gesture_click.set_button(1);
+        gesture_click.connect_pressed(clone!(
+            #[strong]
+            gsr_application_window,
+            move |_, n_pressed, _, _| {
+                match n_pressed {
+                    1 => gsr_application_window.grid_view_move(&Direction::PrevPage),
+                    2 => gsr_application_window.grid_view_move(&Direction::First),
+                    _ => {},
+                }
+            }
+        ));
+        gesture_click
+
+    }
+
+    fn right_panel_click_gesture(gsr_application_window: &Self) -> gtk::GestureClick {
+        let gesture_click = gtk::GestureClick::new();
+        gesture_click.set_button(1);
+        gesture_click.connect_pressed(clone!(
+            #[strong]
+            gsr_application_window,
+            move |_, n_pressed, _, _| {
+                match n_pressed {
+                    1 => gsr_application_window.grid_view_move(&Direction::NextPage),
+                    2 => gsr_application_window.grid_view_move(&Direction::Last),
+                    _ => {},
+                }
+            }
+        ));
+        gesture_click
+
+    }
     pub fn toggle_palette(&self) {
         let single_view = {
             let shared_view_state = self.gsr_application().shared_view_state();
