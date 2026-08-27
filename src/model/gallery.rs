@@ -199,13 +199,15 @@ impl Gallery {
 
     pub fn print(&self, folders_only: bool) {
         if folders_only {
-            let folders: BTreeSet<String> = self
-                .pictures
-                .clone()
-                .iter()
-                .map(|picture| parent_directory(&picture.file_path()).unwrap())
-                .collect();
-            folders.iter().for_each(|name| println!("{name}"));
+            let mut folders: BTreeMap<String, usize> = BTreeMap::new();
+            for picture in self.pictures() {
+                if let Some(parent_directory) = parent_directory(&picture.file_path()) {
+                    *folders.entry(parent_directory).or_insert(0) += 1
+                };
+            };
+            for (folder, count) in folders {
+                println!("{}:{}", folder, count)
+            }
         } else {
             for picture in self.pictures.clone() {
                 println!("{}", picture.file_path())
