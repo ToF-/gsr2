@@ -17,7 +17,7 @@ pub fn predicate(pattern: &str, find: Find, catalog: Catalog) -> Result<Predicat
         Ok(re) => {
             let predicate = match find {
                 Find::Name => Predicate {
-                    function: Arc::new(move |picture: &Picture| re.is_match(&picture.file_name())),
+                    function: Arc::new(move |picture: &Picture| re.is_match(&picture.file_path())),
                 },
                 Find::Label => Predicate {
                     function: Arc::new(move |picture: &Picture| re.is_match(&picture.label())),
