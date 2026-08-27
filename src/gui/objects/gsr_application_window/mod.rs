@@ -1,4 +1,3 @@
-use gtk::subclass::prelude::ObjectSubclassIsExt;
 use crate::env::default_values::FRAME_WINDOW_NAME;
 use crate::env::default_values::FULL_OPACITY;
 use crate::env::default_values::GRID_WINDOW_NAME;
@@ -16,11 +15,14 @@ use crate::gui::objects::gsr_picture_frame::GsrPictureFrame;
 use crate::gui::objects::gsr_picture_grid::GsrPictureGrid;
 use crate::gui::view::treelist_view::TreeListView;
 use crate::gui::view::treelist_window::TreeListWindow;
+use crate::gui::view_state::navigator::Navigator;
 use crate::model::catalog::Catalog;
+use crate::model::order::Order;
 use gtk::glib;
 use gtk::glib::Propagation;
 use gtk::glib::clone;
 use gtk::prelude::*;
+use gtk::subclass::prelude::ObjectSubclassIsExt;
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -228,6 +230,16 @@ impl GsrApplicationWindow {
         if pictures_per_row > 1 {
             self.gsr_picture_grid().initialize_pictures();
             self.gsr_picture_grid().leave_current_picture_focus();
+            let shared_view_state = self.gsr_application().shared_view_state();
+            {
+                let mut view_state = shared_view_state.borrow_mut();
+                if let Some((row, col)) = view_state
+                    .navigator
+                    .coords_from_position(view_state.navigator.position())
+                {
+                    view_state.focus_at_coords = (col as i32, row as i32);
+                }
+            }
             self.gsr_picture_grid().enter_current_picture_focus();
         } else {
             self.frame().set_current_picture();
@@ -432,19 +444,46 @@ impl GsrApplicationWindow {
         let action = Action::from(gio_action);
         match action {
             Action::Cancel => self.action_cancel(),
+            Action::ApplyOrderSetting(order) => self.action_apply_order_setting(order),
             _ => {
-                println!("Here I process {:?}", action);
+                println!("* * * todo: {:?}", action);
             }
         }
     }
     fn action_cancel(&self) {
-        dbg!("action_cancel");
-        let shared_gsr_entry_window = &self.imp().gsr_entry_window.clone();
-        let binding = shared_gsr_entry_window.borrow();
-        let gsr_entry_window: &GsrEntryWindow = binding.as_ref();
-        gsr_entry_window.close();
+        self.imp().gsr_entry_window.borrow().close();
     }
 
+    fn action_apply_order_setting(&self, order: Order) {
+        self.action_cancel();
+        {
+            let shared_view_state = self.gsr_application().shared_view_state();
+            let mut view_state = shared_view_state.borrow_mut();
+            let mut gallery = &mut view_state.gallery;
+            println!(
+                "#{}:{}",
+                &gallery.current_picture_index(),
+                &gallery.current_picture().file_path()
+            );
+            gallery.sort_by(order);
+            println!(
+                "#{}:{}",
+                &gallery.current_picture_index(),
+                &gallery.current_picture().file_path()
+            );
+            let new_position = gallery.current_picture_index();
+            let direction = Direction::Index {
+                value: new_position,
+            };
+            if view_state.navigator.can_move(&direction) {
+                view_state.navigator.move_towards(&direction);
+            } else {
+                println!("navigator can't move to: {:?}", &direction);
+            };
+            view_state.navigator.set_page_changed();
+        }
+        self.refresh_view();
+    }
     fn cancel_range(&self) {
         {
             let shared_view_state = self.gsr_application().shared_view_state();
@@ -455,15 +494,16 @@ impl GsrApplicationWindow {
     }
 
     fn set_order(&self) {
-        let gsr_entry_window = GsrEntryWindow::new_with(
-            self,
-            &self.gsr_application().shared_main_controller(),
-            order_menu(),
-            None,
-        );
-        gsr_entry_window.present();
-        let shared_gsr_entry_window = &self.imp().gsr_entry_window;
-        let mut gsr_entry_window = gsr_entry_window;
+        {
+            let gsr_entry_window = GsrEntryWindow::new_with(
+                self,
+                &self.gsr_application().shared_main_controller(),
+                order_menu(),
+                None,
+            );
+            gsr_entry_window.present();
+            *self.imp().gsr_entry_window.borrow_mut() = gsr_entry_window;
+        }
     }
 
     fn repeat_range(&self) {
@@ -566,33 +606,37 @@ impl GsrApplicationWindow {
         self.refresh_view()
     }
 
+    fn move_navigator(&self, direction: &Direction) -> Navigator {
+        let navigator = {
+            let shared_view_state = self.gsr_application().shared_view_state();
+            let mut view_state = shared_view_state.borrow_mut();
+            if view_state.navigator.can_move(&direction) {
+                view_state.navigator.move_towards(&direction);
+            }
+            view_state.navigator.clone()
+        };
+        {
+            let shared_view_state = self.gsr_application().shared_view_state();
+            let mut view_state = shared_view_state.borrow_mut();
+            let mut gallery = &mut view_state.gallery;
+            gallery.set_current_picture_index(navigator.position());
+        };
+        navigator
+    }
+
     fn single_view_move(&self, direction: &Direction) {
         let direction = match direction {
             Direction::Right | Direction::Down => Direction::NextPage,
             Direction::Left | Direction::Up => Direction::PrevPage,
             other => other.clone(),
         };
-        let navigator = {
-            let shared_view_state = self.gsr_application().shared_view_state();
-            let mut view_state = shared_view_state.borrow_mut();
-            if view_state.navigator.can_move(&direction) {
-                view_state.navigator.move_towards(&direction);
-            }
-            view_state.navigator.clone()
-        };
+        let navigator = self.move_navigator(&direction);
         if navigator.has_moved() {
             self.frame().set_current_picture();
         }
     }
     fn grid_view_move(&self, direction: &Direction) {
-        let navigator = {
-            let shared_view_state = self.gsr_application().shared_view_state();
-            let mut view_state = shared_view_state.borrow_mut();
-            if view_state.navigator.can_move(&direction) {
-                view_state.navigator.move_towards(&direction);
-            }
-            view_state.navigator.clone()
-        };
+        let navigator = self.move_navigator(direction);
         if navigator.has_moved() {
             {
                 self.gsr_picture_grid().leave_current_picture_focus();
