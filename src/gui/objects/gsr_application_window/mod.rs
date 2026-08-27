@@ -234,6 +234,40 @@ impl GsrApplicationWindow {
             }
         }
     }
+    pub fn cell_box_left_click(&self, col: i32, row: i32, n_pressed: i32) {
+        let position_opt = {
+            let shared_view_state = self.gsr_application().shared_view_state();
+            let view_state = shared_view_state.borrow();
+            view_state
+                .navigator
+                .position_from_coords(row as usize, col as usize)
+        };
+        if let Some(position) = position_opt {
+            match n_pressed {
+                1 => self.grid_view_move(&Direction::Index { value: position }),
+                2 => {
+                    self.grid_view_move(&Direction::Index { value: position });
+                    self.set_selection_range_end();
+                },
+                _ => {},
+            }
+        }
+    }
+
+    pub fn cell_box_right_click(&self, col: i32, row: i32, n_pressed: i32) {
+        let position_opt = {
+            let shared_view_state = self.gsr_application().shared_view_state();
+            let view_state = shared_view_state.borrow();
+            view_state
+                .navigator
+                .position_from_coords(row as usize, col as usize)
+        };
+        if let Some(position) = position_opt {
+            self.grid_view_move(&Direction::Index { value: position });
+            self.toggle_selected();
+        }
+    }
+
     fn attach_key_pressed_event_handlers(&self) {
         let event_controller_key = gtk::EventControllerKey::new();
         event_controller_key.connect_key_pressed(clone!(

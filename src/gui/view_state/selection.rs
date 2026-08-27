@@ -228,13 +228,13 @@ mod tests {
     #[test]
     fn can_yield_an_ordered_list_of_selected() {
         let mut selection = Selection::default();
-        selection.set_range(2,6);
+        selection.set_range(2, 6);
         assert_eq!(vec![2, 3, 4, 5, 6], selection.indices());
     }
     #[test]
     fn can_repeat_the_last_range() {
         let mut selection = Selection::default();
-        selection.set_range(2,6);
+        selection.set_range(2, 6);
         selection.cancel();
         assert!(selection.indices().is_empty());
         selection.repeat();

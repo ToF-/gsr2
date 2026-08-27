@@ -9,6 +9,7 @@ use crate::gui::action::gio_action::GioAction;
 use crate::gui::action::gio_action::SimpleActionCall;
 use crate::gui::display::picture_label_display;
 use crate::gui::main_controller::MainController;
+use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
 use crate::gui::objects::gsr_picture_grid::GsrPictureGrid;
 use crate::gui::view::palette_area::make_palette_area;
 use crate::model::palette::Palette;
@@ -59,8 +60,43 @@ impl GsrPictureCellBox {
         obj.imp().palette_on.set(palette_on);
         obj
     }
-}
-impl GsrPictureCellBox {
+    pub fn set_left_click_controller(&self, gsr_application_window: GsrApplicationWindow) {
+        let col = self.imp().col.get();
+        let row = self.imp().row.get();
+        self.add_controller(Self::click_gesture(1, col, row, gsr_application_window));
+    }
+
+    pub fn set_right_click_controller(&self, gsr_application_window: GsrApplicationWindow) {
+        let col = self.imp().col.get();
+        let row = self.imp().row.get();
+        self.add_controller(Self::click_gesture(3, col, row, gsr_application_window));
+    }
+
+    fn click_gesture(
+        button: u32,
+        col: i32,
+        row: i32,
+        gsr_application: GsrApplicationWindow,
+    ) -> gtk::GestureClick {
+        let gesture_click = gtk::GestureClick::new();
+        gesture_click.set_button(button);
+        gesture_click.connect_pressed(clone!(
+            #[strong]
+            col,
+            #[strong]
+            row,
+            #[strong]
+            gsr_application,
+            move |_, n_pressed, _, _| {
+                match button {
+                    1 => gsr_application.cell_box_left_click(col, row, n_pressed),
+                    3 => gsr_application.cell_box_right_click(col, row, n_pressed),
+                    _ => {}
+                }
+            }
+        ));
+        gesture_click
+    }
     pub fn initialize(&self) {
         self.set_orientation(Orientation::Vertical);
         self.set_spacing(0);

@@ -90,47 +90,45 @@ impl Navigator {
         }
     }
 
-
-
     /*
-    pub fn set_selection_range_all(&mut self) {
-        let start = 0;
-        let end = self.limit - 1;
-        self.selection_range_start = Some(start);
-        self.selection_range_end = Some(end);
-        self.selection_range_opt = self.range();
-        for index in start..=end {
-            self.select(index)
-        }
-    }
-
-    pub fn set_selection_range_page(&mut self) {
-        let start = self.page_start;
-        let end = self.page_end;
-        self.selection_range_start = Some(start);
-        self.selection_range_end = Some(end);
-        self.selection_range_opt = self.range();
-        for index in start..=end {
-            self.select(index)
-        }
-    }
-    pub fn repeat_range(&mut self) {
-        if let Some((start, end)) = self.selection_range_opt {
+        pub fn set_selection_range_all(&mut self) {
+            let start = 0;
+            let end = self.limit - 1;
             self.selection_range_start = Some(start);
             self.selection_range_end = Some(end);
-            self.selected_pictures.clear();
+            self.selection_range_opt = self.range();
             for index in start..=end {
                 self.select(index)
             }
         }
-    }
 
-    pub fn cancel_range(&mut self) {
-        self.selected_pictures.clear();
-        self.selection_range_start = None;
-        self.selection_range_end = None
-    }
-*/
+        pub fn set_selection_range_page(&mut self) {
+            let start = self.page_start;
+            let end = self.page_end;
+            self.selection_range_start = Some(start);
+            self.selection_range_end = Some(end);
+            self.selection_range_opt = self.range();
+            for index in start..=end {
+                self.select(index)
+            }
+        }
+        pub fn repeat_range(&mut self) {
+            if let Some((start, end)) = self.selection_range_opt {
+                self.selection_range_start = Some(start);
+                self.selection_range_end = Some(end);
+                self.selected_pictures.clear();
+                for index in start..=end {
+                    self.select(index)
+                }
+            }
+        }
+
+        pub fn cancel_range(&mut self) {
+            self.selected_pictures.clear();
+            self.selection_range_start = None;
+            self.selection_range_end = None
+        }
+    */
     pub fn has_moved(&self) -> bool {
         self.page_changed || (self.old_position != self.position)
     }
@@ -232,7 +230,6 @@ impl Navigator {
             self.page_changed = old_page_start != self.page_start;
         }
     }
-
 }
 
 #[cfg(test)]

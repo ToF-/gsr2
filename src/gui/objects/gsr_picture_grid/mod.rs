@@ -1,5 +1,3 @@
-use crate::env::default_values::FULL_OPACITY;
-use crate::env::default_values::HALF_OPACITY;
 use crate::env::default_values::MAX_PICTURES_PER_ROW;
 use crate::gui::objects::gsr_application::GsrApplication;
 use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
@@ -33,10 +31,13 @@ impl GsrPictureGrid {
     }
 
     pub fn gsr_application(&self) -> GsrApplication {
+        self.gsr_application_window().gsr_application()
+    }
+
+    pub fn gsr_application_window(&self) -> GsrApplicationWindow {
         self.root()
             .and_then(|root| root.downcast::<GsrApplicationWindow>().ok())
             .expect("GsrPictureGrid is not inside a Window")
-            .gsr_application()
     }
     pub fn initialize_pictures(&self) {
         self.remove_all_picture_cells();
@@ -58,6 +59,10 @@ impl GsrPictureGrid {
                             view_state.settings.palette_on(),
                         );
                         self.attach(&gsr_picture_cell_box, col, row, 1, 1);
+                        gsr_picture_cell_box
+                            .set_left_click_controller(self.gsr_application_window());
+                        gsr_picture_cell_box
+                            .set_right_click_controller(self.gsr_application_window());
                     }
                     let picture = view_state.gallery.picture(index);
                     self.set_picture_at(col, row, &picture, index);
@@ -74,6 +79,10 @@ impl GsrPictureGrid {
                             view_state.settings.palette_on(),
                         );
                         self.attach(&gsr_picture_cell_box, col, row, 1, 1);
+                        gsr_picture_cell_box
+                            .set_left_click_controller(self.gsr_application_window());
+                        gsr_picture_cell_box
+                            .set_right_click_controller(self.gsr_application_window());
                     }
                 }
             }
@@ -110,6 +119,8 @@ impl GsrPictureGrid {
         let gsr_picture_cell_box =
             GsrPictureCellBox::new(col, row, picture_index, pictures_per_row, palette_on);
         gsr_picture_cell_box.attach_picture(picture, picture_index);
+        gsr_picture_cell_box.set_left_click_controller(self.gsr_application_window());
+        gsr_picture_cell_box.set_right_click_controller(self.gsr_application_window());
         self.attach(&gsr_picture_cell_box, col, row, 1, 1);
     }
 
