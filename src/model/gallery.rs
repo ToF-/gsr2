@@ -1,4 +1,5 @@
-use crate::file::paths::parent_directory;
+  use std::collections::BTreeMap;
+  use crate::file::paths::parent_directory;
 use crate::file::picture_file::{get_all_picture_file_paths, get_picture_file_path};
 use crate::model::cover::cover_sort_key;
 use crate::model::finder::Finder;
@@ -206,7 +207,7 @@ impl Gallery {
                 };
             };
             for (folder, count) in folders {
-                println!("{}:{}", folder, count)
+                println!("{:6}  {}", count, folder)
             }
         } else {
             for picture in self.pictures.clone() {
