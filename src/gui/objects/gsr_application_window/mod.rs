@@ -1,12 +1,17 @@
+use gtk::subclass::prelude::ObjectSubclassIsExt;
 use crate::env::default_values::FRAME_WINDOW_NAME;
 use crate::env::default_values::FULL_OPACITY;
 use crate::env::default_values::GRID_WINDOW_NAME;
 use crate::env::default_values::HALF_OPACITY;
+use crate::gui::action::Action;
+use crate::gui::action::gio_action::GioAction;
 use crate::gui::control::Control;
 use crate::gui::control::default_controls;
 use crate::gui::direction::Direction;
+use crate::gui::key_input::menu::order_menu;
 use crate::gui::mode::Mode;
 use crate::gui::objects::gsr_application::GsrApplication;
+use crate::gui::objects::gsr_entry_window::GsrEntryWindow;
 use crate::gui::objects::gsr_picture_frame::GsrPictureFrame;
 use crate::gui::objects::gsr_picture_grid::GsrPictureGrid;
 use crate::gui::view::treelist_view::TreeListView;
@@ -16,6 +21,8 @@ use gtk::glib;
 use gtk::glib::Propagation;
 use gtk::glib::clone;
 use gtk::prelude::*;
+use std::cell::RefCell;
+use std::rc::Rc;
 
 pub const LEFT_PANE: usize = 0;
 pub const RIGHT_PANE: usize = 1;
@@ -89,6 +96,13 @@ impl GsrApplicationWindow {
             .shared_command_line_arguments()
             .borrow()
             .clone();
+        let shared_main_controller = self.gsr_application().shared_main_controller();
+        {
+            let mut main_controller = shared_main_controller.borrow_mut();
+            let shared_gsr_application_window = Rc::new(RefCell::new(self.clone()));
+            main_controller.set_application_window(shared_gsr_application_window);
+            main_controller.initialize();
+        }
 
         self.set_default_width(command_line_arguments.width.unwrap());
         self.set_default_height(command_line_arguments.height.unwrap());
@@ -120,12 +134,14 @@ impl GsrApplicationWindow {
         }
         // connect the events
         self.attach_key_pressed_event_handlers();
-        let left_panel = panel.child_at(0,0)
+        let left_panel = panel
+            .child_at(0, 0)
             .expect("left panel not set")
             .downcast::<gtk::Label>()
             .expect("left panel not a label");
-    
-        let right_panel = panel.child_at(2,0)
+
+        let right_panel = panel
+            .child_at(2, 0)
             .expect("right panel not set")
             .downcast::<gtk::Label>()
             .expect("right panel not a label");
@@ -144,12 +160,11 @@ impl GsrApplicationWindow {
                 match n_pressed {
                     1 => gsr_application_window.grid_view_move(&Direction::PrevPage),
                     2 => gsr_application_window.grid_view_move(&Direction::First),
-                    _ => {},
+                    _ => {}
                 }
             }
         ));
         gesture_click
-
     }
 
     fn right_panel_click_gesture(gsr_application_window: &Self) -> gtk::GestureClick {
@@ -162,12 +177,11 @@ impl GsrApplicationWindow {
                 match n_pressed {
                     1 => gsr_application_window.grid_view_move(&Direction::NextPage),
                     2 => gsr_application_window.grid_view_move(&Direction::Last),
-                    _ => {},
+                    _ => {}
                 }
             }
         ));
         gesture_click
-
     }
     pub fn toggle_palette(&self) {
         let single_view = {
@@ -295,8 +309,8 @@ impl GsrApplicationWindow {
                 2 => {
                     self.grid_view_move(&Direction::Index { value: position });
                     self.set_selection_range_end();
-                },
-                _ => {},
+                }
+                _ => {}
             }
         }
     }
@@ -388,6 +402,7 @@ impl GsrApplicationWindow {
                         Control::CancelRange => this.cancel_range(),
                         Control::Quit => this.close(), // TEMPORARY, should call a quit action that saves things
                         Control::RepeatRange => this.repeat_range(),
+                        Control::SetOrder => this.set_order(),
                         Control::SetSelectionRangeEnd => this.set_selection_range_end(),
                         Control::SetSelectionRangeAll => this.set_selection_range_all(),
                         Control::SetSelectionRangePage => this.set_selection_range_page(),
@@ -408,6 +423,28 @@ impl GsrApplicationWindow {
         self.add_controller(event_controller_key);
     }
 
+    pub fn process_action(
+        &self,
+        action: &gtk::gio::SimpleAction,
+        variant: Option<&gtk::glib::Variant>,
+    ) {
+        let gio_action = GioAction::from((action, variant));
+        let action = Action::from(gio_action);
+        match action {
+            Action::Cancel => self.action_cancel(),
+            _ => {
+                println!("Here I process {:?}", action);
+            }
+        }
+    }
+    fn action_cancel(&self) {
+        dbg!("action_cancel");
+        let shared_gsr_entry_window = &self.imp().gsr_entry_window.clone();
+        let binding = shared_gsr_entry_window.borrow();
+        let gsr_entry_window: &GsrEntryWindow = binding.as_ref();
+        gsr_entry_window.close();
+    }
+
     fn cancel_range(&self) {
         {
             let shared_view_state = self.gsr_application().shared_view_state();
@@ -415,6 +452,18 @@ impl GsrApplicationWindow {
             view_state.selection.cancel();
         }
         self.refresh_view();
+    }
+
+    fn set_order(&self) {
+        let gsr_entry_window = GsrEntryWindow::new_with(
+            self,
+            &self.gsr_application().shared_main_controller(),
+            order_menu(),
+            None,
+        );
+        gsr_entry_window.present();
+        let shared_gsr_entry_window = &self.imp().gsr_entry_window;
+        let mut gsr_entry_window = gsr_entry_window;
     }
 
     fn repeat_range(&self) {

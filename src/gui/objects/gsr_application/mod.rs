@@ -40,6 +40,10 @@ impl GsrApplication {
     pub fn shared_command_line_arguments(&self) -> Shared<CommandLineArguments> {
         self.imp().command_line_arguments.clone()
     }
+
+    pub fn shared_main_controller(&self) -> Shared<MainController> {
+        self.imp().main_controller.clone()
+    }
 }
 
 pub fn style_context_add_provider_for_display() {

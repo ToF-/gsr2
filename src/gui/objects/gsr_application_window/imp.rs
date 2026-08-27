@@ -1,9 +1,21 @@
+use crate::gui::objects::gsr_entry_window::GsrEntryWindow;
+use crate::model::shared::Shared;
 use gtk::glib;
 use gtk::subclass::prelude::*;
+use std::cell::RefCell;
+use std::rc::Rc;
 
-#[derive(Default)]
-pub struct GsrApplicationWindow {}
+pub struct GsrApplicationWindow {
+    pub gsr_entry_window: Shared<GsrEntryWindow>,
+}
 
+impl Default for GsrApplicationWindow {
+    fn default() -> Self {
+        Self {
+            gsr_entry_window: Rc::new(RefCell::new(GsrEntryWindow::new())),
+        }
+    }
+}
 impl GsrApplicationWindow {}
 #[gtk::glib::object_subclass]
 impl ObjectSubclass for GsrApplicationWindow {

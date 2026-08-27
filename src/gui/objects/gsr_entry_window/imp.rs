@@ -117,7 +117,9 @@ impl GsrEntryWindow {
                     };
                     match this.activate_action(&name, variant_ref) {
                         Ok(_) => {}
-                        Err(e) => eprintln!("{}", e),
+                        Err(e) => {
+                            eprintln!("connect_key_pressed_controller for gsr_entry_window: {}", e)
+                        }
                     }
                 } else {
                     let new_input = status.input();

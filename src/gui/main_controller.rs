@@ -1,8 +1,10 @@
 use crate::gui::action::Action;
 use crate::gui::action::gio_action_type::GioActionType;
 use crate::gui::direction::Direction;
+use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
 use crate::model::order::Order;
 use crate::model::rank::Rank;
+use crate::model::shared::Shared;
 use crate::model::view_option::ViewOption;
 use gtk::gio::ActionEntry;
 use gtk::gio::prelude::*;
@@ -15,12 +17,14 @@ pub type RcMainController = RefCell<MainController>;
 #[derive(Debug, Clone)]
 pub struct MainController {
     pub gio_action_group: gtk::gio::SimpleActionGroup,
+    pub gsr_application_window: Option<Shared<GsrApplicationWindow>>,
 }
 
 impl Default for MainController {
     fn default() -> Self {
         Self {
             gio_action_group: gtk::gio::SimpleActionGroup::new(),
+            gsr_application_window: None,
         }
     }
 }
@@ -36,17 +40,27 @@ impl MainController {
         self.gio_action_group.clone()
     }
 
+    pub fn set_application_window(&mut self, gsr_application_window: Shared<GsrApplicationWindow>) {
+        self.gsr_application_window = Some(gsr_application_window);
+    }
     // LAW
     pub fn initialize(&self) {
         let mut entries = vec![];
+        let shared_gsr_application_window = self
+            .gsr_application_window
+            .as_ref()
+            .expect("application window not set in main controller");
 
-        let activate =
-            clone!(move |_group: &gtk::gio::SimpleActionGroup,
-                         object: &gtk::gio::SimpleAction,
-                         variant: Option<&gtk::glib::Variant>| {
-                dbg!(&object.name(), &variant);
-                todo!();
-            });
+        let activate = clone!(
+            #[strong]
+            shared_gsr_application_window,
+            move |_group: &gtk::gio::SimpleActionGroup,
+                  object: &gtk::gio::SimpleAction,
+                  variant: Option<&gtk::glib::Variant>| {
+                let mut gsr_application_window = shared_gsr_application_window.borrow_mut();
+                gsr_application_window.process_action(object, variant);
+            }
+        );
 
         entries.push(Self::action_entry(
             GioActionType::from(Action::ApplyOrderSetting(Order::Name)),
