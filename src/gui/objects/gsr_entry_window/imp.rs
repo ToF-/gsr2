@@ -110,7 +110,6 @@ impl GsrEntryWindow {
                     let action_call = GioAction::from(action).to_simple_action_call();
                     let name = action_call.0.clone();
                     let variant = action_call.1.clone();
-                    println!("calling {:?} ", &action_call);
                     let variant_ref: Option<&Variant> = match &variant {
                         None => None,
                         Some(v) => Some(v.as_ref()),
