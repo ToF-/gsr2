@@ -243,7 +243,7 @@ impl Gallery {
                 };
             };
             for (folder, count) in folders {
-                println!("{}:{}", folder, count)
+                println!("{:6}  {}", count, folder)
             }
         } else {
             for picture in self.pictures.clone() {
