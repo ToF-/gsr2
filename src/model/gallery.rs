@@ -21,6 +21,7 @@ pub struct Gallery {
     order: Order,
     selection_criteria: SelectionCriteria,
     current_picture_index: usize,
+    sub_folder: Option<String>,
     pub finder: Finder,
 }
 
@@ -31,6 +32,7 @@ impl Default for Gallery {
             order: Order::Name,
             selection_criteria: SelectionCriteria::empty(),
             current_picture_index: 0,
+            sub_folder: None,
             finder: Finder::new(Vec::new()),
         }
     }
@@ -48,6 +50,7 @@ impl Gallery {
             order: Order::Name,
             selection_criteria: SelectionCriteria::empty(),
             current_picture_index: 0,
+            sub_folder: None,
             finder: Finder::new(pictures),
         }
     }

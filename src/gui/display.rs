@@ -1,3 +1,4 @@
+use std::cmp::max;
 use crate::env::default_values::{
     COVER_SYMBOL, EXPAND_ON_SYMBOL, FULL_SIZE_ON_SYMBOL, ORDER_SYMBOL, PICTURE_SIZE_THRESHOLD,
     SMALL_PICTURE_SYMBOL,
@@ -129,7 +130,46 @@ fn selected_count_display(view_state: &ViewState) -> String {
 }
 
 pub fn title_display(view_state: &ViewState) -> String {
-    todo!();
+    view_state.gallery.current_picture().file_name();
+    let folder = "".to_string();
+    let small = "".to_string();
+    let cover = "".to_string();
+    let position = view_state.gallery.current_picture_index();
+    let page = if view_state.settings.single_view() {
+        "".to_string()
+    } else {
+        let len = view_state.gallery.len();
+        let pictures_per_row = view_state.settings.pictures_per_row() as usize;
+        let page_size = pictures_per_row * pictures_per_row;
+        let number = 1 + position / page_size;
+        let total = if len <= page_size { 1 } else { 1 + (len / page_size) };
+        format!("{number}/{total}")
+    };
+    let sel_count = if view_state.selection.is_empty() {
+        "".to_string()
+    } else {
+        let count = view_state.selection.count();
+        format!("[{count}]")
+    };
+    let order = "".to_string();
+    let name = if view_state.settings.file_path_on() {
+        view_state.gallery.current_picture().file_path()
+    } else {
+        view_state.gallery.current_picture().file_name()
+    };
+    let label = "".to_string();
+    let rank = "".to_string();
+    let category = "".to_string();
+    let tags = "".to_string();
+    let date = "".to_string();
+    let size = "".to_string();
+    let expand = "".to_string();
+    let full = "".to_string();
+    let selection = "".to_string();
+
+    format!("{folder}{small}{cover} #{position} {page} {sel_count} {order} {name} {label} {rank} {category} {tags} {date} {size} {expand}{full} {selection}")
+}
+
     /*
     if controller.state().display_path_on() {
         controller.current_picture().file_path().to_string()
@@ -182,4 +222,3 @@ pub fn title_display(view_state: &ViewState) -> String {
             display_selection(&selection_criteria),
         )
     }*/
-}
