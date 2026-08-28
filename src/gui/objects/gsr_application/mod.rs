@@ -1,10 +1,10 @@
-use crate::model::repository::Repository;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::default_values::APPLICATION_ID;
 use crate::gui::main_controller::MainController;
 use crate::gui::view_state::ViewState;
 use crate::model::gallery::Gallery;
+use crate::model::repository::Repository;
 use crate::model::shared::Shared;
 use gtk::gdk::Display;
 mod imp;
@@ -31,7 +31,12 @@ impl Default for GsrApplication {
 }
 
 impl GsrApplication {
-    pub fn set_state(&self, clargs: CommandLineArguments, gallery: &Gallery, repository: &Repository) {
+    pub fn set_state(
+        &self,
+        clargs: CommandLineArguments,
+        gallery: &Gallery,
+        repository: &Repository,
+    ) {
         self.imp().set_state(clargs, gallery, repository)
     }
     pub fn shared_view_state(&self) -> Shared<ViewState> {

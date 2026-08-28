@@ -1,4 +1,3 @@
-use crate::model::repository::Repository;
 use crate::env::configuration::Configuration;
 use crate::gui::direction::Direction;
 use crate::gui::objects::gsr_application::CONFIGURATION;
@@ -8,6 +7,7 @@ use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
 use crate::gui::view_state::ViewState;
 use crate::gui::view_state::navigator::Navigator;
 use crate::model::gallery::Gallery;
+use crate::model::repository::Repository;
 use crate::model::shared::Shared;
 use gtk::{glib, prelude::*, subclass::prelude::*};
 
@@ -23,7 +23,12 @@ pub struct GsrApplication {
 // GSR_APPLICATION
 impl GsrApplication {
     // stored for sharing: command line args, view state, navigator and gallery
-    pub fn set_state(&self, clargs: CommandLineArguments, gallery: &Gallery, repository: &Repository) {
+    pub fn set_state(
+        &self,
+        clargs: CommandLineArguments,
+        gallery: &Gallery,
+        repository: &Repository,
+    ) {
         // store clargs
         *self.command_line_arguments.borrow_mut() = clargs.clone();
 

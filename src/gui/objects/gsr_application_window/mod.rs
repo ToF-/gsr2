@@ -20,7 +20,9 @@ use crate::gui::view::treelist_window::TreeListWindow;
 use crate::gui::view_state::ViewState;
 use crate::gui::view_state::navigator::Navigator;
 use crate::model::catalog::Catalog;
+use crate::model::finder::Predicate;
 use crate::model::order::Order;
+use crate::model::picture::Picture;
 use crate::model::shared::Shared;
 use crate::model::view_option::ViewOption;
 use gtk::glib;
@@ -30,6 +32,7 @@ use gtk::prelude::*;
 use gtk::subclass::prelude::ObjectSubclassIsExt;
 use std::cell::RefCell;
 use std::rc::Rc;
+use std::sync::Arc;
 
 pub const LEFT_PANE: usize = 0;
 pub const RIGHT_PANE: usize = 1;
@@ -233,21 +236,36 @@ impl GsrApplicationWindow {
         self.refresh_view()
     }
 
-    fn retrieve_from_repository(&self) {
-        let shared_command_line_arguments = self.gsr_application().shared_command_line_arguments();
-        let command_line_arguments = shared_command_line_arguments.borrow();
-        let shared_repository_opt = self.gsr_application().shared_repository_opt();
-        let repository = shared_repository_opt.borrow().clone()
-            .expect("repository not set");
-        match repository.retrieve_pictures(None) {
-            Err(e) => panic!("can't retrieve from repository"),
-            Ok(_) => {
-                let repository_gallery = repository.gallery_rc.borrow_mut();
-                let shared_view_state = self.shared_view_state();
-                let mut view_state = shared_view_state.borrow_mut();
-                view_state.gallery = repository_gallery;
+    fn retrieve_from_repository(&self, covers_only: bool) {
+        {
+            let shared_repository_opt = self.gsr_application().shared_repository_opt();
+            let repository = shared_repository_opt
+                .borrow()
+                .clone()
+                .expect("repository not set");
+
+            let predicate_opt: Option<Predicate> = if covers_only {
+                Some(Predicate {
+                    function: Arc::new(move |picture: &Picture| picture.cover().is_some()),
+                })
+            } else {
+                None
+            };
+            match repository.retrieve_pictures(predicate_opt) {
+                Err(_) => panic!("can't retrieve from repository"),
+                Ok(_) => {
+                    let repository_gallery = repository.gallery_rc().borrow_mut();
+                    let shared_view_state = self.shared_view_state();
+                    let mut view_state = shared_view_state.borrow_mut();
+                    view_state.gallery = repository_gallery.clone();
+                    view_state.navigator = Navigator::new(
+                        repository_gallery.len(),
+                        view_state.settings.pictures_per_row() as usize,
+                    );
+                }
             }
         }
+        self.refresh_view();
     }
     fn refresh_view(&self) {
         let pictures_per_row = {
@@ -500,12 +518,13 @@ impl GsrApplicationWindow {
                 configuration.current_pictures_per_row =
                     Some(view_state.settings.pictures_per_row() as usize);
                 configuration.current_order = Some(view_state.gallery.order());
-                configuration.save();
+                let _ = configuration.save();
             }
         }
         self.gsr_picture_grid().leave_current_picture_focus();
         self.close();
     }
+
     fn action_apply_order_setting(&self, order: Order) {
         self.action_cancel();
         {
@@ -681,7 +700,21 @@ impl GsrApplicationWindow {
         self.refresh_view()
     }
 
-    fn toggle_view_covers(&self) {}
+    fn toggle_view_covers(&self) {
+        let gallery_has_covers = {
+            let shared_view_state = self.shared_view_state();
+            let view_state = shared_view_state.borrow();
+            view_state.gallery.has_covers()
+        };
+        if gallery_has_covers {
+            let covers_only = {
+                let shared_view_state = self.shared_view_state();
+                let mut view_state = shared_view_state.borrow_mut();
+                view_state.settings.toggle_covers_only()
+            };
+            self.retrieve_from_repository(covers_only);
+        }
+    }
 
     fn move_navigator(&self, direction: &Direction) -> Navigator {
         let navigator = {

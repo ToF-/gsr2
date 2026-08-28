@@ -62,6 +62,12 @@ impl Gallery {
         self.pictures.is_empty()
     }
 
+    pub fn has_covers(&self) -> bool {
+        self.pictures
+            .iter()
+            .any(|picture| picture.cover().is_some())
+    }
+
     pub fn sub_folder(&self) -> Option<String> {
         self.sub_folder.clone()
     }
