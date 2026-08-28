@@ -583,9 +583,7 @@ impl GsrApplicationWindow {
             let shared_view_state = self.shared_view_state();
             let mut view_state = shared_view_state.borrow_mut();
             if view_state.settings.pictures_per_row() == 1 {
-                let view_mode = view_state.settings.single_view_mode();
-                view_state.settings.set_view_mode(view_mode.next());
-                
+                view_state.settings.toggle_view_mode();
             }
             view_state.settings.pictures_per_row()
         };

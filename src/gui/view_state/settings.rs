@@ -104,6 +104,10 @@ impl Settings {
     pub fn set_view_mode(&mut self, view_mode: ViewMode) {
         self.single_view_mode = view_mode.clone();
     }
+
+    pub fn toggle_view_mode(&mut self) {
+        self.single_view_mode = self.single_view_mode.next()
+    }
     pub fn toggle_blinking(&mut self) -> bool {
         self.blinking_on = !self.blinking_on;
         self.blinking_on
@@ -132,23 +136,22 @@ impl Settings {
 #[cfg(test)]
 mod tests {
     use crate::gui::view_state::Settings;
+    use crate::gui::view_state::settings::ViewMode;
 
     #[test]
     fn default_settings() {
         let settings = Settings::default();
         assert_eq!(10, settings.pictures_per_row());
         assert_eq!(false, settings.palette_on());
-        assert_eq!(false, settings.expand_on());
-        assert_eq!(false, settings.full_size_on());
+        assert_eq!(ViewMode::Normal, settings.single_view_mode());
     }
 
     #[test]
-    fn switching_expand_on() {
+    fn switching_view_mode() {
         let mut settings = Settings::default();
-        settings.toggle_expand();
-        assert!(settings.expand_on());
-        settings.toggle_expand();
-        assert!(!settings.expand_on());
+        settings.toggle_view_mode();
+        assert_eq!(ViewMode::Expanded, settings.single_view_mode());
+
     }
     #[test]
     fn switching_palette_on() {
@@ -164,28 +167,14 @@ mod tests {
         let mut settings = Settings::default();
         assert!(!settings.single_view());
         assert!(settings.thumbnail_view());
-        assert!(!settings.toggle_full_size());
         assert!(!settings.full_size_on());
         settings.toggle_pictures_per_row(1);
         assert!(settings.single_view());
-        assert!(settings.toggle_full_size());
+        settings.toggle_view_mode();
+        settings.toggle_view_mode();
         assert!(settings.full_size_on());
         assert_eq!(10, settings.toggle_pictures_per_row(1));
     }
-    #[test]
-    fn switching_full_size_also_switch_to_expand() {
-        let mut settings = Settings::default();
-        assert!(!settings.toggle_full_size());
-        assert!(!settings.expand_on());
-        assert!(!settings.full_size_on());
-        settings.toggle_pictures_per_row(1);
-        assert!(settings.single_view());
-        assert!(settings.toggle_full_size());
-        assert!(settings.full_size_on());
-        assert!(settings.expand_on());
-        assert_eq!(10, settings.toggle_pictures_per_row(1));
-    }
-
     #[test]
     fn setting_and_toggling_pictures_per_row() {
         let mut settings = Settings::default();
