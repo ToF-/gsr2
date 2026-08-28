@@ -41,9 +41,10 @@ pub const FRAME_PALETTE_AREA_HEIGHT: i32 = 10;
 pub const FRAME_PALETTE_AREA_WIDTH: i32 = 90;
 pub const GRID_PALETTE_AREA_HEIGHT: i32 = 5;
 pub const GRID_PALETTE_AREA_WIDTH: i32 = 60;
-
-pub const EXPAND_ON_SYMBOL: &str = "  ⃞";
-pub const FULL_SIZE_ON_SYMBOL: &str = " 🔍";
+//  ⃞
+// 🔍
+pub const EXPAND_ON_SYMBOL: &str = "⿴";
+pub const FULL_SIZE_ON_SYMBOL: &str = "⿸";
 #[allow(dead_code)]
 pub const MAX_PALETTE_COLORS: u8 = 10;
 #[allow(dead_code)]

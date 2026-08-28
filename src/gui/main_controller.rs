@@ -57,7 +57,7 @@ impl MainController {
             move |_group: &gtk::gio::SimpleActionGroup,
                   object: &gtk::gio::SimpleAction,
                   variant: Option<&gtk::glib::Variant>| {
-                let mut gsr_application_window = shared_gsr_application_window.borrow_mut();
+                let gsr_application_window = shared_gsr_application_window.borrow();
                 gsr_application_window.process_action(object, variant);
             }
         );

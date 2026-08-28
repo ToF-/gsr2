@@ -2,29 +2,23 @@ use crate::env::default_values::{
     COVER_SYMBOL, EXPAND_ON_SYMBOL, FULL_SIZE_ON_SYMBOL, ORDER_SYMBOL, PICTURE_SIZE_THRESHOLD,
     SMALL_PICTURE_SYMBOL,
 };
+use crate::gui::view_mode::ViewMode;
 use crate::gui::view_state::ViewState;
 use crate::model::cover::Cover;
 use crate::model::image_data::FileSize;
-use crate::model::label::Label;
-use crate::model::order::Order;
 use crate::model::picture::Picture;
 use crate::model::rank::Rank;
-use crate::model::selection_criteria::SelectionCriteria;
-use crate::model::tags::Tags;
 use itertools::Itertools;
-use std::cmp::max;
 
-fn expand_display(on: bool) -> String {
-    match on {
-        false => String::from(""),
-        true => String::from(EXPAND_ON_SYMBOL),
-    }
-}
-
-fn full_size_display(on: bool) -> String {
-    match on {
-        false => String::from(""),
-        true => String::from(FULL_SIZE_ON_SYMBOL),
+fn view_mode_display(view_state: &ViewState) -> String {
+    if view_state.settings.single_view() {
+        match view_state.settings.single_view_mode() {
+            ViewMode::Normal => String::from(""),
+            ViewMode::Expanded => String::from(EXPAND_ON_SYMBOL),
+            ViewMode::FullSize => String::from(FULL_SIZE_ON_SYMBOL),
+        }
+    } else {
+        String::from("")
     }
 }
 
@@ -84,7 +78,12 @@ pub fn picture_label_display(
 }
 
 fn directory_display(view_state: &ViewState) -> String {
-    todo!()
+    if let Some(folder) = view_state.gallery.sub_folder() {
+        folder
+    } else {
+        String::from("")
+    }
+
 }
 
 fn cover_display(cover: Cover) -> String {
@@ -94,15 +93,8 @@ fn cover_display(cover: Cover) -> String {
     }
 }
 
-fn display_selection(selection: &SelectionCriteria) -> String {
-    if !selection.is_empty() {
-        format!("=[{}]", selection.tags().into_iter().join("|"))
-    } else {
-        "".to_string()
-    }
-}
-
-fn label_display(label: Label) -> String {
+fn label_display(view_state: &ViewState) -> String {
+    let label = view_state.gallery.current_picture().label();
     if !label.is_empty() {
         format!("<{}>", label)
     } else {
@@ -175,7 +167,7 @@ fn selected_count_display(view_state: &ViewState) -> String {
 pub fn title_display(view_state: &ViewState) -> String {
     let picture = view_state.gallery.current_picture();
     view_state.gallery.current_picture().file_name();
-    let folder = "".to_string();
+    let folder = directory_display(view_state);
     let position = view_state.gallery.current_picture_index();
     let page = page_display(view_state, position);
     let sel_count = selected_count_display(view_state);
@@ -183,77 +175,15 @@ pub fn title_display(view_state: &ViewState) -> String {
     let small = small_picture_display(picture.image_data().map(|data| data.size()));
     let cover = cover_display(picture.cover());
     let name = name_display(view_state, &picture);
-    let label = {
-        let label = view_state.gallery.current_picture().label();
-        if !label.is_empty() {
-            format!("<{}>", label)
-        } else {
-            String::from("")
-        }
-    };
+    let label = label_display(view_state);
     let rank = picture.rank().to_string();
     let category = category_display(&picture);
     let tags = tag_display(&picture);
     let date = date_display(view_state);
     let size = size_display(view_state);
-    let expand = "".to_string();
-    let full = "".to_string();
-    let selection = "".to_string();
-
+    let view = view_mode_display(view_state);
     format!(
-        "{folder} #{position} {page} {sel_count} {order}                     {cover} {name} {label} {rank} {category} {tags} {date} {size} {expand}{full} {selection} {small} "
+        "{folder} #{position} {page} {sel_count} {order}                     {cover} {name} {label} {rank} {category} {tags} {date} {size} {view}{small} "
     )
 }
 
-/*
-if controller.state().display_path_on() {
-    controller.current_picture().file_path().to_string()
-} else {
-    let order: Order;
-    let current_picture = controller.current_picture();
-    let selection_criteria: SelectionCriteria =
-        SelectionCriteria::from_args(&controller.command_line_arguments());
-
-    if let Ok(gallery) = controller.repository().gallery_rc().try_borrow() {
-        order = gallery.order();
-    } else {
-        panic!("can't borrow")
-    };
-    format!(
-        "{}{}{} #{} {} {} {} {} {} {} {} {} {} {} {}{} {}",
-        directory_display(controller),
-        small_picture_display(current_picture.image_data().map(|d| d.size())),
-        cover_display(current_picture.cover()),
-        controller.navigator().position(),
-        page_display(controller),
-        selected_count_display(controller),
-        order_display(order),
-        current_picture.file_name(),
-        label_display(current_picture.label()),
-        match current_picture.image_data() {
-            Some(image_data) => image_data.rank(),
-            None => Rank::NoStar,
-        },
-        match current_picture.image_data() {
-            Some(image_data) => category_display(image_data.category_name()),
-            None => "".to_string(),
-        },
-        match current_picture.image_data() {
-            Some(image_data) => tag_display(image_data.tags),
-            None => "".to_string(),
-        },
-        if controller.state().display_date_on() {
-            current_picture.modified_time_display()
-        } else {
-            String::from("")
-        },
-        if controller.state().display_size_on() {
-            current_picture.file_size_display()
-        } else {
-            String::from("")
-        },
-        expand_display(controller.state().expand_on()),
-        full_size_display(controller.state().full_size_on()),
-        display_selection(&selection_criteria),
-    )
-}*/

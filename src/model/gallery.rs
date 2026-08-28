@@ -11,7 +11,6 @@ use rand::rng;
 use std::cmp::Ordering;
 use std::cmp::Reverse;
 use std::collections::BTreeMap;
-use std::collections::BTreeSet;
 use std::collections::HashMap;
 use std::io::Result;
 
@@ -61,6 +60,10 @@ impl Gallery {
 
     pub fn is_empty(&self) -> bool {
         self.pictures.is_empty()
+    }
+
+    pub fn sub_folder(&self) -> Option<String> {
+        self.sub_folder.clone()
     }
 
     pub fn pictures(&self) -> &Vec<Picture> {

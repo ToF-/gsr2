@@ -1,10 +1,11 @@
+use crate::gui::view_mode::ViewMode;
+
 #[derive(Debug, Clone)]
 pub struct Settings {
     current_pictures_per_row: i32,
     last_pictures_per_row: i32,
     palette_on: bool,
-    expand_on: bool,
-    full_size_on: bool,
+    single_view_mode: ViewMode,
     blinking_on: bool,
     covers_only: bool,
     file_date_on: bool,
@@ -18,9 +19,8 @@ impl Default for Settings {
             current_pictures_per_row: 10,
             last_pictures_per_row: 1,
             palette_on: false,
-            expand_on: false,
+            single_view_mode: ViewMode::Normal,
             blinking_on: true,
-            full_size_on: false,
             covers_only: false,
             file_date_on: false,
             file_path_on: false,
@@ -38,6 +38,10 @@ impl Settings {
         self.pictures_per_row() == 1
     }
 
+    pub fn single_view_mode(&self) -> ViewMode {
+        self.single_view_mode.clone()
+    }
+
     pub fn thumbnail_view(&self) -> bool {
         self.pictures_per_row() == 10
     }
@@ -46,20 +50,16 @@ impl Settings {
         self.palette_on
     }
 
-    pub fn expand_on(&self) -> bool {
-        self.expand_on
-    }
-
-    pub fn full_size_on(&self) -> bool {
-        self.full_size_on
-    }
-
     pub fn blinking_on(&self) -> bool {
         self.blinking_on
     }
 
     pub fn covers_only(&self) -> bool {
         self.covers_only
+    }
+
+    pub fn full_size_on(&self) -> bool {
+        self.single_view_mode == ViewMode::FullSize
     }
 
     pub fn file_date_on(&self) -> bool {
@@ -101,20 +101,9 @@ impl Settings {
         self.palette_on = !self.palette_on
     }
 
-    pub fn toggle_expand(&mut self) {
-        self.expand_on = !self.expand_on
+    pub fn set_view_mode(&mut self, view_mode: ViewMode) {
+        self.single_view_mode = view_mode.clone();
     }
-
-    pub fn toggle_full_size(&mut self) -> bool {
-        if self.pictures_per_row() == 1 {
-            self.full_size_on = !self.full_size_on;
-            if self.full_size_on {
-                self.expand_on = true
-            };
-        }
-        self.full_size_on
-    }
-
     pub fn toggle_blinking(&mut self) -> bool {
         self.blinking_on = !self.blinking_on;
         self.blinking_on

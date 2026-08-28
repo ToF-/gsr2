@@ -14,7 +14,6 @@ use crate::gui::objects::gsr_application::GsrApplication;
 use crate::gui::objects::gsr_entry_window::GsrEntryWindow;
 use crate::gui::objects::gsr_picture_frame::GsrPictureFrame;
 use crate::gui::objects::gsr_picture_grid::GsrPictureGrid;
-use crate::gui::view::treelist_view::TreeListView;
 use crate::gui::view::treelist_window::TreeListWindow;
 use crate::gui::view_state::ViewState;
 use crate::gui::view_state::navigator::Navigator;
@@ -340,7 +339,7 @@ impl GsrApplicationWindow {
         }
     }
 
-    pub fn cell_box_right_click(&self, col: i32, row: i32, n_pressed: i32) {
+    pub fn cell_box_right_click(&self, col: i32, row: i32, _n_pressed: i32) {
         let position_opt = {
             let shared_view_state = self.shared_view_state();
             let view_state = shared_view_state.borrow();
@@ -437,7 +436,6 @@ impl GsrApplicationWindow {
                         Control::ToggleBlinking => this.toggle_blinking(),
                         Control::ToggleExpand => this.toggle_expand(),
                         Control::TogglePalette => this.toggle_palette(),
-                        Control::ToggleFullSize => this.toggle_full_size(),
                         Control::ToggleSelected => this.toggle_selected(),
                         Control::ToggleSingleView => this.toggle_pictures_per_row(1),
                         Control::ToggleThumbView => this.toggle_pictures_per_row(10),
@@ -475,7 +473,7 @@ impl GsrApplicationWindow {
         {
             let shared_view_state = self.shared_view_state();
             let mut view_state = shared_view_state.borrow_mut();
-            let mut gallery = &mut view_state.gallery;
+            let gallery = &mut view_state.gallery;
             println!(
                 "#{}:{}",
                 &gallery.current_picture_index(),
@@ -585,25 +583,15 @@ impl GsrApplicationWindow {
             let shared_view_state = self.shared_view_state();
             let mut view_state = shared_view_state.borrow_mut();
             if view_state.settings.pictures_per_row() == 1 {
-                view_state.settings.toggle_expand();
+                let view_mode = view_state.settings.single_view_mode();
+                view_state.settings.set_view_mode(view_mode.next());
+                
             }
             view_state.settings.pictures_per_row()
         };
         if pictures_per_row == 1 {
             self.frame().set_current_picture();
-        }
-    }
-    fn toggle_full_size(&self) {
-        let pictures_per_row = {
-            let shared_view_state = self.shared_view_state();
-            let mut view_state = shared_view_state.borrow_mut();
-            if view_state.settings.pictures_per_row() == 1 {
-                view_state.settings.toggle_full_size();
-            }
-            view_state.settings.pictures_per_row()
-        };
-        if pictures_per_row == 1 {
-            self.frame().set_current_picture();
+            self.refresh_title();
         }
     }
 

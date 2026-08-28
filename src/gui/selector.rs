@@ -31,7 +31,7 @@ impl Selector {
         }
     }
 
-    pub fn begin(&mut self, main_view: &GsrApplicationWindow, prompt: &str, catalog: &Catalog) {
+    pub fn begin(&mut self, _main_view: &GsrApplicationWindow, prompt: &str, catalog: &Catalog) {
         self.catalog = catalog.clone();
         self.prompt = prompt.to_string();
         // self.treelist_view_opt = Some(main_view.popup_treelist_view(&self.prompt, &self.catalog));

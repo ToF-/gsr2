@@ -42,7 +42,7 @@ fn main() {
 fn run_application(config: &Configuration, clargs: &CommandLineArguments) -> Result<Status> {
     let result = {
         // TODO check legacy controller new setup routine is was doing useful things...
-        let mut repository = Repository::new(config.clone(), clargs.clone(), false);
+        let repository = Repository::new(config.clone(), clargs.clone(), false);
         match repository.initialize(None) {
             Ok(_) => {}
             Err(e) => panic!("can't initialize repository: {}", e),

@@ -1,3 +1,4 @@
+use crate::gui::view_mode::ViewMode;
 use crate::gui::objects::gsr_application::GsrApplication;
 use crate::gui::objects::gsr_application_window::picture_opacity;
 use crate::gui::view::gtk_picture_from_file_path;
@@ -72,15 +73,21 @@ impl GsrPictureFrame {
         let shared_view_state = self.imp().shared_view_state();
         let view_state = shared_view_state.borrow();
         self.remove_children();
-        if view_state.settings.expand_on() {
-            gtk_picture.set_valign(Align::Fill);
-            gtk_picture.set_halign(Align::Fill);
-        } else {
-            gtk_picture.set_valign(Align::Center);
-            gtk_picture.set_halign(Align::Center);
+        match view_state.settings.single_view_mode() {
+            ViewMode::Normal => {
+                gtk_picture.set_valign(Align::Center);
+                gtk_picture.set_halign(Align::Center);
+            }, 
+            ViewMode::Expanded => {
+                gtk_picture.set_valign(Align::Fill);
+                gtk_picture.set_halign(Align::Fill);
+            }, 
+            ViewMode::FullSize => {
+                gtk_picture.set_valign(Align::Center);
+                gtk_picture.set_halign(Align::Center);
+                gtk_picture.set_can_shrink(!view_state.settings.full_size_on());
+            }
         };
-
-        gtk_picture.set_can_shrink(!view_state.settings.full_size_on());
         self.append(&gtk_picture);
     }
 

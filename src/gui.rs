@@ -17,5 +17,6 @@ pub mod objects;
 pub mod selector;
 pub mod state;
 pub mod view;
+pub mod view_mode;
 pub mod view_state;
 pub mod window_title;

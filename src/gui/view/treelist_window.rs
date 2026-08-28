@@ -1,7 +1,6 @@
 use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
 
 use crate::env::default_values::{TREELIST_WINDOW_HEIGHT, TREELIST_WINDOW_WIDTH};
-use crate::gui::event::Event;
 use crate::model::catalog::Catalog;
 use crate::model::sub_category::SubCategory;
 use glib::BoxedAnyObject;
@@ -108,7 +107,7 @@ impl TreeListWindow {
 
     fn attach_key_pressed_event_handler(window: &gtk::ScrolledWindow) {
         let event_controller_key = gtk::EventControllerKey::new();
-        event_controller_key.connect_key_pressed(clone!(move |_, key, key_code, modifier_type| {
+        event_controller_key.connect_key_pressed(clone!(move |_, _key, _key_code, _modifier_type| {
             Propagation::Stop
         }));
         window.add_controller(event_controller_key);
@@ -166,8 +165,8 @@ fn build_list_view(root: SubCategory) -> gtk::ListView {
     event_controller_key.connect_key_pressed(clone!(
         #[strong]
         selection,
-        move |_, key, key_code, modifier_type| {
-            let selected: String = if let Some(row_object) = selection.selected_item() {
+        move |_, _key, _key_code, _modifier_type| {
+            let _selected: String = if let Some(row_object) = selection.selected_item() {
                 let row = row_object.downcast::<gtk::TreeListRow>().unwrap();
                 if row.item().is_some() {
                     let boxed = row

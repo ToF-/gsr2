@@ -1,6 +1,4 @@
 use crate::gui::direction::Direction;
-use std::collections::HashSet;
-use std::mem;
 
 #[derive(Debug, Clone)]
 pub struct Navigator {
