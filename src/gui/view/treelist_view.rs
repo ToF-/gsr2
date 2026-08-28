@@ -105,10 +105,12 @@ impl TreeListView {
 
     fn attach_key_pressed_event_handler(window: &gtk::ScrolledWindow) {
         let event_controller_key = gtk::EventControllerKey::new();
-        event_controller_key.connect_key_pressed(clone!(move |_, _key, _key_code, _modifier_type| {
-            todo!();
-            // Propagation::Stop
-        }));
+        event_controller_key.connect_key_pressed(clone!(
+            move |_, _key, _key_code, _modifier_type| {
+                todo!();
+                // Propagation::Stop
+            }
+        ));
         window.add_controller(event_controller_key);
     }
 }

@@ -151,7 +151,6 @@ mod tests {
         let mut settings = Settings::default();
         settings.toggle_view_mode();
         assert_eq!(ViewMode::Expanded, settings.single_view_mode());
-
     }
     #[test]
     fn switching_palette_on() {

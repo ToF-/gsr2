@@ -9,6 +9,7 @@ use crate::gui::control::default_controls;
 use crate::gui::direction::Direction;
 use crate::gui::display::title_display;
 use crate::gui::key_input::menu::order_menu;
+use crate::gui::key_input::menu::view_menu;
 use crate::gui::mode::Mode;
 use crate::gui::objects::gsr_application::GsrApplication;
 use crate::gui::objects::gsr_entry_window::GsrEntryWindow;
@@ -20,6 +21,7 @@ use crate::gui::view_state::navigator::Navigator;
 use crate::model::catalog::Catalog;
 use crate::model::order::Order;
 use crate::model::shared::Shared;
+use crate::model::view_option::ViewOption;
 use gtk::glib;
 use gtk::glib::Propagation;
 use gtk::glib::clone;
@@ -430,6 +432,7 @@ impl GsrApplicationWindow {
                         } // TEMPORARY, should call a quit action that saves things
                         Control::RepeatRange => this.repeat_range(),
                         Control::SetOrder => this.set_order(),
+                        Control::SetView => this.set_view(),
                         Control::SetSelectionRangeEnd => this.set_selection_range_end(),
                         Control::SetSelectionRangeAll => this.set_selection_range_all(),
                         Control::SetSelectionRangePage => this.set_selection_range_page(),
@@ -459,6 +462,7 @@ impl GsrApplicationWindow {
         match action {
             Action::Cancel => self.action_cancel(),
             Action::ApplyOrderSetting(order) => self.action_apply_order_setting(order),
+            Action::ApplyViewSetting(view_option) => self.action_apply_view_setting(view_option),
             _ => {
                 println!("* * * todo: {:?}", action);
             }
@@ -474,17 +478,7 @@ impl GsrApplicationWindow {
             let shared_view_state = self.shared_view_state();
             let mut view_state = shared_view_state.borrow_mut();
             let gallery = &mut view_state.gallery;
-            println!(
-                "#{}:{}",
-                &gallery.current_picture_index(),
-                &gallery.current_picture().file_path()
-            );
             gallery.sort_by(order);
-            println!(
-                "#{}:{}",
-                &gallery.current_picture_index(),
-                &gallery.current_picture().file_path()
-            );
             let new_position = gallery.current_picture_index();
             let direction = Direction::Index {
                 value: new_position,
@@ -497,6 +491,23 @@ impl GsrApplicationWindow {
             view_state.navigator.set_page_changed();
         }
         self.refresh_view();
+    }
+
+    fn action_apply_view_setting(&self, view_option: ViewOption) {
+        self.action_cancel();
+        match view_option {
+            ViewOption::Single => self.toggle_pictures_per_row(1),
+            ViewOption::Grid2x2 => self.toggle_pictures_per_row(2),
+            ViewOption::Grid3x3 => self.toggle_pictures_per_row(3),
+            ViewOption::Grid4x4 => self.toggle_pictures_per_row(4),
+            ViewOption::Grid5x5 => self.toggle_pictures_per_row(5),
+            ViewOption::Thumbnails => self.toggle_pictures_per_row(10),
+            ViewOption::Covers => self.toggle_view_covers(),
+            ViewOption::FilePath | ViewOption::FileDate | ViewOption::FileSize => {
+                self.toggle_view_display_option(view_option)
+            }
+            ViewOption::FullSize => self.toggle_expand(),
+        }
     }
     fn cancel_range(&self) {
         {
@@ -513,6 +524,19 @@ impl GsrApplicationWindow {
                 self,
                 &self.gsr_application().shared_main_controller(),
                 order_menu(),
+                None,
+            );
+            gsr_entry_window.present();
+            *self.imp().gsr_entry_window.borrow_mut() = gsr_entry_window;
+        }
+    }
+
+    fn set_view(&self) {
+        {
+            let gsr_entry_window = GsrEntryWindow::new_with(
+                self,
+                &self.gsr_application().shared_main_controller(),
+                view_menu(),
                 None,
             );
             gsr_entry_window.present();
@@ -593,6 +617,21 @@ impl GsrApplicationWindow {
         }
     }
 
+    fn toggle_view_display_option(&self, view_option: ViewOption) {
+        {
+            let shared_view_state = self.shared_view_state();
+            let mut view_state = shared_view_state.borrow_mut();
+            let settings = &mut view_state.settings;
+            let _ = match view_option {
+                ViewOption::FilePath => settings.toggle_file_path(),
+                ViewOption::FileDate => settings.toggle_file_date(),
+                ViewOption::FileSize => settings.toggle_file_size(),
+                _ => true,
+            };
+        }
+        self.refresh_title();
+    }
+
     fn toggle_selected(&self) {
         {
             let shared_view_state = self.shared_view_state();
@@ -607,6 +646,8 @@ impl GsrApplicationWindow {
         }
         self.refresh_view()
     }
+
+    fn toggle_view_covers(&self) {}
 
     fn move_navigator(&self, direction: &Direction) -> Navigator {
         let navigator = {

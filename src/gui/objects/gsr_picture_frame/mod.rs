@@ -1,7 +1,7 @@
-use crate::gui::view_mode::ViewMode;
 use crate::gui::objects::gsr_application::GsrApplication;
 use crate::gui::objects::gsr_application_window::picture_opacity;
 use crate::gui::view::gtk_picture_from_file_path;
+use crate::gui::view_mode::ViewMode;
 use gtk::Picture as GtkPicture;
 
 use crate::env::default_values::FRAME_PALETTE_AREA_HEIGHT;
@@ -77,11 +77,11 @@ impl GsrPictureFrame {
             ViewMode::Normal => {
                 gtk_picture.set_valign(Align::Center);
                 gtk_picture.set_halign(Align::Center);
-            }, 
+            }
             ViewMode::Expanded => {
                 gtk_picture.set_valign(Align::Fill);
                 gtk_picture.set_halign(Align::Fill);
-            }, 
+            }
             ViewMode::FullSize => {
                 gtk_picture.set_valign(Align::Center);
                 gtk_picture.set_halign(Align::Center);

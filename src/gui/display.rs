@@ -51,6 +51,7 @@ fn page_display(view_state: &ViewState, position: usize) -> String {
 
 fn name_display(view_state: &ViewState, picture: &Picture) -> String {
     if view_state.settings.file_path_on() {
+        dbg!();
         picture.file_path()
     } else {
         picture.file_name()
@@ -83,7 +84,6 @@ fn directory_display(view_state: &ViewState) -> String {
     } else {
         String::from("")
     }
-
 }
 
 fn cover_display(cover: Cover) -> String {
@@ -186,4 +186,3 @@ pub fn title_display(view_state: &ViewState) -> String {
         "{folder} #{position} {page} {sel_count} {order}                     {cover} {name} {label} {rank} {category} {tags} {date} {size} {view}{small} "
     )
 }
-
