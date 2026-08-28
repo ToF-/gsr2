@@ -1,4 +1,3 @@
-use crate::model::picture::Picture;
 use crate::env::default_values::{
     COVER_SYMBOL, EXPAND_ON_SYMBOL, FULL_SIZE_ON_SYMBOL, ORDER_SYMBOL, PICTURE_SIZE_THRESHOLD,
     SMALL_PICTURE_SYMBOL,
@@ -8,12 +7,12 @@ use crate::model::cover::Cover;
 use crate::model::image_data::FileSize;
 use crate::model::label::Label;
 use crate::model::order::Order;
+use crate::model::picture::Picture;
 use crate::model::rank::Rank;
 use crate::model::selection_criteria::SelectionCriteria;
 use crate::model::tags::Tags;
 use itertools::Itertools;
 use std::cmp::max;
-
 
 fn expand_display(on: bool) -> String {
     match on {
@@ -111,6 +110,21 @@ fn label_display(label: Label) -> String {
     }
 }
 
+fn date_display(view_state: &ViewState) -> String {
+    if view_state.settings.file_date_on() {
+        view_state.gallery.current_picture().modified_time_display()
+    } else {
+        String::from("")
+    }
+}
+
+fn size_display(view_state: &ViewState) -> String {
+    if view_state.settings.file_size_on() {
+        view_state.gallery.current_picture().file_size_display()
+    } else {
+        String::from("")
+    }
+}
 fn category_display(picture: &Picture) -> String {
     match picture.image_data() {
         None => String::from(""),
@@ -121,14 +135,17 @@ fn category_display(picture: &Picture) -> String {
     }
 }
 
-fn tag_display(tags: Tags) -> String {
-    match tags.len() {
-        0 => String::from(""),
-        _ => {
-            let mut labels: Vec<String> = tags.into_iter().collect();
-            labels.sort();
-            format!("| {} |", labels.iter().join(" "))
-        }
+fn tag_display(picture: &Picture) -> String {
+    match picture.image_data() {
+        None => String::from(""),
+        Some(data) => match data.tags().len() {
+            0 => String::from(""),
+            _ => {
+                let mut labels: Vec<String> = data.tags().into_iter().collect();
+                labels.sort();
+                format!("| {} |", labels.iter().join(" "))
+            }
+        },
     }
 }
 
@@ -152,7 +169,7 @@ fn selected_count_display(view_state: &ViewState) -> String {
         let count = view_state.selection.count();
         format!("[{count}]")
     };
-   sel_count
+    sel_count
 }
 
 pub fn title_display(view_state: &ViewState) -> String {
@@ -176,9 +193,9 @@ pub fn title_display(view_state: &ViewState) -> String {
     };
     let rank = picture.rank().to_string();
     let category = category_display(&picture);
-    let tags = "".to_string();
-    let date = "".to_string();
-    let size = "".to_string();
+    let tags = tag_display(&picture);
+    let date = date_display(view_state);
+    let size = size_display(view_state);
     let expand = "".to_string();
     let full = "".to_string();
     let selection = "".to_string();
