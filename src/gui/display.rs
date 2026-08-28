@@ -64,8 +64,8 @@ fn name_display(view_state: &ViewState, picture: &Picture) -> String {
     }
 }
 
-fn order_display(order: Order) -> String {
-    format!("{}{}", ORDER_SYMBOL, order)
+fn order_display(view_state: &ViewState) -> String {
+    format!("{}{}", ORDER_SYMBOL, view_state.gallery.order())
 }
 pub fn picture_label_display(
     label: &str,
@@ -91,7 +91,7 @@ fn directory_display(view_state: &ViewState) -> String {
 fn cover_display(cover: Cover) -> String {
     match cover {
         None | Some(0) => "".to_string(),
-        Some(count) => format!("{} {} ", COVER_SYMBOL, count),
+        Some(count) => format!("{}({})", COVER_SYMBOL, count),
     }
 }
 
@@ -111,10 +111,13 @@ fn label_display(label: Label) -> String {
     }
 }
 
-fn category_display(category_opt: Option<String>) -> String {
-    match category_opt {
+fn category_display(picture: &Picture) -> String {
+    match picture.image_data() {
         None => String::from(""),
-        Some(category) => format!("({})", category),
+        Some(data) => match data.category_name() {
+            None => String::from(""),
+            Some(name) => format!("#{name}"),
+        },
     }
 }
 
@@ -156,12 +159,12 @@ pub fn title_display(view_state: &ViewState) -> String {
     let picture = view_state.gallery.current_picture();
     view_state.gallery.current_picture().file_name();
     let folder = "".to_string();
-    let small = small_picture_display(picture.image_data().map(|data| data.size()));
-    let cover = cover_display(picture.cover());
     let position = view_state.gallery.current_picture_index();
     let page = page_display(view_state, position);
     let sel_count = selected_count_display(view_state);
-    let order = "".to_string();
+    let order = order_display(view_state);
+    let small = small_picture_display(picture.image_data().map(|data| data.size()));
+    let cover = cover_display(picture.cover());
     let name = name_display(view_state, &picture);
     let label = {
         let label = view_state.gallery.current_picture().label();
@@ -172,7 +175,7 @@ pub fn title_display(view_state: &ViewState) -> String {
         }
     };
     let rank = picture.rank().to_string();
-    let category = "".to_string();
+    let category = category_display(&picture);
     let tags = "".to_string();
     let date = "".to_string();
     let size = "".to_string();
@@ -181,7 +184,7 @@ pub fn title_display(view_state: &ViewState) -> String {
     let selection = "".to_string();
 
     format!(
-        "{folder}{small}{cover} #{position} {page} {sel_count} {order} {name} {label} {rank} {category} {tags} {date} {size} {expand}{full} {selection}"
+        "{folder} #{position} {page} {sel_count} {order}                     {cover} {name} {label} {rank} {category} {tags} {date} {size} {expand}{full} {selection} {small} "
     )
 }
 
