@@ -1,4 +1,5 @@
 use crate::env::configuration::Configuration;
+use crate::gui::direction::Direction;
 use crate::gui::objects::gsr_application::CONFIGURATION;
 use crate::gui::objects::gsr_application::CommandLineArguments;
 use crate::gui::objects::gsr_application::MainController;
@@ -39,11 +40,17 @@ impl GsrApplication {
             }
         };
         let gallery = gallery.clone();
-        let navigator = Navigator::new(gallery.len(), pictures_per_row as usize);
+        let mut navigator = Navigator::new(gallery.len(), pictures_per_row as usize);
         let mut view_state = self.view_state.borrow_mut();
         view_state.settings.set_pictures_per_row(pictures_per_row);
+        navigator.move_towards(&Direction::Index {
+            value: gallery.current_picture_index(),
+        });
         view_state.gallery = gallery.clone();
         view_state.navigator = navigator.clone();
+        if let Some((row, col)) = navigator.coords_from_position(navigator.position()) {
+            view_state.focus_at_coords = ((col as i32, row as i32));
+        }
     }
 }
 #[glib::object_subclass]

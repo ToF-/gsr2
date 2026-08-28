@@ -158,6 +158,8 @@ impl GsrApplicationWindow {
 
         left_panel.add_controller(Self::left_panel_click_gesture(self));
         right_panel.add_controller(Self::right_panel_click_gesture(self));
+        self.gsr_picture_grid().leave_current_picture_focus();
+        self.gsr_picture_grid().enter_current_picture_focus();
     }
 
     fn left_panel_click_gesture(gsr_application_window: &Self) -> gtk::GestureClick {
