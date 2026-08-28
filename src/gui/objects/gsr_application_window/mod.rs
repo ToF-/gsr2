@@ -1,6 +1,3 @@
-use crate::gui::display::title_display;
-use crate::gui::view_state::ViewState;
-use crate::model::shared::Shared;
 use crate::env::default_values::FRAME_WINDOW_NAME;
 use crate::env::default_values::FULL_OPACITY;
 use crate::env::default_values::GRID_WINDOW_NAME;
@@ -10,6 +7,7 @@ use crate::gui::action::gio_action::GioAction;
 use crate::gui::control::Control;
 use crate::gui::control::default_controls;
 use crate::gui::direction::Direction;
+use crate::gui::display::title_display;
 use crate::gui::key_input::menu::order_menu;
 use crate::gui::mode::Mode;
 use crate::gui::objects::gsr_application::GsrApplication;
@@ -18,9 +16,11 @@ use crate::gui::objects::gsr_picture_frame::GsrPictureFrame;
 use crate::gui::objects::gsr_picture_grid::GsrPictureGrid;
 use crate::gui::view::treelist_view::TreeListView;
 use crate::gui::view::treelist_window::TreeListWindow;
+use crate::gui::view_state::ViewState;
 use crate::gui::view_state::navigator::Navigator;
 use crate::model::catalog::Catalog;
 use crate::model::order::Order;
+use crate::model::shared::Shared;
 use gtk::glib;
 use gtk::glib::Propagation;
 use gtk::glib::clone;
@@ -425,7 +425,10 @@ impl GsrApplicationWindow {
                             }
                         }
                         Control::CancelRange => this.cancel_range(),
-                        Control::Quit => { println!("closing gsr_application_window"); this.close() }, // TEMPORARY, should call a quit action that saves things
+                        Control::Quit => {
+                            println!("closing gsr_application_window");
+                            this.close()
+                        } // TEMPORARY, should call a quit action that saves things
                         Control::RepeatRange => this.repeat_range(),
                         Control::SetOrder => this.set_order(),
                         Control::SetSelectionRangeEnd => this.set_selection_range_end(),

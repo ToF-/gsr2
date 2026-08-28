@@ -1,4 +1,3 @@
-use std::collections::BTreeMap;
 use crate::file::paths::parent_directory;
 use crate::file::picture_file::{get_all_picture_file_paths, get_picture_file_path};
 use crate::model::cover::cover_sort_key;
@@ -11,6 +10,7 @@ use rand::prelude::SliceRandom;
 use rand::rng;
 use std::cmp::Ordering;
 use std::cmp::Reverse;
+use std::collections::BTreeMap;
 use std::collections::BTreeSet;
 use std::collections::HashMap;
 use std::io::Result;
@@ -244,7 +244,7 @@ impl Gallery {
                 if let Some(parent_directory) = parent_directory(&picture.file_path()) {
                     *folders.entry(parent_directory).or_insert(0) += 1
                 };
-            };
+            }
             for (folder, count) in folders {
                 println!("{:6}  {}", count, folder)
             }
