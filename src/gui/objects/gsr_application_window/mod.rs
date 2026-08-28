@@ -1,3 +1,4 @@
+use crate::env::configuration::Configuration;
 use crate::env::default_values::FRAME_WINDOW_NAME;
 use crate::env::default_values::FULL_OPACITY;
 use crate::env::default_values::GRID_WINDOW_NAME;
@@ -428,10 +429,7 @@ impl GsrApplicationWindow {
                             }
                         }
                         Control::CancelRange => this.cancel_range(),
-                        Control::Quit => {
-                            println!("closing gsr_application_window");
-                            this.close()
-                        } // TEMPORARY, should call a quit action that saves things
+                        Control::Quit => this.action_quit(),
                         Control::RepeatRange => this.repeat_range(),
                         Control::SetOrder => this.set_order(),
                         Control::SetView => this.set_view(),
@@ -463,6 +461,7 @@ impl GsrApplicationWindow {
         let action = Action::from(gio_action);
         match action {
             Action::Cancel => self.action_cancel(),
+            Action::Quit => self.action_quit(),
             Action::ApplyOrderSetting(order) => self.action_apply_order_setting(order),
             Action::ApplyViewSetting(view_option) => self.action_apply_view_setting(view_option),
             _ => {
@@ -474,6 +473,22 @@ impl GsrApplicationWindow {
         self.imp().gsr_entry_window.borrow().close();
     }
 
+    fn action_quit(&self) {
+        {
+            let shared_view_state = self.shared_view_state();
+            let view_state = shared_view_state.borrow();
+            if let Ok(mut configuration) = Configuration::from_env() {
+                configuration.current_picture =
+                    Some(view_state.gallery.current_picture().file_path());
+                configuration.current_pictures_per_row =
+                    Some(view_state.settings.pictures_per_row() as usize);
+                configuration.current_order = Some(view_state.gallery.order());
+                configuration.save();
+            }
+        }
+        self.gsr_picture_grid().leave_current_picture_focus();
+        self.close();
+    }
     fn action_apply_order_setting(&self, order: Order) {
         self.action_cancel();
         {
