@@ -1,3 +1,4 @@
+use crate::model::repository::Repository;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::default_values::APPLICATION_ID;
@@ -30,8 +31,8 @@ impl Default for GsrApplication {
 }
 
 impl GsrApplication {
-    pub fn set_state(&self, clargs: CommandLineArguments, gallery: &Gallery) {
-        self.imp().set_state(clargs, gallery)
+    pub fn set_state(&self, clargs: CommandLineArguments, gallery: &Gallery, repository: &Repository) {
+        self.imp().set_state(clargs, gallery, repository)
     }
     pub fn shared_view_state(&self) -> Shared<ViewState> {
         self.imp().view_state.clone()
@@ -43,6 +44,10 @@ impl GsrApplication {
 
     pub fn shared_main_controller(&self) -> Shared<MainController> {
         self.imp().main_controller.clone()
+    }
+
+    pub fn shared_repository_opt(&self) -> Shared<Option<Repository>> {
+        self.imp().repository.clone()
     }
 }
 

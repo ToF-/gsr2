@@ -43,7 +43,7 @@ fn run_application(config: &Configuration, clargs: &CommandLineArguments) -> Res
     let result = {
         // TODO check legacy controller new setup routine is was doing useful things...
         let repository = Repository::new(config.clone(), clargs.clone(), false);
-        match repository.initialize(None) {
+        let _ = &match repository.retrieve_pictures(None) {
             Ok(_) => {}
             Err(e) => panic!("can't initialize repository: {}", e),
         };
@@ -57,7 +57,7 @@ fn run_application(config: &Configuration, clargs: &CommandLineArguments) -> Res
                 let gallery = repository.gallery_rc().borrow();
                 gallery.clone()
             };
-            build_and_run_app(clargs, &gallery);
+            build_and_run_app(clargs, &gallery, &repository);
             Ok(Status::Done)
         } else {
             result
@@ -66,9 +66,9 @@ fn run_application(config: &Configuration, clargs: &CommandLineArguments) -> Res
     result
 }
 
-fn build_and_run_app(clargs: &CommandLineArguments, gallery: &Gallery) {
+fn build_and_run_app(clargs: &CommandLineArguments, gallery: &Gallery, repository: &Repository) {
     let gsr_application = GsrApplication::default();
-    gsr_application.set_state(clargs.clone(), gallery);
+    gsr_application.set_state(clargs.clone(), gallery, repository);
     let no_args: Vec<String> = vec![];
     gsr_application.run_with_args(&no_args);
 }

@@ -231,6 +231,23 @@ impl GsrApplicationWindow {
         };
         self.refresh_view()
     }
+
+    fn retrieve_from_repository(&self) {
+        let shared_command_line_arguments = self.gsr_application().shared_command_line_arguments();
+        let command_line_arguments = shared_command_line_arguments.borrow();
+        let shared_repository_opt = self.gsr_application().shared_repository_opt();
+        let repository = shared_repository_opt.borrow().clone()
+            .expect("repository not set");
+        match repository.retrieve_pictures(None) {
+            Err(e) => panic!("can't retrieve from repository"),
+            Ok(_) => {
+                let repository_gallery = repository.gallery_rc.borrow_mut();
+                let shared_view_state = self.shared_view_state();
+                let mut view_state = shared_view_state.borrow_mut();
+                view_state.gallery = repository_gallery;
+            }
+        }
+    }
     fn refresh_view(&self) {
         let pictures_per_row = {
             let shared_view_state = self.shared_view_state();

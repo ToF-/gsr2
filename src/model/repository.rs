@@ -243,7 +243,7 @@ impl Repository {
             panic!("can't borrow")
         }
     }
-    pub fn initialize(&self, predicate_opt: Option<Predicate>) -> IOResult<()> {
+    pub fn retrieve_pictures(&self, predicate_opt: Option<Predicate>) -> IOResult<()> {
         match &self.command_line_arguments.command {
             Some(Command::File { file_path }) => match self.picture_from_file_path(file_path) {
                 Ok(file_gallery) => match self.gallery_rc.try_borrow_mut() {

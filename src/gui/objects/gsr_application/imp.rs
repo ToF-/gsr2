@@ -1,3 +1,4 @@
+use crate::model::repository::Repository;
 use crate::env::configuration::Configuration;
 use crate::gui::direction::Direction;
 use crate::gui::objects::gsr_application::CONFIGURATION;
@@ -14,6 +15,7 @@ use gtk::{glib, prelude::*, subclass::prelude::*};
 pub struct GsrApplication {
     pub command_line_arguments: Shared<CommandLineArguments>,
     pub configuration: Shared<Configuration>,
+    pub repository: Shared<Option<Repository>>,
     pub main_controller: Shared<MainController>,
     pub view_state: Shared<ViewState>,
 }
@@ -21,10 +23,12 @@ pub struct GsrApplication {
 // GSR_APPLICATION
 impl GsrApplication {
     // stored for sharing: command line args, view state, navigator and gallery
-    pub fn set_state(&self, clargs: CommandLineArguments, gallery: &Gallery) {
+    pub fn set_state(&self, clargs: CommandLineArguments, gallery: &Gallery, repository: &Repository) {
         // store clargs
         *self.command_line_arguments.borrow_mut() = clargs.clone();
 
+        // store repository
+        *self.repository.borrow_mut() = Some(repository.clone());
         let pictures_per_row = {
             // no grid or thumbnails option, try cfg
             if clargs.grid.is_none()
@@ -49,7 +53,7 @@ impl GsrApplication {
         view_state.gallery = gallery.clone();
         view_state.navigator = navigator.clone();
         if let Some((row, col)) = navigator.coords_from_position(navigator.position()) {
-            view_state.focus_at_coords = ((col as i32, row as i32));
+            view_state.focus_at_coords = (col as i32, row as i32);
         }
     }
 }
