@@ -23,6 +23,13 @@ fn view_mode_display(view_state: &ViewState) -> String {
     }
 }
 
+fn covers_only_display(view_state: &ViewState) -> String {
+    if view_state.settings.covers_only() {
+        String::from(COVER_SYMBOL)
+    } else {
+        String::from("")
+    }
+}
 fn page_display(view_state: &ViewState, position: usize) -> String {
     let page = if view_state.settings.single_view() {
         "".to_string()
@@ -165,6 +172,7 @@ fn selected_count_display(view_state: &ViewState) -> String {
 }
 
 pub fn title_display(view_state: &ViewState) -> String {
+    let covers_only = covers_only_display(view_state);
     let picture = view_state.gallery.current_picture();
     view_state.gallery.current_picture().file_name();
     let folder = directory_display(view_state);
@@ -183,6 +191,6 @@ pub fn title_display(view_state: &ViewState) -> String {
     let size = size_display(view_state);
     let view = view_mode_display(view_state);
     format!(
-        "{folder} #{position} {page} {sel_count} {order}                     {cover} {name} {label} {rank} {category} {tags} {date} {size} {view}{small} "
+        "{covers_only} {folder} #{position} {page} {sel_count} {order}                     {cover} {name} {label} {rank} {category} {tags} {date} {size} {view}{small} "
     )
 }

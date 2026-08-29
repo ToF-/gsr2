@@ -25,7 +25,6 @@ use crate::gui::view_state::navigator::Navigator;
 use crate::model::catalog::Catalog;
 use crate::model::finder::Predicate;
 use crate::model::order::Order;
-use crate::model::picture::Picture;
 use crate::model::repository::Repository;
 use crate::model::shared::Shared;
 use crate::model::view_option::ViewOption;
@@ -36,7 +35,6 @@ use gtk::prelude::*;
 use gtk::subclass::prelude::ObjectSubclassIsExt;
 use std::cell::RefCell;
 use std::rc::Rc;
-use std::sync::Arc;
 
 pub const LEFT_PANE: usize = 0;
 pub const RIGHT_PANE: usize = 1;
@@ -252,6 +250,7 @@ impl GsrApplicationWindow {
             let initial_command_line_arguments = shared_command_line_arguments.borrow().clone();
             let command_line_arguments = CommandLineArguments {
                 cover: covers_only_opt.unwrap_or_default(),
+                directory: sub_directory,
                 ..initial_command_line_arguments
             };
             let configuration = CONFIGURATION.get().expect("configuration not set");
@@ -609,13 +608,16 @@ impl GsrApplicationWindow {
     }
 
     fn goto_directory(&self) {
-        let current_picture = {
+        let (current_picture, covers_only) = {
             let shared_view_state = self.shared_view_state();
             let view_state = shared_view_state.borrow();
-            view_state.gallery.current_picture()
+            (view_state.gallery.current_picture(),
+            view_state.settings.covers_only())
         };
         let parent_directory_opt = parent_directory(&current_picture.file_path());
-        if current_picture.is_cover() && parent_directory_opt.clone().is_some() {
+        if covers_only
+        && current_picture.is_cover()
+        && parent_directory_opt.clone().is_some() {
             self.retrieve_from_repository(None, parent_directory_opt.clone(), None);
             {
                 let shared_view_state = self.shared_view_state();
@@ -623,6 +625,7 @@ impl GsrApplicationWindow {
                 view_state
                     .gallery
                     .set_sub_folder(parent_directory_opt.clone());
+                view_state.settings.toggle_covers_only();
             }
             self.refresh_view();
         }
@@ -635,11 +638,12 @@ impl GsrApplicationWindow {
             view_state.gallery.sub_folder()
         };
         if sub_folder.is_some() {
-            self.retrieve_from_repository(None, None, None);
+            self.retrieve_from_repository(Some(true), None, None);
             {
                 let shared_view_state = self.shared_view_state();
                 let mut view_state = shared_view_state.borrow_mut();
                 view_state.gallery.set_sub_folder(None);
+                view_state.settings.toggle_covers_only();
             }
             self.refresh_view();
         }
@@ -749,12 +753,14 @@ impl GsrApplicationWindow {
     }
 
     fn toggle_view_covers(&self) {
-        let gallery_has_covers = {
+        let (gallery_has_covers, sub_folder) = {
             let shared_view_state = self.shared_view_state();
             let view_state = shared_view_state.borrow();
-            view_state.gallery.has_covers()
+            (view_state.gallery.has_covers(),
+            view_state.gallery.sub_folder())
         };
-        if gallery_has_covers {
+        if gallery_has_covers 
+        && sub_folder.is_none() {
             let covers_only = {
                 let shared_view_state = self.shared_view_state();
                 let mut view_state = shared_view_state.borrow_mut();
