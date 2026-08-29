@@ -465,6 +465,7 @@ impl GsrApplicationWindow {
                         }
                         Control::CancelRange => this.cancel_range(),
                         Control::Quit => this.action_quit(),
+                        Control::GotoDirectory => this.goto_directory(),
                         Control::RepeatRange => this.repeat_range(),
                         Control::SetOrder => this.set_order(),
                         Control::SetView => this.set_view(),
@@ -597,6 +598,14 @@ impl GsrApplicationWindow {
         }
     }
 
+    fn goto_directory(&self) {
+        let current_picture = {
+            let shared_view_state = self.shared_view_state();
+            let view_state = shared_view_state.borrow();
+            view_state.gallery.current_picture()
+        };
+        dbg!(current_picture.is_cover());
+    }
     fn repeat_range(&self) {
         {
             let shared_view_state = self.shared_view_state();

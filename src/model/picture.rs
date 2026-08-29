@@ -108,6 +108,15 @@ impl Picture {
             .unwrap_or_default()
     }
 
+    pub fn is_cover(&self) -> bool {
+        match self.image_data
+            .as_ref()
+            .and_then(|d| d.cover()) {
+                None => false,
+                Some(0) => false,
+                Some(_) => true,
+            }
+    }
     pub fn palette(&self) -> Option<Palette> {
         self.image_data
             .as_ref()
