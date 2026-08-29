@@ -742,11 +742,11 @@ impl Controller {
     }
 
     fn move_next(&mut self) {
-                if self.state().search_in_progress() {
-                    self.find_next()
-                } else {
-                    self.move_towards(Direction::NextPage)
-                };
+        if self.state().search_in_progress() {
+            self.find_next()
+        } else {
+            self.move_towards(Direction::NextPage)
+        };
     }
     fn move_towards_index(&mut self, index: usize) {
         let direction = Direction::Index { value: index };

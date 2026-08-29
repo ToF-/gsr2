@@ -1,7 +1,7 @@
-use std::collections::HashMap;
 use crate::cli::args::Args;
 use crate::env::default_values::{FOCUS_SYMBOL_1, FOCUS_SYMBOL_2};
 use crate::gui::mode::Mode;
+use std::collections::HashMap;
 
 #[derive(Clone, Debug)]
 pub struct State {

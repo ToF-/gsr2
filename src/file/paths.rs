@@ -1,4 +1,5 @@
 use crate::env::configuration::CONFIGURATION;
+use crate::env::default_values::BASED_PATH_SYMBOL;
 use crate::env::default_values::GARBAGE;
 use crate::env::default_values::THUMB_SUFFIX;
 use crate::env::default_values::VALID_EXTENSIONS;
@@ -176,6 +177,21 @@ pub fn thumbnail_names_from(file_name: &str) -> Vec<String> {
     ]
 }
 
+pub fn based_path(source: &str) -> String {
+    let mut chars = source.chars();
+    let ch_opt = chars.next();
+    match ch_opt {
+        None => source.to_string(),
+        Some(ch) if ch != BASED_PATH_SYMBOL => source.to_string(),
+        _ => {
+            let sub_directory: String = chars.collect();
+            let configuration = CONFIGURATION.get();
+            let base = Path::new(&configuration.unwrap().base_dir);
+            let path = base.join(sub_directory);
+            path.to_str().unwrap().to_string()
+        }
+    }
+}
 pub fn file_path_as_stored(source: &str) -> String {
     let base = base_directory();
     let home = home_directory();

@@ -1,3 +1,4 @@
+use crate::file::paths::based_path;
 use crate::file::paths::parent_directory;
 use crate::file::paths::{file_exists, file_path_as_retrieved, file_path_as_stored};
 use crate::model::catalog::Catalog;
@@ -238,7 +239,7 @@ impl Database {
         connection.query_one(
             "SELECT                     \n\
              FilePath                   \n\
-             FROM Picture               \n\
+            FROM Picture               \n\
              WHERE FilePath = ?1;", // ""
             params![&file_path_as_stored(file_path)],
             |row| row.get(0),
@@ -255,7 +256,7 @@ impl Database {
             Self::SELECT_STAR_FROM_PICTURE,
             if cover { "Cover = true" } else { "true" },
             if let Some(parent) = parent_opt {
-                Self::select_parent_dir(parent)
+                Self::select_parent_dir(&parent)
             } else {
                 "true".to_string()
             }
@@ -426,8 +427,9 @@ impl Database {
              FROM Picture              \n"; // "
 
     // select * from picture where concat(substring(filepath,1,23), substring(filepath,24)) = filepath ;
-    fn select_parent_dir(parent_dir: String) -> String {
-        let parent = file_path_as_stored(&parent_dir);
+    fn select_parent_dir(parent_dir: &str) -> String {
+        let parent = file_path_as_stored(&based_path(parent_dir));
+
         let file_name_start = parent.len() + 2; // to account for /
         format!(
             "FilePath like '{}%' AND Instr(Substring(FilePath, {}), '/') = 0",

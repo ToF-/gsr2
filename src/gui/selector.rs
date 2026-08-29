@@ -64,7 +64,7 @@ impl Selector {
     pub fn set_selected(&mut self, selected: &str) {
         self.selected = selected.to_string()
     }
-    
+
     pub fn prev_selected(&self) -> String {
         self.prev_selected.clone()
     }
