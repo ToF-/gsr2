@@ -72,6 +72,10 @@ impl Gallery {
         self.sub_folder.clone()
     }
 
+    pub fn set_sub_folder(&mut self, sub_folder: Option<String>) {
+        self.sub_folder = sub_folder
+    }
+
     pub fn pictures(&self) -> &Vec<Picture> {
         &self.pictures
     }

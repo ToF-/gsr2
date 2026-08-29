@@ -1,3 +1,7 @@
+use crate::file::paths::parent_directory;
+use crate::cli::command_line_arguments::CommandLineArguments;
+use crate::model::repository::Repository;
+use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
 use crate::env::default_values::FRAME_WINDOW_NAME;
 use crate::env::default_values::FULL_OPACITY;
@@ -236,15 +240,18 @@ impl GsrApplicationWindow {
         self.refresh_view()
     }
 
-    fn retrieve_from_repository(&self, predicate_opt: Option<Predicate>) {
+    fn retrieve_from_repository(&self, covers_only_opt: Option<bool>, sub_directory: Option<String>, predicate_opt: Option<Predicate>) {
         {
-            // Alternative: Repository::initialize_from_args with a copy of args
-            // this way we don't need to store a shared_repository_opt, just make one on the go
-            let shared_repository_opt = self.gsr_application().shared_repository_opt();
-            let repository = shared_repository_opt
-                .borrow()
-                .clone()
-                .expect("repository not set");
+            let shared_command_line_arguments = self.gsr_application().shared_command_line_arguments();
+            let initial_command_line_arguments = shared_command_line_arguments.borrow().clone();
+            let command_line_arguments = CommandLineArguments {
+                cover: covers_only_opt.unwrap_or_default(),
+                ..initial_command_line_arguments
+            };
+            let configuration = CONFIGURATION.get()
+                .expect("configuration not set");
+
+            let repository = Repository::new(configuration.clone(), command_line_arguments.clone(), false);
 
             match repository.retrieve_pictures(predicate_opt) {
                 Err(_) => panic!("can't retrieve from repository"),
@@ -599,7 +606,16 @@ impl GsrApplicationWindow {
             let view_state = shared_view_state.borrow();
             view_state.gallery.current_picture()
         };
-        dbg!(current_picture.is_cover());
+        let parent_directory_opt = parent_directory(&current_picture.file_path());
+        if current_picture.is_cover() 
+            && parent_directory_opt.clone().is_some() {
+            self.retrieve_from_repository(None, parent_directory_opt.clone(), None);
+            {
+                let shared_view_state = self.shared_view_state();
+                let mut view_state = shared_view_state.borrow_mut();
+                view_state.gallery.set_sub_folder(parent_directory_opt.clone());
+            }
+        }
     }
     fn repeat_range(&self) {
         {
@@ -716,14 +732,7 @@ impl GsrApplicationWindow {
                 let mut view_state = shared_view_state.borrow_mut();
                 view_state.settings.toggle_covers_only()
             };
-            let predicate_opt: Option<Predicate> = if covers_only {
-                Some(Predicate {
-                    function: Arc::new(move |picture: &Picture| picture.cover().is_some()),
-                })
-            } else {
-                None
-            };
-            self.retrieve_from_repository(predicate_opt);
+            self.retrieve_from_repository(Some(covers_only), None, None);
         }
     }
 
