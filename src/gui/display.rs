@@ -2,6 +2,7 @@ use crate::env::default_values::{
     COVER_SYMBOL, EXPAND_ON_SYMBOL, FULL_SIZE_ON_SYMBOL, ORDER_SYMBOL, PICTURE_SIZE_THRESHOLD,
     SMALL_PICTURE_SYMBOL,
 };
+use crate::file::paths::file_name_from;
 use crate::gui::view_mode::ViewMode;
 use crate::gui::view_state::ViewState;
 use crate::model::cover::Cover;
@@ -51,7 +52,6 @@ fn page_display(view_state: &ViewState, position: usize) -> String {
 
 fn name_display(view_state: &ViewState, picture: &Picture) -> String {
     if view_state.settings.file_path_on() {
-        dbg!();
         picture.file_path()
     } else {
         picture.file_name()
@@ -80,7 +80,7 @@ pub fn picture_label_display(
 
 fn directory_display(view_state: &ViewState) -> String {
     if let Some(folder) = view_state.gallery.sub_folder() {
-        folder
+        file_name_from(&folder)
     } else {
         String::from("")
     }

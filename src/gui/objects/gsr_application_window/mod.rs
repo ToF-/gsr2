@@ -1,12 +1,11 @@
-use crate::file::paths::parent_directory;
 use crate::cli::command_line_arguments::CommandLineArguments;
-use crate::model::repository::Repository;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
 use crate::env::default_values::FRAME_WINDOW_NAME;
 use crate::env::default_values::FULL_OPACITY;
 use crate::env::default_values::GRID_WINDOW_NAME;
 use crate::env::default_values::HALF_OPACITY;
+use crate::file::paths::parent_directory;
 use crate::gui::action::Action;
 use crate::gui::action::gio_action::GioAction;
 use crate::gui::control::Control;
@@ -27,6 +26,7 @@ use crate::model::catalog::Catalog;
 use crate::model::finder::Predicate;
 use crate::model::order::Order;
 use crate::model::picture::Picture;
+use crate::model::repository::Repository;
 use crate::model::shared::Shared;
 use crate::model::view_option::ViewOption;
 use gtk::glib;
@@ -240,18 +240,24 @@ impl GsrApplicationWindow {
         self.refresh_view()
     }
 
-    fn retrieve_from_repository(&self, covers_only_opt: Option<bool>, sub_directory: Option<String>, predicate_opt: Option<Predicate>) {
+    fn retrieve_from_repository(
+        &self,
+        covers_only_opt: Option<bool>,
+        sub_directory: Option<String>,
+        predicate_opt: Option<Predicate>,
+    ) {
         {
-            let shared_command_line_arguments = self.gsr_application().shared_command_line_arguments();
+            let shared_command_line_arguments =
+                self.gsr_application().shared_command_line_arguments();
             let initial_command_line_arguments = shared_command_line_arguments.borrow().clone();
             let command_line_arguments = CommandLineArguments {
                 cover: covers_only_opt.unwrap_or_default(),
                 ..initial_command_line_arguments
             };
-            let configuration = CONFIGURATION.get()
-                .expect("configuration not set");
+            let configuration = CONFIGURATION.get().expect("configuration not set");
 
-            let repository = Repository::new(configuration.clone(), command_line_arguments.clone(), false);
+            let repository =
+                Repository::new(configuration.clone(), command_line_arguments.clone(), false);
 
             match repository.retrieve_pictures(predicate_opt) {
                 Err(_) => panic!("can't retrieve from repository"),
@@ -267,8 +273,8 @@ impl GsrApplicationWindow {
                 }
             }
         }
-        self.refresh_view();
     }
+
     fn refresh_view(&self) {
         let pictures_per_row = {
             let shared_view_state = self.shared_view_state();
@@ -292,7 +298,7 @@ impl GsrApplicationWindow {
         } else {
             self.frame().set_current_picture();
         }
-        self.refresh_title()
+        self.refresh_title();
     }
 
     fn refresh_title(&self) {
@@ -465,6 +471,8 @@ impl GsrApplicationWindow {
                                 this.grid_view_move(&Direction::Last)
                             }
                         }
+                        Control::ToggleCoverSelection => this.toggle_view_covers(),
+                        Control::BackFromDirectory => this.back_from_directory(),
                         Control::CancelRange => this.cancel_range(),
                         Control::Quit => this.action_quit(),
                         Control::GotoDirectory => this.goto_directory(),
@@ -607,16 +615,36 @@ impl GsrApplicationWindow {
             view_state.gallery.current_picture()
         };
         let parent_directory_opt = parent_directory(&current_picture.file_path());
-        if current_picture.is_cover() 
-            && parent_directory_opt.clone().is_some() {
+        if current_picture.is_cover() && parent_directory_opt.clone().is_some() {
             self.retrieve_from_repository(None, parent_directory_opt.clone(), None);
             {
                 let shared_view_state = self.shared_view_state();
                 let mut view_state = shared_view_state.borrow_mut();
-                view_state.gallery.set_sub_folder(parent_directory_opt.clone());
+                view_state
+                    .gallery
+                    .set_sub_folder(parent_directory_opt.clone());
             }
+            self.refresh_view();
         }
     }
+
+    fn back_from_directory(&self) {
+        let sub_folder = {
+            let shared_view_state = self.shared_view_state();
+            let view_state = shared_view_state.borrow();
+            view_state.gallery.sub_folder()
+        };
+        if sub_folder.is_some() {
+            self.retrieve_from_repository(None, None, None);
+            {
+                let shared_view_state = self.shared_view_state();
+                let mut view_state = shared_view_state.borrow_mut();
+                view_state.gallery.set_sub_folder(None);
+            }
+            self.refresh_view();
+        }
+    }
+
     fn repeat_range(&self) {
         {
             let shared_view_state = self.shared_view_state();
@@ -733,6 +761,7 @@ impl GsrApplicationWindow {
                 view_state.settings.toggle_covers_only()
             };
             self.retrieve_from_repository(Some(covers_only), None, None);
+            self.refresh_view()
         }
     }
 

@@ -63,9 +63,7 @@ impl Gallery {
     }
 
     pub fn has_covers(&self) -> bool {
-        self.pictures
-            .iter()
-            .any(|picture| picture.is_cover())
+        self.pictures.iter().any(|picture| picture.is_cover())
     }
 
     pub fn sub_folder(&self) -> Option<String> {
