@@ -236,21 +236,16 @@ impl GsrApplicationWindow {
         self.refresh_view()
     }
 
-    fn retrieve_from_repository(&self, covers_only: bool) {
+    fn retrieve_from_repository(&self, predicate_opt: Option<Predicate>) {
         {
+            // Alternative: Repository::initialize_from_args with a copy of args
+            // this way we don't need to store a shared_repository_opt, just make one on the go
             let shared_repository_opt = self.gsr_application().shared_repository_opt();
             let repository = shared_repository_opt
                 .borrow()
                 .clone()
                 .expect("repository not set");
 
-            let predicate_opt: Option<Predicate> = if covers_only {
-                Some(Predicate {
-                    function: Arc::new(move |picture: &Picture| picture.cover().is_some()),
-                })
-            } else {
-                None
-            };
             match repository.retrieve_pictures(predicate_opt) {
                 Err(_) => panic!("can't retrieve from repository"),
                 Ok(_) => {
@@ -721,7 +716,14 @@ impl GsrApplicationWindow {
                 let mut view_state = shared_view_state.borrow_mut();
                 view_state.settings.toggle_covers_only()
             };
-            self.retrieve_from_repository(covers_only);
+            let predicate_opt: Option<Predicate> = if covers_only {
+                Some(Predicate {
+                    function: Arc::new(move |picture: &Picture| picture.cover().is_some()),
+                })
+            } else {
+                None
+            };
+            self.retrieve_from_repository(predicate_opt);
         }
     }
 
