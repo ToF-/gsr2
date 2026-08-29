@@ -59,6 +59,7 @@ pub const PICTURE_SIZE_THRESHOLD: FileSize = 20000;
 pub const THUMB_SUFFIX: &str = "THUMB";
 pub const VALID_EXTENSIONS: [&str; 6] = ["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"];
 pub const GARBAGE: &str = "!:";
+pub const BASED_PATH_SYMBOL: char = '@';
 pub const APPLICATION_ID: &str = "org.example.gsr";
 pub const CONFIG_FILE_DEFAULT: &str = ".gsr2.toml";
 pub const CONFIG_FILE_VARIABLE: &str = "GSRCFG";
