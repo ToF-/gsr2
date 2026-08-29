@@ -618,10 +618,17 @@ impl GsrApplicationWindow {
         if covers_only
         && current_picture.is_cover()
         && parent_directory_opt.clone().is_some() {
+            let location = {
+                let shared_view_state = self.shared_view_state();
+                let view_state = shared_view_state.borrow();
+                (view_state.gallery.sub_folder(),
+                view_state.navigator.position())
+            };
             self.retrieve_from_repository(None, parent_directory_opt.clone(), None);
             {
                 let shared_view_state = self.shared_view_state();
                 let mut view_state = shared_view_state.borrow_mut();
+                view_state.positions.push(location);
                 view_state
                     .gallery
                     .set_sub_folder(parent_directory_opt.clone());
@@ -632,18 +639,26 @@ impl GsrApplicationWindow {
     }
 
     fn back_from_directory(&self) {
-        let sub_folder = {
+        let nb_positions = {
             let shared_view_state = self.shared_view_state();
             let view_state = shared_view_state.borrow();
-            view_state.gallery.sub_folder()
+            view_state.positions.len()
         };
-        if sub_folder.is_some() {
+        if nb_positions > 0 {
             self.retrieve_from_repository(Some(true), None, None);
             {
                 let shared_view_state = self.shared_view_state();
                 let mut view_state = shared_view_state.borrow_mut();
-                view_state.gallery.set_sub_folder(None);
-                view_state.settings.toggle_covers_only();
+                if let Some((sub_folder_opt, position)) = view_state.positions.pop() {
+                    view_state.gallery.set_sub_folder(sub_folder_opt);
+                    view_state.settings.toggle_covers_only();
+                    if view_state.navigator.can_move(&Direction::Index { value: position }) {
+                        view_state.navigator.move_towards(&Direction::Index { value: position })
+                    } else {
+                        view_state.navigator.move_towards(&Direction::First)
+                    }
+                    view_state.gallery.set_current_picture_index(position);
+                }
             }
             self.refresh_view();
         }
