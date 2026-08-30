@@ -831,7 +831,7 @@ mod tests {
             .expect("can't borrow repository gallery");
         assert_eq!(1, gallery.len()); // only 1 pic has label "dot"
         args.label = None;
-        args.cover = true;
+        args.covers = true;
         let mut repository = Repository::new(my_cfg(), args.clone(), false);
         assert!(repository.retrieve_pictures(None).is_ok());
         let gallery_rc = repository.gallery_rc();
