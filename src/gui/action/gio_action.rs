@@ -106,9 +106,12 @@ impl From<Action> for GioAction {
             Action::Unlabel => None,
             Action::PickCatalogChange => None,
             other => {
-                eprintln!("GioAction::From({:?}) match parameter not yet implemented", other);
+                eprintln!(
+                    "GioAction::From({:?}) match parameter not yet implemented",
+                    other
+                );
                 None
-            },
+            }
         };
         Self {
             name: gio_action_ty.name(),

@@ -147,34 +147,33 @@ impl MainController {
             activate.clone(),
         ));
         entries.push(Self::action_entry(
-                GioActionType::from(Action::EnterRename),
-                activate.clone(),
+            GioActionType::from(Action::EnterRename),
+            activate.clone(),
         ));
         entries.push(Self::action_entry(
-                GioActionType::from(Action::PickCatalogChange),
-                activate.clone(),
+            GioActionType::from(Action::PickCatalogChange),
+            activate.clone(),
         ));
         entries.push(Self::action_entry(
-                GioActionType::from(Action::EnterCategory),
-                activate.clone(),
+            GioActionType::from(Action::EnterCategory),
+            activate.clone(),
         ));
         entries.push(Self::action_entry(
-                GioActionType::from(Action::EnterRemoveTag),
-                activate.clone(),
+            GioActionType::from(Action::EnterRemoveTag),
+            activate.clone(),
         ));
         entries.push(Self::action_entry(
-                GioActionType::from(Action::EnterAddTag),
-                activate.clone(),
+            GioActionType::from(Action::EnterAddTag),
+            activate.clone(),
         ));
         entries.push(Self::action_entry(
-                GioActionType::from(Action::Unlabel),
-                activate.clone(),
+            GioActionType::from(Action::Unlabel),
+            activate.clone(),
         ));
         entries.push(Self::action_entry(
-                GioActionType::from(Action::ToggleCover),
-                activate.clone(),
+            GioActionType::from(Action::ToggleCover),
+            activate.clone(),
         ));
-
 
         self.gio_action_group.add_action_entries(entries);
     }

@@ -362,11 +362,9 @@ impl Repository {
     pub fn set_picture_at(&self, position: usize, picture: &Picture) {
         if let Ok(mut gallery) = self.gallery_rc().try_borrow_mut() {
             gallery.set_picture(position, picture.clone());
-            if self.command_line_arguments.on_database() {
-                match self.update_picture(picture) {
-                    Ok(_) => {}
-                    Err(e) => println!("{}", e),
-                }
+            match self.update_picture(picture) {
+                Ok(_) => {}
+                Err(e) => println!("{}", e),
             }
         } else {
             panic!("can't borrow gallery")
@@ -599,9 +597,13 @@ impl Repository {
     }
 
     pub fn update_picture(&self, picture: &Picture) -> IOResult<()> {
-        match self.database.update_picture(picture) {
-            Ok(_) => Ok(()),
-            Err(e) => Err(e),
+        if self.command_line_arguments.on_database() {
+            match self.database.update_picture(picture) {
+                Ok(_) => Ok(()),
+                Err(e) => Err(e),
+            }
+        } else {
+            Err(IOError::other("can't modify picture: not on  database"))
         }
     }
 

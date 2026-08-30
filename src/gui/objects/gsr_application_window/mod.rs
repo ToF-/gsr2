@@ -1,4 +1,3 @@
-use crate::gui::key_input::menu::change_menu;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
@@ -13,6 +12,7 @@ use crate::gui::control::Control;
 use crate::gui::control::default_controls;
 use crate::gui::direction::Direction;
 use crate::gui::display::title_display;
+use crate::gui::key_input::menu::change_menu;
 use crate::gui::key_input::menu::order_menu;
 use crate::gui::key_input::menu::view_menu;
 use crate::gui::mode::Mode;
@@ -585,21 +585,11 @@ impl GsrApplicationWindow {
             let shared_repository_opt = self.gsr_application().shared_repository_opt();
             if let Some(mut repository) = shared_repository_opt.borrow_mut().as_ref() {
                 let counts = repository.directory_count_at_index(position);
-                let mut picture = repository.picture_at(position);
+                let mut picture = view_state.gallery.current_picture().clone();
                 picture.toggle_cover(counts.0);
-                repository.set_picture_at(position, &picture);
-                let repository_gallery = repository.gallery_rc().borrow_mut();
-                view_state.gallery = repository_gallery.clone();
-                view_state.navigator = Navigator::new(
-                    repository_gallery.len(),
-                    view_state.settings.pictures_per_row() as usize,
-                );
+                repository.update_picture(&picture);
+                view_state.gallery.set_picture(position, picture);
             }
-        }
-        {
-            let shared_view_state = self.shared_view_state();
-            let mut view_state = shared_view_state.borrow_mut();
-            view_state.navigator.set_page_changed();
         }
         self.refresh_view();
     }
