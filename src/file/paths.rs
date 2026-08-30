@@ -1,5 +1,5 @@
-use crate::env::default_values::BASED_PATH_SYMBOL;
 use crate::env::configuration::CONFIGURATION;
+use crate::env::default_values::BASED_PATH_SYMBOL;
 use crate::env::default_values::GARBAGE;
 use crate::env::default_values::THUMB_SUFFIX;
 use crate::env::default_values::VALID_EXTENSIONS;

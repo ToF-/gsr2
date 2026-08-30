@@ -186,7 +186,10 @@ pub fn default_controls() -> Controls {
             (String::from("percent"), Mode::View),
             Control::ToggleFullSize,
         ),
-        ((String::from("C"), Mode::View), Control::ToggleCoverSelection),
+        (
+            (String::from("C"), Mode::View),
+            Control::ToggleCoverSelection,
+        ),
         ((String::from("P"), Mode::View), Control::TogglePalette),
         ((String::from("B"), Mode::View), Control::ToggleBlinking),
         ((String::from("R"), Mode::View), Control::MoveRandom),

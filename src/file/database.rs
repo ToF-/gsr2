@@ -1,6 +1,6 @@
-use crate::file::paths::based_path;
 use crate::cli::status::Status;
 use crate::env::configuration::Configuration;
+use crate::file::paths::based_path;
 use crate::file::paths::parent_directory;
 use crate::file::paths::{file_exists, file_path_as_retrieved, file_path_as_stored};
 use crate::model::catalog::Catalog;
@@ -278,7 +278,6 @@ impl Database {
                 "true".to_string()
             }
         );
-        println!("{}", &sql_query);
         let connection = self.connection_rc.borrow();
         connection.prepare(&sql_query).and_then(|mut statement| {
             let mut map: ImageDataMap = HashMap::new();
@@ -447,13 +446,7 @@ impl Database {
     // select * from picture where concat(substring(filepath,1,23), substring(filepath,24)) = filepath ;
     fn select_parent_dir(parent_dir: &str) -> String {
         let parent = file_path_as_stored(&based_path(parent_dir));
-        dbg!(&parent);
-
-        let file_name_start = parent.len() + 2; // to account for /
-        format!(
-            "FilePath like '{}%' ",
-            parent, 
-        )
+        format!("FilePath like '{}%' ", parent,)
     }
 
     pub fn retrieve_all_pictures(

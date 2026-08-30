@@ -1,3 +1,4 @@
+use crate::env::configuration::CONFIGURATION;
 use crate::cli::command::Command;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::Configuration;
@@ -740,7 +741,9 @@ mod tests {
     fn given_a_db_once_initialized_it_provides_the_set_of_all_labels() {
         let args = my_args().expect("can't access to test args");
         let mut repository = Repository::new(my_cfg(), args, false);
-        repository.retrieve_pictures(None).expect("can't initialize");
+        repository
+            .retrieve_pictures(None)
+            .expect("can't initialize");
         assert!(repository.all_labels().contains("a_rather_long_tag"));
         assert!(repository.all_labels().contains("white_square"));
     }
@@ -751,7 +754,9 @@ mod tests {
         let args = my_args().expect("can't access to test args");
         let cfg = my_cfg();
         let mut repository = Repository::new(my_cfg(), args, false);
-        repository.retrieve_pictures(None).expect("can't initialize");
+        repository
+            .retrieve_pictures(None)
+            .expect("can't initialize");
         assert!(!repository.all_labels().contains("a-new-label"));
         repository.add_label("a-new-label");
         assert!(repository.all_labels().contains("a-new-label"));

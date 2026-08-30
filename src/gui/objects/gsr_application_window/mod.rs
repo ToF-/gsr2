@@ -611,19 +611,21 @@ impl GsrApplicationWindow {
         let (current_picture, covers_only) = {
             let shared_view_state = self.shared_view_state();
             let view_state = shared_view_state.borrow();
-            (view_state.gallery.current_picture(),
-            view_state.settings.covers_only())
+            (
+                view_state.gallery.current_picture(),
+                view_state.settings.covers_only(),
+            )
         };
         let parent_directory_opt = parent_directory(&current_picture.file_path());
         dbg!(&covers_only);
-        if covers_only
-        && current_picture.is_cover()
-        && parent_directory_opt.clone().is_some() {
+        if covers_only && current_picture.is_cover() && parent_directory_opt.clone().is_some() {
             let location = {
                 let shared_view_state = self.shared_view_state();
                 let view_state = shared_view_state.borrow();
-                (view_state.gallery.sub_folder(),
-                view_state.navigator.position())
+                (
+                    view_state.gallery.sub_folder(),
+                    view_state.navigator.position(),
+                )
             };
             self.retrieve_from_repository(None, parent_directory_opt.clone(), None);
             {
@@ -653,8 +655,13 @@ impl GsrApplicationWindow {
                 if let Some((sub_folder_opt, position)) = view_state.positions.pop() {
                     view_state.gallery.set_sub_folder(sub_folder_opt);
                     view_state.settings.toggle_covers_only();
-                    if view_state.navigator.can_move(&Direction::Index { value: position }) {
-                        view_state.navigator.move_towards(&Direction::Index { value: position })
+                    if view_state
+                        .navigator
+                        .can_move(&Direction::Index { value: position })
+                    {
+                        view_state
+                            .navigator
+                            .move_towards(&Direction::Index { value: position })
                     } else {
                         view_state.navigator.move_towards(&Direction::First)
                     }
@@ -768,15 +775,30 @@ impl GsrApplicationWindow {
         self.refresh_view()
     }
 
+    fn set_view_covers(&self) {
+        let (gallery_has_covers, sub_folder) = {
+            let shared_view_state = self.shared_view_state();
+            let view_state = shared_view_state.borrow();
+            (
+                view_state.gallery.has_covers(),
+                view_state.gallery.sub_folder(),
+            )
+        };
+        if gallery_has_covers && sub_folder.is_none() {
+            self.retrieve_from_repository(Some(true), None, None);
+            self.refresh_view()
+        }
+    }
     fn toggle_view_covers(&self) {
         let (gallery_has_covers, sub_folder) = {
             let shared_view_state = self.shared_view_state();
             let view_state = shared_view_state.borrow();
-            (view_state.gallery.has_covers(),
-            view_state.gallery.sub_folder())
+            (
+                view_state.gallery.has_covers(),
+                view_state.gallery.sub_folder(),
+            )
         };
-        if gallery_has_covers 
-        && sub_folder.is_none() {
+        if gallery_has_covers && sub_folder.is_none() {
             let covers_only = {
                 let shared_view_state = self.shared_view_state();
                 let mut view_state = shared_view_state.borrow_mut();
