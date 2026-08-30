@@ -583,11 +583,14 @@ impl GsrApplicationWindow {
             let mut view_state = shared_view_state.borrow_mut();
             let position = view_state.gallery.current_picture_index();
             let shared_repository_opt = self.gsr_application().shared_repository_opt();
-            if let Some(mut repository) = shared_repository_opt.borrow_mut().as_ref() {
+            if let Some(repository) = shared_repository_opt.borrow().as_ref() {
                 let counts = repository.directory_count_at_index(position);
                 let mut picture = view_state.gallery.current_picture().clone();
                 picture.toggle_cover(counts.0);
-                repository.update_picture(&picture);
+                match repository.update_picture(&picture) {
+                    Ok(_) => {},
+                    Err(e) => eprintln!("{}", e),
+                }
                 view_state.gallery.set_picture(position, picture);
             }
         }
