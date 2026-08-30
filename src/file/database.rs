@@ -278,6 +278,7 @@ impl Database {
                 "true".to_string()
             }
         );
+        println!("{}", &sql_query);
         let connection = self.connection_rc.borrow();
         connection.prepare(&sql_query).and_then(|mut statement| {
             let mut map: ImageDataMap = HashMap::new();
@@ -446,11 +447,12 @@ impl Database {
     // select * from picture where concat(substring(filepath,1,23), substring(filepath,24)) = filepath ;
     fn select_parent_dir(parent_dir: &str) -> String {
         let parent = file_path_as_stored(&based_path(parent_dir));
+        dbg!(&parent);
 
         let file_name_start = parent.len() + 2; // to account for /
         format!(
-            "FilePath like '{}%' AND Instr(Substring(FilePath, {}), '/') = 0",
-            parent, file_name_start
+            "FilePath like '{}%' ",
+            parent, 
         )
     }
 

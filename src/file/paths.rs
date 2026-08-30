@@ -387,6 +387,16 @@ mod tests {
     fn base_directory_should_be_set_via_config_file() {
         assert!("CONFIG_FILE_NOT_READ".to_string() != base_directory());
     }
+    #[test]
+    fn based_dir_uses_base_dir_symbol_as_a_shortcut() {
+        let dir = "@foo";
+        assert_eq!("/Users/tof/Coding/gsr2/testdata/foo", based_path(dir));
+    }
+    #[test]
+    fn based_dir_as_stored_converts_correctly_base_dir() {
+        let dir = "@foo";
+        assert_eq!("%/foo", file_path_as_stored(&based_path(dir)));
+    }
 }
 
 #[cfg(test)]

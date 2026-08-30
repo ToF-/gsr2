@@ -38,7 +38,7 @@ pub struct CommandLineArguments {
 
     /// display only pictures which are selected as cover
     #[arg(long)]
-    pub cover: bool,
+    pub covers: bool,
 
     /// display all pictures, not only cover pictures
     #[arg(long)]

@@ -52,6 +52,7 @@ impl GsrApplication {
         let mut navigator = Navigator::new(gallery.len(), pictures_per_row as usize);
         let mut view_state = self.view_state.borrow_mut();
         view_state.settings.set_pictures_per_row(pictures_per_row);
+        view_state.settings.set_covers_only(clargs.covers);
         navigator.move_towards(&Direction::Index {
             value: gallery.current_picture_index(),
         });

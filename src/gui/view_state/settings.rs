@@ -58,6 +58,10 @@ impl Settings {
         self.covers_only
     }
 
+    pub fn set_covers_only(&mut self, on: bool) {
+        self.covers_only = on
+    }
+
     pub fn full_size_on(&self) -> bool {
         self.single_view_mode == ViewMode::FullSize
     }

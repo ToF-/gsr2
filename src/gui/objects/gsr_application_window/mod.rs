@@ -249,7 +249,7 @@ impl GsrApplicationWindow {
                 self.gsr_application().shared_command_line_arguments();
             let initial_command_line_arguments = shared_command_line_arguments.borrow().clone();
             let command_line_arguments = CommandLineArguments {
-                cover: covers_only_opt.unwrap_or_default(),
+                covers: covers_only_opt.unwrap_or_default(),
                 directory: sub_directory,
                 ..initial_command_line_arguments
             };
@@ -615,6 +615,7 @@ impl GsrApplicationWindow {
             view_state.settings.covers_only())
         };
         let parent_directory_opt = parent_directory(&current_picture.file_path());
+        dbg!(&covers_only);
         if covers_only
         && current_picture.is_cover()
         && parent_directory_opt.clone().is_some() {
