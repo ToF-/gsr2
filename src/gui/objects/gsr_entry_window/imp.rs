@@ -18,6 +18,7 @@ use gtk::prelude::GtkWindowExt;
 #[allow(deprecated)]
 use gtk::prelude::StyleContextExt;
 use gtk::prelude::WidgetExt;
+use gtk::subclass::prelude::ObjectSubclassIsExt;
 use std::cell::RefCell;
 
 use gtk::prelude::*;
@@ -124,6 +125,9 @@ impl GsrEntryWindow {
                         }
                     }
                 } else {
+                    if let Some(list_tip) = status.candidate_list_tip() {
+                        this.set_prompt_text(&list_tip);
+                    }
                     let new_input = status.input();
                     if new_input != input {
                         this.set_entry_text(&new_input)

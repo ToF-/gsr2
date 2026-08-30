@@ -36,6 +36,18 @@ impl GsrEntryWindow {
         obj
     }
 
+    pub fn set_prompt_text(&self, text: &str) {
+        self.first_child()
+            .expect("child is not set")
+            .downcast::<gtk::Box>()
+            .expect("child is not a Box")
+            .first_child()
+            .expect("box has no prompt")
+            .downcast::<gtk::Label>()
+            .expect("prompt is not a label")
+            .set_label(text);
+    }
+
     pub fn entry_text(&self) -> String {
         self.first_child()
             .expect("child is not set")
