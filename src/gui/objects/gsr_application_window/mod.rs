@@ -12,6 +12,7 @@ use crate::gui::control::Control;
 use crate::gui::control::default_controls;
 use crate::gui::direction::Direction;
 use crate::gui::display::title_display;
+use crate::gui::key_input::entry::label_change_entry;
 use crate::gui::key_input::menu::change_menu;
 use crate::gui::key_input::menu::order_menu;
 use crate::gui::key_input::menu::view_menu;
@@ -511,6 +512,8 @@ impl GsrApplicationWindow {
             Action::Quit => self.action_quit(),
             Action::ApplyOrderSetting(order) => self.action_apply_order_setting(order),
             Action::ApplyViewSetting(view_option) => self.action_apply_view_setting(view_option),
+            Action::EnterLabel => self.action_enter_label(),
+            Action::Label(label) => self.action_label(&label),
             Action::ToggleCover => self.action_toggle_cover(),
             _ => {
                 println!("* * * todo: {:?}", action);
@@ -576,6 +579,53 @@ impl GsrApplicationWindow {
         }
     }
 
+    fn action_enter_label(&self) {
+        self.action_cancel();
+        let tags = {
+            let shared_repository_opt = self.gsr_application().shared_repository_opt();
+            if let Some(repository) = shared_repository_opt.borrow().as_ref() {
+                let _ = repository.retrieve_all_labels();
+                repository.all_labels()
+            } else {
+                panic!("shared repositoty not set");
+            }
+        };
+        let label = {
+            let shared_view_state = self.shared_view_state();
+            let view_state = shared_view_state.borrow();
+            view_state.gallery.current_picture().label()
+        };
+        let gsr_entry_window = GsrEntryWindow::new_with(
+            self,
+            &self.gsr_application().shared_main_controller(),
+            label_change_entry(tags),
+            Some(&label),
+        );
+        gsr_entry_window.present();
+        *self.imp().gsr_entry_window.borrow_mut() = gsr_entry_window;
+    }
+
+    fn action_label(&self, label: &str) {
+        self.action_cancel();
+        self.action_cancel();
+        {
+            let shared_view_state = self.shared_view_state();
+            let mut view_state = shared_view_state.borrow_mut();
+            let position = view_state.gallery.current_picture_index();
+            let mut picture = view_state.gallery.current_picture().clone();
+            picture.set_label(label);
+            let shared_repository_opt = self.gsr_application().shared_repository_opt();
+            if let Some(repository) = shared_repository_opt.borrow().as_ref() {
+                match repository.update_picture(&picture) {
+                    Ok(_) => {}
+                    Err(e) => eprintln!("{}", e),
+                }
+            }
+            view_state.gallery.set_picture(position, picture);
+        }
+        self.refresh_view();
+    }
+
     fn action_toggle_cover(&self) {
         self.action_cancel();
         {
@@ -588,7 +638,7 @@ impl GsrApplicationWindow {
                 let mut picture = view_state.gallery.current_picture().clone();
                 picture.toggle_cover(counts.0);
                 match repository.update_picture(&picture) {
-                    Ok(_) => {},
+                    Ok(_) => {}
                     Err(e) => eprintln!("{}", e),
                 }
                 view_state.gallery.set_picture(position, picture);

@@ -88,7 +88,7 @@ impl Repository {
         }
     }
 
-    fn retrieve_all_labels(&self) -> IOResult<()> {
+    pub fn retrieve_all_labels(&self) -> IOResult<()> {
         match self.tags_rc.try_borrow_mut() {
             Ok(mut tags) => match self.database.retrieve_all_labels() {
                 Ok(labels) => {
