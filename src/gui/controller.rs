@@ -78,9 +78,6 @@ impl Controller {
                 cli.order = Some(Order::Name)
             }
         };
-        if config.cover {
-            cli.cover = !args.all;
-        }
         let mut repository = Repository::new(config.clone(), cli.clone(), false);
         match repository.initialize(None) {
             Ok(_) => {}
@@ -1443,7 +1440,6 @@ impl Controller {
             self.back_from_directory()
         } else {
             self.configuration.current_picture = Some(self.current_picture().file_path());
-            self.configuration.cover = self.args.cover;
             self.configuration.current_pictures_per_row = if self.state.single_view() {
                 Some(1)
             } else {

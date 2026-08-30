@@ -188,6 +188,7 @@ pub fn default_controls() -> Controls {
         ((String::from("R"), Mode::View), Control::MoveRandom),
         ((String::from("X"), Mode::View), Control::DeletePicture),
         ((String::from("S"), Mode::View), Control::ToggleSlideShow),
+        ((String::from("C"), Mode::View), Control::ToggleCoverSelection),
         ((String::from("c"), Mode::View), Control::EnterChange),
         ((String::from("Q"), Mode::View), Control::Quit),
         ((String::from("T"), Mode::View), Control::ToggleThumbView),
