@@ -2,26 +2,28 @@
 ## Gallery Show in Rust
 
 ## Todo
-- [ ] design the view state as a compound struct:
-    - [ ] settings ( palette, full_size, extend, pictures per row etc)
-    - [ ] navigator
-    - [ ] selection range
-    - [ ] gallery
+- [ ] when setting a picture's cover property on, any other picture in the same folder gets its cover property off
+- [ ] after collecting pictures in a folder containing no cover pictures, the first picture in the folder gets to be the cover picture
+- [X] design the view state as a compound struct:
+    - [X] settings ( palette, full_size, extend, pictures per row etc)
+    - [X] navigator
+    - [X] selection range
+    - [X] gallery
 - [X] study the problem of color accuracy with pictures according to color state in gtk
 - [X] entry_view is launched for a given Action, and close iby escaping (cancelling) or by confirming, which activates a new action. 
-- [ ] have a correspondance Action -> input -> Action, e.g. EnterChange -> "Tag" ->  EnterAddTag, and e.g. EnterAddTag -> "foo,bar" -> AddTag("foo,bar")
+- [X] have a correspondance Action -> input -> Action, e.g. EnterChange -> "Tag" ->  EnterAddTag, and e.g. EnterAddTag -> "foo,bar" -> AddTag("foo,bar")
 - [X] explore subclassing window to to make the main_window *have* the controller instead of the controller having the main_window 
 - [X] make helpers to convert any action into a gio_simple_action with the parameters correctly encoded and decode back any gio_simple_action into original action
 - [X] make a correspondance function mapping a key name in a context (mode, entry kind) to a main-controller.action
-- [ ] make the Controller a glib Object with trait ActionMap so that it will itself receive the action entries signals
-    - [ ] requires a mod where Controller is wrapped as ObjectSubClass with imp 
-    - [ ] and requires a where Controller has its current logic
-    - [ ] imp as Default trait,
-    - [ ] imp ObjectSubclass trait where const NAME and inheritance is set
-    - [ ] ObjectImpl trait where  SIGNALS is defined and build with signals it can receive
-    - [ ] is initialize a fill a list of ActionEntry for all the actions it can process
-- [ ] have the legacy Controller define actions through its MainController, with activates referencing controller_rc, then each activate closure can borrow_mut the controller and invoke the legacy Controller action
-- [ ] have all Action enum values get a default display for transmission through gtk action activation
+- [X] make the Controller a glib Object with trait ActionMap so that it will itself receive the action entries signals
+    - [X] requires a mod where Controller is wrapped as ObjectSubClass with imp 
+    - [X] and requires a where Controller has its current logic
+    - [X] imp as Default trait,
+    - [X] imp ObjectSubclass trait where const NAME and inheritance is set
+    - [X] ObjectImpl trait where  SIGNALS is defined and build with signals it can receive
+    - [X] is initialize a fill a list of ActionEntry for all the actions it can process
+- [X] have the legacy Controller define actions through its MainController, with activates referencing controller_rc, then each activate closure can borrow_mut the controller and invoke the legacy Controller action
+- [X] have all Action enum values get a default display for transmission through gtk action activation
 - [X] an enum type for all values returned by entry_editor rather than plain text
 - [X] entry_editor has closures for : allowing or stopping a key stroke, completing a key stroke
 - [X] entry_editor uses a closure for entered event that updates the entry text of its entry_view window
