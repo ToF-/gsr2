@@ -104,7 +104,11 @@ impl From<Action> for GioAction {
             Action::ToggleThumbnailsView => None,
             Action::ToggleTwoByTwoView => None,
             Action::Unlabel => None,
-            _ => todo!(),
+            Action::PickCatalogChange => None,
+            other => {
+                eprintln!("GioAction::From({:?}) match parameter not yet implemented", other);
+                None
+            },
         };
         Self {
             name: gio_action_ty.name(),
@@ -163,6 +167,7 @@ impl From<GioAction> for Action {
             "move-file" => Action::MoveFile,
             "move-towards" => Action::MoveTowards(Direction::from(gio_action.parameter().unwrap())),
             "nothing" => Action::Nothing,
+            "pick-catalog-change" => Action::PickCatalogChange,
             "pick-change" => Action::PickChange,
             "pick-order-setting" => Action::PickOrderSetting,
             "pick-view-option" => Action::PickViewOption,

@@ -146,6 +146,35 @@ impl MainController {
             GioActionType::from(Action::ToggleTwoByTwoView),
             activate.clone(),
         ));
+        entries.push(Self::action_entry(
+                GioActionType::from(Action::EnterRename),
+                activate.clone(),
+        ));
+        entries.push(Self::action_entry(
+                GioActionType::from(Action::PickCatalogChange),
+                activate.clone(),
+        ));
+        entries.push(Self::action_entry(
+                GioActionType::from(Action::EnterCategory),
+                activate.clone(),
+        ));
+        entries.push(Self::action_entry(
+                GioActionType::from(Action::EnterRemoveTag),
+                activate.clone(),
+        ));
+        entries.push(Self::action_entry(
+                GioActionType::from(Action::EnterAddTag),
+                activate.clone(),
+        ));
+        entries.push(Self::action_entry(
+                GioActionType::from(Action::Unlabel),
+                activate.clone(),
+        ));
+        entries.push(Self::action_entry(
+                GioActionType::from(Action::ToggleCover),
+                activate.clone(),
+        ));
+
 
         self.gio_action_group.add_action_entries(entries);
     }

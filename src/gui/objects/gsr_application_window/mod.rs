@@ -1,3 +1,4 @@
+use crate::gui::key_input::menu::change_menu;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
@@ -473,6 +474,7 @@ impl GsrApplicationWindow {
                         Control::ToggleCoverSelection => this.toggle_view_covers(),
                         Control::BackFromDirectory => this.back_from_directory(),
                         Control::CancelRange => this.cancel_range(),
+                        Control::EnterChange => this.enter_change(),
                         Control::Quit => this.action_quit(),
                         Control::GotoDirectory => this.goto_directory(),
                         Control::RepeatRange => this.repeat_range(),
@@ -509,6 +511,7 @@ impl GsrApplicationWindow {
             Action::Quit => self.action_quit(),
             Action::ApplyOrderSetting(order) => self.action_apply_order_setting(order),
             Action::ApplyViewSetting(view_option) => self.action_apply_view_setting(view_option),
+            Action::ToggleCover => self.action_toggle_cover(),
             _ => {
                 println!("* * * todo: {:?}", action);
             }
@@ -572,6 +575,34 @@ impl GsrApplicationWindow {
             ViewOption::FullSize => self.toggle_expand(),
         }
     }
+
+    fn action_toggle_cover(&self) {
+        self.action_cancel();
+        {
+            let shared_view_state = self.shared_view_state();
+            let mut view_state = shared_view_state.borrow_mut();
+            let position = view_state.gallery.current_picture_index();
+            let shared_repository_opt = self.gsr_application().shared_repository_opt();
+            if let Some(mut repository) = shared_repository_opt.borrow_mut().as_ref() {
+                let counts = repository.directory_count_at_index(position);
+                let mut picture = repository.picture_at(position);
+                picture.toggle_cover(counts.0);
+                repository.set_picture_at(position, &picture);
+                let repository_gallery = repository.gallery_rc().borrow_mut();
+                view_state.gallery = repository_gallery.clone();
+                view_state.navigator = Navigator::new(
+                    repository_gallery.len(),
+                    view_state.settings.pictures_per_row() as usize,
+                );
+            }
+        }
+        {
+            let shared_view_state = self.shared_view_state();
+            let mut view_state = shared_view_state.borrow_mut();
+            view_state.navigator.set_page_changed();
+        }
+        self.refresh_view();
+    }
     fn cancel_range(&self) {
         {
             let shared_view_state = self.shared_view_state();
@@ -579,6 +610,19 @@ impl GsrApplicationWindow {
             view_state.selection.cancel();
         }
         self.refresh_view();
+    }
+
+    fn enter_change(&self) {
+        {
+            let gsr_entry_window = GsrEntryWindow::new_with(
+                self,
+                &self.gsr_application().shared_main_controller(),
+                change_menu(),
+                None,
+            );
+            gsr_entry_window.present();
+            *self.imp().gsr_entry_window.borrow_mut() = gsr_entry_window;
+        }
     }
 
     fn set_order(&self) {
