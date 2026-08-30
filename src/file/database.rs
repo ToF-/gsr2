@@ -432,8 +432,8 @@ impl Database {
 
         let file_name_start = parent.len() + 2; // to account for /
         format!(
-            "FilePath like '{}%' AND Instr(Substring(FilePath, {}), '/') = 0",
-            parent, file_name_start
+            "FilePath like '{}%' ",
+            parent,
         )
     }
 
