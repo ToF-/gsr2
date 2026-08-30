@@ -775,20 +775,6 @@ impl GsrApplicationWindow {
         self.refresh_view()
     }
 
-    fn set_view_covers(&self) {
-        let (gallery_has_covers, sub_folder) = {
-            let shared_view_state = self.shared_view_state();
-            let view_state = shared_view_state.borrow();
-            (
-                view_state.gallery.has_covers(),
-                view_state.gallery.sub_folder(),
-            )
-        };
-        if gallery_has_covers && sub_folder.is_none() {
-            self.retrieve_from_repository(Some(true), None, None);
-            self.refresh_view()
-        }
-    }
     fn toggle_view_covers(&self) {
         let (gallery_has_covers, sub_folder) = {
             let shared_view_state = self.shared_view_state();

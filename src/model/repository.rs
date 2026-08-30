@@ -1,4 +1,3 @@
-use crate::env::configuration::CONFIGURATION;
 use crate::cli::command::Command;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::Configuration;

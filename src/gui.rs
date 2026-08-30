@@ -11,7 +11,6 @@ pub mod entry_prompt;
 pub mod event;
 pub mod key_input;
 pub mod main_controller;
-pub mod menu;
 pub mod mode;
 pub mod objects;
 pub mod selector;
