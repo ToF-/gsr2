@@ -73,6 +73,11 @@ impl KeyInputRules for KeyInput {
                         let action = launch(initial_input.to_string());
                         KeyInputStatus::new(initial_input, None, Some(action))
                     }
+                    Some(Control::DeleteChar) => {
+                        let mut input = initial_input.to_string();
+                        let _ = input.pop();
+                        KeyInputStatus::new(&input, None, None)
+                    }
                     Some(Control::Complete) => {
                         if let Some(completion_dispenser) = self.completion_dispenser_opt.as_ref() {
                             let candidates = completion_dispenser.candidates(initial_input);

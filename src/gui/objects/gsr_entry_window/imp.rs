@@ -127,6 +127,9 @@ impl GsrEntryWindow {
                 } else {
                     if let Some(list_tip) = status.candidate_list_tip() {
                         this.set_prompt_text(&list_tip);
+                    } else {
+                        let key_input = this.imp().key_input_rc.borrow();
+                        this.set_prompt_text(&key_input.prompt());
                     }
                     let new_input = status.input();
                     if new_input != input {
