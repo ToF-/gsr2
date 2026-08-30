@@ -1,8 +1,12 @@
+use std::cell::Cell;
+use crate::env::default_values::ENTRY_CURSOR_1;
+use crate::env::default_values::ENTRY_CURSOR_2;
 use crate::env::default_values::ENTRY_WINDOW_HEIGHT;
 use crate::env::default_values::ENTRY_WINDOW_WIDTH;
 use crate::gui::action::gio_action::GioAction;
 use crate::gui::key_input::KeyInput;
 use crate::gui::key_input::information::information_key_input;
+use crate::gui::key_input::key_input_mode::KeyInputMode;
 use crate::gui::key_input::key_input_rules::KeyInputRules;
 use crate::gui::main_controller::RcMainController;
 use crate::gui::objects::gsr_entry_window::GsrApplicationWindow;
@@ -20,18 +24,26 @@ use gtk::prelude::StyleContextExt;
 use gtk::prelude::WidgetExt;
 use gtk::subclass::prelude::ObjectSubclassIsExt;
 use std::cell::RefCell;
+use std::ops::ControlFlow;
+use std::time::Duration;
 
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 
 pub struct GsrEntryWindow {
     pub key_input_rc: RefCell<KeyInput>,
+    pub cursor_timeout_source_id: RefCell<Option<glib::SourceId>>,
+    pub editing: Cell<bool>,
+    pub cursor: Cell<char>,
 }
 
 impl Default for GsrEntryWindow {
     fn default() -> Self {
         Self {
             key_input_rc: RefCell::new(information_key_input()),
+            cursor_timeout_source_id: RefCell::new(None),
+            editing: Cell::new(false),
+            cursor: Cell::new(ENTRY_CURSOR_1),
         }
     }
 }
@@ -44,7 +56,7 @@ impl GsrEntryWindow {
         key_input: KeyInput,
         initial_input_opt: Option<&str>,
     ) {
-        *self.key_input_rc.borrow_mut() = key_input;
+        *self.key_input_rc.borrow_mut() = key_input.clone();
         let obj = self.obj();
         obj.set_decorated(false);
         obj.set_modal(true);
@@ -91,55 +103,10 @@ impl GsrEntryWindow {
         entry_box.append(&prompt_label);
         entry_box.append(&entry_text);
         obj.set_child(Some(&entry_box));
-        Self::connect_key_pressed_controller(&obj);
+
         let main_controller = main_controller_rc.borrow();
         self.obj()
             .insert_action_group("main-controller", Some(&main_controller.gio_action_group()));
-    }
-
-    pub fn connect_key_pressed_controller(gsr_entry_window: &super::GsrEntryWindow) {
-        let event_controller_key = gtk::EventControllerKey::new();
-        event_controller_key.connect_key_pressed(clone!(
-            #[strong (rename_to=this)]
-            gsr_entry_window,
-            move |_, key, _, _| {
-                let key_input = this.imp().key_input_rc.borrow();
-                let input = this.entry_text();
-                let status = key_input.edit(&input, key);
-                let action_opt = status.result_action();
-                if let Some(action) = action_opt {
-                    let action_call = GioAction::from(action).to_simple_action_call();
-                    let name = action_call.0.clone();
-                    let variant = action_call.1.clone();
-                    let variant_ref: Option<&Variant> = match &variant {
-                        None => None,
-                        Some(v) => Some(v.as_ref()),
-                    };
-                    match this.activate_action(&name, variant_ref) {
-                        Ok(_) => {}
-                        Err(e) => {
-                            eprintln!(
-                                "connect_key_pressed_controller for gsr_entry_window {} {:?} : {}",
-                                name, variant_ref, e
-                            )
-                        }
-                    }
-                } else {
-                    if let Some(list_tip) = status.candidate_list_tip() {
-                        this.set_prompt_text(&list_tip);
-                    } else {
-                        let key_input = this.imp().key_input_rc.borrow();
-                        this.set_prompt_text(&key_input.prompt());
-                    }
-                    let new_input = status.input();
-                    if new_input != input {
-                        this.set_entry_text(&new_input)
-                    };
-                }
-                Propagation::Stop
-            }
-        ));
-        gsr_entry_window.add_controller(event_controller_key);
     }
 }
 

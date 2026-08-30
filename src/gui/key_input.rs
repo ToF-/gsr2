@@ -16,6 +16,7 @@ pub mod key_input_rules;
 pub mod key_input_status;
 pub mod menu;
 
+#[derive(Clone)]
 pub struct KeyInput {
     prompt: String,
     completion_dispenser_opt: Option<CompletionDispenser>,
