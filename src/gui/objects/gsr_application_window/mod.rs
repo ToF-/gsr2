@@ -514,7 +514,7 @@ impl GsrApplicationWindow {
                         _ => {}
                     }
                 }
-                Propagation::Proceed
+                Propagation::Stop
             }
         ));
         self.add_controller(event_controller_key);

@@ -66,7 +66,6 @@ impl KeyInputRules for KeyInput {
             Some(key_name) => {
                 match default_controls().get(&(key_name.to_string(), Mode::Editing)) {
                     Some(Control::CancelEdition) => {
-                        println!("cancelling…");
                         KeyInputStatus::new("", None, Some(Action::Cancel))
                     }
                     Some(Control::ConfirmEdition) => {
@@ -93,7 +92,7 @@ impl KeyInputRules for KeyInput {
                     }
                     Some(_) | None => match self.key_input_mode {
                         KeyInputMode::Information => {
-                            KeyInputStatus::no_change(initial_input)
+                            KeyInputStatus::new("", None, Some(Action::Dismiss))
                         }
                         KeyInputMode::Menu => {
                             let accept = self.accepter.clone();
