@@ -1,4 +1,3 @@
-use crate::file::paths::name_and_extension;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
@@ -6,6 +5,7 @@ use crate::env::default_values::FRAME_WINDOW_NAME;
 use crate::env::default_values::FULL_OPACITY;
 use crate::env::default_values::GRID_WINDOW_NAME;
 use crate::env::default_values::HALF_OPACITY;
+use crate::file::paths::name_and_extension;
 use crate::file::paths::parent_directory;
 use crate::gui::action::Action;
 use crate::gui::action::gio_action::GioAction;
@@ -94,6 +94,16 @@ impl GsrApplicationWindow {
         let mut view_state = shared_view_state.borrow_mut();
 
         f(&mut view_state)
+    }
+
+    pub fn with_repository<F, R>(&self, f: F) -> R
+    where
+        F: FnOnce(&Repository) -> R,
+    {
+        let shared_repository_opt = self.gsr_application().shared_repository_opt();
+        let binding = shared_repository_opt.borrow();
+        let repository = binding.as_ref().unwrap();
+        f(&repository)
     }
 
     pub fn stack(&self) -> gtk::Stack {
@@ -621,15 +631,10 @@ impl GsrApplicationWindow {
     }
 
     fn retrieve_all_labels(&self) -> Tags {
-        let tags = {
-            let shared_repository_opt = self.gsr_application().shared_repository_opt();
-            if let Some(repository) = shared_repository_opt.borrow().as_ref() {
-                let _ = repository.retrieve_all_labels();
-                repository.all_labels()
-            } else {
-                panic!("shared repositoty not set");
-            }
-        };
+        let tags = self.with_repository(|repository| {
+            let _ = repository.retrieve_all_labels();
+            repository.all_labels()
+        });
         tags
     }
     fn action_enter_add_tag(&self) {
@@ -668,7 +673,7 @@ impl GsrApplicationWindow {
             self.present_information("select one picture to rename first");
             return;
         };
-        let (name, extention) = name_and_extension(&current_picture_name);
+        let (name, _) = name_and_extension(&current_picture_name);
         let gsr_entry_window = GsrEntryWindow::new_with(
             self,
             &self.gsr_application().shared_main_controller(),
@@ -711,13 +716,10 @@ impl GsrApplicationWindow {
                 let mut picture = view_state.gallery.picture(position);
                 tags.iter().for_each(|tag| {
                     picture.add_tag(tag);
-                    let shared_repository_opt = self.gsr_application().shared_repository_opt();
-                    if let Some(repository) = shared_repository_opt.borrow().as_ref() {
-                        match repository.update_picture(&picture) {
-                            Ok(_) => {}
-                            Err(e) => eprintln!("{}", e),
-                        }
-                    }
+                    self.with_repository(|repository| match repository.update_picture(&picture) {
+                        Ok(_) => {}
+                        Err(e) => eprintln!("{}", e),
+                    })
                 });
                 view_state.gallery.set_picture(position, picture);
             });
@@ -734,13 +736,10 @@ impl GsrApplicationWindow {
                 let mut picture = view_state.gallery.picture(position);
                 tags.iter().for_each(|tag| {
                     picture.remove_tag(tag);
-                    let shared_repository_opt = self.gsr_application().shared_repository_opt();
-                    if let Some(repository) = shared_repository_opt.borrow().as_ref() {
-                        match repository.update_picture(&picture) {
-                            Ok(_) => {}
-                            Err(e) => eprintln!("{}", e),
-                        }
-                    }
+                    self.with_repository(|repository| match repository.update_picture(&picture) {
+                        Ok(_) => {}
+                        Err(e) => eprintln!("{}", e),
+                    })
                 });
                 view_state.gallery.set_picture(position, picture);
             });
@@ -749,6 +748,13 @@ impl GsrApplicationWindow {
     }
 
     fn action_rename(&self, name: &str) {
+        self.cancel_entry();
+        if name.is_empty() {
+            self.present_information("picture name can't be empty");
+            return;
+        }
+
+        println!("here I rename the picture {}", name);
     }
     fn action_label(&self, label: &str) {
         self.cancel_entry();
@@ -757,13 +763,10 @@ impl GsrApplicationWindow {
             self.with_view_state_mut(|view_state| {
                 let mut picture = view_state.gallery.picture(position);
                 picture.set_label(label);
-                let shared_repository_opt = self.gsr_application().shared_repository_opt();
-                if let Some(repository) = shared_repository_opt.borrow().as_ref() {
-                    match repository.update_picture(&picture) {
-                        Ok(_) => {}
-                        Err(e) => eprintln!("{}", e),
-                    }
-                }
+                self.with_repository(|repository| match repository.update_picture(&picture) {
+                    Ok(_) => {}
+                    Err(e) => eprintln!("{}", e),
+                });
                 view_state.gallery.set_picture(position, picture);
             });
         }
@@ -777,13 +780,10 @@ impl GsrApplicationWindow {
             self.with_view_state_mut(|view_state| {
                 let mut picture = view_state.gallery.picture(position);
                 picture.set_label("");
-                let shared_repository_opt = self.gsr_application().shared_repository_opt();
-                if let Some(repository) = shared_repository_opt.borrow().as_ref() {
-                    match repository.update_picture(&picture) {
-                        Ok(_) => {}
-                        Err(e) => eprintln!("{}", e),
-                    }
-                }
+                self.with_repository(|repository| match repository.update_picture(&picture) {
+                    Ok(_) => {}
+                    Err(e) => eprintln!("{}", e),
+                });
                 view_state.gallery.set_picture(position, picture);
             });
         }
@@ -794,8 +794,7 @@ impl GsrApplicationWindow {
         self.cancel_entry();
         self.with_view_state_mut(|view_state| {
             let position = view_state.gallery.current_picture_index();
-            let shared_repository_opt = self.gsr_application().shared_repository_opt();
-            if let Some(repository) = shared_repository_opt.borrow().as_ref() {
+            self.with_repository(|repository| {
                 let counts = repository.directory_count_at_index(position);
                 let mut picture = view_state.gallery.current_picture().clone();
                 picture.toggle_cover(counts.0);
@@ -804,7 +803,7 @@ impl GsrApplicationWindow {
                     Err(e) => eprintln!("{}", e),
                 }
                 view_state.gallery.set_picture(position, picture);
-            }
+            });
         });
         self.refresh_view();
     }
