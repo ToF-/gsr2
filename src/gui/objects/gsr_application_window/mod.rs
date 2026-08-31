@@ -68,10 +68,20 @@ impl GsrApplicationWindow {
             .build();
         obj
     }
-
     pub fn shared_view_state(&self) -> Shared<ViewState> {
         self.gsr_application().shared_view_state()
     }
+
+    pub fn with_view_state_mut<F, R>(&self, f: F) -> R
+    where
+        F: FnOnce(&mut ViewState) -> R,
+    {
+        let shared_view_state = self.shared_view_state();
+        let mut view_state = shared_view_state.borrow_mut();
+
+        f(&mut view_state)
+    }
+
     pub fn stack(&self) -> gtk::Stack {
         self.first_child()
             .expect("no child on stack")
@@ -661,20 +671,20 @@ impl GsrApplicationWindow {
         };
         self.cancel_entry();
         for position in indices {
-            let shared_view_state = self.shared_view_state();
-            let mut view_state = shared_view_state.borrow_mut();
-            let mut picture = view_state.gallery.picture(position);
-            tags.iter().for_each(|tag| {
-                picture.add_tag(tag);
-                let shared_repository_opt = self.gsr_application().shared_repository_opt();
-                if let Some(repository) = shared_repository_opt.borrow().as_ref() {
-                    match repository.update_picture(&picture) {
-                        Ok(_) => {}
-                        Err(e) => eprintln!("{}", e),
+            self.with_view_state_mut(|view_state| {
+                let mut picture = view_state.gallery.picture(position);
+                tags.iter().for_each(|tag| {
+                    picture.add_tag(tag);
+                    let shared_repository_opt = self.gsr_application().shared_repository_opt();
+                    if let Some(repository) = shared_repository_opt.borrow().as_ref() {
+                        match repository.update_picture(&picture) {
+                            Ok(_) => {}
+                            Err(e) => eprintln!("{}", e),
+                        }
                     }
-                }
+                });
+                view_state.gallery.set_picture(position, picture);
             });
-            view_state.gallery.set_picture(position, picture);
         }
         self.refresh_view();
     }
