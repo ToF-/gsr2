@@ -607,25 +607,28 @@ impl Repository {
         }
     }
 
+    pub fn rename_picture(&self, picture: &Picture, target_name: &str) -> IOResult<usize> {
+        let operations = rename_picture(&picture.file_path(), target_name);
+        if operations.is_empty() {
+            println!(
+                "no operation for rename of {} to {}",
+                picture.file_path(),
+                target_name
+            );
+            Ok(0)
+        } else {
+            let count = operations.len();
+            match execute(&self.database, &operations) {
+                Ok(_) => Ok(count),
+                Err(err) => Err(err),
+            }
+        }
+    }
     pub fn rename_picture_at_index(&self, index: usize, target_name: &str) -> IOResult<usize> {
         match self.gallery_rc().try_borrow() {
             Ok(gallery) => {
                 let picture = gallery.picture(index);
-                let operations = rename_picture(&picture.file_path(), target_name);
-                if operations.is_empty() {
-                    println!(
-                        "no operation for rename of {} to {}",
-                        picture.file_path(),
-                        target_name
-                    );
-                    Ok(0)
-                } else {
-                    let count = operations.len();
-                    match execute(&self.database, &operations) {
-                        Ok(_) => Ok(count),
-                        Err(err) => Err(err),
-                    }
-                }
+                self.rename_picture(&picture, target_name)
             }
             Err(e) => Err(IOError::other(e)),
         }

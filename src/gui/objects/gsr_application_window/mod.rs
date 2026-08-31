@@ -1,3 +1,4 @@
+use crate::model::picture::Picture;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
@@ -673,7 +674,7 @@ impl GsrApplicationWindow {
             self.present_information("select one picture to rename first");
             return;
         };
-        let (name, _) = name_and_extension(&current_picture_name);
+        let (name, _extension) = name_and_extension(&current_picture_name);
         let gsr_entry_window = GsrEntryWindow::new_with(
             self,
             &self.gsr_application().shared_main_controller(),
@@ -747,14 +748,29 @@ impl GsrApplicationWindow {
         self.refresh_view();
     }
 
-    fn action_rename(&self, name: &str) {
+    fn action_rename(&self, target_name: &str) {
         self.cancel_entry();
-        if name.is_empty() {
+        if target_name.is_empty() {
             self.present_information("picture name can't be empty");
             return;
         }
-
-        println!("here I rename the picture {}", name);
+        let (current_name, extension) = self.with_view_state(|view_state| {
+            name_and_extension(&view_state.gallery.current_picture().file_name())
+        });
+        if target_name == current_name {
+            self.present_information("picture name is unchanged");
+            return;
+        }
+        self.with_view_state_mut(|view_state| {
+            let position = view_state.gallery.current_picture_index();
+            let picture = view_state.gallery.current_picture();
+            let new_picture =Picture::copy_with_name(&picture, target_name);
+            self.with_repository(|repository| {
+                repository.rename_picture(&picture, target_name);
+            });
+            view_state.gallery.set_picture(position, new_picture);
+        });
+        self.refresh_view();
     }
     fn action_label(&self, label: &str) {
         self.cancel_entry();

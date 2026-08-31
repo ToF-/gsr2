@@ -1,3 +1,5 @@
+use crate::file::paths::renamed_file_path;
+use crate::file::paths::file_path_as_stored;
 use crate::file::paths::{file_name_from, thumbnail_name_from};
 use crate::model::cover::Cover;
 use crate::model::image_data::FileSize;
@@ -30,6 +32,15 @@ impl Picture {
         picture
     }
 
+    pub fn copy_with_name(original: &Self, target_name: &str) -> Self {
+        let file_path = original.file_path();
+        let target_file_path = file_path_as_stored(&renamed_file_path(&file_path, target_name));
+        let mut picture: Picture = Self::new(&target_file_path);
+        if let Some(image_data) = &original.image_data {
+            picture.set_image_data(image_data.clone())
+        };
+        picture
+    }
     pub fn new_with_label(file_path: &str, label: &str) -> Self {
         let mut picture: Picture = Self::new(file_path);
         picture.set_image_data(ImageData::new_with_label(label));
