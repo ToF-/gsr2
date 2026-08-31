@@ -1,3 +1,4 @@
+use crate::gui::objects::gsr_application_window::Action;
 use crate::gui::objects::gsr_entry_window::GsrEntryWindow;
 use crate::model::shared::Shared;
 use gtk::glib;
@@ -9,6 +10,7 @@ use std::rc::Rc;
 pub struct GsrApplicationWindow {
     pub gsr_entry_window: Shared<GsrEntryWindow>,
     pub entry_on: Cell<bool>,
+    pub last_action: Shared<Action>,
 }
 
 impl Default for GsrApplicationWindow {
@@ -16,6 +18,7 @@ impl Default for GsrApplicationWindow {
         Self {
             gsr_entry_window: Rc::new(RefCell::new(GsrEntryWindow::new())),
             entry_on: Cell::new(false),
+            last_action: Rc::new(RefCell::new(Action::Nothing)),
         }
     }
 }

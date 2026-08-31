@@ -58,7 +58,7 @@ impl MainController {
                   object: &gtk::gio::SimpleAction,
                   variant: Option<&gtk::glib::Variant>| {
                 let gsr_application_window = shared_gsr_application_window.borrow();
-                gsr_application_window.process_action(object, variant);
+                gsr_application_window.process_gio_action(object, variant);
             }
         );
 

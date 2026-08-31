@@ -479,6 +479,7 @@ impl GsrApplicationWindow {
                         Control::Quit => this.action_quit(),
                         Control::GotoDirectory => this.goto_directory(),
                         Control::RepeatRange => this.repeat_range(),
+                        Control::RepeatLastAction => this.repeat_last_action(),
                         Control::SetOrder => this.set_order(),
                         Control::SetView => this.set_view(),
                         Control::SetSelectionRangeEnd => this.set_selection_range_end(),
@@ -500,24 +501,31 @@ impl GsrApplicationWindow {
         self.add_controller(event_controller_key);
     }
 
-    pub fn process_action(
+    pub fn process_gio_action(
         &self,
         action: &gtk::gio::SimpleAction,
         variant: Option<&gtk::glib::Variant>,
     ) {
         let gio_action = GioAction::from((action, variant));
         let action = Action::from(gio_action);
+        self.process_action(action);
+    }
+
+    pub fn process_action(&self, action: Action) {
         match action {
             Action::Cancel => self.cancel_entry(),
             Action::Quit => self.action_quit(),
             Action::ApplyOrderSetting(order) => self.action_apply_order_setting(order),
             Action::ApplyViewSetting(view_option) => self.action_apply_view_setting(view_option),
             Action::EnterLabel => self.action_enter_label(),
-            Action::Label(label) => self.action_label(&label),
+            Action::Label(ref label) => self.action_label(&label),
             Action::ToggleCover => self.action_toggle_cover(),
             _ => {
                 println!("* * * todo: {:?}", action);
             }
+        };
+        if action.is_repeatable() {
+          *self.imp().last_action.borrow_mut() = action.clone();
         }
     }
     fn begin_entry(&self, gsr_entry_window: GsrEntryWindow) {
@@ -768,6 +776,11 @@ impl GsrApplicationWindow {
             }
             self.refresh_view();
         }
+    }
+
+    fn repeat_last_action(&self) {
+       let action = self.imp().last_action.borrow_mut().clone();
+       self.process_action(action);
     }
 
     fn repeat_range(&self) {
