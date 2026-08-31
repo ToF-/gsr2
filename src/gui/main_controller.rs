@@ -99,6 +99,10 @@ impl MainController {
             activate.clone(),
         ));
         entries.push(Self::action_entry(
+            GioActionType::from(Action::RemoveTag("foo".to_string())),
+            activate.clone(),
+        ));
+        entries.push(Self::action_entry(
             GioActionType::from(Action::MoveTowards(Direction::Left)),
             activate.clone(),
         ));

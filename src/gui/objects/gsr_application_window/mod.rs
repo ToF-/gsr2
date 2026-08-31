@@ -1,3 +1,4 @@
+use crate::gui::key_input::entry::remove_tags_entry;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
@@ -536,9 +537,12 @@ impl GsrApplicationWindow {
             Action::ApplyOrderSetting(order) => self.action_apply_order_setting(order),
             Action::ApplyViewSetting(view_option) => self.action_apply_view_setting(view_option),
             Action::EnterAddTag => self.action_enter_add_tag(),
+            Action::EnterRemoveTag => self.action_enter_remove_tag(),
             Action::EnterLabel => self.action_enter_label(),
+            Action::Unlabel => self.action_unlabel(),
             Action::Label(ref label) => self.action_label(&label),
             Action::AddTag(ref tags) => self.action_tag(&tags),
+            Action::RemoveTag(ref tags) => self.action_untag(&tags),
             Action::ToggleCover => self.action_toggle_cover(),
             _ => {
                 println!("* * * todo: {:?}", action);
@@ -635,6 +639,18 @@ impl GsrApplicationWindow {
         self.begin_entry(gsr_entry_window);
     }
 
+    fn action_enter_remove_tag(&self) {
+        self.cancel_entry();
+        let tags = self.retrieve_all_labels();
+        let gsr_entry_window = GsrEntryWindow::new_with(
+            self,
+            &self.gsr_application().shared_main_controller(),
+            remove_tags_entry(tags),
+            None,
+        );
+        self.begin_entry(gsr_entry_window);
+    }
+
     fn action_enter_label(&self) {
         self.cancel_entry();
         let tags = self.retrieve_all_labels();
@@ -651,6 +667,7 @@ impl GsrApplicationWindow {
     fn selected_indices(&self) -> Vec<usize> {
         self.with_view_state(|view_state| {
             if view_state.selection.has_selected() {
+                assert!(view_state.selection.count() == view_state.selection.indices().len());
                 view_state.selection.indices()
             } else {
                 vec![view_state.gallery.current_picture_index()]
@@ -681,9 +698,33 @@ impl GsrApplicationWindow {
         self.refresh_view();
     }
 
-    fn action_label(&self, label: &str) {
+    fn action_untag(&self, input: &str) {
+        let tags: Vec<String> = input.split(',').map(|s| s.to_string()).collect();
         let indices = self.selected_indices();
         self.cancel_entry();
+        for position in indices {
+            self.with_view_state_mut(|view_state| {
+                let mut picture = view_state.gallery.picture(position);
+                tags.iter().for_each(|tag| {
+                    picture.remove_tag(tag);
+                    let shared_repository_opt = self.gsr_application().shared_repository_opt();
+                    if let Some(repository) = shared_repository_opt.borrow().as_ref() {
+                        match repository.update_picture(&picture) {
+                            Ok(_) => {}
+                            Err(e) => eprintln!("{}", e),
+                        }
+                    }
+                });
+                view_state.gallery.set_picture(position, picture);
+            });
+        }
+        self.refresh_view();
+    }
+
+
+    fn action_label(&self, label: &str) {
+        self.cancel_entry();
+        let indices = self.selected_indices();
         for position in indices {
             self.with_view_state_mut(|view_state| {
                 let mut picture = view_state.gallery.picture(position);
@@ -698,6 +739,26 @@ impl GsrApplicationWindow {
                 view_state.gallery.set_picture(position, picture);
             });
         }
+        self.refresh_view();
+    }
+
+    fn action_unlabel(&self) {
+        self.cancel_entry();
+        let indices = self.selected_indices();
+        for position in indices {
+            self.with_view_state_mut(|view_state| {
+                let mut picture = view_state.gallery.picture(position);
+                picture.set_label("");
+                let shared_repository_opt = self.gsr_application().shared_repository_opt();
+                if let Some(repository) = shared_repository_opt.borrow().as_ref() {
+                    match repository.update_picture(&picture) {
+                        Ok(_) => {}
+                        Err(e) => eprintln!("{}", e),
+                    }
+                }
+                view_state.gallery.set_picture(position, picture);
+            });
+        };
         self.refresh_view();
     }
 
@@ -770,7 +831,6 @@ impl GsrApplicationWindow {
             )
         });
         let parent_directory_opt = parent_directory(&current_picture.file_path());
-        dbg!(&covers_only);
         if covers_only && current_picture.is_cover() && parent_directory_opt.clone().is_some() {
             let location = self.with_view_state(|view_state| {
                 (
@@ -837,7 +897,7 @@ impl GsrApplicationWindow {
                 }
                 SelectionRange::All => {
                     let limit = &view_state.navigator.limit();
-                    view_state.selection.set_range(0, *limit);
+                    view_state.selection.set_range(0, *limit-1);
                 }
                 SelectionRange::Page => {
                     let page_start = &view_state.navigator.page_start();
