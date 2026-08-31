@@ -1,4 +1,3 @@
-use crate::gui::key_input::entry::add_tags_entry;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
@@ -13,6 +12,7 @@ use crate::gui::control::Control;
 use crate::gui::control::default_controls;
 use crate::gui::direction::Direction;
 use crate::gui::display::title_display;
+use crate::gui::key_input::entry::add_tags_entry;
 use crate::gui::key_input::entry::label_change_entry;
 use crate::gui::key_input::menu::change_menu;
 use crate::gui::key_input::menu::order_menu;
@@ -25,6 +25,7 @@ use crate::gui::objects::gsr_picture_grid::GsrPictureGrid;
 use crate::gui::view::treelist_window::TreeListWindow;
 use crate::gui::view_state::ViewState;
 use crate::gui::view_state::navigator::Navigator;
+use crate::gui::view_state::selection_range::SelectionRange;
 use crate::model::catalog::Catalog;
 use crate::model::finder::Predicate;
 use crate::model::order::Order;
@@ -383,7 +384,7 @@ impl GsrApplicationWindow {
                 1 => self.grid_view_move(&Direction::Index { value: position }),
                 2 => {
                     self.grid_view_move(&Direction::Index { value: position });
-                    self.set_selection_range_end();
+                    self.set_selection_range(SelectionRange::End);
                 }
                 _ => {}
             }
@@ -484,9 +485,15 @@ impl GsrApplicationWindow {
                         Control::RepeatLastAction => this.repeat_last_action(),
                         Control::SetOrder => this.set_order(),
                         Control::SetView => this.set_view(),
-                        Control::SetSelectionRangeEnd => this.set_selection_range_end(),
-                        Control::SetSelectionRangeAll => this.set_selection_range_all(),
-                        Control::SetSelectionRangePage => this.set_selection_range_page(),
+                        Control::SetSelectionRangeEnd => {
+                            this.set_selection_range(SelectionRange::End)
+                        }
+                        Control::SetSelectionRangeAll => {
+                            this.set_selection_range(SelectionRange::All)
+                        }
+                        Control::SetSelectionRangePage => {
+                            this.set_selection_range(SelectionRange::Page)
+                        }
                         Control::ToggleBlinking => this.toggle_blinking(),
                         Control::ToggleExpand => this.toggle_expand(),
                         Control::TogglePalette => this.toggle_palette(),
@@ -845,35 +852,25 @@ impl GsrApplicationWindow {
         self.refresh_view();
     }
 
-    fn set_selection_range_end(&self) {
+    fn set_selection_range(&self, range: SelectionRange) {
         {
             let shared_view_state = self.shared_view_state();
             let mut view_state = shared_view_state.borrow_mut();
-            let position = view_state.navigator.position();
-            view_state.selection.set_range_end(position);
-            view_state.navigator.set_page_changed();
-        }
-        self.refresh_view();
-    }
-
-    fn set_selection_range_all(&self) {
-        {
-            let shared_view_state = self.shared_view_state();
-            let mut view_state = shared_view_state.borrow_mut();
-            let limit = &view_state.navigator.limit();
-            view_state.selection.set_range(0, *limit);
-            view_state.navigator.set_page_changed();
-        }
-        self.refresh_view();
-    }
-
-    fn set_selection_range_page(&self) {
-        {
-            let shared_view_state = self.shared_view_state();
-            let mut view_state = shared_view_state.borrow_mut();
-            let page_start = &view_state.navigator.page_start();
-            let page_end = &view_state.navigator.page_end();
-            view_state.selection.set_range(*page_start, *page_end);
+            match range {
+                SelectionRange::End => {
+                    let position = view_state.navigator.position();
+                    view_state.selection.set_range_end(position);
+                }
+                SelectionRange::All => {
+                    let limit = &view_state.navigator.limit();
+                    view_state.selection.set_range(0, *limit);
+                }
+                SelectionRange::Page => {
+                    let page_start = &view_state.navigator.page_start();
+                    let page_end = &view_state.navigator.page_end();
+                    view_state.selection.set_range(*page_start, *page_end);
+                }
+            }
             view_state.navigator.set_page_changed();
         }
         self.refresh_view();

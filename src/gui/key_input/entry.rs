@@ -32,7 +32,7 @@ pub fn add_tags_entry(completion_tags: Tags) -> KeyInput {
         Some(completion_tags),
         KeyInputMode::Entry,
         |_, ch| matches!(ch, 'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | ' ' | ','),
-        |s, ch | {
+        |s, ch| {
             let mut input = s;
             if ch.is_ascii_uppercase() {
                 input.push(ch.to_lowercase().next().unwrap())

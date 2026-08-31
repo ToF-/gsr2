@@ -4,6 +4,7 @@ use crate::gui::view_state::settings::Settings;
 use crate::model::gallery::Gallery;
 pub mod navigator;
 pub mod selection;
+pub mod selection_range;
 pub mod settings;
 
 #[derive(Debug, Default)]
