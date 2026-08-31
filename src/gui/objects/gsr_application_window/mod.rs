@@ -72,6 +72,16 @@ impl GsrApplicationWindow {
         self.gsr_application().shared_view_state()
     }
 
+    pub fn with_view_state<F, R>(&self, f: F) -> R
+    where
+        F: FnOnce(&ViewState) -> R,
+    {
+        let shared_view_state = self.shared_view_state();
+        let view_state = shared_view_state.borrow();
+
+        f(&view_state)
+    }
+
     pub fn with_view_state_mut<F, R>(&self, f: F) -> R
     where
         F: FnOnce(&mut ViewState) -> R,
@@ -660,15 +670,13 @@ impl GsrApplicationWindow {
 
     fn action_tag(&self, input: &str) {
         let tags: Vec<String> = input.split(',').map(|s| s.to_string()).collect();
-        let indices = {
-            let shared_view_state = self.shared_view_state();
-            let view_state = shared_view_state.borrow();
+        let indices = self.with_view_state(|view_state| {
             if view_state.selection.has_selected() {
                 view_state.selection.indices()
             } else {
                 vec![view_state.gallery.current_picture_index()]
             }
-        };
+        });
         self.cancel_entry();
         for position in indices {
             self.with_view_state_mut(|view_state| {
