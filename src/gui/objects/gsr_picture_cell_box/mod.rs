@@ -1,3 +1,5 @@
+use crate::file::paths::file_path_as_retrieved;
+use crate::file::paths::based_path;
 use crate::env::default_values::FOCUS_BLINKING_DURATION;
 use crate::env::default_values::FOCUS_SYMBOL_1;
 use crate::env::default_values::FOCUS_SYMBOL_2;
@@ -198,7 +200,8 @@ impl GsrPictureCellBox {
     pub fn attach_picture(&self, picture: &Picture, picture_index: usize) {
         self.remove_children();
         let picture_file_path = picture.view_file_path(self.imp().pictures_per_row.get() as usize);
-        self.append(&make_picture(&picture_file_path));
+        let gtk_picture_file_path = file_path_as_retrieved(&picture_file_path);
+        self.append(&make_picture(&gtk_picture_file_path));
         let label = make_label(&picture_label_display(
             &picture.label(),
             picture.rank(),

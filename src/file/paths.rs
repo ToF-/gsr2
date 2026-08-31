@@ -168,7 +168,7 @@ fn thumbnail_name_for_path(
         .to_string()
 }
 pub fn thumbnail_name_from(file_name: &str, pictures_per_row: usize) -> String {
-    let path: PathBuf = PathBuf::from(file_name);
+    let path: PathBuf = PathBuf::from(&based_path(file_name));
     let extension = path.extension().expect("can't compute path extension");
     let file_stem = path.file_stem().expect("can't compute path file stem");
     thumbnail_name_for_path(path.clone(), file_stem, extension, pictures_per_row)

@@ -748,6 +748,8 @@ impl GsrApplicationWindow {
         self.refresh_view();
     }
 
+
+
     fn action_rename(&self, target_name: &str) {
         self.cancel_entry();
         if target_name.is_empty() {
