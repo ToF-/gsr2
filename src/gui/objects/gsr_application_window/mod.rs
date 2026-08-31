@@ -1,3 +1,4 @@
+use crate::gui::key_input::entry::add_tags_entry;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
@@ -29,6 +30,7 @@ use crate::model::finder::Predicate;
 use crate::model::order::Order;
 use crate::model::repository::Repository;
 use crate::model::shared::Shared;
+use crate::model::tags::Tags;
 use crate::model::view_option::ViewOption;
 use gtk::glib;
 use gtk::glib::Propagation;
@@ -513,19 +515,22 @@ impl GsrApplicationWindow {
 
     pub fn process_action(&self, action: Action) {
         match action {
+            Action::Nothing => {}
             Action::Cancel => self.cancel_entry(),
             Action::Quit => self.action_quit(),
             Action::ApplyOrderSetting(order) => self.action_apply_order_setting(order),
             Action::ApplyViewSetting(view_option) => self.action_apply_view_setting(view_option),
+            Action::EnterAddTag => self.action_enter_add_tag(),
             Action::EnterLabel => self.action_enter_label(),
             Action::Label(ref label) => self.action_label(&label),
+            Action::AddTag(ref tags) => self.action_tag(&tags),
             Action::ToggleCover => self.action_toggle_cover(),
             _ => {
                 println!("* * * todo: {:?}", action);
             }
         };
         if action.is_repeatable() {
-          *self.imp().last_action.borrow_mut() = action.clone();
+            *self.imp().last_action.borrow_mut() = action.clone();
         }
     }
     fn begin_entry(&self, gsr_entry_window: GsrEntryWindow) {
@@ -595,8 +600,7 @@ impl GsrApplicationWindow {
         }
     }
 
-    fn action_enter_label(&self) {
-        self.cancel_entry();
+    fn retrieve_all_labels(&self) -> Tags {
         let tags = {
             let shared_repository_opt = self.gsr_application().shared_repository_opt();
             if let Some(repository) = shared_repository_opt.borrow().as_ref() {
@@ -606,6 +610,23 @@ impl GsrApplicationWindow {
                 panic!("shared repositoty not set");
             }
         };
+        tags
+    }
+    fn action_enter_add_tag(&self) {
+        self.cancel_entry();
+        let tags = self.retrieve_all_labels();
+        let gsr_entry_window = GsrEntryWindow::new_with(
+            self,
+            &self.gsr_application().shared_main_controller(),
+            add_tags_entry(tags),
+            None,
+        );
+        self.begin_entry(gsr_entry_window);
+    }
+
+    fn action_enter_label(&self) {
+        self.cancel_entry();
+        let tags = self.retrieve_all_labels();
         let label = {
             let shared_view_state = self.shared_view_state();
             let view_state = shared_view_state.borrow();
@@ -618,6 +639,37 @@ impl GsrApplicationWindow {
             Some(&label),
         );
         self.begin_entry(gsr_entry_window);
+    }
+
+    fn action_tag(&self, input: &str) {
+        let tags: Vec<String> = input.split(',').map(|s| s.to_string()).collect();
+        let indices = {
+            let shared_view_state = self.shared_view_state();
+            let view_state = shared_view_state.borrow();
+            if view_state.selection.has_selected() {
+                view_state.selection.indices()
+            } else {
+                vec![view_state.gallery.current_picture_index()]
+            }
+        };
+        self.cancel_entry();
+        for position in indices {
+            let shared_view_state = self.shared_view_state();
+            let mut view_state = shared_view_state.borrow_mut();
+            let mut picture = view_state.gallery.picture(position);
+            tags.iter().for_each(|tag| {
+                picture.add_tag(tag);
+                let shared_repository_opt = self.gsr_application().shared_repository_opt();
+                if let Some(repository) = shared_repository_opt.borrow().as_ref() {
+                    match repository.update_picture(&picture) {
+                        Ok(_) => {}
+                        Err(e) => eprintln!("{}", e),
+                    }
+                }
+            });
+            view_state.gallery.set_picture(position, picture);
+        }
+        self.refresh_view();
     }
 
     fn action_label(&self, label: &str) {
@@ -779,8 +831,8 @@ impl GsrApplicationWindow {
     }
 
     fn repeat_last_action(&self) {
-       let action = self.imp().last_action.borrow_mut().clone();
-       self.process_action(action);
+        let action = self.imp().last_action.borrow_mut().clone();
+        self.process_action(action);
     }
 
     fn repeat_range(&self) {
