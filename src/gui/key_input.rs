@@ -93,7 +93,7 @@ impl KeyInputRules for KeyInput {
                     }
                     Some(_) | None => match self.key_input_mode {
                         KeyInputMode::Information => {
-                            KeyInputStatus::new(initial_input, None, Some(Action::Dismiss))
+                            KeyInputStatus::no_change(initial_input)
                         }
                         KeyInputMode::Menu => {
                             let accept = self.accepter.clone();

@@ -1,8 +1,8 @@
+use crate::gui::key_input::information::information;
 use crate::env::default_values::ENTRY_CURSOR_1;
 use crate::env::default_values::ENTRY_WINDOW_HEIGHT;
 use crate::env::default_values::ENTRY_WINDOW_WIDTH;
 use crate::gui::key_input::KeyInput;
-use crate::gui::key_input::information::information_key_input;
 use crate::gui::main_controller::RcMainController;
 use crate::gui::objects::gsr_entry_window::GsrApplicationWindow;
 use gtk::Align;
@@ -30,7 +30,7 @@ pub struct GsrEntryWindow {
 impl Default for GsrEntryWindow {
     fn default() -> Self {
         Self {
-            key_input_rc: RefCell::new(information_key_input()),
+            key_input_rc: RefCell::new(information()),
             cursor_timeout_source_id: RefCell::new(None),
             editing: Cell::new(false),
             cursor: Cell::new(ENTRY_CURSOR_1),

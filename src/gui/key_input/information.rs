@@ -4,7 +4,7 @@ use crate::gui::key_input::KeyInput;
 use crate::gui::key_input::KeyInputMode;
 use crate::gui::key_input::KeyInputRules;
 
-pub fn information_key_input() -> KeyInput {
+pub fn information() -> KeyInput {
     KeyInput::new(
         INFORMATION_SYMBOL,
         None,

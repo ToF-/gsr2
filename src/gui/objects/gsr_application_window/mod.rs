@@ -1,3 +1,4 @@
+use crate::gui::key_input::information::information;
 use crate::gui::key_input::entry::remove_tags_entry;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
@@ -532,6 +533,7 @@ impl GsrApplicationWindow {
     pub fn process_action(&self, action: Action) {
         match action {
             Action::Nothing => {}
+            Action::Dismiss| 
             Action::Cancel => self.cancel_entry(),
             Action::Quit => self.action_quit(),
             Action::ApplyOrderSetting(order) => self.action_apply_order_setting(order),
@@ -823,6 +825,18 @@ impl GsrApplicationWindow {
         }
     }
 
+    fn present_information(&self, message: &str) {
+        {
+            let gsr_entry_window = GsrEntryWindow::new_with(
+                self,
+                &self.gsr_application().shared_main_controller(),
+                information(),
+                None,
+            );
+            gsr_entry_window.set_entry_text(message);
+            self.begin_entry(gsr_entry_window);
+        }
+    }
     fn goto_directory(&self) {
         let (current_picture, covers_only) = self.with_view_state(|view_state| {
             (
@@ -831,6 +845,10 @@ impl GsrApplicationWindow {
             )
         });
         let parent_directory_opt = parent_directory(&current_picture.file_path());
+        if !covers_only {
+            self.present_information("can only go to a directory when in covers view");
+            return
+        };
         if covers_only && current_picture.is_cover() && parent_directory_opt.clone().is_some() {
             let location = self.with_view_state(|view_state| {
                 (
