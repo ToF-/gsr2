@@ -46,7 +46,7 @@ impl Selection {
         !self.selected.is_empty()
     }
 
-    pub fn indices(&mut self) -> Vec<usize> {
+    pub fn indices(&self) -> Vec<usize> {
         let mut result: Vec<usize> = self.selected.clone().into_iter().collect();
         result.sort();
         result

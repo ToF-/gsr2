@@ -508,7 +508,7 @@ impl GsrApplicationWindow {
         let gio_action = GioAction::from((action, variant));
         let action = Action::from(gio_action);
         match action {
-            Action::Cancel => self.action_cancel(),
+            Action::Cancel => self.cancel_entry(),
             Action::Quit => self.action_quit(),
             Action::ApplyOrderSetting(order) => self.action_apply_order_setting(order),
             Action::ApplyViewSetting(view_option) => self.action_apply_view_setting(view_option),
@@ -520,8 +520,16 @@ impl GsrApplicationWindow {
             }
         }
     }
-    fn action_cancel(&self) {
-        self.imp().gsr_entry_window.borrow().close();
+    fn begin_entry(&self, gsr_entry_window: GsrEntryWindow) {
+        gsr_entry_window.present();
+        *self.imp().gsr_entry_window.borrow_mut() = gsr_entry_window;
+        self.imp().entry_on.set(true);
+    }
+    fn cancel_entry(&self) {
+        if self.imp().entry_on.get() {
+            self.imp().gsr_entry_window.borrow().close();
+            self.imp().entry_on.set(false);
+        }
     }
 
     fn action_quit(&self) {
@@ -542,7 +550,7 @@ impl GsrApplicationWindow {
     }
 
     fn action_apply_order_setting(&self, order: Order) {
-        self.action_cancel();
+        self.cancel_entry();
         {
             let shared_view_state = self.shared_view_state();
             let mut view_state = shared_view_state.borrow_mut();
@@ -563,7 +571,7 @@ impl GsrApplicationWindow {
     }
 
     fn action_apply_view_setting(&self, view_option: ViewOption) {
-        self.action_cancel();
+        self.cancel_entry();
         match view_option {
             ViewOption::Single => self.toggle_pictures_per_row(1),
             ViewOption::Grid2x2 => self.toggle_pictures_per_row(2),
@@ -580,7 +588,7 @@ impl GsrApplicationWindow {
     }
 
     fn action_enter_label(&self) {
-        self.action_cancel();
+        self.cancel_entry();
         let tags = {
             let shared_repository_opt = self.gsr_application().shared_repository_opt();
             if let Some(repository) = shared_repository_opt.borrow().as_ref() {
@@ -601,18 +609,24 @@ impl GsrApplicationWindow {
             label_change_entry(tags),
             Some(&label),
         );
-        gsr_entry_window.present();
-        *self.imp().gsr_entry_window.borrow_mut() = gsr_entry_window;
+        self.begin_entry(gsr_entry_window);
     }
 
     fn action_label(&self, label: &str) {
-        self.action_cancel();
-        self.action_cancel();
-        {
+        let indices = {
+            let shared_view_state = self.shared_view_state();
+            let view_state = shared_view_state.borrow();
+            if view_state.selection.has_selected() {
+                view_state.selection.indices()
+            } else {
+                vec![view_state.gallery.current_picture_index()]
+            }
+        };
+        self.cancel_entry();
+        for position in indices {
             let shared_view_state = self.shared_view_state();
             let mut view_state = shared_view_state.borrow_mut();
-            let position = view_state.gallery.current_picture_index();
-            let mut picture = view_state.gallery.current_picture().clone();
+            let mut picture = view_state.gallery.picture(position);
             picture.set_label(label);
             let shared_repository_opt = self.gsr_application().shared_repository_opt();
             if let Some(repository) = shared_repository_opt.borrow().as_ref() {
@@ -627,7 +641,7 @@ impl GsrApplicationWindow {
     }
 
     fn action_toggle_cover(&self) {
-        self.action_cancel();
+        self.cancel_entry();
         {
             let shared_view_state = self.shared_view_state();
             let mut view_state = shared_view_state.borrow_mut();
@@ -663,8 +677,7 @@ impl GsrApplicationWindow {
                 change_menu(),
                 None,
             );
-            gsr_entry_window.present();
-            *self.imp().gsr_entry_window.borrow_mut() = gsr_entry_window;
+            self.begin_entry(gsr_entry_window);
         }
     }
 
@@ -676,8 +689,7 @@ impl GsrApplicationWindow {
                 order_menu(),
                 None,
             );
-            gsr_entry_window.present();
-            *self.imp().gsr_entry_window.borrow_mut() = gsr_entry_window;
+            self.begin_entry(gsr_entry_window);
         }
     }
 
@@ -689,8 +701,7 @@ impl GsrApplicationWindow {
                 view_menu(),
                 None,
             );
-            gsr_entry_window.present();
-            *self.imp().gsr_entry_window.borrow_mut() = gsr_entry_window;
+            self.begin_entry(gsr_entry_window);
         }
     }
 

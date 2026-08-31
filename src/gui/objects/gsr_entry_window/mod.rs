@@ -2,7 +2,6 @@ use crate::env::default_values::ENTRY_CURSOR_1;
 use crate::env::default_values::ENTRY_CURSOR_2;
 use crate::gui::action::gio_action::GioAction;
 use crate::gui::key_input::KeyInput;
-use crate::gui::key_input::key_input_mode::KeyInputMode;
 use crate::gui::key_input::key_input_rules::KeyInputRules;
 use crate::gui::main_controller::RcMainController;
 use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
@@ -82,7 +81,6 @@ impl GsrEntryWindow {
     pub fn set_entry_text(&self, text: &str) {
         self.entry().set_label(text);
         self.imp().editing.set(false);
-
     }
     pub fn attach_cursor_blink_event(gsr_entry_window: &Self) -> glib::SourceId {
         glib::timeout_add_local(
@@ -105,11 +103,6 @@ impl GsrEntryWindow {
         )
     }
 
-    fn detach_cursor_blink_event(&self) {
-        if let Some(id) = self.imp().cursor_timeout_source_id.borrow_mut().take() {
-            id.remove();
-        }
-    }
     fn append_cursor(&self) {
         let cursor = self.imp().cursor.get();
         let mut content = self.entry_text();
@@ -124,17 +117,17 @@ impl GsrEntryWindow {
             }
         }
         self.set_entry_text(&content);
-        self.imp().cursor.set(
-            match cursor {
-                ENTRY_CURSOR_1 => ENTRY_CURSOR_2,
-                ENTRY_CURSOR_2 => ENTRY_CURSOR_1,
-                _ => ENTRY_CURSOR_1,
-            })
+        self.imp().cursor.set(match cursor {
+            ENTRY_CURSOR_1 => ENTRY_CURSOR_2,
+            ENTRY_CURSOR_2 => ENTRY_CURSOR_1,
+            _ => ENTRY_CURSOR_1,
+        })
     }
 
     fn remove_cursor(&self) {
         let content = self.entry_text();
-        let new_content: String = content.chars()
+        let new_content: String = content
+            .chars()
             .filter(|c| *c != ENTRY_CURSOR_1 && *c != ENTRY_CURSOR_2)
             .collect();
         self.set_entry_text(&new_content);
@@ -178,7 +171,6 @@ impl GsrEntryWindow {
                     let new_input = status.input();
                     this.set_entry_text(&new_input);
                     this.append_cursor();
-
                 }
                 Propagation::Stop
             }
