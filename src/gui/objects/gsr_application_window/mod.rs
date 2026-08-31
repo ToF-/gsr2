@@ -227,12 +227,10 @@ impl GsrApplicationWindow {
         gesture_click
     }
     pub fn toggle_palette(&self) {
-        let single_view = {
-            let shared_view_state = self.shared_view_state();
-            let mut view_state = shared_view_state.borrow_mut();
+        let single_view = self.with_view_state_mut(|view_state| {
             view_state.settings.toggle_palette();
             view_state.settings.single_view()
-        };
+        });
         if single_view {
             self.frame().set_current_picture();
         } else {
@@ -243,9 +241,7 @@ impl GsrApplicationWindow {
     }
 
     pub fn toggle_pictures_per_row(&self, pictures_per_row: i32) {
-        let shared_view_state = self.shared_view_state();
-        {
-            let mut view_state = shared_view_state.borrow_mut();
+        self.with_view_state_mut(|view_state| {
             let new_pictures_per_row = view_state
                 .settings
                 .toggle_pictures_per_row(pictures_per_row);
@@ -259,7 +255,7 @@ impl GsrApplicationWindow {
             {
                 view_state.focus_at_coords = (col as i32, row as i32);
             }
-        };
+        });
         self.refresh_view()
     }
 
@@ -287,37 +283,33 @@ impl GsrApplicationWindow {
                 Err(_) => panic!("can't retrieve from repository"),
                 Ok(_) => {
                     let repository_gallery = repository.gallery_rc().borrow_mut();
-                    let shared_view_state = self.shared_view_state();
-                    let mut view_state = shared_view_state.borrow_mut();
-                    view_state.gallery = repository_gallery.clone();
-                    view_state.navigator = Navigator::new(
-                        repository_gallery.len(),
-                        view_state.settings.pictures_per_row() as usize,
-                    );
+                    self.with_view_state_mut(|view_state| {
+                        view_state.gallery = repository_gallery.clone();
+                        view_state.navigator = Navigator::new(
+                            repository_gallery.len(),
+                            view_state.settings.pictures_per_row() as usize,
+                        );
+                    })
                 }
             }
         }
     }
 
     fn refresh_view(&self) {
-        let pictures_per_row = {
-            let shared_view_state = self.shared_view_state();
-            shared_view_state.borrow().settings.pictures_per_row()
-        };
+        let pictures_per_row =
+            self.with_view_state(|view_state| view_state.settings.pictures_per_row());
         self.set_stack_visible_child(pictures_per_row);
         if pictures_per_row > 1 {
             self.gsr_picture_grid().initialize_pictures();
             self.gsr_picture_grid().leave_current_picture_focus();
-            let shared_view_state = self.shared_view_state();
-            {
-                let mut view_state = shared_view_state.borrow_mut();
+            self.with_view_state_mut(|view_state| {
                 if let Some((row, col)) = view_state
                     .navigator
                     .coords_from_position(view_state.navigator.position())
                 {
                     view_state.focus_at_coords = (col as i32, row as i32);
                 }
-            }
+            });
             self.gsr_picture_grid().enter_current_picture_focus();
         } else {
             self.frame().set_current_picture();
@@ -392,13 +384,11 @@ impl GsrApplicationWindow {
         }
     }
     pub fn cell_box_left_click(&self, col: i32, row: i32, n_pressed: i32) {
-        let position_opt = {
-            let shared_view_state = self.shared_view_state();
-            let view_state = shared_view_state.borrow();
+        let position_opt = self.with_view_state(|view_state| {
             view_state
                 .navigator
                 .position_from_coords(row as usize, col as usize)
-        };
+        });
         if let Some(position) = position_opt {
             match n_pressed {
                 1 => self.grid_view_move(&Direction::Index { value: position }),
@@ -412,13 +402,11 @@ impl GsrApplicationWindow {
     }
 
     pub fn cell_box_right_click(&self, col: i32, row: i32, _n_pressed: i32) {
-        let position_opt = {
-            let shared_view_state = self.shared_view_state();
-            let view_state = shared_view_state.borrow();
+        let position_opt = self.with_view_state(|view_state| {
             view_state
                 .navigator
                 .position_from_coords(row as usize, col as usize)
-        };
+        });
         if let Some(position) = position_opt {
             self.grid_view_move(&Direction::Index { value: position });
             self.toggle_selected();
@@ -573,9 +561,7 @@ impl GsrApplicationWindow {
     }
 
     fn action_quit(&self) {
-        {
-            let shared_view_state = self.shared_view_state();
-            let view_state = shared_view_state.borrow();
+        self.with_view_state(|view_state| {
             if let Ok(mut configuration) = Configuration::from_env() {
                 configuration.current_picture =
                     Some(view_state.gallery.current_picture().file_path());
@@ -584,16 +570,14 @@ impl GsrApplicationWindow {
                 configuration.current_order = Some(view_state.gallery.order());
                 let _ = configuration.save();
             }
-        }
+        });
         self.gsr_picture_grid().leave_current_picture_focus();
         self.close();
     }
 
     fn action_apply_order_setting(&self, order: Order) {
         self.cancel_entry();
-        {
-            let shared_view_state = self.shared_view_state();
-            let mut view_state = shared_view_state.borrow_mut();
+        self.with_view_state_mut(|view_state| {
             let gallery = &mut view_state.gallery;
             gallery.sort_by(order);
             let new_position = gallery.current_picture_index();
@@ -606,7 +590,7 @@ impl GsrApplicationWindow {
                 println!("navigator can't move to: {:?}", &direction);
             };
             view_state.navigator.set_page_changed();
-        }
+        });
         self.refresh_view();
     }
 
@@ -654,11 +638,7 @@ impl GsrApplicationWindow {
     fn action_enter_label(&self) {
         self.cancel_entry();
         let tags = self.retrieve_all_labels();
-        let label = {
-            let shared_view_state = self.shared_view_state();
-            let view_state = shared_view_state.borrow();
-            view_state.gallery.current_picture().label()
-        };
+        let label = self.with_view_state(|view_state| view_state.gallery.current_picture().label());
         let gsr_entry_window = GsrEntryWindow::new_with(
             self,
             &self.gsr_application().shared_main_controller(),
@@ -668,15 +648,19 @@ impl GsrApplicationWindow {
         self.begin_entry(gsr_entry_window);
     }
 
-    fn action_tag(&self, input: &str) {
-        let tags: Vec<String> = input.split(',').map(|s| s.to_string()).collect();
-        let indices = self.with_view_state(|view_state| {
+    fn selected_indices(&self) -> Vec<usize> {
+        self.with_view_state(|view_state| {
             if view_state.selection.has_selected() {
                 view_state.selection.indices()
             } else {
                 vec![view_state.gallery.current_picture_index()]
             }
-        });
+        })
+    }
+
+    fn action_tag(&self, input: &str) {
+        let tags: Vec<String> = input.split(',').map(|s| s.to_string()).collect();
+        let indices = self.selected_indices();
         self.cancel_entry();
         for position in indices {
             self.with_view_state_mut(|view_state| {
@@ -698,38 +682,28 @@ impl GsrApplicationWindow {
     }
 
     fn action_label(&self, label: &str) {
-        let indices = {
-            let shared_view_state = self.shared_view_state();
-            let view_state = shared_view_state.borrow();
-            if view_state.selection.has_selected() {
-                view_state.selection.indices()
-            } else {
-                vec![view_state.gallery.current_picture_index()]
-            }
-        };
+        let indices = self.selected_indices();
         self.cancel_entry();
         for position in indices {
-            let shared_view_state = self.shared_view_state();
-            let mut view_state = shared_view_state.borrow_mut();
-            let mut picture = view_state.gallery.picture(position);
-            picture.set_label(label);
-            let shared_repository_opt = self.gsr_application().shared_repository_opt();
-            if let Some(repository) = shared_repository_opt.borrow().as_ref() {
-                match repository.update_picture(&picture) {
-                    Ok(_) => {}
-                    Err(e) => eprintln!("{}", e),
+            self.with_view_state_mut(|view_state| {
+                let mut picture = view_state.gallery.picture(position);
+                picture.set_label(label);
+                let shared_repository_opt = self.gsr_application().shared_repository_opt();
+                if let Some(repository) = shared_repository_opt.borrow().as_ref() {
+                    match repository.update_picture(&picture) {
+                        Ok(_) => {}
+                        Err(e) => eprintln!("{}", e),
+                    }
                 }
-            }
-            view_state.gallery.set_picture(position, picture);
+                view_state.gallery.set_picture(position, picture);
+            });
         }
         self.refresh_view();
     }
 
     fn action_toggle_cover(&self) {
         self.cancel_entry();
-        {
-            let shared_view_state = self.shared_view_state();
-            let mut view_state = shared_view_state.borrow_mut();
+        self.with_view_state_mut(|view_state| {
             let position = view_state.gallery.current_picture_index();
             let shared_repository_opt = self.gsr_application().shared_repository_opt();
             if let Some(repository) = shared_repository_opt.borrow().as_ref() {
@@ -742,15 +716,13 @@ impl GsrApplicationWindow {
                 }
                 view_state.gallery.set_picture(position, picture);
             }
-        }
+        });
         self.refresh_view();
     }
     fn cancel_range(&self) {
-        {
-            let shared_view_state = self.shared_view_state();
-            let mut view_state = shared_view_state.borrow_mut();
+        self.with_view_state_mut(|view_state| {
             view_state.selection.cancel();
-        }
+        });
         self.refresh_view();
     }
 
@@ -791,50 +763,38 @@ impl GsrApplicationWindow {
     }
 
     fn goto_directory(&self) {
-        let (current_picture, covers_only) = {
-            let shared_view_state = self.shared_view_state();
-            let view_state = shared_view_state.borrow();
+        let (current_picture, covers_only) = self.with_view_state(|view_state| {
             (
                 view_state.gallery.current_picture(),
                 view_state.settings.covers_only(),
             )
-        };
+        });
         let parent_directory_opt = parent_directory(&current_picture.file_path());
         dbg!(&covers_only);
         if covers_only && current_picture.is_cover() && parent_directory_opt.clone().is_some() {
-            let location = {
-                let shared_view_state = self.shared_view_state();
-                let view_state = shared_view_state.borrow();
+            let location = self.with_view_state(|view_state| {
                 (
                     view_state.gallery.sub_folder(),
                     view_state.navigator.position(),
                 )
-            };
+            });
             self.retrieve_from_repository(None, parent_directory_opt.clone(), None);
-            {
-                let shared_view_state = self.shared_view_state();
-                let mut view_state = shared_view_state.borrow_mut();
+            self.with_view_state_mut(|view_state| {
                 view_state.positions.push(location);
                 view_state
                     .gallery
                     .set_sub_folder(parent_directory_opt.clone());
                 view_state.settings.toggle_covers_only();
-            }
+            });
             self.refresh_view();
         }
     }
 
     fn back_from_directory(&self) {
-        let nb_positions = {
-            let shared_view_state = self.shared_view_state();
-            let view_state = shared_view_state.borrow();
-            view_state.positions.len()
-        };
+        let nb_positions = self.with_view_state(|view_state| view_state.positions.len());
         if nb_positions > 0 {
             self.retrieve_from_repository(Some(true), None, None);
-            {
-                let shared_view_state = self.shared_view_state();
-                let mut view_state = shared_view_state.borrow_mut();
+            self.with_view_state_mut(|view_state| {
                 if let Some((sub_folder_opt, position)) = view_state.positions.pop() {
                     view_state.gallery.set_sub_folder(sub_folder_opt);
                     view_state.settings.toggle_covers_only();
@@ -850,7 +810,7 @@ impl GsrApplicationWindow {
                     }
                     view_state.gallery.set_current_picture_index(position);
                 }
-            }
+            });
             self.refresh_view();
         }
     }
@@ -861,19 +821,15 @@ impl GsrApplicationWindow {
     }
 
     fn repeat_range(&self) {
-        {
-            let shared_view_state = self.shared_view_state();
-            let mut view_state = shared_view_state.borrow_mut();
+        self.with_view_state_mut(|view_state| {
             view_state.selection.repeat();
             view_state.navigator.set_page_changed();
-        }
+        });
         self.refresh_view();
     }
 
     fn set_selection_range(&self, range: SelectionRange) {
-        {
-            let shared_view_state = self.shared_view_state();
-            let mut view_state = shared_view_state.borrow_mut();
+        self.with_view_state_mut(|view_state| {
             match range {
                 SelectionRange::End => {
                     let position = view_state.navigator.position();
@@ -890,17 +846,15 @@ impl GsrApplicationWindow {
                 }
             }
             view_state.navigator.set_page_changed();
-        }
+        });
         self.refresh_view();
     }
 
     fn toggle_blinking(&self) {
-        let on = {
-            let shared_view_state = self.shared_view_state();
-            let mut view_state = shared_view_state.borrow_mut();
+        let on = self.with_view_state_mut(|view_state| {
             view_state.settings.toggle_blinking();
             view_state.settings.blinking_on()
-        };
+        });
         if on == true {
             self.gsr_picture_grid().initialize_pictures();
             self.gsr_picture_grid().leave_current_picture_focus();
@@ -909,14 +863,12 @@ impl GsrApplicationWindow {
     }
 
     fn toggle_expand(&self) {
-        let pictures_per_row = {
-            let shared_view_state = self.shared_view_state();
-            let mut view_state = shared_view_state.borrow_mut();
+        let pictures_per_row = self.with_view_state_mut(|view_state| {
             if view_state.settings.pictures_per_row() == 1 {
                 view_state.settings.toggle_view_mode();
             }
             view_state.settings.pictures_per_row()
-        };
+        });
         if pictures_per_row == 1 {
             self.frame().set_current_picture();
             self.refresh_title();
@@ -924,9 +876,7 @@ impl GsrApplicationWindow {
     }
 
     fn toggle_view_display_option(&self, view_option: ViewOption) {
-        {
-            let shared_view_state = self.shared_view_state();
-            let mut view_state = shared_view_state.borrow_mut();
+        self.with_view_state_mut(|view_state| {
             let settings = &mut view_state.settings;
             let _ = match view_option {
                 ViewOption::FilePath => settings.toggle_file_path(),
@@ -934,14 +884,12 @@ impl GsrApplicationWindow {
                 ViewOption::FileSize => settings.toggle_file_size(),
                 _ => true,
             };
-        }
+        });
         self.refresh_title();
     }
 
     fn toggle_selected(&self) {
-        {
-            let shared_view_state = self.shared_view_state();
-            let mut view_state = shared_view_state.borrow_mut();
+        self.with_view_state_mut(|view_state| {
             let position = view_state.navigator.position();
             if view_state.selection.contains(position) {
                 view_state.selection.unselect(position)
@@ -949,45 +897,36 @@ impl GsrApplicationWindow {
                 view_state.selection.select(position)
             }
             view_state.navigator.set_page_changed()
-        }
+        });
         self.refresh_view()
     }
 
     fn toggle_view_covers(&self) {
-        let (gallery_has_covers, sub_folder) = {
-            let shared_view_state = self.shared_view_state();
-            let view_state = shared_view_state.borrow();
+        let (gallery_has_covers, sub_folder) = self.with_view_state(|view_state| {
             (
                 view_state.gallery.has_covers(),
                 view_state.gallery.sub_folder(),
             )
-        };
+        });
         if gallery_has_covers && sub_folder.is_none() {
-            let covers_only = {
-                let shared_view_state = self.shared_view_state();
-                let mut view_state = shared_view_state.borrow_mut();
-                view_state.settings.toggle_covers_only()
-            };
+            let covers_only =
+                self.with_view_state_mut(|view_state| view_state.settings.toggle_covers_only());
             self.retrieve_from_repository(Some(covers_only), None, None);
             self.refresh_view()
         }
     }
 
     fn move_navigator(&self, direction: &Direction) -> Navigator {
-        let navigator = {
-            let shared_view_state = self.shared_view_state();
-            let mut view_state = shared_view_state.borrow_mut();
+        let navigator = self.with_view_state_mut(|view_state| {
             if view_state.navigator.can_move(&direction) {
                 view_state.navigator.move_towards(&direction);
             }
             view_state.navigator.clone()
-        };
-        {
-            let shared_view_state = self.shared_view_state();
-            let mut view_state = shared_view_state.borrow_mut();
+        });
+        self.with_view_state_mut(|view_state| {
             let gallery = &mut view_state.gallery;
             gallery.set_current_picture_index(navigator.position());
-        };
+        });
         navigator
     }
 
@@ -1009,11 +948,9 @@ impl GsrApplicationWindow {
             {
                 self.gsr_picture_grid().leave_current_picture_focus();
                 if let Some((row, col)) = navigator.coords_from_position(navigator.position()) {
-                    {
-                        let shared_view_state = self.shared_view_state();
-                        let mut view_state = shared_view_state.borrow_mut();
+                    self.with_view_state_mut(|view_state| {
                         view_state.focus_at_coords = (col as i32, row as i32);
-                    }
+                    })
                 }
                 if navigator.page_changed() {
                     self.gsr_picture_grid().initialize_pictures();
