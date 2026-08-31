@@ -1,5 +1,4 @@
-use crate::gui::key_input::information::information;
-use crate::gui::key_input::entry::remove_tags_entry;
+use crate::file::paths::name_and_extension;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
@@ -16,6 +15,9 @@ use crate::gui::direction::Direction;
 use crate::gui::display::title_display;
 use crate::gui::key_input::entry::add_tags_entry;
 use crate::gui::key_input::entry::label_change_entry;
+use crate::gui::key_input::entry::remove_tags_entry;
+use crate::gui::key_input::entry::rename_entry;
+use crate::gui::key_input::information::information;
 use crate::gui::key_input::menu::change_menu;
 use crate::gui::key_input::menu::order_menu;
 use crate::gui::key_input::menu::view_menu;
@@ -533,18 +535,19 @@ impl GsrApplicationWindow {
     pub fn process_action(&self, action: Action) {
         match action {
             Action::Nothing => {}
-            Action::Dismiss| 
-            Action::Cancel => self.cancel_entry(),
+            Action::Dismiss | Action::Cancel => self.cancel_entry(),
             Action::Quit => self.action_quit(),
             Action::ApplyOrderSetting(order) => self.action_apply_order_setting(order),
             Action::ApplyViewSetting(view_option) => self.action_apply_view_setting(view_option),
             Action::EnterAddTag => self.action_enter_add_tag(),
             Action::EnterRemoveTag => self.action_enter_remove_tag(),
+            Action::EnterRename => self.action_enter_rename(),
             Action::EnterLabel => self.action_enter_label(),
             Action::Unlabel => self.action_unlabel(),
             Action::Label(ref label) => self.action_label(&label),
             Action::AddTag(ref tags) => self.action_tag(&tags),
             Action::RemoveTag(ref tags) => self.action_untag(&tags),
+            Action::Rename(ref name) => self.action_rename(&name),
             Action::ToggleCover => self.action_toggle_cover(),
             _ => {
                 println!("* * * todo: {:?}", action);
@@ -653,6 +656,28 @@ impl GsrApplicationWindow {
         self.begin_entry(gsr_entry_window);
     }
 
+    fn action_enter_rename(&self) {
+        self.cancel_entry();
+        let (selected_count, current_picture_name) = self.with_view_state(|view_state| {
+            (
+                view_state.selection.count(),
+                view_state.gallery.current_picture().file_name(),
+            )
+        });
+        if selected_count != 1 {
+            self.present_information("select one picture to rename first");
+            return;
+        };
+        let (name, extention) = name_and_extension(&current_picture_name);
+        let gsr_entry_window = GsrEntryWindow::new_with(
+            self,
+            &self.gsr_application().shared_main_controller(),
+            rename_entry(),
+            Some(&name),
+        );
+        self.begin_entry(gsr_entry_window);
+    }
+
     fn action_enter_label(&self) {
         self.cancel_entry();
         let tags = self.retrieve_all_labels();
@@ -723,7 +748,8 @@ impl GsrApplicationWindow {
         self.refresh_view();
     }
 
-
+    fn action_rename(&self, name: &str) {
+    }
     fn action_label(&self, label: &str) {
         self.cancel_entry();
         let indices = self.selected_indices();
@@ -760,7 +786,7 @@ impl GsrApplicationWindow {
                 }
                 view_state.gallery.set_picture(position, picture);
             });
-        };
+        }
         self.refresh_view();
     }
 
@@ -847,7 +873,7 @@ impl GsrApplicationWindow {
         let parent_directory_opt = parent_directory(&current_picture.file_path());
         if !covers_only {
             self.present_information("can only go to a directory when in covers view");
-            return
+            return;
         };
         if covers_only && current_picture.is_cover() && parent_directory_opt.clone().is_some() {
             let location = self.with_view_state(|view_state| {
@@ -915,7 +941,7 @@ impl GsrApplicationWindow {
                 }
                 SelectionRange::All => {
                     let limit = &view_state.navigator.limit();
-                    view_state.selection.set_range(0, *limit-1);
+                    view_state.selection.set_range(0, *limit - 1);
                 }
                 SelectionRange::Page => {
                     let page_start = &view_state.navigator.page_start();

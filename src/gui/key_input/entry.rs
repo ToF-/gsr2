@@ -68,6 +68,26 @@ pub fn remove_tags_entry(completion_tags: Tags) -> KeyInput {
     )
 }
 
+pub fn rename_entry() -> KeyInput {
+    KeyInput::new(
+        "Enter a name",
+        None,
+        KeyInputMode::Entry,
+        |_, ch| matches!(ch, 'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' ),
+        |s, ch| {
+            let mut input = s;
+            if ch.is_ascii_uppercase() {
+                input.push(ch.to_lowercase().next().unwrap())
+            } else if ch.is_ascii_whitespace() {
+                input.push(SPACE_REPLACEMENT_CHAR_FOR_TAGS)
+            } else {
+                input.push(ch)
+            }
+            input
+        },
+        |s| Action::Rename(s),
+    )
+}
 
 #[cfg(test)]
 mod tests {

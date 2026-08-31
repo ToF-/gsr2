@@ -103,6 +103,10 @@ impl MainController {
             activate.clone(),
         ));
         entries.push(Self::action_entry(
+            GioActionType::from(Action::Rename("foo".to_string())),
+            activate.clone(),
+        ));
+        entries.push(Self::action_entry(
             GioActionType::from(Action::MoveTowards(Direction::Left)),
             activate.clone(),
         ));
