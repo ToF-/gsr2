@@ -1,4 +1,3 @@
-use crate::model::category::category_from_string;
 use crate::env::default_values::TREELIST_WINDOW_HEIGHT;
 use crate::env::default_values::TREELIST_WINDOW_WIDTH;
 use crate::gui::action::Action;
@@ -6,6 +5,7 @@ use crate::gui::action::gio_action::GioAction;
 use crate::gui::main_controller::RcMainController;
 use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
 use crate::model::catalog::Catalog;
+use crate::model::category::category_from_string;
 use crate::model::sub_category::SubCategory;
 use glib::BoxedAnyObject;
 use glib::Variant;
@@ -107,7 +107,7 @@ impl GsrTreelistWindow {
         let window_css_provider = CssProvider::new();
         scrolled_window.add_css_class("tree-list");
         window_css_provider.load_from_string("window.tree-list { background-color:black;}");
-        let list_view = self.build_list_view(catalog.root_category());
+        let list_view = self.build_list_view(catalog.root_category(), initial_item_opt);
 
         scrolled_window.set_child(Some(&list_view));
         selector_box.append(&prompt_label);
@@ -132,7 +132,7 @@ impl GsrTreelistWindow {
             gtk::STYLE_PROVIDER_PRIORITY_APPLICATION,
         );
     }
-    fn build_list_view(&self, root: SubCategory) -> gtk::ListView {
+    fn build_list_view(&self, root: SubCategory, initial_item_opt: Option<&str>) -> gtk::ListView {
         let store = gio::ListStore::new::<BoxedAnyObject>();
         store.append(&BoxedAnyObject::new(root));
         let tree_list_model: TreeListModel =
@@ -148,6 +148,7 @@ impl GsrTreelistWindow {
                 }
                 Some(sub_categories.upcast())
             });
+
         let signal_list_item_factory = SignalListItemFactory::new();
         signal_list_item_factory.connect_setup(|_, item| {
             let expander = TreeExpander::new();
@@ -157,6 +158,7 @@ impl GsrTreelistWindow {
                 .unwrap()
                 .set_child(Some(&expander));
         });
+
         signal_list_item_factory.connect_bind(|_, item| {
             let item = item.downcast_ref::<ListItem>().unwrap();
             let row = item.item().unwrap().downcast::<gtk::TreeListRow>().unwrap();
@@ -175,11 +177,32 @@ impl GsrTreelistWindow {
             let node = boxed.borrow::<SubCategory>();
             label.set_text(&node.name());
         });
-        let selection = SingleSelection::new(Some(tree_list_model));
+
+        let selection = SingleSelection::new(Some(tree_list_model.clone()));
+        if let Some(initial_item) = initial_item_opt {
+            for position in 0..tree_list_model.n_items() {
+                let Some(obj) = tree_list_model.item(position) else {
+                    continue;
+                };
+                let row = obj.downcast::<gtk::TreeListRow>().unwrap();
+                let Some(item) = row.item() else {
+                    continue;
+                };
+                let boxed = item.downcast::<glib::BoxedAnyObject>().unwrap();
+                let node = boxed.borrow::<SubCategory>();
+                if node.name() == initial_item {
+                    selection.set_selected(position);
+                    *self.imp().selected.borrow_mut() = node.name();
+                    self.imp().position.set(position);
+                    break;
+                }
+            }
+        };
+
         let event_controller_key = gtk::EventControllerKey::new();
         event_controller_key.connect_key_pressed(clone!(
-                #[strong (rename_to=this)]
-                self,
+            #[strong (rename_to=this)]
+            self,
             #[strong]
             selection,
             move |_, _key, _key_code, _modifier_type| {
@@ -204,15 +227,21 @@ impl GsrTreelistWindow {
                 Propagation::Proceed
             }
         ));
+        let initial_position = self.imp().position.get();
         let view = ListView::new(Some(selection), Some(signal_list_item_factory));
         view.add_controller(event_controller_key);
         view.add_css_class("catalog");
+        view.scroll_to(
+            initial_position,
+            gtk::ListScrollFlags::FOCUS,
+            None,
+    );
 
         view
     }
 
     fn selected(&self) -> String {
-       self.imp().selected.borrow().clone() 
+        self.imp().selected.borrow().clone()
     }
 
     fn activate_confirm_action(&self, action_on_confirm: Action) {

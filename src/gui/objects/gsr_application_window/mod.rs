@@ -1,4 +1,4 @@
-use crate::model::category::Category;
+use crate::model::category::category_from_string;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
@@ -33,6 +33,7 @@ use crate::gui::view_state::ViewState;
 use crate::gui::view_state::navigator::Navigator;
 use crate::gui::view_state::selection_range::SelectionRange;
 use crate::model::catalog::Catalog;
+use crate::model::category::Category;
 use crate::model::finder::Predicate;
 use crate::model::order::Order;
 use crate::model::picture::Picture;
@@ -591,7 +592,6 @@ impl GsrApplicationWindow {
         gsr_treelist_window.present();
         *self.imp().gsr_treelist_window.borrow_mut() = gsr_treelist_window;
         self.imp().treelist_on.set(true);
-
     }
 
     fn action_quit(&self) {
@@ -666,13 +666,28 @@ impl GsrApplicationWindow {
 
     fn action_enter_category(&self) {
         self.cancel_entry_or_treelist();
+        let mut current_category: Category = None;
+        let mut category_found: bool = false;
+        for position in self.selected_indices() {
+            let category =
+                category_from_string(&self.with_view_state(|view_state| view_state.gallery.picture(position).category_name()));
+            if !category_found {
+                current_category = category;
+                category_found = true;
+            } else {
+                if category != current_category {
+                    current_category = None;
+                    break;
+                }
+            }
+        }
         let catalog = self.with_repository(|repository| repository.catalog());
         let gsr_treelist_window = GsrTreelistWindow::new_with(
             self,
             &self.gsr_application().shared_main_controller(),
             &catalog,
             "Select a category",
-            None,
+            current_category.as_deref(),
             Action::Categorize(None),
         );
         self.begin_treelist_selection(gsr_treelist_window);
@@ -745,7 +760,7 @@ impl GsrApplicationWindow {
                 picture.set_category(category.clone());
                 view_state.gallery.set_picture(position, picture);
             });
-        };
+        }
         self.refresh_view();
     }
 

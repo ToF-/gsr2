@@ -1,3 +1,4 @@
+use std::cell::Cell;
 use crate::env::default_values::TREELIST_WINDOW_HEIGHT;
 use crate::env::default_values::TREELIST_WINDOW_WIDTH;
 use crate::gui::main_controller::RcMainController;
@@ -28,12 +29,14 @@ use std::rc::Rc;
 
 pub struct GsrTreelistWindow {
     pub selected: Shared<String>,
+    pub position: Cell<u32>,
 }
 
 impl Default for GsrTreelistWindow {
     fn default() -> Self {
         Self {
             selected: Rc::new(RefCell::new(String::new())),
+            position: Cell::new(0),
         }
     }
 }
