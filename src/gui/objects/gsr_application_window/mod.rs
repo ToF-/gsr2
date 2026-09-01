@@ -1,4 +1,3 @@
-use crate::model::picture::Picture;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
@@ -27,6 +26,7 @@ use crate::gui::objects::gsr_application::GsrApplication;
 use crate::gui::objects::gsr_entry_window::GsrEntryWindow;
 use crate::gui::objects::gsr_picture_frame::GsrPictureFrame;
 use crate::gui::objects::gsr_picture_grid::GsrPictureGrid;
+use crate::gui::objects::gsr_treelist_window::GsrTreelistWindow;
 use crate::gui::view::treelist_window::TreeListWindow;
 use crate::gui::view_state::ViewState;
 use crate::gui::view_state::navigator::Navigator;
@@ -34,6 +34,7 @@ use crate::gui::view_state::selection_range::SelectionRange;
 use crate::model::catalog::Catalog;
 use crate::model::finder::Predicate;
 use crate::model::order::Order;
+use crate::model::picture::Picture;
 use crate::model::repository::Repository;
 use crate::model::shared::Shared;
 use crate::model::tags::Tags;
@@ -551,6 +552,7 @@ impl GsrApplicationWindow {
             Action::ApplyOrderSetting(order) => self.action_apply_order_setting(order),
             Action::ApplyViewSetting(view_option) => self.action_apply_view_setting(view_option),
             Action::EnterAddTag => self.action_enter_add_tag(),
+            Action::EnterCategory => self.action_enter_category(),
             Action::EnterRemoveTag => self.action_enter_remove_tag(),
             Action::EnterRename => self.action_enter_rename(),
             Action::EnterLabel => self.action_enter_label(),
@@ -578,6 +580,10 @@ impl GsrApplicationWindow {
             self.imp().gsr_entry_window.borrow().close();
             self.imp().entry_on.set(false);
         }
+    }
+    fn begin_treelist_selection(&self, gsr_treelist_window: GsrTreelistWindow) {
+        gsr_treelist_window.present();
+        *self.imp().gsr_treelist_window.borrow_mut() = gsr_treelist_window
     }
 
     fn action_quit(&self) {
@@ -648,6 +654,19 @@ impl GsrApplicationWindow {
             None,
         );
         self.begin_entry(gsr_entry_window);
+    }
+
+    fn action_enter_category(&self) {
+        self.cancel_entry();
+        let catalog = self.with_repository(|repository| repository.catalog());
+        let gsr_treelist_window = GsrTreelistWindow::new_with(
+            self,
+            &self.gsr_application().shared_main_controller(),
+            &catalog,
+            "Select a category",
+            None,
+        );
+        self.begin_treelist_selection(gsr_treelist_window);
     }
 
     fn action_enter_remove_tag(&self) {
@@ -748,8 +767,6 @@ impl GsrApplicationWindow {
         self.refresh_view();
     }
 
-
-
     fn action_rename(&self, target_name: &str) {
         self.cancel_entry();
         if target_name.is_empty() {
@@ -766,7 +783,7 @@ impl GsrApplicationWindow {
         self.with_view_state_mut(|view_state| {
             let position = view_state.gallery.current_picture_index();
             let picture = view_state.gallery.current_picture();
-            let new_picture =Picture::copy_with_name(&picture, target_name);
+            let new_picture = Picture::copy_with_name(&picture, target_name);
             self.with_repository(|repository| {
                 repository.rename_picture(&picture, target_name);
             });

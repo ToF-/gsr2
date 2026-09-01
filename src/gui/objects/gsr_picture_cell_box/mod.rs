@@ -1,11 +1,11 @@
-use crate::file::paths::file_path_as_retrieved;
-use crate::file::paths::based_path;
 use crate::env::default_values::FOCUS_BLINKING_DURATION;
 use crate::env::default_values::FOCUS_SYMBOL_1;
 use crate::env::default_values::FOCUS_SYMBOL_2;
 use crate::env::default_values::GRID_PALETTE_AREA_HEIGHT;
 use crate::env::default_values::GRID_PALETTE_AREA_WIDTH;
+use crate::file::paths::based_path;
 use crate::file::paths::check_path_exists;
+use crate::file::paths::file_path_as_retrieved;
 use crate::gui::action::Action;
 use crate::gui::action::gio_action::GioAction;
 use crate::gui::action::gio_action::SimpleActionCall;

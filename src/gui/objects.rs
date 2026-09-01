@@ -5,5 +5,6 @@ pub mod gsr_main_window;
 pub mod gsr_picture_cell_box;
 pub mod gsr_picture_frame;
 pub mod gsr_picture_grid;
+pub mod gsr_treelist_window;
 pub mod gsr_window;
 pub mod my_window;
