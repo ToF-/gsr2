@@ -186,8 +186,10 @@ impl GsrTreelistWindow {
             move |_, key, _key_code, _modifier_type| {
                 let key_name = key.name().unwrap_or_default();
                 let key_name = key_name.as_str();
+                println!("{:?}", &key_name);
                 match key_name {
                     "Escape" => gsr_treelist_window.close(),
+                    "Return" => gsr_treelist_window.close(),
                     _ => {}
                 };
                 Propagation::Stop
