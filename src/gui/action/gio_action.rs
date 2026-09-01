@@ -57,7 +57,7 @@ impl From<Action> for GioAction {
             Action::ConfirmMoveFile(file_path) => Some(GioActionParameter::from(file_path)),
             Action::Dismiss => None,
             Action::EnterAddTag => None,
-            Action::EnterCategory => None,
+            Action::SelectCategoryForPicture => None,
             Action::EnterIndex => None,
             Action::EnterLabel => None,
             Action::EnterRemoveTag => None,
@@ -138,7 +138,7 @@ impl From<GioAction> for Action {
             }
             "dismiss" => Action::Dismiss,
             "enter-add-tag" => Action::EnterAddTag,
-            "enter-category" => Action::EnterCategory,
+            "select-category-for-picture" => Action::SelectCategoryForPicture,
             "enter-index" => Action::EnterIndex,
             "enter-label" => Action::EnterLabel,
             "enter-remove-tag" => Action::EnterRemoveTag,
@@ -252,7 +252,7 @@ mod tests {
         check_action_to_and_from(Action::ConfirmDeleteFile);
         check_action_to_and_from(Action::ConfirmMoveFile("foo".to_string()));
         check_action_to_and_from(Action::EnterAddTag);
-        check_action_to_and_from(Action::EnterCategory);
+        check_action_to_and_from(Action::SelectCategoryForPicture);
         check_action_to_and_from(Action::EnterIndex);
         check_action_to_and_from(Action::EnterLabel);
         check_action_to_and_from(Action::EnterRemoveTag);

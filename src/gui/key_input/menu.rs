@@ -107,12 +107,40 @@ pub fn change_menu() -> KeyInput {
             match change {
                 Change::AddTag => Action::EnterAddTag,
                 Change::Catalog => Action::PickCatalogChange,
-                Change::Category => Action::EnterCategory,
+                Change::Category => Action::SelectCategoryForPicture,
                 Change::Cover => Action::ToggleCover,
                 Change::Label => Action::EnterLabel,
                 Change::Name => Action::EnterRename,
                 Change::RemoveTag => Action::EnterRemoveTag,
                 Change::Unlabel => Action::Unlabel,
+                _ => Action::Nothing,
+            }
+        },
+    )
+}
+pub fn catalog_menu() -> KeyInput {
+    KeyInput::new(
+        "Enter what to change: (A)dd category (M)ove category (R)emove category",
+        None,
+        KeyInputMode::Menu,
+        |_, ch| matches!(ch, 'a' | 'm' | 'r'),
+        |_, ch| {
+            let change = match ch {
+                'a' => Change::AddCategory,
+                'm' => Change::MoveCategory,
+                'r' => Change::RemoveCategory,
+                _ => todo!(),
+            };
+            let s: String = (change as i32).to_string();
+            s
+        },
+        |s| {
+            let n: i32 = s.parse::<i32>().unwrap();
+            let change = Change::from(n);
+            match change {
+                Change::AddCategory => Action::Nothing,
+                Change::MoveCategory => Action::Nothing,
+                Change::RemoveCategory => Action::Nothing,
                 _ => Action::Nothing,
             }
         },

@@ -171,7 +171,7 @@ impl MainController {
             activate.clone(),
         ));
         entries.push(Self::action_entry(
-            GioActionType::from(Action::EnterCategory),
+            GioActionType::from(Action::SelectCategoryForPicture),
             activate.clone(),
         ));
         entries.push(Self::action_entry(

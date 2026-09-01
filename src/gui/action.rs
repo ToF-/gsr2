@@ -26,7 +26,7 @@ pub enum Action {
     ConfirmMoveFile(String),       // input a yes to moving selected picture files
     Dismiss,                       // dismiss after presentation of an information
     EnterAddTag,                   // enter new tag(s) to add to the selected pictures
-    EnterCategory,                 // enter category to apply to the selected pictures
+    SelectCategoryForPicture,                 // enter category to apply to the selected pictures
     EnterIndex,                    // interactively enter index to jump to
     EnterLabel,                    // enter label to apply to the selected pictures
     EnterRemoveTag,                // enter tag(s) to remove from the selected pictures

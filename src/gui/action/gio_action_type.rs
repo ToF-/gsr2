@@ -61,8 +61,8 @@ impl From<Action> for GioActionType {
             Action::EnterAddTag => {
                 GioActionType::new("enter-add-tag", GioActionParameterType::None)
             }
-            Action::EnterCategory => {
-                GioActionType::new("enter-category", GioActionParameterType::None)
+            Action::SelectCategoryForPicture => {
+                GioActionType::new("select-category-for-picture", GioActionParameterType::None)
             }
             Action::EnterIndex => GioActionType::new("enter-index", GioActionParameterType::None),
             Action::EnterLabel => GioActionType::new("enter-label", GioActionParameterType::None),
