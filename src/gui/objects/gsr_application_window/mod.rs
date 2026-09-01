@@ -591,7 +591,11 @@ impl GsrApplicationWindow {
     fn begin_treelist_selection(&self, gsr_treelist_window: GsrTreelistWindow) {
         gsr_treelist_window.present();
         let initial_position = gsr_treelist_window.position();
-        gsr_treelist_window.list_view().scroll_to(initial_position, gtk::ListScrollFlags::FOCUS, None);
+        gsr_treelist_window.list_view().scroll_to(
+            initial_position,
+            gtk::ListScrollFlags::FOCUS,
+            None,
+        );
 
         *self.imp().gsr_treelist_window.borrow_mut() = gsr_treelist_window;
         self.imp().treelist_on.set(true);
@@ -755,19 +759,6 @@ impl GsrApplicationWindow {
         })
     }
 
-    fn action_categorize(&self, category: &Category) {
-        let indices = self.selected_indices();
-        self.cancel_entry_or_treelist();
-        for position in indices {
-            self.with_view_state_mut(|view_state| {
-                let mut picture = view_state.gallery.picture(position);
-                picture.set_category(category.clone());
-                view_state.gallery.set_picture(position, picture);
-            });
-        }
-        self.refresh_view();
-    }
-
     fn action_tag(&self, input: &str) {
         let tags: Vec<String> = input.split(',').map(|s| s.to_string()).collect();
         let indices = self.selected_indices();
@@ -801,6 +792,23 @@ impl GsrApplicationWindow {
                         Ok(_) => {}
                         Err(e) => eprintln!("{}", e),
                     })
+                });
+                view_state.gallery.set_picture(position, picture);
+            });
+        }
+        self.refresh_view();
+    }
+
+    fn action_categorize(&self, category: &Category) {
+        let indices = self.selected_indices();
+        self.cancel_entry_or_treelist();
+        for position in indices {
+            self.with_view_state_mut(|view_state| {
+                let mut picture = view_state.gallery.picture(position);
+                picture.set_category(category.clone());
+                self.with_repository(|repository| match repository.update_picture(&picture) {
+                    Ok(_) => {}
+                    Err(e) => eprintln!("{}", e),
                 });
                 view_state.gallery.set_picture(position, picture);
             });
