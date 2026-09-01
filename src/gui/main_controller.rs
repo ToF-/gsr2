@@ -107,6 +107,10 @@ impl MainController {
             activate.clone(),
         ));
         entries.push(Self::action_entry(
+            GioActionType::from(Action::Categorize(None)),
+            activate.clone(),
+        ));
+        entries.push(Self::action_entry(
             GioActionType::from(Action::MoveTowards(Direction::Left)),
             activate.clone(),
         ));

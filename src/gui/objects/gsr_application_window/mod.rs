@@ -1,3 +1,4 @@
+use crate::model::category::Category;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
@@ -547,10 +548,11 @@ impl GsrApplicationWindow {
     pub fn process_action(&self, action: Action) {
         match action {
             Action::Nothing => {}
-            Action::Dismiss | Action::Cancel => self.cancel_entry(),
+            Action::Dismiss | Action::Cancel => self.cancel_entry_or_treelist(),
             Action::Quit => self.action_quit(),
             Action::ApplyOrderSetting(order) => self.action_apply_order_setting(order),
             Action::ApplyViewSetting(view_option) => self.action_apply_view_setting(view_option),
+            Action::Categorize(ref category) => self.action_categorize(category),
             Action::EnterAddTag => self.action_enter_add_tag(),
             Action::EnterCategory => self.action_enter_category(),
             Action::EnterRemoveTag => self.action_enter_remove_tag(),
@@ -575,15 +577,21 @@ impl GsrApplicationWindow {
         *self.imp().gsr_entry_window.borrow_mut() = gsr_entry_window;
         self.imp().entry_on.set(true);
     }
-    fn cancel_entry(&self) {
+    fn cancel_entry_or_treelist(&self) {
         if self.imp().entry_on.get() {
             self.imp().gsr_entry_window.borrow().close();
             self.imp().entry_on.set(false);
         }
+        if self.imp().treelist_on.get() {
+            self.imp().gsr_treelist_window.borrow().close();
+            self.imp().treelist_on.set(false);
+        }
     }
     fn begin_treelist_selection(&self, gsr_treelist_window: GsrTreelistWindow) {
         gsr_treelist_window.present();
-        *self.imp().gsr_treelist_window.borrow_mut() = gsr_treelist_window
+        *self.imp().gsr_treelist_window.borrow_mut() = gsr_treelist_window;
+        self.imp().treelist_on.set(true);
+
     }
 
     fn action_quit(&self) {
@@ -602,7 +610,7 @@ impl GsrApplicationWindow {
     }
 
     fn action_apply_order_setting(&self, order: Order) {
-        self.cancel_entry();
+        self.cancel_entry_or_treelist();
         self.with_view_state_mut(|view_state| {
             let gallery = &mut view_state.gallery;
             gallery.sort_by(order);
@@ -621,7 +629,7 @@ impl GsrApplicationWindow {
     }
 
     fn action_apply_view_setting(&self, view_option: ViewOption) {
-        self.cancel_entry();
+        self.cancel_entry_or_treelist();
         match view_option {
             ViewOption::Single => self.toggle_pictures_per_row(1),
             ViewOption::Grid2x2 => self.toggle_pictures_per_row(2),
@@ -645,7 +653,7 @@ impl GsrApplicationWindow {
         tags
     }
     fn action_enter_add_tag(&self) {
-        self.cancel_entry();
+        self.cancel_entry_or_treelist();
         let tags = self.retrieve_all_labels();
         let gsr_entry_window = GsrEntryWindow::new_with(
             self,
@@ -657,7 +665,7 @@ impl GsrApplicationWindow {
     }
 
     fn action_enter_category(&self) {
-        self.cancel_entry();
+        self.cancel_entry_or_treelist();
         let catalog = self.with_repository(|repository| repository.catalog());
         let gsr_treelist_window = GsrTreelistWindow::new_with(
             self,
@@ -665,12 +673,13 @@ impl GsrApplicationWindow {
             &catalog,
             "Select a category",
             None,
+            Action::Categorize(None),
         );
         self.begin_treelist_selection(gsr_treelist_window);
     }
 
     fn action_enter_remove_tag(&self) {
-        self.cancel_entry();
+        self.cancel_entry_or_treelist();
         let tags = self.retrieve_all_labels();
         let gsr_entry_window = GsrEntryWindow::new_with(
             self,
@@ -682,7 +691,7 @@ impl GsrApplicationWindow {
     }
 
     fn action_enter_rename(&self) {
-        self.cancel_entry();
+        self.cancel_entry_or_treelist();
         let (selected_count, current_picture_name) = self.with_view_state(|view_state| {
             (
                 view_state.selection.count(),
@@ -704,7 +713,7 @@ impl GsrApplicationWindow {
     }
 
     fn action_enter_label(&self) {
-        self.cancel_entry();
+        self.cancel_entry_or_treelist();
         let tags = self.retrieve_all_labels();
         let label = self.with_view_state(|view_state| view_state.gallery.current_picture().label());
         let gsr_entry_window = GsrEntryWindow::new_with(
@@ -727,10 +736,23 @@ impl GsrApplicationWindow {
         })
     }
 
+    fn action_categorize(&self, category: &Category) {
+        let indices = self.selected_indices();
+        self.cancel_entry_or_treelist();
+        for position in indices {
+            self.with_view_state_mut(|view_state| {
+                let mut picture = view_state.gallery.picture(position);
+                picture.set_category(category.clone());
+                view_state.gallery.set_picture(position, picture);
+            });
+        };
+        self.refresh_view();
+    }
+
     fn action_tag(&self, input: &str) {
         let tags: Vec<String> = input.split(',').map(|s| s.to_string()).collect();
         let indices = self.selected_indices();
-        self.cancel_entry();
+        self.cancel_entry_or_treelist();
         for position in indices {
             self.with_view_state_mut(|view_state| {
                 let mut picture = view_state.gallery.picture(position);
@@ -750,7 +772,7 @@ impl GsrApplicationWindow {
     fn action_untag(&self, input: &str) {
         let tags: Vec<String> = input.split(',').map(|s| s.to_string()).collect();
         let indices = self.selected_indices();
-        self.cancel_entry();
+        self.cancel_entry_or_treelist();
         for position in indices {
             self.with_view_state_mut(|view_state| {
                 let mut picture = view_state.gallery.picture(position);
@@ -768,7 +790,7 @@ impl GsrApplicationWindow {
     }
 
     fn action_rename(&self, target_name: &str) {
-        self.cancel_entry();
+        self.cancel_entry_or_treelist();
         if target_name.is_empty() {
             self.present_information("picture name can't be empty");
             return;
@@ -792,7 +814,7 @@ impl GsrApplicationWindow {
         self.refresh_view();
     }
     fn action_label(&self, label: &str) {
-        self.cancel_entry();
+        self.cancel_entry_or_treelist();
         let indices = self.selected_indices();
         for position in indices {
             self.with_view_state_mut(|view_state| {
@@ -809,7 +831,7 @@ impl GsrApplicationWindow {
     }
 
     fn action_unlabel(&self) {
-        self.cancel_entry();
+        self.cancel_entry_or_treelist();
         let indices = self.selected_indices();
         for position in indices {
             self.with_view_state_mut(|view_state| {
@@ -826,7 +848,7 @@ impl GsrApplicationWindow {
     }
 
     fn action_toggle_cover(&self) {
-        self.cancel_entry();
+        self.cancel_entry_or_treelist();
         self.with_view_state_mut(|view_state| {
             let position = view_state.gallery.current_picture_index();
             self.with_repository(|repository| {
