@@ -57,6 +57,7 @@ impl From<Action> for GioAction {
             Action::ConfirmMoveFile(file_path) => Some(GioActionParameter::from(file_path)),
             Action::Dismiss => None,
             Action::EnterAddTag => None,
+            Action::EnterNewCategory => None,
             Action::SelectCategoryForPicture => None,
             Action::EnterIndex => None,
             Action::EnterLabel => None,
@@ -89,6 +90,9 @@ impl From<Action> for GioAction {
             Action::RepeatAction => None,
             Action::RepeatRangeSelection => None,
             Action::Select(find) => Some(GioActionParameter::from(find)),
+            Action::SelectCategoryToMove => None,
+            Action::SelectCategoryToRemove => None,
+            Action::SelectParentCategory(category_name) => Some(GioActionParameter::from(category_name)),
             Action::SetSelectionAll => None,
             Action::SetSelectionPage => None,
             Action::SetSelectionRangeEnd(index) => Some(GioActionParameter::from(index)),
@@ -138,6 +142,7 @@ impl From<GioAction> for Action {
             }
             "dismiss" => Action::Dismiss,
             "enter-add-tag" => Action::EnterAddTag,
+            "enter-new-category" => Action::EnterNewCategory,
             "select-category-for-picture" => Action::SelectCategoryForPicture,
             "enter-index" => Action::EnterIndex,
             "enter-label" => Action::EnterLabel,
@@ -178,6 +183,10 @@ impl From<GioAction> for Action {
             "repeat-action" => Action::RepeatAction,
             "repeat-range-selection" => Action::RepeatRangeSelection,
             "select" => Action::Select(Find::from(gio_action.parameter().unwrap())),
+            "select-category-for-picture" => Action::SelectCategoryForPicture,
+            "select-category-to-move" => Action::SelectCategoryToMove,
+            "select-category-to-remove" => Action::SelectCategoryToRemove,
+            "select-parent-category" => Action::SelectParentCategory(String::from(gio_action.parameter().unwrap())),
             "set-selection-all" => Action::SetSelectionAll,
             "set-selection-page" => Action::SetSelectionPage,
             "set-selection-range-end" => {
@@ -252,6 +261,7 @@ mod tests {
         check_action_to_and_from(Action::ConfirmDeleteFile);
         check_action_to_and_from(Action::ConfirmMoveFile("foo".to_string()));
         check_action_to_and_from(Action::EnterAddTag);
+        check_action_to_and_from(Action::EnterNewCategory);
         check_action_to_and_from(Action::SelectCategoryForPicture);
         check_action_to_and_from(Action::EnterIndex);
         check_action_to_and_from(Action::EnterLabel);
@@ -283,6 +293,10 @@ mod tests {
         check_action_to_and_from(Action::RepeatAction);
         check_action_to_and_from(Action::RepeatRangeSelection);
         check_action_to_and_from(Action::Select(Find::Label));
+        check_action_to_and_from(Action::SelectCategoryForPicture);
+        check_action_to_and_from(Action::SelectCategoryToMove);
+        check_action_to_and_from(Action::SelectCategoryToRemove);
+        check_action_to_and_from(Action::SelectParentCategory("foo".to_string()));
         check_action_to_and_from(Action::SetSelectionAll);
         check_action_to_and_from(Action::SetSelectionPage);
         check_action_to_and_from(Action::SetSelectionRangeEnd(4807));
