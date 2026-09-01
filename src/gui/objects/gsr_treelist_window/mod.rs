@@ -132,6 +132,27 @@ impl GsrTreelistWindow {
             gtk::STYLE_PROVIDER_PRIORITY_APPLICATION,
         );
     }
+
+    pub fn list_view(&self) -> gtk::ListView {
+        self.first_child()
+            .expect("gsr_treelist_window has no child")
+            .downcast::<gtk::Box>()
+            .expect("gsr_treelist_window child is not a box")
+            .first_child()
+            .expect("selector_box has no child")
+            .next_sibling()
+            .expect("prompt label has no sibling")
+            .downcast::<gtk::ScrolledWindow>()
+            .expect("prompt sibling is not a scrolled window")
+            .first_child()
+            .expect("scrolled window has no child")
+            .downcast::<gtk::ListView>()
+            .expect("scrolled window child is not a list view")
+    }
+
+    pub fn position(&self) -> u32 {
+        self.imp().position.get()
+    }
     fn build_list_view(&self, root: SubCategory, initial_item_opt: Option<&str>) -> gtk::ListView {
         let store = gio::ListStore::new::<BoxedAnyObject>();
         store.append(&BoxedAnyObject::new(root));
@@ -228,15 +249,11 @@ impl GsrTreelistWindow {
             }
         ));
         let initial_position = self.imp().position.get();
+        dbg!(initial_position);
         let view = ListView::new(Some(selection), Some(signal_list_item_factory));
         view.add_controller(event_controller_key);
         view.add_css_class("catalog");
-        view.scroll_to(
-            initial_position,
-            gtk::ListScrollFlags::FOCUS,
-            None,
-    );
-
+        view.scroll_to(initial_position, gtk::ListScrollFlags::FOCUS, None);
         view
     }
 

@@ -1,4 +1,3 @@
-use std::cell::Cell;
 use crate::env::default_values::TREELIST_WINDOW_HEIGHT;
 use crate::env::default_values::TREELIST_WINDOW_WIDTH;
 use crate::gui::main_controller::RcMainController;
@@ -24,6 +23,7 @@ use gtk::{
     Label, ListItem, ListView, SignalListItemFactory, SingleSelection, TreeExpander, TreeListModel,
     glib,
 };
+use std::cell::Cell;
 use std::cell::RefCell;
 use std::rc::Rc;
 

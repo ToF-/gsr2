@@ -1,4 +1,3 @@
-use crate::model::category::category_from_string;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
@@ -34,6 +33,7 @@ use crate::gui::view_state::navigator::Navigator;
 use crate::gui::view_state::selection_range::SelectionRange;
 use crate::model::catalog::Catalog;
 use crate::model::category::Category;
+use crate::model::category::category_from_string;
 use crate::model::finder::Predicate;
 use crate::model::order::Order;
 use crate::model::picture::Picture;
@@ -590,6 +590,9 @@ impl GsrApplicationWindow {
     }
     fn begin_treelist_selection(&self, gsr_treelist_window: GsrTreelistWindow) {
         gsr_treelist_window.present();
+        let initial_position = gsr_treelist_window.position();
+        gsr_treelist_window.list_view().scroll_to(initial_position, gtk::ListScrollFlags::FOCUS, None);
+
         *self.imp().gsr_treelist_window.borrow_mut() = gsr_treelist_window;
         self.imp().treelist_on.set(true);
     }
@@ -669,8 +672,9 @@ impl GsrApplicationWindow {
         let mut current_category: Category = None;
         let mut category_found: bool = false;
         for position in self.selected_indices() {
-            let category =
-                category_from_string(&self.with_view_state(|view_state| view_state.gallery.picture(position).category_name()));
+            let category = category_from_string(&self.with_view_state(|view_state| {
+                view_state.gallery.picture(position).category_name()
+            }));
             if !category_found {
                 current_category = category;
                 category_found = true;
