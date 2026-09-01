@@ -71,7 +71,7 @@ impl TreeListWindow {
         let window_css_provider = CssProvider::new();
         scrolled_window.add_css_class("tree-list");
         window_css_provider.load_from_string("window.tree-list { background-color:black;}");
-        let list_view = build_list_view(catalog.root());
+        let list_view = build_list_view(catalog.root_category());
 
         scrolled_window.set_child(Some(&list_view));
         selector_box.append(&prompt_label);

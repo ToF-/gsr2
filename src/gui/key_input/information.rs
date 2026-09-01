@@ -21,13 +21,13 @@ mod tests {
 
     #[test]
     fn given_any_key_does_not_change_the_input() {
-        let key_input = information_key_input();
+        let key_input = information();
         let status = key_input.edit("foo", Key::from_name("b").unwrap());
-        assert_eq!("foo", &status.input());
+        assert_eq!("", &status.input());
     }
     #[test]
-    fn given_any_key_lauche_the_dismiss_action() {
-        let key_input = information_key_input();
+    fn given_any_key_launch_the_dismiss_action() {
+        let key_input = information();
         let status = key_input.edit("fib", Key::from_name("a").unwrap());
         assert_eq!(Some(Action::Dismiss), status.result_action());
     }

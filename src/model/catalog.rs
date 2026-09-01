@@ -89,7 +89,7 @@ impl Catalog {
         let content: String = self.root.format_at_level(0);
         fs::write(file_path, content)
     }
-    pub fn root(&self) -> SubCategory {
+    pub fn root_category(&self) -> SubCategory {
         self.root.clone()
     }
 
@@ -317,7 +317,7 @@ mod tests {
     use std::fs::read_to_string;
 
     #[test]
-    fn creating_sub_categories_from_a_s_expression_with_only_root() {
+    fn creating_sub_categories_from_a_s_expression_with_only_root_category() {
         let catalog = Catalog::from_sexpr("(-)").expect("incorrect sexpr");
         assert_eq!(TOP_CATEGORY.to_string(), catalog.root.name())
     }

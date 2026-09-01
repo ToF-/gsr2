@@ -57,7 +57,7 @@ pub enum Commands {
 }
 
 pub fn list(catalog: &Catalog) {
-    println!("{}", catalog.root().format_at_level(0));
+    println!("{}", catalog.root_category().format_at_level(0));
 }
 
 pub fn main() {
