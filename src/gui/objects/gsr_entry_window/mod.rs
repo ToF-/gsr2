@@ -145,13 +145,14 @@ impl GsrEntryWindow {
                 let status = key_input.edit(&input, key);
                 let action_opt = status.result_action();
                 if let Some(action) = action_opt {
-                    let action_call = GioAction::from(action).to_simple_action_call();
+                    let action_call = GioAction::from(action.clone()).to_simple_action_call();
                     let name = action_call.0.clone();
                     let variant = action_call.1.clone();
                     let variant_ref: Option<&Variant> = match &variant {
                         None => None,
                         Some(v) => Some(v.as_ref()),
                     };
+                    dbg!(&action.clone(), &name.clone(), &variant.clone());
                     match this.activate_action(&name, variant_ref) {
                         Ok(_) => {}
                         Err(e) => {

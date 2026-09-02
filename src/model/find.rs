@@ -9,8 +9,9 @@ pub enum Find {
     Category = 1,
     Label = 2,
     Name = 3,
-    SomeTags = 4,
-    SubCategory = 5,
+    FilePath = 4,
+    SomeTags = 5,
+    SubCategory = 6,
 }
 
 impl FromStr for Find {
@@ -36,8 +37,9 @@ impl From<i32> for Find {
             1 => Find::Category,
             2 => Find::Label,
             3 => Find::Name,
-            4 => Find::SomeTags,
-            5 => Find::SubCategory,
+            4 => Find::FilePath,
+            5 => Find::SomeTags,
+            6 => Find::SubCategory,
             _ => todo!(),
         }
     }
@@ -52,6 +54,7 @@ impl Display for Find {
                 Find::Category => "category",
                 Find::Label => "label",
                 Find::Name => "name",
+                Find::FilePath => "filepath",
                 Find::SubCategory => "subcategory",
                 Find::SomeTags => "tags",
                 Find::AllTags => "tags",

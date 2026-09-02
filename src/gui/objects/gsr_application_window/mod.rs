@@ -1,4 +1,3 @@
-use crate::gui::key_input::menu::find_menu;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
@@ -22,6 +21,7 @@ use crate::gui::key_input::entry::rename_entry;
 use crate::gui::key_input::information::information;
 use crate::gui::key_input::menu::catalog_menu;
 use crate::gui::key_input::menu::change_menu;
+use crate::gui::key_input::menu::find_menu;
 use crate::gui::key_input::menu::order_menu;
 use crate::gui::key_input::menu::view_menu;
 use crate::gui::mode::Mode;

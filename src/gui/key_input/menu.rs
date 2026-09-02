@@ -1,9 +1,9 @@
-use crate::model::find::Find;
 use crate::gui::action::Action;
 use crate::gui::key_input::KeyInput;
 use crate::gui::key_input::key_input_mode::KeyInputMode;
 use crate::gui::key_input::key_input_rules::KeyInputRules;
 use crate::model::change::Change;
+use crate::model::find::Find;
 use crate::model::order::Order;
 use crate::model::view_option::ViewOption;
 
@@ -152,19 +152,20 @@ pub fn catalog_menu() -> KeyInput {
 
 pub fn find_menu() -> KeyInput {
     KeyInput::new(
-        "Select criteria C)ategory (B)elongs (L)abel (N)ame (S)ome Tags (A)ll tags ",
+        "Find pictures on  C)ategory (B)elongs (L)abel (N)ame (F)ile Path (S)ome Tags (A)ll tags ",
         None,
         KeyInputMode::Menu,
-        |_, ch| matches!(ch, 'a' | 'b' | 'c' | 'l' | 'n' | 's'),
+        |_, ch| matches!(ch, 'a' | 'b' | 'c' | 'f' | 'l' | 'n' | 's'),
         |_, ch| {
             let find = match ch {
-            'a' =>  Find::AllTags,
-            'b' =>  Find::SubCategory,
-            'c' =>  Find::Category,
-            'l' =>  Find::Label,
-            'n' =>  Find::Name,
-            's' =>  Find::SomeTags,
-            _ => todo!(),
+                'a' => Find::AllTags,
+                'b' => Find::SubCategory,
+                'c' => Find::Category,
+                'l' => Find::Label,
+                'n' => Find::Name,
+                'f' => Find::FilePath,
+                's' => Find::SomeTags,
+                _ => todo!(),
             };
             let s: String = (find as i32).to_string();
             s
@@ -172,10 +173,7 @@ pub fn find_menu() -> KeyInput {
         |s| {
             let n: i32 = s.parse::<i32>().unwrap();
             let find = Find::from(n);
-            dbg!(&find);
-            match find {
-                _ => Action::Nothing,
-            }
+            Action::Find(find)
         },
     )
 }

@@ -1,3 +1,4 @@
+use crate::model::find::Find;
 use crate::gui::action::Action;
 use crate::gui::action::gio_action_type::GioActionType;
 use crate::gui::direction::Direction;
@@ -84,6 +85,10 @@ impl MainController {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::EnterLabel),
+            activate.clone(),
+        ));
+        entries.push(Self::action_entry(
+            GioActionType::from(Action::Find(Find::Name)),
             activate.clone(),
         ));
         entries.push(Self::action_entry(
