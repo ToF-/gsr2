@@ -549,7 +549,7 @@ impl GsrApplicationWindow {
     }
 
     pub fn process_action(&self, action: Action) {
-        println!("processing action: {:?}", &action);
+        // println!("processing action: {:?}", &action);
         match action {
             Action::Nothing => {}
             Action::Dismiss | Action::Cancel => self.dismiss(),
@@ -570,6 +570,7 @@ impl GsrApplicationWindow {
             Action::AddTag(ref tags) => self.action_tag(&tags),
             Action::MoveCategory(ref category_name, ref target_category_name) => self.action_move_category(&category_name, &target_category_name),
             Action::PickCatalogChange => self.action_pick_catalog_change(),
+            Action::RemoveCategory(ref category_name) => self.action_remove_category(&category_name),
             Action::RemoveTag(ref tags) => self.action_untag(&tags),
             Action::Rename(ref name) => self.action_rename(&name),
             Action::SelectCategoryAddTarget(ref name) => {
@@ -579,6 +580,7 @@ impl GsrApplicationWindow {
                 self.action_select_category_move_target(&name)
             }
             Action::SelectCategoryToMove => self.action_select_category_to_move(),
+            Action::SelectCategoryToRemove => self.action_select_category_to_remove(),
             Action::ToggleCover => self.action_toggle_cover(),
             _ => {
                 println!("* * * todo: {:?}", action);
@@ -647,6 +649,17 @@ impl GsrApplicationWindow {
         self.dismiss();
         let result = self.with_repository(|repository| {
             repository.move_category(category_name, target_category_name)
+        });
+        match result {
+            Ok(_) => {}
+            Err(e) => self.present_information(&format!("{}", e)),
+        }
+    }
+
+    fn action_remove_category(&self, category_name: &str) {
+        self.dismiss();
+        let result = self.with_repository(|repository| {
+            repository.remove_category(category_name)
         });
         match result {
             Ok(_) => {}
@@ -788,7 +801,7 @@ impl GsrApplicationWindow {
 
     fn action_select_category_to_move(&self) {
         self.dismiss();
-        let mut catalog = self.with_repository(|repository| repository.catalog());
+        let catalog = self.with_repository(|repository| repository.catalog());
         let gsr_treelist_window = GsrTreelistWindow::new_with(
             self,
             &self.gsr_application().shared_main_controller(),
@@ -796,6 +809,20 @@ impl GsrApplicationWindow {
             &format!("Select the category to move"),
             None,
             Action::SelectCategoryMoveTarget(String::from("")),
+        );
+        self.begin_treelist_selection(gsr_treelist_window);
+    }
+
+    fn action_select_category_to_remove(&self) {
+        self.dismiss();
+        let catalog = self.with_repository(|repository| repository.catalog());
+        let gsr_treelist_window = GsrTreelistWindow::new_with(
+            self,
+            &self.gsr_application().shared_main_controller(),
+            &catalog,
+            &format!("Select the category to remove"),
+            None,
+            Action::RemoveCategory(String::from("")),
         );
         self.begin_treelist_selection(gsr_treelist_window);
     }
@@ -849,7 +876,6 @@ impl GsrApplicationWindow {
 
     fn action_pick_catalog_change(&self) {
         self.dismiss();
-        dbg!();
         let gsr_entry_window = GsrEntryWindow::new_with(
             self,
             &self.gsr_application().shared_main_controller(),

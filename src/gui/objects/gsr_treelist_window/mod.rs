@@ -249,7 +249,6 @@ impl GsrTreelistWindow {
             }
         ));
         let initial_position = self.imp().position.get();
-        dbg!(initial_position);
         let view = ListView::new(Some(selection), Some(signal_list_item_factory));
         view.add_controller(event_controller_key);
         view.add_css_class("catalog");
@@ -266,6 +265,7 @@ impl GsrTreelistWindow {
             Action::Categorize(_) => Action::Categorize(category_from_string(&self.selected())),
             Action::AddCategory(source, _) => Action::AddCategory(source, self.selected()),
             Action::SelectCategoryMoveTarget(_) => Action::SelectCategoryMoveTarget(self.selected()),
+            Action::RemoveCategory(_) => Action::RemoveCategory(self.selected()),
             Action::MoveCategory(source, _) => Action::MoveCategory(source, self.selected()),
             other => other,
         };
@@ -299,7 +299,6 @@ impl GsrTreelistWindow {
             move |_, key, _key_code, _modifier_type| {
                 let key_name = key.name().unwrap_or_default();
                 let key_name = key_name.as_str();
-                println!("{:?}", &key_name);
                 match key_name {
                     // TEMPORARY, activate action instead
                     "Escape" => this.activate_confirm_action(Action::Cancel),

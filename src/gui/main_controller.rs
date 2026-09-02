@@ -211,11 +211,15 @@ impl MainController {
             activate.clone(),
         ));
         entries.push(Self::action_entry(
-            GioActionType::from(Action::Unlabel),
+            GioActionType::from(Action::RemoveCategory("foo".to_string())),
             activate.clone(),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::ToggleCover),
+            activate.clone(),
+        ));
+        entries.push(Self::action_entry(
+            GioActionType::from(Action::Unlabel),
             activate.clone(),
         ));
 

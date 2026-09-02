@@ -59,7 +59,6 @@ fn get_configuration() -> Result<Configuration> {
             config_file_location()
         )));
     };
-    println!("configuration: {}", config_file_location());
     match fs::read_to_string(config_file_location()) {
         Ok(content) => match toml::from_str::<Configuration>(&content) {
             Ok(config) => {
