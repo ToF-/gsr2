@@ -67,12 +67,15 @@ impl From<Action> for GioActionType {
             Action::SelectCategoryAddTarget(_) => {
                 GioActionType::new("select-category-add-target", GioActionParameterType::String)
             }
-            Action::SelectCategoryMoveTarget(_) => {
-                GioActionType::new("select-category-move-target", GioActionParameterType::String)
-            }
+            Action::SelectCategoryMoveTarget(_) => GioActionType::new(
+                "select-category-move-target",
+                GioActionParameterType::String,
+            ),
             Action::EnterIndex => GioActionType::new("enter-index", GioActionParameterType::None),
             Action::EnterLabel => GioActionType::new("enter-label", GioActionParameterType::None),
-            Action::EnterNewCategory => GioActionType::new("enter-new-category", GioActionParameterType::None),
+            Action::EnterNewCategory => {
+                GioActionType::new("enter-new-category", GioActionParameterType::None)
+            }
             Action::EnterRemoveTag => {
                 GioActionType::new("enter-remove-tag", GioActionParameterType::None)
             }
@@ -133,9 +136,16 @@ impl From<Action> for GioActionType {
                 GioActionType::new("repeat-range-selection", GioActionParameterType::None)
             }
             Action::Select(_) => GioActionType::new("select", GioActionParameterType::String),
-            Action::SelectCategoryToMove => GioActionType::new("select-category-to-move", GioActionParameterType::None),
-            Action::SelectCategoryToRemove => GioActionType::new("select-category-to-remove", GioActionParameterType::None),
-            Action::SelectCategoryMoveTarget(_) => GioActionType::new("select-category-move-target", GioActionParameterType::String),
+            Action::SelectCategoryToMove => {
+                GioActionType::new("select-category-to-move", GioActionParameterType::None)
+            }
+            Action::SelectCategoryToRemove => {
+                GioActionType::new("select-category-to-remove", GioActionParameterType::None)
+            }
+            Action::SelectCategoryMoveTarget(_) => GioActionType::new(
+                "select-category-move-target",
+                GioActionParameterType::String,
+            ),
             Action::SetSelectionAll => {
                 GioActionType::new("set-selection-all", GioActionParameterType::None)
             }

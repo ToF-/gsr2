@@ -124,7 +124,7 @@ impl Catalog {
 
     pub fn add_sub_category(&mut self, sub_category_name: &str, category_name: &str) -> Result<()> {
         if sub_category_name.is_empty() {
-            return Err(Error::other("cannot add an empty category"))
+            return Err(Error::other("cannot add an empty category"));
         };
         let re = Regex::new("^[a-z0-9_-]+$").unwrap();
         if !re.is_match(sub_category_name) {
@@ -260,7 +260,7 @@ impl Catalog {
             }
         } else {
             Err(Error::other(format!(
-                "top category {} cannot be removed",
+                "top category ( {} ) cannot be moved or removed",
                 TOP_CATEGORY
             )))
         }

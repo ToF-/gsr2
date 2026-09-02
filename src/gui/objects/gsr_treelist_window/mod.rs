@@ -265,6 +265,8 @@ impl GsrTreelistWindow {
         let action = match action_on_confirm {
             Action::Categorize(_) => Action::Categorize(category_from_string(&self.selected())),
             Action::AddCategory(source, _) => Action::AddCategory(source, self.selected()),
+            Action::SelectCategoryMoveTarget(_) => Action::SelectCategoryMoveTarget(self.selected()),
+            Action::MoveCategory(source, _) => Action::MoveCategory(source, self.selected()),
             other => other,
         };
         let action_call = GioAction::from(action).to_simple_action_call();

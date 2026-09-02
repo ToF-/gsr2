@@ -1,5 +1,3 @@
-use crate::gui::key_input::entry::add_new_category;
-use crate::gui::key_input::menu::catalog_menu;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
@@ -15,11 +13,13 @@ use crate::gui::control::Control;
 use crate::gui::control::default_controls;
 use crate::gui::direction::Direction;
 use crate::gui::display::title_display;
+use crate::gui::key_input::entry::add_new_category;
 use crate::gui::key_input::entry::add_tags_entry;
 use crate::gui::key_input::entry::label_change_entry;
 use crate::gui::key_input::entry::remove_tags_entry;
 use crate::gui::key_input::entry::rename_entry;
 use crate::gui::key_input::information::information;
+use crate::gui::key_input::menu::catalog_menu;
 use crate::gui::key_input::menu::change_menu;
 use crate::gui::key_input::menu::order_menu;
 use crate::gui::key_input::menu::view_menu;
@@ -554,7 +554,8 @@ impl GsrApplicationWindow {
             Action::Nothing => {}
             Action::Dismiss | Action::Cancel => self.dismiss(),
             Action::Quit => self.action_quit(),
-            Action::AddCategory(ref new_category_name, ref target_category_name) => self.action_add_category(&new_category_name, &target_category_name),
+            Action::AddCategory(ref new_category_name, ref target_category_name) => 
+                self.action_add_category(&new_category_name, &target_category_name),
             Action::ApplyOrderSetting(order) => self.action_apply_order_setting(order),
             Action::ApplyViewSetting(view_option) => self.action_apply_view_setting(view_option),
             Action::Categorize(ref category) => self.action_categorize(category),
@@ -567,10 +568,17 @@ impl GsrApplicationWindow {
             Action::Unlabel => self.action_unlabel(),
             Action::Label(ref label) => self.action_label(&label),
             Action::AddTag(ref tags) => self.action_tag(&tags),
+            Action::MoveCategory(ref category_name, ref target_category_name) => self.action_move_category(&category_name, &target_category_name),
             Action::PickCatalogChange => self.action_pick_catalog_change(),
             Action::RemoveTag(ref tags) => self.action_untag(&tags),
             Action::Rename(ref name) => self.action_rename(&name),
-            Action::SelectCategoryAddTarget(ref name) => self.action_select_category_add_target(&name),
+            Action::SelectCategoryAddTarget(ref name) => {
+                self.action_select_category_add_target(&name)
+            }
+            Action::SelectCategoryMoveTarget(ref name) => {
+                self.action_select_category_move_target(&name)
+            }
+            Action::SelectCategoryToMove => self.action_select_category_to_move(),
             Action::ToggleCover => self.action_toggle_cover(),
             _ => {
                 println!("* * * todo: {:?}", action);
@@ -628,6 +636,17 @@ impl GsrApplicationWindow {
         self.dismiss();
         let result = self.with_repository(|repository| {
             repository.add_category(new_category_name, target_category_name)
+        });
+        match result {
+            Ok(_) => {}
+            Err(e) => self.present_information(&format!("{}", e)),
+        }
+    }
+
+    fn action_move_category(&self, category_name: &str, target_category_name: &str) {
+        self.dismiss();
+        let result = self.with_repository(|repository| {
+            repository.move_category(category_name, target_category_name)
         });
         match result {
             Ok(_) => {}
@@ -741,6 +760,42 @@ impl GsrApplicationWindow {
             &format!("Select the category where to add {name}"),
             None,
             Action::AddCategory(name.to_string(), String::from("")),
+        );
+        self.begin_treelist_selection(gsr_treelist_window);
+    }
+
+    fn action_select_category_move_target(&self, name: &str) {
+        self.dismiss();
+        let mut catalog = self.with_repository(|repository| repository.catalog());
+        match catalog.remove_category(name, true) {
+            Err(e) => {
+                self.present_information(&format!("{e}"));
+                return;
+            }
+            Ok(_) => {
+                let gsr_treelist_window = GsrTreelistWindow::new_with(
+                    self,
+                    &self.gsr_application().shared_main_controller(),
+                    &catalog,
+                    &format!("Select the category where to rattach {name}"),
+                    None,
+                    Action::MoveCategory(name.to_string(), String::from("")),
+                );
+                self.begin_treelist_selection(gsr_treelist_window);
+            }
+        }
+    }
+
+    fn action_select_category_to_move(&self) {
+        self.dismiss();
+        let mut catalog = self.with_repository(|repository| repository.catalog());
+        let gsr_treelist_window = GsrTreelistWindow::new_with(
+            self,
+            &self.gsr_application().shared_main_controller(),
+            &catalog,
+            &format!("Select the category to move"),
+            None,
+            Action::SelectCategoryMoveTarget(String::from("")),
         );
         self.begin_treelist_selection(gsr_treelist_window);
     }

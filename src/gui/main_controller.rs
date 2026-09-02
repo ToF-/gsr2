@@ -207,6 +207,10 @@ impl MainController {
             activate.clone(),
         ));
         entries.push(Self::action_entry(
+            GioActionType::from(Action::MoveCategory("foo".to_string(), "bar".to_string())),
+            activate.clone(),
+        ));
+        entries.push(Self::action_entry(
             GioActionType::from(Action::Unlabel),
             activate.clone(),
         ));
