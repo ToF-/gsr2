@@ -1,3 +1,4 @@
+use crate::gui::key_input::menu::find_menu;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
@@ -506,6 +507,7 @@ impl GsrApplicationWindow {
                         Control::ToggleCoverSelection => this.toggle_view_covers(),
                         Control::BackFromDirectory => this.back_from_directory(),
                         Control::CancelRange => this.cancel_range(),
+                        Control::EnterFind => this.pick_find(),
                         Control::PickChange => this.pick_change(),
                         Control::Quit => this.action_quit(),
                         Control::GotoDirectory => this.goto_directory(),
@@ -554,8 +556,9 @@ impl GsrApplicationWindow {
             Action::Nothing => {}
             Action::Dismiss | Action::Cancel => self.dismiss(),
             Action::Quit => self.action_quit(),
-            Action::AddCategory(ref new_category_name, ref target_category_name) => 
-                self.action_add_category(&new_category_name, &target_category_name),
+            Action::AddCategory(ref new_category_name, ref target_category_name) => {
+                self.action_add_category(&new_category_name, &target_category_name)
+            }
             Action::ApplyOrderSetting(order) => self.action_apply_order_setting(order),
             Action::ApplyViewSetting(view_option) => self.action_apply_view_setting(view_option),
             Action::Categorize(ref category) => self.action_categorize(category),
@@ -568,9 +571,13 @@ impl GsrApplicationWindow {
             Action::Unlabel => self.action_unlabel(),
             Action::Label(ref label) => self.action_label(&label),
             Action::AddTag(ref tags) => self.action_tag(&tags),
-            Action::MoveCategory(ref category_name, ref target_category_name) => self.action_move_category(&category_name, &target_category_name),
+            Action::MoveCategory(ref category_name, ref target_category_name) => {
+                self.action_move_category(&category_name, &target_category_name)
+            }
             Action::PickCatalogChange => self.action_pick_catalog_change(),
-            Action::RemoveCategory(ref category_name) => self.action_remove_category(&category_name),
+            Action::RemoveCategory(ref category_name) => {
+                self.action_remove_category(&category_name)
+            }
             Action::RemoveTag(ref tags) => self.action_untag(&tags),
             Action::Rename(ref name) => self.action_rename(&name),
             Action::SelectCategoryAddTarget(ref name) => {
@@ -658,9 +665,7 @@ impl GsrApplicationWindow {
 
     fn action_remove_category(&self, category_name: &str) {
         self.dismiss();
-        let result = self.with_repository(|repository| {
-            repository.remove_category(category_name)
-        });
+        let result = self.with_repository(|repository| repository.remove_category(category_name));
         match result {
             Ok(_) => {}
             Err(e) => self.present_information(&format!("{}", e)),
@@ -765,9 +770,7 @@ impl GsrApplicationWindow {
     }
 
     fn action_view_catalog(&self) {
-        let catalog = self.with_repository(|repository| {
-            repository.catalog()
-        });
+        let catalog = self.with_repository(|repository| repository.catalog());
         let gsr_treelist_window = GsrTreelistWindow::new_with(
             self,
             &self.gsr_application().shared_main_controller(),
@@ -777,7 +780,6 @@ impl GsrApplicationWindow {
             Action::Dismiss,
         );
         self.begin_treelist_selection(gsr_treelist_window);
-
     }
     fn action_select_category_add_target(&self, name: &str) {
         self.dismiss();
@@ -1052,15 +1054,23 @@ impl GsrApplicationWindow {
     }
 
     fn pick_change(&self) {
-        {
-            let gsr_entry_window = GsrEntryWindow::new_with(
-                self,
-                &self.gsr_application().shared_main_controller(),
-                change_menu(),
-                None,
-            );
-            self.begin_entry(gsr_entry_window);
-        }
+        let gsr_entry_window = GsrEntryWindow::new_with(
+            self,
+            &self.gsr_application().shared_main_controller(),
+            change_menu(),
+            None,
+        );
+        self.begin_entry(gsr_entry_window);
+    }
+
+    fn pick_find(&self) {
+        let gsr_entry_window = GsrEntryWindow::new_with(
+            self,
+            &self.gsr_application().shared_main_controller(),
+            find_menu(),
+            None,
+        );
+        self.begin_entry(gsr_entry_window);
     }
 
     fn set_order(&self) {
