@@ -14,7 +14,7 @@ pub fn view_menu() -> KeyInput {
         |_, ch| {
             matches!(
                 ch,
-                '1' | '2' | '3' | '4' | '5' | 't' | 'c' | 'd' | 'p' | 's' | 'f'
+                '1' | '2' | '3' | '4' | '5' | 't' | 'c' | 'd' | 'p' | 's' | 'f' | 'a'
             )
         },
         |_, ch| {
@@ -30,6 +30,7 @@ pub fn view_menu() -> KeyInput {
                 'p' => ViewOption::FilePath,
                 's' => ViewOption::FileSize,
                 'f' => ViewOption::FullSize,
+                'a' => ViewOption::Catalog,
                 _ => todo!(),
             };
             let s: String = (view_option as i32).to_string();

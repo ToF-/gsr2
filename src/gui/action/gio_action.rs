@@ -114,6 +114,7 @@ impl From<Action> for GioAction {
             Action::ToggleTwoByTwoView => None,
             Action::Unlabel => None,
             Action::PickCatalogChange => None,
+            Action::ViewCatalog => None,
         };
         Self {
             name: gio_action_ty.name(),
@@ -220,6 +221,7 @@ impl From<GioAction> for Action {
             "toggle-thumbnails-view" => Action::ToggleThumbnailsView,
             "toggle-two-by-two-view" => Action::ToggleTwoByTwoView,
             "unlabel" => Action::Unlabel,
+            "view-catalog" => Action::ViewCatalog,
             _ => Action::Nothing,
         }
     }

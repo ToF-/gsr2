@@ -12,6 +12,7 @@ pub enum ViewOption {
     FileDate = 8,
     FileSize = 9,
     FullSize = 10,
+    Catalog = 11,
 }
 
 impl From<i32> for ViewOption {
@@ -28,6 +29,7 @@ impl From<i32> for ViewOption {
             8 => ViewOption::FileDate,
             9 => ViewOption::FileSize,
             10 => ViewOption::FullSize,
+            11 => ViewOption::Catalog,
             _ => todo!(),
         }
     }

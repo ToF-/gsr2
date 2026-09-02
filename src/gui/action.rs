@@ -77,6 +77,7 @@ pub enum Action {
     ToggleThumbnailsView,         // set the view to thumbnails / back to previous
     ToggleTwoByTwoView,           // set the view to 2x2 / back to previous
     Unlabel,                      // remove label from the selected pictures
+    ViewCatalog,                  // show a list of all categories
 }
 
 impl Action {

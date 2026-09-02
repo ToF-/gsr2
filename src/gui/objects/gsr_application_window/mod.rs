@@ -700,6 +700,7 @@ impl GsrApplicationWindow {
                 self.toggle_view_display_option(view_option)
             }
             ViewOption::FullSize => self.toggle_expand(),
+            ViewOption::Catalog => self.action_view_catalog(),
         }
     }
 
@@ -763,6 +764,21 @@ impl GsrApplicationWindow {
         self.begin_treelist_selection(gsr_treelist_window);
     }
 
+    fn action_view_catalog(&self) {
+        let catalog = self.with_repository(|repository| {
+            repository.catalog()
+        });
+        let gsr_treelist_window = GsrTreelistWindow::new_with(
+            self,
+            &self.gsr_application().shared_main_controller(),
+            &catalog,
+            "List of all categories",
+            None,
+            Action::Dismiss,
+        );
+        self.begin_treelist_selection(gsr_treelist_window);
+
+    }
     fn action_select_category_add_target(&self, name: &str) {
         self.dismiss();
         let catalog = self.with_repository(|repository| repository.catalog());

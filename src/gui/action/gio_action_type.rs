@@ -185,6 +185,7 @@ impl From<Action> for GioActionType {
                 GioActionType::new("toggle-two-by-two-view", GioActionParameterType::None)
             }
             Action::Unlabel => GioActionType::new("unlabel", GioActionParameterType::None),
+            Action::ViewCatalog => GioActionType::new("view-catalog", GioActionParameterType::None),
         }
     }
 }
