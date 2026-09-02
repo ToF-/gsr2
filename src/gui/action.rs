@@ -28,6 +28,7 @@ pub enum Action {
     EnterAddTag,                  // enter new tag(s) to add to the selected pictures
     EnterNewCategory,             // enter new category to add to the catalog
     EnterIndex,                   // interactively enter index to jump to
+    EnterFind(Find),              // interactively enter criteria for finding
     EnterLabel,                   // enter label to apply to the selected pictures
     EnterRemoveTag,               // enter tag(s) to remove from the selected pictures
     EnterRename,                  // enter new name for selected picture

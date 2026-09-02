@@ -72,6 +72,7 @@ impl From<Action> for GioActionType {
                 GioActionParameterType::String,
             ),
             Action::EnterIndex => GioActionType::new("enter-index", GioActionParameterType::None),
+            Action::EnterFind(_) => GioActionType::new("enter-find", GioActionParameterType::Int32),
             Action::EnterLabel => GioActionType::new("enter-label", GioActionParameterType::None),
             Action::EnterNewCategory => {
                 GioActionType::new("enter-new-category", GioActionParameterType::None)

@@ -84,6 +84,10 @@ impl MainController {
             activate.clone(),
         ));
         entries.push(Self::action_entry(
+                GioActionType::from(Action::EnterFind(Find::Name)),
+                activate.clone(),
+        ));
+        entries.push(Self::action_entry(
             GioActionType::from(Action::EnterLabel),
             activate.clone(),
         ));

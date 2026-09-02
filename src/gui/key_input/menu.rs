@@ -173,7 +173,7 @@ pub fn find_menu() -> KeyInput {
         |s| {
             let n: i32 = s.parse::<i32>().unwrap();
             let find = Find::from(n);
-            Action::Find(find)
+            Action::EnterFind(find)
         },
     )
 }
