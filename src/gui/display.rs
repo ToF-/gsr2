@@ -129,7 +129,7 @@ fn category_display(picture: &Picture) -> String {
         None => String::from(""),
         Some(data) => match data.category_name() {
             None => String::from(""),
-            Some(name) => format!("#{name}"),
+            Some(name) => format!("#{}", name.to_uppercase()),
         },
     }
 }
