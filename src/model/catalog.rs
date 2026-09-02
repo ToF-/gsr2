@@ -123,6 +123,9 @@ impl Catalog {
     }
 
     pub fn add_sub_category(&mut self, sub_category_name: &str, category_name: &str) -> Result<()> {
+        if sub_category_name.is_empty() {
+            return Err(Error::other("cannot add an empty category"))
+        };
         let re = Regex::new("^[a-z0-9_-]+$").unwrap();
         if !re.is_match(sub_category_name) {
             Err(Error::other(format!(

@@ -144,7 +144,6 @@ impl From<GioAction> for Action {
             "dismiss" => Action::Dismiss,
             "enter-add-tag" => Action::EnterAddTag,
             "enter-new-category" => Action::EnterNewCategory,
-            "select-category-for-picture" => Action::SelectCategoryForPicture,
             "enter-index" => Action::EnterIndex,
             "enter-label" => Action::EnterLabel,
             "enter-remove-tag" => Action::EnterRemoveTag,
@@ -187,6 +186,7 @@ impl From<GioAction> for Action {
             "select-category-for-picture" => Action::SelectCategoryForPicture,
             "select-category-to-move" => Action::SelectCategoryToMove,
             "select-category-to-remove" => Action::SelectCategoryToRemove,
+            "select-category-add-target" => Action::SelectCategoryAddTarget(String::from(gio_action.parameter().unwrap())),
             "select-category-move-target" => Action::SelectCategoryMoveTarget(String::from(gio_action.parameter().unwrap())),
             "set-selection-all" => Action::SetSelectionAll,
             "set-selection-page" => Action::SetSelectionPage,
@@ -297,7 +297,7 @@ mod tests {
         check_action_to_and_from(Action::SelectCategoryForPicture);
         check_action_to_and_from(Action::SelectCategoryToMove);
         check_action_to_and_from(Action::SelectCategoryToRemove);
-        check_action_to_and_from(Action::SelectParentCategory("foo".to_string()));
+        check_action_to_and_from(Action::SelectCategoryAddTarget("foo".to_string()));
         check_action_to_and_from(Action::SetSelectionAll);
         check_action_to_and_from(Action::SetSelectionPage);
         check_action_to_and_from(Action::SetSelectionRangeEnd(4807));

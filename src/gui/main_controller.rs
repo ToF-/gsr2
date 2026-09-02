@@ -63,6 +63,10 @@ impl MainController {
         );
 
         entries.push(Self::action_entry(
+            GioActionType::from(Action::AddCategory("foo".to_string(), "bar".to_string())),
+            activate.clone(),
+        ));
+        entries.push(Self::action_entry(
             GioActionType::from(Action::ApplyOrderSetting(Order::Name)),
             activate.clone(),
         ));

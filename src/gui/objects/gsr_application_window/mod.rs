@@ -549,10 +549,12 @@ impl GsrApplicationWindow {
     }
 
     pub fn process_action(&self, action: Action) {
+        println!("processing action: {:?}", &action);
         match action {
             Action::Nothing => {}
             Action::Dismiss | Action::Cancel => self.dismiss(),
             Action::Quit => self.action_quit(),
+            Action::AddCategory(ref new_category_name, ref target_category_name) => self.action_add_category(&new_category_name, &target_category_name),
             Action::ApplyOrderSetting(order) => self.action_apply_order_setting(order),
             Action::ApplyViewSetting(view_option) => self.action_apply_view_setting(view_option),
             Action::Categorize(ref category) => self.action_categorize(category),
@@ -568,6 +570,7 @@ impl GsrApplicationWindow {
             Action::PickCatalogChange => self.action_pick_catalog_change(),
             Action::RemoveTag(ref tags) => self.action_untag(&tags),
             Action::Rename(ref name) => self.action_rename(&name),
+            Action::SelectCategoryAddTarget(ref name) => self.action_select_category_add_target(&name),
             Action::ToggleCover => self.action_toggle_cover(),
             _ => {
                 println!("* * * todo: {:?}", action);
@@ -619,6 +622,17 @@ impl GsrApplicationWindow {
         });
         self.gsr_picture_grid().leave_current_picture_focus();
         self.close();
+    }
+
+    fn action_add_category(&self, new_category_name: &str, target_category_name: &str) {
+        self.dismiss();
+        let result = self.with_repository(|repository| {
+            repository.add_category(new_category_name, target_category_name)
+        });
+        match result {
+            Ok(_) => {}
+            Err(e) => self.present_information(&format!("{}", e)),
+        }
     }
 
     fn action_apply_order_setting(&self, order: Order) {
@@ -713,6 +727,20 @@ impl GsrApplicationWindow {
             "Select a category",
             current_category.as_deref(),
             Action::Categorize(None),
+        );
+        self.begin_treelist_selection(gsr_treelist_window);
+    }
+
+    fn action_select_category_add_target(&self, name: &str) {
+        self.dismiss();
+        let catalog = self.with_repository(|repository| repository.catalog());
+        let gsr_treelist_window = GsrTreelistWindow::new_with(
+            self,
+            &self.gsr_application().shared_main_controller(),
+            &catalog,
+            &format!("Select the category where to add {name}"),
+            None,
+            Action::AddCategory(name.to_string(), String::from("")),
         );
         self.begin_treelist_selection(gsr_treelist_window);
     }
