@@ -56,10 +56,11 @@ pub enum Action {
     Rename(String),                              // rename the selected picture file
     RepeatAction,                                // redo the last action
     RepeatRangeSelection,                        // redo the last selection
+    SelectCategoryAddTarget(String),             // select category to add another category to in the catalog
     SelectCategoryForPicture,                    // select category to apply to the selected pictures
+    SelectCategoryMoveTarget(String),            // select category to move another category to in the catalog
     SelectCategoryToMove,                        // select category to move in the catalog
     SelectCategoryToRemove,                      // select category to remove from the catalog
-    SelectParentCategory(String),                // select category to move another category to in the catalog
     Select(Find),                                // view only pictures matching the find criteria
     SetSelectionAll,                             // set the selection to all pictures
     SetSelectionPage,                            // set the seleciton to all pictures in the page
@@ -101,7 +102,7 @@ impl Action {
             Control::BackFromDirectory => Action::QuitDirectory,
             Control::CancelEdition => Action::Cancel,
             Control::Down => Action::MoveTowards(Direction::Down),
-            Control::EnterChange => Action::PickChange,
+            Control::PickChange => Action::PickChange,
             Control::GotoDirectory => Action::GotoDirectory,
             Control::Left => Action::MoveTowards(Direction::Left),
             Control::MoveEndPage => Action::MoveTowards(Direction::PageEnd),

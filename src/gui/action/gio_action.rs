@@ -92,7 +92,8 @@ impl From<Action> for GioAction {
             Action::Select(find) => Some(GioActionParameter::from(find)),
             Action::SelectCategoryToMove => None,
             Action::SelectCategoryToRemove => None,
-            Action::SelectParentCategory(category_name) => Some(GioActionParameter::from(category_name)),
+            Action::SelectCategoryAddTarget(category_name) => Some(GioActionParameter::from(category_name)),
+            Action::SelectCategoryMoveTarget(category_name) => Some(GioActionParameter::from(category_name)),
             Action::SetSelectionAll => None,
             Action::SetSelectionPage => None,
             Action::SetSelectionRangeEnd(index) => Some(GioActionParameter::from(index)),
@@ -186,7 +187,7 @@ impl From<GioAction> for Action {
             "select-category-for-picture" => Action::SelectCategoryForPicture,
             "select-category-to-move" => Action::SelectCategoryToMove,
             "select-category-to-remove" => Action::SelectCategoryToRemove,
-            "select-parent-category" => Action::SelectParentCategory(String::from(gio_action.parameter().unwrap())),
+            "select-category-move-target" => Action::SelectCategoryMoveTarget(String::from(gio_action.parameter().unwrap())),
             "set-selection-all" => Action::SetSelectionAll,
             "set-selection-page" => Action::SetSelectionPage,
             "set-selection-range-end" => {

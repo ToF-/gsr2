@@ -1,3 +1,5 @@
+use crate::gui::key_input::entry::add_new_category;
+use crate::gui::key_input::menu::catalog_menu;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
@@ -504,7 +506,7 @@ impl GsrApplicationWindow {
                         Control::ToggleCoverSelection => this.toggle_view_covers(),
                         Control::BackFromDirectory => this.back_from_directory(),
                         Control::CancelRange => this.cancel_range(),
-                        Control::EnterChange => this.enter_change(),
+                        Control::PickChange => this.pick_change(),
                         Control::Quit => this.action_quit(),
                         Control::GotoDirectory => this.goto_directory(),
                         Control::RepeatRange => this.repeat_range(),
@@ -555,6 +557,7 @@ impl GsrApplicationWindow {
             Action::ApplyViewSetting(view_option) => self.action_apply_view_setting(view_option),
             Action::Categorize(ref category) => self.action_categorize(category),
             Action::EnterAddTag => self.action_enter_add_tag(),
+            Action::EnterNewCategory => self.action_enter_new_category(),
             Action::SelectCategoryForPicture => self.action_select_category(),
             Action::EnterRemoveTag => self.action_enter_remove_tag(),
             Action::EnterRename => self.action_enter_rename(),
@@ -579,6 +582,7 @@ impl GsrApplicationWindow {
         *self.imp().gsr_entry_window.borrow_mut() = gsr_entry_window;
         self.imp().entry_on.set(true);
     }
+
     fn dismiss(&self) {
         if self.imp().entry_on.get() {
             self.imp().gsr_entry_window.borrow().close();
@@ -672,6 +676,17 @@ impl GsrApplicationWindow {
         self.begin_entry(gsr_entry_window);
     }
 
+    fn action_enter_new_category(&self) {
+        self.dismiss();
+        let gsr_entry_window = GsrEntryWindow::new_with(
+            self,
+            &self.gsr_application().shared_main_controller(),
+            add_new_category(),
+            None,
+        );
+        self.begin_entry(gsr_entry_window);
+    }
+
     fn action_select_category(&self) {
         self.dismiss();
         let mut current_category: Category = None;
@@ -751,10 +766,11 @@ impl GsrApplicationWindow {
 
     fn action_pick_catalog_change(&self) {
         self.dismiss();
+        dbg!();
         let gsr_entry_window = GsrEntryWindow::new_with(
             self,
             &self.gsr_application().shared_main_controller(),
-            change_menu(),
+            catalog_menu(),
             None,
         );
         self.begin_entry(gsr_entry_window);
@@ -910,7 +926,7 @@ impl GsrApplicationWindow {
         self.refresh_view();
     }
 
-    fn enter_change(&self) {
+    fn pick_change(&self) {
         {
             let gsr_entry_window = GsrEntryWindow::new_with(
                 self,

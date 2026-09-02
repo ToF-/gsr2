@@ -175,6 +175,26 @@ impl MainController {
             activate.clone(),
         ));
         entries.push(Self::action_entry(
+            GioActionType::from(Action::SelectCategoryToMove),
+            activate.clone(),
+        ));
+        entries.push(Self::action_entry(
+            GioActionType::from(Action::SelectCategoryToRemove),
+            activate.clone(),
+        ));
+        entries.push(Self::action_entry(
+            GioActionType::from(Action::SelectCategoryAddTarget("foo".to_string())),
+            activate.clone(),
+        ));
+        entries.push(Self::action_entry(
+            GioActionType::from(Action::SelectCategoryMoveTarget("foo".to_string())),
+            activate.clone(),
+        ));
+        entries.push(Self::action_entry(
+            GioActionType::from(Action::EnterNewCategory),
+            activate.clone(),
+        ));
+        entries.push(Self::action_entry(
             GioActionType::from(Action::EnterRemoveTag),
             activate.clone(),
         ));
