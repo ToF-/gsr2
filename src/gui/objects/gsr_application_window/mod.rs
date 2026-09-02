@@ -1,4 +1,3 @@
-use crate::model::find::Find;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
@@ -16,6 +15,7 @@ use crate::gui::direction::Direction;
 use crate::gui::display::title_display;
 use crate::gui::key_input::entry::add_new_category;
 use crate::gui::key_input::entry::add_tags_entry;
+use crate::gui::key_input::entry::find_criteria_entry;
 use crate::gui::key_input::entry::label_change_entry;
 use crate::gui::key_input::entry::remove_tags_entry;
 use crate::gui::key_input::entry::rename_entry;
@@ -38,6 +38,7 @@ use crate::gui::view_state::selection_range::SelectionRange;
 use crate::model::catalog::Catalog;
 use crate::model::category::Category;
 use crate::model::category::category_from_string;
+use crate::model::find::Find;
 use crate::model::finder::Predicate;
 use crate::model::order::Order;
 use crate::model::picture::Picture;
@@ -731,8 +732,17 @@ impl GsrApplicationWindow {
     }
 
     fn action_enter_find(&self, find: &Find) {
-        println!("here I enter criteria for finding {:?}", find);
+        self.dismiss();
+        let tags = self.retrieve_all_labels();
+        let gsr_entry_window = GsrEntryWindow::new_with(
+            self,
+            &self.gsr_application().shared_main_controller(),
+            find_criteria_entry(*find, tags),
+            None,
+        );
+        self.begin_entry(gsr_entry_window);
     }
+
     fn action_enter_new_category(&self) {
         self.dismiss();
         let gsr_entry_window = GsrEntryWindow::new_with(

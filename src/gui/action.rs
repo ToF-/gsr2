@@ -32,7 +32,7 @@ pub enum Action {
     EnterLabel,                   // enter label to apply to the selected pictures
     EnterRemoveTag,               // enter tag(s) to remove from the selected pictures
     EnterRename,                  // enter new name for selected picture
-    Find(Find),                   // find the first picture matching the find criteria
+    Find(Find, String),           // find the first picture matching the find criteria
     FindNext,                     // find the next picture matching the current criteria
     GotoDirectory,                // view only pictures from a sub directory
     JumpToIndex(usize),           // jump to picture #n

@@ -7,6 +7,7 @@ pub enum GioActionParameterType {
     Char,
     Int32,
     Int32Pair,
+    Int32String,
     Int64,
     String,
     StringPair,
@@ -22,6 +23,10 @@ impl GioActionParameterType {
             GioActionParameterType::Int32Pair => {
                 static INT32_PAIR: OnceLock<&'static VariantTy> = OnceLock::new();
                 Some(INT32_PAIR.get_or_init(|| Box::leak(VariantTy::new("(ii)").unwrap().into())))
+            }
+            GioActionParameterType::Int32String => {
+                static INT32_STRING: OnceLock<&'static VariantTy> = OnceLock::new();
+                Some(INT32_STRING.get_or_init(|| Box::leak(VariantTy::new("(is)").unwrap().into())))
             }
             GioActionParameterType::Int64 => Some(VariantTy::INT64),
             GioActionParameterType::String => Some(VariantTy::STRING),

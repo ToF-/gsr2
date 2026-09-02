@@ -128,6 +128,23 @@ impl From<GioActionParameter> for (i32, i32) {
     }
 }
 
+impl From<(Find, String)> for GioActionParameter {
+    fn from(pair: (Find, String)) -> Self {
+        Self {
+            variant: (pair.0 as i32, pair.1).to_variant(),
+        }
+    }
+}
+impl From<GioActionParameter> for (Find, String) {
+    fn from(gio_action_parameter: GioActionParameter) -> Self {
+        let parameter_value: (i32, String) = gio_action_parameter
+            .variant()
+            .get::<(i32, String)>()
+            .unwrap();
+        (Find::from(parameter_value.0), parameter_value.1)
+    }
+}
+
 impl From<Order> for GioActionParameter {
     fn from(order: Order) -> Self {
         Self {

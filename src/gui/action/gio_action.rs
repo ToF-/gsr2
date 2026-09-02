@@ -64,7 +64,7 @@ impl From<Action> for GioAction {
             Action::EnterLabel => None,
             Action::EnterRemoveTag => None,
             Action::EnterRename => None,
-            Action::Find(find) => Some(GioActionParameter::from(find)),
+            Action::Find(find, criteria) => Some(GioActionParameter::from((find, criteria))),
             Action::FindNext => None,
             Action::FocusAt(col, row) => Some(GioActionParameter::from((col, row))),
             Action::GotoDirectory => None,
@@ -155,7 +155,11 @@ impl From<GioAction> for Action {
             "enter-label" => Action::EnterLabel,
             "enter-remove-tag" => Action::EnterRemoveTag,
             "enter-rename" => Action::EnterRename,
-            "find" => Action::Find(Find::from(gio_action.parameter().unwrap())),
+            "find" => {
+                let (find, criteria): (Find, String) =
+                    <(Find, String)>::from(gio_action.parameter().unwrap());
+                Action::Find(find, criteria)
+            }
             "find-next" => Action::FindNext,
             "focus-at" => {
                 let i32_pair: (i32, i32) = <(i32, i32)>::from(gio_action.parameter().unwrap());

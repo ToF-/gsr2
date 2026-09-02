@@ -1,8 +1,8 @@
-use crate::model::find::Find;
 use crate::gui::action::Action;
 use crate::gui::action::gio_action_type::GioActionType;
 use crate::gui::direction::Direction;
 use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
+use crate::model::find::Find;
 use crate::model::order::Order;
 use crate::model::rank::Rank;
 use crate::model::shared::Shared;
@@ -84,15 +84,15 @@ impl MainController {
             activate.clone(),
         ));
         entries.push(Self::action_entry(
-                GioActionType::from(Action::EnterFind(Find::Name)),
-                activate.clone(),
+            GioActionType::from(Action::EnterFind(Find::Name)),
+            activate.clone(),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::EnterLabel),
             activate.clone(),
         ));
         entries.push(Self::action_entry(
-            GioActionType::from(Action::Find(Find::Name)),
+            GioActionType::from(Action::Find(Find::Name,"foo".to_string())),
             activate.clone(),
         ));
         entries.push(Self::action_entry(
