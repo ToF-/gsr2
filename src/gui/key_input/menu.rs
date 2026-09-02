@@ -137,10 +137,11 @@ pub fn catalog_menu() -> KeyInput {
         |s| {
             let n: i32 = s.parse::<i32>().unwrap();
             let change = Change::from(n);
+            dbg!(&change);
             match change {
-                Change::AddCategory => Action::Nothing,
-                Change::MoveCategory => Action::Nothing,
-                Change::RemoveCategory => Action::Nothing,
+                Change::AddCategory => Action::EnterNewCategory,
+                Change::MoveCategory => Action::SelectCategoryToMove,
+                Change::RemoveCategory => Action::SelectCategoryToRemove,
                 _ => Action::Nothing,
             }
         },
