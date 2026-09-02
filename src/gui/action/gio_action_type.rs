@@ -80,7 +80,7 @@ impl From<Action> for GioActionType {
                 GioActionType::new("enter-remove-tag", GioActionParameterType::None)
             }
             Action::EnterRename => GioActionType::new("enter-rename", GioActionParameterType::None),
-            Action::Find(_) => GioActionType::new("find", GioActionParameterType::String),
+            Action::Find(_) => GioActionType::new("find", GioActionParameterType::Int32),
             Action::FindNext => GioActionType::new("find-next", GioActionParameterType::None),
             Action::FocusAt(_, _) => {
                 GioActionType::new("focus-at", GioActionParameterType::Int32Pair)
