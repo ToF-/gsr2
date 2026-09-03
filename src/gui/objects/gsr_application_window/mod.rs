@@ -1,3 +1,4 @@
+use std::io::Error as IOError;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
@@ -511,6 +512,7 @@ impl GsrApplicationWindow {
                         Control::BackFromDirectory => this.back_from_directory(),
                         Control::CancelRange => this.cancel_range(),
                         Control::EnterFind => this.pick_find_option(),
+                        Control::FindNext => this.action_find_next(),
                         Control::PickChange => this.pick_change(),
                         Control::Quit => this.action_quit(),
                         Control::GotoDirectory => this.goto_directory(),
@@ -913,17 +915,54 @@ impl GsrApplicationWindow {
     fn action_find(&self, find: Find, pattern: &str) {
         self.dismiss();
         let catalog = self.with_repository(|repository| repository.catalog());
-        let position_result = self.with_view_state_mut(|view_state| {
-            view_state.finder = Finder::new(view_state.gallery.pictures().clone());
-            Predicate::new(pattern, find, catalog.clone())
-                .map(|predicate| view_state.finder.find_first(predicate))
+        let predicate_res = Predicate::new(pattern, find, catalog.clone());
+        let position_opt = match predicate_res {
+            Err(e) => {
+                self.present_information(&format!("{e}"));
+                None
+            }
+            Ok(predicate) => {
+                let position_opt = self.with_view_state_mut(|view_state| {
+                    view_state.finder = Some(Finder::new(view_state.gallery.pictures().clone()));
+                    view_state.finder.as_mut().unwrap().find_first(predicate)
+                });
+                position_opt
+            }
+        };
+        match position_opt {
+            None => {}
+            Some(position) => {
+                self.with_view_state_mut(|view_state| {
+                    if view_state
+                        .navigator
+                        .can_move(&Direction::Index { value: position })
+                    {
+                        view_state
+                            .navigator
+                            .move_towards(&Direction::Index { value: position })
+                    } else {
+                        view_state.navigator.move_towards(&Direction::First);
+                        view_state.gallery.set_current_picture_index(position);
+                    };
+                });
+                self.refresh_view();
+            }
+        };
+    }
+
+    fn action_find_next(&self) {
+        let position_res = self.with_view_state_mut(|view_state| match &view_state.finder {
+            Some(finder) => Ok(view_state.finder.as_mut().unwrap().find_next()),
+            None => Err(IOError::other("not in a search")),
         });
-        match position_result {
+        match position_res {
             Err(e) => self.present_information(&format!("{e}")),
-            Ok(None) => self.present_information(&format!(
-                "no picture found on criteria: {} {}",
-                find, pattern
-            )),
+            Ok(None) => {
+                self.with_view_state_mut(|view_state| {
+                    view_state.finder = None;
+                });
+                self.present_information("no more picture in the current search");
+            }
             Ok(Some(position)) => {
                 self.with_view_state_mut(|view_state| {
                     if view_state
@@ -934,13 +973,13 @@ impl GsrApplicationWindow {
                             .navigator
                             .move_towards(&Direction::Index { value: position })
                     } else {
-                        view_state.navigator.move_towards(&Direction::First)
-                    }
-                    view_state.gallery.set_current_picture_index(position);
+                        view_state.navigator.move_towards(&Direction::First);
+                        view_state.gallery.set_current_picture_index(position);
+                        self.refresh_view();
+                    };
                 });
-                self.refresh_view();
             }
-        }
+        };
     }
 
     fn action_pick_catalog_change(&self) {

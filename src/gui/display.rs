@@ -11,10 +11,12 @@ use crate::model::picture::Picture;
 use crate::model::rank::Rank;
 use itertools::Itertools;
 
-
 fn pattern_display(view_state: &ViewState) -> String {
-    match view_state.finder.predicate() {
-        Some(predicate) => format!("[{}]", predicate.pattern),
+    match &view_state.finder {
+        Some(finder) => match finder.predicate() {
+            Some(predicate) => format!("[{}]", predicate.pattern),
+            None => "".to_string(),
+        },
         None => "".to_string(),
     }
 }

@@ -16,5 +16,5 @@ pub struct ViewState {
     pub gallery: Gallery,
     pub focus_at_coords: (i32, i32),
     pub positions: Vec<(Option<String>, usize)>,
-    pub finder: Finder,
+    pub finder: Option<Finder>,
 }
