@@ -706,6 +706,7 @@ impl GsrApplicationWindow {
             ViewOption::Grid5x5 => self.toggle_pictures_per_row(5),
             ViewOption::Thumbnails => self.toggle_pictures_per_row(10),
             ViewOption::Covers => self.toggle_view_covers(),
+            ViewOption::Palette => self.toggle_palette(),
             ViewOption::FilePath | ViewOption::FileDate | ViewOption::FileSize => {
                 self.toggle_view_display_option(view_option)
             }
