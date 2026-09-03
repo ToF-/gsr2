@@ -10,6 +10,7 @@ use std::sync::Arc;
 #[derive(Clone)]
 pub struct Predicate {
     pub function: Arc<dyn Fn(&Picture) -> bool>,
+    pub find: Find,
     pub pattern: String,
 }
 
@@ -51,6 +52,7 @@ impl Predicate {
         };
         result.map(|function| Self {
             function: function,
+            find: find,
             pattern: format!("{}:{}", find, pattern),
         })
     }

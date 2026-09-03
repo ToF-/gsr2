@@ -37,6 +37,14 @@ impl Finder {
         self.predicate.clone()
     }
 
+    pub fn position(&self) -> usize {
+        self.position
+    }
+
+    pub fn reset(&mut self) {
+        self.position = 0;
+    }
+
     pub fn set_items(&mut self, items: Vec<Picture>) {
         self.items = items.clone();
         let len = self.items.len();

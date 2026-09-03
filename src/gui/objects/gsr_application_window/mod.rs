@@ -1,4 +1,3 @@
-use std::io::Error as IOError;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
@@ -54,6 +53,7 @@ use gtk::glib::clone;
 use gtk::prelude::*;
 use gtk::subclass::prelude::ObjectSubclassIsExt;
 use std::cell::RefCell;
+use std::io::Error as IOError;
 use std::rc::Rc;
 
 pub const LEFT_PANE: usize = 0;
@@ -512,6 +512,7 @@ impl GsrApplicationWindow {
                         Control::BackFromDirectory => this.back_from_directory(),
                         Control::CancelRange => this.cancel_range(),
                         Control::EnterFind => this.pick_find_option(),
+                        Control::RedoFind => this.action_redo_find(),
                         Control::FindNext => this.action_find_next(),
                         Control::PickChange => this.pick_change(),
                         Control::Quit => this.action_quit(),
@@ -924,13 +925,19 @@ impl GsrApplicationWindow {
             Ok(predicate) => {
                 let position_opt = self.with_view_state_mut(|view_state| {
                     view_state.finder = Some(Finder::new(view_state.gallery.pictures().clone()));
-                    view_state.finder.as_mut().unwrap().find_first(predicate)
+                    let position_opt = view_state.finder.as_mut().unwrap().find_first(predicate);
+                    position_opt
                 });
                 position_opt
             }
         };
         match position_opt {
-            None => {}
+            None => {
+                self.present_information(&format!("no picture match this criterion: {} {}", find, pattern));
+                self.with_view_state_mut(|view_state| {
+                    view_state.finder = None;
+                });
+            },
             Some(position) => {
                 self.with_view_state_mut(|view_state| {
                     if view_state
@@ -941,8 +948,7 @@ impl GsrApplicationWindow {
                             .navigator
                             .move_towards(&Direction::Index { value: position });
                         view_state.gallery.set_current_picture_index(position);
-
-                    } 
+                    }
                 });
                 self.refresh_view();
                 self.refresh_title();
@@ -953,6 +959,17 @@ impl GsrApplicationWindow {
         };
     }
 
+    fn action_redo_find(&self) {
+        let current_search = self.with_view_state(|view_state| view_state.finder.is_some());
+        if current_search {
+            self.with_view_state_mut(|view_state| {
+                view_state.finder.as_mut().unwrap().reset();
+            });
+            self.action_find_next();
+        } else {
+            self.pick_find_option()
+        }
+    }
     fn action_find_next(&self) {
         let position_res = self.with_view_state_mut(|view_state| match &view_state.finder {
             Some(finder) => Ok(view_state.finder.as_mut().unwrap().find_next()),
@@ -961,11 +978,7 @@ impl GsrApplicationWindow {
         match position_res {
             Err(e) => self.present_information(&format!("{e}")),
             Ok(None) => {
-                self.with_view_state_mut(|view_state| {
-                    view_state.finder = None;
-                });
-                self.present_information("no more picture in the current search");
-                self.refresh_view();
+                self.action_redo_find()
             }
             Ok(Some(position)) => {
                 self.with_view_state_mut(|view_state| {
