@@ -939,13 +939,16 @@ impl GsrApplicationWindow {
                     {
                         view_state
                             .navigator
-                            .move_towards(&Direction::Index { value: position })
-                    } else {
-                        view_state.navigator.move_towards(&Direction::First);
+                            .move_towards(&Direction::Index { value: position });
                         view_state.gallery.set_current_picture_index(position);
-                    };
+
+                    } 
                 });
                 self.refresh_view();
+                self.refresh_title();
+                self.with_view_state(|view_state| {
+                    println!("{}", view_state.gallery.current_picture_index());
+                })
             }
         };
     }
@@ -972,10 +975,12 @@ impl GsrApplicationWindow {
                     {
                         view_state
                             .navigator
-                            .move_towards(&Direction::Index { value: position })
+                            .move_towards(&Direction::Index { value: position });
+                        view_state.gallery.set_current_picture_index(position);
                     };
                 });
                 self.refresh_view();
+                self.refresh_title();
             }
         };
     }
