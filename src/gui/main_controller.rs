@@ -92,7 +92,7 @@ impl MainController {
             activate.clone(),
         ));
         entries.push(Self::action_entry(
-            GioActionType::from(Action::Find(Find::Name,"foo".to_string())),
+            GioActionType::from(Action::Find(Find::Name, "foo".to_string())),
             activate.clone(),
         ));
         entries.push(Self::action_entry(

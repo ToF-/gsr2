@@ -555,45 +555,34 @@ impl GsrApplicationWindow {
     pub fn process_action(&self, action: Action) {
         // println!("processing action: {:?}", &action);
         match action {
-            Action::Nothing => println!("processing Action::Nothing"),
-            Action::Dismiss | Action::Cancel => self.dismiss(),
-            Action::Quit => self.action_quit(),
-            Action::AddCategory(ref new_category_name, ref target_category_name) => {
-                self.action_add_category(&new_category_name, &target_category_name)
-            }
+            Action::AddCategory(ref new_category_name, ref target_category_name) => { self.action_add_category(&new_category_name, &target_category_name) }
+            Action::AddTag(ref tags) => self.action_tag(&tags),
             Action::ApplyOrderSetting(order) => self.action_apply_order_setting(order),
             Action::ApplyViewSetting(view_option) => self.action_apply_view_setting(view_option),
             Action::Categorize(ref category) => self.action_categorize(category),
+            Action::Dismiss | Action::Cancel => self.dismiss(),
             Action::EnterAddTag => self.action_enter_add_tag(),
             Action::EnterFind(ref find) => self.action_enter_find(&find),
+            Action::EnterLabel => self.action_enter_label(),
             Action::EnterNewCategory => self.action_enter_new_category(),
-            Action::SelectCategoryForPicture => self.action_select_category(),
             Action::EnterRemoveTag => self.action_enter_remove_tag(),
             Action::EnterRename => self.action_enter_rename(),
-            Action::EnterLabel => self.action_enter_label(),
-            Action::Unlabel => self.action_unlabel(),
+            Action::Find(find, ref criteria) => self.action_find(find, &criteria),
             Action::Label(ref label) => self.action_label(&label),
-            Action::AddTag(ref tags) => self.action_tag(&tags),
-            Action::MoveCategory(ref category_name, ref target_category_name) => {
-                self.action_move_category(&category_name, &target_category_name)
-            }
+            Action::MoveCategory(ref category_name, ref target_category_name) => { self.action_move_category(&category_name, &target_category_name) }
+            Action::Nothing => println!("processing Action::Nothing"),
             Action::PickCatalogChange => self.action_pick_catalog_change(),
-            Action::RemoveCategory(ref category_name) => {
-                self.action_remove_category(&category_name)
-            }
-            Action::RemoveTag(ref tags) => self.action_untag(&tags),
-            Action::Rename(ref name) => self.action_rename(&name),
-            Action::SelectCategoryAddTarget(ref name) => {
-                self.action_select_category_add_target(&name)
-            }
-            Action::SelectCategoryMoveTarget(ref name) => {
-                self.action_select_category_move_target(&name)
-            }
+            Action::Quit => self.action_quit(),
+            Action::RemoveCategory(ref category_name) => { self.action_remove_category(&category_name) } 
+            Action::RemoveTag(ref tags) => self.action_untag(&tags), Action::Rename(ref name) => self.action_rename(&name),
+            Action::SelectCategoryAddTarget(ref name) => { self.action_select_category_add_target(&name) }
+            Action::SelectCategoryForPicture => self.action_select_category(),
+            Action::SelectCategoryMoveTarget(ref name) => { self.action_select_category_move_target(&name) }
             Action::SelectCategoryToMove => self.action_select_category_to_move(),
             Action::SelectCategoryToRemove => self.action_select_category_to_remove(),
-            Action::ToggleCover => self.action_toggle_cover(),
-            _ => {
-                println!("* * * todo: {:?}", action);
+            Action::ToggleCover => self.action_toggle_cover(), 
+            Action::Unlabel => self.action_unlabel(),
+            _ => { println!("* * * todo: {:?}", action);
             }
         };
         if action.is_repeatable() {
@@ -907,6 +896,9 @@ impl GsrApplicationWindow {
         self.begin_entry(gsr_entry_window);
     }
 
+    fn action_find(&self, find: Find, criteria: &str) {
+        self.dismiss();
+    }
     fn action_pick_catalog_change(&self) {
         self.dismiss();
         let gsr_entry_window = GsrEntryWindow::new_with(
