@@ -446,7 +446,7 @@ impl Database {
     // select * from picture where concat(substring(filepath,1,23), substring(filepath,24)) = filepath ;
     fn select_parent_dir(parent_dir: &str) -> String {
         let parent = file_path_as_stored(&based_path(parent_dir));
-        format!("FilePath like '{}%' ", parent,)
+        format!("FilePath like '{}/%' ", parent,)
     }
 
     pub fn retrieve_all_pictures(
