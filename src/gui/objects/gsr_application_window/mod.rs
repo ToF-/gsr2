@@ -962,6 +962,7 @@ impl GsrApplicationWindow {
                     view_state.finder = None;
                 });
                 self.present_information("no more picture in the current search");
+                self.refresh_view();
             }
             Ok(Some(position)) => {
                 self.with_view_state_mut(|view_state| {
@@ -972,12 +973,9 @@ impl GsrApplicationWindow {
                         view_state
                             .navigator
                             .move_towards(&Direction::Index { value: position })
-                    } else {
-                        view_state.navigator.move_towards(&Direction::First);
-                        view_state.gallery.set_current_picture_index(position);
-                        self.refresh_view();
                     };
                 });
+                self.refresh_view();
             }
         };
     }
