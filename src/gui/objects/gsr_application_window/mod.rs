@@ -39,9 +39,10 @@ use crate::model::catalog::Catalog;
 use crate::model::category::Category;
 use crate::model::category::category_from_string;
 use crate::model::find::Find;
-use crate::model::finder::Predicate;
+use crate::model::finder::Finder;
 use crate::model::order::Order;
 use crate::model::picture::Picture;
+use crate::model::predicate::Predicate;
 use crate::model::repository::Repository;
 use crate::model::shared::Shared;
 use crate::model::tags::Tags;
@@ -555,7 +556,9 @@ impl GsrApplicationWindow {
     pub fn process_action(&self, action: Action) {
         // println!("processing action: {:?}", &action);
         match action {
-            Action::AddCategory(ref new_category_name, ref target_category_name) => { self.action_add_category(&new_category_name, &target_category_name) }
+            Action::AddCategory(ref new_category_name, ref target_category_name) => {
+                self.action_add_category(&new_category_name, &target_category_name)
+            }
             Action::AddTag(ref tags) => self.action_tag(&tags),
             Action::ApplyOrderSetting(order) => self.action_apply_order_setting(order),
             Action::ApplyViewSetting(view_option) => self.action_apply_view_setting(view_option),
@@ -569,20 +572,30 @@ impl GsrApplicationWindow {
             Action::EnterRename => self.action_enter_rename(),
             Action::Find(find, ref criteria) => self.action_find(find, &criteria),
             Action::Label(ref label) => self.action_label(&label),
-            Action::MoveCategory(ref category_name, ref target_category_name) => { self.action_move_category(&category_name, &target_category_name) }
+            Action::MoveCategory(ref category_name, ref target_category_name) => {
+                self.action_move_category(&category_name, &target_category_name)
+            }
             Action::Nothing => println!("processing Action::Nothing"),
             Action::PickCatalogChange => self.action_pick_catalog_change(),
             Action::Quit => self.action_quit(),
-            Action::RemoveCategory(ref category_name) => { self.action_remove_category(&category_name) } 
-            Action::RemoveTag(ref tags) => self.action_untag(&tags), Action::Rename(ref name) => self.action_rename(&name),
-            Action::SelectCategoryAddTarget(ref name) => { self.action_select_category_add_target(&name) }
+            Action::RemoveCategory(ref category_name) => {
+                self.action_remove_category(&category_name)
+            }
+            Action::RemoveTag(ref tags) => self.action_untag(&tags),
+            Action::Rename(ref name) => self.action_rename(&name),
+            Action::SelectCategoryAddTarget(ref name) => {
+                self.action_select_category_add_target(&name)
+            }
             Action::SelectCategoryForPicture => self.action_select_category(),
-            Action::SelectCategoryMoveTarget(ref name) => { self.action_select_category_move_target(&name) }
+            Action::SelectCategoryMoveTarget(ref name) => {
+                self.action_select_category_move_target(&name)
+            }
             Action::SelectCategoryToMove => self.action_select_category_to_move(),
             Action::SelectCategoryToRemove => self.action_select_category_to_remove(),
-            Action::ToggleCover => self.action_toggle_cover(), 
+            Action::ToggleCover => self.action_toggle_cover(),
             Action::Unlabel => self.action_unlabel(),
-            _ => { println!("* * * todo: {:?}", action);
+            _ => {
+                println!("* * * todo: {:?}", action);
             }
         };
         if action.is_repeatable() {
@@ -896,9 +909,39 @@ impl GsrApplicationWindow {
         self.begin_entry(gsr_entry_window);
     }
 
-    fn action_find(&self, find: Find, criteria: &str) {
+    fn action_find(&self, find: Find, pattern: &str) {
         self.dismiss();
+        let catalog = self.with_repository(|repository| repository.catalog());
+        let position_result = self.with_view_state_mut(|view_state| {
+            view_state.finder = Finder::new(view_state.gallery.pictures().clone());
+            Predicate::new(pattern, find, catalog.clone())
+                .map(|predicate| view_state.finder.find_first(predicate))
+        });
+        match position_result {
+            Err(e) => self.present_information(&format!("{e}")),
+            Ok(None) => self.present_information(&format!(
+                "no picture found on criteria: {} {}",
+                find, pattern
+            )),
+            Ok(Some(position)) => {
+                self.with_view_state_mut(|view_state| {
+                    if view_state
+                        .navigator
+                        .can_move(&Direction::Index { value: position })
+                    {
+                        view_state
+                            .navigator
+                            .move_towards(&Direction::Index { value: position })
+                    } else {
+                        view_state.navigator.move_towards(&Direction::First)
+                    }
+                    view_state.gallery.set_current_picture_index(position);
+                });
+                self.refresh_view();
+            }
+        }
     }
+
     fn action_pick_catalog_change(&self) {
         self.dismiss();
         let gsr_entry_window = GsrEntryWindow::new_with(

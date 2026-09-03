@@ -67,10 +67,6 @@ impl From<Action> for GioActionType {
             Action::SelectCategoryAddTarget(_) => {
                 GioActionType::new("select-category-add-target", GioActionParameterType::String)
             }
-            Action::SelectCategoryMoveTarget(_) => GioActionType::new(
-                "select-category-move-target",
-                GioActionParameterType::String,
-            ),
             Action::EnterIndex => GioActionType::new("enter-index", GioActionParameterType::None),
             Action::EnterFind(_) => GioActionType::new("enter-find", GioActionParameterType::Int32),
             Action::EnterLabel => GioActionType::new("enter-label", GioActionParameterType::None),

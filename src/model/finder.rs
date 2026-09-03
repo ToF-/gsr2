@@ -2,70 +2,11 @@ use crate::model::catalog::Catalog;
 use crate::model::categories::Categories;
 use crate::model::find::Find;
 use crate::model::picture::Picture;
+use crate::model::predicate::Predicate;
 use crate::model::tags::tags_from_str;
 use regex::Error;
 use regex::Regex;
 use std::sync::Arc;
-
-#[derive(Clone)]
-pub struct Predicate {
-    pub function: Arc<dyn Fn(&Picture) -> bool>,
-}
-
-pub fn predicate(pattern: &str, find: Find, catalog: Catalog) -> Result<Predicate, Error> {
-    match Regex::new(pattern) {
-        Ok(re) => {
-            let predicate = match find {
-                Find::Name => Predicate {
-                    function: Arc::new(move |picture: &Picture| re.is_match(&picture.file_name())),
-                },
-                Find::FilePath => Predicate {
-                    function: Arc::new(move |picture: &Picture| re.is_match(&picture.file_path())),
-                },
-                Find::Label => Predicate {
-                    function: Arc::new(move |picture: &Picture| re.is_match(&picture.label())),
-                },
-                Find::Category => Predicate {
-                    function: Arc::new(move |picture: &Picture| {
-                        re.is_match(&picture.category_name())
-                    }),
-                },
-                Find::SubCategory => {
-                    let categories: Categories = Categories::from_string(pattern);
-                    Predicate {
-                        function: Arc::new(move |picture: &Picture| {
-                            catalog.is_one_of(&categories, &picture.category_name())
-                        }),
-                    }
-                }
-                Find::SomeTags => {
-                    let tags = tags_from_str(pattern);
-                    Predicate {
-                        function: Arc::new(move |picture: &Picture| {
-                            picture.tags().intersection(&tags).count() > 0
-                        }),
-                    }
-                }
-                Find::AllTags => {
-                    let tags = tags_from_str(pattern);
-                    Predicate {
-                        function: Arc::new(move |picture: &Picture| {
-                            tags.is_subset(&picture.tags())
-                        }),
-                    }
-                }
-            };
-            Ok(predicate)
-        }
-        Err(e) => Err(e),
-    }
-}
-
-impl std::fmt::Debug for Predicate {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "<predicate>")
-    }
-}
 
 #[derive(Debug, Clone)]
 pub struct Finder {
@@ -74,6 +15,15 @@ pub struct Finder {
     position: usize,
 }
 
+impl Default for Finder {
+    fn default() -> Self {
+        Self {
+            items: Vec::new(),
+            position: 0,
+            predicate: None,
+        }
+    }
+}
 impl Finder {
     pub fn new(items: Vec<Picture>) -> Self {
         Self {
@@ -81,6 +31,10 @@ impl Finder {
             position: 0,
             predicate: None,
         }
+    }
+
+    pub fn predicate(&self) -> Option<Predicate> {
+        self.predicate.clone()
     }
 
     pub fn set_items(&mut self, items: Vec<Picture>) {

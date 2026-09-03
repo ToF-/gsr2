@@ -11,6 +11,14 @@ use crate::model::picture::Picture;
 use crate::model::rank::Rank;
 use itertools::Itertools;
 
+
+fn pattern_display(view_state: &ViewState) -> String {
+    match view_state.finder.predicate() {
+        Some(predicate) => format!("[{}]", predicate.pattern),
+        None => "".to_string(),
+    }
+}
+
 fn view_mode_display(view_state: &ViewState) -> String {
     if view_state.settings.single_view() {
         match view_state.settings.single_view_mode() {
@@ -172,6 +180,7 @@ fn selected_count_display(view_state: &ViewState) -> String {
 }
 
 pub fn title_display(view_state: &ViewState) -> String {
+    let pattern = pattern_display(view_state);
     let covers_only = covers_only_display(view_state);
     let picture = view_state.gallery.current_picture();
     view_state.gallery.current_picture().file_name();
@@ -191,6 +200,6 @@ pub fn title_display(view_state: &ViewState) -> String {
     let size = size_display(view_state);
     let view = view_mode_display(view_state);
     format!(
-        "{covers_only} {folder} #{position} {page} {sel_count} {order}                     {cover} {name} {label} {rank} {category} {tags} {date} {size} {view}{small} "
+        "{pattern}{covers_only} {folder} #{position} {page} {sel_count} {order}                     {cover} {name} {label} {rank} {category} {tags} {date} {size} {view}{small} "
     )
 }

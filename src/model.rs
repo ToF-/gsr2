@@ -13,6 +13,7 @@ pub mod label;
 pub mod order;
 pub mod palette;
 pub mod picture;
+pub mod predicate;
 pub mod rank;
 pub mod repository;
 pub mod selection_criteria;
