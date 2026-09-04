@@ -105,7 +105,7 @@ impl Repository {
         &self,
         args: &CommandLineArguments,
         predicate_opt: Option<Predicate>,
-    ) -> IOResult<()> {
+    ) -> IOResult<usize> {
         let catalog_result = Catalog::from_file(&self.catalog_filepath);
         let catalog: Catalog = catalog_result?;
         let selection_criteria = SelectionCriteria::from_args(args);
@@ -155,7 +155,7 @@ impl Repository {
                     }
                     Err(e) => return Err(e),
                 };
-                Ok(())
+                Ok(gallery.len())
             }
             Err(e) => panic!("{}", &format!("{}", e)),
         }
@@ -243,13 +243,13 @@ impl Repository {
             panic!("can't borrow")
         }
     }
-    pub fn retrieve_pictures(&self, predicate_opt: Option<Predicate>) -> IOResult<()> {
+    pub fn retrieve_pictures(&self, predicate_opt: Option<Predicate>) -> IOResult<usize> {
         match &self.command_line_arguments.command {
             Some(Command::File { file_path }) => match self.picture_from_file_path(file_path) {
                 Ok(file_gallery) => match self.gallery_rc.try_borrow_mut() {
                     Ok(mut gallery) => {
                         *gallery = file_gallery.clone();
-                        Ok(())
+                        Ok(1)
                     }
                     Err(e) => Err(IOError::other(e)),
                 },
@@ -259,7 +259,7 @@ impl Repository {
                 Ok(dir_gallery) => match self.gallery_rc.try_borrow_mut() {
                     Ok(mut gallery) => {
                         *gallery = dir_gallery.clone();
-                        Ok(())
+                        Ok(gallery.len())
                     }
                     Err(e) => Err(IOError::other(e)),
                 },
@@ -277,7 +277,7 @@ impl Repository {
         &self,
         args: &CommandLineArguments,
         predicate_opt: Option<Predicate>,
-    ) -> IOResult<()> {
+    ) -> IOResult<usize> {
         self.retrieve_all_pictures(args, predicate_opt)
     }
 

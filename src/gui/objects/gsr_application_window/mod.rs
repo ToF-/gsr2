@@ -308,6 +308,7 @@ impl GsrApplicationWindow {
 
             match repository.retrieve_pictures(predicate_opt) {
                 Err(_) => panic!("can't retrieve from repository"),
+                Ok(0) => self.present_information("no picture matching these criteria"),
                 Ok(_) => {
                     let repository_gallery = repository.gallery_rc().borrow_mut();
                     self.with_view_state_mut(|view_state| {
