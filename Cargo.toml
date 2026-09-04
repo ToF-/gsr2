@@ -3,7 +3,7 @@ name = "gsr"
 version = "1.5.2"
 edition = "2024"
 authors = ["ToF-"]
-default-run = "gsr"
+default-run = "gsrs"
 
 
 [[bin]]
@@ -15,7 +15,7 @@ name = "ctlg"
 path = "src/bin/ctlg.rs"
 
 [[bin]]
-name = "gsr"
+name = "gsrs"
 path = "src/bin/gsr.rs"
 
 [build-dependencies]
