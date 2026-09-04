@@ -1,3 +1,4 @@
+use std::io::Result as IOResult;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
@@ -292,7 +293,7 @@ impl GsrApplicationWindow {
         covers_only_opt: Option<bool>,
         sub_directory: Option<String>,
         predicate_opt: Option<Predicate>,
-    ) {
+    ) -> IOResult<usize> {
         {
             let shared_command_line_arguments =
                 self.gsr_application().shared_command_line_arguments();
@@ -308,9 +309,12 @@ impl GsrApplicationWindow {
                 Repository::new(configuration.clone(), command_line_arguments.clone(), false);
 
             match repository.retrieve_pictures(predicate_opt) {
-                Err(_) => panic!("can't retrieve from repository"),
-                Ok(0) => self.present_information("no picture matching these criteria"),
-                Ok(_) => {
+                Err(e) => Err(e),
+                Ok(0) => {
+                    self.present_information("no picture matching these criteria");
+                    Ok(0)
+                }
+                Ok(n) => {
                     let repository_gallery = repository.gallery_rc().borrow_mut();
                     self.with_view_state_mut(|view_state| {
                         view_state.gallery = repository_gallery.clone();
@@ -318,7 +322,8 @@ impl GsrApplicationWindow {
                             repository_gallery.len(),
                             view_state.settings.pictures_per_row() as usize,
                         );
-                    })
+                    });
+                    Ok(n)
                 }
             }
         }
@@ -1280,9 +1285,10 @@ impl GsrApplicationWindow {
 
     fn action_select(&self, find: Find, pattern: &str) {
         self.dismiss();
-        let (current_picture, covers_only) = self.with_view_state(|view_state| {
+        let (sub_directory, position, covers_only) = self.with_view_state(|view_state| {
             (
-                view_state.gallery.current_picture(),
+                view_state.gallery.sub_folder(),
+                view_state.gallery.current_picture_index(),
                 view_state.settings.covers_only(),
             )
         });
@@ -1293,46 +1299,32 @@ impl GsrApplicationWindow {
                 self.present_information(&format!("{e}"));
             }
             Ok(new_predicate) => {
-                let current_location =
-                    self.with_view_state(|view_state| view_state.current_location.clone());
-                let current_predicate_opt = current_location.predicate().clone();
-                let predicate = match current_predicate_opt {
-                    None => new_predicate,
-                    Some(current_predicate) => Predicate::and(current_predicate, new_predicate),
-                };
-                let new_location = self.with_view_state(|view_state| {
-                    Location::new(
-                        view_state.gallery.sub_folder(),
-                        Some(predicate.clone()),
-                        view_state.navigator.position(),
-                        view_state.settings.covers_only(),
-                    )
-                });
                 self.with_view_state_mut(|view_state| {
-                    let current_location = view_state.current_location.clone();
-                    view_state.saved_locations.push(current_location);
-                    view_state.current_location = new_location.clone();
+                    view_state.set_new_location(
+                        sub_directory,
+                        Some(new_predicate),
+                        position,
+                        covers_only,
+                    )
                 });
                 let location =
                     self.with_view_state(|view_state| view_state.current_location.clone());
-                dbg!(&location);
-                self.retrieve_from_repository(
+                match self.retrieve_from_repository(
                     Some(location.covers_only()),
                     location.sub_directory(),
                     location.predicate(),
-                );
-                self.refresh_view();
+                ) {
+                    Err(e) => panic!("{}",e),
+                    Ok(0) => self.back_to_previous_location(),
+                    Ok(_) => self.refresh_view(),
+                };
             }
         }
     }
 
     fn back_to_previous_location(&self) {
-        self.with_view_state(|view_state| {
-            dbg!(&view_state.saved_locations);
-            dbg!(&view_state.current_location);
-        });
         let location = self.with_view_state_mut(|view_state| {
-            view_state.current_location = view_state.saved_locations.pop().unwrap_or_default();
+            view_state.set_old_location();
             view_state.current_location.clone()
         });
         self.retrieve_from_repository(
@@ -1341,7 +1333,6 @@ impl GsrApplicationWindow {
             location.predicate(),
         );
         self.with_view_state_mut(|view_state| {
-            view_state.gallery.set_sub_folder(location.sub_directory());
             view_state.settings.set_covers_only(location.covers_only());
             if view_state.navigator.can_move(&Direction::Index {
                 value: location.position(),
