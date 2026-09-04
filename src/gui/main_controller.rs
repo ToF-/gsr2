@@ -88,11 +88,19 @@ impl MainController {
             activate.clone(),
         ));
         entries.push(Self::action_entry(
+            GioActionType::from(Action::EnterSelect(Find::Name)),
+            activate.clone(),
+        ));
+        entries.push(Self::action_entry(
             GioActionType::from(Action::EnterLabel),
             activate.clone(),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::Find(Find::Name, "foo".to_string())),
+            activate.clone(),
+        ));
+        entries.push(Self::action_entry(
+            GioActionType::from(Action::Select(Find::Name, "foo".to_string())),
             activate.clone(),
         ));
         entries.push(Self::action_entry(

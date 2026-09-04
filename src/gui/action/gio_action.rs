@@ -62,6 +62,7 @@ impl From<Action> for GioAction {
             Action::EnterIndex => None,
             Action::EnterFind(find) => Some(GioActionParameter::from(find)),
             Action::EnterLabel => None,
+            Action::EnterSelect(find) => Some(GioActionParameter::from(find)),
             Action::EnterRemoveTag => None,
             Action::EnterRename => None,
             Action::Find(find, criteria) => Some(GioActionParameter::from((find, criteria))),
@@ -90,7 +91,7 @@ impl From<Action> for GioAction {
             Action::Rename(name) => Some(GioActionParameter::from(name)),
             Action::RepeatAction => None,
             Action::RepeatRangeSelection => None,
-            Action::Select(find) => Some(GioActionParameter::from(find)),
+            Action::Select(find, criteria) => Some(GioActionParameter::from((find, criteria))),
             Action::SelectCategoryToMove => None,
             Action::SelectCategoryToRemove => None,
             Action::SelectCategoryAddTarget(category_name) => {
@@ -155,6 +156,7 @@ impl From<GioAction> for Action {
             "enter-label" => Action::EnterLabel,
             "enter-remove-tag" => Action::EnterRemoveTag,
             "enter-rename" => Action::EnterRename,
+            "enter-select" => Action::EnterSelect(Find::from(gio_action.parameter().unwrap())),
             "find" => {
                 let (find, criteria): (Find, String) =
                     <(Find, String)>::from(gio_action.parameter().unwrap());
@@ -193,7 +195,11 @@ impl From<GioAction> for Action {
             "rename" => Action::Rename(String::from(gio_action.parameter().unwrap())),
             "repeat-action" => Action::RepeatAction,
             "repeat-range-selection" => Action::RepeatRangeSelection,
-            "select" => Action::Select(Find::from(gio_action.parameter().unwrap())),
+            "select" => {
+                let (find, criteria): (Find, String) =
+                    <(Find, String)>::from(gio_action.parameter().unwrap());
+                Action::Select(find, criteria)
+            }
             "select-category-for-picture" => Action::SelectCategoryForPicture,
             "select-category-to-move" => Action::SelectCategoryToMove,
             "select-category-to-remove" => Action::SelectCategoryToRemove,

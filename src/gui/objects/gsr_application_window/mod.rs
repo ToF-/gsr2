@@ -19,11 +19,13 @@ use crate::gui::key_input::entry::find_criteria_entry;
 use crate::gui::key_input::entry::label_change_entry;
 use crate::gui::key_input::entry::remove_tags_entry;
 use crate::gui::key_input::entry::rename_entry;
+use crate::gui::key_input::entry::select_criteria_entry;
 use crate::gui::key_input::information::information;
 use crate::gui::key_input::menu::catalog_menu;
 use crate::gui::key_input::menu::change_menu;
 use crate::gui::key_input::menu::find_menu;
 use crate::gui::key_input::menu::order_menu;
+use crate::gui::key_input::menu::select_menu;
 use crate::gui::key_input::menu::view_menu;
 use crate::gui::mode::Mode;
 use crate::gui::objects::gsr_application::GsrApplication;
@@ -512,6 +514,7 @@ impl GsrApplicationWindow {
                         Control::BackFromDirectory => this.back_from_directory(),
                         Control::CancelRange => this.cancel_range(),
                         Control::EnterFind => this.pick_find_option(),
+                        Control::EnterSelect => this.pick_select_option(),
                         Control::RedoFind => this.action_redo_find(),
                         Control::FindNext => this.action_find_next(),
                         Control::PickChange => this.pick_change(),
@@ -569,6 +572,7 @@ impl GsrApplicationWindow {
             Action::Dismiss | Action::Cancel => self.dismiss(),
             Action::EnterAddTag => self.action_enter_add_tag(),
             Action::EnterFind(ref find) => self.action_enter_find(&find),
+            Action::EnterSelect(ref find) => self.action_enter_select(&find),
             Action::EnterLabel => self.action_enter_label(),
             Action::EnterNewCategory => self.action_enter_new_category(),
             Action::EnterRemoveTag => self.action_enter_remove_tag(),
@@ -586,6 +590,7 @@ impl GsrApplicationWindow {
             }
             Action::RemoveTag(ref tags) => self.action_untag(&tags),
             Action::Rename(ref name) => self.action_rename(&name),
+            Action::Select(find, ref criteria) => self.action_select(find, &criteria),
             Action::SelectCategoryAddTarget(ref name) => {
                 self.action_select_category_add_target(&name)
             }
@@ -744,6 +749,18 @@ impl GsrApplicationWindow {
             self,
             &self.gsr_application().shared_main_controller(),
             find_criteria_entry(*find, tags),
+            None,
+        );
+        self.begin_entry(gsr_entry_window);
+    }
+
+    fn action_enter_select(&self, find: &Find) {
+        self.dismiss();
+        let tags = self.retrieve_all_labels();
+        let gsr_entry_window = GsrEntryWindow::new_with(
+            self,
+            &self.gsr_application().shared_main_controller(),
+            select_criteria_entry(*find, tags),
             None,
         );
         self.begin_entry(gsr_entry_window);
@@ -933,11 +950,14 @@ impl GsrApplicationWindow {
         };
         match position_opt {
             None => {
-                self.present_information(&format!("no picture match this criterion: {} {}", find, pattern));
+                self.present_information(&format!(
+                    "no picture match this criterion: {} {}",
+                    find, pattern
+                ));
                 self.with_view_state_mut(|view_state| {
                     view_state.finder = None;
                 });
-            },
+            }
             Some(position) => {
                 self.with_view_state_mut(|view_state| {
                     if view_state
@@ -977,9 +997,7 @@ impl GsrApplicationWindow {
         });
         match position_res {
             Err(e) => self.present_information(&format!("{e}")),
-            Ok(None) => {
-                self.action_redo_find()
-            }
+            Ok(None) => self.action_redo_find(),
             Ok(Some(position)) => {
                 self.with_view_state_mut(|view_state| {
                     if view_state
@@ -1179,6 +1197,16 @@ impl GsrApplicationWindow {
         self.begin_entry(gsr_entry_window);
     }
 
+    fn pick_select_option(&self) {
+        let gsr_entry_window = GsrEntryWindow::new_with(
+            self,
+            &self.gsr_application().shared_main_controller(),
+            select_menu(),
+            None,
+        );
+        self.begin_entry(gsr_entry_window);
+    }
+
     fn set_order(&self) {
         {
             let gsr_entry_window = GsrEntryWindow::new_with(
@@ -1232,11 +1260,12 @@ impl GsrApplicationWindow {
                 (
                     view_state.gallery.sub_folder(),
                     view_state.navigator.position(),
+                    view_state.settings.covers_only(),
                 )
             });
             self.retrieve_from_repository(None, parent_directory_opt.clone(), None);
             self.with_view_state_mut(|view_state| {
-                view_state.positions.push(location);
+                view_state.saved_locations.push(location);
                 view_state
                     .gallery
                     .set_sub_folder(parent_directory_opt.clone());
@@ -1246,14 +1275,45 @@ impl GsrApplicationWindow {
         }
     }
 
+    fn action_select(&self, find: Find, pattern: &str) {
+        self.dismiss();
+        let (current_picture, covers_only) = self.with_view_state(|view_state| {
+            (
+                view_state.gallery.current_picture(),
+                view_state.settings.covers_only(),
+            )
+        });
+        let location = self.with_view_state(|view_state| {
+            (
+                view_state.gallery.sub_folder(),
+                view_state.navigator.position(),
+                view_state.settings.covers_only(),
+            )
+        });
+        let catalog = self.with_repository(|repository| repository.catalog());
+        let predicate_res = Predicate::new(pattern, find, catalog.clone());
+        match predicate_res {
+            Err(e) => {
+                self.present_information(&format!("{e}"));
+            },
+            Ok(predicate) => {
+                self.retrieve_from_repository(None, None, Some(predicate));
+                self.with_view_state_mut(|view_state| {
+                    view_state.saved_locations.push(location);
+                });
+                self.refresh_view();
+            },
+        }
+    }
+
     fn back_from_directory(&self) {
-        let nb_positions = self.with_view_state(|view_state| view_state.positions.len());
-        if nb_positions > 0 {
+        let nb_saved_locations = self.with_view_state(|view_state| view_state.saved_locations.len());
+        if nb_saved_locations > 0 {
             self.retrieve_from_repository(Some(true), None, None);
             self.with_view_state_mut(|view_state| {
-                if let Some((sub_folder_opt, position)) = view_state.positions.pop() {
+                if let Some((sub_folder_opt, position, covers_only)) = view_state.saved_locations.pop() {
                     view_state.gallery.set_sub_folder(sub_folder_opt);
-                    view_state.settings.toggle_covers_only();
+                    view_state.settings.set_covers_only(covers_only);
                     if view_state
                         .navigator
                         .can_move(&Direction::Index { value: position })

@@ -178,6 +178,34 @@ pub fn find_menu() -> KeyInput {
         },
     )
 }
+
+pub fn select_menu() -> KeyInput {
+    KeyInput::new(
+        "Select pictures on  C)ategory (B)elongs (L)abel (N)ame (F)ile Path (S)ome Tags (A)ll tags ",
+        None,
+        KeyInputMode::Menu,
+        |_, ch| matches!(ch, 'a' | 'b' | 'c' | 'f' | 'l' | 'n' | 's'),
+        |_, ch| {
+            let find = match ch {
+                'a' => Find::AllTags,
+                'b' => Find::SubCategory,
+                'c' => Find::Category,
+                'l' => Find::Label,
+                'n' => Find::Name,
+                'f' => Find::FilePath,
+                's' => Find::SomeTags,
+                _ => todo!(),
+            };
+            let s: String = (find as i32).to_string();
+            s
+        },
+        |s| {
+            let n: i32 = s.parse::<i32>().unwrap();
+            let find = Find::from(n);
+            Action::EnterSelect(find)
+        },
+    )
+}
 #[cfg(test)]
 mod tests {
     use super::*;

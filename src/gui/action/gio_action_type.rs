@@ -69,6 +69,9 @@ impl From<Action> for GioActionType {
             }
             Action::EnterIndex => GioActionType::new("enter-index", GioActionParameterType::None),
             Action::EnterFind(_) => GioActionType::new("enter-find", GioActionParameterType::Int32),
+            Action::EnterSelect(_) => {
+                GioActionType::new("enter-select", GioActionParameterType::Int32)
+            }
             Action::EnterLabel => GioActionType::new("enter-label", GioActionParameterType::None),
             Action::EnterNewCategory => {
                 GioActionType::new("enter-new-category", GioActionParameterType::None)
@@ -132,7 +135,9 @@ impl From<Action> for GioActionType {
             Action::RepeatRangeSelection => {
                 GioActionType::new("repeat-range-selection", GioActionParameterType::None)
             }
-            Action::Select(_) => GioActionType::new("select", GioActionParameterType::String),
+            Action::Select(_, _) => {
+                GioActionType::new("select", GioActionParameterType::Int32String)
+            }
             Action::SelectCategoryToMove => {
                 GioActionType::new("select-category-to-move", GioActionParameterType::None)
             }

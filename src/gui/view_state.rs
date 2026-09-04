@@ -15,6 +15,6 @@ pub struct ViewState {
     pub selection: Selection,
     pub gallery: Gallery,
     pub focus_at_coords: (i32, i32),
-    pub positions: Vec<(Option<String>, usize)>,
+    pub saved_locations: Vec<(Option<String>, usize, bool)>,
     pub finder: Option<Finder>,
 }

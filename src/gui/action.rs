@@ -32,6 +32,7 @@ pub enum Action {
     EnterLabel,                   // enter label to apply to the selected pictures
     EnterRemoveTag,               // enter tag(s) to remove from the selected pictures
     EnterRename,                  // enter new name for selected picture
+    EnterSelect(Find),            // interactively enter criteria for selecting
     Find(Find, String),           // find the first picture matching the find criteria
     FindNext,                     // find the next picture matching the current criteria
     GotoDirectory,                // view only pictures from a sub directory
@@ -62,7 +63,7 @@ pub enum Action {
     SelectCategoryMoveTarget(String), // select category to move another category to in the catalog
     SelectCategoryToMove,         // select category to move in the catalog
     SelectCategoryToRemove,       // select category to remove from the catalog
-    Select(Find),                 // view only pictures matching the find criteria
+    Select(Find, String),         // view only pictures matching the find criteria
     SetSelectionAll,              // set the selection to all pictures
     SetSelectionPage,             // set the seleciton to all pictures in the page
     SetSelectionRangeEnd(usize),  // send the selection at the current picture

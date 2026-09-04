@@ -148,6 +148,46 @@ pub fn find_criteria_entry(find_criteria: Find, completion_tags: Tags) -> KeyInp
     )
 }
 
+pub fn select_criteria_entry(find_criteria: Find, completion_tags: Tags) -> KeyInput {
+    let find = find_criteria.clone();
+    KeyInput::new(
+        &format!(
+            "Enter criteria for selecting on {}",
+            find.clone().to_string()
+        ),
+        match find.clone() {
+            Find::AllTags | Find::SomeTags => Some(completion_tags),
+            _ => None,
+        },
+        KeyInputMode::Entry,
+        match find.clone() {
+            Find::AllTags | Find::SomeTags => {
+                |_, ch| matches!(ch, 'a'..='z' | 'A'..='Z' | '0'..='9' | '-' | '_' | ' ' | ',')
+            }
+            _ => |_, _| true,
+        },
+        match find.clone() {
+            Find::AllTags | Find::SomeTags => |s: String, ch: char| {
+                let mut input = s;
+                if ch.is_ascii_uppercase() {
+                    input.push(ch.to_lowercase().next().unwrap())
+                } else if ch.is_ascii_whitespace() {
+                    input.push(SPACE_REPLACEMENT_CHAR_FOR_TAGS)
+                } else {
+                    input.push(ch)
+                }
+                input
+            },
+            _ => |s: String, ch: char| {
+                let mut input = s;
+                input.push(ch);
+                input
+            },
+        },
+        move |s: String| Action::Select(find.clone(), s),
+    )
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
