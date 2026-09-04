@@ -35,6 +35,7 @@ use crate::gui::objects::gsr_picture_grid::GsrPictureGrid;
 use crate::gui::objects::gsr_treelist_window::GsrTreelistWindow;
 use crate::gui::view::treelist_window::TreeListWindow;
 use crate::gui::view_state::ViewState;
+use crate::gui::view_state::location::Location;
 use crate::gui::view_state::navigator::Navigator;
 use crate::gui::view_state::selection_range::SelectionRange;
 use crate::model::catalog::Catalog;
@@ -1258,8 +1259,9 @@ impl GsrApplicationWindow {
         };
         if covers_only && current_picture.is_cover() && parent_directory_opt.clone().is_some() {
             let location = self.with_view_state(|view_state| {
-                (
+                Location::new(
                     view_state.gallery.sub_folder(),
+                    None, // no predicate
                     view_state.navigator.position(),
                     view_state.settings.covers_only(),
                 )
@@ -1284,13 +1286,6 @@ impl GsrApplicationWindow {
                 view_state.settings.covers_only(),
             )
         });
-        let location = self.with_view_state(|view_state| {
-            (
-                view_state.gallery.sub_folder(),
-                view_state.navigator.position(),
-                view_state.settings.covers_only(),
-            )
-        });
         let catalog = self.with_repository(|repository| repository.catalog());
         let predicate_res = Predicate::new(pattern, find, catalog.clone());
         match predicate_res {
@@ -1298,7 +1293,40 @@ impl GsrApplicationWindow {
                 self.present_information(&format!("{e}"));
             }
             Ok(predicate) => {
-                self.retrieve_from_repository(None, None, Some(predicate));
+                let mut location_opt: Option<Location> = None;
+                self.with_view_state(|view_state| {
+                    if let Some(last) = view_state.saved_locations.clone().last() {
+                        location_opt = Some(last.clone());
+                    }
+                });
+                let location = match location_opt {
+                    None => self.with_view_state(|view_state| {
+                        Location::new(
+                            view_state.gallery.sub_folder(),
+                            Some(predicate.clone()),
+                            view_state.navigator.position(),
+                            view_state.settings.covers_only(),
+                        )
+                    }),
+                    Some(prev_location) => self.with_view_state(|view_state| {
+                        let new_predicate = 
+                            if let Some(prev_predicate) = prev_location.predicate() {
+                                Predicate::and(prev_predicate, predicate)
+                            } else {
+                                predicate
+                            };
+                        Location::new(
+                            view_state.gallery.sub_folder(),
+                            Some(new_predicate.clone()),
+                            view_state.navigator.position(),
+                            view_state.settings.covers_only(),
+                        )
+                    }),
+                };
+                self.retrieve_from_repository(
+                    Some(location.covers_only()),
+                    location.sub_directory(),
+                    location.predicate());
                 self.with_view_state_mut(|view_state| {
                     view_state.saved_locations.push(location);
                 });
@@ -1313,22 +1341,27 @@ impl GsrApplicationWindow {
         if nb_saved_locations > 0 {
             let saved_location_opt =
                 self.with_view_state_mut(|view_state| view_state.saved_locations.pop());
-            let (sub_folder_opt, position, covers_only) = saved_location_opt.unwrap();
-            self.retrieve_from_repository(Some(covers_only), None, None);
+            let location = saved_location_opt.unwrap();
+            self.retrieve_from_repository(
+                Some(location.covers_only()),
+                location.sub_directory(),
+                location.predicate(),
+            );
             self.with_view_state_mut(|view_state| {
-                view_state.gallery.set_sub_folder(sub_folder_opt);
-                view_state.settings.set_covers_only(covers_only);
-                if view_state
-                    .navigator
-                    .can_move(&Direction::Index { value: position })
-                {
-                    view_state
-                        .navigator
-                        .move_towards(&Direction::Index { value: position })
+                view_state.gallery.set_sub_folder(location.sub_directory());
+                view_state.settings.set_covers_only(location.covers_only());
+                if view_state.navigator.can_move(&Direction::Index {
+                    value: location.position(),
+                }) {
+                    view_state.navigator.move_towards(&Direction::Index {
+                        value: location.position(),
+                    })
                 } else {
                     view_state.navigator.move_towards(&Direction::First)
                 }
-                view_state.gallery.set_current_picture_index(position);
+                view_state
+                    .gallery
+                    .set_current_picture_index(view_state.navigator.position());
             });
             self.refresh_view();
         };

@@ -5,6 +5,7 @@ pub mod change;
 pub mod color;
 pub mod color_range;
 pub mod cover;
+pub mod criterion;
 pub mod find;
 pub mod finder;
 pub mod gallery;

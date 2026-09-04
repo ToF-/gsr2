@@ -11,10 +11,20 @@ use crate::model::picture::Picture;
 use crate::model::rank::Rank;
 use itertools::Itertools;
 
-fn pattern_display(view_state: &ViewState) -> String {
+fn select_pattern_display(view_state: &ViewState) -> String {
+    match &view_state.saved_locations.last() {
+        Some(location) => match location.predicate() {
+            Some(predicate) => format!("[{}]", predicate.to_string()),
+            None => "".to_string(),
+        },
+        None => "".to_string(),
+    }
+}
+
+fn find_pattern_display(view_state: &ViewState) -> String {
     match &view_state.finder {
         Some(finder) => match finder.predicate() {
-            Some(predicate) => format!("[{}]", predicate.pattern),
+            Some(predicate) => format!("[{}]", predicate.to_string()),
             None => "".to_string(),
         },
         None => "".to_string(),
@@ -182,7 +192,8 @@ fn selected_count_display(view_state: &ViewState) -> String {
 }
 
 pub fn title_display(view_state: &ViewState) -> String {
-    let pattern = pattern_display(view_state);
+    let select = select_pattern_display(view_state);
+    let pattern = find_pattern_display(view_state);
     let covers_only = covers_only_display(view_state);
     let picture = view_state.gallery.current_picture();
     view_state.gallery.current_picture().file_name();
@@ -202,6 +213,6 @@ pub fn title_display(view_state: &ViewState) -> String {
     let size = size_display(view_state);
     let view = view_mode_display(view_state);
     format!(
-        "{pattern}{covers_only} {folder} #{position} {page} {sel_count} {order}                     {cover} {name} {label} {rank} {category} {tags} {date} {size} {view}{small} "
+        "{select}{pattern}{covers_only} {folder} #{position} {page} {sel_count} {order}                     {cover} {name} {label} {rank} {category} {tags} {date} {size} {view}{small} "
     )
 }
