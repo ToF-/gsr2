@@ -18,5 +18,6 @@ pub struct ViewState {
     pub gallery: Gallery,
     pub focus_at_coords: (i32, i32),
     pub saved_locations: Vec<Location>,
+    pub current_location: Location,
     pub finder: Option<Finder>,
 }

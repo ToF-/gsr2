@@ -1,5 +1,5 @@
 use crate::model::predicate::Predicate;
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub struct Location {
     sub_directory: Option<String>,
     predicate: Option<Predicate>,
@@ -7,6 +7,16 @@ pub struct Location {
     covers_only: bool,
 }
 
+impl Default for Location {
+    fn default() -> Self {
+        Self {
+            sub_directory: None,
+            predicate: None,
+            position: 0,
+            covers_only: false,
+        }
+    }
+}
 impl Location {
     pub fn new(
         sub_directory: Option<String>,

@@ -12,13 +12,8 @@ use crate::model::rank::Rank;
 use itertools::Itertools;
 
 fn select_pattern_display(view_state: &ViewState) -> String {
-    match &view_state.saved_locations.last() {
-        Some(location) => match location.predicate() {
-            Some(predicate) => format!("[{}]", predicate.to_string()),
-            None => "".to_string(),
-        },
-        None => "".to_string(),
-    }
+    let location = view_state.current_location.clone();
+    format!("{:?}", location)
 }
 
 fn find_pattern_display(view_state: &ViewState) -> String {

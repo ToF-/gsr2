@@ -1292,79 +1292,71 @@ impl GsrApplicationWindow {
             Err(e) => {
                 self.present_information(&format!("{e}"));
             }
-            Ok(predicate) => {
-                let mut location_opt: Option<Location> = None;
-                self.with_view_state(|view_state| {
-                    if let Some(last) = view_state.saved_locations.clone().last() {
-                        location_opt = Some(last.clone());
-                    }
-                });
-                let location = match location_opt {
-                    None => self.with_view_state(|view_state| {
-                        Location::new(
-                            view_state.gallery.sub_folder(),
-                            Some(predicate.clone()),
-                            view_state.navigator.position(),
-                            view_state.settings.covers_only(),
-                        )
-                    }),
-                    Some(prev_location) => self.with_view_state(|view_state| {
-                        let new_predicate = 
-                            if let Some(prev_predicate) = prev_location.predicate() {
-                                Predicate::and(prev_predicate, predicate)
-                            } else {
-                                predicate
-                            };
-                        Location::new(
-                            view_state.gallery.sub_folder(),
-                            Some(new_predicate.clone()),
-                            view_state.navigator.position(),
-                            view_state.settings.covers_only(),
-                        )
-                    }),
+            Ok(new_predicate) => {
+                let current_location =
+                    self.with_view_state(|view_state| view_state.current_location.clone());
+                let current_predicate_opt = current_location.predicate().clone();
+                let predicate = match current_predicate_opt {
+                    None => new_predicate,
+                    Some(current_predicate) => Predicate::and(current_predicate, new_predicate),
                 };
+                let new_location = self.with_view_state(|view_state| {
+                    Location::new(
+                        view_state.gallery.sub_folder(),
+                        Some(predicate.clone()),
+                        view_state.navigator.position(),
+                        view_state.settings.covers_only(),
+                    )
+                });
+                self.with_view_state_mut(|view_state| {
+                    let current_location = view_state.current_location.clone();
+                    view_state.saved_locations.push(current_location);
+                    view_state.current_location = new_location.clone();
+                });
+                let location =
+                    self.with_view_state(|view_state| view_state.current_location.clone());
+                dbg!(&location);
                 self.retrieve_from_repository(
                     Some(location.covers_only()),
                     location.sub_directory(),
-                    location.predicate());
-                self.with_view_state_mut(|view_state| {
-                    view_state.saved_locations.push(location);
-                });
+                    location.predicate(),
+                );
                 self.refresh_view();
             }
         }
     }
 
     fn back_to_previous_location(&self) {
-        let nb_saved_locations =
-            self.with_view_state(|view_state| view_state.saved_locations.len());
-        if nb_saved_locations > 0 {
-            let saved_location_opt =
-                self.with_view_state_mut(|view_state| view_state.saved_locations.pop());
-            let location = saved_location_opt.unwrap();
-            self.retrieve_from_repository(
-                Some(location.covers_only()),
-                location.sub_directory(),
-                location.predicate(),
-            );
-            self.with_view_state_mut(|view_state| {
-                view_state.gallery.set_sub_folder(location.sub_directory());
-                view_state.settings.set_covers_only(location.covers_only());
-                if view_state.navigator.can_move(&Direction::Index {
+        self.with_view_state(|view_state| {
+            dbg!(&view_state.saved_locations);
+            dbg!(&view_state.current_location);
+        });
+        let location = self.with_view_state_mut(|view_state| {
+            view_state.current_location = view_state.saved_locations.pop().unwrap_or_default();
+            view_state.current_location.clone()
+        });
+        self.retrieve_from_repository(
+            Some(location.covers_only()),
+            location.sub_directory(),
+            location.predicate(),
+        );
+        self.with_view_state_mut(|view_state| {
+            view_state.gallery.set_sub_folder(location.sub_directory());
+            view_state.settings.set_covers_only(location.covers_only());
+            if view_state.navigator.can_move(&Direction::Index {
+                value: location.position(),
+            }) {
+                view_state.navigator.move_towards(&Direction::Index {
                     value: location.position(),
-                }) {
-                    view_state.navigator.move_towards(&Direction::Index {
-                        value: location.position(),
-                    })
-                } else {
-                    view_state.navigator.move_towards(&Direction::First)
-                }
-                view_state
-                    .gallery
-                    .set_current_picture_index(view_state.navigator.position());
-            });
-            self.refresh_view();
-        };
+                })
+            } else {
+                view_state.navigator.move_towards(&Direction::First)
+            }
+            view_state
+                .gallery
+                .set_current_picture_index(view_state.navigator.position());
+        });
+        self.refresh_view();
     }
 
     fn repeat_last_action(&self) {
