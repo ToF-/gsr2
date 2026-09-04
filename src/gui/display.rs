@@ -12,10 +12,10 @@ use crate::model::rank::Rank;
 use itertools::Itertools;
 
 fn select_pattern_display(view_state: &ViewState) -> String {
-    let location = view_state.current_location.clone();
+    let location = view_state.current_location();
     match location.predicate() {
         None => format!("{}", location.sub_directory().unwrap_or_default()),
-        Some(p) => format!("{}", p),
+        Some(predicate) => format!("{}{}", location.sub_directory().unwrap_or_default(), predicate),
     }
 }
 

@@ -1,4 +1,3 @@
-use std::io::Result as IOResult;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
@@ -58,6 +57,7 @@ use gtk::prelude::*;
 use gtk::subclass::prelude::ObjectSubclassIsExt;
 use std::cell::RefCell;
 use std::io::Error as IOError;
+use std::io::Result as IOResult;
 use std::rc::Rc;
 
 pub const LEFT_PANE: usize = 0;
@@ -1251,11 +1251,16 @@ impl GsrApplicationWindow {
         }
     }
     fn goto_directory(&self) {
-        let (current_picture, covers_only) = self.with_view_state(|view_state| {
+        let (current_picture, sub_directory, covers_only, position) = self.with_view_state(|view_state| {
             (
                 view_state.gallery.current_picture(),
+                view_state.gallery.sub_folder(),
                 view_state.settings.covers_only(),
+                view_state.gallery.current_picture_index(),
             )
+        });
+        self.with_view_state_mut(|view_state| {
+            view_state.set_current_location(sub_directory, None, position, covers_only);
         });
         let parent_directory_opt = parent_directory(&current_picture.file_path());
         if !covers_only {
@@ -1263,34 +1268,26 @@ impl GsrApplicationWindow {
             return;
         };
         if covers_only && current_picture.is_cover() && parent_directory_opt.clone().is_some() {
-            let location = self.with_view_state(|view_state| {
-                Location::new(
-                    view_state.gallery.sub_folder(),
-                    None, // no predicate
-                    view_state.navigator.position(),
-                    view_state.settings.covers_only(),
-                )
-            });
-            self.retrieve_from_repository(None, parent_directory_opt.clone(), None);
             self.with_view_state_mut(|view_state| {
-                view_state.saved_locations.push(location);
-                view_state
-                    .gallery
-                    .set_sub_folder(parent_directory_opt.clone());
-                view_state.settings.toggle_covers_only();
+                view_state.set_new_location(parent_directory_opt, None, 0, false)
             });
-            self.refresh_view();
+            let location = self.with_view_state(|view_state| view_state.current_location.clone());
+            match self.retrieve_from_repository(
+                Some(location.covers_only()),
+                location.sub_directory(),
+                location.predicate(),
+            ) {
+                Err(e) => panic!("{}", e),
+                Ok(0) => self.back_to_previous_location(),
+                Ok(_) => self.refresh_view(),
+            };
         }
     }
 
     fn action_select(&self, find: Find, pattern: &str) {
         self.dismiss();
-        let (sub_directory, position, covers_only) = self.with_view_state(|view_state| {
-            (
-                view_state.gallery.sub_folder(),
-                view_state.gallery.current_picture_index(),
-                view_state.settings.covers_only(),
-            )
+        let location = self.with_view_state(|view_state| {
+            view_state.current_location()
         });
         let catalog = self.with_repository(|repository| repository.catalog());
         let predicate_res = Predicate::new(pattern, find, catalog.clone());
@@ -1301,10 +1298,10 @@ impl GsrApplicationWindow {
             Ok(new_predicate) => {
                 self.with_view_state_mut(|view_state| {
                     view_state.set_new_location(
-                        sub_directory,
+                        location.sub_directory(),
                         Some(new_predicate),
-                        position,
-                        covers_only,
+                        0,
+                        location.covers_only(),
                     )
                 });
                 let location =
@@ -1314,7 +1311,7 @@ impl GsrApplicationWindow {
                     location.sub_directory(),
                     location.predicate(),
                 ) {
-                    Err(e) => panic!("{}",e),
+                    Err(e) => panic!("{}", e),
                     Ok(0) => self.back_to_previous_location(),
                     Ok(_) => self.refresh_view(),
                 };

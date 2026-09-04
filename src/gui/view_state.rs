@@ -42,11 +42,27 @@ impl ViewState {
         };
         let new_location = Location::new(sub_directory, new_predicate, position, covers_only);
         self.saved_locations.push(self.current_location.clone());
-        self.current_location = new_location.clone()
+        self.set_current_location(
+            new_location.sub_directory(),
+            new_location.predicate(),
+            new_location.position(),
+            new_location.covers_only(),
+        );
     }
 
     pub fn set_old_location(&mut self) {
         let old_location = self.saved_locations.pop();
         self.current_location = old_location.unwrap_or_default()
     }
+
+    pub fn set_current_location(&mut self, sub_directory: Option<String>, predicate: Option<Predicate>, position: usize, covers_only: bool) {
+        self.current_location = Location::new(sub_directory.clone(), predicate, position, covers_only);
+        self.gallery.set_sub_folder(sub_directory);
+        self.gallery.set_current_picture_index(position);
+    }
+
+    pub fn current_location(&self) -> Location {
+        self.current_location.clone()
+    }
+         
 }
