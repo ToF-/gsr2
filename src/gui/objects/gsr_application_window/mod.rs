@@ -542,6 +542,7 @@ impl GsrApplicationWindow {
                         }
                         Control::ToggleBlinking => this.toggle_blinking(),
                         Control::ToggleExpand => this.toggle_expand(),
+                        Control::ToggleFullSize => this.action_apply_view_setting(ViewOption::FullSize),
                         Control::TogglePalette => this.toggle_palette(),
                         Control::ToggleSelected => this.toggle_selected(),
                         Control::ToggleSingleView => this.toggle_pictures_per_row(1),

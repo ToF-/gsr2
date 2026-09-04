@@ -290,7 +290,7 @@ mod tests {
         check_action_to_and_from(Action::EnterLabel);
         check_action_to_and_from(Action::EnterRemoveTag);
         check_action_to_and_from(Action::EnterRename);
-        check_action_to_and_from(Action::Find(Find::Label));
+        check_action_to_and_from(Action::Find(Find::Label,"foo".to_string()));
         check_action_to_and_from(Action::FindNext);
         check_action_to_and_from(Action::FocusAt(3, 8));
         check_action_to_and_from(Action::GotoDirectory);
@@ -315,7 +315,7 @@ mod tests {
         check_action_to_and_from(Action::Rename("foo".to_string()));
         check_action_to_and_from(Action::RepeatAction);
         check_action_to_and_from(Action::RepeatRangeSelection);
-        check_action_to_and_from(Action::Select(Find::Label));
+        check_action_to_and_from(Action::Select(Find::Label, "foo".to_string()));
         check_action_to_and_from(Action::SelectCategoryForPicture);
         check_action_to_and_from(Action::SelectCategoryToMove);
         check_action_to_and_from(Action::SelectCategoryToRemove);

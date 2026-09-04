@@ -304,7 +304,7 @@ impl Gallery {
 mod tests {
 
     use super::*;
-    use crate::model::finder::Predicate;
+    use crate::model::predicate::Predicate;
     use crate::test_data::*;
     use serial_test::serial;
     use std::sync::Arc;
@@ -407,6 +407,7 @@ mod tests {
 
         let predicate: Predicate = Predicate {
             function: Arc::new(move |picture: &Picture| picture.file_name().contains(ch)),
+            criteria: Vec::new(),
         };
         let p = gallery.finder.find_first(predicate);
         assert!(p.is_some());

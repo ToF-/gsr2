@@ -48,11 +48,13 @@ impl ViewState {
             new_location.position(),
             new_location.covers_only(),
         );
+        self.finder = None;
     }
 
     pub fn set_old_location(&mut self) {
         let old_location = self.saved_locations.pop();
-        self.current_location = old_location.unwrap_or_default()
+        self.current_location = old_location.unwrap_or_default();
+        self.finder = None;
     }
 
     pub fn set_current_location(&mut self, sub_directory: Option<String>, predicate: Option<Predicate>, position: usize, covers_only: bool) {
