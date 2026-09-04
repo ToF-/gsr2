@@ -511,7 +511,7 @@ impl GsrApplicationWindow {
                             }
                         }
                         Control::ToggleCoverSelection => this.toggle_view_covers(),
-                        Control::BackFromDirectory => this.back_from_directory(),
+                        Control::BackFromDirectory => this.back_to_previous_location(),
                         Control::CancelRange => this.cancel_range(),
                         Control::EnterFind => this.pick_find_option(),
                         Control::EnterSelect => this.pick_select_option(),
@@ -1295,40 +1295,42 @@ impl GsrApplicationWindow {
         match predicate_res {
             Err(e) => {
                 self.present_information(&format!("{e}"));
-            },
+            }
             Ok(predicate) => {
                 self.retrieve_from_repository(None, None, Some(predicate));
                 self.with_view_state_mut(|view_state| {
                     view_state.saved_locations.push(location);
                 });
                 self.refresh_view();
-            },
+            }
         }
     }
 
-    fn back_from_directory(&self) {
-        let nb_saved_locations = self.with_view_state(|view_state| view_state.saved_locations.len());
+    fn back_to_previous_location(&self) {
+        let nb_saved_locations =
+            self.with_view_state(|view_state| view_state.saved_locations.len());
         if nb_saved_locations > 0 {
-            self.retrieve_from_repository(Some(true), None, None);
+            let saved_location_opt =
+                self.with_view_state_mut(|view_state| view_state.saved_locations.pop());
+            let (sub_folder_opt, position, covers_only) = saved_location_opt.unwrap();
+            self.retrieve_from_repository(Some(covers_only), None, None);
             self.with_view_state_mut(|view_state| {
-                if let Some((sub_folder_opt, position, covers_only)) = view_state.saved_locations.pop() {
-                    view_state.gallery.set_sub_folder(sub_folder_opt);
-                    view_state.settings.set_covers_only(covers_only);
-                    if view_state
+                view_state.gallery.set_sub_folder(sub_folder_opt);
+                view_state.settings.set_covers_only(covers_only);
+                if view_state
+                    .navigator
+                    .can_move(&Direction::Index { value: position })
+                {
+                    view_state
                         .navigator
-                        .can_move(&Direction::Index { value: position })
-                    {
-                        view_state
-                            .navigator
-                            .move_towards(&Direction::Index { value: position })
-                    } else {
-                        view_state.navigator.move_towards(&Direction::First)
-                    }
-                    view_state.gallery.set_current_picture_index(position);
+                        .move_towards(&Direction::Index { value: position })
+                } else {
+                    view_state.navigator.move_towards(&Direction::First)
                 }
+                view_state.gallery.set_current_picture_index(position);
             });
             self.refresh_view();
-        }
+        };
     }
 
     fn repeat_last_action(&self) {
