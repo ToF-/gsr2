@@ -2,5 +2,6 @@
 <gresources>
     <gresource prefix="/org/example/gsr">
         <file>images/no_image_available.png</file>
+        <file>images/folder.png</file>
     </gresource>
 </gresources>

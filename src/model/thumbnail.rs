@@ -47,7 +47,8 @@ pub fn encode_no_thumbnail_picture() -> gtk::Picture {
 
 pub fn make_no_thumbnail_picture() -> gtk::Picture {
     let texture =
-        gtk::gdk::Texture::from_resource("/org/example/gsr/images/no_image_available.png");
+        // gtk::gdk::Texture::from_resource("/org/example/gsr/images/no_image_available.png");
+        gtk::gdk::Texture::from_resource("/org/example/gsr/images/folder.png");
     gtk::Picture::for_paintable(&texture)
 }
 
