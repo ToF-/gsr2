@@ -1,3 +1,5 @@
+use crate::file::paths::file_path_as_stored;
+use crate::model::image_data::ImageData;
 use crate::cli::command::Command;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::Configuration;
@@ -267,9 +269,26 @@ impl Repository {
             },
             _ => self.retrieve_all_labels().and_then(|()| {
                 self.retrieve_all_parent_dirs().and_then(|()| {
-                    self.retrieve_all_pictures(&self.command_line_arguments.clone(), predicate_opt)
+                    let result = self.retrieve_all_pictures(&self.command_line_arguments.clone(), predicate_opt);
+                    if self.command_line_arguments.display_folders {
+                        self.create_folder_entries();
+                    }
+                    result
                 })
             }),
+        }
+    }
+
+    pub fn create_folder_entries(&self) {
+        let parent_dirs = self.parent_dirs_rc.borrow();
+        let mut gallery = self.gallery_rc.borrow_mut();
+        for (parent_dir, (nb_pics, nb_covers)) in parent_dirs.iter() {
+            let mut image_data = ImageData::new();
+            image_data.cover = Some(*nb_pics);
+            image_data.label = file_path_as_stored(&parent_dir.to_string());
+            image_data.folder = true;
+            let picture = Picture::new_with_image_data(parent_dir, &image_data);
+            gallery.add_picture(&picture);
         }
     }
 
@@ -344,6 +363,7 @@ impl Repository {
             panic!("can't borrow mut")
         }
     }
+
     pub fn picture_from_file_path(&self, file_path: &str) -> IOResult<Gallery> {
         get_picture_file_path(file_path).and_then(|path| {
             Picture::new_with_file_image_data(&path, "")

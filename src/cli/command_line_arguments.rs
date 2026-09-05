@@ -89,6 +89,10 @@ pub struct CommandLineArguments {
     #[arg(long)]
     pub folders: bool,
 
+    /// display folder entries
+    #[arg(long)]
+    pub display_folders: bool,
+
     /// only display folder tags
     #[arg(long)]
     pub tags: bool,

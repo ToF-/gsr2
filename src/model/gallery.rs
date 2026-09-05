@@ -120,6 +120,10 @@ impl Gallery {
         self.picture(self.current_picture_index())
     }
 
+    pub fn add_picture(&mut self, picture: &Picture) {
+        self.pictures.push(picture.clone())
+    }
+
     pub fn load_from_directory(&mut self, path: &str) -> Result<usize> {
         println!("loading directory…");
         match get_all_picture_file_paths(path) {
