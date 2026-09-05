@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+use crate::file::paths::check_path_is_directory;
 use crate::gui::key_input::entry::target_directory_entry;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
@@ -592,6 +594,7 @@ impl GsrApplicationWindow {
             Action::MoveCategory(ref category_name, ref target_category_name) => {
                 self.action_move_category(&category_name, &target_category_name)
             }
+            Action::MoveSelectedPicture(ref target_directory) => self.action_move_selected_pictures(&target_directory),
             Action::Nothing => println!("processing Action::Nothing"),
             Action::PickCatalogChange => self.action_pick_catalog_change(),
             Action::Quit => self.action_quit(),
@@ -1089,8 +1092,8 @@ impl GsrApplicationWindow {
     }
 
     fn action_categorize(&self, category: &Category) {
-        let indices = self.selected_indices();
         self.dismiss();
+        let indices = self.selected_indices();
         for position in indices {
             self.with_view_state_mut(|view_state| {
                 let mut picture = view_state.gallery.picture(position);
@@ -1127,6 +1130,34 @@ impl GsrApplicationWindow {
             });
             view_state.gallery.set_picture(position, new_picture);
         });
+        self.refresh_view();
+    }
+
+    fn action_move_selected_pictures(&self, target_directory: &str) {
+        self.dismiss();
+        let path = PathBuf::from(target_directory);
+        match check_path_is_directory(&path) {
+            Ok(_) => {},
+            Err(e) => {
+                self.present_information(&format!("{e}"));
+                return
+            }
+        }
+        let indices = self.selected_indices();
+        for position in indices {
+            self.with_view_state_mut(|view_state| {
+                let mut picture = view_state.gallery.picture(position);
+                self.with_repository(|repository| {
+                    match repository.move_picture_to_target(&picture, target_directory) {
+                        Ok(_) => {},
+                        Err(e) => {
+                            self.present_information(&format!("{e}"));
+                            return
+                        }
+                    }
+                });
+            });
+        }
         self.refresh_view();
     }
     fn action_label(&self, label: &str) {

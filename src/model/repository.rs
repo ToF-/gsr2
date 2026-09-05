@@ -633,10 +633,7 @@ impl Repository {
             Err(e) => Err(IOError::other(e)),
         }
     }
-    pub fn move_picture_at_index(&self, index: usize, target_dir: &str) -> IOResult<usize> {
-        match self.gallery_rc().try_borrow() {
-            Ok(gallery) => {
-                let picture = gallery.picture(index);
+    pub fn move_picture_to_target(&self, picture: &Picture, target_dir: &str) -> IOResult<usize> {
                 let operations = move_picture(&picture.file_path(), target_dir);
                 if operations.is_empty() {
                     println!(
@@ -652,10 +649,17 @@ impl Repository {
                         Err(err) => Err(err),
                     }
                 }
+    }
+    pub fn move_picture_at_index(&self, index: usize, target_dir: &str) -> IOResult<usize> {
+        match self.gallery_rc().try_borrow() {
+            Ok(gallery) => {
+                let picture = gallery.picture(index);
+                self.move_picture_to_target(&picture, target_dir)
             }
             Err(e) => Err(IOError::other(e)),
         }
     }
+
     pub fn copy_picture_at_index_to_temp_dir(&self, index: usize) -> IOResult<()> {
         match self.gallery_rc().try_borrow() {
             Ok(gallery) => {
