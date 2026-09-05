@@ -39,6 +39,7 @@ pub struct ImageData {
     pub tags: Tags,
     pub score: u32,
     pub category_name: Option<String>,
+    pub folder: bool,
 }
 
 impl ImageData {
@@ -53,6 +54,7 @@ impl ImageData {
             tags: HashSet::new(),
             score: 0,
             category_name: None,
+            folder: false,
         }
     }
     pub fn new_with_label(label: &str) -> Self {
@@ -66,6 +68,7 @@ impl ImageData {
             tags: HashSet::new(),
             score: 0,
             category_name: None,
+            folder: false,
         }
     }
 
@@ -80,6 +83,7 @@ impl ImageData {
             tags: HashSet::new(),
             score: 0,
             category_name: None,
+            folder: false,
         })
     }
 

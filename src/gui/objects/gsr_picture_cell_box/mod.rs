@@ -1,3 +1,4 @@
+use crate::model::thumbnail::folder_picture;
 use crate::env::default_values::FOCUS_BLINKING_DURATION;
 use crate::env::default_values::FOCUS_SYMBOL_1;
 use crate::env::default_values::FOCUS_SYMBOL_2;
@@ -201,7 +202,7 @@ impl GsrPictureCellBox {
         self.remove_children();
         let picture_file_path = picture.view_file_path(self.imp().pictures_per_row.get() as usize);
         let gtk_picture_file_path = file_path_as_retrieved(&picture_file_path);
-        self.append(&make_picture(&gtk_picture_file_path));
+        self.append(&make_picture(&gtk_picture_file_path, picture.is_folder()));
         let label = make_label(&picture_label_display(
             &picture.label(),
             picture.rank(),
@@ -265,8 +266,10 @@ fn make_label(text: &str) -> GtkLabel {
         .build()
 }
 
-fn make_picture(picture_file_path: &str) -> GtkPicture {
-    if let Ok(file_path) = check_path_exists(&PathBuf::from(picture_file_path)) {
+fn make_picture(picture_file_path: &str, is_folder: bool) -> GtkPicture {
+    if is_folder {
+        folder_picture()
+    } else if let Ok(file_path) = check_path_exists(&PathBuf::from(picture_file_path)) {
         gtk_picture_from_file_path(file_path)
     } else {
         no_thumbnail_picture()

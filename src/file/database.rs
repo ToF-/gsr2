@@ -95,7 +95,8 @@ impl Database {
             ColorCount INTEGER,                        \n\
             Cover BOOLEAN,
             Score INTEGER NOT NULL DEFAULT 0,          \n\
-            Category TEXT );", // ""
+            Category TEXT,                             \n\
+            Folder BOOLEAN NOT NULL DEFAULT 0);", // ""
                 params![],
             )
             .and_then(|_| {
@@ -124,8 +125,9 @@ impl Database {
              ColorCount,                  \n\
              Cover,                       \n\
              Score,                       \n\
-             Category)                    \n\
-             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10);", // ""
+             Category,                    \n\
+             Folder)                      \n\
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11);", // ""
                 params![
                     file_path_as_stored(&picture.file_path()),
                     image_data.label(),
@@ -137,6 +139,7 @@ impl Database {
                     cover_to_bool(image_data.cover()),
                     image_data.score,
                     image_data.category_name,
+                    image_data.folder,
                 ],
             )
             .map(|count| {
@@ -174,7 +177,8 @@ impl Database {
              ColorCount =?7,              \n\
              Cover = ?8,                  \n\
              Score = ?9,                  \n\
-             Category = ?10               \n\
+             Category = ?10,              \n\
+             Folder = ?11                 \n\
                WHERE FilePath = ?1;", // ""
                 params![
                     file_path_as_stored(&picture.file_path()),
@@ -187,6 +191,7 @@ impl Database {
                     cover_to_bool(image_data.cover),
                     image_data.score,
                     image_data.category_name,
+                    image_data.folder,
                 ],
             )
             .and_then(|_| {
@@ -386,7 +391,8 @@ impl Database {
              ColorCount,                \n\
              Cover,                     \n\
              Score,                     \n\
-             Category                   \n\
+             Category,                  \n\
+             Folder                     \n\
              FROM Picture               \n\
              WHERE FilePath = ?1;", // ""
                 params![file_path_as_stored(file_path)],
@@ -440,7 +446,8 @@ impl Database {
              ColorCount,                \n\
              Cover,                     \n\
              Score,                     \n\
-             Category                   \n\
+             Category,                  \n\
+             Folder                     \n\
              FROM Picture              \n"; // "
 
     // select * from picture where concat(substring(filepath,1,23), substring(filepath,24)) = filepath ;
@@ -591,6 +598,7 @@ impl Database {
         let cover = row.get(7).expect("can't get column Cover");
         let score = row.get(8).expect("can't get column Score");
         let category_name: Option<String> = row.get(9).expect("can't get column Category");
+        let folder = row.get(10).expect("can't get column folder");
         let mut picture = Picture::new_with_label(&file_path_as_retrieved, &label);
         let mut palette = Palette::new(vec![], color_count);
         palette.set_sample_from_array(sample_array);
@@ -604,6 +612,7 @@ impl Database {
             cover: bool_to_cover(cover),
             score,
             category_name,
+            folder,
         };
         picture.set_image_data(image_data);
         Ok(picture)

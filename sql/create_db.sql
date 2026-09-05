@@ -8,7 +8,8 @@ CREATE TABLE IF NOT EXISTS Picture (
     ColorCount INTEGER,
     Cover BOOLEAN,
     Score INTEGER NOT NULL DEFAULT 0,
-    Category TEXT);
+    Category TEXT,
+    Folder BOOLEAN NOT NULL DEFAULT 0);
 
 CREATE TABLE IF NOT EXISTS Tag (
     FilePath TEXT NOT NULL,
