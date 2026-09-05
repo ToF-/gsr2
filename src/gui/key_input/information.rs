@@ -9,7 +9,7 @@ pub fn information() -> KeyInput {
         INFORMATION_SYMBOL,
         None,
         KeyInputMode::Information,
-        |_, _| true,
+        |_, _| false,
         |s, _| s,
         |_| Action::Dismiss,
     )

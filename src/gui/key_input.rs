@@ -65,6 +65,9 @@ impl KeyInputRules for KeyInput {
             None => KeyInputStatus::no_change(initial_input),
             Some(key_name) => {
                 match default_controls().get(&(key_name.to_string(), Mode::Editing)) {
+                    Some(_) if self.key_input_mode == KeyInputMode::Information => {
+                        KeyInputStatus::new("", None, Some(Action::Dismiss))
+                    }
                     Some(Control::CancelEdition) => {
                         KeyInputStatus::new("", None, Some(Action::Cancel))
                     }
