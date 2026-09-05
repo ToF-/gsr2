@@ -354,6 +354,10 @@ impl GsrApplicationWindow {
         self.refresh_title();
     }
 
+    fn deselect_pictures(&self) {
+        self.cancel_range();
+    }
+
     fn refresh_title(&self) {
         let shared_view_state = self.shared_view_state();
         self.set_title(Some(&title_display(&shared_view_state.borrow())));
@@ -1068,7 +1072,7 @@ impl GsrApplicationWindow {
                 view_state.gallery.set_picture(position, picture);
             });
         }
-        self.refresh_view();
+        self.deselect_pictures();
     }
 
     fn action_untag(&self, input: &str) {
@@ -1088,7 +1092,7 @@ impl GsrApplicationWindow {
                 view_state.gallery.set_picture(position, picture);
             });
         }
-        self.refresh_view();
+        self.deselect_pictures();
     }
 
     fn action_categorize(&self, category: &Category) {
@@ -1105,7 +1109,7 @@ impl GsrApplicationWindow {
                 view_state.gallery.set_picture(position, picture);
             });
         }
-        self.refresh_view();
+        self.deselect_pictures();
     }
 
     fn action_rename(&self, target_name: &str) {
@@ -1130,7 +1134,7 @@ impl GsrApplicationWindow {
             });
             view_state.gallery.set_picture(position, new_picture);
         });
-        self.refresh_view();
+        self.deselect_pictures();
     }
 
     fn action_move_selected_pictures(&self, target_directory: &str) {
@@ -1158,7 +1162,7 @@ impl GsrApplicationWindow {
                 });
             });
         }
-        self.refresh_view();
+        self.deselect_pictures();
     }
     fn action_label(&self, label: &str) {
         self.dismiss();
@@ -1174,7 +1178,7 @@ impl GsrApplicationWindow {
                 view_state.gallery.set_picture(position, picture);
             });
         }
-        self.refresh_view();
+        self.deselect_pictures();
     }
 
     fn action_unlabel(&self) {
@@ -1191,7 +1195,7 @@ impl GsrApplicationWindow {
                 view_state.gallery.set_picture(position, picture);
             });
         }
-        self.refresh_view();
+        self.deselect_pictures();
     }
 
     fn action_toggle_cover(&self) {
@@ -1209,7 +1213,7 @@ impl GsrApplicationWindow {
                 view_state.gallery.set_picture(position, picture);
             });
         });
-        self.refresh_view();
+        self.deselect_pictures();
     }
     fn cancel_range(&self) {
         self.with_view_state_mut(|view_state| {
