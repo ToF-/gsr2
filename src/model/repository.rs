@@ -634,21 +634,21 @@ impl Repository {
         }
     }
     pub fn move_picture_to_target(&self, picture: &Picture, target_dir: &str) -> IOResult<usize> {
-                let operations = move_picture(&picture.file_path(), target_dir);
-                if operations.is_empty() {
-                    println!(
-                        "no operation for move of {} to {}",
-                        picture.file_path(),
-                        target_dir
-                    );
-                    Ok(0)
-                } else {
-                    let count = operations.len();
-                    match execute(&self.database, &operations) {
-                        Ok(_) => Ok(count),
-                        Err(err) => Err(err),
-                    }
-                }
+        let operations = move_picture(&picture.file_path(), target_dir);
+        if operations.is_empty() {
+            println!(
+                "no operation for move of {} to {}",
+                picture.file_path(),
+                target_dir
+            );
+            Ok(0)
+        } else {
+            let count = operations.len();
+            match execute(&self.database, &operations) {
+                Ok(_) => Ok(count),
+                Err(err) => Err(err),
+            }
+        }
     }
     pub fn move_picture_at_index(&self, index: usize, target_dir: &str) -> IOResult<usize> {
         match self.gallery_rc().try_borrow() {

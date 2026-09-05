@@ -78,6 +78,16 @@ impl Gallery {
         &self.pictures
     }
 
+    pub fn folders(&self) -> BTreeMap<String, usize> {
+        let mut folders: BTreeMap<String, usize> = BTreeMap::new();
+        for picture in self.pictures() {
+            if let Some(parent_directory) = parent_directory(&picture.file_path()) {
+                *folders.entry(parent_directory).or_insert(0) += 1
+            };
+        }
+        folders
+    }
+
     pub fn search_in_progress(&self) -> bool {
         self.finder.search_in_progress()
     }
@@ -250,13 +260,7 @@ impl Gallery {
 
     pub fn print(&self, folders_only: bool) {
         if folders_only {
-            let mut folders: BTreeMap<String, usize> = BTreeMap::new();
-            for picture in self.pictures() {
-                if let Some(parent_directory) = parent_directory(&picture.file_path()) {
-                    *folders.entry(parent_directory).or_insert(0) += 1
-                };
-            }
-            for (folder, count) in folders {
+            for (folder, count) in self.folders() {
                 println!("{:6}  {}", count, folder)
             }
         } else {
@@ -266,37 +270,28 @@ impl Gallery {
         }
     }
 
-    pub fn print_tags(&self) {
-        let mut tags: HashMap<(String, String), usize> = HashMap::new();
+    pub fn tags(&self) -> Vec<(String, String, usize)> {
+        let mut tags_map: HashMap<(String, String), usize> = HashMap::new();
         for picture in self.pictures.clone() {
             let parent_dir = parent_directory(&picture.file_path()).unwrap();
             for tag in picture.tags() {
                 let key = (parent_dir.clone(), tag);
-                tags.entry(key).and_modify(|count| *count += 1).or_insert(1);
+                tags_map.entry(key).and_modify(|count| *count += 1).or_insert(1);
             }
         }
-        let mut tags_rel: Vec<(String, String, usize)> = Vec::new();
-        for ((parent_dir, tag), val) in tags.iter() {
+        let mut tags_vec: Vec<(String, String, usize)> = Vec::new();
+        for ((parent_dir, tag), val) in tags_map.iter() {
             let tuple = (parent_dir.to_string(), tag.to_string(), *val);
-            tags_rel.push(tuple);
+            tags_vec.push(tuple);
         }
-        tags_rel.sort_by(|(p_a, t_a, v_a), (p_b, t_b, v_b)| match p_a.cmp(p_b) {
-            Ordering::Equal => match v_b.cmp(v_a) {
-                Ordering::Equal => t_a.cmp(t_b),
+        tags_vec.sort_by(|(dir_a, tag_a, nb_a), (dir_b, tag_b, nb_b)| match dir_a.cmp(dir_b) {
+            Ordering::Equal => match nb_b.cmp(nb_a) {
+                Ordering::Equal => tag_a.cmp(tag_b),
                 ord => ord,
             },
             ord => ord,
         });
-        let mut current_dir: String = String::new();
-        for (parent_dir, tag, count) in tags_rel {
-            if current_dir != parent_dir {
-                print!("\n{} {}:{}", parent_dir, tag, count);
-                current_dir = parent_dir;
-            } else {
-                print!(" {}:{}", tag, count);
-            }
-        }
-        println!();
+        tags_vec
     }
 }
 

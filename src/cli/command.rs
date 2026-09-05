@@ -87,9 +87,43 @@ pub fn execute_command(
                 Err(e) => Err(IOError::other(e)),
             }
         }
-        Some(Command::List { directory }) => match repository.list(directory) {
-            Ok(_) => Ok(Status::Done),
-            Err(err) => Err(err),
+        Some(Command::List { directory }) => {
+            let result = match directory {
+                Some(path) => match repository.pictures_in_directory(&path) {
+                    Ok(gallery) => {
+                        print_names(&gallery);
+                        Ok(())
+                    },
+                    Err(e) => Err(e),
+                },
+                None => match repository.gallery_rc().try_borrow() {
+                    Ok(gallery) => {
+                        gallery.print(false);
+                        Ok(())
+                    }
+                    Err(e) => Err(IOError::other(e)),
+                },
+            };
+            match result {
+                Ok(_) => {
+                    let parent_dirs = repository.parent_dirs();
+                    if ! parent_dirs.is_empty() {
+                        let mut dirs: Vec<String> = vec![];
+                        for dir in parent_dirs.keys() {
+                            dirs.push(dir.to_string());
+                        };
+                        dirs.sort();
+                        for dir in dirs {
+                            let counts = parent_dirs.get(&dir).unwrap();
+                            let count = counts.0;
+                            let covers = counts.1;
+                            println!("{}:  {}({})", dir, count, covers)
+                        }
+                    };
+                    Ok(Status::Done)
+                },
+                Err(e) => Err(IOError::other(e)),
+            }
         },
         Some(Command::Extract {
             extract_name: extraction_file,
@@ -147,13 +181,13 @@ pub fn execute_command(
                     println!("no pictures for this selection");
                     Ok(Status::Exit)
                 } else if command_line_arguments.names {
-                    gallery.print(false);
+                    print_names(&gallery);
                     Ok(Status::Exit)
                 } else if command_line_arguments.folders {
-                    gallery.print(true);
+                    print_folders(&gallery);
                     Ok(Status::Exit)
                 } else if command_line_arguments.tags {
-                    gallery.print_tags();
+                    print_tags(&gallery);
                     Ok(Status::Exit)
                 } else {
                     println!("gallery length: {} pictures", &gallery.len());
@@ -171,4 +205,28 @@ pub fn execute_command(
             Err(e) => Err(IOError::other(e)),
         },
     }
+}
+
+fn print_names(gallery: &Gallery) {
+    for picture in gallery.pictures() {
+        println!("{}", picture.file_path())
+    }
+}
+fn print_folders(gallery: &Gallery) {
+    for (folder, count) in gallery.folders() {
+        println!("{:6}  {}", count, folder)
+    }
+}
+
+fn print_tags(gallery: &Gallery) {
+    let mut current_dir: String = String::new();
+    for (parent_dir, tag, count) in gallery.tags() {
+        if current_dir != parent_dir {
+            print!("\n{} {}:{}", parent_dir, tag, count);
+            current_dir = parent_dir;
+        } else {
+            print!(" {}:{}", tag, count);
+        }
+    }
+    println!();
 }

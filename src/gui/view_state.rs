@@ -57,8 +57,15 @@ impl ViewState {
         self.finder = None;
     }
 
-    pub fn set_current_location(&mut self, sub_directory: Option<String>, predicate: Option<Predicate>, position: usize, covers_only: bool) {
-        self.current_location = Location::new(sub_directory.clone(), predicate, position, covers_only);
+    pub fn set_current_location(
+        &mut self,
+        sub_directory: Option<String>,
+        predicate: Option<Predicate>,
+        position: usize,
+        covers_only: bool,
+    ) {
+        self.current_location =
+            Location::new(sub_directory.clone(), predicate, position, covers_only);
         self.gallery.set_sub_folder(sub_directory);
         self.gallery.set_current_picture_index(position);
     }
@@ -66,5 +73,4 @@ impl ViewState {
     pub fn current_location(&self) -> Location {
         self.current_location.clone()
     }
-         
 }

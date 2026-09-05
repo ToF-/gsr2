@@ -15,7 +15,11 @@ fn select_pattern_display(view_state: &ViewState) -> String {
     let location = view_state.current_location();
     match location.predicate() {
         None => format!("{}", location.sub_directory().unwrap_or_default()),
-        Some(predicate) => format!("{}{}", location.sub_directory().unwrap_or_default(), predicate),
+        Some(predicate) => format!(
+            "{}{}",
+            location.sub_directory().unwrap_or_default(),
+            predicate
+        ),
     }
 }
 

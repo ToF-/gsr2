@@ -165,7 +165,7 @@ pub fn execute(database: &Database, operations: &Vec<Operation>) -> IOResult<()>
             Ok(_) => {}
             Err(err) => {
                 eprintln!("{}", err);
-                return Err(err)
+                return Err(err);
             }
         };
     }

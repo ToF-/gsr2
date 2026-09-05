@@ -1,6 +1,3 @@
-use std::path::PathBuf;
-use crate::file::paths::check_path_is_directory;
-use crate::gui::key_input::entry::target_directory_entry;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
@@ -8,6 +5,7 @@ use crate::env::default_values::FRAME_WINDOW_NAME;
 use crate::env::default_values::FULL_OPACITY;
 use crate::env::default_values::GRID_WINDOW_NAME;
 use crate::env::default_values::HALF_OPACITY;
+use crate::file::paths::check_path_is_directory;
 use crate::file::paths::name_and_extension;
 use crate::file::paths::parent_directory;
 use crate::gui::action::Action;
@@ -23,6 +21,7 @@ use crate::gui::key_input::entry::label_change_entry;
 use crate::gui::key_input::entry::remove_tags_entry;
 use crate::gui::key_input::entry::rename_entry;
 use crate::gui::key_input::entry::select_criteria_entry;
+use crate::gui::key_input::entry::target_directory_entry;
 use crate::gui::key_input::information::information;
 use crate::gui::key_input::menu::catalog_menu;
 use crate::gui::key_input::menu::change_menu;
@@ -61,6 +60,7 @@ use gtk::subclass::prelude::ObjectSubclassIsExt;
 use std::cell::RefCell;
 use std::io::Error as IOError;
 use std::io::Result as IOResult;
+use std::path::PathBuf;
 use std::rc::Rc;
 
 pub const LEFT_PANE: usize = 0;
@@ -550,7 +550,9 @@ impl GsrApplicationWindow {
                         }
                         Control::ToggleBlinking => this.toggle_blinking(),
                         Control::ToggleExpand => this.toggle_expand(),
-                        Control::ToggleFullSize => this.action_apply_view_setting(ViewOption::FullSize),
+                        Control::ToggleFullSize => {
+                            this.action_apply_view_setting(ViewOption::FullSize)
+                        }
                         Control::TogglePalette => this.toggle_palette(),
                         Control::ToggleSelected => this.toggle_selected(),
                         Control::ToggleSingleView => this.toggle_pictures_per_row(1),
@@ -598,7 +600,9 @@ impl GsrApplicationWindow {
             Action::MoveCategory(ref category_name, ref target_category_name) => {
                 self.action_move_category(&category_name, &target_category_name)
             }
-            Action::MoveSelectedPicture(ref target_directory) => self.action_move_selected_pictures(&target_directory),
+            Action::MoveSelectedPicture(ref target_directory) => {
+                self.action_move_selected_pictures(&target_directory)
+            }
             Action::Nothing => println!("processing Action::Nothing"),
             Action::PickCatalogChange => self.action_pick_catalog_change(),
             Action::Quit => self.action_quit(),
@@ -1141,10 +1145,10 @@ impl GsrApplicationWindow {
         self.dismiss();
         let path = PathBuf::from(target_directory);
         match check_path_is_directory(&path) {
-            Ok(_) => {},
+            Ok(_) => {}
             Err(e) => {
                 self.present_information(&format!("{e}"));
-                return
+                return;
             }
         }
         let indices = self.selected_indices();
@@ -1153,10 +1157,10 @@ impl GsrApplicationWindow {
                 let mut picture = view_state.gallery.picture(position);
                 self.with_repository(|repository| {
                     match repository.move_picture_to_target(&picture, target_directory) {
-                        Ok(_) => {},
+                        Ok(_) => {}
                         Err(e) => {
                             self.present_information(&format!("{e}"));
-                            return
+                            return;
                         }
                     }
                 });
@@ -1290,11 +1294,9 @@ impl GsrApplicationWindow {
     }
 
     fn enter_move_picture(&self) {
-        if ! self.with_view_state(|view_state| {
-            view_state.selection.has_selected()
-        }) {
+        if !self.with_view_state(|view_state| view_state.selection.has_selected()) {
             self.present_information("cannot move: no picture selected");
-            return
+            return;
         };
         let gsr_entry_window = GsrEntryWindow::new_with(
             self,
@@ -1310,14 +1312,15 @@ impl GsrApplicationWindow {
     }
 
     fn goto_directory(&self) {
-        let (current_picture, sub_directory, covers_only, position) = self.with_view_state(|view_state| {
-            (
-                view_state.gallery.current_picture(),
-                view_state.gallery.sub_folder(),
-                view_state.settings.covers_only(),
-                view_state.gallery.current_picture_index(),
-            )
-        });
+        let (current_picture, sub_directory, covers_only, position) =
+            self.with_view_state(|view_state| {
+                (
+                    view_state.gallery.current_picture(),
+                    view_state.gallery.sub_folder(),
+                    view_state.settings.covers_only(),
+                    view_state.gallery.current_picture_index(),
+                )
+            });
         self.with_view_state_mut(|view_state| {
             view_state.set_current_location(sub_directory, None, position, covers_only);
         });
@@ -1345,9 +1348,7 @@ impl GsrApplicationWindow {
 
     fn action_select(&self, find: Find, pattern: &str) {
         self.dismiss();
-        let location = self.with_view_state(|view_state| {
-            view_state.current_location()
-        });
+        let location = self.with_view_state(|view_state| view_state.current_location());
         let catalog = self.with_repository(|repository| repository.catalog());
         let predicate_res = Predicate::new(pattern, find, catalog.clone());
         match predicate_res {
