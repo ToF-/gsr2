@@ -128,6 +128,10 @@ impl MainController {
             activate.clone(),
         ));
         entries.push(Self::action_entry(
+            GioActionType::from(Action::MoveSelectedPicture("foo".to_string())),
+            activate.clone(),
+        ));
+        entries.push(Self::action_entry(
             GioActionType::from(Action::Categorize(None)),
             activate.clone(),
         ));

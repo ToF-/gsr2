@@ -111,6 +111,21 @@ pub fn rename_entry() -> KeyInput {
     )
 }
 
+pub fn target_directory_entry() -> KeyInput {
+    KeyInput::new(
+        "Enter a target directory for selected pictures",
+        None,
+        KeyInputMode::Entry,
+        |_, ch| true,
+        |s, ch| {
+            let mut input = s;
+            input.push(ch);
+            input
+        },
+        |s| Action::MoveSelectedPicture(s),
+    )
+}
+
 pub fn find_criteria_entry(find_criteria: Find, completion_tags: Tags) -> KeyInput {
     let find = find_criteria.clone();
     KeyInput::new(

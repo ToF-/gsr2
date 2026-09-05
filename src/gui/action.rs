@@ -23,7 +23,6 @@ pub enum Action {
     CancelSelectionRange,         // cancel selection
     Categorize(Category),         // change the category of the selected pictures
     ConfirmDeleteFile,            // input a yes to deleting selected picture files
-    ConfirmMoveFile(String),      // input a yes to moving selected picture files
     Dismiss,                      // dismiss after presentation of an information
     EnterAddTag,                  // enter new tag(s) to add to the selected pictures
     EnterNewCategory,             // enter new category to add to the catalog
@@ -43,6 +42,7 @@ pub enum Action {
     Mark(char),                   // set the mark a|b|…|z to the current picture
     MoveCategory(String, String), // move the sub category under a category
     MoveFile,                     // move selected picture files
+    MoveSelectedPicture(String),  // input a yes to moving selected picture files
     FocusAt(i32, i32),            // set the picture at col,row the current picture
     MoveTowards(Direction),       // move to a direction
     Nothing,                      // do nothing (test)

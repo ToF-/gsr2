@@ -1,3 +1,4 @@
+use crate::gui::key_input::entry::target_directory_entry;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
@@ -527,6 +528,7 @@ impl GsrApplicationWindow {
                         Control::PickChange => this.pick_change(),
                         Control::Quit => this.action_quit(),
                         Control::GotoDirectory => this.goto_directory(),
+                        Control::MovePicture => this.enter_move_picture(),
                         Control::RepeatRange => this.repeat_range(),
                         Control::RepeatLastAction => this.repeat_last_action(),
                         Control::SetOrder => this.set_order(),
@@ -1251,6 +1253,27 @@ impl GsrApplicationWindow {
             self.begin_entry(gsr_entry_window);
         }
     }
+
+    fn enter_move_picture(&self) {
+        if ! self.with_view_state(|view_state| {
+            view_state.selection.has_selected()
+        }) {
+            self.present_information("cannot move: no picture selected");
+            return
+        };
+        let gsr_entry_window = GsrEntryWindow::new_with(
+            self,
+            &self.gsr_application().shared_main_controller(),
+            target_directory_entry(),
+            None,
+        );
+        let directory = self.with_view_state(|view_state| {
+            parent_directory(&view_state.gallery.current_picture().file_path())
+        });
+        gsr_entry_window.set_entry_text(&directory.unwrap_or_default());
+        self.begin_entry(gsr_entry_window);
+    }
+
     fn goto_directory(&self) {
         let (current_picture, sub_directory, covers_only, position) = self.with_view_state(|view_state| {
             (
