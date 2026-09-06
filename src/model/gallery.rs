@@ -88,6 +88,13 @@ impl Gallery {
         folders
     }
 
+    pub fn parent_directories(&self) -> Vec<(String, usize)> {
+        self.folders()
+            .iter()
+            .map(|(folder, count)| (folder.clone(), *count))
+            .collect::<Vec<(String, usize)>>()
+    }
+
     pub fn search_in_progress(&self) -> bool {
         self.finder.search_in_progress()
     }
@@ -431,5 +438,17 @@ mod tests {
         assert_eq!("single_dot.png", gallery.pictures()[p.unwrap()].file_name());
         let p = gallery.finder.find_next();
         assert!(p.is_none());
+    }
+    #[test]
+    #[serial]
+    fn finding_folders_from_the_picture_files_gallery() {
+        let mut gallery = Gallery::new();
+        gallery
+            .load_from_directory(&test_directory())
+            .expect("can't load from directory");
+        let parent_dirs = gallery.parent_directories();
+        dbg!(&parent_dirs);
+        assert_eq!(1, parent_dirs.len());
+        assert_eq!(4, parent_dirs[0].1);
     }
 }

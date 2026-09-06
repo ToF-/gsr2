@@ -284,22 +284,18 @@ impl Repository {
     }
 
     pub fn create_folder_entries(&self) {
-        let parent_dirs = self.parent_dirs_rc.borrow();
+        let parent_dirs = { 
+            let gallery = self.gallery_rc.borrow();
+            gallery.parent_directories()
+        };
         let mut gallery = self.gallery_rc.borrow_mut();
-        let mut component_dirs: HashSet<String> = HashSet::new();
-        for (parent_dir, (_nb_pics, _nb_covers)) in parent_dirs.iter() {
-            for sub_directory in sub_directories(parent_dir) {
-                component_dirs.insert(sub_directory);
-            }
-        }
-        println!("{:?}", component_dirs);
-        for component in component_dirs {
+        for (parent_dir,count) in parent_dirs.iter() {
             let mut image_data = ImageData::new();
             image_data.cover = None;
-            image_data.label = file_name_from(&component.to_string());
+            image_data.label = file_name_from(&parent_dir);
             image_data.folder = true;
-            image_data.cover = Some(0);
-            let picture = Picture::new_with_image_data(&component, &image_data);
+            image_data.cover = Some(*count);
+            let picture = Picture::new_with_image_data(&parent_dir, &image_data);
             gallery.add_picture(&picture);
         }
     }
