@@ -89,9 +89,9 @@ pub struct CommandLineArguments {
     #[arg(long)]
     pub folders: bool,
 
-    /// display folder entries
+    /// display file structure vs database list
     #[arg(long)]
-    pub display_folders: bool,
+    pub structured: bool,
 
     /// only display folder tags
     #[arg(long)]

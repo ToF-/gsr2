@@ -1,3 +1,5 @@
+use crate::file::paths::based_path;
+use crate::file::paths::grand_parent_directory;
 use crate::file::paths::parent_directory;
 use crate::file::picture_file::{get_all_picture_file_paths, get_picture_file_path};
 use crate::model::cover::cover_sort_key;
@@ -82,7 +84,7 @@ impl Gallery {
         &self.pictures
     }
 
-    pub fn folders(&self) -> BTreeMap<String, usize> {
+    pub fn folders_map(&self) -> BTreeMap<String, usize> {
         let mut folders: BTreeMap<String, usize> = BTreeMap::new();
         for picture in self.pictures() {
             if let Some(parent_directory) = parent_directory(&picture.file_path()) {
@@ -92,13 +94,28 @@ impl Gallery {
         folders
     }
 
-    pub fn parent_directories(&self) -> Vec<(String, usize)> {
-        self.folders()
+    pub fn folders(&self) -> Vec<(String, usize)> {
+        self.folders_map()
             .iter()
             .map(|(folder, count)| (folder.clone(), *count))
             .collect::<Vec<(String, usize)>>()
     }
 
+    pub fn folders_in_directory(&self, directory: &str) -> Vec<(String, usize)> {
+        let mut result: Vec<(String, usize)> = Vec::new();
+        for (folder, count) in self.folders_map().iter() {
+            let folder_grand_parent_opt = grand_parent_directory(folder);
+            if let Some(folder_grand_parent) = folder_grand_parent_opt
+                && folder_grand_parent == directory
+            {
+                if let Some(parent) = parent_directory(folder) {
+                    result.push((parent, *count))
+                }
+            }
+        }
+        result.sort();
+        result
+    }
     pub fn search_in_progress(&self) -> bool {
         self.finder.search_in_progress()
     }
@@ -446,12 +463,15 @@ mod tests {
     #[serial]
     fn finding_folders_from_the_picture_files_gallery() {
         let mut gallery = Gallery::new();
-        gallery
-            .load_from_directory(&test_directory())
-            .expect("can't load from directory");
-        let parent_dirs = gallery.parent_directories();
-        dbg!(&parent_dirs);
-        assert_eq!(1, parent_dirs.len());
-        assert_eq!(4, parent_dirs[0].1);
+        gallery.add_picture(&Picture::new(&based_path("%/foo.jpg")));
+        gallery.add_picture(&Picture::new(&based_path("%/bun/bar.jpg")));
+        gallery.add_picture(&Picture::new(&based_path("%/bun/qux.jpg")));
+        gallery.add_picture(&Picture::new(&based_path("%/gus/bam/blo.jpg")));
+        gallery.add_picture(&Picture::new(&based_path("%/gus/bim/jpg")));
+        let folders = gallery.folders_in_directory("%");
+        dbg!(&folders);
+        assert_eq!(2, folders.len());
+        assert_eq!(("%/bun".to_string(), 2), folders[0]);
+        assert_eq!(("%/gus".to_string(), 2), folders[1]);
     }
 }

@@ -1325,11 +1325,13 @@ impl GsrApplicationWindow {
             view_state.set_current_location(sub_directory, None, position, covers_only);
         });
         let parent_directory_opt = parent_directory(&current_picture.file_path());
-        if !covers_only {
-            self.present_information("can only go to a directory when in covers view");
+        if !covers_only && !current_picture.is_folder() {
+            self.present_information(
+                "can only go to a directory when in covers view or from a folder",
+            );
             return;
         };
-        if covers_only && current_picture.is_cover() && parent_directory_opt.clone().is_some() {
+        if parent_directory_opt.clone().is_some() {
             self.with_view_state_mut(|view_state| {
                 view_state.set_new_location(parent_directory_opt, None, 0, false)
             });

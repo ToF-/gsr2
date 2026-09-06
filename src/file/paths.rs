@@ -217,14 +217,23 @@ pub fn based_path(source: &str) -> String {
     let ch_opt = chars.next();
     match ch_opt {
         None => source.to_string(),
-        Some(ch) if ch != BASED_PATH_SYMBOL => source.to_string(),
-        _ => {
+        Some(ch) if ch == HOME_DIRECTORY_SYMBOL => {
             let sub_directory: String = chars.collect();
             let configuration = CONFIGURATION.get();
-            let base = Path::new(&configuration.unwrap().base_dir);
-            let path = base.join(sub_directory);
+            let base = home_directory();
+            let base_path = Path::new(&base);
+            let path = base_path.join(sub_directory);
             path.to_str().unwrap().to_string()
         }
+        Some(ch) if ch == BASED_PATH_SYMBOL => {
+            let sub_directory: String = chars.collect();
+            let configuration = CONFIGURATION.get();
+            let base = base_directory();
+            let base_path = Path::new(&base);
+            let path = base_path.join(sub_directory);
+            path.to_str().unwrap().to_string()
+        }
+        Some(_) => source.to_string(),
     }
 }
 pub fn file_path_as_stored(source: &str) -> String {

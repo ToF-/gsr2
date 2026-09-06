@@ -1,4 +1,3 @@
-use crate::file::paths::based_path;
 use crate::cli::command::Command;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::Configuration;
@@ -7,6 +6,7 @@ use crate::file::database::RetrieveCriteria;
 use crate::file::operation::execute;
 use crate::file::operation::move_picture;
 use crate::file::operation::rename_picture;
+use crate::file::paths::based_path;
 use crate::file::paths::file_exists;
 use crate::file::paths::file_name_from;
 use crate::file::paths::file_path_as_stored;
@@ -275,7 +275,7 @@ impl Repository {
                 self.retrieve_all_parent_dirs().and_then(|()| {
                     let result = self
                         .retrieve_all_pictures(&self.command_line_arguments.clone(), predicate_opt);
-                    if self.command_line_arguments.display_folders {
+                    if self.command_line_arguments.structured {
                         self.create_folder_entries();
                     }
                     result
@@ -287,23 +287,23 @@ impl Repository {
     pub fn create_folder_entries(&self) {
         let parent_dirs = {
             let gallery = self.gallery_rc.borrow();
-            gallery.parent_directories()
+            gallery.folders()
         };
         let mut gallery = self.gallery_rc.borrow_mut();
         gallery.clear();
         for (parent_dir, count) in parent_dirs.iter() {
             dbg!(&parent_dir);
             let to_insert: bool = match parent_directory(parent_dir) {
-                Some(grand_parent_dir) => { 
+                Some(grand_parent_dir) => {
                     dbg!(&grand_parent_dir);
                     match &self.command_line_arguments.directory {
-                    Some(directory) => {
-                        dbg!(based_path(directory));
-                        grand_parent_dir == based_path(directory)
-                    },
-                    None => true,
+                        Some(directory) => {
+                            dbg!(based_path(directory));
+                            grand_parent_dir == based_path(directory)
+                        }
+                        None => true,
                     }
-                },
+                }
                 None => true,
             };
             if to_insert {
@@ -311,7 +311,7 @@ impl Repository {
                 image_data.cover = None;
                 image_data.label = file_name_from(&parent_dir);
                 image_data.folder = true;
-                image_data.cover = Some(*count);
+                image_data.cover = None;
                 let picture = Picture::new_with_image_data(&parent_dir, &image_data);
                 gallery.add_picture(&picture);
             }

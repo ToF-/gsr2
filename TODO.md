@@ -2,6 +2,7 @@
 ## Gallery Show in Rust
 
 ## Todo
+- [ ] Folder attribute in database was superfluous, remove it
 - [ ] stacking selections requires for keeping all arguments used for a selection
 - [ ] when setting a picture's cover property on, any other picture in the same folder gets its cover property off
 - [ ] after collecting pictures in a folder containing no cover pictures, the first picture in the folder gets to be the cover picture

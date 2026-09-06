@@ -720,7 +720,7 @@ pub mod tests {
             order: Some(Order::Name),
             names: false,
             folders: false,
-            display_folders: false,
+            structured: false,
             tags: false,
             r#move: None,
             label: None,
