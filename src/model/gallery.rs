@@ -302,6 +302,7 @@ impl Gallery {
         );
         tags_vec
     }
+
 }
 
 #[cfg(test)]

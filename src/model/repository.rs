@@ -1,3 +1,4 @@
+use crate::file::paths::file_name_from;
 use crate::cli::command::Command;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::Configuration;
@@ -295,8 +296,9 @@ impl Repository {
         for component in component_dirs {
             let mut image_data = ImageData::new();
             image_data.cover = None;
-            image_data.label = file_path_as_stored(&component.to_string());
+            image_data.label = file_name_from(&component.to_string());
             image_data.folder = true;
+            image_data.cover = Some(0);
             let picture = Picture::new_with_image_data(&component, &image_data);
             gallery.add_picture(&picture);
         }

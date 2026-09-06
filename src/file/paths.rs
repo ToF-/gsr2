@@ -169,7 +169,7 @@ pub fn name_and_extension(file_path: &str) -> (String, String) {
     let extension = path.extension().unwrap().to_str().unwrap();
     (stem.to_string(), extension.to_string())
 }
-#[allow(dead_code)]
+
 pub fn file_name_from(file_path: &str) -> String {
     let path: PathBuf = PathBuf::from(file_path);
     path.file_name()
