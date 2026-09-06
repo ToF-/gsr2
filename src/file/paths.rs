@@ -52,22 +52,29 @@ pub fn grand_parent_directory(file_path: &str) -> Option<String> {
     }
 }
 
-pub fn sub_directories(parent: &str) -> Vec<String> {
-    let path: PathBuf = PathBuf::from(parent);
+fn components(path: &Path) -> Vec<String> {
     let mut current = PathBuf::new();
+
+    path.components()
+        .map(|component| {
+            current.push(component.as_os_str());
+            current.to_string_lossy().into_owned()
+        })
+        .collect()
+}
+pub fn sub_directories(parent: &str) -> Vec<String> {
     let mut result = Vec::new();
-    for component in path.components() {
-        let component_str = component.as_os_str();
-        if component_str != OsStr::new(&format!("{BASE_DIRECTORY_SYMBOL}"))
-            && component_str != OsStr::new(&format!("{ROOT_DIRECTORY_SYMBOL}"))
-            && component_str != OsStr::new(&format!("{HOME_DIRECTORY_SYMBOL}"))
-        {
-            let folder = file_path_as_stored(&based_path(component_str.to_str().unwrap()));
-            println!("{parent} → {component_str:?} {folder}");
-            current.push(component_str);
-            result.push(current.to_string_lossy().into_owned());
+    let path: PathBuf = PathBuf::from(parent);
+    let base_directory = base_directory();
+    let base_dir = Path::new(&base_directory);
+    match path.strip_prefix(base_dir) {
+        Ok(relative_path) => {
+            for component in components(relative_path) {
+                result.push(component)
+            }
         }
-    }
+        Err(_) => {}
+    };
     result
 }
 
@@ -428,8 +435,11 @@ mod tests {
     }
     #[test]
     fn all_sub_directories_of_a_path() {
-        let path = "%/foo/bar/qux";
-        let components = sub_directories(path);
+        let base = base_directory();
+        let path = format!("{base}/foo/bar/qux");
+        dbg!(&path);
+        let components = sub_directories(&path);
+        dbg!(&components);
         assert_eq!(3, components.len());
         assert_eq!("foo", components[0]);
         assert_eq!("foo/bar", components[1]);

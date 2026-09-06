@@ -1,8 +1,8 @@
-use crate::model::thumbnail::folder_picture;
 use crate::gui::objects::gsr_application::GsrApplication;
 use crate::gui::objects::gsr_application_window::picture_opacity;
 use crate::gui::view::gtk_picture_from_file_path;
 use crate::gui::view_mode::ViewMode;
+use crate::model::thumbnail::folder_picture;
 use gtk::Picture as GtkPicture;
 
 use crate::env::default_values::FRAME_PALETTE_AREA_HEIGHT;
@@ -105,7 +105,9 @@ impl GsrPictureFrame {
             let picture_file_path = picture.file_path();
             let gtk_picture = if picture.is_folder() {
                 folder_picture()
-            } else if let Ok(file_path) = check_path_exists(&PathBuf::from(picture_file_path.clone())) {
+            } else if let Ok(file_path) =
+                check_path_exists(&PathBuf::from(picture_file_path.clone()))
+            {
                 gtk_picture_from_file_path(file_path)
             } else {
                 no_thumbnail_picture()
