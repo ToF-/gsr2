@@ -62,6 +62,10 @@ impl Gallery {
         self.pictures.is_empty()
     }
 
+    pub fn clear(&mut self) {
+        self.pictures.clear()
+    }
+
     pub fn has_covers(&self) -> bool {
         self.pictures.iter().any(|picture| picture.is_cover())
     }
@@ -309,7 +313,6 @@ impl Gallery {
         );
         tags_vec
     }
-
 }
 
 #[cfg(test)]

@@ -1,4 +1,4 @@
-use crate::file::paths::file_name_from;
+use crate::file::paths::based_path;
 use crate::cli::command::Command;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::Configuration;
@@ -8,6 +8,7 @@ use crate::file::operation::execute;
 use crate::file::operation::move_picture;
 use crate::file::operation::rename_picture;
 use crate::file::paths::file_exists;
+use crate::file::paths::file_name_from;
 use crate::file::paths::file_path_as_stored;
 use crate::file::paths::parent_directory;
 use crate::file::paths::sub_directories;
@@ -284,19 +285,36 @@ impl Repository {
     }
 
     pub fn create_folder_entries(&self) {
-        let parent_dirs = { 
+        let parent_dirs = {
             let gallery = self.gallery_rc.borrow();
             gallery.parent_directories()
         };
         let mut gallery = self.gallery_rc.borrow_mut();
-        for (parent_dir,count) in parent_dirs.iter() {
-            let mut image_data = ImageData::new();
-            image_data.cover = None;
-            image_data.label = file_name_from(&parent_dir);
-            image_data.folder = true;
-            image_data.cover = Some(*count);
-            let picture = Picture::new_with_image_data(&parent_dir, &image_data);
-            gallery.add_picture(&picture);
+        gallery.clear();
+        for (parent_dir, count) in parent_dirs.iter() {
+            dbg!(&parent_dir);
+            let to_insert: bool = match parent_directory(parent_dir) {
+                Some(grand_parent_dir) => { 
+                    dbg!(&grand_parent_dir);
+                    match &self.command_line_arguments.directory {
+                    Some(directory) => {
+                        dbg!(based_path(directory));
+                        grand_parent_dir == based_path(directory)
+                    },
+                    None => true,
+                    }
+                },
+                None => true,
+            };
+            if to_insert {
+                let mut image_data = ImageData::new();
+                image_data.cover = None;
+                image_data.label = file_name_from(&parent_dir);
+                image_data.folder = true;
+                image_data.cover = Some(*count);
+                let picture = Picture::new_with_image_data(&parent_dir, &image_data);
+                gallery.add_picture(&picture);
+            }
         }
     }
 
