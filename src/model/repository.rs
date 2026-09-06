@@ -1,5 +1,3 @@
-use crate::file::paths::file_path_as_stored;
-use crate::model::image_data::ImageData;
 use crate::cli::command::Command;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::Configuration;
@@ -9,7 +7,9 @@ use crate::file::operation::execute;
 use crate::file::operation::move_picture;
 use crate::file::operation::rename_picture;
 use crate::file::paths::file_exists;
+use crate::file::paths::file_path_as_stored;
 use crate::file::paths::parent_directory;
+use crate::file::paths::sub_directories;
 use crate::file::paths::timestamp_filename;
 use crate::file::picture_file::collect_picture_data;
 use crate::file::picture_file::copy_picture_file_to_directory;
@@ -20,6 +20,7 @@ use crate::model::catalog::Catalog;
 use crate::model::catalog::load_catalog;
 use crate::model::categories::Categories;
 use crate::model::gallery::Gallery;
+use crate::model::image_data::ImageData;
 use crate::model::order::Order;
 use crate::model::picture::Picture;
 use crate::model::predicate::Predicate;
@@ -28,6 +29,7 @@ use crate::model::tags::Tags;
 use regex::Regex;
 use std::cell::RefCell;
 use std::collections::HashMap;
+use std::collections::HashSet;
 use std::fs::File;
 use std::io::BufRead;
 use std::io::BufReader;
@@ -269,7 +271,8 @@ impl Repository {
             },
             _ => self.retrieve_all_labels().and_then(|()| {
                 self.retrieve_all_parent_dirs().and_then(|()| {
-                    let result = self.retrieve_all_pictures(&self.command_line_arguments.clone(), predicate_opt);
+                    let result = self
+                        .retrieve_all_pictures(&self.command_line_arguments.clone(), predicate_opt);
                     if self.command_line_arguments.display_folders {
                         self.create_folder_entries();
                     }
@@ -282,12 +285,19 @@ impl Repository {
     pub fn create_folder_entries(&self) {
         let parent_dirs = self.parent_dirs_rc.borrow();
         let mut gallery = self.gallery_rc.borrow_mut();
-        for (parent_dir, (nb_pics, nb_covers)) in parent_dirs.iter() {
+        let mut component_dirs: HashSet<String> = HashSet::new();
+        for (parent_dir, (_nb_pics, _nb_covers)) in parent_dirs.iter() {
+            for sub_directory in sub_directories(parent_dir) {
+                component_dirs.insert(sub_directory);
+            }
+        }
+        println!("{:?}", component_dirs);
+        for component in component_dirs {
             let mut image_data = ImageData::new();
-            image_data.cover = Some(*nb_pics);
-            image_data.label = file_path_as_stored(&parent_dir.to_string());
+            image_data.cover = None;
+            image_data.label = file_path_as_stored(&component.to_string());
             image_data.folder = true;
-            let picture = Picture::new_with_image_data(parent_dir, &image_data);
+            let picture = Picture::new_with_image_data(&component, &image_data);
             gallery.add_picture(&picture);
         }
     }

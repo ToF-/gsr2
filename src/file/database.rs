@@ -720,6 +720,7 @@ pub mod tests {
             order: Some(Order::Name),
             names: false,
             folders: false,
+            display_folders: false,
             tags: false,
             r#move: None,
             label: None,
@@ -801,6 +802,7 @@ pub mod tests {
             cover: None,
             tags: HashSet::from([String::from("foo"), String::from("bar")]),
             category_name: Some(String::from("foobar")),
+            folder: false,
         };
         picture.set_image_data(image_data.clone());
         assert_eq!(100, picture.image_data().unwrap().palette().count());

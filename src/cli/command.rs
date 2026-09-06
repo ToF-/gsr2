@@ -93,7 +93,7 @@ pub fn execute_command(
                     Ok(gallery) => {
                         print_names(&gallery);
                         Ok(())
-                    },
+                    }
                     Err(e) => Err(e),
                 },
                 None => match repository.gallery_rc().try_borrow() {
@@ -107,11 +107,11 @@ pub fn execute_command(
             match result {
                 Ok(_) => {
                     let parent_dirs = repository.parent_dirs();
-                    if ! parent_dirs.is_empty() {
+                    if !parent_dirs.is_empty() {
                         let mut dirs: Vec<String> = vec![];
                         for dir in parent_dirs.keys() {
                             dirs.push(dir.to_string());
-                        };
+                        }
                         dirs.sort();
                         for dir in dirs {
                             let counts = parent_dirs.get(&dir).unwrap();
@@ -121,10 +121,10 @@ pub fn execute_command(
                         }
                     };
                     Ok(Status::Done)
-                },
+                }
                 Err(e) => Err(IOError::other(e)),
             }
-        },
+        }
         Some(Command::Extract {
             extract_name: extraction_file,
         }) => match repository.extract_all_file_names(Some(extraction_file)) {

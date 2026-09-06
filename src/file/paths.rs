@@ -1,6 +1,9 @@
 use crate::env::configuration::CONFIGURATION;
+use crate::env::default_values::BASE_DIRECTORY_SYMBOL;
 use crate::env::default_values::BASED_PATH_SYMBOL;
 use crate::env::default_values::GARBAGE;
+use crate::env::default_values::HOME_DIRECTORY_SYMBOL;
+use crate::env::default_values::ROOT_DIRECTORY_SYMBOL;
 use crate::env::default_values::THUMB_SUFFIX;
 use crate::env::default_values::VALID_EXTENSIONS;
 use crate::model::thumbnail::{thumbnail_size_display, thumbnail_size_for};
@@ -47,6 +50,25 @@ pub fn grand_parent_directory(file_path: &str) -> Option<String> {
             .map(|grand_parent| grand_parent.to_str().unwrap().to_string()),
         None => None,
     }
+}
+
+pub fn sub_directories(parent: &str) -> Vec<String> {
+    let path: PathBuf = PathBuf::from(parent);
+    let mut current = PathBuf::new();
+    let mut result = Vec::new();
+    for component in path.components() {
+        let component_str = component.as_os_str();
+        if component_str != OsStr::new(&format!("{BASE_DIRECTORY_SYMBOL}"))
+            && component_str != OsStr::new(&format!("{ROOT_DIRECTORY_SYMBOL}"))
+            && component_str != OsStr::new(&format!("{HOME_DIRECTORY_SYMBOL}"))
+        {
+            let folder = file_path_as_stored(&based_path(component_str.to_str().unwrap()));
+            println!("{parent} → {component_str:?} {folder}");
+            current.push(component_str);
+            result.push(current.to_string_lossy().into_owned());
+        }
+    }
+    result
 }
 
 pub fn file_exists(file_path: &str) -> bool {
@@ -395,13 +417,23 @@ mod tests {
     }
     #[test]
     fn based_dir_uses_base_dir_symbol_as_a_shortcut() {
+        let base = base_directory();
         let dir = "@foo";
-        assert_eq!("/Users/tof/Coding/gsr2/testdata/foo", based_path(dir));
+        assert_eq!(format!("{base}/foo"), based_path(dir));
     }
     #[test]
     fn based_dir_as_stored_converts_correctly_base_dir() {
         let dir = "@foo";
         assert_eq!("%/foo", file_path_as_stored(&based_path(dir)));
+    }
+    #[test]
+    fn all_sub_directories_of_a_path() {
+        let path = "%/foo/bar/qux";
+        let components = sub_directories(path);
+        assert_eq!(3, components.len());
+        assert_eq!("foo", components[0]);
+        assert_eq!("foo/bar", components[1]);
+        assert_eq!("foo/bar/qux", components[2]);
     }
 }
 

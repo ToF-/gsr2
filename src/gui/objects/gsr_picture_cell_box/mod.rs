@@ -1,4 +1,3 @@
-use crate::model::thumbnail::folder_picture;
 use crate::env::default_values::FOCUS_BLINKING_DURATION;
 use crate::env::default_values::FOCUS_SYMBOL_1;
 use crate::env::default_values::FOCUS_SYMBOL_2;
@@ -17,6 +16,7 @@ use crate::gui::objects::gsr_picture_grid::GsrPictureGrid;
 use crate::gui::view::palette_area::make_palette_area;
 use crate::model::palette::Palette;
 use crate::model::picture::Picture;
+use crate::model::thumbnail::folder_picture;
 use crate::model::thumbnail::no_thumbnail_picture;
 use glib::Variant;
 use glib::clone;
@@ -203,16 +203,17 @@ impl GsrPictureCellBox {
         if picture.is_folder() {
             self.append(&folder_picture());
         } else {
-            let picture_file_path = picture.view_file_path(self.imp().pictures_per_row.get() as usize);
+            let picture_file_path =
+                picture.view_file_path(self.imp().pictures_per_row.get() as usize);
             let gtk_picture_file_path = file_path_as_retrieved(&picture_file_path);
             self.append(&make_picture(&gtk_picture_file_path));
         };
         let label = make_label(&picture_label_display(
-                &picture.label(),
-                picture.rank(),
-                picture.cover(),
-                None, // focus will be inserted / flipped / removed directly on the GtkLabel
-                picture.file_size(),
+            &picture.label(),
+            picture.rank(),
+            picture.cover(),
+            None, // focus will be inserted / flipped / removed directly on the GtkLabel
+            picture.file_size(),
         ));
         self.append(&label);
         *self.imp().label.borrow_mut() = Some(label);

@@ -280,7 +280,10 @@ impl Gallery {
             let parent_dir = parent_directory(&picture.file_path()).unwrap();
             for tag in picture.tags() {
                 let key = (parent_dir.clone(), tag);
-                tags_map.entry(key).and_modify(|count| *count += 1).or_insert(1);
+                tags_map
+                    .entry(key)
+                    .and_modify(|count| *count += 1)
+                    .or_insert(1);
             }
         }
         let mut tags_vec: Vec<(String, String, usize)> = Vec::new();
@@ -288,13 +291,15 @@ impl Gallery {
             let tuple = (parent_dir.to_string(), tag.to_string(), *val);
             tags_vec.push(tuple);
         }
-        tags_vec.sort_by(|(dir_a, tag_a, nb_a), (dir_b, tag_b, nb_b)| match dir_a.cmp(dir_b) {
-            Ordering::Equal => match nb_b.cmp(nb_a) {
-                Ordering::Equal => tag_a.cmp(tag_b),
+        tags_vec.sort_by(
+            |(dir_a, tag_a, nb_a), (dir_b, tag_b, nb_b)| match dir_a.cmp(dir_b) {
+                Ordering::Equal => match nb_b.cmp(nb_a) {
+                    Ordering::Equal => tag_a.cmp(tag_b),
+                    ord => ord,
+                },
                 ord => ord,
             },
-            ord => ord,
-        });
+        );
         tags_vec
     }
 }
