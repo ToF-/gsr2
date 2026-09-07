@@ -1,3 +1,4 @@
+use std::path::Path;
 use crate::file::paths::based_path;
 use crate::file::paths::grand_parent_directory;
 use crate::file::paths::parent_directory;
@@ -104,13 +105,11 @@ impl Gallery {
     pub fn folders_in_directory(&self, directory: &str) -> Vec<(String, usize)> {
         let mut result: Vec<(String, usize)> = Vec::new();
         for (folder, count) in self.folders_map().iter() {
-            let folder_grand_parent_opt = grand_parent_directory(folder);
-            if let Some(folder_grand_parent) = folder_grand_parent_opt
-                && folder_grand_parent == directory
-            {
-                if let Some(parent) = parent_directory(folder) {
-                    result.push((parent, *count))
-                }
+            let folder_path = Path::new(folder);
+            let parent = folder_path.parent();
+            let components = parent.unwrap().components();
+            if components.count() > 3 {
+                result.push((folder.to_string(), *count));
             }
         }
         result.sort();
