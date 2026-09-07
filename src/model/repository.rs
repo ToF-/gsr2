@@ -287,16 +287,20 @@ impl Repository {
     pub fn create_folder_entries(&self) {
         let directory: String = match &self.command_line_arguments.directory {
             Some(dir) => dir.to_string(),
-            None => "%".to_string(),
+            None => "@".to_string(),
         };
+        dbg!(&based_path(&directory));
         let parent_dirs = {
             let gallery = self.gallery_rc.borrow();
-            gallery.folders_in_directory(&directory)
+            gallery.folders_in_directory(&based_path(&directory))
         };
         let pictures = {
             let gallery = self.gallery_rc.borrow();
-            gallery.pictures_in_directory(&directory)
+            gallery.pictures_in_directory(&based_path(&directory))
         };
+        dbg!(&parent_dirs);
+        dbg!(pictures.len());
+
         let mut gallery = self.gallery_rc.borrow_mut();
         gallery.clear();
         for (parent_dir, count) in parent_dirs.iter() {
