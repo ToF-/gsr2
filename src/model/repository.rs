@@ -285,36 +285,31 @@ impl Repository {
     }
 
     pub fn create_folder_entries(&self) {
+        let directory: String = match &self.command_line_arguments.directory {
+            Some(dir) => dir.to_string(),
+            None => "%".to_string(),
+        };
         let parent_dirs = {
             let gallery = self.gallery_rc.borrow();
-            gallery.folders()
+            gallery.folders_in_directory(&directory)
+        };
+        let pictures = {
+            let gallery = self.gallery_rc.borrow();
+            gallery.pictures_in_directory(&directory)
         };
         let mut gallery = self.gallery_rc.borrow_mut();
         gallery.clear();
         for (parent_dir, count) in parent_dirs.iter() {
-            dbg!(&parent_dir);
-            let to_insert: bool = match parent_directory(parent_dir) {
-                Some(grand_parent_dir) => {
-                    dbg!(&grand_parent_dir);
-                    match &self.command_line_arguments.directory {
-                        Some(directory) => {
-                            dbg!(based_path(directory));
-                            grand_parent_dir == based_path(directory)
-                        }
-                        None => true,
-                    }
-                }
-                None => true,
-            };
-            if to_insert {
-                let mut image_data = ImageData::new();
-                image_data.cover = None;
-                image_data.label = file_name_from(&parent_dir);
-                image_data.folder = true;
-                image_data.cover = None;
-                let picture = Picture::new_with_image_data(&parent_dir, &image_data);
-                gallery.add_picture(&picture);
-            }
+            let mut image_data = ImageData::new();
+            image_data.cover = None;
+            image_data.label = file_name_from(&parent_dir);
+            image_data.folder = true;
+            image_data.cover = None;
+            let picture = Picture::new_with_image_data(&parent_dir, &image_data);
+            gallery.add_picture(&picture);
+        }
+        for picture in pictures.iter() {
+            gallery.add_picture(&picture)
         }
     }
 
