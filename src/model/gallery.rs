@@ -1,3 +1,4 @@
+use std::path::Component::Normal;
 use std::path::Path;
 use crate::file::paths::based_path;
 use crate::file::paths::grand_parent_directory;
@@ -103,14 +104,25 @@ impl Gallery {
     }
 
     pub fn folders_in_directory(&self, directory: &str) -> Vec<(String, usize)> {
-        let mut result: Vec<(String, usize)> = Vec::new();
+        let mut folders: BTreeMap<String, usize> = BTreeMap::new();
+        dbg!(&self.folders_map());
         for (folder, count) in self.folders_map().iter() {
             let folder_path = Path::new(folder);
-            let parent = folder_path.parent();
-            let components = parent.unwrap().components();
-            if components.count() > 3 {
-                result.push((folder.to_string(), *count));
+            let mut components = folder_path.components();
+            if let Some(Normal(first)) = components.next() {
+                if first == directory {
+                    if let Some(Normal(next)) = components.next() {
+                        let folder = next.to_str().unwrap();
+                        *folders.entry(folder.to_string()).or_insert(0) += *count;
+                    }
+                }
             }
+            if components.count() > 1 {
+            }
+        }
+        let mut result = Vec::new();
+        for (folder, count) in folders.iter() {
+            result.push((folder.to_string(), *count));
         }
         result.sort();
         result
@@ -466,11 +478,12 @@ mod tests {
         gallery.add_picture(&Picture::new(&based_path("%/bun/bar.jpg")));
         gallery.add_picture(&Picture::new(&based_path("%/bun/qux.jpg")));
         gallery.add_picture(&Picture::new(&based_path("%/gus/bam/blo.jpg")));
-        gallery.add_picture(&Picture::new(&based_path("%/gus/bim/jpg")));
+        gallery.add_picture(&Picture::new(&based_path("%/gus/bim/blu.jpg")));
+        gallery.add_picture(&Picture::new(&based_path("%/gus/bam/bla.jpg")));
         let folders = gallery.folders_in_directory("%");
         dbg!(&folders);
         assert_eq!(2, folders.len());
-        assert_eq!(("%/bun".to_string(), 2), folders[0]);
-        assert_eq!(("%/gus".to_string(), 2), folders[1]);
+        assert_eq!(("bun".to_string(), 2), folders[0]);
+        assert_eq!(("gus".to_string(), 3), folders[1]);
     }
 }
