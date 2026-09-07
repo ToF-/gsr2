@@ -1,3 +1,4 @@
+use std::path::Path;
 use crate::cli::command::Command;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::Configuration;
@@ -309,7 +310,12 @@ impl Repository {
             image_data.label = file_name_from(&parent_dir);
             image_data.folder = true;
             image_data.cover = None;
-            let picture = Picture::new_with_image_data(&parent_dir, &image_data);
+            let based_directory = based_path(&directory);
+            let mut entry_path = PathBuf::from(&based_directory);
+            entry_path.push(parent_dir);
+            let entry = entry_path.as_os_str().to_str().unwrap();
+            println!("adding entry: {}", &entry);
+            let picture = Picture::new_with_image_data(&entry, &image_data);
             gallery.add_picture(&picture);
         }
         for picture in pictures.iter() {

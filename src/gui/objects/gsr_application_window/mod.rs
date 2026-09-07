@@ -298,6 +298,7 @@ impl GsrApplicationWindow {
         predicate_opt: Option<Predicate>,
     ) -> IOResult<usize> {
         {
+            dbg!(&sub_directory);
             let shared_command_line_arguments =
                 self.gsr_application().shared_command_line_arguments();
             let initial_command_line_arguments = shared_command_line_arguments.borrow().clone();
@@ -1324,7 +1325,14 @@ impl GsrApplicationWindow {
         self.with_view_state_mut(|view_state| {
             view_state.set_current_location(sub_directory, None, position, covers_only);
         });
-        let parent_directory_opt = parent_directory(&current_picture.file_path());
+        let parent_directory_opt = if current_picture.cover().is_some() {
+            parent_directory(&current_picture.file_path())
+        } else if current_picture.is_folder() {
+            Some(current_picture.file_path())
+        } else {
+            None
+        };
+        dbg!(&parent_directory_opt);
         if !covers_only && !current_picture.is_folder() {
             self.present_information(
                 "can only go to a directory when in covers view or from a folder",
