@@ -1339,11 +1339,13 @@ impl GsrApplicationWindow {
             );
             return;
         };
+        println!("current location: {:?}", self.with_view_state(|view_state| { view_state.current_location.clone()}));
         if parent_directory_opt.clone().is_some() {
             self.with_view_state_mut(|view_state| {
                 view_state.set_new_location(parent_directory_opt, None, 0, false)
             });
             let location = self.with_view_state(|view_state| view_state.current_location.clone());
+            println!("going to {:?}", &location);
             match self.retrieve_from_repository(
                 Some(location.covers_only()),
                 location.sub_directory(),
@@ -1394,6 +1396,7 @@ impl GsrApplicationWindow {
             view_state.set_old_location();
             view_state.current_location.clone()
         });
+        println!("going back to {:?}", &location);
         self.retrieve_from_repository(
             Some(location.covers_only()),
             location.sub_directory(),

@@ -290,7 +290,6 @@ impl Repository {
             Some(dir) => dir.to_string(),
             None => "@".to_string(),
         };
-        dbg!(&based_path(&directory));
         let parent_dirs = {
             let gallery = self.gallery_rc.borrow();
             gallery.folders_in_directory(&based_path(&directory))
@@ -299,9 +298,6 @@ impl Repository {
             let gallery = self.gallery_rc.borrow();
             gallery.pictures_in_directory(&based_path(&directory))
         };
-        dbg!(&parent_dirs);
-        dbg!(pictures.len());
-
         let mut gallery = self.gallery_rc.borrow_mut();
         gallery.clear();
         for (parent_dir, count) in parent_dirs.iter() {
@@ -314,7 +310,6 @@ impl Repository {
             let mut entry_path = PathBuf::from(&based_directory);
             entry_path.push(parent_dir);
             let entry = entry_path.as_os_str().to_str().unwrap();
-            println!("adding entry: {}", &entry);
             let picture = Picture::new_with_image_data(&entry, &image_data);
             gallery.add_picture(&picture);
         }
