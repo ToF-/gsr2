@@ -114,7 +114,7 @@ pub fn collect_picture_data(picture: &Picture) -> IOResult<Picture> {
                     cover: None,
                     score: 0,
                     category_name: None,
-                    folder: false,
+                    folder: None,
                 }
             } else {
                 return Err(std::io::Error::other(format!(

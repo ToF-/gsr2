@@ -1,4 +1,3 @@
-use std::path::Path;
 use crate::cli::command::Command;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::Configuration;
@@ -40,6 +39,7 @@ use std::io::BufWriter;
 use std::io::Error as IOError;
 use std::io::Result as IOResult;
 use std::io::Write;
+use std::path::Path;
 use std::path::PathBuf;
 
 #[derive(Debug, Clone)]
@@ -300,11 +300,12 @@ impl Repository {
         };
         let mut gallery = self.gallery_rc.borrow_mut();
         gallery.clear();
+        gallery.set_structured();
         for (parent_dir, count) in parent_dirs.iter() {
             let mut image_data = ImageData::new();
             image_data.cover = None;
             image_data.label = file_name_from(&parent_dir);
-            image_data.folder = true;
+            image_data.folder = Some(*count);
             image_data.cover = None;
             let based_directory = based_path(&directory);
             let mut entry_path = PathBuf::from(&based_directory);

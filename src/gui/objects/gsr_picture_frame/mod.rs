@@ -1,3 +1,4 @@
+use crate::model::thumbnail::transparent_folder_picture;
 use crate::gui::objects::gsr_application::GsrApplication;
 use crate::gui::objects::gsr_application_window::picture_opacity;
 use crate::gui::view::gtk_picture_from_file_path;
@@ -104,7 +105,7 @@ impl GsrPictureFrame {
         if let Some(picture) = picture_opt {
             let picture_file_path = picture.file_path();
             let gtk_picture = if picture.is_folder() {
-                folder_picture()
+                transparent_folder_picture()
             } else if let Ok(file_path) =
                 check_path_exists(&PathBuf::from(picture_file_path.clone()))
             {

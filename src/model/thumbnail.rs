@@ -56,6 +56,11 @@ pub fn make_folder_picture() -> gtk::Picture {
     gtk::Picture::for_paintable(&texture)
 }
 
+pub fn make_transparent_folder_picture() -> gtk::Picture {
+    let texture = gtk::gdk::Texture::from_resource("/org/example/gsr/images/transparent_folder.png");
+    gtk::Picture::for_paintable(&texture)
+}
+
 pub fn no_thumbnail_picture() -> gtk::Picture {
     let cell = OnceCell::new();
     let picture = cell.get_or_init(|| make_no_thumbnail_picture());
@@ -67,6 +72,13 @@ pub fn folder_picture() -> gtk::Picture {
     let picture = cell.get_or_init(|| make_folder_picture());
     picture.clone()
 }
+
+pub fn transparent_folder_picture() -> gtk::Picture {
+    let cell = OnceCell::new();
+    let picture = cell.get_or_init(|| make_transparent_folder_picture());
+    picture.clone()
+}
+
 pub fn thumbnail_size_display(size: ThumbnailSize) -> String {
     match size {
         ThumbnailSize::Icon => String::from("Icon"),

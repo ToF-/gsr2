@@ -70,11 +70,20 @@ impl Picture {
 
     pub fn is_folder(&self) -> bool {
         if let Some(image_data) = &self.image_data {
-            image_data.folder
+            image_data.folder.is_some()
         } else {
             false
         }
     }
+
+    pub fn folder(&self) -> Option<usize> {
+        if let Some(image_data) = &self.image_data {
+            image_data.folder
+        } else {
+            None
+        }
+    }
+
     pub fn modified_time_display(&self) -> String {
         if let Some(image_data) = &self.image_data {
             datetime_from_time_stamp(image_data.modified_time())

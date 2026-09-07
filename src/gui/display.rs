@@ -94,13 +94,15 @@ pub fn picture_label_display(
     label: &str,
     rank: Rank,
     cover: Cover,
+    folder: Option<usize>,
     with_focus: Option<char>,
     size_opt: Option<FileSize>,
 ) -> String {
     format!(
-        "{}{} {} {} {}",
+        "{}{}{} {} {} {}",
         small_picture_display(size_opt),
         cover_display(cover),
+        folder_display(folder),
         with_focus.unwrap_or(' '),
         label,
         rank,
@@ -122,6 +124,12 @@ fn cover_display(cover: Cover) -> String {
     }
 }
 
+fn folder_display(folder: Option<usize>) -> String {
+    match folder {
+        None => "".to_string(),
+        Some(count) => format!("{}", count),
+    }
+}
 fn label_display(view_state: &ViewState) -> String {
     let label = view_state.gallery.current_picture().label();
     if !label.is_empty() {

@@ -1,3 +1,4 @@
+use crate::model::thumbnail::transparent_folder_picture;
 use crate::env::default_values::FOCUS_BLINKING_DURATION;
 use crate::env::default_values::FOCUS_SYMBOL_1;
 use crate::env::default_values::FOCUS_SYMBOL_2;
@@ -183,6 +184,7 @@ impl GsrPictureCellBox {
             &picture.label(),
             picture.rank(),
             picture.cover(),
+            picture.folder(),
             None, // focus will be inserted / flipped / removed directly on the GtkLabel
             picture.file_size(),
         );
@@ -201,7 +203,7 @@ impl GsrPictureCellBox {
     pub fn attach_picture(&self, picture: &Picture, picture_index: usize) {
         self.remove_children();
         if picture.is_folder() {
-            self.append(&folder_picture());
+            self.append(&transparent_folder_picture());
         } else {
             let picture_file_path =
                 picture.view_file_path(self.imp().pictures_per_row.get() as usize);
@@ -212,6 +214,7 @@ impl GsrPictureCellBox {
             &picture.label(),
             picture.rank(),
             picture.cover(),
+            picture.folder(),
             None, // focus will be inserted / flipped / removed directly on the GtkLabel
             picture.file_size(),
         ));

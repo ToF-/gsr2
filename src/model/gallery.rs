@@ -1,5 +1,3 @@
-use std::path::Component::Normal;
-use std::path::Path;
 use crate::file::paths::based_path;
 use crate::file::paths::grand_parent_directory;
 use crate::file::paths::parent_directory;
@@ -17,6 +15,8 @@ use std::cmp::Reverse;
 use std::collections::BTreeMap;
 use std::collections::HashMap;
 use std::io::Result;
+use std::path::Component::Normal;
+use std::path::Path;
 
 #[derive(Debug, Clone)]
 pub struct Gallery {
@@ -26,6 +26,7 @@ pub struct Gallery {
     current_picture_index: usize,
     sub_folder: Option<String>,
     pub finder: Finder,
+    structured: bool,
 }
 
 impl Default for Gallery {
@@ -37,6 +38,7 @@ impl Default for Gallery {
             current_picture_index: 0,
             sub_folder: None,
             finder: Finder::new(Vec::new()),
+            structured: false,
         }
     }
 }
@@ -55,6 +57,7 @@ impl Gallery {
             current_picture_index: 0,
             sub_folder: None,
             finder: Finder::new(pictures),
+            structured: false,
         }
     }
 
@@ -68,6 +71,14 @@ impl Gallery {
 
     pub fn clear(&mut self) {
         self.pictures.clear()
+    }
+
+    pub fn structured(&self) -> bool {
+        self.structured
+    }
+
+    pub fn set_structured(&mut self) {
+        self.structured = true
     }
 
     pub fn has_covers(&self) -> bool {
@@ -112,10 +123,9 @@ impl Gallery {
                 if let Ok(sub_path) = folder_path.strip_prefix(directory_path) {
                     if !sub_path.as_os_str().is_empty() {
                         if let Some(part) = sub_path.components().next() {
-                        *folders.entry(part
-                            .as_os_str()
-                            .to_string_lossy()
-                            .into_owned()).or_insert(0) += *count;
+                            *folders
+                                .entry(part.as_os_str().to_string_lossy().into_owned())
+                                .or_insert(0) += *count;
                         }
                     }
                 }
@@ -232,13 +242,21 @@ impl Gallery {
             Order::Name => self.pictures.sort_by_key(|picture| {
                 (!picture.selected(&selection_criteria), picture.file_path())
             }),
-
-            Order::Size => self.pictures.sort_by_key(|picture| {
-                (
-                    !picture.selected(&selection_criteria),
-                    picture.image_data().map(|image_data| image_data.size()),
-                )
-            }),
+            Order::Size => {
+                if self.structured {
+                    self.pictures.sort_by_key(|picture| match picture.folder() {
+                        Some(count) => usize::MAX - count,
+                        None => usize::MAX,
+                    })
+                } else {
+                    self.pictures.sort_by_key(|picture| {
+                        (
+                            !picture.selected(&selection_criteria),
+                            picture.image_data().map(|image_data| image_data.size()),
+                        )
+                    })
+                }
+            }
             Order::Score => self.pictures.sort_by_key(|picture| {
                 (
                     picture

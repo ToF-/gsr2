@@ -3,5 +3,6 @@
     <gresource prefix="/org/example/gsr">
         <file>images/no_image_available.png</file>
         <file>images/folder.png</file>
+        <file>images/transparent_folder.png</file>
     </gresource>
 </gresources>

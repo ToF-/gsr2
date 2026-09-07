@@ -591,7 +591,7 @@ impl Database {
         let cover = row.get(7).expect("can't get column Cover");
         let score = row.get(8).expect("can't get column Score");
         let category_name: Option<String> = row.get(9).expect("can't get column Category");
-        let folder = false;
+        let folder = None;
         let mut picture = Picture::new_with_label(&file_path_as_retrieved, &label);
         let mut palette = Palette::new(vec![], color_count);
         palette.set_sample_from_array(sample_array);

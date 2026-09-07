@@ -298,7 +298,6 @@ impl GsrApplicationWindow {
         predicate_opt: Option<Predicate>,
     ) -> IOResult<usize> {
         {
-            dbg!(&sub_directory);
             let shared_command_line_arguments =
                 self.gsr_application().shared_command_line_arguments();
             let initial_command_line_arguments = shared_command_line_arguments.borrow().clone();
@@ -1322,9 +1321,6 @@ impl GsrApplicationWindow {
                     view_state.gallery.current_picture_index(),
                 )
             });
-        self.with_view_state_mut(|view_state| {
-            view_state.set_current_location(sub_directory, None, position, covers_only);
-        });
         let parent_directory_opt = if current_picture.cover().is_some() {
             parent_directory(&current_picture.file_path())
         } else if current_picture.is_folder() {
@@ -1332,20 +1328,17 @@ impl GsrApplicationWindow {
         } else {
             None
         };
-        dbg!(&parent_directory_opt);
         if !covers_only && !current_picture.is_folder() {
             self.present_information(
                 "can only go to a directory when in covers view or from a folder",
             );
             return;
         };
-        println!("current location: {:?}", self.with_view_state(|view_state| { view_state.current_location.clone()}));
         if parent_directory_opt.clone().is_some() {
             self.with_view_state_mut(|view_state| {
                 view_state.set_new_location(parent_directory_opt, None, 0, false)
             });
             let location = self.with_view_state(|view_state| view_state.current_location.clone());
-            println!("going to {:?}", &location);
             match self.retrieve_from_repository(
                 Some(location.covers_only()),
                 location.sub_directory(),
@@ -1396,7 +1389,6 @@ impl GsrApplicationWindow {
             view_state.set_old_location();
             view_state.current_location.clone()
         });
-        println!("going back to {:?}", &location);
         self.retrieve_from_repository(
             Some(location.covers_only()),
             location.sub_directory(),
