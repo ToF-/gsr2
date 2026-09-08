@@ -8,6 +8,7 @@ pub struct FolderMap {
 }
 
 impl FolderMap {
+
     pub fn from_file_paths(file_paths: &Vec<String>) -> Self {
         let mut map: BTreeMap<String, Folder> = BTreeMap::new();
         let mut id = 0;
@@ -27,7 +28,7 @@ impl FolderMap {
                         ));
                 }
             }
-        }
+        };
         let mut trace = 0;
         while map.len() > trace {
             let folders: Vec<Folder> = map.values().cloned().collect();
@@ -46,12 +47,21 @@ impl FolderMap {
                                     },
                                     &parent_path,
                                     0,
-                                    folder.picture_count(),
+                                    0,
                                 ),
                             );
                         }
                     }
                 }
+            }
+        };
+        let folders: Vec<Folder> = map.values().cloned().filter(|folder| { folder.picture_count() > 0 } ).collect();
+        for stem in folders.iter() {
+            let mut file_path = stem.file_path();
+            let count = stem.picture_count();
+            while let Some(mut folder) = map.get_mut(&file_path) {
+                folder.increase_count(count);
+                file_path = parent_directory(&file_path).unwrap_or_default();
             }
         }
         Self { map: map }
