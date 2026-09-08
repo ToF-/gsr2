@@ -8,6 +8,7 @@ pub mod cover;
 pub mod criterion;
 pub mod find;
 pub mod finder;
+pub mod folder;
 pub mod gallery;
 pub mod image_data;
 pub mod label;
