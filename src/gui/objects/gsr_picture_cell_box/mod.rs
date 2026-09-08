@@ -1,4 +1,3 @@
-use crate::model::thumbnail::transparent_folder_picture;
 use crate::env::default_values::FOCUS_BLINKING_DURATION;
 use crate::env::default_values::FOCUS_SYMBOL_1;
 use crate::env::default_values::FOCUS_SYMBOL_2;
@@ -19,6 +18,7 @@ use crate::model::palette::Palette;
 use crate::model::picture::Picture;
 use crate::model::thumbnail::folder_picture;
 use crate::model::thumbnail::no_thumbnail_picture;
+use crate::model::thumbnail::transparent_folder_picture;
 use glib::Variant;
 use glib::clone;
 use gtk::Box as GtkBox;

@@ -1,9 +1,9 @@
-use crate::model::thumbnail::transparent_folder_picture;
 use crate::gui::objects::gsr_application::GsrApplication;
 use crate::gui::objects::gsr_application_window::picture_opacity;
 use crate::gui::view::gtk_picture_from_file_path;
 use crate::gui::view_mode::ViewMode;
 use crate::model::thumbnail::folder_picture;
+use crate::model::thumbnail::transparent_folder_picture;
 use gtk::Picture as GtkPicture;
 
 use crate::env::default_values::FRAME_PALETTE_AREA_HEIGHT;

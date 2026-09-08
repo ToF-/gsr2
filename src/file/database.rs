@@ -95,17 +95,36 @@ impl Database {
             ColorCount INTEGER,                        \n\
             Cover BOOLEAN,
             Score INTEGER NOT NULL DEFAULT 0,          \n\
-            Category TEXT);", // ""
+            Category TEXT,                             \n\
+            FolderId INTEGER NOT NULL DEFAULT 0);", // ""
                 params![],
             )
             .and_then(|_| {
-                connection.execute(
-                    "CREATE TABLE IF NOT EXISTS Tag (    \n\
+                connection
+                    .execute(
+                        "CREATE TABLE IF NOT EXISTS Tag (    \n\
                     FilePath TEXT NOT NULL,              \n\
                     Label TEXT NOT NULL,                \n\
                     PRIMARY KEY (FilePath, Label));", // ""
-                    params![],
-                )
+                        params![],
+                    )
+                    .and_then(|_| {
+                        connection
+                            .execute(
+                                "CREATE TABLE IF NOT EXISTS Folder (   \n\
+                        FolderId INTEGER NOT NULL PRIMARY KEY, \n\
+                        FilePath TEXT UNIQUE,                  \n\
+                        ParentId INTEGER NOT NULL,             \n\
+                        PictureCount INTEGER NOT NULL);",
+                                params![],
+                            )
+                            .and_then(|_| {
+                                connection.execute(
+                            "CREATE INDEX IF NOT EXISTS idx_picture_folder ON Picture(FolderId);",
+                            params![],
+                        )
+                            })
+                    })
             })
     }
 
@@ -251,6 +270,17 @@ impl Database {
         }
     }
 
+    pub fn rusqlite_delete_folders(&self) -> SqlResult<usize> {
+        let connection = self.connection_rc.borrow();
+        connection.execute("DELETE FROM Folder;", params![])
+    }
+
+    pub fn delete_folders(&self) -> IOResult<usize> {
+        match self.rusqlite_delete_folders() {
+            Ok(n) => Ok(n),
+            Err(err) => Err(std::io::Error::other(err)),
+        }
+    }
     pub fn rusqlite_check_picture_with_file_path(&self, file_path: &str) -> SqlResult<String> {
         let connection = self.connection_rc.borrow();
         connection.query_one(
@@ -355,8 +385,7 @@ impl Database {
                 let mut map: HashMap<String, HashSet<String>> = HashMap::new();
                 statement.query([]).map(|mut rows| {
                     while let Some(row) = rows.next().unwrap() {
-                        let file_path: String =
-                            row.get(0).expect("can't access to column FilePath");
+                        let file_path: String = row.get(0).expect("can't access to column FilePath");
                         let file_path_as_retrieved = file_path_as_retrieved(&file_path);
                         let label: String = row.get(1).expect("can't access to column Label");
                         if let Some(tags) = map.get_mut(&file_path_as_retrieved) {
@@ -610,7 +639,7 @@ impl Database {
         picture.set_image_data(image_data);
         Ok(picture)
     }
-    fn rusqulite_retrieve_all_file_paths(&self) -> SqlResult<HashMap<String, (usize, usize)>> {
+    fn rusqulite_retrieve_all_parent_file_paths(&self) -> SqlResult<HashMap<String, (usize, usize)>> {
         let sql_query = "SELECT FilePath, Cover FROM Picture;";
         let connection = self.connection_rc.borrow();
         connection.prepare(sql_query).and_then(|mut statement| {
@@ -636,7 +665,7 @@ impl Database {
     }
 
     pub fn retrieve_all_parent_dirs(&self) -> IOResult<HashMap<String, (usize, usize)>> {
-        match self.rusqulite_retrieve_all_file_paths() {
+        match self.rusqulite_retrieve_all_parent_file_paths() {
             Ok(result) => Ok(result),
             Err(e) => Err(IOError::other(e)),
         }

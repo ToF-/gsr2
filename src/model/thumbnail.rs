@@ -57,7 +57,8 @@ pub fn make_folder_picture() -> gtk::Picture {
 }
 
 pub fn make_transparent_folder_picture() -> gtk::Picture {
-    let texture = gtk::gdk::Texture::from_resource("/org/example/gsr/images/transparent_folder.png");
+    let texture =
+        gtk::gdk::Texture::from_resource("/org/example/gsr/images/transparent_folder.png");
     gtk::Picture::for_paintable(&texture)
 }
 
