@@ -21,3 +21,4 @@ CREATE TABLE IF NOT EXISTS Folder (
     FilePath TEXT UNIQUE,
     FolderId INTEGER NOT NULL);
 
+CREATE INDEX idx_picture_folder ON Picture(FolderId);
