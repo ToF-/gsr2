@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS Tag (
 CREATE TABLE IF NOT EXISTS Folder (
     FolderId INTEGER NOT NULL PRIMARY KEY,
     FilePath TEXT UNIQUE,
-    FolderId INTEGER NOT NULL);
+    ParentId INTEGER NOT NULL,
+    PictureCount INTEGER NOT NULL);
 
-CREATE INDEX idx_picture_folder ON Picture(FolderId);
+CREATE INDEX IF NOT EXISTS idx_picture_folder ON Picture(FolderId);

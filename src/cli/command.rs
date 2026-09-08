@@ -52,6 +52,8 @@ pub enum Command {
     /// <SOURCE_DIR> <TARGET_DIR> move picture files and data from source to target directory
     Move { source: String, target: String },
 
+    /// Reorganize folder/pictures link in the database
+    Renum,
     /// <N> create missing thumbnails for grid with N x N pictures per page (N in range [2..10]) and
     /// then quit
     Thumbnails {
@@ -175,6 +177,10 @@ pub fn execute_command(
                 Ok(Status::Ready(0))
             }
         },
+        Some(Command::Renum) => {
+            println!("Renum…");
+            Ok(Status::Ready(0))
+        }
         None => match repository.gallery_rc().try_borrow_mut() {
             Ok(gallery) => {
                 if gallery.is_empty() {
