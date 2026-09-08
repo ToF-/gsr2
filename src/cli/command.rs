@@ -184,9 +184,9 @@ pub fn execute_command(
                     println!("{:?}", folders);
                     Ok(Status::Exit)
                 }
-                Err(e) => Err(e)
+                Err(e) => Err(e),
             }
-        },
+        }
         None => match repository.gallery_rc().try_borrow_mut() {
             Ok(gallery) => {
                 if gallery.is_empty() {

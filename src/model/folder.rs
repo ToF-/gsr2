@@ -42,6 +42,9 @@ impl Folder {
         self.picture_count
     }
 
+    pub fn increase_count(&mut self, n: usize) {
+        self.picture_count += n;
+    }
     pub fn set_parent_id(&mut self, id: usize) {
         self.parent_id = id
     }

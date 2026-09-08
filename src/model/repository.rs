@@ -190,7 +190,7 @@ impl Repository {
             Ok(map) => {
                 if let Ok(mut folders) = self.folders_rc.try_borrow_mut() {
                     let mut file_paths: Vec<(String, usize)> = Vec::new();
-                    for (file_path, ((nb_pictures, nb_covers))) in &map {
+                    for (file_path, (nb_pictures, nb_covers)) in &map {
                         file_paths.push((file_path.to_string(), *nb_pictures));
                     }
                     file_paths.sort();
@@ -198,12 +198,11 @@ impl Repository {
                         let file_path = value.0;
                         let count = value.1;
                         folders.insert(file_path.clone(), Folder::new(index, &file_path, 0, count));
-                    };
+                    }
                     let file_paths: Vec<String> = folders.keys().cloned().collect();
                     for file_path in file_paths.iter() {
                         let index_opt = if let Some(parent) = parent_directory(file_path) {
-                            folders.get(&parent)
-                                .map(|folder| folder.id()) 
+                            folders.get(&parent).map(|folder| folder.id())
                         } else {
                             Some(0)
                         };

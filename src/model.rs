@@ -9,6 +9,7 @@ pub mod criterion;
 pub mod find;
 pub mod finder;
 pub mod folder;
+pub mod folder_map;
 pub mod gallery;
 pub mod image_data;
 pub mod label;
