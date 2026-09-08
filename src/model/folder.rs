@@ -16,3 +16,33 @@ impl Default for Folder {
         }
     }
 }
+impl Folder {
+    pub fn new(id: usize, file_path: &str, parent_id: usize, picture_count: usize) -> Self {
+        Self {
+            id: id,
+            file_path: file_path.to_string(),
+            parent_id: parent_id,
+            picture_count: picture_count,
+        }
+    }
+
+    pub fn id(&self) -> usize {
+        self.id
+    }
+
+    pub fn file_path(&self) -> String {
+        self.file_path.clone()
+    }
+
+    pub fn parent_id(&self) -> usize {
+        self.parent_id
+    }
+
+    pub fn picture_count(&self) -> usize {
+        self.picture_count
+    }
+
+    pub fn set_parent_id(&mut self, id: usize) {
+        self.parent_id = id
+    }
+}

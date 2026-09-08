@@ -385,7 +385,8 @@ impl Database {
                 let mut map: HashMap<String, HashSet<String>> = HashMap::new();
                 statement.query([]).map(|mut rows| {
                     while let Some(row) = rows.next().unwrap() {
-                        let file_path: String = row.get(0).expect("can't access to column FilePath");
+                        let file_path: String =
+                            row.get(0).expect("can't access to column FilePath");
                         let file_path_as_retrieved = file_path_as_retrieved(&file_path);
                         let label: String = row.get(1).expect("can't access to column Label");
                         if let Some(tags) = map.get_mut(&file_path_as_retrieved) {
@@ -639,7 +640,9 @@ impl Database {
         picture.set_image_data(image_data);
         Ok(picture)
     }
-    fn rusqulite_retrieve_all_parent_file_paths(&self) -> SqlResult<HashMap<String, (usize, usize)>> {
+    fn rusqulite_retrieve_all_parent_file_paths(
+        &self,
+    ) -> SqlResult<HashMap<String, (usize, usize)>> {
         let sql_query = "SELECT FilePath, Cover FROM Picture;";
         let connection = self.connection_rc.borrow();
         connection.prepare(sql_query).and_then(|mut statement| {

@@ -21,6 +21,7 @@ use crate::file::picture_file::get_picture_file_path;
 use crate::model::catalog::Catalog;
 use crate::model::catalog::load_catalog;
 use crate::model::categories::Categories;
+use crate::model::folder::Folder;
 use crate::model::gallery::Gallery;
 use crate::model::image_data::ImageData;
 use crate::model::order::Order;
@@ -50,6 +51,7 @@ pub struct Repository {
     categories_rc: RefCell<Tags>,
     gallery_rc: RefCell<Gallery>,
     parent_dirs_rc: RefCell<HashMap<String, (usize, usize)>>,
+    folders_rc: RefCell<HashMap<String, Folder>>,
     temp_dir: String,
     catalog_filepath: String,
     catalog_rc: RefCell<Catalog>,
@@ -65,6 +67,7 @@ impl Repository {
             categories_rc: RefCell::new(crate::model::tags::empty_tags()),
             gallery_rc: RefCell::new(Gallery::new()),
             parent_dirs_rc: RefCell::new(HashMap::new()),
+            folders_rc: RefCell::new(HashMap::new()),
             temp_dir: configuration.temp_dir,
             catalog_filepath: configuration.catalog_filepath.clone(),
             catalog_rc: RefCell::new(load_catalog(&configuration.catalog_filepath)),
@@ -182,6 +185,43 @@ impl Repository {
         }
     }
 
+    pub fn retrieve_all_folders(&self) -> IOResult<HashMap<String, Folder>> {
+        match self.database.retrieve_all_parent_dirs() {
+            Ok(map) => {
+                if let Ok(mut folders) = self.folders_rc.try_borrow_mut() {
+                    let mut file_paths: Vec<(String, usize)> = Vec::new();
+                    for (file_path, ((nb_pictures, nb_covers))) in &map {
+                        file_paths.push((file_path.to_string(), *nb_pictures));
+                    }
+                    file_paths.sort();
+                    for (index, value) in file_paths.into_iter().enumerate() {
+                        let file_path = value.0;
+                        let count = value.1;
+                        folders.insert(file_path.clone(), Folder::new(index, &file_path, 0, count));
+                    };
+                    let file_paths: Vec<String> = folders.keys().cloned().collect();
+                    for file_path in file_paths.iter() {
+                        let index_opt = if let Some(parent) = parent_directory(file_path) {
+                            folders.get(&parent)
+                                .map(|folder| folder.id()) 
+                        } else {
+                            Some(0)
+                        };
+                        if let Some(index) = index_opt {
+                            if let Some(folder) = folders.get_mut(file_path) {
+                                folder.set_parent_id(index)
+                            }
+                        }
+                    }
+                } else {
+                    panic!("can't mutably borrow folders_rc");
+                };
+                let folders = self.folders_rc.borrow();
+                Ok(folders.clone())
+            }
+            Err(e) => Err(e),
+        }
+    }
     pub fn len(&self) -> usize {
         if let Ok(gallery) = self.gallery_rc.try_borrow() {
             gallery.len()

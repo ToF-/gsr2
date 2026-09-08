@@ -179,8 +179,14 @@ pub fn execute_command(
         },
         Some(Command::Renum) => {
             println!("Renum…");
-            Ok(Status::Ready(0))
-        }
+            match repository.retrieve_all_folders() {
+                Ok(folders) => {
+                    println!("{:?}", folders);
+                    Ok(Status::Exit)
+                }
+                Err(e) => Err(e)
+            }
+        },
         None => match repository.gallery_rc().try_borrow_mut() {
             Ok(gallery) => {
                 if gallery.is_empty() {
