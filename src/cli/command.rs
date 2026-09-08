@@ -179,11 +179,8 @@ pub fn execute_command(
         },
         Some(Command::Renum) => {
             println!("Renum…");
-            match repository.retrieve_all_folders() {
-                Ok(folders) => {
-                    println!("{:?}", folders);
-                    Ok(Status::Exit)
-                }
+            match repository.update_all_folders() {
+                Ok(_) => Ok(Status::Exit),
                 Err(e) => Err(e),
             }
         }

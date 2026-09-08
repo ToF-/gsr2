@@ -11,6 +11,7 @@ pub mod finder;
 pub mod folder;
 pub mod folder_map;
 pub mod gallery;
+pub mod id_dispenser;
 pub mod image_data;
 pub mod label;
 pub mod order;

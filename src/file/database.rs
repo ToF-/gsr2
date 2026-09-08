@@ -7,6 +7,7 @@ use crate::model::catalog::Catalog;
 use crate::model::categories::Categories;
 use crate::model::color_range::ColorRange;
 use crate::model::cover::{bool_to_cover, cover_to_bool};
+use crate::model::folder_map::FolderMap;
 use crate::model::image_data::ImageData;
 use crate::model::palette::Palette;
 use crate::model::picture::Picture;
@@ -379,7 +380,7 @@ impl Database {
                 "SELECT                \n\
                 FilePath,              \n\
                 Label                  \n\
-                FROM Tag;",
+                FROM Tag;", // ""
             )
             .and_then(|mut statement| {
                 let mut map: HashMap<String, HashSet<String>> = HashMap::new();
@@ -402,6 +403,65 @@ impl Database {
             })
     }
 
+    fn rusqlite_retrieve_all_picture_file_paths(&self) -> SqlResult<Vec<String>> {
+        let mut result: Vec<String> = Vec::new();
+        let sql_query = "SELECT FilePath FROM Picture;";
+        let connection = self.connection_rc.borrow();
+        connection.prepare(&sql_query).and_then(|mut statement| {
+            statement.query([]).map(|mut rows| {
+                while let Some(row) = rows.next().unwrap() {
+                    let file_path: String = row.get(0).expect("can't get column FilePath");
+                    result.push(file_path)
+                }
+            })
+        });
+        Ok(result)
+    }
+
+    pub fn retrieve_all_picture_file_paths(&self) -> IOResult<Vec<String>> {
+        match self.rusqlite_retrieve_all_picture_file_paths() {
+            Ok(file_paths) => Ok(file_paths),
+            Err(err) => Err(std::io::Error::other(err)),
+        }
+    }
+
+    fn rusqlite_delete_all_folders(&self) -> SqlResult<usize> {
+        let connection = self.connection_rc.borrow();
+        connection.execute("DELETE FROM Folder;", [])
+    }
+    fn rusqlite_update_all_folders(&self, folder_map: FolderMap) -> SqlResult<usize> {
+        self.rusqlite_delete_all_folders()
+            .and_then(|_| {
+                let mut count = 0;
+                let mut connection = self.connection_rc.borrow_mut();
+                let transaction = connection.transaction()
+                    .expect("can't open transaction");
+                {
+                    let mut statement = transaction.prepare(
+                        "INSERT INTO Folder(FolderId, FilePath, ParentId, PictureCount) VALUES (?1, ?2, ?3, ?4)")
+                        .expect("can't prepare statement");
+                    for (file_path, folder) in folder_map.map() {
+                        statement.execute(params![
+                            folder.id(),
+                            folder.file_path(),
+                            folder.parent_id(),
+                            folder.picture_count()])
+                            .expect("can't execute statement");
+                        count += 1;
+                    };
+                }
+                    transaction.commit()
+                        .expect("can't commit transaction");
+                    Ok(count)
+            })
+    }
+
+    pub fn update_all_folders(&self, folder_map: FolderMap) -> IOResult<usize> {
+        match self.rusqlite_update_all_folders(folder_map) {
+            Ok(n) => Ok(n),
+            Err(err) => Err(std::io::Error::other(err)),
+        }
+    }
     fn rusqlite_retrieve_picture_with_file_path(&self, file_path: &str) -> SqlResult<Picture> {
         let connection = self.connection_rc.borrow();
         connection

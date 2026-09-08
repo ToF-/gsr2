@@ -22,6 +22,7 @@ use crate::model::catalog::Catalog;
 use crate::model::catalog::load_catalog;
 use crate::model::categories::Categories;
 use crate::model::folder::Folder;
+use crate::model::folder_map::FolderMap;
 use crate::model::gallery::Gallery;
 use crate::model::image_data::ImageData;
 use crate::model::order::Order;
@@ -185,39 +186,22 @@ impl Repository {
         }
     }
 
-    pub fn retrieve_all_folders(&self) -> IOResult<HashMap<String, Folder>> {
-        match self.database.retrieve_all_parent_dirs() {
-            Ok(map) => {
-                if let Ok(mut folders) = self.folders_rc.try_borrow_mut() {
-                    let mut file_paths: Vec<(String, usize)> = Vec::new();
-                    for (file_path, (nb_pictures, nb_covers)) in &map {
-                        file_paths.push((file_path.to_string(), *nb_pictures));
-                    }
-                    file_paths.sort();
-                    for (index, value) in file_paths.into_iter().enumerate() {
-                        let file_path = value.0;
-                        let count = value.1;
-                        folders.insert(file_path.clone(), Folder::new(index, &file_path, 0, count));
-                    }
-                    let file_paths: Vec<String> = folders.keys().cloned().collect();
-                    for file_path in file_paths.iter() {
-                        let index_opt = if let Some(parent) = parent_directory(file_path) {
-                            folders.get(&parent).map(|folder| folder.id())
-                        } else {
-                            Some(0)
-                        };
-                        if let Some(index) = index_opt {
-                            if let Some(folder) = folders.get_mut(file_path) {
-                                folder.set_parent_id(index)
-                            }
-                        }
-                    }
-                } else {
-                    panic!("can't mutably borrow folders_rc");
-                };
-                let folders = self.folders_rc.borrow();
-                Ok(folders.clone())
+    pub fn retrieve_all_folders(&self) -> IOResult<FolderMap> {
+        match self.database.retrieve_all_picture_file_paths() {
+            Ok(file_paths) => {
+                let mut folder_map = FolderMap::from_file_paths(&file_paths);
+                Ok(folder_map)
             }
+            Err(e) => Err(IOError::other(e)),
+        }
+    }
+
+    pub fn update_all_folders(&self) -> IOResult<usize> {
+        match self.retrieve_all_folders() {
+            Ok(folder_map) => match self.database.update_all_folders(folder_map) {
+                Ok(n) => Ok(n),
+                Err(e) => Err(e),
+            },
             Err(e) => Err(e),
         }
     }

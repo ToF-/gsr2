@@ -1,5 +1,6 @@
 use crate::file::paths::parent_directory;
 use crate::model::folder::Folder;
+use crate::model::id_dispenser::IdDispenser;
 use std::collections::BTreeMap;
 #[derive(Debug, Clone)]
 
@@ -8,63 +9,35 @@ pub struct FolderMap {
 }
 
 impl FolderMap {
-
     pub fn from_file_paths(file_paths: &Vec<String>) -> Self {
         let mut map: BTreeMap<String, Folder> = BTreeMap::new();
-        let mut id = 0;
-        for file_path in file_paths {
-            if let Some(parent_path) = parent_directory(&file_path) {
-                if !parent_path.is_empty() {
-                    map.entry(parent_path.clone())
-                        .and_modify(|folder| folder.increase_count(1))
-                        .or_insert(Folder::new(
-                            {
-                                id += 1;
-                                id
-                            },
-                            &parent_path,
-                            0,
-                            1,
-                        ));
-                }
-            }
-        };
-        let mut trace = 0;
-        while map.len() > trace {
-            let folders: Vec<Folder> = map.values().cloned().collect();
-            trace = map.len();
-            for folder in folders.iter() {
-                let mut count = 0;
-                if let Some(parent_path) = parent_directory(&folder.file_path()) {
-                    if !parent_path.is_empty() {
-                        if map.get(&parent_path.clone()).is_none() {
-                            map.insert(
-                                parent_path.clone(),
-                                Folder::new(
-                                    {
-                                        id += 1;
-                                        id
-                                    },
-                                    &parent_path,
-                                    0,
-                                    0,
-                                ),
-                            );
-                        }
-                    }
-                }
-            }
-        };
-        let folders: Vec<Folder> = map.values().cloned().filter(|folder| { folder.picture_count() > 0 } ).collect();
-        for stem in folders.iter() {
-            let mut file_path = stem.file_path();
-            let count = stem.picture_count();
-            while let Some(mut folder) = map.get_mut(&file_path) {
-                folder.increase_count(count);
-                file_path = parent_directory(&file_path).unwrap_or_default();
+        let mut id_dispenser = IdDispenser::new(1);
+        for file_path in file_paths.iter() {
+            let mut current_directory = file_path.clone();
+            while let Some(directory) = parent_directory(&current_directory)
+                && !directory.is_empty()
+            {
+                map.entry(directory.clone())
+                    .and_modify(|folder| folder.increase_count(1))
+                    .or_insert(Folder::new(id_dispenser.next(), &directory, 0, 1));
+                current_directory = directory;
             }
         }
-        Self { map: map }
+        let id_map: BTreeMap<String, usize> = map
+            .iter()
+            .map(|(file_path, folder)| (file_path.clone(), folder.id()))
+            .collect();
+
+        for (file_path, folder) in map.iter_mut() {
+            if let Some(directory) = parent_directory(&file_path)
+                && !directory.is_empty()
+            {
+                if let Some(id) = id_map.get(&directory) {
+                    folder.set_parent_id(*id);
+                }
+            }
+        }
+        Self { map: map.clone() }
     }
 
     pub fn len(&self) -> usize {
@@ -117,6 +90,24 @@ mod tests {
                 .map()
                 .get("%/abc/def")
                 .map(|folder| folder.picture_count())
+        );
+        assert_eq!(
+            Some(4),
+            folders
+                .map()
+                .get("%/gus")
+                .map(|folder| folder.picture_count())
+        );
+        assert_eq!(
+            Some(20),
+            folders.map().get("%/abc").map(|folder| folder.id())
+        );
+        assert_eq!(
+            Some(20),
+            folders
+                .map()
+                .get("%/abc/def")
+                .map(|folder| folder.parent_id())
         );
     }
 }
