@@ -52,7 +52,7 @@ pub struct Repository {
     categories_rc: RefCell<Tags>,
     gallery_rc: RefCell<Gallery>,
     parent_dirs_rc: RefCell<HashMap<String, (usize, usize)>>,
-    folders_rc: RefCell<HashMap<String, Folder>>,
+    folder_map_rc: RefCell<FolderMap>,
     temp_dir: String,
     catalog_filepath: String,
     catalog_rc: RefCell<Catalog>,
@@ -68,7 +68,7 @@ impl Repository {
             categories_rc: RefCell::new(crate::model::tags::empty_tags()),
             gallery_rc: RefCell::new(Gallery::new()),
             parent_dirs_rc: RefCell::new(HashMap::new()),
-            folders_rc: RefCell::new(HashMap::new()),
+            folder_map_rc: RefCell::new(FolderMap::default()),
             temp_dir: configuration.temp_dir,
             catalog_filepath: configuration.catalog_filepath.clone(),
             catalog_rc: RefCell::new(load_catalog(&configuration.catalog_filepath)),
@@ -91,6 +91,19 @@ impl Repository {
             Ok(mut categories) => match self.database.retrieve_all_categories() {
                 Ok(names) => {
                     *categories = Tags::from(names);
+                    Ok(())
+                }
+                Err(e) => Err(e),
+            },
+            Err(e) => Err(IOError::other(format!("{}", e))),
+        }
+    }
+
+    pub fn retrieve_all_folders(&self) -> IOResult<()> {
+        match self.folder_map_rc.try_borrow_mut() {
+            Ok(mut folder_map) => match self.database.retrieve_all_folders() {
+                Ok(map) => {
+                    *folder_map = map;
                     Ok(())
                 }
                 Err(e) => Err(e),
@@ -186,7 +199,7 @@ impl Repository {
         }
     }
 
-    pub fn retrieve_all_folders(&self) -> IOResult<FolderMap> {
+    pub fn retrieve_all_picture_file_paths(&self) -> IOResult<FolderMap> {
         match self.database.retrieve_all_picture_file_paths() {
             Ok(file_paths) => {
                 let mut folder_map = FolderMap::from_file_paths(&file_paths);
@@ -197,7 +210,7 @@ impl Repository {
     }
 
     pub fn update_all_folders(&self) -> IOResult<usize> {
-        match self.retrieve_all_folders() {
+        match self.retrieve_all_picture_file_paths() {
             Ok(folder_map) => match self.database.update_all_folders(folder_map) {
                 Ok(n) => Ok(n),
                 Err(e) => Err(e),

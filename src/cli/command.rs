@@ -53,7 +53,8 @@ pub enum Command {
     Move { source: String, target: String },
 
     /// Reorganize folder/pictures link in the database
-    Renum,
+    UpdateFolders,
+
     /// <N> create missing thumbnails for grid with N x N pictures per page (N in range [2..10]) and
     /// then quit
     Thumbnails {
@@ -177,7 +178,7 @@ pub fn execute_command(
                 Ok(Status::Ready(0))
             }
         },
-        Some(Command::Renum) => {
+        Some(Command::UpdateFolders) => {
             println!("Renum…");
             match repository.update_all_folders() {
                 Ok(_) => Ok(Status::Exit),

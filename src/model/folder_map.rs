@@ -8,6 +8,13 @@ pub struct FolderMap {
     map: BTreeMap<String, Folder>,
 }
 
+impl Default for FolderMap {
+    fn default() -> Self {
+        Self {
+            map: BTreeMap::new(),
+        }
+    }
+}
 impl FolderMap {
     pub fn from_file_paths(file_paths: &Vec<String>) -> Self {
         let mut map: BTreeMap<String, Folder> = BTreeMap::new();
@@ -38,6 +45,19 @@ impl FolderMap {
             }
         }
         Self { map: map.clone() }
+    }
+
+    pub fn insert(
+        &mut self,
+        folder_id: usize,
+        file_path: &str,
+        parent_id: usize,
+        picture_count: usize,
+    ) {
+        self.map.insert(
+            file_path.to_string(),
+            Folder::new(folder_id, file_path, parent_id, picture_count),
+        );
     }
 
     pub fn len(&self) -> usize {

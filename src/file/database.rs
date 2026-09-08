@@ -424,6 +424,40 @@ impl Database {
             Err(err) => Err(std::io::Error::other(err)),
         }
     }
+    // "
+    pub fn rusqlite_retrieve_all_folders(&self) -> SqlResult<FolderMap> {
+        let connection = self.connection_rc.borrow();
+        connection
+            .prepare(
+                "SELECT                    \n\
+            FolderId                   \n\
+            FilePath                   \n\
+            ParentId                   \n\
+            PictureCount               \n\
+            FROM Folder;",
+            )
+            .and_then(|mut statement| {
+                let mut folder_map: FolderMap = FolderMap::default();
+                statement.query([]).map(|mut rows| {
+                    while let Some(row) = rows.next().unwrap() {
+                        let folder_id: usize = row.get(0).expect("can't get column FolderId");
+                        let file_path: String = row.get(1).expect("can't get column FilePath");
+                        let parent_id: usize = row.get(2).expect("can't get column ParentId");
+                        let picture_count: usize =
+                            row.get(3).expect("can't get column PictureCount");
+                        folder_map.insert(folder_id, &file_path, parent_id, picture_count);
+                    }
+                });
+                Ok(folder_map)
+            })
+    }
+
+    pub fn retrieve_all_folders(&self) -> IOResult<FolderMap> {
+        match self.rusqlite_retrieve_all_folders() {
+            Ok(folder_map) => Ok(folder_map),
+            Err(err) => Err(std::io::Error::other(err)),
+        }
+    }
 
     fn rusqlite_delete_all_folders(&self) -> SqlResult<usize> {
         let connection = self.connection_rc.borrow();
