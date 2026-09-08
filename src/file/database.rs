@@ -430,9 +430,9 @@ impl Database {
         connection
             .prepare(
                 "SELECT                    \n\
-            FolderId                   \n\
-            FilePath                   \n\
-            ParentId                   \n\
+            FolderId,                   \n\
+            FilePath,                  \n\
+            ParentId,                   \n\
             PictureCount               \n\
             FROM Folder;",
             )

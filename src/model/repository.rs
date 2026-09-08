@@ -322,14 +322,17 @@ impl Repository {
     }
 
     pub fn create_folder_entries(&self) {
+        println!("creating folder entries…");
         let directory: String = match &self.command_line_arguments.directory {
             Some(dir) => dir.to_string(),
-            None => "@".to_string(),
+            None => "%".to_string(),
         };
-        let parent_dirs = {
-            let gallery = self.gallery_rc.borrow();
-            gallery.folders_in_directory(&based_path(&directory))
+        match self.retrieve_all_folders() {
+            Ok(_) => {},
+            Err(e) => eprintln!("{}", e),
         };
+
+        dbg!(self.gallery_rc.borrow().len());
         let pictures = {
             let gallery = self.gallery_rc.borrow();
             gallery.pictures_in_directory(&based_path(&directory))
@@ -337,22 +340,25 @@ impl Repository {
         let mut gallery = self.gallery_rc.borrow_mut();
         gallery.clear();
         gallery.set_structured();
-        for (parent_dir, count) in parent_dirs.iter() {
+        let folder_map = self.folder_map_rc.borrow();
+        let map = folder_map.map();
+        let binding = folder_map.map();
+        let folder = binding.get(&directory).expect("can't find directory in folders");
+        let folder_id = folder.id();
+        for folder in map.values().filter(|folder| folder.parent_id() == folder_id) {
             let mut image_data = ImageData::new();
             image_data.cover = None;
-            image_data.label = file_name_from(&parent_dir);
-            image_data.folder = Some(*count);
+            image_data.label = file_name_from(&folder.file_path());
+            image_data.folder = Some(folder.picture_count());
             image_data.cover = None;
-            let based_directory = based_path(&directory);
-            let mut entry_path = PathBuf::from(&based_directory);
-            entry_path.push(parent_dir);
-            let entry = entry_path.as_os_str().to_str().unwrap();
-            let picture = Picture::new_with_image_data(&entry, &image_data);
+            let based_file_path = based_path(&folder.file_path());
+            let picture = Picture::new_with_image_data(&based_file_path, &image_data);
             gallery.add_picture(&picture);
         }
         for picture in pictures.iter() {
             gallery.add_picture(&picture)
         }
+        println!("{}",gallery.len());
     }
 
     pub fn initialize_for_args(
