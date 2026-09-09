@@ -70,6 +70,9 @@ impl ViewState {
         self.gallery.set_current_picture_index(position);
     }
 
+    pub fn set_current_location_position(&mut self, position: usize) {
+        self.current_location.set_position(position)
+    }
     pub fn current_location(&self) -> Location {
         self.current_location.clone()
     }

@@ -179,7 +179,7 @@ pub fn execute_command(
             }
         },
         Some(Command::UpdateFolders) => {
-            println!("Renum…");
+            println!("updating…");
             match repository.update_all_folders() {
                 Ok(_) => Ok(Status::Exit),
                 Err(e) => Err(e),

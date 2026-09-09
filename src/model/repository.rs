@@ -301,6 +301,7 @@ impl Repository {
             panic!("can't borrow")
         }
     }
+
     pub fn retrieve_pictures(&self, predicate_opt: Option<Predicate>) -> IOResult<usize> {
         match &self.command_line_arguments.command {
             Some(Command::File { file_path }) => match self.picture_from_file_path(file_path) {
@@ -323,20 +324,24 @@ impl Repository {
                 },
                 Err(e) => Err(e),
             },
-            _ => self.retrieve_all_labels().and_then(|()| {
-                self.retrieve_all_parent_dirs().and_then(|()| {
-                    let result = self
-                        .retrieve_all_pictures(&self.command_line_arguments.clone(), predicate_opt);
-                    if self.command_line_arguments.structured {
-                        self.create_folder_entries();
-                    }
-                    result
-                })
-            }),
+            _ => {
+                if self.command_line_arguments.structured {
+                    self.create_folder_entries()
+                } else {
+                    self.retrieve_all_labels().and_then(|()| {
+                        self.retrieve_all_parent_dirs().and_then(|()| {
+                            self.retrieve_all_pictures(
+                                &self.command_line_arguments.clone(),
+                                predicate_opt,
+                            )
+                        })
+                    })
+                }
+            }
         }
     }
 
-    pub fn create_folder_entries(&self) {
+    pub fn create_folder_entries(&self) -> IOResult<usize> {
         println!("creating folder entries…");
         let directory: String = match &self.command_line_arguments.directory {
             Some(dir) => dir.to_string(),
@@ -344,7 +349,7 @@ impl Repository {
         };
         match self.retrieve_all_folders() {
             Ok(_) => {}
-            Err(e) => eprintln!("{}", e),
+            Err(e) => return Err(e),
         };
 
         let binding = self.folder_map_rc.borrow().map();
@@ -354,8 +359,6 @@ impl Repository {
                 Ok(pictures) => pictures,
                 Err(e) => Vec::new(),
             };
-        dbg!(&directory);
-        dbg!(&pictures);
         let mut gallery = self.gallery_rc.borrow_mut();
         gallery.clear();
         gallery.set_structured();
@@ -383,7 +386,7 @@ impl Repository {
             let picture = Picture::new_with_image_data(&based_file_path, &image_data);
             gallery.add_picture(&picture);
         }
-        println!("{}", gallery.len());
+        Ok(gallery.len())
     }
 
     pub fn initialize_for_args(

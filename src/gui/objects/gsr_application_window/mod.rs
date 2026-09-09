@@ -1321,7 +1321,7 @@ impl GsrApplicationWindow {
                     view_state.gallery.current_picture_index(),
                 )
             });
-        let parent_directory_opt = if current_picture.cover().is_some() {
+        let directory_opt = if current_picture.cover().is_some() {
             parent_directory(&current_picture.file_path())
         } else if current_picture.is_folder() {
             Some(current_picture.file_path())
@@ -1334,9 +1334,10 @@ impl GsrApplicationWindow {
             );
             return;
         };
-        if parent_directory_opt.clone().is_some() {
+        if directory_opt.clone().is_some() {
             self.with_view_state_mut(|view_state| {
-                view_state.set_new_location(parent_directory_opt, None, 0, false)
+                view_state.set_current_location_position(view_state.gallery.current_picture_index());
+                view_state.set_new_location(directory_opt, None, 0, false)
             });
             let location = self.with_view_state(|view_state| view_state.current_location.clone());
             match self.retrieve_from_repository(
