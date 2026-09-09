@@ -212,7 +212,22 @@ impl Repository {
     pub fn update_all_folders(&self) -> IOResult<usize> {
         match self.retrieve_all_picture_file_paths() {
             Ok(folder_map) => match self.database.update_all_folders(folder_map) {
-                Ok(n) => Ok(n),
+                Ok(n) => {
+                    self.retrieve_all_folders();
+                    let folder_map = self.folder_map_rc.borrow();
+                    for folder in folder_map.map().values() {
+                        let directory = folder.file_path();
+                        let folder_id = folder.id();
+                        match self
+                            .database
+                            .update_picture_folder_id(&directory, folder_id)
+                        {
+                            Ok(_) => {}
+                            Err(e) => return Err(e),
+                        }
+                    }
+                    Ok(n)
+                }
                 Err(e) => Err(e),
             },
             Err(e) => Err(e),
@@ -328,24 +343,37 @@ impl Repository {
             None => "%".to_string(),
         };
         match self.retrieve_all_folders() {
-            Ok(_) => {},
+            Ok(_) => {}
             Err(e) => eprintln!("{}", e),
         };
 
-        dbg!(self.gallery_rc.borrow().len());
-        let pictures = {
-            let gallery = self.gallery_rc.borrow();
-            gallery.pictures_in_directory(&based_path(&directory))
-        };
+        let binding = self.folder_map_rc.borrow().map();
+        let folder = binding.get(&directory).unwrap();
+        let pictures: Vec<Picture> =
+            match self.database.retrieve_pictures_for_folder_id(folder.id()) {
+                Ok(pictures) => pictures,
+                Err(e) => Vec::new(),
+            };
+        dbg!(&directory);
+        dbg!(&pictures);
         let mut gallery = self.gallery_rc.borrow_mut();
         gallery.clear();
         gallery.set_structured();
+        for picture in pictures.iter() {
+            gallery.add_picture(&picture)
+        }
+
         let folder_map = self.folder_map_rc.borrow();
         let map = folder_map.map();
         let binding = folder_map.map();
-        let folder = binding.get(&directory).expect("can't find directory in folders");
+        let folder = binding
+            .get(&directory)
+            .expect("can't find directory in folders");
         let folder_id = folder.id();
-        for folder in map.values().filter(|folder| folder.parent_id() == folder_id) {
+        for folder in map
+            .values()
+            .filter(|folder| folder.parent_id() == folder_id)
+        {
             let mut image_data = ImageData::new();
             image_data.cover = None;
             image_data.label = file_name_from(&folder.file_path());
@@ -355,10 +383,7 @@ impl Repository {
             let picture = Picture::new_with_image_data(&based_file_path, &image_data);
             gallery.add_picture(&picture);
         }
-        for picture in pictures.iter() {
-            gallery.add_picture(&picture)
-        }
-        println!("{}",gallery.len());
+        println!("{}", gallery.len());
     }
 
     pub fn initialize_for_args(

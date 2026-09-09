@@ -403,6 +403,101 @@ impl Database {
             })
     }
 
+    const SELECT_COLUMNS_FROM_PICTURE_FOR_FOLDERID: &str = "SELECT  FilePath,  Label,  FileSize,  ModifiedTime, Rank,  Sample,  ColorCount,  Cover,  Score,  Category  FROM Picture WHERE  FolderId = ?1;";
+
+    fn rusqlite_retrieve_pictures_for_folder_id(
+        &self,
+        folder_id: usize,
+    ) -> SqlResult<Vec<Picture>> {
+        let connection = self.connection_rc.borrow();
+        connection
+            .prepare(Self::SELECT_COLUMNS_FROM_PICTURE_FOR_FOLDERID)
+            .and_then(|mut statement| {
+                let mut map: ImageDataMap = HashMap::new();
+                statement.query(params![folder_id]).and_then(|mut rows| {
+                    while let Some(row) = rows.next().unwrap() {
+                        match Self::rusqlite_row_to_picture(row) {
+                            Ok(picture) => {
+                                let _ = map.insert(
+                                    file_path_as_retrieved(&picture.file_path()),
+                                    picture.image_data().unwrap(),
+                                );
+                            }
+                            Err(err) => {
+                                eprintln!("{}", err);
+                                return Err(err);
+                            }
+                        }
+                    }
+                    let mut pictures: Vec<Picture> = Vec::new();
+                    for (file_path, image_data) in map {
+                        let picture = Picture::new_with_image_data(&file_path, &image_data);
+                        pictures.push(picture);
+                    }
+                    Ok(pictures)
+                })
+            })
+    }
+    const SELECT_COLUMNS_FROM_PICTURE_FOR_DIRECTORY: &str = "SELECT  FilePath,  Label,  FileSize,  ModifiedTime, Rank,  Sample,  ColorCount,  Cover,  Score,  Category  FROM Picture WHERE  FilePath GLOB ?1 || '/*' AND FilePath NOT GLOB ?1 || '/*/*';";
+
+    fn rusqlite_retrieve_pictures_for_directory(&self, directory: &str) -> SqlResult<Vec<Picture>> {
+        let connection = self.connection_rc.borrow();
+        connection
+            .prepare(Self::SELECT_COLUMNS_FROM_PICTURE_FOR_DIRECTORY)
+            .and_then(|mut statement| {
+                let mut map: ImageDataMap = HashMap::new();
+                statement
+                    .query(params![file_path_as_stored(directory)])
+                    .and_then(|mut rows| {
+                        while let Some(row) = rows.next().unwrap() {
+                            match Self::rusqlite_row_to_picture(row) {
+                                Ok(picture) => {
+                                    let _ = map.insert(
+                                        file_path_as_retrieved(&picture.file_path()),
+                                        picture.image_data().unwrap(),
+                                    );
+                                }
+                                Err(err) => {
+                                    eprintln!("{}", err);
+                                    return Err(err);
+                                }
+                            }
+                        }
+                        let mut pictures: Vec<Picture> = Vec::new();
+                        for (file_path, image_data) in map {
+                            let picture = Picture::new_with_image_data(&file_path, &image_data);
+                            pictures.push(picture);
+                        }
+                        Ok(pictures)
+                    })
+            })
+    }
+
+    fn rusqlite_update_picture_folder_id(
+        &self,
+        directory: &str,
+        folder_id: usize,
+    ) -> SqlResult<usize> {
+        let connection = self.connection_rc.borrow();
+        connection.execute("UPDATE Picture SET FolderId = ?2 WHERE FilePath GLOB ?1 || '/*' AND FilePath NOT GLOB ?1 || '/*/*';",
+            params![directory, folder_id])
+    }
+
+    pub fn update_picture_folder_id(&self, directory: &str, folder_id: usize) -> IOResult<usize> {
+        dbg!(&directory, folder_id);
+        match self.rusqlite_update_picture_folder_id(directory, folder_id) {
+            Ok(n) => Ok(n),
+            Err(err) => Err(std::io::Error::other(err)),
+        }
+    }
+
+    pub fn retrieve_pictures_for_directory(&self, directory: &str) -> IOResult<Vec<Picture>> {
+        match self.rusqlite_retrieve_pictures_for_directory(directory) {
+            Ok(pictures) => Ok(pictures),
+            Err(err) => Err(std::io::Error::other(err)),
+        }
+    }
+
     fn rusqlite_retrieve_all_picture_file_paths(&self) -> SqlResult<Vec<String>> {
         let mut result: Vec<String> = Vec::new();
         let sql_query = "SELECT FilePath FROM Picture;";
@@ -416,6 +511,13 @@ impl Database {
             })
         });
         Ok(result)
+    }
+
+    pub fn retrieve_pictures_for_folder_id(&self, folder_id: usize) -> IOResult<Vec<Picture>> {
+        match self.rusqlite_retrieve_pictures_for_folder_id(folder_id) {
+            Ok(pictures) => Ok(pictures),
+            Err(err) => Err(std::io::Error::other(err)),
+        }
     }
 
     pub fn retrieve_all_picture_file_paths(&self) -> IOResult<Vec<String>> {
