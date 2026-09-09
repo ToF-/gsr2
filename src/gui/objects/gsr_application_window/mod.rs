@@ -1150,18 +1150,22 @@ impl GsrApplicationWindow {
     fn action_delete_selected_picture(&self, response: &str) {
         self.dismiss();
         if response == "yes" {
-            let indices = self.selected_indices();
-            self.with_repository(|repository| {
-                for position in indices {
-                    match repository.delete_picture_at_index(position) {
-                        Ok(_) => {}
-                        Err(err) => {
-                            println!("{}", err);
+            self.with_view_state(|view_state| {
+                let indices = self.selected_indices();
+                self.with_repository(|repository| {
+                    for position in indices {
+                        let picture = view_state.gallery.picture(position);
+                        match repository.delete_picture(&picture) {
+                            Ok(_) => {}
+                            Err(err) => {
+                                println!("{}", err);
+                            }
                         }
                     }
-                }
+                });
             });
-            self.refresh_view();
+            self.deselect_pictures();
+            self.retrieve_current_location()
         }
     }
     fn action_move_selected_pictures(&self, target_directory: &str) {
@@ -1424,6 +1428,33 @@ impl GsrApplicationWindow {
         }
     }
 
+    fn retrieve_current_location(&self) {
+        let location = self.with_view_state_mut(|view_state| {
+            view_state.current_location.clone()
+        });
+        self.retrieve_from_repository(
+            Some(location.covers_only()),
+            location.sub_directory(),
+            location.predicate(),
+        );
+        self.with_view_state_mut(|view_state| {
+            view_state.settings.set_covers_only(location.covers_only());
+            if view_state.navigator.can_move(&Direction::Index {
+                value: location.position(),
+            }) {
+                view_state.navigator.move_towards(&Direction::Index {
+                    value: location.position(),
+                })
+            } else {
+                view_state.navigator.move_towards(&Direction::First)
+            }
+            view_state
+                .gallery
+                .set_current_picture_index(view_state.navigator.position());
+        });
+        self.refresh_view();
+    }
+
     fn back_to_previous_location(&self) {
         let location = self.with_view_state_mut(|view_state| {
             view_state.set_old_location();
@@ -1564,6 +1595,7 @@ impl GsrApplicationWindow {
         self.with_view_state_mut(|view_state| {
             let gallery = &mut view_state.gallery;
             gallery.set_current_picture_index(navigator.position());
+            view_state.set_current_location_position(navigator.position());
         });
         navigator
     }

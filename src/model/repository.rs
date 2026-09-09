@@ -584,26 +584,31 @@ impl Repository {
         }
     }
 
+    pub fn delete_picture(&self, picture: &Picture) -> IOResult<()> {
+        let file_path = picture.file_path();
+        if self.command_line_arguments.on_database() {
+            dbg!();
+            self.database
+                .delete_picture_with_file_path(&file_path)
+                .and_then(|_| match delete_picture_files(&file_path) {
+                    Ok(_) => {
+                        set_configuration_updated_flag(false);
+                        Ok(())
+                    }
+                    Err(err) => Err(err),
+                })
+        } else {
+            match delete_picture_files(&file_path) {
+                Ok(_) => Ok(()),
+                Err(err) => Err(err),
+            }
+        }
+    }
+
     pub fn delete_picture_at_index(&self, index: usize) -> IOResult<()> {
         if let Ok(gallery) = self.gallery_rc.try_borrow() {
             let picture = gallery.pictures()[index].clone();
-            let file_path = picture.file_path();
-            if self.command_line_arguments.on_database() {
-                self.database
-                    .delete_picture_with_file_path(&file_path)
-                    .and_then(|_| match delete_picture_files(&file_path) {
-                        Ok(_) => {
-                            set_configuration_updated_flag(false);
-                            Ok(())
-                        }
-                        Err(err) => Err(err),
-                    })
-            } else {
-                match delete_picture_files(&file_path) {
-                    Ok(_) => Ok(()),
-                    Err(err) => Err(err),
-                }
-            }
+            self.delete_picture(&picture)
         } else {
             panic!("can't borrow mut");
         }
@@ -773,16 +778,6 @@ impl Repository {
             }
         }
     }
-    pub fn move_picture_at_index(&self, index: usize, target_dir: &str) -> IOResult<usize> {
-        match self.gallery_rc().try_borrow() {
-            Ok(gallery) => {
-                let picture = gallery.picture(index);
-                self.move_picture_to_target(&picture, target_dir)
-            }
-            Err(e) => Err(IOError::other(e)),
-        }
-    }
-
     pub fn copy_picture_at_index_to_temp_dir(&self, index: usize) -> IOResult<()> {
         match self.gallery_rc().try_borrow() {
             Ok(gallery) => {
