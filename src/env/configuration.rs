@@ -21,6 +21,7 @@ pub struct Configuration {
     pub current_order: Option<Order>,
     pub base_dir: String,
     pub catalog_filepath: String,
+    pub updated: bool,
 }
 
 pub static CONFIGURATION: OnceLock<Configuration> = OnceLock::new();
@@ -71,6 +72,12 @@ fn get_configuration() -> Result<Configuration> {
     }
 }
 
+pub fn set_configuration_updated_flag(on: bool) {
+    if let Ok(mut configuration) = Configuration::from_env() {
+        configuration.updated = on;
+        let _ = configuration.save();
+    }
+}
 #[cfg(test)]
 
 pub mod tests {

@@ -48,6 +48,10 @@ fn run_application(config: &Configuration, clargs: &CommandLineArguments) -> Res
             Err(e) => panic!("can't initialize repository: {}", e),
         };
         let result = execute_command(clargs.clone(), repository.clone(), config.clone());
+        let config = Configuration::from_env().unwrap(); 
+        if !config.updated {
+            println!("folder structure requires updating via gsr --udpate-folders")
+        };
         if let Ok(Status::Ready(initial_position)) = result {
             {
                 let mut gallery = repository.gallery_rc().borrow_mut();

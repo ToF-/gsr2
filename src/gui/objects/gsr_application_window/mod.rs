@@ -1,3 +1,4 @@
+use crate::env::configuration::set_configuration_updated_flag;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
@@ -1165,7 +1166,8 @@ impl GsrApplicationWindow {
                     }
                 });
             });
-        }
+        };
+        set_configuration_updated_flag(false);
         self.deselect_pictures();
     }
     fn action_label(&self, label: &str) {
@@ -1336,7 +1338,8 @@ impl GsrApplicationWindow {
         };
         if directory_opt.clone().is_some() {
             self.with_view_state_mut(|view_state| {
-                view_state.set_current_location_position(view_state.gallery.current_picture_index());
+                view_state
+                    .set_current_location_position(view_state.gallery.current_picture_index());
                 view_state.set_new_location(directory_opt, None, 0, false)
             });
             let location = self.with_view_state(|view_state| view_state.current_location.clone());

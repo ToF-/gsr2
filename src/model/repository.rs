@@ -1,6 +1,7 @@
 use crate::cli::command::Command;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::Configuration;
+use crate::env::configuration::set_configuration_updated_flag;
 use crate::file::database::Database;
 use crate::file::database::RetrieveCriteria;
 use crate::file::operation::execute;
@@ -226,6 +227,7 @@ impl Repository {
                             Err(e) => return Err(e),
                         }
                     }
+                    set_configuration_updated_flag(true);
                     Ok(n)
                 }
                 Err(e) => Err(e),
@@ -452,6 +454,7 @@ impl Repository {
                         }
                     }
                     println!("{} pictures added", count);
+                    set_configuration_updated_flag(false);
                     Ok(())
                 }
                 Err(e) => Err(e),
