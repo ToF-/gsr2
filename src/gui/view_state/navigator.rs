@@ -1,6 +1,6 @@
-use std::rc::Rc;
-use std::cell::Cell;
 use crate::gui::direction::Direction;
+use std::cell::Cell;
+use std::rc::Rc;
 
 #[derive(Debug, Clone)]
 pub struct Navigator {
@@ -36,7 +36,6 @@ impl Navigator {
             page_start: 0,
             page_end: 0,
             page_changed: false,
-
         };
         result.update_page_limits();
         result
@@ -49,7 +48,7 @@ impl Navigator {
     pub fn pictures_per_row(&self) -> usize {
         self.pictures_per_row
     }
- 
+
     pub fn position_cell(&self) -> Rc<Cell<usize>> {
         self.position.clone()
     }
@@ -169,8 +168,12 @@ impl Navigator {
             Direction::Last => self.position.set(self.limit - 1),
             Direction::First => self.position.set(0),
             Direction::Index { value } => self.position.set(*value),
-            Direction::Down => self.position.set(self.position.get() + self.pictures_per_row),
-            Direction::Up => self.position.set(self.position.get().saturating_sub(self.pictures_per_row)),
+            Direction::Down => self
+                .position
+                .set(self.position.get() + self.pictures_per_row),
+            Direction::Up => self
+                .position
+                .set(self.position.get().saturating_sub(self.pictures_per_row)),
             Direction::PageStart => self.position.set(self.page_start),
             Direction::PageEnd => self.position.set(self.page_end),
             Direction::PrevPage => {

@@ -1,3 +1,4 @@
+use crate::model::gallery::Gallery;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
@@ -322,10 +323,13 @@ impl GsrApplicationWindow {
                 Ok(n) => {
                     let repository_gallery = repository.gallery_rc().borrow_mut();
                     self.with_view_state_mut(|view_state| {
-                        view_state.gallery = repository_gallery.clone();
                         view_state.navigator = Navigator::new(
                             repository_gallery.len(),
                             view_state.settings.pictures_per_row() as usize,
+                        );
+                        view_state.gallery = Gallery::from_gallery_and_navigator(
+                            repository_gallery.clone(),
+                            &view_state.navigator,
                         );
                     });
                     Ok(n)
@@ -1429,9 +1433,7 @@ impl GsrApplicationWindow {
     }
 
     fn retrieve_current_location(&self) {
-        let location = self.with_view_state_mut(|view_state| {
-            view_state.current_location.clone()
-        });
+        let location = self.with_view_state_mut(|view_state| view_state.current_location.clone());
         self.retrieve_from_repository(
             Some(location.covers_only()),
             location.sub_directory(),

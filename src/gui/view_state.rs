@@ -68,8 +68,12 @@ impl ViewState {
         self.current_location =
             Location::new(sub_directory.clone(), predicate, position, covers_only);
         self.gallery.set_sub_folder(sub_directory);
-        if self.navigator.can_move(&Direction::Index{ value: position}) {
-            self.navigator.move_towards(&Direction::Index{ value: position})
+        if self
+            .navigator
+            .can_move(&Direction::Index { value: position })
+        {
+            self.navigator
+                .move_towards(&Direction::Index { value: position })
         };
     }
 

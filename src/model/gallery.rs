@@ -1,10 +1,8 @@
-use std::rc::Rc;
-use crate::gui::view_state::navigator::Navigator;
-use std::cell::Cell;
 use crate::file::paths::based_path;
 use crate::file::paths::grand_parent_directory;
 use crate::file::paths::parent_directory;
 use crate::file::picture_file::{get_all_picture_file_paths, get_picture_file_path};
+use crate::gui::view_state::navigator::Navigator;
 use crate::model::cover::cover_sort_key;
 use crate::model::finder::Finder;
 use crate::model::label::sort_key;
@@ -13,6 +11,7 @@ use crate::model::picture::Picture;
 use crate::model::selection_criteria::SelectionCriteria;
 use rand::prelude::SliceRandom;
 use rand::rng;
+use std::cell::Cell;
 use std::cmp::Ordering;
 use std::cmp::Reverse;
 use std::collections::BTreeMap;
@@ -20,6 +19,7 @@ use std::collections::HashMap;
 use std::io::Result;
 use std::path::Component::Normal;
 use std::path::Path;
+use std::rc::Rc;
 
 #[derive(Debug, Clone)]
 pub struct Gallery {
@@ -68,7 +68,7 @@ impl Gallery {
         dbg!();
         Self {
             current_picture_index: navigator.position_cell(),
-            .. gallery
+            ..gallery
         }
     }
     pub fn len(&self) -> usize {
