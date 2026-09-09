@@ -20,6 +20,7 @@ pub const FOCUS_SYMBOL_2: char = '⭔'; // '◇';
 pub const FOCUS_BLINKING_DURATION: u64 = 1000;
 pub const INFORMATION_SYMBOL: &str = "ⓘ";
 pub const COVER_SYMBOL: &str = "🔶";
+pub const FOLDER_SYMBOL: &str = "📁";
 pub const ORDER_SYMBOL: &str = "↑";
 pub const THREE_STARS_SYMBOL: &str = "☆☆☆";
 pub const TWO_STARS_SYMBOL: &str = "☆☆";

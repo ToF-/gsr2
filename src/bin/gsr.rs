@@ -48,10 +48,10 @@ fn run_application(config: &Configuration, clargs: &CommandLineArguments) -> Res
             Err(e) => panic!("can't initialize repository: {}", e),
         };
         let result = execute_command(clargs.clone(), repository.clone(), config.clone());
-        let config = Configuration::from_env().unwrap(); 
-        if clargs.structured && ! config.updated {
+        let config = Configuration::from_env().unwrap();
+        if clargs.structured && !config.updated {
             match repository.update_all_folders() {
-                Ok(_) => { },
+                Ok(_) => {}
                 Err(e) => return Err(e),
             }
         };

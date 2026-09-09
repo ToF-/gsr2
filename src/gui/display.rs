@@ -1,6 +1,6 @@
 use crate::env::default_values::{
-    COVER_SYMBOL, EXPAND_ON_SYMBOL, FULL_SIZE_ON_SYMBOL, ORDER_SYMBOL, PICTURE_SIZE_THRESHOLD,
-    SMALL_PICTURE_SYMBOL,
+    COVER_SYMBOL, EXPAND_ON_SYMBOL, FOLDER_SYMBOL, FULL_SIZE_ON_SYMBOL, ORDER_SYMBOL,
+    PICTURE_SIZE_THRESHOLD, SMALL_PICTURE_SYMBOL,
 };
 use crate::file::paths::file_name_from;
 use crate::gui::view_mode::ViewMode;
@@ -100,7 +100,7 @@ pub fn picture_label_display(
 ) -> String {
     format!(
         "{}{}{} {} {} {}",
-        small_picture_display(size_opt),
+        small_picture_display(size_opt, cover, folder),
         cover_display(cover),
         folder_display(folder),
         with_focus.unwrap_or(' '),
@@ -127,7 +127,7 @@ fn cover_display(cover: Cover) -> String {
 fn folder_display(folder: Option<usize>) -> String {
     match folder {
         None => "".to_string(),
-        Some(count) => format!("{}", count),
+        Some(count) => format!("{} {}", FOLDER_SYMBOL, count),
     }
 }
 fn label_display(view_state: &ViewState) -> String {
@@ -178,9 +178,13 @@ fn tag_display(picture: &Picture) -> String {
     }
 }
 
-pub fn small_picture_display(size_opt: Option<FileSize>) -> String {
+pub fn small_picture_display(
+    size_opt: Option<FileSize>,
+    cover: Cover,
+    folder: Option<usize>,
+) -> String {
     (if let Some(size) = size_opt {
-        if size < PICTURE_SIZE_THRESHOLD {
+        if size < PICTURE_SIZE_THRESHOLD && cover.is_none() && folder.is_none() {
             SMALL_PICTURE_SYMBOL
         } else {
             " "
@@ -212,7 +216,11 @@ pub fn title_display(view_state: &ViewState) -> String {
     let page = page_display(view_state, position);
     let sel_count = selected_count_display(view_state);
     let order = order_display(view_state);
-    let small = small_picture_display(picture.image_data().map(|data| data.size()));
+    let small = small_picture_display(
+        picture.image_data().map(|data| data.size()),
+        view_state.gallery.current_picture().cover(),
+        view_state.gallery.current_picture().folder(),
+    );
     let cover = cover_display(picture.cover());
     let name = name_display(view_state, &picture);
     let label = label_display(view_state);

@@ -1,7 +1,7 @@
-use crate::env::configuration::set_configuration_updated_flag;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
+use crate::env::configuration::set_configuration_updated_flag;
 use crate::env::default_values::FRAME_WINDOW_NAME;
 use crate::env::default_values::FULL_OPACITY;
 use crate::env::default_values::GRID_WINDOW_NAME;
@@ -1166,7 +1166,7 @@ impl GsrApplicationWindow {
                     }
                 });
             });
-        };
+        }
         set_configuration_updated_flag(false);
         self.deselect_pictures();
     }
@@ -1340,8 +1340,7 @@ impl GsrApplicationWindow {
             self.with_view_state_mut(|view_state| {
                 view_state
                     .set_current_location_position(view_state.gallery.current_picture_index());
-                view_state
-                    .set_current_location_covers_only(view_state.settings.covers_only());
+                view_state.set_current_location_covers_only(view_state.settings.covers_only());
                 view_state.set_new_location(directory_opt, None, 0, false)
             });
             let location = self.with_view_state(|view_state| view_state.current_location.clone());
