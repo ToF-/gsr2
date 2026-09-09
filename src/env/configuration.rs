@@ -97,6 +97,7 @@ pub mod tests {
             current_pictures_per_row: Some(1),
             base_dir: format!("{}/{}", current_directory(), TEST_DATA_DIR),
             catalog_filepath: "testdata/catalog.sexp".to_string(),
+            updated: true,
         }
     }
 }

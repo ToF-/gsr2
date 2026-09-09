@@ -3,5 +3,6 @@ height = 800
 current_picture = ""
 current_pictures_per_row = 10
 current_order = "Name"
+updated = true
 
 [marked]

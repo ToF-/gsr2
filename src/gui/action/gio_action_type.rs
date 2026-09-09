@@ -51,8 +51,8 @@ impl From<Action> for GioActionType {
             Action::Categorize(_) => {
                 GioActionType::new("categorize", GioActionParameterType::String)
             }
-            Action::ConfirmDeleteFile => {
-                GioActionType::new("confirm-delete-file", GioActionParameterType::None)
+            Action::DeleteSelectedPicture(_) => {
+                GioActionType::new("delete-selected-picture", GioActionParameterType::String)
             }
             Action::MoveSelectedPicture(_) => {
                 GioActionType::new("move-selected-picture", GioActionParameterType::String)

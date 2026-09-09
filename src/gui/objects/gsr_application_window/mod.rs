@@ -17,6 +17,7 @@ use crate::gui::direction::Direction;
 use crate::gui::display::title_display;
 use crate::gui::key_input::entry::add_new_category;
 use crate::gui::key_input::entry::add_tags_entry;
+use crate::gui::key_input::entry::confirm_delete_entry;
 use crate::gui::key_input::entry::find_criteria_entry;
 use crate::gui::key_input::entry::label_change_entry;
 use crate::gui::key_input::entry::remove_tags_entry;
@@ -528,6 +529,7 @@ impl GsrApplicationWindow {
                         Control::ToggleCoverSelection => this.toggle_view_covers(),
                         Control::BackFromDirectory => this.back_to_previous_location(),
                         Control::CancelRange => this.cancel_range(),
+                        Control::DeletePicture => this.enter_delete_picture(),
                         Control::EnterFind => this.pick_find_option(),
                         Control::EnterSelect => this.pick_select_option(),
                         Control::RedoFind => this.action_redo_find(),
@@ -588,6 +590,9 @@ impl GsrApplicationWindow {
             Action::ApplyOrderSetting(order) => self.action_apply_order_setting(order),
             Action::ApplyViewSetting(view_option) => self.action_apply_view_setting(view_option),
             Action::Categorize(ref category) => self.action_categorize(category),
+            Action::DeleteSelectedPicture(ref response) => {
+                self.action_delete_selected_picture(response)
+            }
             Action::Dismiss | Action::Cancel => self.dismiss(),
             Action::EnterAddTag => self.action_enter_add_tag(),
             Action::EnterFind(ref find) => self.action_enter_find(&find),
@@ -1142,6 +1147,23 @@ impl GsrApplicationWindow {
         self.deselect_pictures();
     }
 
+    fn action_delete_selected_picture(&self, response: &str) {
+        self.dismiss();
+        if response == "yes" {
+            let indices = self.selected_indices();
+            self.with_repository(|repository| {
+                for position in indices {
+                    match repository.delete_picture_at_index(position) {
+                        Ok(_) => {}
+                        Err(err) => {
+                            println!("{}", err);
+                        }
+                    }
+                }
+            });
+            self.refresh_view();
+        }
+    }
     fn action_move_selected_pictures(&self, target_directory: &str) {
         self.dismiss();
         let path = PathBuf::from(target_directory);
@@ -1295,6 +1317,19 @@ impl GsrApplicationWindow {
         }
     }
 
+    fn enter_delete_picture(&self) {
+        if !self.with_view_state(|view_state| view_state.selection.has_selected()) {
+            self.present_information("cannot delete: no picture selected");
+            return;
+        };
+        let gsr_entry_window = GsrEntryWindow::new_with(
+            self,
+            &self.gsr_application().shared_main_controller(),
+            confirm_delete_entry(),
+            None,
+        );
+        self.begin_entry(gsr_entry_window);
+    }
     fn enter_move_picture(&self) {
         if !self.with_view_state(|view_state| view_state.selection.has_selected()) {
             self.present_information("cannot move: no picture selected");

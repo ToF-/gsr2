@@ -80,6 +80,10 @@ impl MainController {
             activate.clone(),
         ));
         entries.push(Self::action_entry(
+            GioActionType::from(Action::DeleteSelectedPicture("yes".to_string())),
+            activate.clone(),
+        ));
+        entries.push(Self::action_entry(
             GioActionType::from(Action::Dismiss),
             activate.clone(),
         ));

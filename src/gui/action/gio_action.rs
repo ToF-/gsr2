@@ -53,7 +53,7 @@ impl From<Action> for GioAction {
             Action::Cancel => None,
             Action::CancelSelectionRange => None,
             Action::Categorize(category_opt) => Some(GioActionParameter::from(category_opt)),
-            Action::ConfirmDeleteFile => None,
+            Action::DeleteSelectedPicture(response) => Some(GioActionParameter::from(response)),
             Action::MoveSelectedPicture(file_path) => Some(GioActionParameter::from(file_path)),
             Action::Dismiss => None,
             Action::EnterAddTag => None,
@@ -144,7 +144,9 @@ impl From<GioAction> for Action {
             "cancel" => Action::Cancel,
             "cancel-selection-range" => Action::CancelSelectionRange,
             "categorize" => Action::Categorize(Category::from(gio_action.parameter().unwrap())),
-            "confirm-delete-file" => Action::ConfirmDeleteFile,
+            "delete-selected-picture" => {
+                Action::DeleteSelectedPicture(String::from(gio_action.parameter().unwrap()))
+            }
             "move-selected-picture" => {
                 Action::MoveSelectedPicture(String::from(gio_action.parameter().unwrap()))
             }
@@ -281,7 +283,7 @@ mod tests {
         check_action_to_and_from(Action::ApplyViewSetting(ViewOption::Thumbnails));
         check_action_to_and_from(Action::CancelSelectionRange);
         check_action_to_and_from(Action::Categorize(category_from_string("foo")));
-        check_action_to_and_from(Action::ConfirmDeleteFile);
+        check_action_to_and_from(Action::DeleteSelectedPicture("yes".to_string()));
         check_action_to_and_from(Action::MoveSelectedPicture("foo".to_string()));
         check_action_to_and_from(Action::EnterAddTag);
         check_action_to_and_from(Action::EnterNewCategory);

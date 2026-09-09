@@ -43,18 +43,18 @@ fn run_application(config: &Configuration, clargs: &CommandLineArguments) -> Res
     let result = {
         // TODO check legacy controller new setup routine is was doing useful things...
         let repository = Repository::new(config.clone(), clargs.clone(), false);
-        let _ = &match repository.retrieve_pictures(None) {
-            Ok(_) => {}
-            Err(e) => panic!("can't initialize repository: {}", e),
-        };
-        let result = execute_command(clargs.clone(), repository.clone(), config.clone());
-        let config = Configuration::from_env().unwrap();
         if clargs.structured && !config.updated {
             match repository.update_all_folders() {
                 Ok(_) => {}
                 Err(e) => return Err(e),
             }
         };
+        let _ = &match repository.retrieve_pictures(None) {
+            Ok(_) => {}
+            Err(e) => panic!("can't initialize repository: {}", e),
+        };
+        let result = execute_command(clargs.clone(), repository.clone(), config.clone());
+        let config = Configuration::from_env().unwrap();
         if let Ok(Status::Ready(initial_position)) = result {
             {
                 let mut gallery = repository.gallery_rc().borrow_mut();

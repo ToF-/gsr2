@@ -593,6 +593,7 @@ impl Database {
     }
 
     pub fn update_all_folders(&self, folder_map: FolderMap) -> IOResult<usize> {
+        println!("updating folders…");
         match self.rusqlite_update_all_folders(folder_map) {
             Ok(n) => Ok(n),
             Err(err) => Err(std::io::Error::other(err)),
@@ -925,6 +926,7 @@ pub mod tests {
             current_pictures_per_row: Some(1),
             base_dir: format!("{}/{}", current_directory(), TEST_DATA_DIR),
             catalog_filepath: "".to_string(),
+            updated: false,
         };
         CommandLineArguments::parse_and_check(cmd, &config)
     }

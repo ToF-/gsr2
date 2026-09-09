@@ -126,6 +126,21 @@ pub fn target_directory_entry() -> KeyInput {
     )
 }
 
+pub fn confirm_delete_entry() -> KeyInput {
+    KeyInput::new(
+        "Delete the selected pictures ?",
+        None,
+        KeyInputMode::Entry,
+        |_, ch| matches!(ch, 'y' | 'e' | 's' | 'n' | 'o'),
+        |s, ch| {
+            let mut input = s;
+            input.push(ch);
+            input
+        },
+        |s| Action::DeleteSelectedPicture(s),
+    )
+}
+
 pub fn find_criteria_entry(find_criteria: Find, completion_tags: Tags) -> KeyInput {
     let find = find_criteria.clone();
     KeyInput::new(

@@ -592,7 +592,10 @@ impl Repository {
                 self.database
                     .delete_picture_with_file_path(&file_path)
                     .and_then(|_| match delete_picture_files(&file_path) {
-                        Ok(_) => Ok(()),
+                        Ok(_) => {
+                            set_configuration_updated_flag(false);
+                            Ok(())
+                        }
                         Err(err) => Err(err),
                     })
             } else {
