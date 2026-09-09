@@ -1,3 +1,6 @@
+use std::rc::Rc;
+use crate::gui::view_state::navigator::Navigator;
+use std::cell::Cell;
 use crate::file::paths::based_path;
 use crate::file::paths::grand_parent_directory;
 use crate::file::paths::parent_directory;
@@ -23,7 +26,7 @@ pub struct Gallery {
     pictures: Vec<Picture>,
     order: Order,
     selection_criteria: SelectionCriteria,
-    current_picture_index: usize,
+    current_picture_index: Rc<Cell<usize>>,
     sub_folder: Option<String>,
     pub finder: Finder,
     structured: bool,
@@ -35,7 +38,7 @@ impl Default for Gallery {
             pictures: Vec::new(),
             order: Order::Name,
             selection_criteria: SelectionCriteria::empty(),
-            current_picture_index: 0,
+            current_picture_index: Rc::new(0.into()),
             sub_folder: None,
             finder: Finder::new(Vec::new()),
             structured: false,
@@ -54,13 +57,20 @@ impl Gallery {
             pictures: pictures.clone(),
             order: Order::Name,
             selection_criteria: SelectionCriteria::empty(),
-            current_picture_index: 0,
+            current_picture_index: Rc::new(0.into()),
             sub_folder: None,
             finder: Finder::new(pictures),
             structured: false,
         }
     }
 
+    pub fn from_gallery_and_navigator(gallery: Gallery, navigator: &Navigator) -> Self {
+        dbg!();
+        Self {
+            current_picture_index: navigator.position_cell(),
+            .. gallery
+        }
+    }
     pub fn len(&self) -> usize {
         self.pictures.len()
     }
@@ -79,6 +89,14 @@ impl Gallery {
 
     pub fn set_structured(&mut self) {
         self.structured = true
+    }
+
+    pub fn set_current_picture_index(&mut self, position_cell: Rc<Cell<usize>>) {
+        self.current_picture_index = position_cell
+    }
+
+    pub fn force_current_picture_index(&mut self, position: usize) {
+        self.current_picture_index.set(position);
     }
 
     pub fn has_covers(&self) -> bool {
@@ -173,12 +191,12 @@ impl Gallery {
     }
 
     pub fn current_picture_index(&self) -> usize {
-        self.current_picture_index
+        self.current_picture_index.get()
     }
 
-    pub fn set_current_picture_index(&mut self, index: usize) {
+    pub fn set_current_picture_index_cell(&mut self, index: usize) {
         if index < self.len() {
-            self.current_picture_index = index;
+            self.current_picture_index.set(index)
         }
     }
 
@@ -201,7 +219,6 @@ impl Gallery {
                     }
                 }
                 self.finder = Finder::new(self.pictures.clone());
-                self.set_current_picture_index(0);
                 Ok(self.pictures.len())
             }
             Err(err) => Err(err),
@@ -213,7 +230,6 @@ impl Gallery {
             Ok(path) => match Picture::new_with_file_image_data(&path, "") {
                 Ok(picture) => {
                     self.pictures.push(picture);
-                    self.set_current_picture_index(0);
                     Ok(1)
                 }
                 Err(err) => Err(err),
@@ -325,7 +341,7 @@ impl Gallery {
             .iter()
             .position(|p| p.file_path() == current_picture_file_path)
         {
-            self.set_current_picture_index(index);
+            self.force_current_picture_index(index);
         }
     }
 

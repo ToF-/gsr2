@@ -726,6 +726,8 @@ impl GsrApplicationWindow {
             } else {
                 println!("navigator can't move to: {:?}", &direction);
             };
+            dbg!(view_state.navigator.position());
+            dbg!(view_state.gallery.current_picture_index());
             view_state.navigator.set_page_changed();
         });
         self.refresh_view();
@@ -994,7 +996,6 @@ impl GsrApplicationWindow {
                         view_state
                             .navigator
                             .move_towards(&Direction::Index { value: position });
-                        view_state.gallery.set_current_picture_index(position);
                     }
                 });
                 self.refresh_view();
@@ -1034,7 +1035,6 @@ impl GsrApplicationWindow {
                         view_state
                             .navigator
                             .move_towards(&Direction::Index { value: position });
-                        view_state.gallery.set_current_picture_index(position);
                     };
                 });
                 self.refresh_view();
@@ -1448,9 +1448,6 @@ impl GsrApplicationWindow {
             } else {
                 view_state.navigator.move_towards(&Direction::First)
             }
-            view_state
-                .gallery
-                .set_current_picture_index(view_state.navigator.position());
         });
         self.refresh_view();
     }
@@ -1477,9 +1474,6 @@ impl GsrApplicationWindow {
             } else {
                 view_state.navigator.move_towards(&Direction::First)
             }
-            view_state
-                .gallery
-                .set_current_picture_index(view_state.navigator.position());
         });
         self.refresh_view();
     }
@@ -1593,8 +1587,6 @@ impl GsrApplicationWindow {
             view_state.navigator.clone()
         });
         self.with_view_state_mut(|view_state| {
-            let gallery = &mut view_state.gallery;
-            gallery.set_current_picture_index(navigator.position());
             view_state.set_current_location_position(navigator.position());
         });
         navigator

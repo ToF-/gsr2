@@ -58,7 +58,7 @@ fn run_application(config: &Configuration, clargs: &CommandLineArguments) -> Res
         if let Ok(Status::Ready(initial_position)) = result {
             {
                 let mut gallery = repository.gallery_rc().borrow_mut();
-                gallery.set_current_picture_index(initial_position);
+                gallery.force_current_picture_index(initial_position);
             }
             let gallery = {
                 let gallery = repository.gallery_rc().borrow();

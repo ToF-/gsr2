@@ -1,10 +1,12 @@
+use std::rc::Rc;
+use std::cell::Cell;
 use crate::gui::direction::Direction;
 
 #[derive(Debug, Clone)]
 pub struct Navigator {
     limit: usize,
     pictures_per_row: usize,
-    position: usize,
+    position: Rc<Cell<usize>>,
     old_position: usize,
     page_start: usize,
     page_end: usize,
@@ -16,7 +18,7 @@ impl Default for Navigator {
         Self {
             limit: 0,
             pictures_per_row: 1,
-            position: 0,
+            position: Rc::new(0.into()),
             old_position: 0,
             page_start: 0,
             page_end: 1,
@@ -29,11 +31,12 @@ impl Navigator {
         let mut result = Navigator {
             limit,
             pictures_per_row,
-            position: 0,
+            position: Rc::new(0.into()),
             old_position: 0,
             page_start: 0,
             page_end: 0,
             page_changed: false,
+
         };
         result.update_page_limits();
         result
@@ -46,9 +49,12 @@ impl Navigator {
     pub fn pictures_per_row(&self) -> usize {
         self.pictures_per_row
     }
-
+ 
+    pub fn position_cell(&self) -> Rc<Cell<usize>> {
+        self.position.clone()
+    }
     pub fn position(&self) -> usize {
-        self.position
+        self.position.get()
     }
 
     #[allow(dead_code)]
@@ -88,47 +94,8 @@ impl Navigator {
         }
     }
 
-    /*
-        pub fn set_selection_range_all(&mut self) {
-            let start = 0;
-            let end = self.limit - 1;
-            self.selection_range_start = Some(start);
-            self.selection_range_end = Some(end);
-            self.selection_range_opt = self.range();
-            for index in start..=end {
-                self.select(index)
-            }
-        }
-
-        pub fn set_selection_range_page(&mut self) {
-            let start = self.page_start;
-            let end = self.page_end;
-            self.selection_range_start = Some(start);
-            self.selection_range_end = Some(end);
-            self.selection_range_opt = self.range();
-            for index in start..=end {
-                self.select(index)
-            }
-        }
-        pub fn repeat_range(&mut self) {
-            if let Some((start, end)) = self.selection_range_opt {
-                self.selection_range_start = Some(start);
-                self.selection_range_end = Some(end);
-                self.selected_pictures.clear();
-                for index in start..=end {
-                    self.select(index)
-                }
-            }
-        }
-
-        pub fn cancel_range(&mut self) {
-            self.selected_pictures.clear();
-            self.selection_range_start = None;
-            self.selection_range_end = None
-        }
-    */
     pub fn has_moved(&self) -> bool {
-        self.page_changed || (self.old_position != self.position)
+        self.page_changed || (self.old_position != self.position.get())
     }
 
     pub fn page_changed(&self) -> bool {
@@ -173,11 +140,11 @@ impl Navigator {
         let can_move = match direction {
             Direction::First => true,
             Direction::Last => true,
-            Direction::Left => self.position > 0,
-            Direction::Right => self.position < self.limit - 1,
+            Direction::Left => self.position.get() > 0,
+            Direction::Right => self.position.get() < self.limit - 1,
             Direction::Index { value } => *value < self.limit,
-            Direction::Down => self.position + self.pictures_per_row < self.limit,
-            Direction::Up => self.position >= self.pictures_per_row,
+            Direction::Down => self.position.get() + self.pictures_per_row < self.limit,
+            Direction::Up => self.position.get() >= self.pictures_per_row,
             Direction::PageStart => true,
             Direction::PageEnd => true,
             Direction::PrevPage => self.can_move(&Direction::Index {
@@ -188,24 +155,24 @@ impl Navigator {
             }),
         };
         if !can_move {
-            self.old_position = self.position;
+            self.old_position = self.position.get();
             self.page_changed = false;
         }
         can_move
     }
 
     pub fn move_towards(&mut self, direction: &Direction) {
-        self.old_position = self.position;
+        self.old_position = self.position.get();
         match direction {
-            Direction::Right => self.position += 1,
-            Direction::Left => self.position -= 1,
-            Direction::Last => self.position = self.limit - 1,
-            Direction::First => self.position = 0,
-            Direction::Index { value } => self.position = *value,
-            Direction::Down => self.position += self.pictures_per_row,
-            Direction::Up => self.position = self.position.saturating_sub(self.pictures_per_row),
-            Direction::PageStart => self.position = self.page_start,
-            Direction::PageEnd => self.position = self.page_end,
+            Direction::Right => self.position.set(self.position.get() + 1),
+            Direction::Left => self.position.set(self.position.get() - 1),
+            Direction::Last => self.position.set(self.limit - 1),
+            Direction::First => self.position.set(0),
+            Direction::Index { value } => self.position.set(*value),
+            Direction::Down => self.position.set(self.position.get() + self.pictures_per_row),
+            Direction::Up => self.position.set(self.position.get().saturating_sub(self.pictures_per_row)),
+            Direction::PageStart => self.position.set(self.page_start),
+            Direction::PageEnd => self.position.set(self.page_end),
             Direction::PrevPage => {
                 return self.move_towards(&Direction::Index {
                     value: self.prev_page_start(),
@@ -219,11 +186,10 @@ impl Navigator {
         };
         self.update_page_limits();
     }
-
     pub fn update_page_limits(&mut self) {
         if self.limit > 0 {
             let old_page_start: usize = self.page_start;
-            self.page_start = (self.position / self.page_size()) * self.page_size();
+            self.page_start = (self.position.get() / self.page_size()) * self.page_size();
             self.page_end = (self.page_start + self.page_size() - 1).min(self.limit - 1);
             self.page_changed = old_page_start != self.page_start;
         }

@@ -1,3 +1,4 @@
+use crate::gui::direction::Direction;
 use crate::gui::view_state::location::Location;
 use crate::gui::view_state::navigator::Navigator;
 use crate::gui::view_state::selection::Selection;
@@ -67,7 +68,9 @@ impl ViewState {
         self.current_location =
             Location::new(sub_directory.clone(), predicate, position, covers_only);
         self.gallery.set_sub_folder(sub_directory);
-        self.gallery.set_current_picture_index(position);
+        if self.navigator.can_move(&Direction::Index{ value: position}) {
+            self.navigator.move_towards(&Direction::Index{ value: position})
+        };
     }
 
     pub fn set_current_location_position(&mut self, position: usize) {

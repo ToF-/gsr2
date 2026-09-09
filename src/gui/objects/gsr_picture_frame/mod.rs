@@ -143,7 +143,6 @@ impl GsrPictureFrame {
         let picture_opt = {
             let shared_view_state = self.gsr_application().shared_view_state();
             let mut view_state = shared_view_state.borrow_mut();
-            view_state.gallery.set_current_picture_index(position);
             if view_state.gallery.len() > 0 {
                 Some(view_state.gallery.current_picture())
             } else {
