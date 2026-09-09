@@ -51,4 +51,8 @@ impl Location {
     pub fn set_position(&mut self, position: usize) {
         self.position = position
     }
+
+    pub fn set_covers_only(&mut self, on: bool) {
+        self.covers_only = on
+    }
 }

@@ -49,8 +49,11 @@ fn run_application(config: &Configuration, clargs: &CommandLineArguments) -> Res
         };
         let result = execute_command(clargs.clone(), repository.clone(), config.clone());
         let config = Configuration::from_env().unwrap(); 
-        if !config.updated {
-            println!("folder structure requires updating via gsr --udpate-folders")
+        if clargs.structured && ! config.updated {
+            match repository.update_all_folders() {
+                Ok(_) => { },
+                Err(e) => return Err(e),
+            }
         };
         if let Ok(Status::Ready(initial_position)) = result {
             {

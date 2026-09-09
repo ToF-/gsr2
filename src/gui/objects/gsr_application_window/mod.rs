@@ -1340,6 +1340,8 @@ impl GsrApplicationWindow {
             self.with_view_state_mut(|view_state| {
                 view_state
                     .set_current_location_position(view_state.gallery.current_picture_index());
+                view_state
+                    .set_current_location_covers_only(view_state.settings.covers_only());
                 view_state.set_new_location(directory_opt, None, 0, false)
             });
             let location = self.with_view_state(|view_state| view_state.current_location.clone());
@@ -1393,6 +1395,7 @@ impl GsrApplicationWindow {
             view_state.set_old_location();
             view_state.current_location.clone()
         });
+        dbg!(&location);
         self.retrieve_from_repository(
             Some(location.covers_only()),
             location.sub_directory(),
