@@ -3,7 +3,7 @@ use crate::env::default_values::ENTRY_WINDOW_HEIGHT;
 use crate::env::default_values::ENTRY_WINDOW_WIDTH;
 use crate::gui::key_input::KeyInput;
 use crate::gui::key_input::information::information;
-use crate::gui::main_controller::RcMainController;
+use crate::gui::controller::RcController;
 use crate::gui::objects::gsr_entry_window::GsrApplicationWindow;
 use gtk::Align;
 use gtk::CssProvider;
@@ -42,7 +42,7 @@ impl GsrEntryWindow {
     pub fn initialize(
         &self,
         application_window: &GsrApplicationWindow,
-        main_controller_rc: &RcMainController,
+        controller_rc: &RcController,
         key_input: KeyInput,
         initial_input_opt: Option<&str>,
     ) {
@@ -94,9 +94,9 @@ impl GsrEntryWindow {
         entry_box.append(&entry_text);
         obj.set_child(Some(&entry_box));
 
-        let main_controller = main_controller_rc.borrow();
+        let controller = controller_rc.borrow();
         self.obj()
-            .insert_action_group("main-controller", Some(&main_controller.gio_action_group()));
+            .insert_action_group("main-controller", Some(&controller.gio_action_group()));
     }
 }
 

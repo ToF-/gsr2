@@ -13,15 +13,15 @@ use gtk::glib::clone;
 use std::cell::RefCell;
 
 pub const MAIN_CONTROLLER_GROUP_NAME: &str = "main-controller";
-pub type RcMainController = RefCell<MainController>;
+pub type RcController = RefCell<Controller>;
 
 #[derive(Debug, Clone)]
-pub struct MainController {
+pub struct Controller {
     pub gio_action_group: gtk::gio::SimpleActionGroup,
     pub gsr_application_window: Option<Shared<GsrApplicationWindow>>,
 }
 
-impl Default for MainController {
+impl Default for Controller {
     fn default() -> Self {
         Self {
             gio_action_group: gtk::gio::SimpleActionGroup::new(),
@@ -30,7 +30,7 @@ impl Default for MainController {
     }
 }
 
-impl MainController {
+impl Controller {
     pub fn new() -> Self {
         let obj = Self::default();
         obj.initialize();

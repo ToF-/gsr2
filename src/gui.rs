@@ -1,6 +1,7 @@
 pub mod action;
 pub mod completion_dispenser;
 pub mod control;
+pub mod controller;
 pub mod direction;
 pub mod display;
 pub mod display_information;
@@ -10,7 +11,6 @@ pub mod entry_kind;
 pub mod entry_prompt;
 pub mod event;
 pub mod key_input;
-pub mod main_controller;
 pub mod mode;
 pub mod objects;
 pub mod selector;

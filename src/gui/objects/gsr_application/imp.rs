@@ -2,7 +2,7 @@ use crate::env::configuration::Configuration;
 use crate::gui::direction::Direction;
 use crate::gui::objects::gsr_application::CONFIGURATION;
 use crate::gui::objects::gsr_application::CommandLineArguments;
-use crate::gui::objects::gsr_application::MainController;
+use crate::gui::objects::gsr_application::Controller;
 use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
 use crate::gui::view_state::ViewState;
 use crate::gui::view_state::navigator::Navigator;
@@ -16,7 +16,7 @@ pub struct GsrApplication {
     pub command_line_arguments: Shared<CommandLineArguments>,
     pub configuration: Shared<Configuration>,
     pub repository: Shared<Option<Repository>>,
-    pub main_controller: Shared<MainController>,
+    pub controller: Shared<Controller>,
     pub view_state: Shared<ViewState>,
 }
 

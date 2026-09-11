@@ -3,7 +3,7 @@ use crate::env::default_values::ENTRY_CURSOR_2;
 use crate::gui::action::gio_action::GioAction;
 use crate::gui::key_input::KeyInput;
 use crate::gui::key_input::key_input_rules::KeyInputRules;
-use crate::gui::main_controller::RcMainController;
+use crate::gui::controller::RcController;
 use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
 use glib::Variant;
 use gtk::glib;
@@ -30,14 +30,14 @@ impl GsrEntryWindow {
 
     pub fn new_with(
         application_window: &GsrApplicationWindow,
-        main_controller_rc: &RcMainController,
+        controller_rc: &RcController,
         key_input: KeyInput,
         initial_input_opt: Option<&str>,
     ) -> Self {
         let obj = Self::new();
         obj.imp().initialize(
             application_window,
-            main_controller_rc,
+            controller_rc,
             key_input.clone(),
             initial_input_opt,
         );

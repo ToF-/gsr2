@@ -171,12 +171,12 @@ impl GsrApplicationWindow {
             .shared_command_line_arguments()
             .borrow()
             .clone();
-        let shared_main_controller = self.gsr_application().shared_main_controller();
+        let shared_controller = self.gsr_application().shared_controller();
         {
-            let mut main_controller = shared_main_controller.borrow_mut();
+            let mut controller = shared_controller.borrow_mut();
             let shared_gsr_application_window = Rc::new(RefCell::new(self.clone()));
-            main_controller.set_application_window(shared_gsr_application_window);
-            main_controller.initialize();
+            controller.set_application_window(shared_gsr_application_window);
+            controller.initialize();
         }
 
         self.set_default_width(command_line_arguments.width.unwrap());
@@ -768,7 +768,7 @@ impl GsrApplicationWindow {
         let tags = self.retrieve_all_labels();
         let gsr_entry_window = GsrEntryWindow::new_with(
             self,
-            &self.gsr_application().shared_main_controller(),
+            &self.gsr_application().shared_controller(),
             add_tags_entry(tags),
             None,
         );
@@ -780,7 +780,7 @@ impl GsrApplicationWindow {
         let tags = self.retrieve_all_labels();
         let gsr_entry_window = GsrEntryWindow::new_with(
             self,
-            &self.gsr_application().shared_main_controller(),
+            &self.gsr_application().shared_controller(),
             find_criteria_entry(*find, tags),
             None,
         );
@@ -792,7 +792,7 @@ impl GsrApplicationWindow {
         let tags = self.retrieve_all_labels();
         let gsr_entry_window = GsrEntryWindow::new_with(
             self,
-            &self.gsr_application().shared_main_controller(),
+            &self.gsr_application().shared_controller(),
             select_criteria_entry(*find, tags),
             None,
         );
@@ -803,7 +803,7 @@ impl GsrApplicationWindow {
         self.dismiss();
         let gsr_entry_window = GsrEntryWindow::new_with(
             self,
-            &self.gsr_application().shared_main_controller(),
+            &self.gsr_application().shared_controller(),
             add_new_category(),
             None,
         );
@@ -831,7 +831,7 @@ impl GsrApplicationWindow {
         let catalog = self.with_repository(|repository| repository.catalog());
         let gsr_treelist_window = GsrTreelistWindow::new_with(
             self,
-            &self.gsr_application().shared_main_controller(),
+            &self.gsr_application().shared_controller(),
             &catalog,
             "Select a category",
             current_category.as_deref(),
@@ -844,7 +844,7 @@ impl GsrApplicationWindow {
         let catalog = self.with_repository(|repository| repository.catalog());
         let gsr_treelist_window = GsrTreelistWindow::new_with(
             self,
-            &self.gsr_application().shared_main_controller(),
+            &self.gsr_application().shared_controller(),
             &catalog,
             "List of all categories",
             None,
@@ -857,7 +857,7 @@ impl GsrApplicationWindow {
         let catalog = self.with_repository(|repository| repository.catalog());
         let gsr_treelist_window = GsrTreelistWindow::new_with(
             self,
-            &self.gsr_application().shared_main_controller(),
+            &self.gsr_application().shared_controller(),
             &catalog,
             &format!("Select the category where to add {name}"),
             None,
@@ -877,7 +877,7 @@ impl GsrApplicationWindow {
             Ok(_) => {
                 let gsr_treelist_window = GsrTreelistWindow::new_with(
                     self,
-                    &self.gsr_application().shared_main_controller(),
+                    &self.gsr_application().shared_controller(),
                     &catalog,
                     &format!("Select the category where to rattach {name}"),
                     None,
@@ -893,7 +893,7 @@ impl GsrApplicationWindow {
         let catalog = self.with_repository(|repository| repository.catalog());
         let gsr_treelist_window = GsrTreelistWindow::new_with(
             self,
-            &self.gsr_application().shared_main_controller(),
+            &self.gsr_application().shared_controller(),
             &catalog,
             &format!("Select the category to move"),
             None,
@@ -907,7 +907,7 @@ impl GsrApplicationWindow {
         let catalog = self.with_repository(|repository| repository.catalog());
         let gsr_treelist_window = GsrTreelistWindow::new_with(
             self,
-            &self.gsr_application().shared_main_controller(),
+            &self.gsr_application().shared_controller(),
             &catalog,
             &format!("Select the category to remove"),
             None,
@@ -921,7 +921,7 @@ impl GsrApplicationWindow {
         let tags = self.retrieve_all_labels();
         let gsr_entry_window = GsrEntryWindow::new_with(
             self,
-            &self.gsr_application().shared_main_controller(),
+            &self.gsr_application().shared_controller(),
             remove_tags_entry(tags),
             None,
         );
@@ -943,7 +943,7 @@ impl GsrApplicationWindow {
         let (name, _extension) = name_and_extension(&current_picture_name);
         let gsr_entry_window = GsrEntryWindow::new_with(
             self,
-            &self.gsr_application().shared_main_controller(),
+            &self.gsr_application().shared_controller(),
             rename_entry(),
             Some(&name),
         );
@@ -956,7 +956,7 @@ impl GsrApplicationWindow {
         let label = self.with_view_state(|view_state| view_state.gallery.current_picture().label());
         let gsr_entry_window = GsrEntryWindow::new_with(
             self,
-            &self.gsr_application().shared_main_controller(),
+            &self.gsr_application().shared_controller(),
             label_change_entry(tags),
             Some(&label),
         );
@@ -1051,7 +1051,7 @@ impl GsrApplicationWindow {
         self.dismiss();
         let gsr_entry_window = GsrEntryWindow::new_with(
             self,
-            &self.gsr_application().shared_main_controller(),
+            &self.gsr_application().shared_controller(),
             catalog_menu(),
             None,
         );
@@ -1261,7 +1261,7 @@ impl GsrApplicationWindow {
     fn pick_change(&self) {
         let gsr_entry_window = GsrEntryWindow::new_with(
             self,
-            &self.gsr_application().shared_main_controller(),
+            &self.gsr_application().shared_controller(),
             change_menu(),
             None,
         );
@@ -1271,7 +1271,7 @@ impl GsrApplicationWindow {
     fn pick_find_option(&self) {
         let gsr_entry_window = GsrEntryWindow::new_with(
             self,
-            &self.gsr_application().shared_main_controller(),
+            &self.gsr_application().shared_controller(),
             find_menu(),
             None,
         );
@@ -1281,7 +1281,7 @@ impl GsrApplicationWindow {
     fn pick_select_option(&self) {
         let gsr_entry_window = GsrEntryWindow::new_with(
             self,
-            &self.gsr_application().shared_main_controller(),
+            &self.gsr_application().shared_controller(),
             select_menu(),
             None,
         );
@@ -1292,7 +1292,7 @@ impl GsrApplicationWindow {
         {
             let gsr_entry_window = GsrEntryWindow::new_with(
                 self,
-                &self.gsr_application().shared_main_controller(),
+                &self.gsr_application().shared_controller(),
                 order_menu(),
                 None,
             );
@@ -1304,7 +1304,7 @@ impl GsrApplicationWindow {
         {
             let gsr_entry_window = GsrEntryWindow::new_with(
                 self,
-                &self.gsr_application().shared_main_controller(),
+                &self.gsr_application().shared_controller(),
                 view_menu(),
                 None,
             );
@@ -1316,7 +1316,7 @@ impl GsrApplicationWindow {
         {
             let gsr_entry_window = GsrEntryWindow::new_with(
                 self,
-                &self.gsr_application().shared_main_controller(),
+                &self.gsr_application().shared_controller(),
                 information(),
                 None,
             );
@@ -1332,7 +1332,7 @@ impl GsrApplicationWindow {
         };
         let gsr_entry_window = GsrEntryWindow::new_with(
             self,
-            &self.gsr_application().shared_main_controller(),
+            &self.gsr_application().shared_controller(),
             confirm_delete_entry(),
             None,
         );
@@ -1345,7 +1345,7 @@ impl GsrApplicationWindow {
         };
         let gsr_entry_window = GsrEntryWindow::new_with(
             self,
-            &self.gsr_application().shared_main_controller(),
+            &self.gsr_application().shared_controller(),
             target_directory_entry(),
             None,
         );

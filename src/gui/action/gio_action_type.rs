@@ -1,6 +1,6 @@
 use crate::gui::action::Action;
 use crate::gui::action::gio_action_parameter_type::GioActionParameterType;
-use crate::gui::main_controller::MAIN_CONTROLLER_GROUP_NAME;
+use crate::gui::controller::MAIN_CONTROLLER_GROUP_NAME;
 
 // GioActionType describe a GioAction in terms of name and type of parameter
 #[derive(Debug)]

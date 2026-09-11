@@ -1,6 +1,6 @@
 use crate::env::default_values::TREELIST_WINDOW_HEIGHT;
 use crate::env::default_values::TREELIST_WINDOW_WIDTH;
-use crate::gui::main_controller::RcMainController;
+use crate::gui::controller::RcController;
 use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
 use crate::model::catalog::Catalog;
 use crate::model::shared::Shared;

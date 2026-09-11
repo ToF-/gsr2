@@ -10,7 +10,7 @@ use crate::gui::action::Action;
 use crate::gui::action::gio_action::GioAction;
 use crate::gui::action::gio_action::SimpleActionCall;
 use crate::gui::display::picture_label_display;
-use crate::gui::main_controller::MainController;
+use crate::gui::controller::Controller;
 use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
 use crate::gui::objects::gsr_picture_grid::GsrPictureGrid;
 use crate::gui::view::palette_area::make_palette_area;
@@ -226,8 +226,8 @@ impl GsrPictureCellBox {
         self.imp().picture_index.set(picture_index);
     }
 
-    pub fn connect_main_controller(&self, main_controller: &MainController) {
-        self.insert_action_group("main-controller", Some(&main_controller.gio_action_group()));
+    pub fn connect_controller(&self, controller: &Controller) {
+        self.insert_action_group("main-controller", Some(&controller.gio_action_group()));
         let col = self.imp().col.get();
         let row = self.imp().row.get();
         let left_click_action_call =

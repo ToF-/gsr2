@@ -1,7 +1,7 @@
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::default_values::APPLICATION_ID;
-use crate::gui::main_controller::MainController;
+use crate::gui::controller::Controller;
 use crate::gui::view_state::ViewState;
 use crate::model::gallery::Gallery;
 use crate::model::repository::Repository;
@@ -47,8 +47,8 @@ impl GsrApplication {
         self.imp().command_line_arguments.clone()
     }
 
-    pub fn shared_main_controller(&self) -> Shared<MainController> {
-        self.imp().main_controller.clone()
+    pub fn shared_controller(&self) -> Shared<Controller> {
+        self.imp().controller.clone()
     }
 
     pub fn shared_repository_opt(&self) -> Shared<Option<Repository>> {

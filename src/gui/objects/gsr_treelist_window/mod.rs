@@ -2,7 +2,7 @@ use crate::env::default_values::TREELIST_WINDOW_HEIGHT;
 use crate::env::default_values::TREELIST_WINDOW_WIDTH;
 use crate::gui::action::Action;
 use crate::gui::action::gio_action::GioAction;
-use crate::gui::main_controller::RcMainController;
+use crate::gui::controller::RcController;
 use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
 use crate::model::catalog::Catalog;
 use crate::model::category::category_from_string;
@@ -47,7 +47,7 @@ impl GsrTreelistWindow {
 
     pub fn new_with(
         application_window: &GsrApplicationWindow,
-        main_controller_rc: &RcMainController,
+        controller_rc: &RcController,
         catalog: &Catalog,
         prompt: &str,
         initial_item_opt: Option<&str>,
@@ -56,7 +56,7 @@ impl GsrTreelistWindow {
         let obj = Self::new();
         obj.initialize(
             application_window,
-            main_controller_rc,
+            controller_rc,
             catalog,
             prompt,
             initial_item_opt,
@@ -67,7 +67,7 @@ impl GsrTreelistWindow {
     pub fn initialize(
         &self,
         gsr_application_window: &GsrApplicationWindow,
-        main_controller_rc: &RcMainController,
+        controller_rc: &RcController,
         catalog: &Catalog,
         prompt: &str,
         initial_item_opt: Option<&str>,
@@ -124,8 +124,8 @@ impl GsrTreelistWindow {
         );
         self.set_child(Some(&selector_box));
         self.attach_key_pressed_event_handler(&scrolled_window, action_on_confirm);
-        let main_controller = main_controller_rc.borrow();
-        self.insert_action_group("main-controller", Some(&main_controller.gio_action_group()));
+        let controller = controller_rc.borrow();
+        self.insert_action_group("main-controller", Some(&controller.gio_action_group()));
         gtk::style_context_add_provider_for_display(
             &Display::default().unwrap(),
             &window_css_provider,
