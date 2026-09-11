@@ -1,3 +1,5 @@
+use crate::gui::objects::gsr_treelist_window::GsrTreelistWindow;
+use crate::gui::objects::gsr_entry_window::GsrEntryWindow;
 use crate::gui::action::Action;
 use crate::gui::action::gio_action_type::GioActionType;
 use crate::gui::direction::Direction;
@@ -19,6 +21,8 @@ pub type RcController = RefCell<Controller>;
 pub struct Controller {
     pub gio_action_group: gtk::gio::SimpleActionGroup,
     pub gsr_application_window: Option<Shared<GsrApplicationWindow>>,
+    pub gsr_entry_window: Option<Shared<GsrEntryWindow>>,
+    pub gsr_treelist_window: Option<Shared<GsrTreelistWindow>>,
 }
 
 impl Default for Controller {
@@ -26,6 +30,8 @@ impl Default for Controller {
         Self {
             gio_action_group: gtk::gio::SimpleActionGroup::new(),
             gsr_application_window: None,
+            gsr_entry_window: None,
+            gsr_treelist_window: None,
         }
     }
 }
