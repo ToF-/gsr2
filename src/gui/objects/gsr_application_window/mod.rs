@@ -266,13 +266,7 @@ impl GsrApplicationWindow {
             view_state.settings.toggle_palette();
             view_state.settings.single_view()
         });
-        if single_view {
-            self.frame().set_current_picture();
-        } else {
-            self.gsr_picture_grid().initialize_pictures();
-            self.gsr_picture_grid().leave_current_picture_focus();
-            self.gsr_picture_grid().enter_current_picture_focus();
-        }
+        self.refresh_view()
     }
 
     pub fn toggle_pictures_per_row(&self, pictures_per_row: i32) {
