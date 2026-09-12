@@ -2,12 +2,15 @@ use crate::gui::action::Action;
 use crate::gui::action::gio_action::GioAction;
 use crate::gui::action::gio_action_type::GioActionType;
 use crate::gui::direction::Direction;
+use crate::gui::objects::gsr_application::GsrApplication;
 use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
 use crate::gui::objects::gsr_entry_window::GsrEntryWindow;
 use crate::gui::objects::gsr_treelist_window::GsrTreelistWindow;
+use crate::gui::view_state::ViewState;
 use crate::model::find::Find;
 use crate::model::order::Order;
 use crate::model::rank::Rank;
+use crate::model::repository::Repository;
 use crate::model::shared::Shared;
 use crate::model::view_option::ViewOption;
 use gtk::gio::ActionEntry;
@@ -51,6 +54,44 @@ impl Controller {
     pub fn set_application_window(&mut self, gsr_application_window: Shared<GsrApplicationWindow>) {
         self.gsr_application_window = Some(gsr_application_window);
     }
+
+    pub fn gsr_application(&self) -> GsrApplication {
+        self.gsr_application_window
+            .as_ref()
+            .unwrap()
+            .borrow()
+            .gsr_application()
+    }
+    pub fn with_view_state<F, R>(&self, f: F) -> R
+    where
+        F: FnOnce(&ViewState) -> R,
+    {
+        let shared_view_state = self.gsr_application().shared_view_state();
+        let view_state = shared_view_state.borrow();
+
+        f(&view_state)
+    }
+
+    pub fn with_view_state_mut<F, R>(&self, f: F) -> R
+    where
+        F: FnOnce(&mut ViewState) -> R,
+    {
+        let shared_view_state = self.gsr_application().shared_view_state();
+        let mut view_state = shared_view_state.borrow_mut();
+
+        f(&mut view_state)
+    }
+
+    pub fn with_repository<F, R>(&self, f: F) -> R
+    where
+        F: FnOnce(&Repository) -> R,
+    {
+        let shared_repository_opt = self.gsr_application().shared_repository_opt();
+        let binding = shared_repository_opt.borrow();
+        let repository = binding.as_ref().unwrap();
+        f(&repository)
+    }
+
     // LAW
     pub fn initialize(&self) {
         let mut entries = vec![];
@@ -177,6 +218,8 @@ impl Controller {
         entries.push(Self::action_entry(
             GioActionType::from(Action::Rank(Rank::ThreeStars)),
             clone!(
+                #[strong (rename_to=this)]
+                self,
                 #[strong]
                 shared_gsr_application_window,
                 move |_group: &gtk::gio::SimpleActionGroup,
@@ -184,23 +227,23 @@ impl Controller {
                       variant: Option<&gtk::glib::Variant>| {
                     let gio_action = GioAction::from((object, variant));
                     if let Action::Rank(rank) = Action::from(gio_action) {
-                        let gsr_application_window = shared_gsr_application_window.borrow();
-                        gsr_application_window.dismiss();
-                        let indices = gsr_application_window.selected_indices();
+                        let window = shared_gsr_application_window.borrow();
+                        window.dismiss();
+                        let indices = window.selected_indices();
                         for position in indices {
-                            gsr_application_window.with_view_state_mut(|view_state| {
+                            this.with_view_state_mut(|view_state| {
                                 let mut picture = view_state.gallery.picture(position);
                                 picture.set_rank(rank);
-                                gsr_application_window.with_repository(
-                                    |repository| match repository.update_picture(&picture) {
+                                this.with_repository(|repository| {
+                                    match repository.update_picture(&picture) {
                                         Ok(_) => {}
                                         Err(e) => eprintln!("{}", e),
-                                    },
-                                );
+                                    }
+                                });
                                 view_state.gallery.set_picture(position, picture);
                             });
                         }
-                        gsr_application_window.deselect_pictures();
+                        window.deselect_pictures();
                     }
                 }
             ),
@@ -208,16 +251,14 @@ impl Controller {
         entries.push(Self::action_entry(
             GioActionType::from(Action::TogglePalette),
             clone!(
+                #[strong (rename_to=this)]
+                self,
                 #[strong]
                 shared_gsr_application_window,
                 move |_, _, _| {
-                    let gsr_application_window = shared_gsr_application_window.borrow();
-                    {
-                        let binding = gsr_application_window.gsr_application().shared_view_state();
-                        let mut view_state = binding.borrow_mut();
-                        view_state.settings.toggle_palette();
-                    }
-                    gsr_application_window.refresh_view();
+                    let window = shared_gsr_application_window.borrow();
+                    this.with_view_state_mut(|view_state| view_state.settings.toggle_palette());
+                    window.refresh_view();
                 }
             ),
         ));

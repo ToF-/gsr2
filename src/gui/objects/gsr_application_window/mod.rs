@@ -266,13 +266,6 @@ impl GsrApplicationWindow {
         ));
         gesture_click
     }
-    pub fn toggle_palette(&self) {
-        let single_view = self.with_view_state_mut(|view_state| {
-            view_state.settings.toggle_palette();
-            view_state.settings.single_view()
-        });
-        self.refresh_view()
-    }
 
     pub fn toggle_pictures_per_row(&self, pictures_per_row: i32) {
         self.with_view_state_mut(|view_state| {
@@ -668,6 +661,13 @@ impl GsrApplicationWindow {
         if action.is_repeatable() {
             *self.imp().last_action.borrow_mut() = action.clone();
         }
+    }
+    pub fn toggle_palette(&self) {
+        let single_view = self.with_view_state_mut(|view_state| {
+            view_state.settings.toggle_palette();
+            view_state.settings.single_view()
+        });
+        self.refresh_view()
     }
     fn begin_entry(&self, gsr_entry_window: GsrEntryWindow) {
         gsr_entry_window.present();
