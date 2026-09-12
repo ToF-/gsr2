@@ -448,7 +448,7 @@ impl GsrApplicationWindow {
         });
         if let Some(position) = position_opt {
             self.grid_view_move(&Direction::Index { value: position });
-            self.toggle_selected();
+            self.activate_action_toggle_selected();
         }
     }
 
@@ -582,21 +582,7 @@ impl GsrApplicationWindow {
 
                         }
                         Control::ToggleSelected => {
-                            let position = this.with_view_state(|view_state| {
-                                view_state.gallery.current_picture_index()
-                            });
-                            let action = Action::ToggleSelected(position);
-                            let (name, variant) = GioAction::from(action.clone()).to_simple_action_call();
-                            let variant_ref = variant.as_ref();
-                            match WidgetExt::activate_action(&this, &name, variant_ref) {
-                                Ok(_) => {}
-                                Err(e) => {
-                                    eprintln!(
-                                        "connect_key_pressed_controller for gsr_entry_window {} {:?} : {}",
-                                        name, variant_ref, e
-                                    )
-                                }
-                            }
+                            this.activate_action_toggle_selected();
                         }
                         Control::ToggleSingleView => this.toggle_pictures_per_row(1),
                         Control::ToggleThumbView => this.toggle_pictures_per_row(10),
@@ -610,6 +596,23 @@ impl GsrApplicationWindow {
         self.add_controller(event_controller_key);
     }
 
+    fn activate_action_toggle_selected(&self) {
+        let position = self.with_view_state(|view_state| {
+            view_state.gallery.current_picture_index()
+        });
+        let action = Action::ToggleSelected(position);
+        let (name, variant) = GioAction::from(action.clone()).to_simple_action_call();
+        let variant_ref = variant.as_ref();
+        match WidgetExt::activate_action(self, &name, variant_ref) {
+            Ok(_) => {}
+            Err(e) => {
+                eprintln!(
+                    "connect_key_pressed_controller for gsr_entry_window {} {:?} : {}",
+                    name, variant_ref, e
+                )
+            }
+        }
+    }
     pub fn process_gio_action(
         &self,
         action: &gtk::gio::SimpleAction,
@@ -1595,19 +1598,6 @@ impl GsrApplicationWindow {
             };
         });
         self.refresh_title();
-    }
-
-    fn toggle_selected(&self) {
-        self.with_view_state_mut(|view_state| {
-            let position = view_state.navigator.position();
-            if view_state.selection.contains(position) {
-                view_state.selection.unselect(position)
-            } else {
-                view_state.selection.select(position)
-            }
-            view_state.navigator.set_page_changed()
-        });
-        self.refresh_view()
     }
 
     fn toggle_view_covers(&self) {
