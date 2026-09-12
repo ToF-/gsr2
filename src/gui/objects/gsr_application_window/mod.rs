@@ -1,4 +1,3 @@
-use crate::model::gallery::Gallery;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
@@ -48,6 +47,7 @@ use crate::model::category::Category;
 use crate::model::category::category_from_string;
 use crate::model::find::Find;
 use crate::model::finder::Finder;
+use crate::model::gallery::Gallery;
 use crate::model::order::Order;
 use crate::model::picture::Picture;
 use crate::model::predicate::Predicate;
@@ -55,10 +55,12 @@ use crate::model::repository::Repository;
 use crate::model::shared::Shared;
 use crate::model::tags::Tags;
 use crate::model::view_option::ViewOption;
-use gtk::glib;
+use glib::Variant;
 use gtk::glib::Propagation;
 use gtk::glib::clone;
+use gtk::glib;
 use gtk::prelude::*;
+use gtk::prelude::WidgetExt;
 use gtk::subclass::prelude::ObjectSubclassIsExt;
 use std::cell::RefCell;
 use std::io::Error as IOError;
@@ -87,10 +89,13 @@ glib::wrapper! {
 
 // GSR_WINDOW
 impl GsrApplicationWindow {
-    pub fn new(application: &GsrApplication) -> Self {
-        let obj = glib::Object::builder()
-            .property("application", application)
+    pub fn new(gsr_application: &GsrApplication) -> Self {
+        let obj: GsrApplicationWindow = glib::Object::builder()
+            .property("application", gsr_application)
             .build();
+        let binding = gsr_application.shared_controller();
+        let controller = binding.borrow();
+        obj.insert_action_group("main-controller", Some(&controller.gio_action_group()));
         obj
     }
     pub fn shared_view_state(&self) -> Shared<ViewState> {
@@ -554,7 +559,27 @@ impl GsrApplicationWindow {
                         Control::ToggleFullSize => {
                             this.action_apply_view_setting(ViewOption::FullSize)
                         }
-                        Control::TogglePalette => this.toggle_palette(),
+                        Control::TogglePalette => {
+                            let action = Action::TogglePalette;
+                            let action_call = GioAction::from(action.clone()).to_simple_action_call();
+                            let name = action_call.0.clone();
+                            let variant = action_call.1.clone();
+                            let variant_ref: Option<&Variant> = match &variant {
+                                None => None,
+                                Some(v) => Some(v.as_ref()),
+                            };
+                            dbg!(&action.clone(), &name.clone(), &variant.clone());
+                            match WidgetExt::activate_action(&this, &name, variant_ref) {
+                                Ok(_) => {}
+                                Err(e) => {
+                                    eprintln!(
+                                        "connect_key_pressed_controller for gsr_entry_window {} {:?} : {}",
+                                        name, variant_ref, e
+                                    )
+                                }
+                            }
+
+                        }
                         Control::ToggleSelected => this.toggle_selected(),
                         Control::ToggleSingleView => this.toggle_pictures_per_row(1),
                         Control::ToggleThumbView => this.toggle_pictures_per_row(10),
@@ -626,6 +651,7 @@ impl GsrApplicationWindow {
             Action::SelectCategoryToMove => self.action_select_category_to_move(),
             Action::SelectCategoryToRemove => self.action_select_category_to_remove(),
             Action::ToggleCover => self.action_toggle_cover(),
+            Action::TogglePalette => self.toggle_palette(),
             Action::Unlabel => self.action_unlabel(),
             _ => {
                 println!("* * * todo: {:?}", action);

@@ -1,9 +1,9 @@
 use crate::env::default_values::ENTRY_CURSOR_1;
 use crate::env::default_values::ENTRY_CURSOR_2;
 use crate::gui::action::gio_action::GioAction;
+use crate::gui::controller::RcController;
 use crate::gui::key_input::KeyInput;
 use crate::gui::key_input::key_input_rules::KeyInputRules;
-use crate::gui::controller::RcController;
 use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
 use glib::Variant;
 use gtk::glib;

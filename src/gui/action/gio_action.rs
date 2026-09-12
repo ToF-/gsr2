@@ -1,8 +1,8 @@
 use crate::gui::action::Action;
 use crate::gui::action::gio_action_parameter::GioActionParameter;
 use crate::gui::action::gio_action_type::GioActionType;
-use crate::gui::direction::Direction;
 use crate::gui::controller::MAIN_CONTROLLER_GROUP_NAME;
+use crate::gui::direction::Direction;
 use crate::model::category::Category;
 use crate::model::find::Find;
 use crate::model::order::Order;

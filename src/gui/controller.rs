@@ -1,9 +1,9 @@
-use crate::gui::objects::gsr_treelist_window::GsrTreelistWindow;
-use crate::gui::objects::gsr_entry_window::GsrEntryWindow;
 use crate::gui::action::Action;
 use crate::gui::action::gio_action_type::GioActionType;
 use crate::gui::direction::Direction;
 use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
+use crate::gui::objects::gsr_entry_window::GsrEntryWindow;
+use crate::gui::objects::gsr_treelist_window::GsrTreelistWindow;
 use crate::model::find::Find;
 use crate::model::order::Order;
 use crate::model::rank::Rank;
