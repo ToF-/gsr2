@@ -581,7 +581,23 @@ impl GsrApplicationWindow {
                             }
 
                         }
-                        Control::ToggleSelected => this.toggle_selected(),
+                        Control::ToggleSelected => {
+                            let position = this.with_view_state(|view_state| {
+                                view_state.gallery.current_picture_index()
+                            });
+                            let action = Action::ToggleSelected(position);
+                            let (name, variant) = GioAction::from(action.clone()).to_simple_action_call();
+                            let variant_ref = variant.as_ref();
+                            match WidgetExt::activate_action(&this, &name, variant_ref) {
+                                Ok(_) => {}
+                                Err(e) => {
+                                    eprintln!(
+                                        "connect_key_pressed_controller for gsr_entry_window {} {:?} : {}",
+                                        name, variant_ref, e
+                                    )
+                                }
+                            }
+                        }
                         Control::ToggleSingleView => this.toggle_pictures_per_row(1),
                         Control::ToggleThumbView => this.toggle_pictures_per_row(10),
                         Control::ToggleTwoByTwoView => this.toggle_pictures_per_row(2),

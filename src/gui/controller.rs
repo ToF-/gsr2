@@ -249,6 +249,33 @@ impl Controller {
             ),
         ));
         entries.push(Self::action_entry(
+            GioActionType::from(Action::ToggleSelected(0)),
+            clone!(
+                #[strong (rename_to=this)]
+                self,
+                #[strong]
+                shared_gsr_application_window,
+                move |_group: &gtk::gio::SimpleActionGroup,
+                      object: &gtk::gio::SimpleAction,
+                      variant: Option<&gtk::glib::Variant>| {
+                    let gio_action = GioAction::from((object, variant));
+                    if let Action::ToggleSelected(position) = Action::from(gio_action) {
+                        let window = shared_gsr_application_window.borrow();
+                        this.with_view_state_mut(|view_state| {
+                            let position = view_state.navigator.position();
+                            if view_state.selection.contains(position) {
+                                view_state.selection.unselect(position)
+                            } else {
+                                view_state.selection.select(position)
+                            }
+                            view_state.navigator.set_page_changed()
+                        });
+                        window.refresh_view()
+                    }
+                }
+            ),
+        ));
+        entries.push(Self::action_entry(
             GioActionType::from(Action::TogglePalette),
             clone!(
                 #[strong (rename_to=this)]

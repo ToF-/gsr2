@@ -169,7 +169,7 @@ impl From<Action> for GioActionType {
                 GioActionType::new("toggle-palette", GioActionParameterType::None)
             }
             Action::ToggleSelected(_) => {
-                GioActionType::new("toggle-selected", GioActionParameterType::None)
+                GioActionType::new("toggle-selected", GioActionParameterType::Usize)
             }
             Action::ToggleSelectedAt(_, _) => {
                 GioActionType::new("toggle-selected-at", GioActionParameterType::Int32Pair)
