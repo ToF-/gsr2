@@ -359,7 +359,7 @@ impl GsrApplicationWindow {
         self.refresh_title();
     }
 
-    fn deselect_pictures(&self) {
+    pub fn deselect_pictures(&self) {
         self.cancel_range();
     }
 
@@ -554,6 +554,20 @@ impl GsrApplicationWindow {
                         Control::SetSelectionRangePage => {
                             this.set_selection_range(SelectionRange::Page)
                         }
+                        Control::RankNoStar | Control::RankOneStar | Control::RankTwoStars | Control::RankThreeStars => {
+                            let action = Action::from(*control);
+                            let (name, variant) = GioAction::from(action.clone()).to_simple_action_call();
+                            let variant_ref = variant.as_ref();
+                            match WidgetExt::activate_action(&this, &name, variant_ref) {
+                                Ok(_) => {}
+                                Err(e) => {
+                                    eprintln!(
+                                        "connect_key_pressed_controller for gsr_entry_window {} {:?} : {}",
+                                        name, variant_ref, e
+                                    )
+                                }
+                            }
+                        },
                         Control::ToggleBlinking => this.toggle_blinking(),
                         Control::ToggleExpand => this.toggle_expand(),
                         Control::ToggleFullSize => {
@@ -661,7 +675,7 @@ impl GsrApplicationWindow {
         self.imp().entry_on.set(true);
     }
 
-    fn dismiss(&self) {
+    pub fn dismiss(&self) {
         if self.imp().entry_on.get() {
             self.imp().gsr_entry_window.borrow().close();
             self.imp().entry_on.set(false);
@@ -1072,7 +1086,7 @@ impl GsrApplicationWindow {
         self.begin_entry(gsr_entry_window);
     }
 
-    fn selected_indices(&self) -> Vec<usize> {
+    pub fn selected_indices(&self) -> Vec<usize> {
         self.with_view_state(|view_state| {
             if view_state.selection.has_selected() {
                 assert!(view_state.selection.count() == view_state.selection.indices().len());

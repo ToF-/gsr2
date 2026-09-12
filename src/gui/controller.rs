@@ -1,4 +1,5 @@
 use crate::gui::action::Action;
+use crate::gui::action::gio_action::GioAction;
 use crate::gui::action::gio_action_type::GioActionType;
 use crate::gui::direction::Direction;
 use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
@@ -175,16 +176,41 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::Rank(Rank::ThreeStars)),
-            activate.clone(),
-        ));
-        entries.push(Self::action_entry(
-            GioActionType::from(Action::TogglePalette),
             clone!(
                 #[strong]
                 shared_gsr_application_window,
                 move |_group: &gtk::gio::SimpleActionGroup,
                       object: &gtk::gio::SimpleAction,
                       variant: Option<&gtk::glib::Variant>| {
+                    let gio_action = GioAction::from((object, variant));
+                    if let Action::Rank(rank) = Action::from(gio_action) {
+                        let gsr_application_window = shared_gsr_application_window.borrow();
+                        gsr_application_window.dismiss();
+                        let indices = gsr_application_window.selected_indices();
+                        for position in indices {
+                            gsr_application_window.with_view_state_mut(|view_state| {
+                                let mut picture = view_state.gallery.picture(position);
+                                picture.set_rank(rank);
+                                gsr_application_window.with_repository(
+                                    |repository| match repository.update_picture(&picture) {
+                                        Ok(_) => {}
+                                        Err(e) => eprintln!("{}", e),
+                                    },
+                                );
+                                view_state.gallery.set_picture(position, picture);
+                            });
+                        }
+                        gsr_application_window.deselect_pictures();
+                    }
+                }
+            ),
+        ));
+        entries.push(Self::action_entry(
+            GioActionType::from(Action::TogglePalette),
+            clone!(
+                #[strong]
+                shared_gsr_application_window,
+                move |_, _, _| {
                     let gsr_application_window = shared_gsr_application_window.borrow();
                     {
                         let binding = gsr_application_window.gsr_application().shared_view_state();
