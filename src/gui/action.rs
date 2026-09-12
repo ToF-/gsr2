@@ -98,9 +98,10 @@ impl Action {
     pub fn single_action_name(_key_name: &str, _mode: Mode) -> String {
         format!("{}.{}", MAIN_CONTROLLER_GROUP_NAME, "test")
     }
+}
 
-    // FOO
-    pub fn from_control(control: &Control) -> Self {
+impl From<Control> for Action {
+    fn from(control: Control) -> Self {
         match control {
             Control::BackFromDirectory => Action::QuitDirectory,
             Control::CancelEdition => Action::Cancel,

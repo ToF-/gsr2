@@ -56,11 +56,11 @@ use crate::model::shared::Shared;
 use crate::model::tags::Tags;
 use crate::model::view_option::ViewOption;
 use glib::Variant;
+use gtk::glib;
 use gtk::glib::Propagation;
 use gtk::glib::clone;
-use gtk::glib;
-use gtk::prelude::*;
 use gtk::prelude::WidgetExt;
+use gtk::prelude::*;
 use gtk::subclass::prelude::ObjectSubclassIsExt;
 use std::cell::RefCell;
 use std::io::Error as IOError;
@@ -337,7 +337,7 @@ impl GsrApplicationWindow {
         }
     }
 
-    fn refresh_view(&self) {
+    pub fn refresh_view(&self) {
         let pictures_per_row =
             self.with_view_state(|view_state| view_state.settings.pictures_per_row());
         self.set_stack_visible_child(pictures_per_row);
@@ -560,15 +560,9 @@ impl GsrApplicationWindow {
                             this.action_apply_view_setting(ViewOption::FullSize)
                         }
                         Control::TogglePalette => {
-                            let action = Action::TogglePalette;
-                            let action_call = GioAction::from(action.clone()).to_simple_action_call();
-                            let name = action_call.0.clone();
-                            let variant = action_call.1.clone();
-                            let variant_ref: Option<&Variant> = match &variant {
-                                None => None,
-                                Some(v) => Some(v.as_ref()),
-                            };
-                            dbg!(&action.clone(), &name.clone(), &variant.clone());
+                            let action = Action::from(*control);
+                            let (name, variant) = GioAction::from(action.clone()).to_simple_action_call();
+                            let variant_ref = variant.as_ref();
                             match WidgetExt::activate_action(&this, &name, variant_ref) {
                                 Ok(_) => {}
                                 Err(e) => {

@@ -179,7 +179,21 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::TogglePalette),
-            activate.clone(),
+            clone!(
+                #[strong]
+                shared_gsr_application_window,
+                move |_group: &gtk::gio::SimpleActionGroup,
+                      object: &gtk::gio::SimpleAction,
+                      variant: Option<&gtk::glib::Variant>| {
+                    let gsr_application_window = shared_gsr_application_window.borrow();
+                    {
+                        let binding = gsr_application_window.gsr_application().shared_view_state();
+                        let mut view_state = binding.borrow_mut();
+                        view_state.settings.toggle_palette();
+                    }
+                    gsr_application_window.refresh_view();
+                }
+            ),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::ToggleSelectedAt(0, 0)),
