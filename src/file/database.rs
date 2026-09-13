@@ -502,7 +502,7 @@ impl Database {
         let mut result: Vec<String> = Vec::new();
         let sql_query = "SELECT FilePath FROM Picture;";
         let connection = self.connection_rc.borrow();
-        connection.prepare(&sql_query).and_then(|mut statement| {
+        let _ = connection.prepare(&sql_query).and_then(|mut statement| {
             statement.query([]).map(|mut rows| {
                 while let Some(row) = rows.next().unwrap() {
                     let file_path: String = row.get(0).expect("can't get column FilePath");
@@ -540,7 +540,7 @@ impl Database {
             )
             .and_then(|mut statement| {
                 let mut folder_map: FolderMap = FolderMap::default();
-                statement.query([]).map(|mut rows| {
+                let _ = statement.query([]).map(|mut rows| {
                     while let Some(row) = rows.next().unwrap() {
                         let folder_id: usize = row.get(0).expect("can't get column FolderId");
                         let file_path: String = row.get(1).expect("can't get column FilePath");

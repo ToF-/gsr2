@@ -198,7 +198,7 @@ impl Repository {
     pub fn retrieve_all_picture_file_paths(&self) -> IOResult<FolderMap> {
         match self.database.retrieve_all_picture_file_paths() {
             Ok(file_paths) => {
-                let mut folder_map = FolderMap::from_file_paths(&file_paths);
+                let folder_map = FolderMap::from_file_paths(&file_paths);
                 Ok(folder_map)
             }
             Err(e) => Err(IOError::other(e)),
@@ -209,7 +209,7 @@ impl Repository {
         match self.retrieve_all_picture_file_paths() {
             Ok(folder_map) => match self.database.update_all_folders(folder_map) {
                 Ok(n) => {
-                    self.retrieve_all_folders();
+                    let _ = self.retrieve_all_folders();
                     let folder_map = self.folder_map_rc.borrow();
                     for folder in folder_map.map().values() {
                         let directory = folder.file_path();
@@ -354,7 +354,7 @@ impl Repository {
         let pictures: Vec<Picture> =
             match self.database.retrieve_pictures_for_folder_id(folder.id()) {
                 Ok(pictures) => pictures,
-                Err(e) => Vec::new(),
+                Err(_) => Vec::new(),
             };
         let mut gallery = self.gallery_rc.borrow_mut();
         gallery.clear();

@@ -1070,7 +1070,7 @@ impl GsrApplicationWindow {
     }
     fn action_find_next(&self) {
         let position_res = self.with_view_state_mut(|view_state| match &view_state.finder {
-            Some(finder) => Ok(view_state.finder.as_mut().unwrap().find_next()),
+            Some(_) => Ok(view_state.finder.as_mut().unwrap().find_next()),
             None => Err(IOError::other("not in a search")),
         });
         match position_res {
@@ -1178,7 +1178,7 @@ impl GsrApplicationWindow {
             self.present_information("picture name can't be empty");
             return;
         }
-        let (current_name, extension) = self.with_view_state(|view_state| {
+        let (current_name, _) = self.with_view_state(|view_state| {
             name_and_extension(&view_state.gallery.current_picture().file_name())
         });
         if target_name == current_name {
@@ -1190,7 +1190,7 @@ impl GsrApplicationWindow {
             let picture = view_state.gallery.current_picture();
             let new_picture = Picture::copy_with_name(&picture, target_name);
             self.with_repository(|repository| {
-                repository.rename_picture(&picture, target_name);
+                let _ = repository.rename_picture(&picture, target_name);
             });
             view_state.gallery.set_picture(position, new_picture);
         });
@@ -1231,7 +1231,7 @@ impl GsrApplicationWindow {
         let indices = self.selected_indices();
         for position in indices {
             self.with_view_state_mut(|view_state| {
-                let mut picture = view_state.gallery.picture(position);
+                let picture = view_state.gallery.picture(position);
                 self.with_repository(|repository| {
                     match repository.move_picture_to_target(&picture, target_directory) {
                         Ok(_) => {}
@@ -1403,15 +1403,12 @@ impl GsrApplicationWindow {
     }
 
     fn goto_directory(&self) {
-        let (current_picture, sub_directory, covers_only, position) =
-            self.with_view_state(|view_state| {
-                (
-                    view_state.gallery.current_picture(),
-                    view_state.gallery.sub_folder(),
-                    view_state.settings.covers_only(),
-                    view_state.gallery.current_picture_index(),
-                )
-            });
+        let (current_picture, covers_only) = self.with_view_state(|view_state| {
+            (
+                view_state.gallery.current_picture(),
+                view_state.settings.covers_only(),
+            )
+        });
         let directory_opt = if current_picture.cover().is_some() {
             parent_directory(&current_picture.file_path())
         } else if current_picture.is_folder() {
@@ -1480,7 +1477,7 @@ impl GsrApplicationWindow {
 
     fn retrieve_current_location(&self) {
         let location = self.with_view_state_mut(|view_state| view_state.current_location.clone());
-        self.retrieve_from_repository(
+        let _ = self.retrieve_from_repository(
             Some(location.covers_only()),
             location.sub_directory(),
             location.predicate(),
@@ -1506,7 +1503,7 @@ impl GsrApplicationWindow {
             view_state.current_location.clone()
         });
         dbg!(&location);
-        self.retrieve_from_repository(
+        let _ = self.retrieve_from_repository(
             Some(location.covers_only()),
             location.sub_directory(),
             location.predicate(),
@@ -1561,18 +1558,6 @@ impl GsrApplicationWindow {
         self.refresh_view();
     }
 
-    fn toggle_blinking(&self) {
-        let on = self.with_view_state_mut(|view_state| {
-            view_state.settings.toggle_blinking();
-            view_state.settings.blinking_on()
-        });
-        if on == true {
-            self.gsr_picture_grid().initialize_pictures();
-            self.gsr_picture_grid().leave_current_picture_focus();
-            self.gsr_picture_grid().enter_current_picture_focus();
-        }
-    }
-
     fn toggle_expand(&self) {
         let pictures_per_row = self.with_view_state_mut(|view_state| {
             if view_state.settings.pictures_per_row() == 1 {
@@ -1609,7 +1594,7 @@ impl GsrApplicationWindow {
         if gallery_has_covers && sub_folder.is_none() {
             let covers_only =
                 self.with_view_state_mut(|view_state| view_state.settings.toggle_covers_only());
-            self.retrieve_from_repository(Some(covers_only), None, None);
+            let _ = self.retrieve_from_repository(Some(covers_only), None, None);
             self.refresh_view()
         }
     }

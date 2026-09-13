@@ -116,7 +116,7 @@ pub fn target_directory_entry() -> KeyInput {
         "Enter a target directory for selected pictures",
         None,
         KeyInputMode::Entry,
-        |_, ch| true,
+        |_, _| true,
         |s, ch| {
             let mut input = s;
             input.push(ch);

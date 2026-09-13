@@ -69,7 +69,7 @@ impl Predicate {
 
 impl std::fmt::Debug for Predicate {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "<predicate>");
+        let _ = write!(f, "<predicate>");
         let s = self
             .criteria
             .iter()

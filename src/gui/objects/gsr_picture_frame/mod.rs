@@ -132,16 +132,15 @@ impl GsrPictureFrame {
     }
 
     pub fn set_current_picture(&self) {
-        let (position, selected) = {
+        let selected = {
             let shared_view_state = self.gsr_application().shared_view_state();
             let view_state = shared_view_state.borrow();
             let position = view_state.navigator.position();
-            let selected = view_state.selection.contains(position);
-            (position, selected)
+            view_state.selection.contains(position)
         };
         let picture_opt = {
             let shared_view_state = self.gsr_application().shared_view_state();
-            let mut view_state = shared_view_state.borrow_mut();
+            let view_state = shared_view_state.borrow_mut();
             if view_state.gallery.len() > 0 {
                 Some(view_state.gallery.current_picture())
             } else {

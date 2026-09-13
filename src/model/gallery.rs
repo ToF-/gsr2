@@ -395,6 +395,7 @@ impl Gallery {
 mod tests {
 
     use super::*;
+    use crate::file::paths::based_path;
     use crate::model::predicate::Predicate;
     use crate::test_data::*;
     use serial_test::serial;

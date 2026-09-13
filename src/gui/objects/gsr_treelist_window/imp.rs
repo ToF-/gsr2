@@ -1,10 +1,8 @@
 use crate::model::shared::Shared;
+use gtk::glib;
 #[allow(deprecated)]
 use gtk::subclass::prelude::*;
 use gtk::{self};
-use gtk::{
-    glib,
-};
 use std::cell::Cell;
 use std::cell::RefCell;
 use std::rc::Rc;
