@@ -535,7 +535,7 @@ impl GsrApplicationWindow {
                         Control::RepeatRange => this.repeat_range(),
                         Control::RepeatLastAction => this.repeat_last_action(),
                         Control::SetOrder => this.set_order(),
-                        Control::SetView => this.set_view(),
+                        Control::SetView => this.activate_action_for_control(control),
                         Control::SetSelectionRangeEnd => {
                             this.set_selection_range(SelectionRange::End)
                         }
@@ -687,7 +687,7 @@ impl GsrApplicationWindow {
             *self.imp().last_action.borrow_mut() = action.clone();
         }
     }
-    fn begin_entry(&self, gsr_entry_window: GsrEntryWindow) {
+    pub fn begin_entry(&self, gsr_entry_window: GsrEntryWindow) {
         gsr_entry_window.present();
         *self.imp().gsr_entry_window.borrow_mut() = gsr_entry_window;
         self.imp().entry_on.set(true);
@@ -1340,18 +1340,6 @@ impl GsrApplicationWindow {
                 self,
                 &self.gsr_application().shared_controller(),
                 order_menu(),
-                None,
-            );
-            self.begin_entry(gsr_entry_window);
-        }
-    }
-
-    fn set_view(&self) {
-        {
-            let gsr_entry_window = GsrEntryWindow::new_with(
-                self,
-                &self.gsr_application().shared_controller(),
-                view_menu(),
                 None,
             );
             self.begin_entry(gsr_entry_window);

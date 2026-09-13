@@ -1,3 +1,4 @@
+use crate::gui::key_input::menu::view_menu;
 use crate::gui::action::Action;
 use crate::gui::action::gio_action::GioAction;
 use crate::gui::action::gio_action_type::GioActionType;
@@ -205,7 +206,7 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::PickViewOption),
-            activate.clone(),
+            self.pick_view_option_action(shared_gsr_application_window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::Quit),
@@ -332,6 +333,28 @@ impl Controller {
                     view_state.settings.toggle_palette();
                 });
                 window.refresh_view();
+            }
+        )
+    }
+    fn pick_view_option_action(
+        &self,
+        shared_gsr_application_window: Shared<GsrApplicationWindow>,
+    ) -> impl Fn(&gtk::gio::SimpleActionGroup, &gtk::gio::SimpleAction, Option<&gtk::glib::Variant>)
+    + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            shared_gsr_application_window,
+            move |_, _, _| {
+                    let window = shared_gsr_application_window.borrow();
+                    let gsr_entry_window = GsrEntryWindow::new_with(
+                        &window,
+                        &this.gsr_application().shared_controller(),
+                        view_menu(),
+                        None,
+                    );
+                    window.begin_entry(gsr_entry_window);
             }
         )
     }
