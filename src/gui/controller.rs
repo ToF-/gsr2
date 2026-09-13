@@ -354,6 +354,28 @@ impl Controller {
             activate.clone(),
         ));
         entries.push(Self::action_entry(
+            GioActionType::from(Action::ToggleBlinking),
+            clone!(
+                #[strong (rename_to=this)]
+                self,
+                #[strong]
+                shared_gsr_application_window,
+                move |_, _, _| {
+                    let window = shared_gsr_application_window.borrow();
+                    let on = this.with_view_state_mut(|view_state| {
+                        view_state.settings.toggle_blinking();
+                        view_state.settings.blinking_on()
+                    });
+                    if on == true {
+                        window.gsr_picture_grid().initialize_pictures();
+                        window.gsr_picture_grid().leave_current_picture_focus();
+                        window.gsr_picture_grid().enter_current_picture_focus();
+                    }
+                    window.refresh_view();
+                }
+            ),
+        ));
+        entries.push(Self::action_entry(
             GioActionType::from(Action::ToggleCover),
             activate.clone(),
         ));

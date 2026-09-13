@@ -383,7 +383,7 @@ impl GsrApplicationWindow {
             .downcast::<gtk::ScrolledWindow>()
             .expect("not a scrolled window")
     }
-    fn gsr_picture_grid(&self) -> GsrPictureGrid {
+    pub fn gsr_picture_grid(&self) -> GsrPictureGrid {
         let gsw = self.grid_scrolled_window();
         let vp = gsw
             .first_child()
@@ -561,7 +561,21 @@ impl GsrApplicationWindow {
                                 }
                             }
                         },
-                        Control::ToggleBlinking => this.toggle_blinking(),
+                        Control::ToggleBlinking => {
+                            let action = Action::from(*control);
+                            let (name, variant) = GioAction::from(action.clone()).to_simple_action_call();
+                            let variant_ref = variant.as_ref();
+                            match WidgetExt::activate_action(&this, &name, variant_ref) {
+                                Ok(_) => {}
+                                Err(e) => {
+                                    eprintln!(
+                                        "connect_key_pressed_controller for gsr_entry_window {} {:?} : {}",
+                                        name, variant_ref, e
+                                    )
+                                }
+                            }
+
+                        },
                         Control::ToggleExpand => this.toggle_expand(),
                         Control::ToggleFullSize => {
                             this.action_apply_view_setting(ViewOption::FullSize)

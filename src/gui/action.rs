@@ -69,6 +69,7 @@ pub enum Action {
     SetSelectionRangeEnd(usize),   // send the selection at the current picture
     SetSelectionRangeStart(usize), // start a selection from the current picture
     Test(String),                  // test action for development test
+    ToggleBlinking,                // toggle blinking of cursor under current picture
     ToggleCover,                   // toggle current picture set to cover or not
     ToggleCoversView,              // set the view on off to only covers
     TogglePalette,                 // set the palette visible on / off
@@ -123,6 +124,7 @@ impl From<Control> for Action {
             Control::Right => Action::MoveTowards(Direction::Right),
             Control::SetOrder => Action::PickOrderSetting,
             Control::SetView => Action::PickViewOption,
+            Control::ToggleBlinking => Action::ToggleBlinking,
             Control::ToggleFullSize => Action::ApplyViewSetting(ViewOption::FullSize),
             Control::TogglePalette => Action::TogglePalette,
             Control::ToggleSingleView => Action::ToggleSingleView,

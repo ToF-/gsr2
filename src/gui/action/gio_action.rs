@@ -105,6 +105,7 @@ impl From<Action> for GioAction {
             Action::SetSelectionRangeEnd(index) => Some(GioActionParameter::from(index)),
             Action::SetSelectionRangeStart(index) => Some(GioActionParameter::from(index)),
             Action::Test(s) => Some(GioActionParameter::from(s)),
+            Action::ToggleBlinking => None,
             Action::ToggleCover => None,
             Action::ToggleCoversView => None,
             Action::TogglePalette => None,
