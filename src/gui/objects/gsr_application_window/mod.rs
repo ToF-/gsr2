@@ -39,7 +39,6 @@ use crate::gui::objects::gsr_picture_grid::GsrPictureGrid;
 use crate::gui::objects::gsr_treelist_window::GsrTreelistWindow;
 use crate::gui::view::treelist_window::TreeListWindow;
 use crate::gui::view_state::ViewState;
-use crate::gui::view_state::location::Location;
 use crate::gui::view_state::navigator::Navigator;
 use crate::gui::view_state::selection_range::SelectionRange;
 use crate::model::catalog::Catalog;
@@ -55,7 +54,6 @@ use crate::model::repository::Repository;
 use crate::model::shared::Shared;
 use crate::model::tags::Tags;
 use crate::model::view_option::ViewOption;
-use glib::Variant;
 use gtk::glib;
 use gtk::glib::Propagation;
 use gtk::glib::clone;
@@ -680,7 +678,6 @@ impl GsrApplicationWindow {
             Action::SelectCategoryToMove => self.action_select_category_to_move(),
             Action::SelectCategoryToRemove => self.action_select_category_to_remove(),
             Action::ToggleCover => self.action_toggle_cover(),
-            Action::TogglePalette => self.toggle_palette(),
             Action::Unlabel => self.action_unlabel(),
             _ => {
                 println!("* * * todo: {:?}", action);
@@ -689,13 +686,6 @@ impl GsrApplicationWindow {
         if action.is_repeatable() {
             *self.imp().last_action.borrow_mut() = action.clone();
         }
-    }
-    pub fn toggle_palette(&self) {
-        let single_view = self.with_view_state_mut(|view_state| {
-            view_state.settings.toggle_palette();
-            view_state.settings.single_view()
-        });
-        self.refresh_view()
     }
     fn begin_entry(&self, gsr_entry_window: GsrEntryWindow) {
         gsr_entry_window.present();
@@ -803,7 +793,7 @@ impl GsrApplicationWindow {
             ViewOption::Grid5x5 => self.toggle_pictures_per_row(5),
             ViewOption::Thumbnails => self.toggle_pictures_per_row(10),
             ViewOption::Covers => self.toggle_view_covers(),
-            ViewOption::Palette => self.toggle_palette(),
+            ViewOption::Palette => self.activate_action_for_control(&Control::TogglePalette),
             ViewOption::FilePath | ViewOption::FileDate | ViewOption::FileSize => {
                 self.toggle_view_display_option(view_option)
             }

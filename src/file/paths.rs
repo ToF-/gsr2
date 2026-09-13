@@ -1,9 +1,7 @@
 use crate::env::configuration::CONFIGURATION;
-use crate::env::default_values::BASE_DIRECTORY_SYMBOL;
 use crate::env::default_values::BASED_PATH_SYMBOL;
 use crate::env::default_values::GARBAGE;
 use crate::env::default_values::HOME_DIRECTORY_SYMBOL;
-use crate::env::default_values::ROOT_DIRECTORY_SYMBOL;
 use crate::env::default_values::THUMB_SUFFIX;
 use crate::env::default_values::VALID_EXTENSIONS;
 use crate::model::thumbnail::{thumbnail_size_display, thumbnail_size_for};
@@ -219,7 +217,6 @@ pub fn based_path(source: &str) -> String {
         None => source.to_string(),
         Some(ch) if ch == HOME_DIRECTORY_SYMBOL => {
             let sub_directory: String = chars.collect();
-            let configuration = CONFIGURATION.get();
             let base = home_directory();
             let base_path = Path::new(&base);
             let path = base_path.join(sub_directory);
@@ -227,7 +224,6 @@ pub fn based_path(source: &str) -> String {
         }
         Some(ch) if ch == BASED_PATH_SYMBOL => {
             let sub_directory: String = chars.collect();
-            let configuration = CONFIGURATION.get();
             let base = base_directory();
             let base_path = Path::new(&base);
             let path = base_path.join(sub_directory);

@@ -576,7 +576,7 @@ impl Database {
                     let mut statement = transaction.prepare(
                         "INSERT INTO Folder(FolderId, FilePath, ParentId, PictureCount) VALUES (?1, ?2, ?3, ?4)")
                         .expect("can't prepare statement");
-                    for (file_path, folder) in folder_map.map() {
+                    for (_file_path, folder) in folder_map.map() {
                         statement.execute(params![
                             folder.id(),
                             folder.file_path(),

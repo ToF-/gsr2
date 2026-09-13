@@ -21,7 +21,6 @@ use gtk::prelude::StyleContextExt;
 use gtk::prelude::WidgetExt;
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
-use gtk::subclass::prelude::*;
 use gtk::{self};
 use gtk::{
     Label, ListItem, ListView, SignalListItemFactory, SingleSelection, TreeExpander, TreeListModel,
@@ -64,6 +63,7 @@ impl GsrTreelistWindow {
         );
         obj
     }
+    #[allow(deprecated)]
     pub fn initialize(
         &self,
         gsr_application_window: &GsrApplicationWindow,

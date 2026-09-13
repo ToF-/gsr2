@@ -1,26 +1,8 @@
-use crate::env::default_values::TREELIST_WINDOW_HEIGHT;
-use crate::env::default_values::TREELIST_WINDOW_WIDTH;
-use crate::gui::controller::RcController;
-use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
-use crate::model::catalog::Catalog;
 use crate::model::shared::Shared;
-use crate::model::sub_category::SubCategory;
-use glib::BoxedAnyObject;
-use gtk::Align;
-use gtk::CssProvider;
-use gtk::Orientation;
-use gtk::gdk::Display;
-use gtk::glib::{Propagation, clone};
-use gtk::prelude::BoxExt;
-use gtk::prelude::GtkWindowExt;
 #[allow(deprecated)]
-use gtk::prelude::StyleContextExt;
-use gtk::prelude::WidgetExt;
-use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 use gtk::{self};
 use gtk::{
-    Label, ListItem, ListView, SignalListItemFactory, SingleSelection, TreeExpander, TreeListModel,
     glib,
 };
 use std::cell::Cell;

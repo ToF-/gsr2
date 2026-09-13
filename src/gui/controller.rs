@@ -450,7 +450,6 @@ impl Controller {
                 if let Action::ToggleSelected(position) = Action::from(gio_action) {
                     let window = shared_gsr_application_window.borrow();
                     this.with_view_state_mut(|view_state| {
-                        let position = view_state.navigator.position();
                         if view_state.selection.contains(position) {
                             view_state.selection.unselect(position)
                         } else {

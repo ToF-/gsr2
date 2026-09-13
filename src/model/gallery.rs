@@ -1,5 +1,3 @@
-use crate::file::paths::based_path;
-use crate::file::paths::grand_parent_directory;
 use crate::file::paths::parent_directory;
 use crate::file::picture_file::{get_all_picture_file_paths, get_picture_file_path};
 use crate::gui::view_state::navigator::Navigator;
@@ -17,7 +15,6 @@ use std::cmp::Reverse;
 use std::collections::BTreeMap;
 use std::collections::HashMap;
 use std::io::Result;
-use std::path::Component::Normal;
 use std::path::Path;
 use std::rc::Rc;
 
