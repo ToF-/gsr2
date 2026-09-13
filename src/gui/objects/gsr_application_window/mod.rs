@@ -611,9 +611,8 @@ impl GsrApplicationWindow {
     }
 
     fn activate_action_toggle_selected(&self) {
-        let position = self.with_view_state(|view_state| {
-            view_state.gallery.current_picture_index()
-        });
+        let position =
+            self.with_view_state(|view_state| view_state.gallery.current_picture_index());
         let action = Action::ToggleSelected(position);
         let (name, variant) = GioAction::from(action.clone()).to_simple_action_call();
         let variant_ref = variant.as_ref();

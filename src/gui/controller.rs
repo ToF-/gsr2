@@ -277,17 +277,7 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::TogglePalette),
-            clone!(
-                #[strong (rename_to=this)]
-                self,
-                #[strong]
-                shared_gsr_application_window,
-                move |_, _, _| {
-                    let window = shared_gsr_application_window.borrow();
-                    this.with_view_state_mut(|view_state| view_state.settings.toggle_palette());
-                    window.refresh_view();
-                }
-            ),
+            self.toggle_palette_action(shared_gsr_application_window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::ToggleSelectedAt(0, 0)),
@@ -398,5 +388,24 @@ impl Controller {
             .parameter_type(gio_action_ty.parameter_type().variant_ty())
             .activate(activate)
             .build()
+    }
+    fn toggle_palette_action(
+        &self,
+        shared_gsr_application_window: Shared<GsrApplicationWindow>,
+    ) -> impl Fn(&gtk::gio::SimpleActionGroup, &gtk::gio::SimpleAction, Option<&gtk::glib::Variant>)
+    + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            shared_gsr_application_window,
+            move |_, _, _| {
+                let window = shared_gsr_application_window.borrow();
+                this.with_view_state_mut(|view_state| {
+                    view_state.settings.toggle_palette();
+                });
+                window.refresh_view();
+            }
+        )
     }
 }

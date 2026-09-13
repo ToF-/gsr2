@@ -161,7 +161,9 @@ impl From<Action> for GioActionType {
                 GioActionType::new("set-selection-range-start", GioActionParameterType::Int32)
             }
             Action::Test(_) => GioActionType::new("test", GioActionParameterType::String),
-            Action::ToggleBlinking => GioActionType::new("toggle-blinking", GioActionParameterType::None),
+            Action::ToggleBlinking => {
+                GioActionType::new("toggle-blinking", GioActionParameterType::None)
+            }
             Action::ToggleCover => GioActionType::new("toggle-cover", GioActionParameterType::None),
             Action::ToggleCoversView => {
                 GioActionType::new("toggle-covers-view", GioActionParameterType::None)
