@@ -577,30 +577,12 @@ impl GsrApplicationWindow {
 
                         },
                         Control::ToggleExpand => this.toggle_expand(),
-                        Control::ToggleFullSize => {
-                            this.action_apply_view_setting(ViewOption::FullSize)
-                        }
-                        Control::TogglePalette => {
-                            let action = Action::from(*control);
-                            let (name, variant) = GioAction::from(action.clone()).to_simple_action_call();
-                            let variant_ref = variant.as_ref();
-                            match WidgetExt::activate_action(&this, &name, variant_ref) {
-                                Ok(_) => {}
-                                Err(e) => {
-                                    eprintln!(
-                                        "connect_key_pressed_controller for gsr_entry_window {} {:?} : {}",
-                                        name, variant_ref, e
-                                    )
-                                }
-                            }
-
-                        }
-                        Control::ToggleSelected => {
-                            this.activate_action_toggle_selected();
-                        }
-                        Control::ToggleSingleView => this.toggle_pictures_per_row(1),
-                        Control::ToggleThumbView => this.toggle_pictures_per_row(10),
-                        Control::ToggleTwoByTwoView => this.toggle_pictures_per_row(2),
+                        Control::ToggleFullSize => this.action_apply_view_setting(ViewOption::FullSize),
+                        Control::TogglePalette => this.activate_action_for_control(control),
+                        Control::ToggleSelected => this.activate_action_toggle_selected(),
+                        Control::ToggleSingleView => this.activate_action_for_control(control),
+                        Control::ToggleThumbView =>  this.activate_action_for_control(control),
+                        Control::ToggleTwoByTwoView => this.activate_action_for_control(control),
                         _ => {}
                     }
                 }
@@ -610,6 +592,20 @@ impl GsrApplicationWindow {
         self.add_controller(event_controller_key);
     }
 
+    fn activate_action_for_control(&self, control: &Control) {
+        let action = Action::from(*control);
+        let (name, variant) = GioAction::from(action.clone()).to_simple_action_call();
+        let variant_ref = variant.as_ref();
+        match WidgetExt::activate_action(self, &name, variant_ref) {
+            Ok(_) => {}
+            Err(e) => {
+                eprintln!(
+                    "connect_key_pressed_controller for gsr_entry_window {} {:?} : {}",
+                    name, variant_ref, e
+                )
+            }
+        }
+    }
     fn activate_action_toggle_selected(&self) {
         let position =
             self.with_view_state(|view_state| view_state.gallery.current_picture_index());

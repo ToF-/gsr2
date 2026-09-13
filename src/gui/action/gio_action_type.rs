@@ -177,8 +177,8 @@ impl From<Action> for GioActionType {
             Action::ToggleSelectedAt(_, _) => {
                 GioActionType::new("toggle-selected-at", GioActionParameterType::Int32Pair)
             }
-            Action::ToggleSingleView => {
-                GioActionType::new("toggle-single-view", GioActionParameterType::None)
+            Action::TogglePicturesPerRow(_) => {
+                GioActionType::new("toggle-pictures-per-row", GioActionParameterType::Int32)
             }
             Action::ToggleSlideShow => {
                 GioActionType::new("toggle-slide-show", GioActionParameterType::None)

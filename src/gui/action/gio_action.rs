@@ -111,7 +111,7 @@ impl From<Action> for GioAction {
             Action::TogglePalette => None,
             Action::ToggleSelected(index) => Some(GioActionParameter::from(index)),
             Action::ToggleSelectedAt(col, row) => Some(GioActionParameter::from((col, row))),
-            Action::ToggleSingleView => None,
+            Action::TogglePicturesPerRow(n) => Some(GioActionParameter::from(n)),
             Action::ToggleSlideShow => None,
             Action::ToggleThumbnailsView => None,
             Action::ToggleTwoByTwoView => None,
@@ -231,7 +231,9 @@ impl From<GioAction> for Action {
                 let i32_pair: (i32, i32) = <(i32, i32)>::from(gio_action.parameter().unwrap());
                 Action::ToggleSelectedAt(i32_pair.0, i32_pair.1)
             }
-            "toggle-single-view" => Action::ToggleSingleView,
+            "toggle-pictures-per-row" => {
+                Action::TogglePicturesPerRow(i32::from(gio_action.parameter().unwrap()))
+            }
             "toggle-slide-show" => Action::ToggleSlideShow,
             "toggle-thumbnails-view" => Action::ToggleThumbnailsView,
             "toggle-two-by-two-view" => Action::ToggleTwoByTwoView,

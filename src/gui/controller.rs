@@ -217,75 +217,19 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::Rank(Rank::ThreeStars)),
-            clone!(
-                #[strong (rename_to=this)]
-                self,
-                #[strong]
-                shared_gsr_application_window,
-                move |_group: &gtk::gio::SimpleActionGroup,
-                      object: &gtk::gio::SimpleAction,
-                      variant: Option<&gtk::glib::Variant>| {
-                    let gio_action = GioAction::from((object, variant));
-                    if let Action::Rank(rank) = Action::from(gio_action) {
-                        let window = shared_gsr_application_window.borrow();
-                        window.dismiss();
-                        let indices = window.selected_indices();
-                        for position in indices {
-                            this.with_view_state_mut(|view_state| {
-                                let mut picture = view_state.gallery.picture(position);
-                                picture.set_rank(rank);
-                                this.with_repository(|repository| {
-                                    match repository.update_picture(&picture) {
-                                        Ok(_) => {}
-                                        Err(e) => eprintln!("{}", e),
-                                    }
-                                });
-                                view_state.gallery.set_picture(position, picture);
-                            });
-                        }
-                        window.deselect_pictures();
-                    }
-                }
-            ),
-        ));
-        entries.push(Self::action_entry(
-            GioActionType::from(Action::ToggleSelected(0)),
-            clone!(
-                #[strong (rename_to=this)]
-                self,
-                #[strong]
-                shared_gsr_application_window,
-                move |_group: &gtk::gio::SimpleActionGroup,
-                      object: &gtk::gio::SimpleAction,
-                      variant: Option<&gtk::glib::Variant>| {
-                    let gio_action = GioAction::from((object, variant));
-                    if let Action::ToggleSelected(position) = Action::from(gio_action) {
-                        let window = shared_gsr_application_window.borrow();
-                        this.with_view_state_mut(|view_state| {
-                            let position = view_state.navigator.position();
-                            if view_state.selection.contains(position) {
-                                view_state.selection.unselect(position)
-                            } else {
-                                view_state.selection.select(position)
-                            }
-                            view_state.navigator.set_page_changed()
-                        });
-                        window.refresh_view()
-                    }
-                }
-            ),
+            self.rank_action(shared_gsr_application_window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::TogglePalette),
             self.toggle_palette_action(shared_gsr_application_window.clone()),
         ));
         entries.push(Self::action_entry(
-            GioActionType::from(Action::ToggleSelectedAt(0, 0)),
-            activate.clone(),
+            GioActionType::from(Action::ToggleSelected(0)),
+            self.toggle_selected_action(shared_gsr_application_window.clone()),
         ));
         entries.push(Self::action_entry(
-            GioActionType::from(Action::ToggleSingleView),
-            activate.clone(),
+            GioActionType::from(Action::TogglePicturesPerRow(1)),
+            self.toggle_pictures_per_row_action(shared_gsr_application_window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::ToggleThumbnailsView),
@@ -345,25 +289,7 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::ToggleBlinking),
-            clone!(
-                #[strong (rename_to=this)]
-                self,
-                #[strong]
-                shared_gsr_application_window,
-                move |_, _, _| {
-                    let window = shared_gsr_application_window.borrow();
-                    let on = this.with_view_state_mut(|view_state| {
-                        view_state.settings.toggle_blinking();
-                        view_state.settings.blinking_on()
-                    });
-                    if on == true {
-                        window.gsr_picture_grid().initialize_pictures();
-                        window.gsr_picture_grid().leave_current_picture_focus();
-                        window.gsr_picture_grid().enter_current_picture_focus();
-                    }
-                    window.refresh_view();
-                }
-            ),
+            self.toggle_blinking_action(shared_gsr_application_window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::ToggleCover),
@@ -389,6 +315,7 @@ impl Controller {
             .activate(activate)
             .build()
     }
+
     fn toggle_palette_action(
         &self,
         shared_gsr_application_window: Shared<GsrApplicationWindow>,
@@ -405,6 +332,134 @@ impl Controller {
                     view_state.settings.toggle_palette();
                 });
                 window.refresh_view();
+            }
+        )
+    }
+    fn rank_action(
+        &self,
+        shared_gsr_application_window: Shared<GsrApplicationWindow>,
+    ) -> impl Fn(&gtk::gio::SimpleActionGroup, &gtk::gio::SimpleAction, Option<&gtk::glib::Variant>)
+    + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            shared_gsr_application_window,
+            move |_group: &gtk::gio::SimpleActionGroup,
+                  object: &gtk::gio::SimpleAction,
+                  variant: Option<&gtk::glib::Variant>| {
+                let gio_action = GioAction::from((object, variant));
+                if let Action::Rank(rank) = Action::from(gio_action) {
+                    let window = shared_gsr_application_window.borrow();
+                    window.dismiss();
+                    let indices = window.selected_indices();
+                    for position in indices {
+                        this.with_view_state_mut(|view_state| {
+                            let mut picture = view_state.gallery.picture(position);
+                            picture.set_rank(rank);
+                            this.with_repository(|repository| {
+                                match repository.update_picture(&picture) {
+                                    Ok(_) => {}
+                                    Err(e) => eprintln!("{}", e),
+                                }
+                            });
+                            view_state.gallery.set_picture(position, picture);
+                        });
+                    }
+                    window.deselect_pictures();
+                }
+            }
+        )
+    }
+
+    fn toggle_blinking_action(
+        &self,
+        shared_gsr_application_window: Shared<GsrApplicationWindow>,
+    ) -> impl Fn(&gtk::gio::SimpleActionGroup, &gtk::gio::SimpleAction, Option<&gtk::glib::Variant>)
+    + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            shared_gsr_application_window,
+            move |_, _, _| {
+                let window = shared_gsr_application_window.borrow();
+                let on = this.with_view_state_mut(|view_state| {
+                    view_state.settings.toggle_blinking();
+                    view_state.settings.blinking_on()
+                });
+                if on == true {
+                    window.gsr_picture_grid().initialize_pictures();
+                    window.gsr_picture_grid().leave_current_picture_focus();
+                    window.gsr_picture_grid().enter_current_picture_focus();
+                }
+                window.refresh_view();
+            }
+        )
+    }
+    fn toggle_pictures_per_row_action(
+        &self,
+        shared_gsr_application_window: Shared<GsrApplicationWindow>,
+    ) -> impl Fn(&gtk::gio::SimpleActionGroup, &gtk::gio::SimpleAction, Option<&gtk::glib::Variant>)
+    + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            shared_gsr_application_window,
+            move |_group: &gtk::gio::SimpleActionGroup,
+                  object: &gtk::gio::SimpleAction,
+                  variant: Option<&gtk::glib::Variant>| {
+                let gio_action = GioAction::from((object, variant));
+                if let Action::TogglePicturesPerRow(pictures_per_row) = Action::from(gio_action) {
+                    let window = shared_gsr_application_window.borrow();
+                    this.with_view_state_mut(|view_state| {
+                        let new_pictures_per_row = view_state
+                            .settings
+                            .toggle_pictures_per_row(pictures_per_row);
+                        view_state
+                            .navigator
+                            .set_pictures_per_row(new_pictures_per_row as usize);
+                        view_state.navigator.update_page_limits();
+                        if let Some((row, col)) = view_state
+                            .navigator
+                            .coords_from_position(view_state.navigator.position())
+                        {
+                            view_state.focus_at_coords = (col as i32, row as i32);
+                        }
+                    });
+                    window.refresh_view()
+                }
+            }
+        )
+    }
+    fn toggle_selected_action(
+        &self,
+        shared_gsr_application_window: Shared<GsrApplicationWindow>,
+    ) -> impl Fn(&gtk::gio::SimpleActionGroup, &gtk::gio::SimpleAction, Option<&gtk::glib::Variant>)
+    + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            shared_gsr_application_window,
+            move |_group: &gtk::gio::SimpleActionGroup,
+                  object: &gtk::gio::SimpleAction,
+                  variant: Option<&gtk::glib::Variant>| {
+                let gio_action = GioAction::from((object, variant));
+                if let Action::ToggleSelected(position) = Action::from(gio_action) {
+                    let window = shared_gsr_application_window.borrow();
+                    this.with_view_state_mut(|view_state| {
+                        let position = view_state.navigator.position();
+                        if view_state.selection.contains(position) {
+                            view_state.selection.unselect(position)
+                        } else {
+                            view_state.selection.select(position)
+                        }
+                        view_state.navigator.set_page_changed()
+                    });
+                    window.refresh_view()
+                }
             }
         )
     }

@@ -75,7 +75,7 @@ pub enum Action {
     TogglePalette,                 // set the palette visible on / off
     ToggleSelected(usize),         // toggle current picture in or out the selection
     ToggleSelectedAt(i32, i32),    // set the picture at col,row selected or deselected
-    ToggleSingleView,              // set the view to single / back to multiple
+    TogglePicturesPerRow(i32),     // set the view to single / back to multiple
     ToggleSlideShow,               // set the slide show on off
     ToggleThumbnailsView,          // set the view to thumbnails / back to previous
     ToggleTwoByTwoView,            // set the view to 2x2 / back to previous
@@ -127,9 +127,9 @@ impl From<Control> for Action {
             Control::ToggleBlinking => Action::ToggleBlinking,
             Control::ToggleFullSize => Action::ApplyViewSetting(ViewOption::FullSize),
             Control::TogglePalette => Action::TogglePalette,
-            Control::ToggleSingleView => Action::ToggleSingleView,
-            Control::ToggleThumbView => Action::ToggleThumbnailsView,
-            Control::ToggleTwoByTwoView => Action::ToggleTwoByTwoView,
+            Control::ToggleSingleView => Action::TogglePicturesPerRow(1),
+            Control::ToggleThumbView => Action::TogglePicturesPerRow(10),
+            Control::ToggleTwoByTwoView => Action::TogglePicturesPerRow(2),
             Control::Up => Action::MoveTowards(Direction::Up),
             _ => Action::Nothing,
         }
