@@ -108,6 +108,7 @@ impl From<Action> for GioAction {
             Action::ToggleBlinking => None,
             Action::ToggleCover => None,
             Action::ToggleCoversView => None,
+            Action::ToggleExpand => None,
             Action::TogglePalette => None,
             Action::ToggleSelected(index) => Some(GioActionParameter::from(index)),
             Action::ToggleSelectedAt(col, row) => Some(GioActionParameter::from((col, row))),

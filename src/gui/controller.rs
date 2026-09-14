@@ -1,10 +1,11 @@
-use crate::gui::control::Control;
-use crate::file::paths::parent_directory;
+use std::rc::Rc;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
+use crate::file::paths::parent_directory;
 use crate::gui::action::Action;
 use crate::gui::action::gio_action::GioAction;
 use crate::gui::action::gio_action_type::GioActionType;
+use crate::gui::control::Control;
 use crate::gui::direction::Direction;
 use crate::gui::key_input::menu::view_menu;
 use crate::gui::objects::gsr_application::GsrApplication;
@@ -36,6 +37,7 @@ pub struct Controller {
     pub gsr_application_window: Option<Shared<GsrApplicationWindow>>,
     pub gsr_entry_window: Option<Shared<GsrEntryWindow>>,
     pub gsr_treelist_window: Option<Shared<GsrTreelistWindow>>,
+    pub last_action: Shared<Action>,
 }
 
 impl Default for Controller {
@@ -45,6 +47,7 @@ impl Default for Controller {
             gsr_application_window: None,
             gsr_entry_window: None,
             gsr_treelist_window: None,
+            last_action: Rc::new(RefCell::new(Action::Nothing)),
         }
     }
 }
@@ -73,7 +76,10 @@ impl Controller {
     }
 
     pub fn command_line_arguments(&self) -> CommandLineArguments {
-        self.gsr_application().shared_command_line_arguments().borrow().clone()
+        self.gsr_application()
+            .shared_command_line_arguments()
+            .borrow()
+            .clone()
     }
     pub fn with_view_state<F, R>(&self, f: F) -> R
     where
@@ -139,6 +145,10 @@ impl Controller {
         entries.push(Self::action_entry(
             GioActionType::from(Action::Cancel),
             activate.clone(),
+        ));
+        entries.push(Self::action_entry(
+            GioActionType::from(Action::CancelSelectionRange),
+            self.cancel_selection_range_action(shared_gsr_application_window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::DeleteSelectedPicture("yes".to_string())),
@@ -233,6 +243,10 @@ impl Controller {
             self.rank_action(shared_gsr_application_window.clone()),
         ));
         entries.push(Self::action_entry(
+            GioActionType::from(Action::RepeatRangeSelection),
+            self.repeat_range_selection_action(shared_gsr_application_window.clone()),
+        ));
+        entries.push(Self::action_entry(
             GioActionType::from(Action::ToggleCoversView),
             self.toggle_covers_view_action(shared_gsr_application_window.clone()),
         ));
@@ -299,6 +313,10 @@ impl Controller {
         entries.push(Self::action_entry(
             GioActionType::from(Action::ToggleBlinking),
             self.toggle_blinking_action(shared_gsr_application_window.clone()),
+        ));
+        entries.push(Self::action_entry(
+            GioActionType::from(Action::ToggleExpand),
+            self.toggle_expand_action(shared_gsr_application_window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::ToggleCover),
@@ -380,22 +398,43 @@ impl Controller {
                 let gio_action = GioAction::from((object, variant));
                 let window = shared_gsr_application_window.borrow();
                 window.dismiss();
-                if let Action::ApplyViewSetting(view_option) = Action::from(gio_action) {
+                let action = Action::from(gio_action);
+                if let Action::ApplyViewSetting(view_option) = action {
                     match view_option {
-                        ViewOption::Single => window.activate_action_for_control(&Control::ToggleSingleView),
-                        ViewOption::Grid2x2 => window.activate_action_for_control(&Control::ToggleTwoByTwoView),
-                        ViewOption::Grid3x3 => window.activate_action_for_control(&Control::TogglePicturesPerRow(3)),
-                        ViewOption::Grid4x4 => window.activate_action_for_control(&Control::TogglePicturesPerRow(4)),
-                        ViewOption::Grid5x5 => window.activate_action_for_control(&Control::TogglePicturesPerRow(5)),
-                        ViewOption::Thumbnails => window.activate_action_for_control(&Control::ToggleThumbView),
-                        ViewOption::Covers => window.activate_action_for_control(&Control::ToggleCoverSelection),
-                        ViewOption::Palette => window.activate_action_for_control(&Control::TogglePalette),
+                        ViewOption::Single => {
+                            window.activate_action_for_control(&Control::ToggleSingleView)
+                        }
+                        ViewOption::Grid2x2 => {
+                            window.activate_action_for_control(&Control::ToggleTwoByTwoView)
+                        }
+                        ViewOption::Grid3x3 => {
+                            window.activate_action_for_control(&Control::TogglePicturesPerRow(3))
+                        }
+                        ViewOption::Grid4x4 => {
+                            window.activate_action_for_control(&Control::TogglePicturesPerRow(4))
+                        }
+                        ViewOption::Grid5x5 => {
+                            window.activate_action_for_control(&Control::TogglePicturesPerRow(5))
+                        }
+                        ViewOption::Thumbnails => {
+                            window.activate_action_for_control(&Control::ToggleThumbView)
+                        }
+                        ViewOption::Covers => {
+                            window.activate_action_for_control(&Control::ToggleCoverSelection)
+                        }
+                        ViewOption::Palette => {
+                            window.activate_action_for_control(&Control::TogglePalette)
+                        }
                         ViewOption::FilePath | ViewOption::FileDate | ViewOption::FileSize => {
                             window.toggle_view_display_option(view_option)
                         }
                         ViewOption::FullSize => window.toggle_expand(),
                         ViewOption::Catalog => window.action_view_catalog(),
                     }
+                }
+                if action.is_repeatable() {
+                    let mut last_action = this.last_action.borrow_mut();
+                    *last_action = action
                 }
             }
         )
@@ -423,6 +462,26 @@ impl Controller {
                 view_state.navigator.move_towards(&Direction::First)
             }
         });
+    }
+
+    fn cancel_selection_range_action(
+        &self,
+        shared_gsr_application_window: Shared<GsrApplicationWindow>,
+    ) -> impl Fn(&gtk::gio::SimpleActionGroup, &gtk::gio::SimpleAction, Option<&gtk::glib::Variant>)
+    + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            shared_gsr_application_window,
+            move |_, _, _| {
+                this.with_view_state_mut(|view_state| {
+                    view_state.selection.cancel();
+                });
+                let window = shared_gsr_application_window.borrow();
+                window.refresh_view();
+            }
+        )
     }
 
     fn goto_directory_action(
@@ -474,7 +533,7 @@ impl Controller {
                     ) {
                         Err(e) => panic!("{}", e),
                         Ok(0) => this.back_to_previous_location(),
-                        Ok(_) => {},
+                        Ok(_) => {}
                     };
                     window.refresh_view();
                 }
@@ -609,6 +668,27 @@ impl Controller {
         )
     }
 
+    fn repeat_range_selection_action(
+        &self,
+        shared_gsr_application_window: Shared<GsrApplicationWindow>,
+    ) -> impl Fn(&gtk::gio::SimpleActionGroup, &gtk::gio::SimpleAction, Option<&gtk::glib::Variant>)
+    + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            shared_gsr_application_window,
+            move |_, _, _| {
+                this.with_view_state_mut(|view_state| {
+                    view_state.selection.repeat();
+                    view_state.navigator.set_page_changed();
+                });
+                let window = shared_gsr_application_window.borrow();
+                window.refresh_view();
+            }
+        )
+    }
+
     fn toggle_blinking_action(
         &self,
         shared_gsr_application_window: Shared<GsrApplicationWindow>,
@@ -634,6 +714,33 @@ impl Controller {
             }
         )
     }
+
+    fn toggle_expand_action(
+        &self,
+        shared_gsr_application_window: Shared<GsrApplicationWindow>,
+    ) -> impl Fn(&gtk::gio::SimpleActionGroup, &gtk::gio::SimpleAction, Option<&gtk::glib::Variant>)
+    + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            shared_gsr_application_window,
+            move |_, _, _| {
+                let window = shared_gsr_application_window.borrow();
+                let pictures_per_row = this.with_view_state_mut(|view_state| {
+                    if view_state.settings.pictures_per_row() == 1 {
+                        view_state.settings.toggle_view_mode();
+                    }
+                    view_state.settings.pictures_per_row()
+                });
+                if pictures_per_row == 1 {
+                    window.frame().set_current_picture();
+                    window.refresh_title();
+                }
+            }
+        )
+    }
+
     fn toggle_pictures_per_row_action(
         &self,
         shared_gsr_application_window: Shared<GsrApplicationWindow>,

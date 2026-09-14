@@ -72,6 +72,7 @@ pub enum Action {
     ToggleBlinking,                // toggle blinking of cursor under current picture
     ToggleCover,                   // toggle current picture set to cover or not
     ToggleCoversView,              // set the view on off to only covers
+    ToggleExpand,                  // toggle how the picture in single view uses the space
     TogglePalette,                 // set the palette visible on / off
     ToggleSelected(usize),         // toggle current picture in or out the selection
     ToggleSelectedAt(i32, i32),    // set the picture at col,row selected or deselected
@@ -106,6 +107,7 @@ impl From<Control> for Action {
         match control {
             Control::BackFromDirectory => Action::QuitDirectory,
             Control::CancelEdition => Action::Cancel,
+            Control::CancelRange => Action::CancelSelectionRange,
             Control::Down => Action::MoveTowards(Direction::Down),
             Control::PickChange => Action::PickChange,
             Control::GotoDirectory => Action::GotoDirectory,
@@ -121,11 +123,13 @@ impl From<Control> for Action {
             Control::RankOneStar => Action::Rank(Rank::OneStar),
             Control::RankThreeStars => Action::Rank(Rank::ThreeStars),
             Control::RankTwoStars => Action::Rank(Rank::TwoStars),
+            Control::RepeatRange => Action::RepeatRangeSelection,
             Control::Right => Action::MoveTowards(Direction::Right),
             Control::SetOrder => Action::PickOrderSetting,
             Control::SetView => Action::PickViewOption,
             Control::ToggleBlinking => Action::ToggleBlinking,
             Control::ToggleCoverSelection => Action::ToggleCoversView,
+            Control::ToggleExpand => Action::ToggleExpand,
             Control::ToggleFullSize => Action::ApplyViewSetting(ViewOption::FullSize),
             Control::TogglePalette => Action::TogglePalette,
             Control::TogglePicturesPerRow(n) => Action::TogglePicturesPerRow(n),

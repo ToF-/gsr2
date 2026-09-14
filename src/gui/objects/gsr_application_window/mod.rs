@@ -350,10 +350,10 @@ impl GsrApplicationWindow {
     }
 
     pub fn deselect_pictures(&self) {
-        self.cancel_range();
+        self.activate_action_for_control(&Control::CancelRange)
     }
 
-    fn refresh_title(&self) {
+    pub fn refresh_title(&self) {
         let shared_view_state = self.shared_view_state();
         self.set_title(Some(&title_display(&shared_view_state.borrow())));
     }
@@ -521,7 +521,7 @@ impl GsrApplicationWindow {
                         }
                         Control::ToggleCoverSelection => this.activate_action_for_control(control),
                         Control::BackFromDirectory => this.activate_action_for_control(control),
-                        Control::CancelRange => this.cancel_range(),
+                        Control::CancelRange => this.activate_action_for_control(control),
                         Control::DeletePicture => this.enter_delete_picture(),
                         Control::EnterFind => this.pick_find_option(),
                         Control::EnterSelect => this.pick_select_option(),
@@ -531,7 +531,7 @@ impl GsrApplicationWindow {
                         Control::Quit => this.action_quit(),
                         Control::GotoDirectory => this.activate_action_for_control(control),
                         Control::MovePicture => this.enter_move_picture(),
-                        Control::RepeatRange => this.repeat_range(),
+                        Control::RepeatRange => this.activate_action_for_control(control),
                         Control::RepeatLastAction => this.repeat_last_action(),
                         Control::SetOrder => this.set_order(),
                         Control::SetView => this.activate_action_for_control(control),
@@ -573,7 +573,7 @@ impl GsrApplicationWindow {
                             }
 
                         },
-                        Control::ToggleExpand => this.toggle_expand(),
+                        Control::ToggleExpand => this.activate_action_for_control(control),
                         Control::ToggleFullSize => this.activate_action_for_control(control),
                         Control::TogglePalette => this.activate_action_for_control(control),
                         Control::ToggleSelected => this.activate_action_toggle_selected(),
@@ -1269,12 +1269,6 @@ impl GsrApplicationWindow {
         });
         self.deselect_pictures();
     }
-    fn cancel_range(&self) {
-        self.with_view_state_mut(|view_state| {
-            view_state.selection.cancel();
-        });
-        self.refresh_view();
-    }
 
     fn pick_change(&self) {
         let gsr_entry_window = GsrEntryWindow::new_with(
@@ -1362,7 +1356,6 @@ impl GsrApplicationWindow {
         self.begin_entry(gsr_entry_window);
     }
 
-
     fn action_select(&self, find: Find, pattern: &str) {
         self.dismiss();
         let location = self.with_view_state(|view_state| view_state.current_location());
@@ -1447,14 +1440,6 @@ impl GsrApplicationWindow {
     fn repeat_last_action(&self) {
         let action = self.imp().last_action.borrow_mut().clone();
         self.process_action(action);
-    }
-
-    fn repeat_range(&self) {
-        self.with_view_state_mut(|view_state| {
-            view_state.selection.repeat();
-            view_state.navigator.set_page_changed();
-        });
-        self.refresh_view();
     }
 
     fn set_selection_range(&self, range: SelectionRange) {

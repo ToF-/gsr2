@@ -168,6 +168,9 @@ impl From<Action> for GioActionType {
             Action::ToggleCoversView => {
                 GioActionType::new("toggle-covers-view", GioActionParameterType::None)
             }
+            Action::ToggleExpand => {
+                GioActionType::new("toggle-expand", GioActionParameterType::None)
+            }
             Action::TogglePalette => {
                 GioActionType::new("toggle-palette", GioActionParameterType::None)
             }
