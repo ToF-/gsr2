@@ -1,6 +1,7 @@
-use std::rc::Rc;
+use crate::gui::key_input::menu::change_menu;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
+use crate::env::configuration::Configuration;
 use crate::file::paths::parent_directory;
 use crate::gui::action::Action;
 use crate::gui::action::gio_action::GioAction;
@@ -27,6 +28,7 @@ use gtk::gio::prelude::*;
 use gtk::glib::clone;
 use std::cell::RefCell;
 use std::io::Result as IOResult;
+use std::rc::Rc;
 
 pub const MAIN_CONTROLLER_GROUP_NAME: &str = "main-controller";
 pub type RcController = RefCell<Controller>;
@@ -232,7 +234,7 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::Quit),
-            activate.clone(),
+            self.quit_action(shared_gsr_application_window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::QuitDirectory),
@@ -273,6 +275,10 @@ impl Controller {
         entries.push(Self::action_entry(
             GioActionType::from(Action::PickCatalogChange),
             activate.clone(),
+        ));
+        entries.push(Self::action_entry(
+            GioActionType::from(Action::PickChange),
+            self.pick_change_action(shared_gsr_application_window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::SelectCategoryForPicture),
@@ -541,6 +547,57 @@ impl Controller {
                     };
                     window.refresh_view();
                 }
+            }
+        )
+    }
+
+    fn pick_change_action(
+        &self,
+        shared_gsr_application_window: Shared<GsrApplicationWindow>,
+    ) -> impl Fn(&gtk::gio::SimpleActionGroup, &gtk::gio::SimpleAction, Option<&gtk::glib::Variant>)
+    + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            shared_gsr_application_window,
+            move |_, _, _| {
+                let window = shared_gsr_application_window.borrow();
+                let gsr_entry_window = GsrEntryWindow::new_with(
+                    &window,
+                    &window.gsr_application().shared_controller(),
+                    change_menu(),
+                    None,
+                );
+                window.begin_entry(gsr_entry_window);
+            }
+        )
+    }
+
+    fn quit_action(
+        &self,
+        shared_gsr_application_window: Shared<GsrApplicationWindow>,
+    ) -> impl Fn(&gtk::gio::SimpleActionGroup, &gtk::gio::SimpleAction, Option<&gtk::glib::Variant>)
+    + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            shared_gsr_application_window,
+            move |_, _, _| {
+                this.with_view_state(|view_state| {
+                    if let Ok(mut configuration) = Configuration::from_env() {
+                        configuration.current_picture =
+                            Some(view_state.gallery.current_picture().file_path());
+                        configuration.current_pictures_per_row =
+                            Some(view_state.settings.pictures_per_row() as usize);
+                        configuration.current_order = Some(view_state.gallery.order());
+                        let _ = configuration.save();
+                    }
+                });
+                let window = shared_gsr_application_window.borrow();
+                window.gsr_picture_grid().leave_current_picture_focus();
+                window.quit();
             }
         )
     }

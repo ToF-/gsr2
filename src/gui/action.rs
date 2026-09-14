@@ -124,7 +124,7 @@ impl From<Control> for Action {
             Control::RankThreeStars => Action::Rank(Rank::ThreeStars),
             Control::RankTwoStars => Action::Rank(Rank::TwoStars),
             Control::RepeatRange => Action::RepeatRangeSelection,
-            Control::RepeatLastAction =>  Action::RepeatAction,
+            Control::RepeatLastAction => Action::RepeatAction,
             Control::Right => Action::MoveTowards(Direction::Right),
             Control::SetOrder => Action::PickOrderSetting,
             Control::SetView => Action::PickViewOption,

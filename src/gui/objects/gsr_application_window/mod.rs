@@ -1,6 +1,5 @@
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
-use crate::env::configuration::Configuration;
 use crate::env::configuration::set_configuration_updated_flag;
 use crate::env::default_values::FRAME_WINDOW_NAME;
 use crate::env::default_values::FULL_OPACITY;
@@ -519,22 +518,13 @@ impl GsrApplicationWindow {
                                 this.grid_view_move(&Direction::Last)
                             }
                         }
-                        Control::ToggleCoverSelection => this.activate_action_for_control(control),
-                        Control::BackFromDirectory => this.activate_action_for_control(control),
-                        Control::CancelRange => this.activate_action_for_control(control),
                         Control::DeletePicture => this.enter_delete_picture(),
                         Control::EnterFind => this.pick_find_option(),
                         Control::EnterSelect => this.pick_select_option(),
                         Control::RedoFind => this.action_redo_find(),
                         Control::FindNext => this.action_find_next(),
-                        Control::PickChange => this.pick_change(),
-                        Control::Quit => this.action_quit(),
-                        Control::GotoDirectory => this.activate_action_for_control(control),
                         Control::MovePicture => this.enter_move_picture(),
-                        Control::RepeatRange => this.activate_action_for_control(control),
-                        Control::RepeatLastAction => this.activate_action_for_control(control),
                         Control::SetOrder => this.set_order(),
-                        Control::SetView => this.activate_action_for_control(control),
                         Control::SetSelectionRangeEnd => {
                             this.set_selection_range(SelectionRange::End)
                         }
@@ -573,14 +563,7 @@ impl GsrApplicationWindow {
                             }
 
                         },
-                        Control::ToggleExpand => this.activate_action_for_control(control),
-                        Control::ToggleFullSize => this.activate_action_for_control(control),
-                        Control::TogglePalette => this.activate_action_for_control(control),
-                        Control::ToggleSelected => this.activate_action_toggle_selected(),
-                        Control::ToggleSingleView => this.activate_action_for_control(control),
-                        Control::ToggleThumbView =>  this.activate_action_for_control(control),
-                        Control::ToggleTwoByTwoView => this.activate_action_for_control(control),
-                        _ => {}
+                        _ => this.activate_action_for_control(control),
                     }
                 }
                 Propagation::Stop
@@ -662,7 +645,6 @@ impl GsrApplicationWindow {
             }
             Action::Nothing => println!("processing Action::Nothing"),
             Action::PickCatalogChange => self.action_pick_catalog_change(),
-            Action::Quit => self.action_quit(),
             Action::RemoveCategory(ref category_name) => {
                 self.action_remove_category(&category_name)
             }
@@ -715,21 +697,6 @@ impl GsrApplicationWindow {
 
         *self.imp().gsr_treelist_window.borrow_mut() = gsr_treelist_window;
         self.imp().treelist_on.set(true);
-    }
-
-    fn action_quit(&self) {
-        self.with_view_state(|view_state| {
-            if let Ok(mut configuration) = Configuration::from_env() {
-                configuration.current_picture =
-                    Some(view_state.gallery.current_picture().file_path());
-                configuration.current_pictures_per_row =
-                    Some(view_state.settings.pictures_per_row() as usize);
-                configuration.current_order = Some(view_state.gallery.order());
-                let _ = configuration.save();
-            }
-        });
-        self.gsr_picture_grid().leave_current_picture_focus();
-        self.close();
     }
 
     fn action_add_category(&self, new_category_name: &str, target_category_name: &str) {
@@ -1273,16 +1240,6 @@ impl GsrApplicationWindow {
         self.deselect_pictures();
     }
 
-    fn pick_change(&self) {
-        let gsr_entry_window = GsrEntryWindow::new_with(
-            self,
-            &self.gsr_application().shared_controller(),
-            change_menu(),
-            None,
-        );
-        self.begin_entry(gsr_entry_window);
-    }
-
     fn pick_find_option(&self) {
         let gsr_entry_window = GsrEntryWindow::new_with(
             self,
@@ -1486,6 +1443,10 @@ impl GsrApplicationWindow {
             };
         });
         self.refresh_title();
+    }
+
+    pub fn quit(&self) {
+        self.close()
     }
 
     fn move_navigator(&self, direction: &Direction) -> Navigator {
