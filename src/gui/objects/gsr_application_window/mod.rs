@@ -30,7 +30,6 @@ use crate::gui::key_input::menu::change_menu;
 use crate::gui::key_input::menu::find_menu;
 use crate::gui::key_input::menu::order_menu;
 use crate::gui::key_input::menu::select_menu;
-use crate::gui::key_input::menu::view_menu;
 use crate::gui::mode::Mode;
 use crate::gui::objects::gsr_application::GsrApplication;
 use crate::gui::objects::gsr_entry_window::GsrEntryWindow;
@@ -284,7 +283,7 @@ impl GsrApplicationWindow {
         self.refresh_view()
     }
 
-    fn retrieve_from_repository(
+    pub fn retrieve_from_repository(
         &self,
         covers_only_opt: Option<bool>,
         sub_directory: Option<String>,
@@ -520,7 +519,7 @@ impl GsrApplicationWindow {
                                 this.grid_view_move(&Direction::Last)
                             }
                         }
-                        Control::ToggleCoverSelection => this.toggle_view_covers(),
+                        Control::ToggleCoverSelection => this.activate_action_for_control(control),
                         Control::BackFromDirectory => this.back_to_previous_location(),
                         Control::CancelRange => this.cancel_range(),
                         Control::DeletePicture => this.enter_delete_picture(),
@@ -1105,14 +1104,7 @@ impl GsrApplicationWindow {
     }
 
     pub fn selected_indices(&self) -> Vec<usize> {
-        self.with_view_state(|view_state| {
-            if view_state.selection.has_selected() {
-                assert!(view_state.selection.count() == view_state.selection.indices().len());
-                view_state.selection.indices()
-            } else {
-                vec![view_state.gallery.current_picture_index()]
-            }
-        })
+        self.with_view_state(|view_state| view_state.selected_indices())
     }
 
     fn action_tag(&self, input: &str) {

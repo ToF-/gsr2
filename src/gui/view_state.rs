@@ -25,6 +25,14 @@ pub struct ViewState {
 }
 
 impl ViewState {
+    pub fn selected_indices(&self) -> Vec<usize> {
+        if self.selection.has_selected() {
+            self.selection.indices()
+        } else {
+            vec![self.gallery.current_picture_index()]
+        }
+    }
+
     pub fn set_new_location(
         &mut self,
         sub_directory: Option<String>,

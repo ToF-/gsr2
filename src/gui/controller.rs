@@ -1,8 +1,8 @@
-use crate::gui::key_input::menu::view_menu;
 use crate::gui::action::Action;
 use crate::gui::action::gio_action::GioAction;
 use crate::gui::action::gio_action_type::GioActionType;
 use crate::gui::direction::Direction;
+use crate::gui::key_input::menu::view_menu;
 use crate::gui::objects::gsr_application::GsrApplication;
 use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
 use crate::gui::objects::gsr_entry_window::GsrEntryWindow;
@@ -221,6 +221,10 @@ impl Controller {
             self.rank_action(shared_gsr_application_window.clone()),
         ));
         entries.push(Self::action_entry(
+            GioActionType::from(Action::ToggleCoversView),
+            self.toggle_covers_view_action(shared_gsr_application_window.clone()),
+        ));
+        entries.push(Self::action_entry(
             GioActionType::from(Action::TogglePalette),
             self.toggle_palette_action(shared_gsr_application_window.clone()),
         ));
@@ -231,14 +235,6 @@ impl Controller {
         entries.push(Self::action_entry(
             GioActionType::from(Action::TogglePicturesPerRow(1)),
             self.toggle_pictures_per_row_action(shared_gsr_application_window.clone()),
-        ));
-        entries.push(Self::action_entry(
-            GioActionType::from(Action::ToggleThumbnailsView),
-            activate.clone(),
-        ));
-        entries.push(Self::action_entry(
-            GioActionType::from(Action::ToggleTwoByTwoView),
-            activate.clone(),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::EnterRename),
@@ -317,6 +313,33 @@ impl Controller {
             .build()
     }
 
+    fn toggle_covers_view_action(
+        &self,
+        shared_gsr_application_window: Shared<GsrApplicationWindow>,
+    ) -> impl Fn(&gtk::gio::SimpleActionGroup, &gtk::gio::SimpleAction, Option<&gtk::glib::Variant>)
+    + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            shared_gsr_application_window,
+            move |_, _, _| {
+                let (gallery_has_covers, sub_folder) = this.with_view_state(|view_state| {
+                    (
+                        view_state.gallery.has_covers(),
+                        view_state.gallery.sub_folder(),
+                    )
+                });
+                if gallery_has_covers && sub_folder.is_none() {
+                    let covers_only = this
+                        .with_view_state_mut(|view_state| view_state.settings.toggle_covers_only());
+                    let window = shared_gsr_application_window.borrow();
+                    let _ = window.retrieve_from_repository(Some(covers_only), None, None);
+                    window.refresh_view()
+                }
+            }
+        )
+    }
     fn toggle_palette_action(
         &self,
         shared_gsr_application_window: Shared<GsrApplicationWindow>,
@@ -328,10 +351,10 @@ impl Controller {
             #[strong]
             shared_gsr_application_window,
             move |_, _, _| {
-                let window = shared_gsr_application_window.borrow();
                 this.with_view_state_mut(|view_state| {
                     view_state.settings.toggle_palette();
                 });
+                let window = shared_gsr_application_window.borrow();
                 window.refresh_view();
             }
         )
@@ -347,14 +370,14 @@ impl Controller {
             #[strong]
             shared_gsr_application_window,
             move |_, _, _| {
-                    let window = shared_gsr_application_window.borrow();
-                    let gsr_entry_window = GsrEntryWindow::new_with(
-                        &window,
-                        &this.gsr_application().shared_controller(),
-                        view_menu(),
-                        None,
-                    );
-                    window.begin_entry(gsr_entry_window);
+                let window = shared_gsr_application_window.borrow();
+                let gsr_entry_window = GsrEntryWindow::new_with(
+                    &window,
+                    &this.gsr_application().shared_controller(),
+                    view_menu(),
+                    None,
+                );
+                window.begin_entry(gsr_entry_window);
             }
         )
     }
@@ -373,22 +396,22 @@ impl Controller {
                   variant: Option<&gtk::glib::Variant>| {
                 let gio_action = GioAction::from((object, variant));
                 if let Action::Rank(rank) = Action::from(gio_action) {
-                    let window = shared_gsr_application_window.borrow();
-                    window.dismiss();
-                    let indices = window.selected_indices();
-                    for position in indices {
+                    this.with_repository(|repository| {
                         this.with_view_state_mut(|view_state| {
-                            let mut picture = view_state.gallery.picture(position);
-                            picture.set_rank(rank);
-                            this.with_repository(|repository| {
+                            let indices = view_state.selected_indices();
+                            for position in indices {
+                                let mut picture = view_state.gallery.picture(position);
+                                picture.set_rank(rank);
                                 match repository.update_picture(&picture) {
                                     Ok(_) => {}
                                     Err(e) => eprintln!("{}", e),
                                 }
-                            });
-                            view_state.gallery.set_picture(position, picture);
+                                view_state.gallery.set_picture(position, picture);
+                            }
                         });
-                    }
+                    });
+                    let window = shared_gsr_application_window.borrow();
+                    window.dismiss();
                     window.deselect_pictures();
                 }
             }
@@ -406,11 +429,11 @@ impl Controller {
             #[strong]
             shared_gsr_application_window,
             move |_, _, _| {
-                let window = shared_gsr_application_window.borrow();
                 let on = this.with_view_state_mut(|view_state| {
                     view_state.settings.toggle_blinking();
                     view_state.settings.blinking_on()
                 });
+                let window = shared_gsr_application_window.borrow();
                 if on == true {
                     window.gsr_picture_grid().initialize_pictures();
                     window.gsr_picture_grid().leave_current_picture_focus();
@@ -435,7 +458,6 @@ impl Controller {
                   variant: Option<&gtk::glib::Variant>| {
                 let gio_action = GioAction::from((object, variant));
                 if let Action::TogglePicturesPerRow(pictures_per_row) = Action::from(gio_action) {
-                    let window = shared_gsr_application_window.borrow();
                     this.with_view_state_mut(|view_state| {
                         let new_pictures_per_row = view_state
                             .settings
@@ -451,6 +473,7 @@ impl Controller {
                             view_state.focus_at_coords = (col as i32, row as i32);
                         }
                     });
+                    let window = shared_gsr_application_window.borrow();
                     window.refresh_view()
                 }
             }
@@ -471,7 +494,6 @@ impl Controller {
                   variant: Option<&gtk::glib::Variant>| {
                 let gio_action = GioAction::from((object, variant));
                 if let Action::ToggleSelected(position) = Action::from(gio_action) {
-                    let window = shared_gsr_application_window.borrow();
                     this.with_view_state_mut(|view_state| {
                         if view_state.selection.contains(position) {
                             view_state.selection.unselect(position)
@@ -480,6 +502,7 @@ impl Controller {
                         }
                         view_state.navigator.set_page_changed()
                     });
+                    let window = shared_gsr_application_window.borrow();
                     window.refresh_view()
                 }
             }

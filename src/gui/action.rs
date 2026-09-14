@@ -125,6 +125,7 @@ impl From<Control> for Action {
             Control::SetOrder => Action::PickOrderSetting,
             Control::SetView => Action::PickViewOption,
             Control::ToggleBlinking => Action::ToggleBlinking,
+            Control::ToggleCoverSelection => Action::ToggleCoversView,
             Control::ToggleFullSize => Action::ApplyViewSetting(ViewOption::FullSize),
             Control::TogglePalette => Action::TogglePalette,
             Control::ToggleSingleView => Action::TogglePicturesPerRow(1),
