@@ -1,4 +1,3 @@
-use crate::gui::key_input::menu::change_menu;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
@@ -8,6 +7,8 @@ use crate::gui::action::gio_action::GioAction;
 use crate::gui::action::gio_action_type::GioActionType;
 use crate::gui::control::Control;
 use crate::gui::direction::Direction;
+use crate::gui::key_input::menu::change_menu;
+use crate::gui::key_input::menu::order_menu;
 use crate::gui::key_input::menu::view_menu;
 use crate::gui::objects::gsr_application::GsrApplication;
 use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
@@ -138,7 +139,7 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::ApplyOrderSetting(Order::Name)),
-            activate.clone(),
+            self.apply_order_setting_action(shared_gsr_application_window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::ApplyViewSetting(ViewOption::Grid2x2)),
@@ -317,6 +318,10 @@ impl Controller {
             activate.clone(),
         ));
         entries.push(Self::action_entry(
+            GioActionType::from(Action::PickOrderSetting),
+            self.pick_order_setting_action(shared_gsr_application_window.clone()),
+        ));
+        entries.push(Self::action_entry(
             GioActionType::from(Action::RemoveCategory("foo".to_string())),
             activate.clone(),
         ));
@@ -472,6 +477,44 @@ impl Controller {
                 view_state.navigator.move_towards(&Direction::First)
             }
         });
+    }
+    fn apply_order_setting_action(
+        &self,
+        shared_gsr_application_window: Shared<GsrApplicationWindow>,
+    ) -> impl Fn(&gtk::gio::SimpleActionGroup, &gtk::gio::SimpleAction, Option<&gtk::glib::Variant>)
+    + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            shared_gsr_application_window,
+            move |_group: &gtk::gio::SimpleActionGroup,
+                  object: &gtk::gio::SimpleAction,
+                  variant: Option<&gtk::glib::Variant>| {
+                let gio_action = GioAction::from((object, variant));
+                if let Action::ApplyOrderSetting(order) = Action::from(gio_action) {
+                    this.with_view_state_mut(|view_state| {
+                        let gallery = &mut view_state.gallery;
+                        gallery.sort_by(order);
+                        let new_position = gallery.current_picture_index();
+                        let direction = Direction::Index {
+                            value: new_position,
+                        };
+                        if view_state.navigator.can_move(&direction) {
+                            view_state.navigator.move_towards(&direction);
+                        } else {
+                            println!("navigator can't move to: {:?}", &direction);
+                        };
+                        dbg!(view_state.navigator.position());
+                        dbg!(view_state.gallery.current_picture_index());
+                        view_state.navigator.set_page_changed();
+                    });
+                    let window = shared_gsr_application_window.borrow();
+                    window.dismiss();
+                    window.refresh_view();
+                }
+            }
+        )
     }
 
     fn cancel_selection_range_action(
@@ -667,6 +710,29 @@ impl Controller {
                 });
                 let window = shared_gsr_application_window.borrow();
                 window.refresh_view();
+            }
+        )
+    }
+
+    fn pick_order_setting_action(
+        &self,
+        shared_gsr_application_window: Shared<GsrApplicationWindow>,
+    ) -> impl Fn(&gtk::gio::SimpleActionGroup, &gtk::gio::SimpleAction, Option<&gtk::glib::Variant>)
+    + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            shared_gsr_application_window,
+            move |_, _, _| {
+                let window = shared_gsr_application_window.borrow();
+                let gsr_entry_window = GsrEntryWindow::new_with(
+                    &window,
+                    &this.gsr_application().shared_controller(),
+                    order_menu(),
+                    None,
+                );
+                window.begin_entry(gsr_entry_window);
             }
         )
     }

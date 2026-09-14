@@ -524,7 +524,6 @@ impl GsrApplicationWindow {
                         Control::RedoFind => this.action_redo_find(),
                         Control::FindNext => this.action_find_next(),
                         Control::MovePicture => this.enter_move_picture(),
-                        Control::SetOrder => this.set_order(),
                         Control::SetSelectionRangeEnd => {
                             this.set_selection_range(SelectionRange::End)
                         }
@@ -622,7 +621,6 @@ impl GsrApplicationWindow {
                 self.action_add_category(&new_category_name, &target_category_name)
             }
             Action::AddTag(ref tags) => self.action_tag(&tags),
-            Action::ApplyOrderSetting(order) => self.action_apply_order_setting(order),
             Action::Categorize(ref category) => self.action_categorize(category),
             Action::DeleteSelectedPicture(ref response) => {
                 self.action_delete_selected_picture(response)
@@ -730,26 +728,6 @@ impl GsrApplicationWindow {
         }
     }
 
-    fn action_apply_order_setting(&self, order: Order) {
-        self.dismiss();
-        self.with_view_state_mut(|view_state| {
-            let gallery = &mut view_state.gallery;
-            gallery.sort_by(order);
-            let new_position = gallery.current_picture_index();
-            let direction = Direction::Index {
-                value: new_position,
-            };
-            if view_state.navigator.can_move(&direction) {
-                view_state.navigator.move_towards(&direction);
-            } else {
-                println!("navigator can't move to: {:?}", &direction);
-            };
-            dbg!(view_state.navigator.position());
-            dbg!(view_state.gallery.current_picture_index());
-            view_state.navigator.set_page_changed();
-        });
-        self.refresh_view();
-    }
 
     fn retrieve_all_labels(&self) -> Tags {
         let tags = self.with_repository(|repository| {
@@ -1258,18 +1236,6 @@ impl GsrApplicationWindow {
             None,
         );
         self.begin_entry(gsr_entry_window);
-    }
-
-    fn set_order(&self) {
-        {
-            let gsr_entry_window = GsrEntryWindow::new_with(
-                self,
-                &self.gsr_application().shared_controller(),
-                order_menu(),
-                None,
-            );
-            self.begin_entry(gsr_entry_window);
-        }
     }
 
     pub fn present_information(&self, message: &str) {
