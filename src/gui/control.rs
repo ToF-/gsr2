@@ -83,6 +83,7 @@ pub enum Control {
     DisplayPath,
     ToggleBlinking,
     TogglePalette,
+    TogglePicturesPerRow(i32),
     ToggleSelected,
     ToggleTwoByTwoView,
     ToggleSingleView,

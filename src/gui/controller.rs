@@ -1,3 +1,4 @@
+use crate::gui::control::Control;
 use crate::file::paths::parent_directory;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
@@ -133,7 +134,7 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::ApplyViewSetting(ViewOption::Grid2x2)),
-            activate.clone(),
+            self.apply_view_setting_action(shared_gsr_application_window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::Cancel),
@@ -361,6 +362,43 @@ impl Controller {
                 }
             }
         }
+    }
+
+    fn apply_view_setting_action(
+        &self,
+        shared_gsr_application_window: Shared<GsrApplicationWindow>,
+    ) -> impl Fn(&gtk::gio::SimpleActionGroup, &gtk::gio::SimpleAction, Option<&gtk::glib::Variant>)
+    + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            shared_gsr_application_window,
+            move |_group: &gtk::gio::SimpleActionGroup,
+                  object: &gtk::gio::SimpleAction,
+                  variant: Option<&gtk::glib::Variant>| {
+                let gio_action = GioAction::from((object, variant));
+                let window = shared_gsr_application_window.borrow();
+                window.dismiss();
+                if let Action::ApplyViewSetting(view_option) = Action::from(gio_action) {
+                    match view_option {
+                        ViewOption::Single => window.activate_action_for_control(&Control::ToggleSingleView),
+                        ViewOption::Grid2x2 => window.activate_action_for_control(&Control::ToggleTwoByTwoView),
+                        ViewOption::Grid3x3 => window.activate_action_for_control(&Control::TogglePicturesPerRow(3)),
+                        ViewOption::Grid4x4 => window.activate_action_for_control(&Control::TogglePicturesPerRow(4)),
+                        ViewOption::Grid5x5 => window.activate_action_for_control(&Control::TogglePicturesPerRow(5)),
+                        ViewOption::Thumbnails => window.activate_action_for_control(&Control::ToggleThumbView),
+                        ViewOption::Covers => window.activate_action_for_control(&Control::ToggleCoverSelection),
+                        ViewOption::Palette => window.activate_action_for_control(&Control::TogglePalette),
+                        ViewOption::FilePath | ViewOption::FileDate | ViewOption::FileSize => {
+                            window.toggle_view_display_option(view_option)
+                        }
+                        ViewOption::FullSize => window.toggle_expand(),
+                        ViewOption::Catalog => window.action_view_catalog(),
+                    }
+                }
+            }
+        )
     }
 
     fn back_to_previous_location(&self) {

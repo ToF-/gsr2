@@ -128,6 +128,7 @@ impl From<Control> for Action {
             Control::ToggleCoverSelection => Action::ToggleCoversView,
             Control::ToggleFullSize => Action::ApplyViewSetting(ViewOption::FullSize),
             Control::TogglePalette => Action::TogglePalette,
+            Control::TogglePicturesPerRow(n) => Action::TogglePicturesPerRow(n),
             Control::ToggleSingleView => Action::TogglePicturesPerRow(1),
             Control::ToggleThumbView => Action::TogglePicturesPerRow(10),
             Control::ToggleTwoByTwoView => Action::TogglePicturesPerRow(2),

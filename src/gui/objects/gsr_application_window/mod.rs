@@ -574,7 +574,7 @@ impl GsrApplicationWindow {
 
                         },
                         Control::ToggleExpand => this.toggle_expand(),
-                        Control::ToggleFullSize => this.action_apply_view_setting(ViewOption::FullSize),
+                        Control::ToggleFullSize => this.activate_action_for_control(control),
                         Control::TogglePalette => this.activate_action_for_control(control),
                         Control::ToggleSelected => this.activate_action_toggle_selected(),
                         Control::ToggleSingleView => this.activate_action_for_control(control),
@@ -589,7 +589,7 @@ impl GsrApplicationWindow {
         self.add_controller(event_controller_key);
     }
 
-    fn activate_action_for_control(&self, control: &Control) {
+    pub fn activate_action_for_control(&self, control: &Control) {
         let action = Action::from(*control);
         let (name, variant) = GioAction::from(action.clone()).to_simple_action_call();
         let variant_ref = variant.as_ref();
@@ -637,7 +637,6 @@ impl GsrApplicationWindow {
             }
             Action::AddTag(ref tags) => self.action_tag(&tags),
             Action::ApplyOrderSetting(order) => self.action_apply_order_setting(order),
-            Action::ApplyViewSetting(view_option) => self.action_apply_view_setting(view_option),
             Action::Categorize(ref category) => self.action_categorize(category),
             Action::DeleteSelectedPicture(ref response) => {
                 self.action_delete_selected_picture(response)
@@ -782,25 +781,6 @@ impl GsrApplicationWindow {
         self.refresh_view();
     }
 
-    fn action_apply_view_setting(&self, view_option: ViewOption) {
-        self.dismiss();
-        match view_option {
-            ViewOption::Single => self.toggle_pictures_per_row(1),
-            ViewOption::Grid2x2 => self.toggle_pictures_per_row(2),
-            ViewOption::Grid3x3 => self.toggle_pictures_per_row(3),
-            ViewOption::Grid4x4 => self.toggle_pictures_per_row(4),
-            ViewOption::Grid5x5 => self.toggle_pictures_per_row(5),
-            ViewOption::Thumbnails => self.toggle_pictures_per_row(10),
-            ViewOption::Covers => self.toggle_view_covers(),
-            ViewOption::Palette => self.activate_action_for_control(&Control::TogglePalette),
-            ViewOption::FilePath | ViewOption::FileDate | ViewOption::FileSize => {
-                self.toggle_view_display_option(view_option)
-            }
-            ViewOption::FullSize => self.toggle_expand(),
-            ViewOption::Catalog => self.action_view_catalog(),
-        }
-    }
-
     fn retrieve_all_labels(&self) -> Tags {
         let tags = self.with_repository(|repository| {
             let _ = repository.retrieve_all_labels();
@@ -885,7 +865,7 @@ impl GsrApplicationWindow {
         self.begin_treelist_selection(gsr_treelist_window);
     }
 
-    fn action_view_catalog(&self) {
+    pub fn action_view_catalog(&self) {
         let catalog = self.with_repository(|repository| repository.catalog());
         let gsr_treelist_window = GsrTreelistWindow::new_with(
             self,
@@ -1499,7 +1479,7 @@ impl GsrApplicationWindow {
         self.refresh_view();
     }
 
-    fn toggle_expand(&self) {
+    pub fn toggle_expand(&self) {
         let pictures_per_row = self.with_view_state_mut(|view_state| {
             if view_state.settings.pictures_per_row() == 1 {
                 view_state.settings.toggle_view_mode();
@@ -1512,7 +1492,7 @@ impl GsrApplicationWindow {
         }
     }
 
-    fn toggle_view_display_option(&self, view_option: ViewOption) {
+    pub fn toggle_view_display_option(&self, view_option: ViewOption) {
         self.with_view_state_mut(|view_state| {
             let settings = &mut view_state.settings;
             let _ = match view_option {
@@ -1523,21 +1503,6 @@ impl GsrApplicationWindow {
             };
         });
         self.refresh_title();
-    }
-
-    fn toggle_view_covers(&self) {
-        let (gallery_has_covers, sub_folder) = self.with_view_state(|view_state| {
-            (
-                view_state.gallery.has_covers(),
-                view_state.gallery.sub_folder(),
-            )
-        });
-        if gallery_has_covers && sub_folder.is_none() {
-            let covers_only =
-                self.with_view_state_mut(|view_state| view_state.settings.toggle_covers_only());
-            let _ = self.retrieve_from_repository(Some(covers_only), None, None);
-            self.refresh_view()
-        }
     }
 
     fn move_navigator(&self, direction: &Direction) -> Navigator {
