@@ -529,7 +529,7 @@ impl GsrApplicationWindow {
                         Control::FindNext => this.action_find_next(),
                         Control::PickChange => this.pick_change(),
                         Control::Quit => this.action_quit(),
-                        Control::GotoDirectory => this.goto_directory(),
+                        Control::GotoDirectory => this.activate_action_for_control(control),
                         Control::MovePicture => this.enter_move_picture(),
                         Control::RepeatRange => this.repeat_range(),
                         Control::RepeatLastAction => this.repeat_last_action(),
@@ -1338,7 +1338,7 @@ impl GsrApplicationWindow {
         }
     }
 
-    fn present_information(&self, message: &str) {
+    pub fn present_information(&self, message: &str) {
         {
             let gsr_entry_window = GsrEntryWindow::new_with(
                 self,

@@ -1,3 +1,6 @@
+use crate::file::paths::parent_directory;
+use crate::cli::command_line_arguments::CommandLineArguments;
+use crate::env::configuration::CONFIGURATION;
 use crate::gui::action::Action;
 use crate::gui::action::gio_action::GioAction;
 use crate::gui::action::gio_action_type::GioActionType;
@@ -8,8 +11,11 @@ use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
 use crate::gui::objects::gsr_entry_window::GsrEntryWindow;
 use crate::gui::objects::gsr_treelist_window::GsrTreelistWindow;
 use crate::gui::view_state::ViewState;
+use crate::gui::view_state::navigator::Navigator;
 use crate::model::find::Find;
+use crate::model::gallery::Gallery;
 use crate::model::order::Order;
+use crate::model::predicate::Predicate;
 use crate::model::rank::Rank;
 use crate::model::repository::Repository;
 use crate::model::shared::Shared;
@@ -18,6 +24,7 @@ use gtk::gio::ActionEntry;
 use gtk::gio::prelude::*;
 use gtk::glib::clone;
 use std::cell::RefCell;
+use std::io::Result as IOResult;
 
 pub const MAIN_CONTROLLER_GROUP_NAME: &str = "main-controller";
 pub type RcController = RefCell<Controller>;
@@ -162,7 +169,7 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::GotoDirectory),
-            activate.clone(),
+            self.goto_directory_action(shared_gsr_application_window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::Label("foo".to_string())),
@@ -313,6 +320,136 @@ impl Controller {
             .build()
     }
 
+    fn retrieve_from_repository(
+        &self,
+        window: &GsrApplicationWindow,
+        covers_only_opt: Option<bool>,
+        sub_directory: Option<String>,
+        predicate_opt: Option<Predicate>,
+    ) -> IOResult<usize> {
+        {
+            let shared_command_line_arguments =
+                window.gsr_application().shared_command_line_arguments();
+            let initial_command_line_arguments = shared_command_line_arguments.borrow().clone();
+            let command_line_arguments = CommandLineArguments {
+                covers: covers_only_opt.unwrap_or_default(),
+                directory: sub_directory,
+                ..initial_command_line_arguments
+            };
+            let configuration = CONFIGURATION.get().expect("configuration not set");
+
+            let repository =
+                Repository::new(configuration.clone(), command_line_arguments.clone(), false);
+
+            match repository.retrieve_pictures(predicate_opt) {
+                Err(e) => Err(e),
+                Ok(0) => Ok(0),
+                Ok(n) => {
+                    let repository_gallery = repository.gallery_rc().borrow_mut();
+                    self.with_view_state_mut(|view_state| {
+                        view_state.navigator = Navigator::new(
+                            repository_gallery.len(),
+                            view_state.settings.pictures_per_row() as usize,
+                        );
+                        view_state.gallery = Gallery::from_gallery_and_navigator(
+                            repository_gallery.clone(),
+                            &view_state.navigator,
+                        );
+                    });
+                    Ok(n)
+                }
+            }
+        }
+    }
+
+    fn back_to_previous_location(
+        &self,
+        window: &GsrApplicationWindow) {
+        let location = self.with_view_state_mut(|view_state| {
+            view_state.set_old_location();
+            view_state.current_location.clone()
+        });
+        let _ = self.retrieve_from_repository(
+            window,
+            Some(location.covers_only()),
+            location.sub_directory(),
+            location.predicate(),
+        );
+        self.with_view_state_mut(|view_state| {
+            view_state.settings.set_covers_only(location.covers_only());
+            if view_state.navigator.can_move(&Direction::Index {
+                value: location.position(),
+            }) {
+                view_state.navigator.move_towards(&Direction::Index {
+                    value: location.position(),
+                })
+            } else {
+                view_state.navigator.move_towards(&Direction::First)
+            }
+        });
+    }
+
+    fn goto_directory_action(
+        &self,
+        shared_gsr_application_window: Shared<GsrApplicationWindow>,
+    ) -> impl Fn(&gtk::gio::SimpleActionGroup, &gtk::gio::SimpleAction, Option<&gtk::glib::Variant>)
+    + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            shared_gsr_application_window,
+            move |_, _, _| {
+                let window = shared_gsr_application_window.borrow();
+                let (current_picture, covers_only) = this.with_view_state(|view_state| {
+                    (
+                        view_state.gallery.current_picture(),
+                        view_state.settings.covers_only(),
+                    )
+                });
+                let directory_opt = if current_picture.cover().is_some() {
+                    parent_directory(&current_picture.file_path())
+                } else if current_picture.is_folder() {
+                    Some(current_picture.file_path())
+                } else {
+                    None
+                };
+                if !covers_only && !current_picture.is_folder() {
+                    window.present_information(
+                        "can only go to a directory when in covers view or from a folder",
+                    );
+                    return;
+                };
+                if directory_opt.clone().is_some() {
+                    this.with_view_state_mut(|view_state| {
+                        view_state.set_current_location_position(
+                            view_state.gallery.current_picture_index(),
+                        );
+                        view_state
+                            .set_current_location_covers_only(view_state.settings.covers_only());
+                        view_state.set_new_location(directory_opt, None, 0, false)
+                    });
+                    let location =
+                        this.with_view_state(|view_state| view_state.current_location.clone());
+                    let binding = shared_gsr_application_window.clone();
+                    let window_ref = binding.borrow();
+                    let window = window_ref.as_ref();
+                    match this.retrieve_from_repository(
+                        window,
+                        Some(location.covers_only()),
+                        location.sub_directory(),
+                        location.predicate(),
+                    ) {
+                        Err(e) => panic!("{}", e),
+                        Ok(0) => this.back_to_previous_location(window),
+                        Ok(_) => {},
+                    };
+                    window.refresh_view();
+                }
+            }
+        )
+    }
+
     fn toggle_covers_view_action(
         &self,
         shared_gsr_application_window: Shared<GsrApplicationWindow>,
@@ -333,9 +470,14 @@ impl Controller {
                 if gallery_has_covers && sub_folder.is_none() {
                     let covers_only = this
                         .with_view_state_mut(|view_state| view_state.settings.toggle_covers_only());
-                    let window = shared_gsr_application_window.borrow();
-                    let _ = window.retrieve_from_repository(Some(covers_only), None, None);
-                    window.refresh_view()
+                    let binding = shared_gsr_application_window.clone();
+                    let window_ref = binding.borrow();
+                    let window = window_ref.as_ref();
+                    match this.retrieve_from_repository(window, Some(covers_only), None, None) {
+                        Err(e) => eprintln!("{}", e),
+                        Ok(0) => window.present_information("no picture matching these criteria"),
+                        Ok(n) => window.refresh_view(),
+                    };
                 }
             }
         )
