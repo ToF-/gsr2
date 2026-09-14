@@ -520,7 +520,7 @@ impl GsrApplicationWindow {
                             }
                         }
                         Control::ToggleCoverSelection => this.activate_action_for_control(control),
-                        Control::BackFromDirectory => this.back_to_previous_location(),
+                        Control::BackFromDirectory => this.activate_action_for_control(control),
                         Control::CancelRange => this.cancel_range(),
                         Control::DeletePicture => this.enter_delete_picture(),
                         Control::EnterFind => this.pick_find_option(),
@@ -1382,45 +1382,6 @@ impl GsrApplicationWindow {
         self.begin_entry(gsr_entry_window);
     }
 
-    fn goto_directory(&self) {
-        let (current_picture, covers_only) = self.with_view_state(|view_state| {
-            (
-                view_state.gallery.current_picture(),
-                view_state.settings.covers_only(),
-            )
-        });
-        let directory_opt = if current_picture.cover().is_some() {
-            parent_directory(&current_picture.file_path())
-        } else if current_picture.is_folder() {
-            Some(current_picture.file_path())
-        } else {
-            None
-        };
-        if !covers_only && !current_picture.is_folder() {
-            self.present_information(
-                "can only go to a directory when in covers view or from a folder",
-            );
-            return;
-        };
-        if directory_opt.clone().is_some() {
-            self.with_view_state_mut(|view_state| {
-                view_state
-                    .set_current_location_position(view_state.gallery.current_picture_index());
-                view_state.set_current_location_covers_only(view_state.settings.covers_only());
-                view_state.set_new_location(directory_opt, None, 0, false)
-            });
-            let location = self.with_view_state(|view_state| view_state.current_location.clone());
-            match self.retrieve_from_repository(
-                Some(location.covers_only()),
-                location.sub_directory(),
-                location.predicate(),
-            ) {
-                Err(e) => panic!("{}", e),
-                Ok(0) => self.back_to_previous_location(),
-                Ok(_) => self.refresh_view(),
-            };
-        }
-    }
 
     fn action_select(&self, find: Find, pattern: &str) {
         self.dismiss();

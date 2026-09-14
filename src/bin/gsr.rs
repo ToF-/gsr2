@@ -41,7 +41,6 @@ fn main() {
 
 fn run_application(config: &Configuration, clargs: &CommandLineArguments) -> Result<Status> {
     let result = {
-        // TODO check legacy controller new setup routine is was doing useful things...
         let repository = Repository::new(config.clone(), clargs.clone(), false);
         if clargs.structured && !config.updated {
             match repository.update_all_folders() {

@@ -70,6 +70,10 @@ impl Controller {
             .borrow()
             .gsr_application()
     }
+
+    pub fn command_line_arguments(&self) -> CommandLineArguments {
+        self.gsr_application().shared_command_line_arguments().borrow().clone()
+    }
     pub fn with_view_state<F, R>(&self, f: F) -> R
     where
         F: FnOnce(&ViewState) -> R,
@@ -221,7 +225,7 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::QuitDirectory),
-            activate.clone(),
+            self.quit_directory_action(shared_gsr_application_window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::Rank(Rank::ThreeStars)),
@@ -322,15 +326,12 @@ impl Controller {
 
     fn retrieve_from_repository(
         &self,
-        window: &GsrApplicationWindow,
         covers_only_opt: Option<bool>,
         sub_directory: Option<String>,
         predicate_opt: Option<Predicate>,
     ) -> IOResult<usize> {
         {
-            let shared_command_line_arguments =
-                window.gsr_application().shared_command_line_arguments();
-            let initial_command_line_arguments = shared_command_line_arguments.borrow().clone();
+            let initial_command_line_arguments = self.command_line_arguments();
             let command_line_arguments = CommandLineArguments {
                 covers: covers_only_opt.unwrap_or_default(),
                 directory: sub_directory,
@@ -362,15 +363,12 @@ impl Controller {
         }
     }
 
-    fn back_to_previous_location(
-        &self,
-        window: &GsrApplicationWindow) {
+    fn back_to_previous_location(&self) {
         let location = self.with_view_state_mut(|view_state| {
             view_state.set_old_location();
             view_state.current_location.clone()
         });
         let _ = self.retrieve_from_repository(
-            window,
             Some(location.covers_only()),
             location.sub_directory(),
             location.predicate(),
@@ -431,21 +429,35 @@ impl Controller {
                     });
                     let location =
                         this.with_view_state(|view_state| view_state.current_location.clone());
-                    let binding = shared_gsr_application_window.clone();
-                    let window_ref = binding.borrow();
-                    let window = window_ref.as_ref();
                     match this.retrieve_from_repository(
-                        window,
                         Some(location.covers_only()),
                         location.sub_directory(),
                         location.predicate(),
                     ) {
                         Err(e) => panic!("{}", e),
-                        Ok(0) => this.back_to_previous_location(window),
+                        Ok(0) => this.back_to_previous_location(),
                         Ok(_) => {},
                     };
                     window.refresh_view();
                 }
+            }
+        )
+    }
+
+    fn quit_directory_action(
+        &self,
+        shared_gsr_application_window: Shared<GsrApplicationWindow>,
+    ) -> impl Fn(&gtk::gio::SimpleActionGroup, &gtk::gio::SimpleAction, Option<&gtk::glib::Variant>)
+    + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            shared_gsr_application_window,
+            move |_, _, _| {
+                this.back_to_previous_location();
+                let window = shared_gsr_application_window.borrow();
+                window.refresh_view();
             }
         )
     }
@@ -468,15 +480,14 @@ impl Controller {
                     )
                 });
                 if gallery_has_covers && sub_folder.is_none() {
-                    let covers_only = this
+                    let covers_only: bool = this
                         .with_view_state_mut(|view_state| view_state.settings.toggle_covers_only());
                     let binding = shared_gsr_application_window.clone();
-                    let window_ref = binding.borrow();
-                    let window = window_ref.as_ref();
-                    match this.retrieve_from_repository(window, Some(covers_only), None, None) {
+                    let window = binding.borrow();
+                    match this.retrieve_from_repository(Some(covers_only), None, None) {
                         Err(e) => eprintln!("{}", e),
                         Ok(0) => window.present_information("no picture matching these criteria"),
-                        Ok(n) => window.refresh_view(),
+                        Ok(_) => window.refresh_view(),
                     };
                 }
             }
