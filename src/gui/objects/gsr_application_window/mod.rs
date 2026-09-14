@@ -532,7 +532,7 @@ impl GsrApplicationWindow {
                         Control::GotoDirectory => this.activate_action_for_control(control),
                         Control::MovePicture => this.enter_move_picture(),
                         Control::RepeatRange => this.activate_action_for_control(control),
-                        Control::RepeatLastAction => this.repeat_last_action(),
+                        Control::RepeatLastAction => this.activate_action_for_control(control),
                         Control::SetOrder => this.set_order(),
                         Control::SetView => this.activate_action_for_control(control),
                         Control::SetSelectionRangeEnd => {
@@ -589,8 +589,7 @@ impl GsrApplicationWindow {
         self.add_controller(event_controller_key);
     }
 
-    pub fn activate_action_for_control(&self, control: &Control) {
-        let action = Action::from(*control);
+    pub fn activate_action(&self, action: Action) {
         let (name, variant) = GioAction::from(action.clone()).to_simple_action_call();
         let variant_ref = variant.as_ref();
         match WidgetExt::activate_action(self, &name, variant_ref) {
@@ -602,6 +601,10 @@ impl GsrApplicationWindow {
                 )
             }
         }
+    }
+    pub fn activate_action_for_control(&self, control: &Control) {
+        let action = Action::from(*control);
+        self.activate_action(action);
     }
     fn activate_action_toggle_selected(&self) {
         let position =
@@ -1435,11 +1438,6 @@ impl GsrApplicationWindow {
             }
         });
         self.refresh_view();
-    }
-
-    fn repeat_last_action(&self) {
-        let action = self.imp().last_action.borrow_mut().clone();
-        self.process_action(action);
     }
 
     fn set_selection_range(&self, range: SelectionRange) {

@@ -243,6 +243,10 @@ impl Controller {
             self.rank_action(shared_gsr_application_window.clone()),
         ));
         entries.push(Self::action_entry(
+            GioActionType::from(Action::RepeatAction),
+            self.repeat_last_action_action(shared_gsr_application_window.clone()),
+        ));
+        entries.push(Self::action_entry(
             GioActionType::from(Action::RepeatRangeSelection),
             self.repeat_range_selection_action(shared_gsr_application_window.clone()),
         ));
@@ -664,6 +668,25 @@ impl Controller {
                     window.dismiss();
                     window.deselect_pictures();
                 }
+            }
+        )
+    }
+
+    fn repeat_last_action_action(
+        &self,
+        shared_gsr_application_window: Shared<GsrApplicationWindow>,
+    ) -> impl Fn(&gtk::gio::SimpleActionGroup, &gtk::gio::SimpleAction, Option<&gtk::glib::Variant>)
+    + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            shared_gsr_application_window,
+            move |_, _, _| {
+                dbg!();
+                let window = shared_gsr_application_window.borrow();
+                let action = this.last_action.borrow().clone();
+                window.activate_action(action);
             }
         )
     }
