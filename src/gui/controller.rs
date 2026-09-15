@@ -1,4 +1,4 @@
-use crate::gui::key_input::entry::label_change_entry;
+use crate::model::finder::Finder;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
@@ -9,7 +9,13 @@ use crate::gui::action::gio_action::GioAction;
 use crate::gui::action::gio_action_type::GioActionType;
 use crate::gui::control::Control;
 use crate::gui::direction::Direction;
+use crate::gui::key_input::entry::add_new_category;
+use crate::gui::key_input::entry::add_tags_entry;
+use crate::gui::key_input::entry::find_criteria_entry;
+use crate::gui::key_input::entry::label_change_entry;
+use crate::gui::key_input::entry::remove_tags_entry;
 use crate::gui::key_input::entry::rename_entry;
+use crate::gui::key_input::entry::select_criteria_entry;
 use crate::gui::key_input::menu::change_menu;
 use crate::gui::key_input::menu::order_menu;
 use crate::gui::key_input::menu::view_menu;
@@ -174,11 +180,11 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::EnterFind(Find::Name)),
-            activate.clone(),
+            self.enter_find_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::EnterSelect(Find::Name)),
-            activate.clone(),
+            self.enter_select_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::EnterLabel),
@@ -186,7 +192,7 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::Find(Find::Name, "foo".to_string())),
-            activate.clone(),
+            self.find_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::Select(Find::Name, "foo".to_string())),
@@ -314,15 +320,15 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::EnterNewCategory),
-            activate.clone(),
+            self.enter_new_category_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::EnterRemoveTag),
-            activate.clone(),
+            self.enter_remove_tag_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::EnterAddTag),
-            activate.clone(),
+            self.enter_add_tag_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::MoveCategory("foo".to_string(), "bar".to_string())),
@@ -726,7 +732,7 @@ impl Controller {
         )
     }
 
-   fn enter_label_action(
+    fn enter_add_tag_action(
         &self,
         window: GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
@@ -740,16 +746,95 @@ impl Controller {
                     let _ = repository.retrieve_all_labels();
                     repository.all_labels()
                 });
-                    let label = this.with_view_state(|view_state| view_state.gallery.current_picture().label());
-        let gsr_entry_window = GsrEntryWindow::new_with(
-            &window,
-            &window.gsr_application().shared_controller(),
-            label_change_entry(tags),
-            Some(&label),
-        );
+                let gsr_entry_window = GsrEntryWindow::new_with(
+                    &window,
+                    &window.gsr_application().shared_controller(),
+                    add_tags_entry(tags),
+                    None,
+                );
+                window.dismiss();
+                window.begin_entry(gsr_entry_window);
+            }
+        )
+    }
 
-        window.dismiss();
-        window.begin_entry(gsr_entry_window);
+    fn enter_find_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            window,
+            move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
+                let gio_action = GioAction::from((object, variant));
+                if let Action::EnterFind(find) = Action::from(gio_action) {
+                    let tags = this.with_repository(|repository| {
+                        let _ = repository.retrieve_all_labels();
+                        repository.all_labels()
+                    });
+                    let gsr_entry_window = GsrEntryWindow::new_with(
+                        &window,
+                        &window.gsr_application().shared_controller(),
+                        find_criteria_entry(find, tags),
+                        None,
+                    );
+                    window.dismiss();
+                    window.begin_entry(gsr_entry_window);
+                }
+            }
+        )
+    }
+
+    fn enter_label_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            window,
+            move |_, _, _| {
+                let tags = this.with_repository(|repository| {
+                    let _ = repository.retrieve_all_labels();
+                    repository.all_labels()
+                });
+                let label =
+                    this.with_view_state(|view_state| view_state.gallery.current_picture().label());
+                let gsr_entry_window = GsrEntryWindow::new_with(
+                    &window,
+                    &window.gsr_application().shared_controller(),
+                    label_change_entry(tags),
+                    Some(&label),
+                );
+
+                window.dismiss();
+                window.begin_entry(gsr_entry_window);
+            }
+        )
+    }
+
+    fn enter_new_category_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            window,
+            move |_, _, _| {
+                let gsr_entry_window = GsrEntryWindow::new_with(
+                    &window,
+                    &window.gsr_application().shared_controller(),
+                    add_new_category(),
+                    None,
+                );
+
+                window.dismiss();
+                window.begin_entry(gsr_entry_window);
             }
         )
     }
@@ -783,6 +868,125 @@ impl Controller {
                     Some(&name),
                 );
                 window.begin_entry(gsr_entry_window);
+            }
+        )
+    }
+
+    fn enter_remove_tag_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            window,
+            move |_, _, _| {
+                let tags = this.with_repository(|repository| {
+                    let _ = repository.retrieve_all_labels();
+                    repository.all_labels()
+                });
+                let gsr_entry_window = GsrEntryWindow::new_with(
+                    &window,
+                    &window.gsr_application().shared_controller(),
+                    remove_tags_entry(tags),
+                    None,
+                );
+                window.dismiss();
+                window.begin_entry(gsr_entry_window);
+            }
+        )
+    }
+
+    fn enter_select_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            window,
+            move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
+                let gio_action = GioAction::from((object, variant));
+                if let Action::EnterSelect(find) = Action::from(gio_action) {
+                    let tags = this.with_repository(|repository| {
+                        let _ = repository.retrieve_all_labels();
+                        repository.all_labels()
+                    });
+                    let gsr_entry_window = GsrEntryWindow::new_with(
+                        &window,
+                        &window.gsr_application().shared_controller(),
+                        select_criteria_entry(find, tags),
+                        None,
+                    );
+                    window.dismiss();
+                    window.begin_entry(gsr_entry_window);
+                }
+            }
+        )
+    }
+
+    fn find_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            window,
+            move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
+                let gio_action = GioAction::from((object, variant));
+                if let Action::Find(find, pattern) = Action::from(gio_action) {
+                    window.dismiss();
+                    let catalog = this.with_repository(|repository| repository.catalog());
+                    let predicate_res = Predicate::new(&pattern, find, catalog.clone());
+                    let position_opt = match predicate_res {
+                        Err(e) => {
+                            window.present_information(&format!("{e}"));
+                            None
+                        }
+                        Ok(predicate) => {
+                            let position_opt = this.with_view_state_mut(|view_state| {
+                                view_state.finder =
+                                    Some(Finder::new(view_state.gallery.pictures().clone()));
+                                let position_opt =
+                                    view_state.finder.as_mut().unwrap().find_first(predicate);
+                                position_opt
+                            });
+                            position_opt
+                        }
+                    };
+                    match position_opt {
+                        None => {
+                            window.present_information(&format!(
+                                "no picture match this criterion: {} {}",
+                                find, pattern
+                            ));
+                            this.with_view_state_mut(|view_state| {
+                                view_state.finder = None;
+                            });
+                        }
+                        Some(position) => {
+                            this.with_view_state_mut(|view_state| {
+                                if view_state
+                                    .navigator
+                                    .can_move(&Direction::Index { value: position })
+                                {
+                                    view_state
+                                        .navigator
+                                        .move_towards(&Direction::Index { value: position });
+                                }
+                            });
+                            window.refresh_view();
+                            window.refresh_title();
+                            this.with_view_state(|view_state| {
+                                println!("{}", view_state.gallery.current_picture_index());
+                            })
+                        }
+                    };
+                }
             }
         )
     }

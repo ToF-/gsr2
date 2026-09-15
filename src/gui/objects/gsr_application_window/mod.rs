@@ -617,12 +617,6 @@ impl GsrApplicationWindow {
     pub fn process_action(&self, action: Action) {
         // println!("processing action: {:?}", &action);
         match action {
-            Action::EnterAddTag => self.action_enter_add_tag(),
-            Action::EnterFind(ref find) => self.action_enter_find(&find),
-            Action::EnterSelect(ref find) => self.action_enter_select(&find),
-            Action::EnterNewCategory => self.action_enter_new_category(),
-            Action::EnterRemoveTag => self.action_enter_remove_tag(),
-            Action::Find(find, ref criteria) => self.action_find(find, &criteria),
             Action::Label(ref label) => self.action_label(&label),
             Action::MoveCategory(ref category_name, ref target_category_name) => {
                 self.action_move_category(&category_name, &target_category_name)
@@ -712,52 +706,6 @@ impl GsrApplicationWindow {
             repository.all_labels()
         });
         tags
-    }
-    fn action_enter_add_tag(&self) {
-        self.dismiss();
-        let tags = self.retrieve_all_labels();
-        let gsr_entry_window = GsrEntryWindow::new_with(
-            self,
-            &self.gsr_application().shared_controller(),
-            add_tags_entry(tags),
-            None,
-        );
-        self.begin_entry(gsr_entry_window);
-    }
-
-    fn action_enter_find(&self, find: &Find) {
-        self.dismiss();
-        let tags = self.retrieve_all_labels();
-        let gsr_entry_window = GsrEntryWindow::new_with(
-            self,
-            &self.gsr_application().shared_controller(),
-            find_criteria_entry(*find, tags),
-            None,
-        );
-        self.begin_entry(gsr_entry_window);
-    }
-
-    fn action_enter_select(&self, find: &Find) {
-        self.dismiss();
-        let tags = self.retrieve_all_labels();
-        let gsr_entry_window = GsrEntryWindow::new_with(
-            self,
-            &self.gsr_application().shared_controller(),
-            select_criteria_entry(*find, tags),
-            None,
-        );
-        self.begin_entry(gsr_entry_window);
-    }
-
-    fn action_enter_new_category(&self) {
-        self.dismiss();
-        let gsr_entry_window = GsrEntryWindow::new_with(
-            self,
-            &self.gsr_application().shared_controller(),
-            add_new_category(),
-            None,
-        );
-        self.begin_entry(gsr_entry_window);
     }
 
     fn action_select_category(&self) {
@@ -864,66 +812,6 @@ impl GsrApplicationWindow {
             Action::RemoveCategory(String::from("")),
         );
         self.begin_treelist_selection(gsr_treelist_window);
-    }
-
-    fn action_enter_remove_tag(&self) {
-        self.dismiss();
-        let tags = self.retrieve_all_labels();
-        let gsr_entry_window = GsrEntryWindow::new_with(
-            self,
-            &self.gsr_application().shared_controller(),
-            remove_tags_entry(tags),
-            None,
-        );
-        self.begin_entry(gsr_entry_window);
-    }
-
-    fn action_find(&self, find: Find, pattern: &str) {
-        self.dismiss();
-        let catalog = self.with_repository(|repository| repository.catalog());
-        let predicate_res = Predicate::new(pattern, find, catalog.clone());
-        let position_opt = match predicate_res {
-            Err(e) => {
-                self.present_information(&format!("{e}"));
-                None
-            }
-            Ok(predicate) => {
-                let position_opt = self.with_view_state_mut(|view_state| {
-                    view_state.finder = Some(Finder::new(view_state.gallery.pictures().clone()));
-                    let position_opt = view_state.finder.as_mut().unwrap().find_first(predicate);
-                    position_opt
-                });
-                position_opt
-            }
-        };
-        match position_opt {
-            None => {
-                self.present_information(&format!(
-                    "no picture match this criterion: {} {}",
-                    find, pattern
-                ));
-                self.with_view_state_mut(|view_state| {
-                    view_state.finder = None;
-                });
-            }
-            Some(position) => {
-                self.with_view_state_mut(|view_state| {
-                    if view_state
-                        .navigator
-                        .can_move(&Direction::Index { value: position })
-                    {
-                        view_state
-                            .navigator
-                            .move_towards(&Direction::Index { value: position });
-                    }
-                });
-                self.refresh_view();
-                self.refresh_title();
-                self.with_view_state(|view_state| {
-                    println!("{}", view_state.gallery.current_picture_index());
-                })
-            }
-        };
     }
 
     fn action_redo_find(&self) {
