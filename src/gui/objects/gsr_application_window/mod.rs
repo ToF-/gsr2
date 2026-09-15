@@ -591,7 +591,7 @@ impl GsrApplicationWindow {
     fn activate_action_toggle_selected(&self) {
         let position =
             self.with_view_state(|view_state| view_state.gallery.current_picture_index());
-        let action = Action::ToggleSelected(position);
+        let action = Action::ToggleSelected;
         let (name, variant) = GioAction::from(action.clone()).to_simple_action_call();
         let variant_ref = variant.as_ref();
         match WidgetExt::activate_action(self, &name, variant_ref) {
@@ -617,10 +617,6 @@ impl GsrApplicationWindow {
     pub fn process_action(&self, action: Action) {
         // println!("processing action: {:?}", &action);
         match action {
-            Action::DeleteSelectedPicture(ref response) => {
-                self.action_delete_selected_picture(response)
-            }
-            Action::Dismiss | Action::Cancel => self.dismiss(),
             Action::EnterAddTag => self.action_enter_add_tag(),
             Action::EnterFind(ref find) => self.action_enter_find(&find),
             Action::EnterSelect(ref find) => self.action_enter_select(&find),

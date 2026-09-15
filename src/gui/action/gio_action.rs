@@ -110,7 +110,7 @@ impl From<Action> for GioAction {
             Action::ToggleCoversView => None,
             Action::ToggleExpand => None,
             Action::TogglePalette => None,
-            Action::ToggleSelected(index) => Some(GioActionParameter::from(index)),
+            Action::ToggleSelected => None,
             Action::ToggleSelectedAt(col, row) => Some(GioActionParameter::from((col, row))),
             Action::TogglePicturesPerRow(n) => Some(GioActionParameter::from(n)),
             Action::ToggleSlideShow => None,
@@ -225,9 +225,7 @@ impl From<GioAction> for Action {
             "toggle-cover" => Action::ToggleCover,
             "toggle-covers-view" => Action::ToggleCoversView,
             "toggle-palette" => Action::TogglePalette,
-            "toggle-selected" => {
-                Action::ToggleSelected(usize::from(gio_action.parameter().unwrap()))
-            }
+            "toggle-selected" => Action::ToggleSelected,
             "toggle-selected-at" => {
                 let i32_pair: (i32, i32) = <(i32, i32)>::from(gio_action.parameter().unwrap());
                 Action::ToggleSelectedAt(i32_pair.0, i32_pair.1)

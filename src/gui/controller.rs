@@ -1,6 +1,8 @@
+use crate::gui::key_input::entry::rename_entry;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
+use crate::file::paths::name_and_extension;
 use crate::file::paths::parent_directory;
 use crate::gui::action::Action;
 use crate::gui::action::gio_action::GioAction;
@@ -19,6 +21,7 @@ use crate::gui::view_state::navigator::Navigator;
 use crate::model::find::Find;
 use crate::model::gallery::Gallery;
 use crate::model::order::Order;
+use crate::model::picture::Picture;
 use crate::model::predicate::Predicate;
 use crate::model::rank::Rank;
 use crate::model::repository::Repository;
@@ -36,8 +39,7 @@ use std::rc::Rc;
 
 pub const MAIN_CONTROLLER_GROUP_NAME: &str = "main-controller";
 pub type RcController = RefCell<Controller>;
-pub type FnGioAction =
-    Box<dyn Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static>;
+pub type FnGioAction = Box<dyn Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static>;
 #[derive(Debug, Clone)]
 pub struct Controller {
     pub gio_action_group: SimpleActionGroup,
@@ -151,7 +153,7 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::Cancel),
-            activate.clone(),
+            self.cancel_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::CancelSelectionRange),
@@ -163,11 +165,11 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::DeleteSelectedPicture("yes".to_string())),
-            activate.clone(),
+            self.delete_selected_picture_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::Dismiss),
-            activate.clone(),
+            self.dismiss_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::EnterFind(Find::Name)),
@@ -211,7 +213,7 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::Rename("foo".to_string())),
-            activate.clone(),
+            self.rename_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::MoveSelectedPicture("foo".to_string())),
@@ -270,7 +272,7 @@ impl Controller {
             self.toggle_palette_action(window.clone()),
         ));
         entries.push(Self::action_entry(
-            GioActionType::from(Action::ToggleSelected(0)),
+            GioActionType::from(Action::ToggleSelected),
             self.toggle_selected_action(window.clone()),
         ));
         entries.push(Self::action_entry(
@@ -279,7 +281,7 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::EnterRename),
-            activate.clone(),
+            self.enter_rename_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::PickCatalogChange),
@@ -404,6 +406,26 @@ impl Controller {
         }
     }
 
+    fn retrieve_current_location(&self) {
+        let location = self.with_view_state_mut(|view_state| view_state.current_location.clone());
+        let _ = self.retrieve_from_repository(
+            Some(location.covers_only()),
+            location.sub_directory(),
+            location.predicate(),
+        );
+        self.with_view_state_mut(|view_state| {
+            view_state.settings.set_covers_only(location.covers_only());
+            if view_state.navigator.can_move(&Direction::Index {
+                value: location.position(),
+            }) {
+                view_state.navigator.move_towards(&Direction::Index {
+                    value: location.position(),
+                })
+            } else {
+                view_state.navigator.move_towards(&Direction::First)
+            }
+        });
+    }
     // ACTIONS
 
     fn add_category_action(
@@ -583,6 +605,22 @@ impl Controller {
         )
     }
 
+    fn cancel_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            window,
+            move |_, _, _| {
+                dbg!("cancel");
+                window.dismiss();
+            }
+        )
+    }
+
     fn cancel_selection_range_action(
         &self,
         window: GsrApplicationWindow,
@@ -636,6 +674,131 @@ impl Controller {
             }
         )
     }
+
+    fn delete_selected_picture_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            window,
+            move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
+                let gio_action = GioAction::from((object, variant));
+                let action = Action::from(gio_action);
+                if let Action::DeleteSelectedPicture(response) = action {
+                    window.dismiss();
+                    if response == "yes" {
+                        this.with_view_state(|view_state| {
+                            let indices = window.selected_indices();
+                            this.with_repository(|repository| {
+                                for position in indices {
+                                    let picture = view_state.gallery.picture(position);
+                                    match repository.delete_picture(&picture) {
+                                        Ok(_) => {}
+                                        Err(err) => {
+                                            println!("{}", err);
+                                        }
+                                    }
+                                }
+                            });
+                        });
+                        window.deselect_pictures();
+                        this.retrieve_current_location()
+                    }
+                }
+            }
+        )
+    }
+
+    fn dismiss_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            window,
+            move |_, _, _| {
+                window.dismiss()
+            }
+        )
+    }
+
+    fn enter_rename_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            window,
+            move |_, _, _| {
+                indow.dismiss();
+                let (selected_count, current_picture_name) = this.with_view_state(|view_state| {
+                    (
+                        view_state.selection.count(),
+                        view_state.gallery.current_picture().file_name(),
+                    )
+                });
+                if selected_count != 1 {
+                    window.present_information("select one picture to rename first");
+                    return;
+                };
+                let (name, _extension) = name_and_extension(&current_picture_name);
+                let gsr_entry_window = GsrEntryWindow::new_with(
+                    &window,
+                    &window.gsr_application().shared_controller(),
+                    rename_entry(),
+                    Some(&name),
+                );
+               window.begin_entry(gsr_entry_window);
+            }
+        )
+    }
+
+    fn rename_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            window,
+            move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
+                let gio_action = GioAction::from((object, variant));
+                if let Action::Rename(new_name) = Action::from(gio_action) {
+                    if new_name.is_empty() {
+                        window.present_information("picture name can't be empty");
+                        return;
+                    }
+                    let (current_name, _) = this.with_view_state(|view_state| {
+                        name_and_extension(&view_state.gallery.current_picture().file_name())
+                    });
+                    if new_name == current_name {
+                        window.present_information("picture name is unchanged");
+                        return;
+                    }
+                    this.with_view_state_mut(|view_state| {
+                        let position = view_state.gallery.current_picture_index();
+                        let picture = view_state.gallery.current_picture();
+                        let new_picture = Picture::copy_with_name(&picture, &new_name);
+                        this.with_repository(|repository| {
+                            let _ = repository.rename_picture(&picture, &new_name);
+                        });
+                        view_state.gallery.set_picture(position, new_picture);
+                    });
+                    window.dismiss();
+                    window.deselect_pictures();
+                }
+            }
+        )
+    }
+
     fn goto_directory_action(
         &self,
         window: GsrApplicationWindow,
@@ -997,6 +1160,7 @@ impl Controller {
             }
         )
     }
+
     fn toggle_selected_action(
         &self,
         window: GsrApplicationWindow,
@@ -1010,8 +1174,10 @@ impl Controller {
                   object: &SimpleAction,
                   variant: Option<&gtk::glib::Variant>| {
                 let gio_action = GioAction::from((object, variant));
-                if let Action::ToggleSelected(position) = Action::from(gio_action) {
+                dbg!();
+                if let Action::ToggleSelected = Action::from(gio_action) {
                     this.with_view_state_mut(|view_state| {
+                        let position = view_state.gallery.current_picture_index();
                         if view_state.selection.contains(position) {
                             view_state.selection.unselect(position)
                         } else {

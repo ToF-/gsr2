@@ -74,7 +74,7 @@ pub enum Action {
     ToggleCoversView,         // set the view on off to only covers
     ToggleExpand,             // toggle how the picture in single view uses the space
     TogglePalette,            // set the palette visible on / off
-    ToggleSelected(usize),    // toggle current picture in or out the selection
+    ToggleSelected,           // toggle current picture in or out the selection
     ToggleSelectedAt(i32, i32), // set the picture at col,row selected or deselected
     TogglePicturesPerRow(i32), // set the view to single / back to multiple
     ToggleSlideShow,          // set the slide show on off
@@ -134,6 +134,7 @@ impl From<Control> for Action {
             Control::ToggleFullSize => Action::ApplyViewSetting(ViewOption::FullSize),
             Control::TogglePalette => Action::TogglePalette,
             Control::TogglePicturesPerRow(n) => Action::TogglePicturesPerRow(n),
+            Control::ToggleSelected => Action::ToggleSelected,
             Control::ToggleSingleView => Action::TogglePicturesPerRow(1),
             Control::ToggleThumbView => Action::TogglePicturesPerRow(10),
             Control::ToggleTwoByTwoView => Action::TogglePicturesPerRow(2),
