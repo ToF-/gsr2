@@ -1,4 +1,4 @@
-use crate::gui::key_input::entry::rename_entry;
+use crate::gui::key_input::entry::label_change_entry;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
@@ -9,6 +9,7 @@ use crate::gui::action::gio_action::GioAction;
 use crate::gui::action::gio_action_type::GioActionType;
 use crate::gui::control::Control;
 use crate::gui::direction::Direction;
+use crate::gui::key_input::entry::rename_entry;
 use crate::gui::key_input::menu::change_menu;
 use crate::gui::key_input::menu::order_menu;
 use crate::gui::key_input::menu::view_menu;
@@ -181,7 +182,7 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::EnterLabel),
-            activate.clone(),
+            self.enter_label_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::Find(Find::Name, "foo".to_string())),
@@ -721,8 +722,34 @@ impl Controller {
             self,
             #[strong]
             window,
+            move |_, _, _| { window.dismiss() }
+        )
+    }
+
+   fn enter_label_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            window,
             move |_, _, _| {
-                window.dismiss()
+                let tags = this.with_repository(|repository| {
+                    let _ = repository.retrieve_all_labels();
+                    repository.all_labels()
+                });
+                    let label = this.with_view_state(|view_state| view_state.gallery.current_picture().label());
+        let gsr_entry_window = GsrEntryWindow::new_with(
+            &window,
+            &window.gsr_application().shared_controller(),
+            label_change_entry(tags),
+            Some(&label),
+        );
+
+        window.dismiss();
+        window.begin_entry(gsr_entry_window);
             }
         )
     }
@@ -737,7 +764,7 @@ impl Controller {
             #[strong]
             window,
             move |_, _, _| {
-                indow.dismiss();
+                window.dismiss();
                 let (selected_count, current_picture_name) = this.with_view_state(|view_state| {
                     (
                         view_state.selection.count(),
@@ -755,7 +782,7 @@ impl Controller {
                     rename_entry(),
                     Some(&name),
                 );
-               window.begin_entry(gsr_entry_window);
+                window.begin_entry(gsr_entry_window);
             }
         )
     }

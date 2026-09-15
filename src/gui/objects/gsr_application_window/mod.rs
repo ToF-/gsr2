@@ -620,10 +620,8 @@ impl GsrApplicationWindow {
             Action::EnterAddTag => self.action_enter_add_tag(),
             Action::EnterFind(ref find) => self.action_enter_find(&find),
             Action::EnterSelect(ref find) => self.action_enter_select(&find),
-            Action::EnterLabel => self.action_enter_label(),
             Action::EnterNewCategory => self.action_enter_new_category(),
             Action::EnterRemoveTag => self.action_enter_remove_tag(),
-            Action::EnterRename => self.action_enter_rename(),
             Action::Find(find, ref criteria) => self.action_find(find, &criteria),
             Action::Label(ref label) => self.action_label(&label),
             Action::MoveCategory(ref category_name, ref target_category_name) => {
@@ -876,41 +874,6 @@ impl GsrApplicationWindow {
             &self.gsr_application().shared_controller(),
             remove_tags_entry(tags),
             None,
-        );
-        self.begin_entry(gsr_entry_window);
-    }
-
-    fn action_enter_rename(&self) {
-        self.dismiss();
-        let (selected_count, current_picture_name) = self.with_view_state(|view_state| {
-            (
-                view_state.selection.count(),
-                view_state.gallery.current_picture().file_name(),
-            )
-        });
-        if selected_count != 1 {
-            self.present_information("select one picture to rename first");
-            return;
-        };
-        let (name, _extension) = name_and_extension(&current_picture_name);
-        let gsr_entry_window = GsrEntryWindow::new_with(
-            self,
-            &self.gsr_application().shared_controller(),
-            rename_entry(),
-            Some(&name),
-        );
-        self.begin_entry(gsr_entry_window);
-    }
-
-    fn action_enter_label(&self) {
-        self.dismiss();
-        let tags = self.retrieve_all_labels();
-        let label = self.with_view_state(|view_state| view_state.gallery.current_picture().label());
-        let gsr_entry_window = GsrEntryWindow::new_with(
-            self,
-            &self.gsr_application().shared_controller(),
-            label_change_entry(tags),
-            Some(&label),
         );
         self.begin_entry(gsr_entry_window);
     }
