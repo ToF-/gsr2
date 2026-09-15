@@ -1,9 +1,10 @@
-use crate::env::configuration::set_configuration_updated_flag;
-use crate::file::paths::check_path_is_directory;
-use std::path::PathBuf;
+use crate::model::category::category_from_string;
+use crate::model::category::Category;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
+use crate::env::configuration::set_configuration_updated_flag;
+use crate::file::paths::check_path_is_directory;
 use crate::file::paths::name_and_extension;
 use crate::file::paths::parent_directory;
 use crate::gui::action::Action;
@@ -18,6 +19,7 @@ use crate::gui::key_input::entry::label_change_entry;
 use crate::gui::key_input::entry::remove_tags_entry;
 use crate::gui::key_input::entry::rename_entry;
 use crate::gui::key_input::entry::select_criteria_entry;
+use crate::gui::key_input::menu::catalog_menu;
 use crate::gui::key_input::menu::change_menu;
 use crate::gui::key_input::menu::order_menu;
 use crate::gui::key_input::menu::view_menu;
@@ -45,6 +47,7 @@ use gtk::glib::Variant;
 use gtk::glib::clone;
 use std::cell::RefCell;
 use std::io::Result as IOResult;
+use std::path::PathBuf;
 use std::rc::Rc;
 
 pub const MAIN_CONTROLLER_GROUP_NAME: &str = "main-controller";
@@ -199,7 +202,7 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::Select(Find::Name, "foo".to_string())),
-            activate.clone(),
+            self.select_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::FocusAt(0, 0)),
@@ -219,7 +222,7 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::RemoveTag("foo".to_string())),
-            activate.clone(),
+            self.remove_tag_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::Rename("foo".to_string())),
@@ -231,7 +234,7 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::Categorize(None)),
-            activate.clone(),
+            self.categorize_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::MoveTowards(Direction::Left)),
@@ -295,7 +298,7 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::PickCatalogChange),
-            activate.clone(),
+            self.pick_catalog_change_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::PickChange),
@@ -303,7 +306,7 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::SelectCategoryForPicture),
-            activate.clone(),
+            self.select_category_for_picture_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::SelectCategoryToMove),
@@ -315,7 +318,7 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::SelectCategoryAddTarget("foo".to_string())),
-            activate.clone(),
+            self.select_category_add_target_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::SelectCategoryMoveTarget("foo".to_string())),
@@ -343,7 +346,7 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::RemoveCategory("foo".to_string())),
-            activate.clone(),
+            self.remove_category_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::ToggleBlinking),
@@ -994,6 +997,60 @@ impl Controller {
         )
     }
 
+    fn goto_directory_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            window,
+            move |_, _, _| {
+                let (current_picture, covers_only) = this.with_view_state(|view_state| {
+                    (
+                        view_state.gallery.current_picture(),
+                        view_state.settings.covers_only(),
+                    )
+                });
+                let directory_opt = if current_picture.cover().is_some() {
+                    parent_directory(&current_picture.file_path())
+                } else if current_picture.is_folder() {
+                    Some(current_picture.file_path())
+                } else {
+                    None
+                };
+                if !covers_only && !current_picture.is_folder() {
+                    window.present_information(
+                        "can only go to a directory when in covers view or from a folder",
+                    );
+                    return;
+                };
+                if directory_opt.clone().is_some() {
+                    this.with_view_state_mut(|view_state| {
+                        view_state.set_current_location_position(
+                            view_state.gallery.current_picture_index(),
+                        );
+                        view_state
+                            .set_current_location_covers_only(view_state.settings.covers_only());
+                        view_state.set_new_location(directory_opt, None, 0, false)
+                    });
+                    let location =
+                        this.with_view_state(|view_state| view_state.current_location.clone());
+                    match this.retrieve_from_repository(
+                        Some(location.covers_only()),
+                        location.sub_directory(),
+                        location.predicate(),
+                    ) {
+                        Err(e) => panic!("{}", e),
+                        Ok(0) => this.back_to_previous_location(),
+                        Ok(_) => {}
+                    };
+                    window.refresh_view();
+                }
+            }
+        )
+    }
     fn label_action(
         &self,
         window: GsrApplicationWindow,
@@ -1097,46 +1154,7 @@ impl Controller {
             }
         )
     }
-    fn rename_action(
-        &self,
-        window: GsrApplicationWindow,
-    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
-        clone!(
-            #[strong (rename_to=this)]
-            self,
-            #[strong]
-            window,
-            move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
-                let gio_action = GioAction::from((object, variant));
-                if let Action::Rename(new_name) = Action::from(gio_action) {
-                    if new_name.is_empty() {
-                        window.present_information("picture name can't be empty");
-                        return;
-                    }
-                    let (current_name, _) = this.with_view_state(|view_state| {
-                        name_and_extension(&view_state.gallery.current_picture().file_name())
-                    });
-                    if new_name == current_name {
-                        window.present_information("picture name is unchanged");
-                        return;
-                    }
-                    this.with_view_state_mut(|view_state| {
-                        let position = view_state.gallery.current_picture_index();
-                        let picture = view_state.gallery.current_picture();
-                        let new_picture = Picture::copy_with_name(&picture, &new_name);
-                        this.with_repository(|repository| {
-                            let _ = repository.rename_picture(&picture, &new_name);
-                        });
-                        view_state.gallery.set_picture(position, new_picture);
-                    });
-                    window.dismiss();
-                    window.deselect_pictures();
-                }
-            }
-        )
-    }
-
-    fn goto_directory_action(
+    fn pick_catalog_change_action(
         &self,
         window: GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
@@ -1146,47 +1164,14 @@ impl Controller {
             #[strong]
             window,
             move |_, _, _| {
-                let (current_picture, covers_only) = this.with_view_state(|view_state| {
-                    (
-                        view_state.gallery.current_picture(),
-                        view_state.settings.covers_only(),
-                    )
-                });
-                let directory_opt = if current_picture.cover().is_some() {
-                    parent_directory(&current_picture.file_path())
-                } else if current_picture.is_folder() {
-                    Some(current_picture.file_path())
-                } else {
-                    None
-                };
-                if !covers_only && !current_picture.is_folder() {
-                    window.present_information(
-                        "can only go to a directory when in covers view or from a folder",
-                    );
-                    return;
-                };
-                if directory_opt.clone().is_some() {
-                    this.with_view_state_mut(|view_state| {
-                        view_state.set_current_location_position(
-                            view_state.gallery.current_picture_index(),
-                        );
-                        view_state
-                            .set_current_location_covers_only(view_state.settings.covers_only());
-                        view_state.set_new_location(directory_opt, None, 0, false)
-                    });
-                    let location =
-                        this.with_view_state(|view_state| view_state.current_location.clone());
-                    match this.retrieve_from_repository(
-                        Some(location.covers_only()),
-                        location.sub_directory(),
-                        location.predicate(),
-                    ) {
-                        Err(e) => panic!("{}", e),
-                        Ok(0) => this.back_to_previous_location(),
-                        Ok(_) => {}
-                    };
-                    window.refresh_view();
-                }
+                let gsr_entry_window = GsrEntryWindow::new_with(
+                    &window,
+                    &window.gsr_application().shared_controller(),
+                    catalog_menu(),
+                    None,
+                );
+                window.dismiss();
+                window.begin_entry(gsr_entry_window);
             }
         )
     }
@@ -1252,6 +1237,222 @@ impl Controller {
                 this.back_to_previous_location();
 
                 window.refresh_view();
+            }
+        )
+    }
+
+    fn remove_category_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            window,
+            move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
+                let gio_action = GioAction::from((object, variant));
+                if let Action::RemoveCategory(category_name) = Action::from(gio_action) {
+                    window.dismiss();
+                    let result = this
+                        .with_repository(|repository| repository.remove_category(&category_name));
+                    match result {
+                        Ok(_) => {}
+                        Err(e) => window.present_information(&format!("{}", e)),
+                    }
+                }
+            }
+        )
+    }
+    fn remove_tag_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            window,
+            move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
+                let gio_action = GioAction::from((object, variant));
+                if let Action::RemoveTag(input) = Action::from(gio_action) {
+                    let tags: Vec<String> = input.split(',').map(|s| s.to_string()).collect();
+                    window.dismiss();
+                    this.with_view_state_mut(|view_state| {
+                        let indices = view_state.selected_indices();
+                        for position in indices {
+                            let mut picture = view_state.gallery.picture(position);
+                            tags.iter().for_each(|tag| {
+                                picture.remove_tag(tag);
+                                this.with_repository(|repository| {
+                                    match repository.update_picture(&picture) {
+                                        Ok(_) => {}
+                                        Err(e) => eprintln!("{}", e),
+                                    }
+                                })
+                            });
+                            view_state.gallery.set_picture(position, picture);
+                        }
+                    })
+                }
+                window.deselect_pictures();
+            }
+        )
+    }
+
+    fn rename_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            window,
+            move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
+                let gio_action = GioAction::from((object, variant));
+                if let Action::Rename(new_name) = Action::from(gio_action) {
+                    if new_name.is_empty() {
+                        window.present_information("picture name can't be empty");
+                        return;
+                    }
+                    let (current_name, _) = this.with_view_state(|view_state| {
+                        name_and_extension(&view_state.gallery.current_picture().file_name())
+                    });
+                    if new_name == current_name {
+                        window.present_information("picture name is unchanged");
+                        return;
+                    }
+                    this.with_view_state_mut(|view_state| {
+                        let position = view_state.gallery.current_picture_index();
+                        let picture = view_state.gallery.current_picture();
+                        let new_picture = Picture::copy_with_name(&picture, &new_name);
+                        this.with_repository(|repository| {
+                            let _ = repository.rename_picture(&picture, &new_name);
+                        });
+                        view_state.gallery.set_picture(position, new_picture);
+                    });
+                    window.dismiss();
+                    window.deselect_pictures();
+                }
+            }
+        )
+    }
+
+    fn select_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            window,
+            move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
+                let gio_action = GioAction::from((object, variant));
+                if let Action::Select(find, pattern) = Action::from(gio_action) {
+                    window.dismiss();
+                    let location = this.with_view_state(|view_state| view_state.current_location());
+                    let catalog = this.with_repository(|repository| repository.catalog());
+                    let predicate_res = Predicate::new(&pattern, find, catalog.clone());
+                    match predicate_res {
+                        Err(e) => {
+                            window.present_information(&format!("{e}"));
+                        }
+                        Ok(new_predicate) => {
+                            this.with_view_state_mut(|view_state| {
+                                view_state.set_new_location(
+                                    location.sub_directory(),
+                                    Some(new_predicate),
+                                    0,
+                                    location.covers_only(),
+                                )
+                            });
+                            let location = this
+                                .with_view_state(|view_state| view_state.current_location.clone());
+                            match this.retrieve_from_repository(
+                                Some(location.covers_only()),
+                                location.sub_directory(),
+                                location.predicate(),
+                            ) {
+                                Err(e) => panic!("{}", e),
+                                Ok(0) => this.back_to_previous_location(),
+                                Ok(_) => window.refresh_view(),
+                            };
+                        }
+                    }
+                }
+            }
+        )
+    }
+
+    fn select_category_add_target_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            window,
+            move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
+                let gio_action = GioAction::from((object, variant));
+                if let Action::SelectCategoryAddTarget(name) = Action::from(gio_action) {
+                    window.dismiss();
+                    let catalog = this.with_repository(|repository| repository.catalog());
+                    let gsr_treelist_window = GsrTreelistWindow::new_with(
+                        &window,
+                        &window.gsr_application().shared_controller(),
+                        &catalog,
+                        &format!("Select the category where to add {name}"),
+                        None,
+                        Action::AddCategory(name.to_string(), String::from("")),
+                    );
+                    window.begin_treelist_selection(gsr_treelist_window);
+                }
+            }
+        )
+    }
+
+    fn select_category_for_picture_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            window,
+            move |_, _, _| {
+                window.dismiss();
+                let mut current_category: Category = None;
+                let mut category_found: bool = false;
+                this.with_view_state(|view_state| {
+                    for position in view_state.selected_indices() {
+                        let category = category_from_string(
+                            &view_state.gallery.picture(position).category_name(),
+                        );
+                        if !category_found {
+                            current_category = category;
+                            category_found = true;
+                        } else {
+                            if category != current_category {
+                                current_category = None;
+                                break;
+                            }
+                        }
+                    }
+                });
+                let catalog = this.with_repository(|repository| repository.catalog());
+                let gsr_treelist_window = GsrTreelistWindow::new_with(
+                    &window,
+                    &window.gsr_application().shared_controller(),
+                    &catalog,
+                    "Select a category",
+                    current_category.as_deref(),
+                    Action::Categorize(None),
+                );
+                window.begin_treelist_selection(gsr_treelist_window);
             }
         )
     }

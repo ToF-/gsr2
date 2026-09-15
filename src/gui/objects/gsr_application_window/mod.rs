@@ -618,17 +618,6 @@ impl GsrApplicationWindow {
         // println!("processing action: {:?}", &action);
         match action {
             Action::Nothing => println!("processing Action::Nothing"),
-            Action::PickCatalogChange => self.action_pick_catalog_change(),
-            Action::RemoveCategory(ref category_name) => {
-                self.action_remove_category(&category_name)
-            }
-            Action::RemoveTag(ref tags) => self.action_untag(&tags),
-            Action::Rename(ref name) => self.action_rename(&name),
-            Action::Select(find, ref criteria) => self.action_select(find, &criteria),
-            Action::SelectCategoryAddTarget(ref name) => {
-                self.action_select_category_add_target(&name)
-            }
-            Action::SelectCategoryForPicture => self.action_select_category(),
             Action::SelectCategoryMoveTarget(ref name) => {
                 self.action_select_category_move_target(&name)
             }
@@ -660,7 +649,7 @@ impl GsrApplicationWindow {
             self.imp().treelist_on.set(false);
         }
     }
-    fn begin_treelist_selection(&self, gsr_treelist_window: GsrTreelistWindow) {
+    pub fn begin_treelist_selection(&self, gsr_treelist_window: GsrTreelistWindow) {
         gsr_treelist_window.present();
         let initial_position = gsr_treelist_window.position();
         gsr_treelist_window.list_view().scroll_to(
@@ -673,51 +662,12 @@ impl GsrApplicationWindow {
         self.imp().treelist_on.set(true);
     }
 
-    fn action_remove_category(&self, category_name: &str) {
-        self.dismiss();
-        let result = self.with_repository(|repository| repository.remove_category(category_name));
-        match result {
-            Ok(_) => {}
-            Err(e) => self.present_information(&format!("{}", e)),
-        }
-    }
-
     fn retrieve_all_labels(&self) -> Tags {
         let tags = self.with_repository(|repository| {
             let _ = repository.retrieve_all_labels();
             repository.all_labels()
         });
         tags
-    }
-
-    fn action_select_category(&self) {
-        self.dismiss();
-        let mut current_category: Category = None;
-        let mut category_found: bool = false;
-        for position in self.selected_indices() {
-            let category = category_from_string(&self.with_view_state(|view_state| {
-                view_state.gallery.picture(position).category_name()
-            }));
-            if !category_found {
-                current_category = category;
-                category_found = true;
-            } else {
-                if category != current_category {
-                    current_category = None;
-                    break;
-                }
-            }
-        }
-        let catalog = self.with_repository(|repository| repository.catalog());
-        let gsr_treelist_window = GsrTreelistWindow::new_with(
-            self,
-            &self.gsr_application().shared_controller(),
-            &catalog,
-            "Select a category",
-            current_category.as_deref(),
-            Action::Categorize(None),
-        );
-        self.begin_treelist_selection(gsr_treelist_window);
     }
 
     pub fn action_view_catalog(&self) {
@@ -729,19 +679,6 @@ impl GsrApplicationWindow {
             "List of all categories",
             None,
             Action::Dismiss,
-        );
-        self.begin_treelist_selection(gsr_treelist_window);
-    }
-    fn action_select_category_add_target(&self, name: &str) {
-        self.dismiss();
-        let catalog = self.with_repository(|repository| repository.catalog());
-        let gsr_treelist_window = GsrTreelistWindow::new_with(
-            self,
-            &self.gsr_application().shared_controller(),
-            &catalog,
-            &format!("Select the category where to add {name}"),
-            None,
-            Action::AddCategory(name.to_string(), String::from("")),
         );
         self.begin_treelist_selection(gsr_treelist_window);
     }
@@ -832,64 +769,8 @@ impl GsrApplicationWindow {
         };
     }
 
-    fn action_pick_catalog_change(&self) {
-        self.dismiss();
-        let gsr_entry_window = GsrEntryWindow::new_with(
-            self,
-            &self.gsr_application().shared_controller(),
-            catalog_menu(),
-            None,
-        );
-        self.begin_entry(gsr_entry_window);
-    }
-
     pub fn selected_indices(&self) -> Vec<usize> {
         self.with_view_state(|view_state| view_state.selected_indices())
-    }
-
-    fn action_untag(&self, input: &str) {
-        let tags: Vec<String> = input.split(',').map(|s| s.to_string()).collect();
-        let indices = self.selected_indices();
-        self.dismiss();
-        for position in indices {
-            self.with_view_state_mut(|view_state| {
-                let mut picture = view_state.gallery.picture(position);
-                tags.iter().for_each(|tag| {
-                    picture.remove_tag(tag);
-                    self.with_repository(|repository| match repository.update_picture(&picture) {
-                        Ok(_) => {}
-                        Err(e) => eprintln!("{}", e),
-                    })
-                });
-                view_state.gallery.set_picture(position, picture);
-            });
-        }
-        self.deselect_pictures();
-    }
-
-    fn action_rename(&self, target_name: &str) {
-        self.dismiss();
-        if target_name.is_empty() {
-            self.present_information("picture name can't be empty");
-            return;
-        }
-        let (current_name, _) = self.with_view_state(|view_state| {
-            name_and_extension(&view_state.gallery.current_picture().file_name())
-        });
-        if target_name == current_name {
-            self.present_information("picture name is unchanged");
-            return;
-        }
-        self.with_view_state_mut(|view_state| {
-            let position = view_state.gallery.current_picture_index();
-            let picture = view_state.gallery.current_picture();
-            let new_picture = Picture::copy_with_name(&picture, target_name);
-            self.with_repository(|repository| {
-                let _ = repository.rename_picture(&picture, target_name);
-            });
-            view_state.gallery.set_picture(position, new_picture);
-        });
-        self.deselect_pictures();
     }
 
     fn action_delete_selected_picture(&self, response: &str) {
@@ -1011,39 +892,6 @@ impl GsrApplicationWindow {
         });
         gsr_entry_window.set_entry_text(&directory.unwrap_or_default());
         self.begin_entry(gsr_entry_window);
-    }
-
-    fn action_select(&self, find: Find, pattern: &str) {
-        self.dismiss();
-        let location = self.with_view_state(|view_state| view_state.current_location());
-        let catalog = self.with_repository(|repository| repository.catalog());
-        let predicate_res = Predicate::new(pattern, find, catalog.clone());
-        match predicate_res {
-            Err(e) => {
-                self.present_information(&format!("{e}"));
-            }
-            Ok(new_predicate) => {
-                self.with_view_state_mut(|view_state| {
-                    view_state.set_new_location(
-                        location.sub_directory(),
-                        Some(new_predicate),
-                        0,
-                        location.covers_only(),
-                    )
-                });
-                let location =
-                    self.with_view_state(|view_state| view_state.current_location.clone());
-                match self.retrieve_from_repository(
-                    Some(location.covers_only()),
-                    location.sub_directory(),
-                    location.predicate(),
-                ) {
-                    Err(e) => panic!("{}", e),
-                    Ok(0) => self.back_to_previous_location(),
-                    Ok(_) => self.refresh_view(),
-                };
-            }
-        }
     }
 
     fn retrieve_current_location(&self) {
