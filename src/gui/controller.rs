@@ -1,5 +1,3 @@
-use crate::model::category::category_from_string;
-use crate::model::category::Category;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
@@ -29,6 +27,8 @@ use crate::gui::objects::gsr_entry_window::GsrEntryWindow;
 use crate::gui::objects::gsr_treelist_window::GsrTreelistWindow;
 use crate::gui::view_state::ViewState;
 use crate::gui::view_state::navigator::Navigator;
+use crate::model::category::Category;
+use crate::model::category::category_from_string;
 use crate::model::find::Find;
 use crate::model::finder::Finder;
 use crate::model::gallery::Gallery;
@@ -310,11 +310,11 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::SelectCategoryToMove),
-            activate.clone(),
+            self.select_category_to_move_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::SelectCategoryToRemove),
-            activate.clone(),
+            self.select_category_to_remove_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::SelectCategoryAddTarget("foo".to_string())),
@@ -322,7 +322,7 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::SelectCategoryMoveTarget("foo".to_string())),
-            activate.clone(),
+            self.select_category_move_target_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::EnterNewCategory),
@@ -358,11 +358,11 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::ToggleCover),
-            activate.clone(),
+            self.toggle_cover_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::Unlabel),
-            activate.clone(),
+            self.unlabel_action(window.clone()),
         ));
 
         self.gio_action_group.add_action_entries(entries);
@@ -1457,6 +1457,121 @@ impl Controller {
         )
     }
 
+    fn select_category_to_move_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            window,
+            move |_, _, _| {
+                window.dismiss();
+                let catalog = this.with_repository(|repository| repository.catalog());
+                let gsr_treelist_window = GsrTreelistWindow::new_with(
+                    &window,
+                    &window.gsr_application().shared_controller(),
+                    &catalog,
+                    &format!("Select the category to move"),
+                    None,
+                    Action::SelectCategoryMoveTarget(String::from("")),
+                );
+                window.begin_treelist_selection(gsr_treelist_window);
+            }
+        )
+    }
+
+    fn select_category_to_remove_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            window,
+            move |_, _, _| {
+                window.dismiss();
+                let catalog = this.with_repository(|repository| repository.catalog());
+                let gsr_treelist_window = GsrTreelistWindow::new_with(
+                    &window,
+                    &window.gsr_application().shared_controller(),
+                    &catalog,
+                    &format!("Select the category to remove"),
+                    None,
+                    Action::RemoveCategory(String::from("")),
+                );
+                window.begin_treelist_selection(gsr_treelist_window);
+            }
+        )
+    }
+
+    fn select_category_move_target_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            window,
+            move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
+                let gio_action = GioAction::from((object, variant));
+                if let Action::SelectCategoryMoveTarget(name) = Action::from(gio_action) {
+                    window.dismiss();
+                    let mut catalog = this.with_repository(|repository| repository.catalog());
+                    match catalog.remove_category(&name, true) {
+                        Err(e) => {
+                            window.present_information(&format!("{e}"));
+                            return;
+                        }
+                        Ok(_) => {
+                            let gsr_treelist_window = GsrTreelistWindow::new_with(
+                                &window,
+                                &window.gsr_application().shared_controller(),
+                                &catalog,
+                                &format!("Select the category where to rattach {name}"),
+                                None,
+                                Action::MoveCategory(name.to_string(), String::from("")),
+                            );
+                            window.begin_treelist_selection(gsr_treelist_window);
+                        }
+                    }
+                }
+            }
+        )
+    }
+
+    fn toggle_cover_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            window,
+            move |_, _, _| {
+                window.dismiss();
+                this.with_view_state_mut(|view_state| {
+                    let position = view_state.gallery.current_picture_index();
+                    this.with_repository(|repository| {
+                        let counts = repository.directory_count_at_index(position);
+                        let mut picture = view_state.gallery.current_picture().clone();
+                        picture.toggle_cover(counts.0);
+                        match repository.update_picture(&picture) {
+                            Ok(_) => {}
+                            Err(e) => eprintln!("{}", e),
+                        }
+                        view_state.gallery.set_picture(position, picture);
+                    });
+                });
+                window.deselect_pictures();
+            }
+        )
+    }
+
     fn toggle_covers_view_action(
         &self,
         window: GsrApplicationWindow,
@@ -1726,6 +1841,36 @@ impl Controller {
 
                     window.refresh_view()
                 }
+            }
+        )
+    }
+
+    fn unlabel_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            window,
+            move |_, _, _| {
+                window.dismiss();
+                this.with_view_state_mut(|view_state| {
+                    let indices = view_state.selected_indices();
+                    for position in indices {
+                        let mut picture = view_state.gallery.picture(position);
+                        picture.set_label("");
+                        this.with_repository(|repository| {
+                            match repository.update_picture(&picture) {
+                                Ok(_) => {}
+                                Err(e) => eprintln!("{}", e),
+                            }
+                        });
+                        view_state.gallery.set_picture(position, picture);
+                    }
+                });
+                window.deselect_pictures();
             }
         )
     }
