@@ -617,11 +617,6 @@ impl GsrApplicationWindow {
     pub fn process_action(&self, action: Action) {
         // println!("processing action: {:?}", &action);
         match action {
-            Action::AddCategory(ref new_category_name, ref target_category_name) => {
-                self.action_add_category(&new_category_name, &target_category_name)
-            }
-            Action::AddTag(ref tags) => self.action_tag(&tags),
-            Action::Categorize(ref category) => self.action_categorize(category),
             Action::DeleteSelectedPicture(ref response) => {
                 self.action_delete_selected_picture(response)
             }
@@ -697,17 +692,6 @@ impl GsrApplicationWindow {
         self.imp().treelist_on.set(true);
     }
 
-    fn action_add_category(&self, new_category_name: &str, target_category_name: &str) {
-        self.dismiss();
-        let result = self.with_repository(|repository| {
-            repository.add_category(new_category_name, target_category_name)
-        });
-        match result {
-            Ok(_) => {}
-            Err(e) => self.present_information(&format!("{}", e)),
-        }
-    }
-
     fn action_move_category(&self, category_name: &str, target_category_name: &str) {
         self.dismiss();
         let result = self.with_repository(|repository| {
@@ -727,7 +711,6 @@ impl GsrApplicationWindow {
             Err(e) => self.present_information(&format!("{}", e)),
         }
     }
-
 
     fn retrieve_all_labels(&self) -> Tags {
         let tags = self.with_repository(|repository| {
@@ -1035,26 +1018,6 @@ impl GsrApplicationWindow {
         self.with_view_state(|view_state| view_state.selected_indices())
     }
 
-    fn action_tag(&self, input: &str) {
-        let tags: Vec<String> = input.split(',').map(|s| s.to_string()).collect();
-        let indices = self.selected_indices();
-        self.dismiss();
-        for position in indices {
-            self.with_view_state_mut(|view_state| {
-                let mut picture = view_state.gallery.picture(position);
-                tags.iter().for_each(|tag| {
-                    picture.add_tag(tag);
-                    self.with_repository(|repository| match repository.update_picture(&picture) {
-                        Ok(_) => {}
-                        Err(e) => eprintln!("{}", e),
-                    })
-                });
-                view_state.gallery.set_picture(position, picture);
-            });
-        }
-        self.deselect_pictures();
-    }
-
     fn action_untag(&self, input: &str) {
         let tags: Vec<String> = input.split(',').map(|s| s.to_string()).collect();
         let indices = self.selected_indices();
@@ -1068,23 +1031,6 @@ impl GsrApplicationWindow {
                         Ok(_) => {}
                         Err(e) => eprintln!("{}", e),
                     })
-                });
-                view_state.gallery.set_picture(position, picture);
-            });
-        }
-        self.deselect_pictures();
-    }
-
-    fn action_categorize(&self, category: &Category) {
-        self.dismiss();
-        let indices = self.selected_indices();
-        for position in indices {
-            self.with_view_state_mut(|view_state| {
-                let mut picture = view_state.gallery.picture(position);
-                picture.set_category(category.clone());
-                self.with_repository(|repository| match repository.update_picture(&picture) {
-                    Ok(_) => {}
-                    Err(e) => eprintln!("{}", e),
                 });
                 view_state.gallery.set_picture(position, picture);
             });

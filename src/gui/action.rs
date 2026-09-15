@@ -59,29 +59,29 @@ pub enum Action {
     RepeatAction,                  // redo the last action
     RepeatRangeSelection,          // redo the last selection
     SelectCategoryAddTarget(String), // select category to add another category to in the catalog
-    SelectCategoryForPicture,      // select category to apply to the selected pictures
+    SelectCategoryForPicture, // interactively select category to apply to the selected pictures
     SelectCategoryMoveTarget(String), // select category to move another category to in the catalog
-    SelectCategoryToMove,          // select category to move in the catalog
-    SelectCategoryToRemove,        // select category to remove from the catalog
-    Select(Find, String),          // view only pictures matching the find criteria
-    SetSelectionAll,               // set the selection to all pictures
-    SetSelectionPage,              // set the seleciton to all pictures in the page
-    SetSelectionRangeEnd(usize),   // send the selection at the current picture
+    SelectCategoryToMove,     // select category to move in the catalog
+    SelectCategoryToRemove,   // select category to remove from the catalog
+    Select(Find, String),     // view only pictures matching the find criteria
+    SetSelectionAll,          // set the selection to all pictures
+    SetSelectionPage,         // set the seleciton to all pictures in the page
+    SetSelectionRangeEnd(usize), // send the selection at the current picture
     SetSelectionRangeStart(usize), // start a selection from the current picture
-    Test(String),                  // test action for development test
-    ToggleBlinking,                // toggle blinking of cursor under current picture
-    ToggleCover,                   // toggle current picture set to cover or not
-    ToggleCoversView,              // set the view on off to only covers
-    ToggleExpand,                  // toggle how the picture in single view uses the space
-    TogglePalette,                 // set the palette visible on / off
-    ToggleSelected(usize),         // toggle current picture in or out the selection
-    ToggleSelectedAt(i32, i32),    // set the picture at col,row selected or deselected
-    TogglePicturesPerRow(i32),     // set the view to single / back to multiple
-    ToggleSlideShow,               // set the slide show on off
-    ToggleThumbnailsView,          // set the view to thumbnails / back to previous
-    ToggleTwoByTwoView,            // set the view to 2x2 / back to previous
-    Unlabel,                       // remove label from the selected pictures
-    ViewCatalog,                   // show a list of all categories
+    Test(String),             // test action for development test
+    ToggleBlinking,           // toggle blinking of cursor under current picture
+    ToggleCover,              // toggle current picture set to cover or not
+    ToggleCoversView,         // set the view on off to only covers
+    ToggleExpand,             // toggle how the picture in single view uses the space
+    TogglePalette,            // set the palette visible on / off
+    ToggleSelected(usize),    // toggle current picture in or out the selection
+    ToggleSelectedAt(i32, i32), // set the picture at col,row selected or deselected
+    TogglePicturesPerRow(i32), // set the view to single / back to multiple
+    ToggleSlideShow,          // set the slide show on off
+    ToggleThumbnailsView,     // set the view to thumbnails / back to previous
+    ToggleTwoByTwoView,       // set the view to 2x2 / back to previous
+    Unlabel,                  // remove label from the selected pictures
+    ViewCatalog,              // show a list of all categories
 }
 
 impl Action {

@@ -25,7 +25,10 @@ use crate::model::repository::Repository;
 use crate::model::shared::Shared;
 use crate::model::view_option::ViewOption;
 use gtk::gio::ActionEntry;
+use gtk::gio::SimpleAction;
+use gtk::gio::SimpleActionGroup;
 use gtk::gio::prelude::*;
+use gtk::glib::Variant;
 use gtk::glib::clone;
 use std::cell::RefCell;
 use std::io::Result as IOResult;
@@ -33,10 +36,11 @@ use std::rc::Rc;
 
 pub const MAIN_CONTROLLER_GROUP_NAME: &str = "main-controller";
 pub type RcController = RefCell<Controller>;
-
+pub type FnGioAction =
+    Box<dyn Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static>;
 #[derive(Debug, Clone)]
 pub struct Controller {
-    pub gio_action_group: gtk::gio::SimpleActionGroup,
+    pub gio_action_group: SimpleActionGroup,
     pub gsr_application_window: Option<Shared<GsrApplicationWindow>>,
     pub gsr_entry_window: Option<Shared<GsrEntryWindow>>,
     pub gsr_treelist_window: Option<Shared<GsrTreelistWindow>>,
@@ -46,7 +50,7 @@ pub struct Controller {
 impl Default for Controller {
     fn default() -> Self {
         Self {
-            gio_action_group: gtk::gio::SimpleActionGroup::new(),
+            gio_action_group: SimpleActionGroup::new(),
             gsr_application_window: None,
             gsr_entry_window: None,
             gsr_treelist_window: None,
@@ -62,7 +66,7 @@ impl Controller {
         obj
     }
 
-    pub fn gio_action_group(&self) -> gtk::gio::SimpleActionGroup {
+    pub fn gio_action_group(&self) -> SimpleActionGroup {
         self.gio_action_group.clone()
     }
 
@@ -117,33 +121,33 @@ impl Controller {
     // LAW
     pub fn initialize(&self) {
         let mut entries = vec![];
-        let shared_gsr_application_window = self
+        let shared_window = self
             .gsr_application_window
             .as_ref()
-            .expect("application window not set in main controller");
+            .expect("application shared_window not set in main controller");
+        let window = shared_window.borrow();
 
         let activate = clone!(
             #[strong]
-            shared_gsr_application_window,
-            move |_group: &gtk::gio::SimpleActionGroup,
-                  object: &gtk::gio::SimpleAction,
-                  variant: Option<&gtk::glib::Variant>| {
-                let gsr_application_window = shared_gsr_application_window.borrow();
-                gsr_application_window.process_gio_action(object, variant);
+            shared_window,
+            move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
+                let gsr_application_shared_window = shared_window.borrow();
+                dbg!(&object.name());
+                gsr_application_shared_window.process_gio_action(object, variant);
             }
         );
 
         entries.push(Self::action_entry(
             GioActionType::from(Action::AddCategory("foo".to_string(), "bar".to_string())),
-            activate.clone(),
+            self.add_category_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::ApplyOrderSetting(Order::Name)),
-            self.apply_order_setting_action(shared_gsr_application_window.clone()),
+            self.apply_order_setting_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::ApplyViewSetting(ViewOption::Grid2x2)),
-            self.apply_view_setting_action(shared_gsr_application_window.clone()),
+            self.apply_view_setting_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::Cancel),
@@ -151,7 +155,11 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::CancelSelectionRange),
-            self.cancel_selection_range_action(shared_gsr_application_window.clone()),
+            self.cancel_selection_range_action(window.clone()),
+        ));
+        entries.push(Self::action_entry(
+            GioActionType::from(Action::Categorize(Some("foo".to_string()))),
+            self.categorize_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::DeleteSelectedPicture("yes".to_string())),
@@ -187,7 +195,7 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::GotoDirectory),
-            self.goto_directory_action(shared_gsr_application_window.clone()),
+            self.goto_directory_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::Label("foo".to_string())),
@@ -195,7 +203,7 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::AddTag("foo".to_string())),
-            activate.clone(),
+            self.add_tag_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::RemoveTag("foo".to_string())),
@@ -223,7 +231,7 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::PickChange),
-            activate.clone(),
+            self.pick_change_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::PickOrderSetting),
@@ -231,43 +239,43 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::PickViewOption),
-            self.pick_view_option_action(shared_gsr_application_window.clone()),
+            self.pick_view_option_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::Quit),
-            self.quit_action(shared_gsr_application_window.clone()),
+            self.quit_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::QuitDirectory),
-            self.quit_directory_action(shared_gsr_application_window.clone()),
+            self.quit_directory_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::Rank(Rank::ThreeStars)),
-            self.rank_action(shared_gsr_application_window.clone()),
+            self.rank_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::RepeatAction),
-            self.repeat_last_action_action(shared_gsr_application_window.clone()),
+            self.repeat_last_action_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::RepeatRangeSelection),
-            self.repeat_range_selection_action(shared_gsr_application_window.clone()),
+            self.repeat_range_selection_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::ToggleCoversView),
-            self.toggle_covers_view_action(shared_gsr_application_window.clone()),
+            self.toggle_covers_view_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::TogglePalette),
-            self.toggle_palette_action(shared_gsr_application_window.clone()),
+            self.toggle_palette_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::ToggleSelected(0)),
-            self.toggle_selected_action(shared_gsr_application_window.clone()),
+            self.toggle_selected_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::TogglePicturesPerRow(1)),
-            self.toggle_pictures_per_row_action(shared_gsr_application_window.clone()),
+            self.toggle_pictures_per_row_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::EnterRename),
@@ -279,7 +287,7 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::PickChange),
-            self.pick_change_action(shared_gsr_application_window.clone()),
+            self.pick_change_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::SelectCategoryForPicture),
@@ -319,7 +327,7 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::PickOrderSetting),
-            self.pick_order_setting_action(shared_gsr_application_window.clone()),
+            self.pick_order_setting_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::RemoveCategory("foo".to_string())),
@@ -327,11 +335,11 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::ToggleBlinking),
-            self.toggle_blinking_action(shared_gsr_application_window.clone()),
+            self.toggle_blinking_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::ToggleExpand),
-            self.toggle_expand_action(shared_gsr_application_window.clone()),
+            self.toggle_expand_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::ToggleCover),
@@ -347,10 +355,9 @@ impl Controller {
     pub fn action_entry<F>(
         gio_action_ty: GioActionType,
         activate: F,
-    ) -> ActionEntry<gtk::gio::SimpleActionGroup>
+    ) -> ActionEntry<SimpleActionGroup>
     where
-        F: Fn(&gtk::gio::SimpleActionGroup, &gtk::gio::SimpleAction, Option<&gtk::glib::Variant>)
-            + 'static,
+        F: Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static,
     {
         ActionEntry::builder(&gio_action_ty.name())
             .parameter_type(gio_action_ty.parameter_type().variant_ty())
@@ -397,21 +404,83 @@ impl Controller {
         }
     }
 
-    fn apply_view_setting_action(
+    // ACTIONS
+
+    fn add_category_action(
         &self,
-        shared_gsr_application_window: Shared<GsrApplicationWindow>,
-    ) -> impl Fn(&gtk::gio::SimpleActionGroup, &gtk::gio::SimpleAction, Option<&gtk::glib::Variant>)
-    + 'static {
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
             self,
             #[strong]
-            shared_gsr_application_window,
-            move |_group: &gtk::gio::SimpleActionGroup,
-                  object: &gtk::gio::SimpleAction,
-                  variant: Option<&gtk::glib::Variant>| {
+            window,
+            move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
                 let gio_action = GioAction::from((object, variant));
-                let window = shared_gsr_application_window.borrow();
+                let action = Action::from(gio_action);
+                if let Action::AddCategory(new_category_name, target_category_name) = action {
+                    let result = this.with_repository(|repository| {
+                        repository.add_category(&new_category_name, &target_category_name)
+                    });
+                    match result {
+                        Ok(_) => {}
+                        Err(e) => window.present_information(&format!("{}", e)),
+                    }
+                    window.dismiss();
+                }
+            }
+        )
+    }
+    fn add_tag_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            window,
+            move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
+                let gio_action = GioAction::from((object, variant));
+
+                let action = Action::from(gio_action);
+                if let Action::AddTag(tags) = action {
+                    let tags: Vec<String> = tags.split(',').map(|s| s.to_string()).collect();
+                    let indices = window.selected_indices();
+                    for position in indices {
+                        this.with_view_state_mut(|view_state| {
+                            let mut picture = view_state.gallery.picture(position);
+                            tags.iter().for_each(|tag| {
+                                picture.add_tag(tag);
+                                this.with_repository(|repository| {
+                                    match repository.update_picture(&picture) {
+                                        Ok(_) => {}
+                                        Err(e) => eprintln!("{}", e),
+                                    }
+                                })
+                            });
+                            view_state.gallery.set_picture(position, picture);
+                        });
+                    }
+                    window.dismiss();
+                    window.deselect_pictures();
+                }
+            }
+        )
+    }
+
+    fn apply_view_setting_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            window,
+            move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
+                let gio_action = GioAction::from((object, variant));
+
                 window.dismiss();
                 let action = Action::from(gio_action);
                 if let Action::ApplyViewSetting(view_option) = action {
@@ -480,17 +549,14 @@ impl Controller {
     }
     fn apply_order_setting_action(
         &self,
-        shared_gsr_application_window: Shared<GsrApplicationWindow>,
-    ) -> impl Fn(&gtk::gio::SimpleActionGroup, &gtk::gio::SimpleAction, Option<&gtk::glib::Variant>)
-    + 'static {
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
             self,
             #[strong]
-            shared_gsr_application_window,
-            move |_group: &gtk::gio::SimpleActionGroup,
-                  object: &gtk::gio::SimpleAction,
-                  variant: Option<&gtk::glib::Variant>| {
+            window,
+            move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
                 let gio_action = GioAction::from((object, variant));
                 if let Action::ApplyOrderSetting(order) = Action::from(gio_action) {
                     this.with_view_state_mut(|view_state| {
@@ -509,7 +575,7 @@ impl Controller {
                         dbg!(view_state.gallery.current_picture_index());
                         view_state.navigator.set_page_changed();
                     });
-                    let window = shared_gsr_application_window.borrow();
+
                     window.dismiss();
                     window.refresh_view();
                 }
@@ -519,36 +585,67 @@ impl Controller {
 
     fn cancel_selection_range_action(
         &self,
-        shared_gsr_application_window: Shared<GsrApplicationWindow>,
-    ) -> impl Fn(&gtk::gio::SimpleActionGroup, &gtk::gio::SimpleAction, Option<&gtk::glib::Variant>)
-    + 'static {
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
             self,
             #[strong]
-            shared_gsr_application_window,
+            window,
             move |_, _, _| {
                 this.with_view_state_mut(|view_state| {
                     view_state.selection.cancel();
                 });
-                let window = shared_gsr_application_window.borrow();
+
                 window.refresh_view();
             }
         )
     }
 
-    fn goto_directory_action(
+    fn categorize_action(
         &self,
-        shared_gsr_application_window: Shared<GsrApplicationWindow>,
-    ) -> impl Fn(&gtk::gio::SimpleActionGroup, &gtk::gio::SimpleAction, Option<&gtk::glib::Variant>)
-    + 'static {
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
             self,
             #[strong]
-            shared_gsr_application_window,
+            window,
+            move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
+                let gio_action = GioAction::from((object, variant));
+
+                let action = Action::from(gio_action);
+                if let Action::Categorize(category) = action {
+                    let indices = window.selected_indices();
+                    for position in indices {
+                        this.with_view_state_mut(|view_state| {
+                            let mut picture = view_state.gallery.picture(position);
+                            picture.set_category(category.clone());
+                            this.with_repository(|repository| {
+                                match repository.update_picture(&picture) {
+                                    Ok(_) => {}
+                                    Err(e) => eprintln!("{}", e),
+                                }
+                            });
+                            view_state.gallery.set_picture(position, picture);
+                        });
+                    }
+                    window.dismiss();
+                    window.deselect_pictures();
+                }
+            }
+        )
+    }
+    fn goto_directory_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            window,
             move |_, _, _| {
-                let window = shared_gsr_application_window.borrow();
                 let (current_picture, covers_only) = this.with_view_state(|view_state| {
                     (
                         view_state.gallery.current_picture(),
@@ -596,16 +693,14 @@ impl Controller {
 
     fn pick_change_action(
         &self,
-        shared_gsr_application_window: Shared<GsrApplicationWindow>,
-    ) -> impl Fn(&gtk::gio::SimpleActionGroup, &gtk::gio::SimpleAction, Option<&gtk::glib::Variant>)
-    + 'static {
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
             self,
             #[strong]
-            shared_gsr_application_window,
+            window,
             move |_, _, _| {
-                let window = shared_gsr_application_window.borrow();
                 let gsr_entry_window = GsrEntryWindow::new_with(
                     &window,
                     &window.gsr_application().shared_controller(),
@@ -619,14 +714,13 @@ impl Controller {
 
     fn quit_action(
         &self,
-        shared_gsr_application_window: Shared<GsrApplicationWindow>,
-    ) -> impl Fn(&gtk::gio::SimpleActionGroup, &gtk::gio::SimpleAction, Option<&gtk::glib::Variant>)
-    + 'static {
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
             self,
             #[strong]
-            shared_gsr_application_window,
+            window,
             move |_, _, _| {
                 this.with_view_state(|view_state| {
                     if let Ok(mut configuration) = Configuration::from_env() {
@@ -638,7 +732,7 @@ impl Controller {
                         let _ = configuration.save();
                     }
                 });
-                let window = shared_gsr_application_window.borrow();
+
                 window.gsr_picture_grid().leave_current_picture_focus();
                 window.quit();
             }
@@ -647,17 +741,16 @@ impl Controller {
 
     fn quit_directory_action(
         &self,
-        shared_gsr_application_window: Shared<GsrApplicationWindow>,
-    ) -> impl Fn(&gtk::gio::SimpleActionGroup, &gtk::gio::SimpleAction, Option<&gtk::glib::Variant>)
-    + 'static {
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
             self,
             #[strong]
-            shared_gsr_application_window,
+            window,
             move |_, _, _| {
                 this.back_to_previous_location();
-                let window = shared_gsr_application_window.borrow();
+
                 window.refresh_view();
             }
         )
@@ -665,14 +758,13 @@ impl Controller {
 
     fn toggle_covers_view_action(
         &self,
-        shared_gsr_application_window: Shared<GsrApplicationWindow>,
-    ) -> impl Fn(&gtk::gio::SimpleActionGroup, &gtk::gio::SimpleAction, Option<&gtk::glib::Variant>)
-    + 'static {
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
             self,
             #[strong]
-            shared_gsr_application_window,
+            window,
             move |_, _, _| {
                 let (gallery_has_covers, sub_folder) = this.with_view_state(|view_state| {
                     (
@@ -683,8 +775,6 @@ impl Controller {
                 if gallery_has_covers && sub_folder.is_none() {
                     let covers_only: bool = this
                         .with_view_state_mut(|view_state| view_state.settings.toggle_covers_only());
-                    let binding = shared_gsr_application_window.clone();
-                    let window = binding.borrow();
                     match this.retrieve_from_repository(Some(covers_only), None, None) {
                         Err(e) => eprintln!("{}", e),
                         Ok(0) => window.present_information("no picture matching these criteria"),
@@ -696,19 +786,18 @@ impl Controller {
     }
     fn toggle_palette_action(
         &self,
-        shared_gsr_application_window: Shared<GsrApplicationWindow>,
-    ) -> impl Fn(&gtk::gio::SimpleActionGroup, &gtk::gio::SimpleAction, Option<&gtk::glib::Variant>)
-    + 'static {
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
             self,
             #[strong]
-            shared_gsr_application_window,
+            window,
             move |_, _, _| {
                 this.with_view_state_mut(|view_state| {
                     view_state.settings.toggle_palette();
                 });
-                let window = shared_gsr_application_window.borrow();
+
                 window.refresh_view();
             }
         )
@@ -716,16 +805,14 @@ impl Controller {
 
     fn pick_order_setting_action(
         &self,
-        shared_gsr_application_window: Shared<GsrApplicationWindow>,
-    ) -> impl Fn(&gtk::gio::SimpleActionGroup, &gtk::gio::SimpleAction, Option<&gtk::glib::Variant>)
-    + 'static {
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
             self,
             #[strong]
-            shared_gsr_application_window,
+            window,
             move |_, _, _| {
-                let window = shared_gsr_application_window.borrow();
                 let gsr_entry_window = GsrEntryWindow::new_with(
                     &window,
                     &this.gsr_application().shared_controller(),
@@ -738,16 +825,14 @@ impl Controller {
     }
     fn pick_view_option_action(
         &self,
-        shared_gsr_application_window: Shared<GsrApplicationWindow>,
-    ) -> impl Fn(&gtk::gio::SimpleActionGroup, &gtk::gio::SimpleAction, Option<&gtk::glib::Variant>)
-    + 'static {
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
             self,
             #[strong]
-            shared_gsr_application_window,
+            window,
             move |_, _, _| {
-                let window = shared_gsr_application_window.borrow();
                 let gsr_entry_window = GsrEntryWindow::new_with(
                     &window,
                     &this.gsr_application().shared_controller(),
@@ -760,17 +845,14 @@ impl Controller {
     }
     fn rank_action(
         &self,
-        shared_gsr_application_window: Shared<GsrApplicationWindow>,
-    ) -> impl Fn(&gtk::gio::SimpleActionGroup, &gtk::gio::SimpleAction, Option<&gtk::glib::Variant>)
-    + 'static {
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
             self,
             #[strong]
-            shared_gsr_application_window,
-            move |_group: &gtk::gio::SimpleActionGroup,
-                  object: &gtk::gio::SimpleAction,
-                  variant: Option<&gtk::glib::Variant>| {
+            window,
+            move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
                 let gio_action = GioAction::from((object, variant));
                 if let Action::Rank(rank) = Action::from(gio_action) {
                     this.with_repository(|repository| {
@@ -787,7 +869,7 @@ impl Controller {
                             }
                         });
                     });
-                    let window = shared_gsr_application_window.borrow();
+
                     window.dismiss();
                     window.deselect_pictures();
                 }
@@ -797,17 +879,16 @@ impl Controller {
 
     fn repeat_last_action_action(
         &self,
-        shared_gsr_application_window: Shared<GsrApplicationWindow>,
-    ) -> impl Fn(&gtk::gio::SimpleActionGroup, &gtk::gio::SimpleAction, Option<&gtk::glib::Variant>)
-    + 'static {
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
             self,
             #[strong]
-            shared_gsr_application_window,
+            window,
             move |_, _, _| {
                 dbg!();
-                let window = shared_gsr_application_window.borrow();
+
                 let action = this.last_action.borrow().clone();
                 window.activate_action(action);
             }
@@ -816,20 +897,19 @@ impl Controller {
 
     fn repeat_range_selection_action(
         &self,
-        shared_gsr_application_window: Shared<GsrApplicationWindow>,
-    ) -> impl Fn(&gtk::gio::SimpleActionGroup, &gtk::gio::SimpleAction, Option<&gtk::glib::Variant>)
-    + 'static {
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
             self,
             #[strong]
-            shared_gsr_application_window,
+            window,
             move |_, _, _| {
                 this.with_view_state_mut(|view_state| {
                     view_state.selection.repeat();
                     view_state.navigator.set_page_changed();
                 });
-                let window = shared_gsr_application_window.borrow();
+
                 window.refresh_view();
             }
         )
@@ -837,20 +917,19 @@ impl Controller {
 
     fn toggle_blinking_action(
         &self,
-        shared_gsr_application_window: Shared<GsrApplicationWindow>,
-    ) -> impl Fn(&gtk::gio::SimpleActionGroup, &gtk::gio::SimpleAction, Option<&gtk::glib::Variant>)
-    + 'static {
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
             self,
             #[strong]
-            shared_gsr_application_window,
+            window,
             move |_, _, _| {
                 let on = this.with_view_state_mut(|view_state| {
                     view_state.settings.toggle_blinking();
                     view_state.settings.blinking_on()
                 });
-                let window = shared_gsr_application_window.borrow();
+
                 if on == true {
                     window.gsr_picture_grid().initialize_pictures();
                     window.gsr_picture_grid().leave_current_picture_focus();
@@ -863,16 +942,14 @@ impl Controller {
 
     fn toggle_expand_action(
         &self,
-        shared_gsr_application_window: Shared<GsrApplicationWindow>,
-    ) -> impl Fn(&gtk::gio::SimpleActionGroup, &gtk::gio::SimpleAction, Option<&gtk::glib::Variant>)
-    + 'static {
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
             self,
             #[strong]
-            shared_gsr_application_window,
+            window,
             move |_, _, _| {
-                let window = shared_gsr_application_window.borrow();
                 let pictures_per_row = this.with_view_state_mut(|view_state| {
                     if view_state.settings.pictures_per_row() == 1 {
                         view_state.settings.toggle_view_mode();
@@ -889,17 +966,14 @@ impl Controller {
 
     fn toggle_pictures_per_row_action(
         &self,
-        shared_gsr_application_window: Shared<GsrApplicationWindow>,
-    ) -> impl Fn(&gtk::gio::SimpleActionGroup, &gtk::gio::SimpleAction, Option<&gtk::glib::Variant>)
-    + 'static {
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
             self,
             #[strong]
-            shared_gsr_application_window,
-            move |_group: &gtk::gio::SimpleActionGroup,
-                  object: &gtk::gio::SimpleAction,
-                  variant: Option<&gtk::glib::Variant>| {
+            window,
+            move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
                 let gio_action = GioAction::from((object, variant));
                 if let Action::TogglePicturesPerRow(pictures_per_row) = Action::from(gio_action) {
                     this.with_view_state_mut(|view_state| {
@@ -917,7 +991,7 @@ impl Controller {
                             view_state.focus_at_coords = (col as i32, row as i32);
                         }
                     });
-                    let window = shared_gsr_application_window.borrow();
+
                     window.refresh_view()
                 }
             }
@@ -925,16 +999,15 @@ impl Controller {
     }
     fn toggle_selected_action(
         &self,
-        shared_gsr_application_window: Shared<GsrApplicationWindow>,
-    ) -> impl Fn(&gtk::gio::SimpleActionGroup, &gtk::gio::SimpleAction, Option<&gtk::glib::Variant>)
-    + 'static {
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
             self,
             #[strong]
-            shared_gsr_application_window,
-            move |_group: &gtk::gio::SimpleActionGroup,
-                  object: &gtk::gio::SimpleAction,
+            window,
+            move |_group: &SimpleActionGroup,
+                  object: &SimpleAction,
                   variant: Option<&gtk::glib::Variant>| {
                 let gio_action = GioAction::from((object, variant));
                 if let Action::ToggleSelected(position) = Action::from(gio_action) {
@@ -946,7 +1019,7 @@ impl Controller {
                         }
                         view_state.navigator.set_page_changed()
                     });
-                    let window = shared_gsr_application_window.borrow();
+
                     window.refresh_view()
                 }
             }
