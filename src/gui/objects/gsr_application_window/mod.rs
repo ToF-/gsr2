@@ -617,13 +617,6 @@ impl GsrApplicationWindow {
     pub fn process_action(&self, action: Action) {
         // println!("processing action: {:?}", &action);
         match action {
-            Action::Label(ref label) => self.action_label(&label),
-            Action::MoveCategory(ref category_name, ref target_category_name) => {
-                self.action_move_category(&category_name, &target_category_name)
-            }
-            Action::MoveSelectedPicture(ref target_directory) => {
-                self.action_move_selected_pictures(&target_directory)
-            }
             Action::Nothing => println!("processing Action::Nothing"),
             Action::PickCatalogChange => self.action_pick_catalog_change(),
             Action::RemoveCategory(ref category_name) => {
@@ -678,17 +671,6 @@ impl GsrApplicationWindow {
 
         *self.imp().gsr_treelist_window.borrow_mut() = gsr_treelist_window;
         self.imp().treelist_on.set(true);
-    }
-
-    fn action_move_category(&self, category_name: &str, target_category_name: &str) {
-        self.dismiss();
-        let result = self.with_repository(|repository| {
-            repository.move_category(category_name, target_category_name)
-        });
-        match result {
-            Ok(_) => {}
-            Err(e) => self.present_information(&format!("{}", e)),
-        }
     }
 
     fn action_remove_category(&self, category_name: &str) {
@@ -930,50 +912,6 @@ impl GsrApplicationWindow {
             self.deselect_pictures();
             self.retrieve_current_location()
         }
-    }
-    fn action_move_selected_pictures(&self, target_directory: &str) {
-        self.dismiss();
-        let path = PathBuf::from(target_directory);
-        match check_path_is_directory(&path) {
-            Ok(_) => {}
-            Err(e) => {
-                self.present_information(&format!("{e}"));
-                return;
-            }
-        }
-        let indices = self.selected_indices();
-        for position in indices {
-            self.with_view_state_mut(|view_state| {
-                let picture = view_state.gallery.picture(position);
-                self.with_repository(|repository| {
-                    match repository.move_picture_to_target(&picture, target_directory) {
-                        Ok(_) => {}
-                        Err(e) => {
-                            self.present_information(&format!("{e}"));
-                            return;
-                        }
-                    }
-                });
-            });
-        }
-        set_configuration_updated_flag(false);
-        self.deselect_pictures();
-    }
-    fn action_label(&self, label: &str) {
-        self.dismiss();
-        let indices = self.selected_indices();
-        for position in indices {
-            self.with_view_state_mut(|view_state| {
-                let mut picture = view_state.gallery.picture(position);
-                picture.set_label(label);
-                self.with_repository(|repository| match repository.update_picture(&picture) {
-                    Ok(_) => {}
-                    Err(e) => eprintln!("{}", e),
-                });
-                view_state.gallery.set_picture(position, picture);
-            });
-        }
-        self.deselect_pictures();
     }
 
     fn action_unlabel(&self) {

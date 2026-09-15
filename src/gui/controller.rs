@@ -1,4 +1,6 @@
-use crate::model::finder::Finder;
+use crate::env::configuration::set_configuration_updated_flag;
+use crate::file::paths::check_path_is_directory;
+use std::path::PathBuf;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
@@ -26,6 +28,7 @@ use crate::gui::objects::gsr_treelist_window::GsrTreelistWindow;
 use crate::gui::view_state::ViewState;
 use crate::gui::view_state::navigator::Navigator;
 use crate::model::find::Find;
+use crate::model::finder::Finder;
 use crate::model::gallery::Gallery;
 use crate::model::order::Order;
 use crate::model::picture::Picture;
@@ -208,7 +211,7 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::Label("foo".to_string())),
-            activate.clone(),
+            self.label_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::AddTag("foo".to_string())),
@@ -224,7 +227,7 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::MoveSelectedPicture("foo".to_string())),
-            activate.clone(),
+            self.move_selected_pictures_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::Categorize(None)),
@@ -332,7 +335,7 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::MoveCategory("foo".to_string(), "bar".to_string())),
-            activate.clone(),
+            self.move_category_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::PickOrderSetting),
@@ -991,6 +994,109 @@ impl Controller {
         )
     }
 
+    fn label_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            window,
+            move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
+                let gio_action = GioAction::from((object, variant));
+                if let Action::Label(label) = Action::from(gio_action) {
+                    this.with_view_state_mut(|view_state| {
+                        let indices = view_state.selected_indices();
+                        for position in indices {
+                            let mut picture = view_state.gallery.picture(position);
+                            picture.set_label(&label);
+                            this.with_repository(|repository| {
+                                match repository.update_picture(&picture) {
+                                    Ok(_) => {}
+                                    Err(e) => eprintln!("{}", e),
+                                }
+                            });
+                            view_state.gallery.set_picture(position, picture);
+                        }
+                    });
+                    window.dismiss();
+                    window.deselect_pictures();
+                }
+            }
+        )
+    }
+
+    fn move_category_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            window,
+            move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
+                let gio_action = GioAction::from((object, variant));
+                if let Action::MoveCategory(category_name, target_category_name) =
+                    Action::from(gio_action)
+                {
+                    window.dismiss();
+                    let result = this.with_repository(|repository| {
+                        repository.move_category(&category_name, &target_category_name)
+                    });
+                    match result {
+                        Ok(_) => {}
+                        Err(e) => window.present_information(&format!("{}", e)),
+                    }
+                }
+            }
+        )
+    }
+
+    fn move_selected_pictures_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            window,
+            move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
+                let gio_action = GioAction::from((object, variant));
+                if let Action::MoveSelectedPicture(target_directory) = Action::from(gio_action) {
+                    window.dismiss();
+                    let path = PathBuf::from(&target_directory);
+                    match check_path_is_directory(&path) {
+                        Ok(_) => {}
+                        Err(e) => {
+                            window.present_information(&format!("{e}"));
+                            return;
+                        }
+                    }
+                    this.with_view_state_mut(|view_state| {
+                        let indices = view_state.selected_indices();
+                        for position in indices {
+                            let picture = view_state.gallery.picture(position);
+                            this.with_repository(|repository| {
+                                match repository.move_picture_to_target(&picture, &target_directory)
+                                {
+                                    Ok(_) => {}
+                                    Err(e) => {
+                                        window.present_information(&format!("{e}"));
+                                        return;
+                                    }
+                                }
+                            });
+                        }
+                    });
+                    set_configuration_updated_flag(false);
+                    window.deselect_pictures();
+                }
+            }
+        )
+    }
     fn rename_action(
         &self,
         window: GsrApplicationWindow,
