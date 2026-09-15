@@ -157,6 +157,10 @@ impl Controller {
             self.add_category_action(window.clone()),
         ));
         entries.push(Self::action_entry(
+            GioActionType::from(Action::AddTag("foo".to_string())),
+            self.add_tag_action(window.clone()),
+        ));
+        entries.push(Self::action_entry(
             GioActionType::from(Action::ApplyOrderSetting(Order::Name)),
             self.apply_order_setting_action(window.clone()),
         ));
@@ -173,6 +177,10 @@ impl Controller {
             self.cancel_selection_range_action(window.clone()),
         ));
         entries.push(Self::action_entry(
+            GioActionType::from(Action::Categorize(None)),
+            self.categorize_action(window.clone()),
+        ));
+        entries.push(Self::action_entry(
             GioActionType::from(Action::Categorize(Some("foo".to_string()))),
             self.categorize_action(window.clone()),
         ));
@@ -185,24 +193,36 @@ impl Controller {
             self.dismiss_action(window.clone()),
         ));
         entries.push(Self::action_entry(
-            GioActionType::from(Action::EnterFind(Find::Name)),
-            self.enter_find_action(window.clone()),
+            GioActionType::from(Action::EnterAddTag),
+            self.enter_add_tag_action(window.clone()),
         ));
         entries.push(Self::action_entry(
-            GioActionType::from(Action::EnterSelect(Find::Name)),
-            self.enter_select_action(window.clone()),
+            GioActionType::from(Action::EnterFind(Find::Name)),
+            self.enter_find_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::EnterLabel),
             self.enter_label_action(window.clone()),
         ));
         entries.push(Self::action_entry(
-            GioActionType::from(Action::Find(Find::Name, "foo".to_string())),
-            self.find_action(window.clone()),
+            GioActionType::from(Action::EnterNewCategory),
+            self.enter_new_category_action(window.clone()),
         ));
         entries.push(Self::action_entry(
-            GioActionType::from(Action::Select(Find::Name, "foo".to_string())),
-            self.select_action(window.clone()),
+            GioActionType::from(Action::EnterRemoveTag),
+            self.enter_remove_tag_action(window.clone()),
+        ));
+        entries.push(Self::action_entry(
+            GioActionType::from(Action::EnterRename),
+            self.enter_rename_action(window.clone()),
+        ));
+        entries.push(Self::action_entry(
+            GioActionType::from(Action::EnterSelect(Find::Name)),
+            self.enter_select_action(window.clone()),
+        ));
+        entries.push(Self::action_entry(
+            GioActionType::from(Action::Find(Find::Name, "foo".to_string())),
+            self.find_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::FocusAt(0, 0)),
@@ -217,24 +237,12 @@ impl Controller {
             self.label_action(window.clone()),
         ));
         entries.push(Self::action_entry(
-            GioActionType::from(Action::AddTag("foo".to_string())),
-            self.add_tag_action(window.clone()),
-        ));
-        entries.push(Self::action_entry(
-            GioActionType::from(Action::RemoveTag("foo".to_string())),
-            self.remove_tag_action(window.clone()),
-        ));
-        entries.push(Self::action_entry(
-            GioActionType::from(Action::Rename("foo".to_string())),
-            self.rename_action(window.clone()),
+            GioActionType::from(Action::MoveCategory("foo".to_string(), "bar".to_string())),
+            self.move_category_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::MoveSelectedPicture("foo".to_string())),
             self.move_selected_pictures_action(window.clone()),
-        ));
-        entries.push(Self::action_entry(
-            GioActionType::from(Action::Categorize(None)),
-            self.categorize_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::MoveTowards(Direction::Left)),
@@ -245,12 +253,24 @@ impl Controller {
             activate.clone(),
         ));
         entries.push(Self::action_entry(
+            GioActionType::from(Action::PickCatalogChange),
+            self.pick_catalog_change_action(window.clone()),
+        ));
+        entries.push(Self::action_entry(
+            GioActionType::from(Action::PickChange),
+            self.pick_change_action(window.clone()),
+        ));
+        entries.push(Self::action_entry(
             GioActionType::from(Action::PickChange),
             self.pick_change_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::PickOrderSetting),
             activate.clone(),
+        ));
+        entries.push(Self::action_entry(
+            GioActionType::from(Action::PickOrderSetting),
+            self.pick_order_setting_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::PickViewOption),
@@ -269,6 +289,18 @@ impl Controller {
             self.rank_action(window.clone()),
         ));
         entries.push(Self::action_entry(
+            GioActionType::from(Action::RemoveCategory("foo".to_string())),
+            self.remove_category_action(window.clone()),
+        ));
+        entries.push(Self::action_entry(
+            GioActionType::from(Action::RemoveTag("foo".to_string())),
+            self.remove_tag_action(window.clone()),
+        ));
+        entries.push(Self::action_entry(
+            GioActionType::from(Action::Rename("foo".to_string())),
+            self.rename_action(window.clone()),
+        ));
+        entries.push(Self::action_entry(
             GioActionType::from(Action::RepeatAction),
             self.repeat_last_action_action(window.clone()),
         ));
@@ -277,36 +309,20 @@ impl Controller {
             self.repeat_range_selection_action(window.clone()),
         ));
         entries.push(Self::action_entry(
-            GioActionType::from(Action::ToggleCoversView),
-            self.toggle_covers_view_action(window.clone()),
+            GioActionType::from(Action::Select(Find::Name, "foo".to_string())),
+            self.select_action(window.clone()),
         ));
         entries.push(Self::action_entry(
-            GioActionType::from(Action::TogglePalette),
-            self.toggle_palette_action(window.clone()),
-        ));
-        entries.push(Self::action_entry(
-            GioActionType::from(Action::ToggleSelected),
-            self.toggle_selected_action(window.clone()),
-        ));
-        entries.push(Self::action_entry(
-            GioActionType::from(Action::TogglePicturesPerRow(1)),
-            self.toggle_pictures_per_row_action(window.clone()),
-        ));
-        entries.push(Self::action_entry(
-            GioActionType::from(Action::EnterRename),
-            self.enter_rename_action(window.clone()),
-        ));
-        entries.push(Self::action_entry(
-            GioActionType::from(Action::PickCatalogChange),
-            self.pick_catalog_change_action(window.clone()),
-        ));
-        entries.push(Self::action_entry(
-            GioActionType::from(Action::PickChange),
-            self.pick_change_action(window.clone()),
+            GioActionType::from(Action::SelectCategoryAddTarget("foo".to_string())),
+            self.select_category_add_target_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::SelectCategoryForPicture),
             self.select_category_for_picture_action(window.clone()),
+        ));
+        entries.push(Self::action_entry(
+            GioActionType::from(Action::SelectCategoryMoveTarget("foo".to_string())),
+            self.select_category_move_target_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::SelectCategoryToMove),
@@ -317,48 +333,32 @@ impl Controller {
             self.select_category_to_remove_action(window.clone()),
         ));
         entries.push(Self::action_entry(
-            GioActionType::from(Action::SelectCategoryAddTarget("foo".to_string())),
-            self.select_category_add_target_action(window.clone()),
-        ));
-        entries.push(Self::action_entry(
-            GioActionType::from(Action::SelectCategoryMoveTarget("foo".to_string())),
-            self.select_category_move_target_action(window.clone()),
-        ));
-        entries.push(Self::action_entry(
-            GioActionType::from(Action::EnterNewCategory),
-            self.enter_new_category_action(window.clone()),
-        ));
-        entries.push(Self::action_entry(
-            GioActionType::from(Action::EnterRemoveTag),
-            self.enter_remove_tag_action(window.clone()),
-        ));
-        entries.push(Self::action_entry(
-            GioActionType::from(Action::EnterAddTag),
-            self.enter_add_tag_action(window.clone()),
-        ));
-        entries.push(Self::action_entry(
-            GioActionType::from(Action::MoveCategory("foo".to_string(), "bar".to_string())),
-            self.move_category_action(window.clone()),
-        ));
-        entries.push(Self::action_entry(
-            GioActionType::from(Action::PickOrderSetting),
-            self.pick_order_setting_action(window.clone()),
-        ));
-        entries.push(Self::action_entry(
-            GioActionType::from(Action::RemoveCategory("foo".to_string())),
-            self.remove_category_action(window.clone()),
-        ));
-        entries.push(Self::action_entry(
             GioActionType::from(Action::ToggleBlinking),
             self.toggle_blinking_action(window.clone()),
+        ));
+        entries.push(Self::action_entry(
+            GioActionType::from(Action::ToggleCover),
+            self.toggle_cover_action(window.clone()),
+        ));
+        entries.push(Self::action_entry(
+            GioActionType::from(Action::ToggleCoversView),
+            self.toggle_covers_view_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::ToggleExpand),
             self.toggle_expand_action(window.clone()),
         ));
         entries.push(Self::action_entry(
-            GioActionType::from(Action::ToggleCover),
-            self.toggle_cover_action(window.clone()),
+            GioActionType::from(Action::TogglePalette),
+            self.toggle_palette_action(window.clone()),
+        ));
+        entries.push(Self::action_entry(
+            GioActionType::from(Action::TogglePicturesPerRow(1)),
+            self.toggle_pictures_per_row_action(window.clone()),
+        ));
+        entries.push(Self::action_entry(
+            GioActionType::from(Action::ToggleSelected),
+            self.toggle_selected_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::Unlabel),

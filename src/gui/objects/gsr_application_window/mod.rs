@@ -738,7 +738,6 @@ impl GsrApplicationWindow {
         }
     }
 
-
     fn pick_find_option(&self) {
         let gsr_entry_window = GsrEntryWindow::new_with(
             self,
