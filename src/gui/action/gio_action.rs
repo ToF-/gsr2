@@ -332,7 +332,7 @@ mod tests {
         check_action_to_and_from(Action::ToggleCover);
         check_action_to_and_from(Action::ToggleCoversView);
         check_action_to_and_from(Action::TogglePalette);
-        check_action_to_and_from(Action::ToggleSelected(4807));
+        check_action_to_and_from(Action::ToggleSelected);
         check_action_to_and_from(Action::ToggleSelectedAt(3, 8));
         check_action_to_and_from(Action::TogglePicturesPerRow(1));
         check_action_to_and_from(Action::ToggleSlideShow);

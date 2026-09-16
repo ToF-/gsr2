@@ -266,10 +266,6 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::PickOrderSetting),
-            activate.clone(),
-        ));
-        entries.push(Self::action_entry(
-            GioActionType::from(Action::PickOrderSetting),
             self.pick_order_setting_action(window.clone()),
         ));
         entries.push(Self::action_entry(
