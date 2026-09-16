@@ -1,3 +1,4 @@
+use crate::gui::key_input::menu::select_menu;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
@@ -278,6 +279,10 @@ impl Controller {
         entries.push(Self::action_entry(
             GioActionType::from(Action::PickOrderSetting),
             self.pick_order_setting_action(window.clone()),
+        ));
+        entries.push(Self::action_entry(
+            GioActionType::from(Action::PickSelectOption),
+            self.pick_select_option_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::PickViewOption),
@@ -634,8 +639,6 @@ impl Controller {
         window: GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
-            #[strong (rename_to=this)]
-            self,
             #[strong]
             window,
             move |_, _, _| {
@@ -741,11 +744,9 @@ impl Controller {
         window: GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
-            #[strong (rename_to=this)]
-            self,
             #[strong]
             window,
-            move |_, _, _| { window.dismiss() }
+            move |_, _, _| window.dismiss()
         )
     }
 
@@ -862,8 +863,6 @@ impl Controller {
         window: GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
-            #[strong (rename_to=this)]
-            self,
             #[strong]
             window,
             move |_, _, _| {
@@ -1065,7 +1064,7 @@ impl Controller {
             self,
             #[strong]
             window,
-            move |_, _, _| { this.find_next(&window) }
+            move |_, _, _|  this.find_next(&window) 
         )
     }
     fn goto_directory_action(
@@ -1230,8 +1229,6 @@ impl Controller {
         window: GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
-            #[strong (rename_to=this)]
-            self,
             #[strong]
             window,
             move |_, _, _| {
@@ -1252,8 +1249,6 @@ impl Controller {
         window: GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
-            #[strong (rename_to=this)]
-            self,
             #[strong]
             window,
             move |_, _, _| {
@@ -1273,8 +1268,6 @@ impl Controller {
         window: GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
-            #[strong (rename_to=this)]
-            self,
             #[strong]
             window,
             move |_, _, _| {
@@ -1282,6 +1275,25 @@ impl Controller {
                     &window,
                     &window.gsr_application().shared_controller(),
                     find_menu(),
+                    None,
+                );
+                window.begin_entry(gsr_entry_window);
+            }
+        )
+    }
+
+    fn pick_select_option_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong]
+            window,
+            move |_, _, _| {
+                let gsr_entry_window = GsrEntryWindow::new_with(
+                    &window,
+                    &window.gsr_application().shared_controller(),
+                    select_menu(),
                     None,
                 );
                 window.begin_entry(gsr_entry_window);

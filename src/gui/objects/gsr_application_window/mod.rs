@@ -1,12 +1,11 @@
+use std::rc::Rc;
+use crate::gui::key_input::entry::target_directory_entry;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
-use crate::env::configuration::set_configuration_updated_flag;
 use crate::env::default_values::FRAME_WINDOW_NAME;
 use crate::env::default_values::FULL_OPACITY;
 use crate::env::default_values::GRID_WINDOW_NAME;
 use crate::env::default_values::HALF_OPACITY;
-use crate::file::paths::check_path_is_directory;
-use crate::file::paths::name_and_extension;
 use crate::file::paths::parent_directory;
 use crate::gui::action::Action;
 use crate::gui::action::gio_action::GioAction;
@@ -14,21 +13,7 @@ use crate::gui::control::Control;
 use crate::gui::control::default_controls;
 use crate::gui::direction::Direction;
 use crate::gui::display::title_display;
-use crate::gui::key_input::entry::add_new_category;
-use crate::gui::key_input::entry::add_tags_entry;
-use crate::gui::key_input::entry::confirm_delete_entry;
-use crate::gui::key_input::entry::find_criteria_entry;
-use crate::gui::key_input::entry::label_change_entry;
-use crate::gui::key_input::entry::remove_tags_entry;
-use crate::gui::key_input::entry::rename_entry;
-use crate::gui::key_input::entry::select_criteria_entry;
-use crate::gui::key_input::entry::target_directory_entry;
 use crate::gui::key_input::information::information;
-use crate::gui::key_input::menu::catalog_menu;
-use crate::gui::key_input::menu::change_menu;
-use crate::gui::key_input::menu::find_menu;
-use crate::gui::key_input::menu::order_menu;
-use crate::gui::key_input::menu::select_menu;
 use crate::gui::mode::Mode;
 use crate::gui::objects::gsr_application::GsrApplication;
 use crate::gui::objects::gsr_entry_window::GsrEntryWindow;
@@ -40,17 +25,10 @@ use crate::gui::view_state::ViewState;
 use crate::gui::view_state::navigator::Navigator;
 use crate::gui::view_state::selection_range::SelectionRange;
 use crate::model::catalog::Catalog;
-use crate::model::category::Category;
-use crate::model::category::category_from_string;
-use crate::model::find::Find;
-use crate::model::finder::Finder;
 use crate::model::gallery::Gallery;
-use crate::model::order::Order;
-use crate::model::picture::Picture;
 use crate::model::predicate::Predicate;
 use crate::model::repository::Repository;
 use crate::model::shared::Shared;
-use crate::model::tags::Tags;
 use crate::model::view_option::ViewOption;
 use gtk::glib;
 use gtk::glib::Propagation;
@@ -59,10 +37,7 @@ use gtk::prelude::WidgetExt;
 use gtk::prelude::*;
 use gtk::subclass::prelude::ObjectSubclassIsExt;
 use std::cell::RefCell;
-use std::io::Error as IOError;
 use std::io::Result as IOResult;
-use std::path::PathBuf;
-use std::rc::Rc;
 
 pub const LEFT_PANE: usize = 0;
 pub const RIGHT_PANE: usize = 1;
@@ -518,7 +493,6 @@ impl GsrApplicationWindow {
                                 this.grid_view_move(&Direction::Last)
                             }
                         }
-                        Control::EnterSelect => this.pick_select_option(),
                         Control::MovePicture => this.enter_move_picture(),
                         Control::SetSelectionRangeEnd => {
                             this.set_selection_range(SelectionRange::End)
@@ -585,8 +559,6 @@ impl GsrApplicationWindow {
         self.activate_action(action);
     }
     fn activate_action_toggle_selected(&self) {
-        let position =
-            self.with_view_state(|view_state| view_state.gallery.current_picture_index());
         let action = Action::ToggleSelected;
         let (name, variant) = GioAction::from(action.clone()).to_simple_action_call();
         let variant_ref = variant.as_ref();
@@ -651,14 +623,6 @@ impl GsrApplicationWindow {
         self.imp().treelist_on.set(true);
     }
 
-    fn retrieve_all_labels(&self) -> Tags {
-        let tags = self.with_repository(|repository| {
-            let _ = repository.retrieve_all_labels();
-            repository.all_labels()
-        });
-        tags
-    }
-
     pub fn action_view_catalog(&self) {
         let catalog = self.with_repository(|repository| repository.catalog());
         let gsr_treelist_window = GsrTreelistWindow::new_with(
@@ -672,87 +636,10 @@ impl GsrApplicationWindow {
         self.begin_treelist_selection(gsr_treelist_window);
     }
 
-    fn action_redo_find(&self) {
-        let current_search = self.with_view_state(|view_state| view_state.finder.is_some());
-        if current_search {
-            self.with_view_state_mut(|view_state| {
-                view_state.finder.as_mut().unwrap().reset();
-            });
-            self.action_find_next();
-        } else {
-            self.pick_find_option()
-        }
-    }
-    fn action_find_next(&self) {
-        let position_res = self.with_view_state_mut(|view_state| match &view_state.finder {
-            Some(_) => Ok(view_state.finder.as_mut().unwrap().find_next()),
-            None => Err(IOError::other("not in a search")),
-        });
-        match position_res {
-            Err(e) => self.present_information(&format!("{e}")),
-            Ok(None) => self.action_redo_find(),
-            Ok(Some(position)) => {
-                self.with_view_state_mut(|view_state| {
-                    if view_state
-                        .navigator
-                        .can_move(&Direction::Index { value: position })
-                    {
-                        view_state
-                            .navigator
-                            .move_towards(&Direction::Index { value: position });
-                    };
-                });
-                self.refresh_view();
-                self.refresh_title();
-            }
-        };
-    }
-
     pub fn selected_indices(&self) -> Vec<usize> {
         self.with_view_state(|view_state| view_state.selected_indices())
     }
 
-    fn action_delete_selected_picture(&self, response: &str) {
-        self.dismiss();
-        if response == "yes" {
-            self.with_view_state(|view_state| {
-                let indices = self.selected_indices();
-                self.with_repository(|repository| {
-                    for position in indices {
-                        let picture = view_state.gallery.picture(position);
-                        match repository.delete_picture(&picture) {
-                            Ok(_) => {}
-                            Err(err) => {
-                                println!("{}", err);
-                            }
-                        }
-                    }
-                });
-            });
-            self.deselect_pictures();
-            self.retrieve_current_location()
-        }
-    }
-
-    fn pick_find_option(&self) {
-        let gsr_entry_window = GsrEntryWindow::new_with(
-            self,
-            &self.gsr_application().shared_controller(),
-            find_menu(),
-            None,
-        );
-        self.begin_entry(gsr_entry_window);
-    }
-
-    fn pick_select_option(&self) {
-        let gsr_entry_window = GsrEntryWindow::new_with(
-            self,
-            &self.gsr_application().shared_controller(),
-            select_menu(),
-            None,
-        );
-        self.begin_entry(gsr_entry_window);
-    }
 
     pub fn present_information(&self, message: &str) {
         {
@@ -783,54 +670,6 @@ impl GsrApplicationWindow {
         });
         gsr_entry_window.set_entry_text(&directory.unwrap_or_default());
         self.begin_entry(gsr_entry_window);
-    }
-
-    fn retrieve_current_location(&self) {
-        let location = self.with_view_state_mut(|view_state| view_state.current_location.clone());
-        let _ = self.retrieve_from_repository(
-            Some(location.covers_only()),
-            location.sub_directory(),
-            location.predicate(),
-        );
-        self.with_view_state_mut(|view_state| {
-            view_state.settings.set_covers_only(location.covers_only());
-            if view_state.navigator.can_move(&Direction::Index {
-                value: location.position(),
-            }) {
-                view_state.navigator.move_towards(&Direction::Index {
-                    value: location.position(),
-                })
-            } else {
-                view_state.navigator.move_towards(&Direction::First)
-            }
-        });
-        self.refresh_view();
-    }
-
-    fn back_to_previous_location(&self) {
-        let location = self.with_view_state_mut(|view_state| {
-            view_state.set_old_location();
-            view_state.current_location.clone()
-        });
-        dbg!(&location);
-        let _ = self.retrieve_from_repository(
-            Some(location.covers_only()),
-            location.sub_directory(),
-            location.predicate(),
-        );
-        self.with_view_state_mut(|view_state| {
-            view_state.settings.set_covers_only(location.covers_only());
-            if view_state.navigator.can_move(&Direction::Index {
-                value: location.position(),
-            }) {
-                view_state.navigator.move_towards(&Direction::Index {
-                    value: location.position(),
-                })
-            } else {
-                view_state.navigator.move_towards(&Direction::First)
-            }
-        });
-        self.refresh_view();
     }
 
     fn set_selection_range(&self, range: SelectionRange) {

@@ -51,6 +51,7 @@ pub enum Action {
     PickChange,                    // interactively select what change to make
     PickFindOption,                // interactively select what find to make
     PickOrderSetting,              // interactively select which order setting to apply
+    PickSelectOption,              // interactively select what select to make
     PickViewOption,                // interactively select what vieww setting to apply
     Quit,                          // exit from gsr
     QuitDirectory,                 // view all pictures not only sub directory
@@ -117,6 +118,7 @@ impl From<Control> for Action {
             Control::Down => Action::MoveTowards(Direction::Down),
             Control::PickChange => Action::PickChange,
             Control::EnterFind => Action::PickFindOption,
+            Control::EnterSelect => Action::PickSelectOption,
             Control::FindNext => Action::FindNext,
             Control::GotoDirectory => Action::GotoDirectory,
             Control::Left => Action::MoveTowards(Direction::Left),
