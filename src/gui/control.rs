@@ -108,10 +108,10 @@ pub fn help_on_controls() -> String {
         esc: cancel range  $: repeat range\n\
         !: whole range _: page range\n\
         F: find…  N: find next /: redo find\n\
-        S: select… \n
-        J: jump to picture #… \n\
-        k then a,b,c,d,e : set mark A/B/C/D/E \n\
-        j then a,b,c,d,e : jump to mark A/B/C/D/E \n
+        S: select…\n\
+        J: jump to picture #…\n\
+        k then a,b,c,d,e : set mark A/B/C/D/E\n\
+        j then a,b,c,d,e : jump to mark A/B/C/D/E\n\
         c change…\n\
         0,1,2,3: set rank\n\
         o order by…\n\
