@@ -1,4 +1,6 @@
+use crate::gui::action::A;
 use crate::gui::action::Action;
+use crate::gui::action::gio_action_parameter_type::GAPT;
 use crate::gui::action::gio_action_parameter_type::GioActionParameterType;
 use crate::gui::controller::MAIN_CONTROLLER_GROUP_NAME;
 
@@ -9,6 +11,8 @@ pub struct GioActionType {
     action_entry_name: String,
     parameter_type: GioActionParameterType,
 }
+
+pub type GAT = GioActionType;
 
 impl GioActionType {
     pub fn new(name: &str, action_parameter_type: GioActionParameterType) -> Self {
@@ -34,166 +38,76 @@ impl GioActionType {
 impl From<Action> for GioActionType {
     fn from(action: Action) -> Self {
         match action {
-            Action::AddCategory(_, _) => {
-                GioActionType::new("add-category", GioActionParameterType::StringPair)
-            }
-            Action::AddTag(_) => GioActionType::new("add-tag", GioActionParameterType::String),
-            Action::ApplyOrderSetting(_) => {
-                GioActionType::new("apply-order-setting", GioActionParameterType::Int32)
-            }
-            Action::ApplyViewSetting(_) => {
-                GioActionType::new("apply-view-setting", GioActionParameterType::Int32)
-            }
-            Action::Cancel => GioActionType::new("cancel", GioActionParameterType::None),
-            Action::CancelSelectionRange => {
-                GioActionType::new("cancel-selection-range", GioActionParameterType::None)
-            }
-            Action::Categorize(_) => {
-                GioActionType::new("categorize", GioActionParameterType::String)
-            }
-            Action::DeleteSelectedPicture(_) => {
-                GioActionType::new("delete-selected-picture", GioActionParameterType::String)
-            }
-            Action::MoveSelectedPicture(_) => {
-                GioActionType::new("move-selected-picture", GioActionParameterType::String)
-            }
-            Action::Dismiss => GioActionType::new("dismiss", GioActionParameterType::None),
-            Action::EnterAddTag => {
-                GioActionType::new("enter-add-tag", GioActionParameterType::None)
-            }
-            Action::SelectCategoryForPicture => {
-                GioActionType::new("select-category-for-picture", GioActionParameterType::None)
-            }
-            Action::SelectCategoryAddTarget(_) => {
-                GioActionType::new("select-category-add-target", GioActionParameterType::String)
-            }
-            Action::EnterIndex => GioActionType::new("enter-index", GioActionParameterType::None),
-            Action::EnterFind(_) => GioActionType::new("enter-find", GioActionParameterType::Int32),
-            Action::EnterSelect(_) => {
-                GioActionType::new("enter-select", GioActionParameterType::Int32)
-            }
-            Action::EnterLabel => GioActionType::new("enter-label", GioActionParameterType::None),
-            Action::EnterNewCategory => {
-                GioActionType::new("enter-new-category", GioActionParameterType::None)
-            }
-            Action::EnterRemoveTag => {
-                GioActionType::new("enter-remove-tag", GioActionParameterType::None)
-            }
-            Action::EnterRename => GioActionType::new("enter-rename", GioActionParameterType::None),
-            Action::Find(_, _) => GioActionType::new("find", GioActionParameterType::Int32String),
-            Action::FindNext => GioActionType::new("find-next", GioActionParameterType::None),
-            Action::FocusAt(_, _) => {
-                GioActionType::new("focus-at", GioActionParameterType::Int32Pair)
-            }
-            Action::GotoDirectory => {
-                GioActionType::new("go-to-directory", GioActionParameterType::None)
-            }
-            Action::JumpToIndex(_) => {
-                GioActionType::new("jump-to-index", GioActionParameterType::Int32)
-            }
-            Action::JumpToMark(_) => {
-                GioActionType::new("jump-to-mark", GioActionParameterType::Char)
-            }
-            Action::JumpToRandom => {
-                GioActionType::new("jump-to-random", GioActionParameterType::None)
-            }
-            Action::Label(_) => GioActionType::new("label", GioActionParameterType::String),
-            Action::Mark(_) => GioActionType::new("mark", GioActionParameterType::Char),
-            Action::MoveCategory(_, _) => {
-                GioActionType::new("move-category", GioActionParameterType::StringPair)
-            }
-            Action::MoveFile => GioActionType::new("move-file", GioActionParameterType::None),
-            Action::MoveTowards(_) => {
-                GioActionType::new("move-towards", GioActionParameterType::Int32)
-            }
-            Action::Nothing => GioActionType::new("nothing", GioActionParameterType::None),
-            Action::PickCatalogChange => {
-                GioActionType::new("pick-catalog-change", GioActionParameterType::None)
-            }
-            Action::PickChange => GioActionType::new("pick-change", GioActionParameterType::None),
-            Action::PickOrderSetting => {
-                GioActionType::new("pick-order-setting", GioActionParameterType::None)
-            }
-            Action::PickViewOption => {
-                GioActionType::new("pick-view-option", GioActionParameterType::None)
-            }
-            Action::Quit => GioActionType::new("quit", GioActionParameterType::None),
-            Action::QuitDirectory => {
-                GioActionType::new("quit-directory", GioActionParameterType::None)
-            }
-            Action::Rank(_) => GioActionType::new("rank", GioActionParameterType::Int64),
-            Action::RemoveCategory(_) => {
-                GioActionType::new("remove-category", GioActionParameterType::String)
-            }
-            Action::RemoveTag(_) => {
-                GioActionType::new("remove-tag", GioActionParameterType::String)
-            }
-            Action::Rename(_) => GioActionType::new("rename", GioActionParameterType::String),
-            Action::RepeatAction => {
-                GioActionType::new("repeat-action", GioActionParameterType::None)
-            }
-            Action::RepeatRangeSelection => {
-                GioActionType::new("repeat-range-selection", GioActionParameterType::None)
-            }
-            Action::Select(_, _) => {
-                GioActionType::new("select", GioActionParameterType::Int32String)
-            }
-            Action::SelectCategoryToMove => {
-                GioActionType::new("select-category-to-move", GioActionParameterType::None)
-            }
-            Action::SelectCategoryToRemove => {
-                GioActionType::new("select-category-to-remove", GioActionParameterType::None)
-            }
-            Action::SelectCategoryMoveTarget(_) => GioActionType::new(
-                "select-category-move-target",
-                GioActionParameterType::String,
-            ),
-            Action::SetSelectionAll => {
-                GioActionType::new("set-selection-all", GioActionParameterType::None)
-            }
-            Action::SetSelectionPage => {
-                GioActionType::new("set-selection-page", GioActionParameterType::None)
-            }
-            Action::SetSelectionRangeEnd(_) => {
-                GioActionType::new("set-selection-range-end", GioActionParameterType::Int32)
-            }
-            Action::SetSelectionRangeStart(_) => {
-                GioActionType::new("set-selection-range-start", GioActionParameterType::Int32)
-            }
-            Action::Test(_) => GioActionType::new("test", GioActionParameterType::String),
-            Action::ToggleBlinking => {
-                GioActionType::new("toggle-blinking", GioActionParameterType::None)
-            }
-            Action::ToggleCover => GioActionType::new("toggle-cover", GioActionParameterType::None),
-            Action::ToggleCoversView => {
-                GioActionType::new("toggle-covers-view", GioActionParameterType::None)
-            }
-            Action::ToggleExpand => {
-                GioActionType::new("toggle-expand", GioActionParameterType::None)
-            }
-            Action::TogglePalette => {
-                GioActionType::new("toggle-palette", GioActionParameterType::None)
-            }
-            Action::ToggleSelected => {
-                GioActionType::new("toggle-selected", GioActionParameterType::None)
-            }
-            Action::ToggleSelectedAt(_, _) => {
-                GioActionType::new("toggle-selected-at", GioActionParameterType::Int32Pair)
-            }
-            Action::TogglePicturesPerRow(_) => {
-                GioActionType::new("toggle-pictures-per-row", GioActionParameterType::Int32)
-            }
-            Action::ToggleSlideShow => {
-                GioActionType::new("toggle-slide-show", GioActionParameterType::None)
-            }
-            Action::ToggleThumbnailsView => {
-                GioActionType::new("toggle-thumbnails-view", GioActionParameterType::None)
-            }
-            Action::ToggleTwoByTwoView => {
-                GioActionType::new("toggle-two-by-two-view", GioActionParameterType::None)
-            }
-            Action::Unlabel => GioActionType::new("unlabel", GioActionParameterType::None),
-            Action::ViewCatalog => GioActionType::new("view-catalog", GioActionParameterType::None),
+            A::AddCategory(_, _) => GAT::new("add-category", GAPT::StringPair),
+            A::AddTag(_) => GAT::new("add-tag", GAPT::String),
+            A::ApplyOrderSetting(_) => GAT::new("apply-order-setting", GAPT::Int32),
+            A::ApplyViewSetting(_) => GAT::new("apply-view-setting", GAPT::Int32),
+            A::Cancel => GAT::new("cancel", GAPT::None),
+            A::CancelSelectionRange => GAT::new("cancel-selection-range", GAPT::None),
+            A::Categorize(_) => GAT::new("categorize", GAPT::String),
+            A::DeleteSelectedPicture(_) => GAT::new("delete-selected-picture", GAPT::String),
+            A::Dismiss => GAT::new("dismiss", GAPT::None),
+            A::EnterAddTag => GAT::new("enter-add-tag", GAPT::None),
+            A::EnterDeletePicture => GAT::new("enter-delete-picture", GAPT::None),
+            A::EnterFind(_) => GAT::new("enter-find", GAPT::Int32),
+            A::EnterIndex => GAT::new("enter-index", GAPT::None),
+            A::EnterLabel => GAT::new("enter-label", GAPT::None),
+            A::EnterNewCategory => GAT::new("enter-new-category", GAPT::None),
+            A::EnterRemoveTag => GAT::new("enter-remove-tag", GAPT::None),
+            A::EnterRename => GAT::new("enter-rename", GAPT::None),
+            A::EnterSelect(_) => GAT::new("enter-select", GAPT::Int32),
+            A::Find(_, _) => GAT::new("find", GAPT::Int32String),
+            A::FindNext => GAT::new("find-next", GAPT::None),
+            A::FocusAt(_, _) => GAT::new("focus-at", GAPT::Int32Pair),
+            A::GotoDirectory => GAT::new("go-to-directory", GAPT::None),
+            A::JumpToIndex(_) => GAT::new("jump-to-index", GAPT::Int32),
+            A::JumpToMark(_) => GAT::new("jump-to-mark", GAPT::Char),
+            A::JumpToRandom => GAT::new("jump-to-random", GAPT::None),
+            A::Label(_) => GAT::new("label", GAPT::String),
+            A::Mark(_) => GAT::new("mark", GAPT::Char),
+            A::MoveCategory(_, _) => GAT::new("move-category", GAPT::StringPair),
+            A::MoveFile => GAT::new("move-file", GAPT::None),
+            A::MoveSelectedPicture(_) => GAT::new("move-selected-picture", GAPT::String),
+            A::MoveTowards(_) => GAT::new("move-towards", GAPT::Int32),
+            A::Nothing => GAT::new("nothing", GAPT::None),
+            A::PickCatalogChange => GAT::new("pick-catalog-change", GAPT::None),
+            A::PickChange => GAT::new("pick-change", GAPT::None),
+            A::PickFindOption => GAT::new("pick-find-option", GAPT::None),
+            A::PickOrderSetting => GAT::new("pick-order-setting", GAPT::None),
+            A::PickViewOption => GAT::new("pick-view-option", GAPT::None),
+            A::Quit => GAT::new("quit", GAPT::None),
+            A::QuitDirectory => GAT::new("quit-directory", GAPT::None),
+            A::Rank(_) => GAT::new("rank", GAPT::Int64),
+            A::RedoFind => GAT::new("redo-find", GAPT::None),
+            A::RemoveCategory(_) => GAT::new("remove-category", GAPT::String),
+            A::RemoveTag(_) => GAT::new("remove-tag", GAPT::String),
+            A::Rename(_) => GAT::new("rename", GAPT::String),
+            A::RepeatAction => GAT::new("repeat-action", GAPT::None),
+            A::RepeatRangeSelection => GAT::new("repeat-range-selection", GAPT::None),
+            A::Select(_, _) => GAT::new("select", GAPT::Int32String),
+            A::SelectCategoryAddTarget(_) => GAT::new("select-category-add-target", GAPT::String),
+            A::SelectCategoryForPicture => GAT::new("select-category-for-picture", GAPT::None),
+            A::SelectCategoryMoveTarget(_) => GAT::new("select-category-move-target", GAPT::String),
+            A::SelectCategoryToMove => GAT::new("select-category-to-move", GAPT::None),
+            A::SelectCategoryToRemove => GAT::new("select-category-to-remove", GAPT::None),
+            A::SetSelectionAll => GAT::new("set-selection-all", GAPT::None),
+            A::SetSelectionPage => GAT::new("set-selection-page", GAPT::None),
+            A::SetSelectionRangeEnd(_) => GAT::new("set-selection-range-end", GAPT::Int32),
+            A::SetSelectionRangeStart(_) => GAT::new("set-selection-range-start", GAPT::Int32),
+            A::Test(_) => GAT::new("test", GAPT::String),
+            A::ToggleBlinking => GAT::new("toggle-blinking", GAPT::None),
+            A::ToggleCover => GAT::new("toggle-cover", GAPT::None),
+            A::ToggleCoversView => GAT::new("toggle-covers-view", GAPT::None),
+            A::ToggleExpand => GAT::new("toggle-expand", GAPT::None),
+            A::TogglePalette => GAT::new("toggle-palette", GAPT::None),
+            A::TogglePicturesPerRow(_) => GAT::new("toggle-pictures-per-row", GAPT::Int32),
+            A::ToggleSelected => GAT::new("toggle-selected", GAPT::None),
+            A::ToggleSelectedAt(_, _) => GAT::new("toggle-selected-at", GAPT::Int32Pair),
+            A::ToggleSlideShow => GAT::new("toggle-slide-show", GAPT::None),
+            A::ToggleThumbnailsView => GAT::new("toggle-thumbnails-view", GAPT::None),
+            A::ToggleTwoByTwoView => GAT::new("toggle-two-by-two-view", GAPT::None),
+            A::Unlabel => GAT::new("unlabel", GAPT::None),
+            A::ViewCatalog => GAT::new("view-catalog", GAPT::None),
         }
     }
 }

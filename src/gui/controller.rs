@@ -12,6 +12,7 @@ use crate::gui::control::Control;
 use crate::gui::direction::Direction;
 use crate::gui::key_input::entry::add_new_category;
 use crate::gui::key_input::entry::add_tags_entry;
+use crate::gui::key_input::entry::confirm_delete_entry;
 use crate::gui::key_input::entry::find_criteria_entry;
 use crate::gui::key_input::entry::label_change_entry;
 use crate::gui::key_input::entry::remove_tags_entry;
@@ -19,6 +20,7 @@ use crate::gui::key_input::entry::rename_entry;
 use crate::gui::key_input::entry::select_criteria_entry;
 use crate::gui::key_input::menu::catalog_menu;
 use crate::gui::key_input::menu::change_menu;
+use crate::gui::key_input::menu::find_menu;
 use crate::gui::key_input::menu::order_menu;
 use crate::gui::key_input::menu::view_menu;
 use crate::gui::objects::gsr_application::GsrApplication;
@@ -46,6 +48,7 @@ use gtk::gio::prelude::*;
 use gtk::glib::Variant;
 use gtk::glib::clone;
 use std::cell::RefCell;
+use std::io::Error as IOError;
 use std::io::Result as IOResult;
 use std::path::PathBuf;
 use std::rc::Rc;
@@ -197,6 +200,10 @@ impl Controller {
             self.enter_add_tag_action(window.clone()),
         ));
         entries.push(Self::action_entry(
+            GioActionType::from(Action::EnterDeletePicture),
+            self.enter_delete_picture_action(window.clone()),
+        ));
+        entries.push(Self::action_entry(
             GioActionType::from(Action::EnterFind(Find::Name)),
             self.enter_find_action(window.clone()),
         ));
@@ -223,6 +230,10 @@ impl Controller {
         entries.push(Self::action_entry(
             GioActionType::from(Action::Find(Find::Name, "foo".to_string())),
             self.find_action(window.clone()),
+        ));
+        entries.push(Self::action_entry(
+            GioActionType::from(Action::FindNext),
+            self.find_next_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::FocusAt(0, 0)),
@@ -261,8 +272,8 @@ impl Controller {
             self.pick_change_action(window.clone()),
         ));
         entries.push(Self::action_entry(
-            GioActionType::from(Action::PickChange),
-            self.pick_change_action(window.clone()),
+            GioActionType::from(Action::PickFindOption),
+            self.pick_find_option_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::PickOrderSetting),
@@ -283,6 +294,10 @@ impl Controller {
         entries.push(Self::action_entry(
             GioActionType::from(Action::Rank(Rank::ThreeStars)),
             self.rank_action(window.clone()),
+        ));
+        entries.push(Self::action_entry(
+            GioActionType::from(Action::RedoFind),
+            self.redo_find_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::RemoveCategory("foo".to_string())),
@@ -760,6 +775,30 @@ impl Controller {
         )
     }
 
+    fn enter_delete_picture_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            window,
+            move |_, _, _| {
+                if !this.with_view_state(|view_state| view_state.selection.has_selected()) {
+                    window.present_information("cannot delete: no picture selected");
+                    return;
+                };
+                let gsr_entry_window = GsrEntryWindow::new_with(
+                    &window,
+                    &window.gsr_application().shared_controller(),
+                    confirm_delete_entry(),
+                    None,
+                );
+                window.begin_entry(gsr_entry_window);
+            }
+        )
+    }
     fn enter_find_action(
         &self,
         window: GsrApplicationWindow,
@@ -993,6 +1032,42 @@ impl Controller {
         )
     }
 
+    fn find_next(&self, window: &GsrApplicationWindow) {
+        let position_res = self.with_view_state_mut(|view_state| match &view_state.finder {
+            Some(_) => Ok(view_state.finder.as_mut().unwrap().find_next()),
+            None => Err(IOError::other("not in a search")),
+        });
+        match position_res {
+            Err(e) => window.present_information(&format!("{e}")),
+            Ok(None) => self.redo_find(&window),
+            Ok(Some(position)) => {
+                self.with_view_state_mut(|view_state| {
+                    if view_state
+                        .navigator
+                        .can_move(&Direction::Index { value: position })
+                    {
+                        view_state
+                            .navigator
+                            .move_towards(&Direction::Index { value: position });
+                    };
+                });
+                window.refresh_view();
+                window.refresh_title();
+            }
+        };
+    }
+    fn find_next_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            window,
+            move |_, _, _| { this.find_next(&window) }
+        )
+    }
     fn goto_directory_action(
         &self,
         window: GsrApplicationWindow,
@@ -1186,6 +1261,27 @@ impl Controller {
                     &window,
                     &window.gsr_application().shared_controller(),
                     change_menu(),
+                    None,
+                );
+                window.begin_entry(gsr_entry_window);
+            }
+        )
+    }
+
+    fn pick_find_option_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            window,
+            move |_, _, _| {
+                let gsr_entry_window = GsrEntryWindow::new_with(
+                    &window,
+                    &window.gsr_application().shared_controller(),
+                    find_menu(),
                     None,
                 );
                 window.begin_entry(gsr_entry_window);
@@ -1685,6 +1781,39 @@ impl Controller {
                     window.dismiss();
                     window.deselect_pictures();
                 }
+            }
+        )
+    }
+
+    fn redo_find(&self, window: &GsrApplicationWindow) {
+        let current_search = self.with_view_state(|view_state| view_state.finder.is_some());
+        if current_search {
+            self.with_view_state_mut(|view_state| {
+                view_state.finder.as_mut().unwrap().reset();
+            });
+            self.find_next(window);
+        } else {
+            let gsr_entry_window = GsrEntryWindow::new_with(
+                &window,
+                &window.gsr_application().shared_controller(),
+                find_menu(),
+                None,
+            );
+            window.begin_entry(gsr_entry_window);
+        }
+    }
+
+    fn redo_find_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            window,
+            move |_, _, _| {
+                this.redo_find(&window);
             }
         )
     }

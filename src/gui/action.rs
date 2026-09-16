@@ -25,10 +25,11 @@ pub enum Action {
     DeleteSelectedPicture(String), // input a yes to deleting selected picture files
     Dismiss,                       // dismiss after presentation of an information
     EnterAddTag,                   // enter new tag(s) to add to the selected pictures
-    EnterNewCategory,              // enter new category to add to the catalog
-    EnterIndex,                    // interactively enter index to jump to
+    EnterDeletePicture,            // enter delete picture interactive confirmation
     EnterFind(Find),               // interactively enter criteria for finding
+    EnterIndex,                    // interactively enter index to jump to
     EnterLabel,                    // enter label to apply to the selected pictures
+    EnterNewCategory,              // enter new category to add to the catalog
     EnterRemoveTag,                // enter tag(s) to remove from the selected pictures
     EnterRename,                   // enter new name for selected picture
     EnterSelect(Find),             // interactively enter criteria for selecting
@@ -48,11 +49,13 @@ pub enum Action {
     Nothing,                       // do nothing (test)
     PickCatalogChange,             // interactively select what catalog change to make
     PickChange,                    // interactively select what change to make
+    PickFindOption,                // interactively select what find to make
     PickOrderSetting,              // interactively select which order setting to apply
     PickViewOption,                // interactively select what vieww setting to apply
     Quit,                          // exit from gsr
     QuitDirectory,                 // view all pictures not only sub directory
     Rank(Rank),                    // rank the selected pictures
+    RedoFind,                      // return to find's first result
     RemoveCategory(String),        // remove the sub category from the catalog
     RemoveTag(Label),              // remove tag(s) from the selected pictures
     Rename(String),                // rename the selected picture file
@@ -84,6 +87,8 @@ pub enum Action {
     ViewCatalog,              // show a list of all categories
 }
 
+pub type A = Action;
+
 impl Action {
     pub fn is_repeatable(&self) -> bool {
         match self {
@@ -108,8 +113,11 @@ impl From<Control> for Action {
             Control::BackFromDirectory => Action::QuitDirectory,
             Control::CancelEdition => Action::Cancel,
             Control::CancelRange => Action::CancelSelectionRange,
+            Control::DeletePicture => Action::EnterDeletePicture,
             Control::Down => Action::MoveTowards(Direction::Down),
             Control::PickChange => Action::PickChange,
+            Control::EnterFind => Action::PickFindOption,
+            Control::FindNext => Action::FindNext,
             Control::GotoDirectory => Action::GotoDirectory,
             Control::Left => Action::MoveTowards(Direction::Left),
             Control::MoveEndPage => Action::MoveTowards(Direction::PageEnd),
@@ -123,6 +131,7 @@ impl From<Control> for Action {
             Control::RankOneStar => Action::Rank(Rank::OneStar),
             Control::RankThreeStars => Action::Rank(Rank::ThreeStars),
             Control::RankTwoStars => Action::Rank(Rank::TwoStars),
+            Control::RedoFind => Action::RedoFind,
             Control::RepeatRange => Action::RepeatRangeSelection,
             Control::RepeatLastAction => Action::RepeatAction,
             Control::Right => Action::MoveTowards(Direction::Right),

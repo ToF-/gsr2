@@ -518,11 +518,7 @@ impl GsrApplicationWindow {
                                 this.grid_view_move(&Direction::Last)
                             }
                         }
-                        Control::DeletePicture => this.enter_delete_picture(),
-                        Control::EnterFind => this.pick_find_option(),
                         Control::EnterSelect => this.pick_select_option(),
-                        Control::RedoFind => this.action_redo_find(),
-                        Control::FindNext => this.action_find_next(),
                         Control::MovePicture => this.enter_move_picture(),
                         Control::SetSelectionRangeEnd => {
                             this.set_selection_range(SelectionRange::End)
@@ -771,19 +767,6 @@ impl GsrApplicationWindow {
         }
     }
 
-    fn enter_delete_picture(&self) {
-        if !self.with_view_state(|view_state| view_state.selection.has_selected()) {
-            self.present_information("cannot delete: no picture selected");
-            return;
-        };
-        let gsr_entry_window = GsrEntryWindow::new_with(
-            self,
-            &self.gsr_application().shared_controller(),
-            confirm_delete_entry(),
-            None,
-        );
-        self.begin_entry(gsr_entry_window);
-    }
     fn enter_move_picture(&self) {
         if !self.with_view_state(|view_state| view_state.selection.has_selected()) {
             self.present_information("cannot move: no picture selected");

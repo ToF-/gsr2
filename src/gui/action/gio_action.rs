@@ -22,6 +22,8 @@ pub struct GioAction {
     parameter: Option<GioActionParameter>,
 }
 
+pub type GAT = GioActionType;
+
 impl From<(&SimpleAction, Option<&Variant>)> for GioAction {
     fn from(tuple: (&SimpleAction, Option<&Variant>)) -> Self {
         let simple_action: &SimpleAction = tuple.0;
@@ -54,17 +56,16 @@ impl From<Action> for GioAction {
             Action::CancelSelectionRange => None,
             Action::Categorize(category_opt) => Some(GioActionParameter::from(category_opt)),
             Action::DeleteSelectedPicture(response) => Some(GioActionParameter::from(response)),
-            Action::MoveSelectedPicture(file_path) => Some(GioActionParameter::from(file_path)),
             Action::Dismiss => None,
             Action::EnterAddTag => None,
-            Action::EnterNewCategory => None,
-            Action::SelectCategoryForPicture => None,
-            Action::EnterIndex => None,
+            Action::EnterDeletePicture => None,
             Action::EnterFind(find) => Some(GioActionParameter::from(find)),
+            Action::EnterIndex => None,
             Action::EnterLabel => None,
-            Action::EnterSelect(find) => Some(GioActionParameter::from(find)),
+            Action::EnterNewCategory => None,
             Action::EnterRemoveTag => None,
             Action::EnterRename => None,
+            Action::EnterSelect(find) => Some(GioActionParameter::from(find)),
             Action::Find(find, criteria) => Some(GioActionParameter::from((find, criteria))),
             Action::FindNext => None,
             Action::FocusAt(col, row) => Some(GioActionParameter::from((col, row))),
@@ -78,28 +79,33 @@ impl From<Action> for GioAction {
                 GioActionParameter::from((category_name, target_category_name)),
             ),
             Action::MoveFile => None,
+            Action::MoveSelectedPicture(file_path) => Some(GioActionParameter::from(file_path)),
             Action::MoveTowards(direction) => Some(GioActionParameter::from(direction)),
             Action::Nothing => None,
+            Action::PickCatalogChange => None,
             Action::PickChange => None,
+            Action::PickFindOption => None,
             Action::PickOrderSetting => None,
             Action::PickViewOption => None,
             Action::Quit => None,
             Action::QuitDirectory => None,
             Action::Rank(rank) => Some(GioActionParameter::from(rank)),
+            Action::RedoFind => None,
             Action::RemoveCategory(category_name) => Some(GioActionParameter::from(category_name)),
             Action::RemoveTag(tag) => Some(GioActionParameter::from(tag)),
             Action::Rename(name) => Some(GioActionParameter::from(name)),
             Action::RepeatAction => None,
             Action::RepeatRangeSelection => None,
             Action::Select(find, criteria) => Some(GioActionParameter::from((find, criteria))),
-            Action::SelectCategoryToMove => None,
-            Action::SelectCategoryToRemove => None,
             Action::SelectCategoryAddTarget(category_name) => {
                 Some(GioActionParameter::from(category_name))
             }
+            Action::SelectCategoryForPicture => None,
             Action::SelectCategoryMoveTarget(category_name) => {
                 Some(GioActionParameter::from(category_name))
             }
+            Action::SelectCategoryToMove => None,
+            Action::SelectCategoryToRemove => None,
             Action::SetSelectionAll => None,
             Action::SetSelectionPage => None,
             Action::SetSelectionRangeEnd(index) => Some(GioActionParameter::from(index)),
@@ -110,14 +116,13 @@ impl From<Action> for GioAction {
             Action::ToggleCoversView => None,
             Action::ToggleExpand => None,
             Action::TogglePalette => None,
+            Action::TogglePicturesPerRow(n) => Some(GioActionParameter::from(n)),
             Action::ToggleSelected => None,
             Action::ToggleSelectedAt(col, row) => Some(GioActionParameter::from((col, row))),
-            Action::TogglePicturesPerRow(n) => Some(GioActionParameter::from(n)),
             Action::ToggleSlideShow => None,
             Action::ToggleThumbnailsView => None,
             Action::ToggleTwoByTwoView => None,
             Action::Unlabel => None,
-            Action::PickCatalogChange => None,
             Action::ViewCatalog => None,
         };
         Self {
@@ -187,11 +192,13 @@ impl From<GioAction> for Action {
             "nothing" => Action::Nothing,
             "pick-catalog-change" => Action::PickCatalogChange,
             "pick-change" => Action::PickChange,
+            "pick-find-option" => Action::PickFindOption,
             "pick-order-setting" => Action::PickOrderSetting,
             "pick-view-option" => Action::PickViewOption,
             "quit" => Action::Quit,
             "quit-directory" => Action::QuitDirectory,
             "rank" => Action::Rank(Rank::from(gio_action.parameter().unwrap())),
+            "redo-find" => Action::RedoFind,
             "remove-category" => {
                 Action::RemoveCategory(String::from(gio_action.parameter().unwrap()))
             }

@@ -14,6 +14,8 @@ pub enum GioActionParameterType {
     Usize,
 }
 
+pub type GAPT = GioActionParameterType;
+
 impl GioActionParameterType {
     pub fn variant_ty(&self) -> Option<&'static VariantTy> {
         match self {
