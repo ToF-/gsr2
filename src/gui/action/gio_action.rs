@@ -70,6 +70,7 @@ impl From<Action> for GioAction {
             Action::FindNext => None,
             Action::FocusAt(col, row) => Some(GioActionParameter::from((col, row))),
             Action::GotoDirectory => None,
+            Action::Help => None,
             Action::JumpToIndex(index) => Some(GioActionParameter::from(index)),
             Action::JumpToMark(mark) => Some(GioActionParameter::from(mark)),
             Action::JumpToRandom => None,

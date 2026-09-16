@@ -60,6 +60,7 @@ impl From<Action> for GioActionType {
             A::FindNext => GAT::new("find-next", GAPT::None),
             A::FocusAt(_, _) => GAT::new("focus-at", GAPT::Int32Pair),
             A::GotoDirectory => GAT::new("go-to-directory", GAPT::None),
+            A::Help => GAT::new("help", GAPT::None),
             A::JumpToIndex(_) => GAT::new("jump-to-index", GAPT::Int32),
             A::JumpToMark(_) => GAT::new("jump-to-mark", GAPT::Char),
             A::JumpToRandom => GAT::new("jump-to-random", GAPT::None),

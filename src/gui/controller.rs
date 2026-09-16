@@ -1,3 +1,4 @@
+use crate::gui::control::help_on_controls;
 use crate::gui::key_input::menu::select_menu;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
@@ -239,6 +240,10 @@ impl Controller {
         entries.push(Self::action_entry(
             GioActionType::from(Action::FocusAt(0, 0)),
             activate.clone(),
+        ));
+        entries.push(Self::action_entry(
+            GioActionType::from(Action::Help),
+            self.help_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::GotoDirectory),
@@ -1065,6 +1070,18 @@ impl Controller {
             #[strong]
             window,
             move |_, _, _|  this.find_next(&window) 
+        )
+    }
+    fn help_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong]
+            window,
+            move |_, _, _| {
+                window.present_information(&help_on_controls())
+            }
         )
     }
     fn goto_directory_action(

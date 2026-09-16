@@ -36,6 +36,7 @@ pub enum Action {
     Find(Find, String),            // find the first picture matching the find criteria
     FindNext,                      // find the next picture matching the current criteria
     GotoDirectory,                 // view only pictures from a sub directory
+    Help,                          // display help
     JumpToIndex(usize),            // jump to picture #n
     JumpToMark(char),              // jump to picture marked a|b|…|z
     JumpToRandom,                  // jump to a random picture
@@ -121,6 +122,7 @@ impl From<Control> for Action {
             Control::EnterSelect => Action::PickSelectOption,
             Control::FindNext => Action::FindNext,
             Control::GotoDirectory => Action::GotoDirectory,
+            Control::Help => Action::Help,
             Control::Left => Action::MoveTowards(Direction::Left),
             Control::MoveEndPage => Action::MoveTowards(Direction::PageEnd),
             Control::MoveFirst => Action::MoveTowards(Direction::First),
