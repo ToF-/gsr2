@@ -77,10 +77,6 @@ pub struct CommandLineArguments {
     #[arg(short, long, value_name = "LABEL")]
     pub label: Option<String>,
 
-    /// move selected picture to <DIRECTORY> on confirmation
-    #[arg(long, value_name = "DIRECTORY")]
-    pub r#move: Option<String>,
-
     /// only display picture names
     #[arg(short, long)]
     pub names: bool,
@@ -191,27 +187,12 @@ impl CommandLineArguments {
                         return Err(Error::other(
                             "option --thumbnails not allowed with file command",
                         ));
-                    } else {
-                        if args.r#move.is_some() {
-                            return Err(Error::other(
-                                "option --move not allowed with file command",
-                            ));
-                        };
+                    } else { 
                         return Ok(args.clone());
                     }
                 }
 
                 Err(e) => return Err(e),
-            }
-        }
-        if let Some(ref target_dir) = args.r#move {
-            let target_path = PathBuf::from(target_dir);
-            match check_collectable(&target_path) {
-                Ok(_) => {}
-                Err(e) => return Err(e),
-            };
-            if args.command.is_some() {
-                return Err(Error::other("option --move not allowed with this command"));
             }
         }
         if let Some(Command::Collect { ref directory }) = args.command {
