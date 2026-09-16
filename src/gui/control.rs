@@ -100,29 +100,30 @@ pub type Controls = HashMap<KeyAndMode, Control>;
 pub fn help_on_controls() -> String {
     format!(
         "{}\n",
-        "n/p z/a Z/A: next/prev page, end/start of page, last/first page \n\
-        return: set range start/end,  space: toggle in/out of range \n\
-        esc $ ! _: cancel range, repeat range, whole range, page range\n\
-        /: find by pattern in name/label/category/tags n:find next \n\
+        "n: next page  p: prev. page \n\
+        a: beginning z: end of page \n\
+        A: first picture Z: last picture\n\
+        return: set range start/end\n\
+        space: toggle in/out of range \n\
+        esc: cancel range  $: repeat range\n\
+        !: whole range _: page range\n\
+        F: find…  N: find next /: redo find\n\
+        S: select… \n
         J: jump to picture #… \n\
         k then a,b,c,d,e : set mark A/B/C/D/E \n\
         j then a,b,c,d,e : jump to mark A/B/C/D/E \n
-        \",«,»,(,) : jump to mark A/B/C/D/E \n\
-        i/I: toggle information display, display file path \n\
-        o then a,c,d,n,p,r,s,v: pick view order \n\
-        D then s,t: display size,modified time in title \n\
-        P: display palette sample \n\
+        c change…\n\
+        0,1,2,3: set rank\n\
+        o order by…\n\
+        v view option…\n\
+        C: view covers only\n\
+        P: palette on/off\n\
         . or ^ : single view, e: expand, %: full size \n\
         R go to random picture  S: resume slide show\n\
-        m: move selected pictures to target dir set by label\n\
-        M: move selected pictures to target dir set with option --move\n
-        X/M delete or move (selected) picture(s)\n\
-        c: change tags / category / label / cover
-        N : rename picture\n\
-        =/-/#: select pictures having some/all tags, cancel selection\n\
-        v: set view grid size of 1,4,9,16,25 or 100 pictures per page, covers\n\
-        0,1,2,3: set rank, 4: enter rank\n\
-        g: view this cover subgroup, G/q: back from subgroup\n\
+        M: move selected pictures to target dir set by label\n\
+        X: delete selected pictures\n\
+        g: view this cover subgroup, or directory\n\
+        q: back from subgroup or directory\n\
         q: quit  H:help"
     )
 }
