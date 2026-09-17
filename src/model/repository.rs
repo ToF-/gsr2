@@ -30,6 +30,7 @@ use crate::model::selection_criteria::SelectionCriteria;
 use crate::model::tags::Tags;
 use regex::Regex;
 use std::cell::RefCell;
+use std::collections::BTreeMap;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::BufRead;
@@ -79,6 +80,13 @@ impl Repository {
                 Err(e) => Err(IOError::other(format!("{}", e))),
             },
             Err(e) => Err(IOError::other(format!("{}", e))),
+        }
+    }
+
+    pub fn insert_mark(&self, letter: char, file_path: &str) -> IOResult<usize> {
+        match self.database.rusqlite_insert_mark(letter, file_path) {
+            Ok(n) => Ok(n),
+            Err(e) => Err(IOError::other(e)),
         }
     }
 
@@ -299,6 +307,12 @@ impl Repository {
         }
     }
 
+    pub fn retrieve_all_marks(&self) -> IOResult<BTreeMap<char, String>> {
+        match self.database.rusqlite_retrieve_all_marks() {
+            Ok(map) => Ok(map),
+            Err(e) => Err(IOError::other(e)),
+        }
+    }
     pub fn retrieve_pictures(&self, predicate_opt: Option<Predicate>) -> IOResult<usize> {
         match &self.command_line_arguments.command {
             Some(Command::File { file_path }) => match self.picture_from_file_path(file_path) {

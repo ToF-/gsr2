@@ -19,6 +19,7 @@ use regex::Regex;
 use rusqlite::Error::InvalidPath;
 use rusqlite::{Connection, Result as SqlResult, Row, params};
 use std::cell::RefCell;
+use std::collections::BTreeMap;
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::io::Error as IOError;
@@ -124,9 +125,28 @@ impl Database {
                             "CREATE INDEX IF NOT EXISTS idx_picture_folder ON Picture(FolderId);",
                             params![],
                         )
+                                    .and_then(|_| {
+                                        connection.execute(
+                                            "CREATE TABLE IF NOT EXISTS Mark (       \n\
+                                             Letter TEXT NOT NULL PRIMARY KEY,       \n\
+                                             FilePath TEXT NOT NULL );",
+                                             params![],
+                                        )
+                                    })
                             })
                     })
             })
+    }
+
+    pub fn rusqlite_insert_mark(&self, letter: char, file_path: &str) -> SqlResult<usize> {
+        let connection = self.connection_rc.borrow();
+        connection.execute(
+            "INSERT INTO Mark (Letter, FilePath)    \n\
+                VALUES(?1, ?2)                          \n\
+                ON CONFLICT(Letter) DO UPDATE SET       \n\
+                    FilePath = excluded.FilePath;",
+            params![letter.to_string(), file_path],
+        )
     }
 
     fn rusqlite_insert_picture(&self, picture: &Picture) -> SqlResult<usize> {
@@ -214,7 +234,6 @@ impl Database {
                     .and_then(|_| self.rusqlite_add_tags(&picture.file_path(), &image_data.tags))
             })
     }
-
     fn rusqlite_delete_tags(&self, file_path: &str) -> SqlResult<usize> {
         let connection = self.connection_rc.borrow();
         connection.execute(
@@ -294,6 +313,22 @@ impl Database {
         )
     }
 
+    pub fn rusqlite_retrieve_all_marks(&self) -> SqlResult<BTreeMap<char, String>> {
+        let sql_query = "SELECT Letter, FilePath FROM Mark;";
+        let connection = self.connection_rc.borrow();
+        connection.prepare(&sql_query).and_then(|mut statement| {
+            statement.query([]).and_then(|mut rows| {
+                let mut map: BTreeMap<char, String> = BTreeMap::new();
+                while let Some(row) = rows.next().unwrap() {
+                    let key: String = row.get(0).expect("can't read first column");
+                    let letter = key.chars().next().expect("first column is empty");
+                    let file_path: String = row.get(1).expect("can't read second column");
+                    map.insert(letter, file_path);
+                }
+                Ok(map)
+            })
+        })
+    }
     pub fn rusqlite_retrieve_all_pictures(
         &self,
         cover: bool,
@@ -945,7 +980,6 @@ pub mod tests {
             folders: false,
             structured: false,
             tags: false,
-            r#move: None,
             label: None,
             extraction: None,
             filter: None,
