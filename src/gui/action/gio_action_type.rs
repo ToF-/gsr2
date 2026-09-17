@@ -77,6 +77,7 @@ impl From<Action> for GioActionType {
             A::PickMark => GAT::new("pick-mark", GAPT::None),
             A::PickOrderSetting => GAT::new("pick-order-setting", GAPT::None),
             A::PickSelectOption => GAT::new("pick-select-option", GAPT::None),
+            A::PickTargetMark => GAT::new("pick-target-mark", GAPT::None),
             A::PickViewOption => GAT::new("pick-view-option", GAPT::None),
             A::Quit => GAT::new("quit", GAPT::None),
             A::QuitDirectory => GAT::new("quit-directory", GAPT::None),

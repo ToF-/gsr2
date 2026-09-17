@@ -89,6 +89,7 @@ impl From<Action> for GioAction {
             Action::PickMark => None,
             Action::PickOrderSetting => None,
             Action::PickSelectOption => None,
+            Action::PickTargetMark => None,
             Action::PickViewOption => None,
             Action::Quit => None,
             Action::QuitDirectory => None,

@@ -206,7 +206,7 @@ pub fn select_menu() -> KeyInput {
     )
 }
 
-pub fn mark_menu(file_path: &str) -> KeyInput {
+pub fn set_mark_menu(file_path: &str) -> KeyInput {
     KeyInput::new(
         &format!("enter letter [a..z] to associate with picture: {}", file_path),
         None,
@@ -218,6 +218,22 @@ pub fn mark_menu(file_path: &str) -> KeyInput {
         |s| {
             let ch = s.chars().next().unwrap();
         Action::Mark(ch)
+        }
+    )
+}
+
+pub fn target_mark_menu(file_path: &str) -> KeyInput {
+    KeyInput::new(
+        &format!("select letter [a..z] picture to jump to: {}", file_path),
+        None,
+        KeyInputMode::Menu,
+        |_, ch| ch.is_ascii_lowercase(),
+        |_,ch| {
+            let s: String = ch.to_string();
+            s },
+        |s| {
+            let ch = s.chars().next().unwrap();
+        Action::JumpToMark(ch)
         }
     )
 }

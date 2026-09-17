@@ -1,5 +1,7 @@
+use crate::file::paths::file_name_from;
 use crate::file::paths::file_path_as_stored;
-use crate::gui::key_input::menu::mark_menu;
+use crate::gui::key_input::menu::set_mark_menu;
+use crate::gui::key_input::menu::target_mark_menu;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
@@ -252,6 +254,10 @@ impl Controller {
             self.goto_directory_action(window.clone()),
         ));
         entries.push(Self::action_entry(
+            GioActionType::from(Action::JumpToMark('a')),
+            self.jump_to_mark_action(window.clone()),
+        ));
+        entries.push(Self::action_entry(
             GioActionType::from(Action::Label("foo".to_string())),
             self.label_action(window.clone()),
         ));
@@ -298,6 +304,10 @@ impl Controller {
         entries.push(Self::action_entry(
             GioActionType::from(Action::PickSelectOption),
             self.pick_select_option_action(window.clone()),
+        ));
+        entries.push(Self::action_entry(
+            GioActionType::from(Action::PickTargetMark),
+            self.pick_target_mark_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::PickViewOption),
@@ -1146,6 +1156,38 @@ impl Controller {
             }
         )
     }
+    fn jump_to_mark_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            window,
+            move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
+                let gio_action = GioAction::from((object, variant));
+                if let Action::JumpToMark(letter) = Action::from(gio_action) {
+                    window.dismiss();
+                    this.with_view_state_mut(|view_state| {
+                        if let Some(file_path) = CONFIGURATION.get()
+                            .expect("configuration not set")
+                                .marked.get(&letter) {
+                            if let Some(position) = view_state.gallery.find_file_path(file_path) {
+                                let direction = Direction::Index { value: position };
+                                if view_state.navigator.can_move(&direction) {
+                                    view_state.navigator.move_towards(&direction);
+                                }
+                            }
+
+                        }
+                    });
+                    window.refresh_view()
+                    
+                }
+            }
+        )
+    }
     fn label_action(
         &self,
         window: GsrApplicationWindow,
@@ -1193,11 +1235,12 @@ impl Controller {
                 let gio_action = GioAction::from((object, variant));
                 if let Action::Mark(letter) = Action::from(gio_action) {
                     let file_path = this.with_view_state(|view_state| {
-                        file_path_as_stored(&view_state.gallery.current_picture().file_path())
+                        view_state.gallery.current_picture().file_path()
                     });
-                    let mut configuration = Configuration::from_env().expect("configuration not set");
+                    let mut configuration = CONFIGURATION.get().expect("configuration not set").clone();
                     configuration.marked.insert(letter, file_path);
                     configuration.save();
+                    let _ = Configuration::from_env();
                 };
             }
         )
@@ -1788,13 +1831,18 @@ impl Controller {
                 let gsr_entry_window = GsrEntryWindow::new_with(
                     &window,
                     &this.gsr_application().shared_controller(),
-                    mark_menu(&file_path),
+                    set_mark_menu(&file_path),
                     None,
                 );
                 let configuration = CONFIGURATION.get().expect("configuration not set");
                 let mut marks: String = String::new();
                 for (mark, file_path) in configuration.marked_file_paths() {
-                    marks.push_str(&format!("{}:{}\n", mark, file_path))
+                    let value = if !file_path.is_empty() {
+                        file_name_from(&file_path)
+                    } else {
+                        file_path
+                    };
+                    marks.push_str(&format!("{}:{}\n", mark, value))
                 }
                 gsr_entry_window.set_entry_text(&marks);
                 window.begin_entry(gsr_entry_window);
@@ -1817,6 +1865,40 @@ impl Controller {
                     order_menu(),
                     None,
                 );
+                window.begin_entry(gsr_entry_window);
+            }
+        )
+    }
+    fn pick_target_mark_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            window,
+            move |_, _, _| {
+                let file_path = this.with_view_state(|view_state| {
+                    view_state.gallery.current_picture().file_path()
+                });
+                let gsr_entry_window = GsrEntryWindow::new_with(
+                    &window,
+                    &this.gsr_application().shared_controller(),
+                    target_mark_menu(&file_path),
+                    None,
+                );
+                let configuration = CONFIGURATION.get().expect("configuration not set");
+                let mut marks: String = String::new();
+                for (mark, file_path) in configuration.marked_file_paths() {
+                    let value = if !file_path.is_empty() {
+                        file_name_from(&file_path)
+                    } else {
+                        file_path
+                    };
+                    marks.push_str(&format!("{}:{}\n", mark, value))
+                }
+                gsr_entry_window.set_entry_text(&marks);
                 window.begin_entry(gsr_entry_window);
             }
         )

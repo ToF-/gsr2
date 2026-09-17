@@ -54,6 +54,7 @@ pub enum Action {
     PickMark,                      // select a letter to associate with current picture
     PickOrderSetting,              // interactively select which order setting to apply
     PickSelectOption,              // interactively select what select to make
+    PickTargetMark,                // interactively select what mark to jump to
     PickViewOption,                // interactively select what vieww setting to apply
     Quit,                          // exit from gsr
     QuitDirectory,                 // view all pictures not only sub directory
@@ -123,6 +124,7 @@ impl From<Control> for Action {
             Control::EnterSelect => Action::PickSelectOption,
             Control::FindNext => Action::FindNext,
             Control::GotoDirectory => Action::GotoDirectory,
+            Control::GotoMark => Action::PickTargetMark,
             Control::Help => Action::Help,
             Control::Left => Action::MoveTowards(Direction::Left),
             Control::MoveEndPage => Action::MoveTowards(Direction::PageEnd),
