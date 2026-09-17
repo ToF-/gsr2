@@ -1,3 +1,5 @@
+use crate::file::paths::file_path_as_stored;
+use crate::gui::key_input::menu::mark_menu;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
@@ -254,6 +256,10 @@ impl Controller {
             self.label_action(window.clone()),
         ));
         entries.push(Self::action_entry(
+            GioActionType::from(Action::Mark('a')),
+            self.mark_action(window.clone()),
+        ));
+        entries.push(Self::action_entry(
             GioActionType::from(Action::MoveCategory("foo".to_string(), "bar".to_string())),
             self.move_category_action(window.clone()),
         ));
@@ -280,6 +286,10 @@ impl Controller {
         entries.push(Self::action_entry(
             GioActionType::from(Action::PickFindOption),
             self.pick_find_option_action(window.clone()),
+        ));
+        entries.push(Self::action_entry(
+            GioActionType::from(Action::PickMark),
+            self.pick_mark_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::PickOrderSetting),
@@ -1079,7 +1089,7 @@ impl Controller {
         clone!(
             #[strong]
             window,
-            move |_, _, _| { window.present_information(&help_on_controls()) }
+            move |_, _, _| window.present_information(&help_on_controls())
         )
     }
     fn goto_directory_action(
@@ -1165,6 +1175,30 @@ impl Controller {
                     window.dismiss();
                     window.deselect_pictures();
                 }
+            }
+        )
+    }
+
+    fn mark_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            window,
+            move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
+                window.dismiss();
+                let gio_action = GioAction::from((object, variant));
+                if let Action::Mark(letter) = Action::from(gio_action) {
+                    let file_path = this.with_view_state(|view_state| {
+                        file_path_as_stored(&view_state.gallery.current_picture().file_path())
+                    });
+                    let mut configuration = Configuration::from_env().expect("configuration not set");
+                    configuration.marked.insert(letter, file_path);
+                    configuration.save();
+                };
             }
         )
     }
@@ -1738,6 +1772,35 @@ impl Controller {
         )
     }
 
+    fn pick_mark_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            window,
+            move |_, _, _| {
+                let file_path = this.with_view_state(|view_state| {
+                    view_state.gallery.current_picture().file_path()
+                });
+                let gsr_entry_window = GsrEntryWindow::new_with(
+                    &window,
+                    &this.gsr_application().shared_controller(),
+                    mark_menu(&file_path),
+                    None,
+                );
+                let configuration = CONFIGURATION.get().expect("configuration not set");
+                let mut marks: String = String::new();
+                for (mark, file_path) in configuration.marked_file_paths() {
+                    marks.push_str(&format!("{}:{}\n", mark, file_path))
+                }
+                gsr_entry_window.set_entry_text(&marks);
+                window.begin_entry(gsr_entry_window);
+            }
+        )
+    }
     fn pick_order_setting_action(
         &self,
         window: GsrApplicationWindow,

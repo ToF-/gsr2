@@ -51,6 +51,7 @@ pub enum Action {
     PickCatalogChange,             // interactively select what catalog change to make
     PickChange,                    // interactively select what change to make
     PickFindOption,                // interactively select what find to make
+    PickMark,                      // select a letter to associate with current picture
     PickOrderSetting,              // interactively select which order setting to apply
     PickSelectOption,              // interactively select what select to make
     PickViewOption,                // interactively select what vieww setting to apply
@@ -130,6 +131,7 @@ impl From<Control> for Action {
             Control::MoveNext => Action::MoveTowards(Direction::NextPage),
             Control::MovePrev => Action::MoveTowards(Direction::PrevPage),
             Control::MoveStartPage => Action::MoveTowards(Direction::PageStart),
+            Control::PickMark => Action::PickMark,
             Control::Quit => Action::Quit,
             Control::RankNoStar => Action::Rank(Rank::NoStar),
             Control::RankOneStar => Action::Rank(Rank::OneStar),

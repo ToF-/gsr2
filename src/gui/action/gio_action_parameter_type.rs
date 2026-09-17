@@ -20,7 +20,7 @@ impl GioActionParameterType {
     pub fn variant_ty(&self) -> Option<&'static VariantTy> {
         match self {
             GioActionParameterType::None => None,
-            GioActionParameterType::Char => Some(VariantTy::STRING),
+            GioActionParameterType::Char => Some(VariantTy::INT32),
             GioActionParameterType::Int32 => Some(VariantTy::INT32),
             GioActionParameterType::Int32Pair => {
                 static INT32_PAIR: OnceLock<&'static VariantTy> = OnceLock::new();

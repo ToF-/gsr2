@@ -74,6 +74,7 @@ impl From<Action> for GioActionType {
             A::PickCatalogChange => GAT::new("pick-catalog-change", GAPT::None),
             A::PickChange => GAT::new("pick-change", GAPT::None),
             A::PickFindOption => GAT::new("pick-find-option", GAPT::None),
+            A::PickMark => GAT::new("pick-mark", GAPT::None),
             A::PickOrderSetting => GAT::new("pick-order-setting", GAPT::None),
             A::PickSelectOption => GAT::new("pick-select-option", GAPT::None),
             A::PickViewOption => GAT::new("pick-view-option", GAPT::None),
