@@ -1,5 +1,3 @@
-use crate::gui::control::help_on_controls;
-use crate::gui::key_input::menu::select_menu;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
@@ -11,6 +9,7 @@ use crate::gui::action::Action;
 use crate::gui::action::gio_action::GioAction;
 use crate::gui::action::gio_action_type::GioActionType;
 use crate::gui::control::Control;
+use crate::gui::control::help_on_controls;
 use crate::gui::direction::Direction;
 use crate::gui::key_input::entry::add_new_category;
 use crate::gui::key_input::entry::add_tags_entry;
@@ -24,6 +23,7 @@ use crate::gui::key_input::menu::catalog_menu;
 use crate::gui::key_input::menu::change_menu;
 use crate::gui::key_input::menu::find_menu;
 use crate::gui::key_input::menu::order_menu;
+use crate::gui::key_input::menu::select_menu;
 use crate::gui::key_input::menu::view_menu;
 use crate::gui::objects::gsr_application::GsrApplication;
 use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
@@ -1069,7 +1069,7 @@ impl Controller {
             self,
             #[strong]
             window,
-            move |_, _, _|  this.find_next(&window) 
+            move |_, _, _| this.find_next(&window)
         )
     }
     fn help_action(
@@ -1079,9 +1079,7 @@ impl Controller {
         clone!(
             #[strong]
             window,
-            move |_, _, _| {
-                window.present_information(&help_on_controls())
-            }
+            move |_, _, _| { window.present_information(&help_on_controls()) }
         )
     }
     fn goto_directory_action(

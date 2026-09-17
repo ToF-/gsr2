@@ -187,7 +187,7 @@ impl CommandLineArguments {
                         return Err(Error::other(
                             "option --thumbnails not allowed with file command",
                         ));
-                    } else { 
+                    } else {
                         return Ok(args.clone());
                     }
                 }

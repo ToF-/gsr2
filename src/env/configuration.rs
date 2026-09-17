@@ -44,6 +44,17 @@ impl Configuration {
             Err(err) => Err(std::io::Error::other(err)),
         }
     }
+    pub fn marked_file_paths(&self) -> Vec<(char, String)> {
+        let mut result: Vec<(char, String)> = Vec::new();
+        for mark in 'a'..='z' {
+            let value = match self.marked.get(&mark) {
+                Some(file_path) => file_path.to_string(),
+                None => "".to_string(),
+            };
+            result.push((mark, value))
+        }
+        result
+    }
 }
 pub fn config_file_location() -> String {
     if let Ok(file_name) = env::var(CONFIG_FILE_VARIABLE) {

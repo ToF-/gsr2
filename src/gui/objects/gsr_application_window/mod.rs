@@ -1,5 +1,3 @@
-use std::rc::Rc;
-use crate::gui::key_input::entry::target_directory_entry;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::default_values::FRAME_WINDOW_NAME;
@@ -13,6 +11,7 @@ use crate::gui::control::Control;
 use crate::gui::control::default_controls;
 use crate::gui::direction::Direction;
 use crate::gui::display::title_display;
+use crate::gui::key_input::entry::target_directory_entry;
 use crate::gui::key_input::information::information;
 use crate::gui::mode::Mode;
 use crate::gui::objects::gsr_application::GsrApplication;
@@ -38,6 +37,7 @@ use gtk::prelude::*;
 use gtk::subclass::prelude::ObjectSubclassIsExt;
 use std::cell::RefCell;
 use std::io::Result as IOResult;
+use std::rc::Rc;
 
 pub const LEFT_PANE: usize = 0;
 pub const RIGHT_PANE: usize = 1;
@@ -639,7 +639,6 @@ impl GsrApplicationWindow {
     pub fn selected_indices(&self) -> Vec<usize> {
         self.with_view_state(|view_state| view_state.selected_indices())
     }
-
 
     pub fn present_information(&self, message: &str) {
         {

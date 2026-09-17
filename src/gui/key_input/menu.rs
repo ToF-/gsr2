@@ -205,6 +205,7 @@ pub fn select_menu() -> KeyInput {
         },
     )
 }
+
 #[cfg(test)]
 mod tests {
     use super::*;
