@@ -209,12 +209,12 @@ pub fn select_menu() -> KeyInput {
 pub fn set_mark_menu(file_path: &str) -> KeyInput {
     KeyInput::new(
         &format!(
-            "enter letter [a..z] to associate with picture: {}",
+            "enter any letter to associate with picture: {}",
             file_path
         ),
         None,
         KeyInputMode::Menu,
-        |_, ch| ch.is_ascii_lowercase(),
+        |_, ch| ch.is_ascii_alphanumeric(),
         |_, ch| {
             let s: String = ch.to_string();
             s
@@ -228,10 +228,10 @@ pub fn set_mark_menu(file_path: &str) -> KeyInput {
 
 pub fn target_mark_menu(file_path: &str) -> KeyInput {
     KeyInput::new(
-        &format!("select letter [a..z] picture to jump to: {}", file_path),
+        &format!("select any letter picture to jump to: {}", file_path),
         None,
         KeyInputMode::Menu,
-        |_, ch| ch.is_ascii_lowercase(),
+        |_, ch| ch.is_ascii_alphanumeric(),
         |_, ch| {
             let s: String = ch.to_string();
             s
