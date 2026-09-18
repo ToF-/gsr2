@@ -627,7 +627,6 @@ impl Repository {
     pub fn delete_picture(&self, picture: &Picture) -> IOResult<()> {
         let file_path = picture.file_path();
         if self.command_line_arguments.on_database() {
-            dbg!();
             self.database
                 .delete_picture_with_file_path(&file_path)
                 .and_then(|_| match delete_picture_files(&file_path) {

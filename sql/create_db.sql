@@ -20,7 +20,8 @@ CREATE TABLE IF NOT EXISTS Folder (
     FolderId INTEGER NOT NULL PRIMARY KEY,
     FilePath TEXT UNIQUE,
     ParentId INTEGER NOT NULL,
-    PictureCount INTEGER NOT NULL);
+    PictureCount INTEGER NOT NULL,
+    FirstFilePath TEXT);
 
 CREATE INDEX IF NOT EXISTS idx_picture_folder ON Picture(FolderId);
 

@@ -1,0 +1,1 @@
+ALTER TABLE Folder ADD COLUMN FirstFilePath TEXT ;

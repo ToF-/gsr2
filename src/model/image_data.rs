@@ -40,6 +40,7 @@ pub struct ImageData {
     pub score: u32,
     pub category_name: Option<String>,
     pub folder: Option<usize>,
+    pub folder_first_file_path: Option<String>,
 }
 
 impl ImageData {
@@ -55,6 +56,7 @@ impl ImageData {
             score: 0,
             category_name: None,
             folder: None,
+            folder_first_file_path: None,
         }
     }
     pub fn new_with_label(label: &str) -> Self {
@@ -69,6 +71,7 @@ impl ImageData {
             score: 0,
             category_name: None,
             folder: None,
+            folder_first_file_path: None,
         }
     }
 
@@ -84,6 +87,7 @@ impl ImageData {
             score: 0,
             category_name: None,
             folder: None,
+            folder_first_file_path: None,
         })
     }
 

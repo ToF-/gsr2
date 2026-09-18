@@ -117,7 +117,8 @@ impl Database {
                         FolderId INTEGER NOT NULL PRIMARY KEY, \n\
                         FilePath TEXT UNIQUE,                  \n\
                         ParentId INTEGER NOT NULL,             \n\
-                        PictureCount INTEGER NOT NULL);",
+                        PictureCount INTEGER NOT NULL,         \n\
+                        FirstFilePath TEXT);",
                                 params![],
                             )
                             .and_then(|_| {
@@ -519,13 +520,36 @@ impl Database {
     }
 
     pub fn update_picture_folder_id(&self, directory: &str, folder_id: usize) -> IOResult<usize> {
-        dbg!(&directory, folder_id);
         match self.rusqlite_update_picture_folder_id(directory, folder_id) {
             Ok(n) => Ok(n),
             Err(err) => Err(std::io::Error::other(err)),
         }
     }
 
+    fn rusqlite_update_folder_first_file_path(&self) -> SqlResult<usize> {
+        let connection = self.connection_rc.borrow();
+        connection.execute("UPDATE Folder                                \n\
+                            SET FirstFilePath = (                        \n\
+                            SELECT Picture.FilePath                      \n\
+                            FROM Picture                                 \n\
+                                WHERE Picture.FolderId = Folder.FolderId \n\
+                                  AND Picture.Cover > 0                  \n\
+                            )                                            \n\
+                            WHERE EXISTS (                               \n\
+                                SELECT 1                                 \n\
+                                FROM Picture                             \n\
+                                WHERE Picture.FolderId = Folder.FolderId \n\
+                                  AND Picture.Cover > 0                  \n\
+                            );",
+                            params![])
+    }
+
+    pub fn update_folder_first_file_path(&self) -> IOResult<usize> {
+        match self.rusqlite_update_folder_first_file_path() {
+            Ok(n) => Ok(n),
+            Err(e) => Err(std::io::Error::other(e)),
+        }
+    }
     pub fn retrieve_pictures_for_directory(&self, directory: &str) -> IOResult<Vec<Picture>> {
         match self.rusqlite_retrieve_pictures_for_directory(directory) {
             Ok(pictures) => Ok(pictures),
@@ -630,7 +654,7 @@ impl Database {
     pub fn update_all_folders(&self, folder_map: FolderMap) -> IOResult<usize> {
         println!("updating folders…");
         match self.rusqlite_update_all_folders(folder_map) {
-            Ok(n) => Ok(n),
+            Ok(n) => self.update_folder_first_file_path(),
             Err(err) => Err(std::io::Error::other(err)),
         }
     }
@@ -854,6 +878,7 @@ impl Database {
         let score = row.get(8).expect("can't get column Score");
         let category_name: Option<String> = row.get(9).expect("can't get column Category");
         let folder = None;
+        let folder_first_file_path = None;
         let mut picture = Picture::new_with_label(&file_path_as_retrieved, &label);
         let mut palette = Palette::new(vec![], color_count);
         palette.set_sample_from_array(sample_array);
@@ -868,6 +893,7 @@ impl Database {
             score,
             category_name,
             folder,
+            folder_first_file_path,
         };
         picture.set_image_data(image_data);
         Ok(picture)
@@ -1060,6 +1086,7 @@ pub mod tests {
             tags: HashSet::from([String::from("foo"), String::from("bar")]),
             category_name: Some(String::from("foobar")),
             folder: None,
+            folder_first_file_path: None,
         };
         picture.set_image_data(image_data.clone());
         assert_eq!(100, picture.image_data().unwrap().palette().count());
