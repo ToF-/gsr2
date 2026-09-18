@@ -5,6 +5,7 @@ use crate::env::default_values::GRID_PALETTE_AREA_HEIGHT;
 use crate::env::default_values::GRID_PALETTE_AREA_WIDTH;
 use crate::file::paths::check_path_exists;
 use crate::file::paths::file_path_as_retrieved;
+use crate::file::paths::thumbnail_name_from;
 use crate::gui::action::Action;
 use crate::gui::action::gio_action::GioAction;
 use crate::gui::action::gio_action::SimpleActionCall;
@@ -201,21 +202,35 @@ impl GsrPictureCellBox {
     pub fn attach_picture(&self, picture: &Picture, picture_index: usize) {
         self.remove_children();
         if picture.is_folder() {
-            self.append(&transparent_folder_picture());
+            match picture.image_data() {
+                Some(image_data) => {
+                    if image_data.folder_first_file_path().is_empty() {
+                        self.append(&transparent_folder_picture())
+                    } else {
+                        let picture_file_path = thumbnail_name_from(
+                            &image_data.folder_first_file_path(),
+                            self.imp().pictures_per_row.get() as usize,
+                        );
+                        let gtk_picture_file_path = file_path_as_retrieved(&picture_file_path);
+                        self.append(&make_picture(&gtk_picture_file_path))
+                    }
+                }
+                None => self.append(&transparent_folder_picture()),
+            }
         } else {
             let picture_file_path =
                 picture.view_file_path(self.imp().pictures_per_row.get() as usize);
             let gtk_picture_file_path = file_path_as_retrieved(&picture_file_path);
             self.append(&make_picture(&gtk_picture_file_path));
         };
-        let label = make_label(&picture_label_display(
+        let display = picture_label_display(
             &picture.label(),
             picture.rank(),
             picture.cover(),
             picture.folder(),
             None, // focus will be inserted / flipped / removed directly on the GtkLabel
-            picture.file_size(),
-        ));
+            picture.file_size());
+        let label = make_label(&display);
         self.append(&label);
         *self.imp().label.borrow_mut() = Some(label);
         if self.imp().palette_on.get() {

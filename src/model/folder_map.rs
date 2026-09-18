@@ -26,7 +26,7 @@ impl FolderMap {
             {
                 map.entry(directory.clone())
                     .and_modify(|folder| folder.increase_count(1))
-                    .or_insert(Folder::new(id_dispenser.next(), &directory, 0, 1));
+                    .or_insert(Folder::new(id_dispenser.next(), &directory, 0, 1, ""));
                 current_directory = directory;
             }
         }
@@ -53,10 +53,17 @@ impl FolderMap {
         file_path: &str,
         parent_id: usize,
         picture_count: usize,
+        first_file_path: &str,
     ) {
         self.map.insert(
             file_path.to_string(),
-            Folder::new(folder_id, file_path, parent_id, picture_count),
+            Folder::new(
+                folder_id,
+                file_path,
+                parent_id,
+                picture_count,
+                first_file_path,
+            ),
         );
     }
 

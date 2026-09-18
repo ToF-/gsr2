@@ -528,7 +528,8 @@ impl Database {
 
     fn rusqlite_update_folder_first_file_path(&self) -> SqlResult<usize> {
         let connection = self.connection_rc.borrow();
-        connection.execute("UPDATE Folder                                \n\
+        connection.execute(
+            "UPDATE Folder                                \n\
                             SET FirstFilePath = (                        \n\
                             SELECT Picture.FilePath                      \n\
                             FROM Picture                                 \n\
@@ -541,7 +542,8 @@ impl Database {
                                 WHERE Picture.FolderId = Folder.FolderId \n\
                                   AND Picture.Cover > 0                  \n\
                             );",
-                            params![])
+            params![],
+        )
     }
 
     pub fn update_folder_first_file_path(&self) -> IOResult<usize> {
@@ -594,7 +596,8 @@ impl Database {
             FolderId,                   \n\
             FilePath,                  \n\
             ParentId,                   \n\
-            PictureCount               \n\
+            PictureCount,               \n\
+            FirstFilePath               \n\
             FROM Folder;",
             )
             .and_then(|mut statement| {
@@ -606,7 +609,18 @@ impl Database {
                         let parent_id: usize = row.get(2).expect("can't get column ParentId");
                         let picture_count: usize =
                             row.get(3).expect("can't get column PictureCount");
-                        folder_map.insert(folder_id, &file_path, parent_id, picture_count);
+                        let first_file_path: String = match row.get(4) {
+                            Ok(Some(s)) => s,
+                            Ok(None) => "".to_string(),
+                            Err(e) => "".to_string(),
+                        };
+                        folder_map.insert(
+                            folder_id,
+                            &file_path,
+                            parent_id,
+                            picture_count,
+                            &first_file_path,
+                        );
                     }
                 });
                 Ok(folder_map)
@@ -654,7 +668,7 @@ impl Database {
     pub fn update_all_folders(&self, folder_map: FolderMap) -> IOResult<usize> {
         println!("updating folders…");
         match self.rusqlite_update_all_folders(folder_map) {
-            Ok(n) => self.update_folder_first_file_path(),
+            Ok(_) => self.update_folder_first_file_path(),
             Err(err) => Err(std::io::Error::other(err)),
         }
     }

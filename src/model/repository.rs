@@ -153,7 +153,11 @@ impl Repository {
         };
         self.retrieve_all_pictures(args, compound);
         let gallery = self.gallery_rc.borrow();
-        if let Some(position) = gallery.pictures().iter().position(|picture| picture.is_cover()) {
+        if let Some(position) = gallery
+            .pictures()
+            .iter()
+            .position(|picture| picture.is_cover())
+        {
             Ok(Some(gallery.pictures()[position].clone()))
         } else {
             Ok(gallery.pictures().first().cloned())
@@ -424,6 +428,13 @@ impl Repository {
             image_data.label = file_name_from(&folder.file_path());
             image_data.folder = Some(folder.picture_count());
             image_data.cover = None;
+
+            image_data.folder_first_file_path = if !folder.first_file_path().is_empty() {
+                Some(folder.first_file_path())
+            } else {
+                None
+            };
+            dbg!(&image_data);
             let based_file_path = based_path(&folder.file_path());
             let picture = Picture::new_with_image_data(&based_file_path, &image_data);
             gallery.add_picture(&picture);

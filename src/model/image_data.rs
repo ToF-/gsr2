@@ -158,6 +158,13 @@ impl ImageData {
     pub fn remove_tag(&mut self, label: &str) {
         let _ = self.tags.remove(label);
     }
+
+    pub fn folder_first_file_path(&self) -> String {
+        match &self.folder_first_file_path {
+            Some(file_path) => file_path.to_string(),
+            None => "".to_string(),
+        }
+    }
 }
 
 impl Default for ImageData {
