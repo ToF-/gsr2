@@ -439,7 +439,7 @@ impl Database {
             })
     }
 
-    const SELECT_COLUMNS_FROM_PICTURE_FOR_FOLDERID: &str = "SELECT  FilePath,  Label,  FileSize,  ModifiedTime, Rank,  Sample,  ColorCount,  Cover,  Score,  Category  FROM Picture WHERE  FolderId = ?1;";
+    const SELECT_COLUMNS_FROM_PICTURE_FOR_FOLDERID: &str = "SELECT  FilePath,  Label,  FileSize,  ModifiedTime, Rank,  Sample,  ColorCount,  Cover,  Score,  Category  FROM Picture WHERE  FolderId = ?1;"; // "
 
     fn rusqlite_retrieve_pictures_for_folder_id(
         &self,
