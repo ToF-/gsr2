@@ -208,10 +208,7 @@ pub fn select_menu() -> KeyInput {
 
 pub fn set_mark_menu(file_path: &str) -> KeyInput {
     KeyInput::new(
-        &format!(
-            "enter any letter to associate with picture: {}",
-            file_path
-        ),
+        &format!("enter any letter to associate with picture: {}", file_path),
         None,
         KeyInputMode::Menu,
         |_, ch| ch.is_ascii_alphanumeric(),
