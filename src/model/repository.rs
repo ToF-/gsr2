@@ -130,40 +130,6 @@ impl Repository {
         }
     }
 
-    fn retrieve_parent_file_path_cover(
-        &self,
-        args: &CommandLineArguments,
-        predicate_opt: Option<Predicate>,
-        parent_file_path: &str,
-    ) -> IOResult<Option<Picture>> {
-        let file_path = parent_file_path.to_string();
-        let parent_predicate: Predicate = Predicate {
-            function: Arc::new(move |picture: &Picture| {
-                if let Some(directory) = parent_directory(&picture.file_path()) {
-                    directory == file_path
-                } else {
-                    false
-                }
-            }),
-            criteria: Vec::new(),
-        };
-        let compound: Option<Predicate> = match predicate_opt {
-            Some(predicate) => Some(Predicate::and(predicate, parent_predicate)),
-            None => Some(parent_predicate),
-        };
-        self.retrieve_all_pictures(args, compound);
-        let gallery = self.gallery_rc.borrow();
-        if let Some(position) = gallery
-            .pictures()
-            .iter()
-            .position(|picture| picture.is_cover())
-        {
-            Ok(Some(gallery.pictures()[position].clone()))
-        } else {
-            Ok(gallery.pictures().first().cloned())
-        }
-    }
-
     fn retrieve_all_pictures(
         &self,
         args: &CommandLineArguments,
