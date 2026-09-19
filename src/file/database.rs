@@ -54,7 +54,13 @@ const DELETE_TAGS: &str = "DELETE FROM Tags WHERE FilePath = ?1;";
 
 const DELETE_FOLDERS: &str = "DELETE FROM Folder;";
 
+const INSERT_FOLDER: &str = "INSERT INTO Folder(FolderId, FilePath, ParentId, PictureCount) VALUES (?1, ?2, ?3, ?4)";
+
+const INSERT_PICTURE: &str = "INSERT INTO Picture ( FilePath, Label, FileSize, ModifiedTime, Rank, Sample, ColorCount, Cover, Score, Category) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10);";
+
 const INSERT_TAG: &str = "INSERT INTO Tag( FilePath, Label ) VALUES (?1, ?2);";
+
+const INSERT_MARK: &str = "INSERT INTO Mark (Letter, FilePath) VALUES(?1, ?2) ON CONFLICT(Letter) DO UPDATE SET FilePath = excluded.FilePath;";
 
 const UPDATE_PICTURE: &str = "UPDATE Picture SET Label = ?2, FileSize = ?3, ModifiedTime = ?4, Rank = ?5, Sample = ?6, ColorCount =?7, Cover = ?8, Score = ?9, Category = ?10 WHERE FilePath = ?1;";
 
@@ -172,32 +178,14 @@ impl Database {
 
     pub fn rusqlite_insert_mark(&self, letter: char, file_path: &str) -> SqlResult<usize> {
         let connection = self.connection_rc.borrow();
-        connection.execute(
-            "INSERT INTO Mark (Letter, FilePath)    \n\
-                VALUES(?1, ?2)                          \n\
-                ON CONFLICT(Letter) DO UPDATE SET       \n\
-                    FilePath = excluded.FilePath;",
-            params![letter.to_string(), file_path],
-        )
+        connection.execute(INSERT_MARK, params![letter.to_string(), file_path])
     }
 
     fn rusqlite_insert_picture(&self, picture: &Picture) -> SqlResult<usize> {
         let connection = self.connection_rc.borrow();
         let image_data = picture.image_data().unwrap_or_default();
         connection
-            .execute(
-                "INSERT INTO Picture (    \n\
-             FilePath,                    \n\
-             Label,                       \n\
-             FileSize,                    \n\
-             ModifiedTime,                \n\
-             Rank,                        \n\
-             Sample,                      \n\
-             ColorCount,                  \n\
-             Cover,                       \n\
-             Score,                       \n\
-             Category)                    \n\
-             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10);", // ""
+            .execute(INSERT_PICTURE,
                 params![
                     file_path_as_stored(&picture.file_path()),
                     image_data.label(),
@@ -214,11 +202,7 @@ impl Database {
             .map(|count| {
                 let mut tag_count = 0;
                 for tag in image_data.tags() {
-                    match connection.execute(
-                        "INSERT INTO Tag(         \n\
-                         FilePath,                \n\
-                         Label)                   \n\
-                         VALUES (?1, ?2);", // ""
+                    match connection.execute(INSERT_TAG,
                         params![file_path_as_stored(&picture.file_path()), tag],
                     ) {
                         Ok(n) => tag_count += n,
@@ -305,11 +289,7 @@ impl Database {
     }
     pub fn rusqlite_check_picture_with_file_path(&self, file_path: &str) -> SqlResult<String> {
         let connection = self.connection_rc.borrow();
-        connection.query_one(
-            "SELECT                     \n\
-             FilePath                   \n\
-             FROM Picture               \n\
-             WHERE FilePath = ?1;", // ""
+        connection.query_one("SELECT FilePath FROM Picture WHERE FilePath = ?1;",
             params![&file_path_as_stored(file_path)],
             |row| row.get(0),
         )
@@ -513,7 +493,8 @@ impl Database {
 
     fn rusqlite_update_folder_first_file_path(&self) -> SqlResult<usize> {
         let connection = self.connection_rc.borrow();
-        connection.execute(&format!("UPDATE Folder SET FirstFilePath = ( {} ) WHERE EXISTS ( {} );", SELECT_PICTURE_COVER_FILEPATH, SELECT_PICTURE_COVER_FILEPATH),
+        connection.execute(&format!("UPDATE Folder SET FirstFilePath = ( {} ) WHERE EXISTS ( {} );",
+        SELECT_PICTURE_COVER_FILEPATH, SELECT_PICTURE_COVER_FILEPATH),
             params![],
         )
     }
@@ -612,8 +593,7 @@ impl Database {
                 let transaction = connection.transaction()
                     .expect("can't open transaction");
                 {
-                    let mut statement = transaction.prepare(
-                        "INSERT INTO Folder(FolderId, FilePath, ParentId, PictureCount) VALUES (?1, ?2, ?3, ?4)")
+                    let mut statement = transaction.prepare(INSERT_FOLDER)
                         .expect("can't prepare statement");
                     for (_file_path, folder) in folder_map.map() {
                         statement.execute(params![
@@ -641,20 +621,7 @@ impl Database {
     fn rusqlite_retrieve_picture_with_file_path(&self, file_path: &str) -> SqlResult<Picture> {
         let connection = self.connection_rc.borrow();
         connection
-            .query_row(
-                "SELECT                     \n\
-             FilePath,                  \n\
-             Label,                     \n\
-             FileSize,                  \n\
-             ModifiedTime,              \n\
-             Rank,                      \n\
-             Sample,                    \n\
-             ColorCount,                \n\
-             Cover,                     \n\
-             Score,                     \n\
-             Category                   \n\
-             FROM Picture               \n\
-             WHERE FilePath = ?1;", // ""
+            .query_row(&format!("SELECT {} FROM Picture WHERE FilePath = ?1;", PICTURE_COLUMNS),
                 params![file_path_as_stored(file_path)],
                 Self::rusqlite_row_to_picture,
             )
