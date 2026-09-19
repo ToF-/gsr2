@@ -3,7 +3,7 @@ use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::Configuration;
 use crate::env::configuration::set_configuration_updated_flag;
 use crate::file::database::Database;
-use crate::file::database::RetrieveCriteria;
+use crate::model::retrieve_criteria::RetrieveCriteria;
 use crate::file::operation::execute;
 use crate::file::operation::move_picture;
 use crate::file::operation::rename_picture;
@@ -166,7 +166,7 @@ impl Repository {
                         .map(|s| Categories::from_string(s)),
                     label: args.label.clone(),
                     extraction: extraction.clone(),
-                    filter: args.filter.clone(),
+                    color_filter: args.filter.clone(),
                     pattern: regex,
                     cover: args.covers,
                     parent_opt: args.directory.clone(),

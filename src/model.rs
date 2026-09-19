@@ -20,6 +20,7 @@ pub mod picture;
 pub mod predicate;
 pub mod rank;
 pub mod repository;
+pub mod retrieve_criteria;
 pub mod shared;
 pub mod sub_category;
 pub mod tag_selection_criteria;

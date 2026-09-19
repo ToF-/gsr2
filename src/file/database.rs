@@ -1,21 +1,19 @@
+use crate::model::retrieve_criteria::RetrieveCriteria;
 use crate::cli::status::Status;
 use crate::env::configuration::Configuration;
 use crate::file::paths::based_path;
 use crate::file::paths::parent_directory;
 use crate::file::paths::{file_exists, file_path_as_retrieved, file_path_as_stored};
 use crate::model::catalog::Catalog;
-use crate::model::categories::Categories;
 use crate::model::color_range::ColorRange;
 use crate::model::cover::{bool_to_cover, cover_to_bool};
 use crate::model::folder_map::FolderMap;
 use crate::model::image_data::ImageData;
 use crate::model::palette::Palette;
 use crate::model::picture::Picture;
-use crate::model::predicate::Predicate;
 use crate::model::rank::Rank;
 use crate::model::tag_selection_criteria::TagSelectionCriteria;
 use crate::model::tags::Tags;
-use regex::Regex;
 use rusqlite::Error::InvalidPath;
 use rusqlite::{Connection, Result as SqlResult, Row, params};
 use std::cell::RefCell;
@@ -69,19 +67,6 @@ pub type ImageDataMap = HashMap<String, ImageData>;
 #[derive(Debug, Clone)]
 pub struct Database {
     connection_rc: Rc<RefCell<Connection>>,
-}
-
-#[derive(Debug)]
-pub struct RetrieveCriteria {
-    pub tag_selection_criteria: TagSelectionCriteria,
-    pub categories: Option<Categories>,
-    pub label: Option<String>,
-    pub extraction: Option<Vec<String>>,
-    pub filter: Option<String>,
-    pub pattern: Option<Regex>,
-    pub cover: bool,
-    pub parent_opt: Option<String>,
-    pub predicate_opt: Option<Predicate>,
 }
 
 impl Database {
@@ -678,7 +663,7 @@ impl Database {
                             };
                         let mut pictures: Vec<Picture> = vec![];
                         let color_range_opt = retrieve_criteria
-                            .filter
+                            .color_filter
                             .map(|spec| ColorRange::from_string(&spec));
                         let color_range: ColorRange = match color_range_opt {
                             Some(Ok(ref r)) => r.clone(),
@@ -773,7 +758,7 @@ impl Database {
             categories: None,
             label: None,
             extraction: None,
-            filter: None,
+            color_filter: None,
             pattern: None,
             cover: false,
             parent_opt: Some(parent_dir.to_string()),
