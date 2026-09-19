@@ -42,8 +42,21 @@ const SELECT_ALL_CATEGORIES: &str = "SELECT DISTINCT Category FROM Picture WHERE
 
 const SELECT_ALL_TAGS: &str = "SELECT FilePath, Label FROM Tag;";
 
+const SELECT_TAGS_FOR_FILEPATH: &str = "SELECT Label FROM Tag WHERE FilePath = ?1;";
+
 const SELECT_PICTURE_COVER_FILEPATH: &str = " SELECT Picture.FilePath FROM Picture WHERE Picture.FolderId = Folder.FolderId AND Picture.Cover > 0 ";
 
+const SELECT_MARKS: &str = "SELECT Letter, FilePath FROM Mark;";
+
+const DELETE_PICTURE: &str = "DELETE FROM Picture WHERE FilePath = ?1;";
+
+const DELETE_TAGS: &str = "DELETE FROM Tags WHERE FilePath = ?1;";
+
+const DELETE_FOLDERS: &str = "DELETE FROM Folder;";
+
+const INSERT_TAG: &str = "INSERT INTO Tag( FilePath, Label ) VALUES (?1, ?2);";
+
+const UPDATE_PICTURE: &str = "UPDATE Picture SET Label = ?2, FileSize = ?3, ModifiedTime = ?4, Rank = ?5, Sample = ?6, ColorCount =?7, Cover = ?8, Score = ?9, Category = ?10 WHERE FilePath = ?1;";
 
 pub type ImageDataMap = HashMap<String, ImageData>;
 
@@ -222,19 +235,7 @@ impl Database {
         let connection = self.connection_rc.borrow();
         let image_data = picture.image_data().unwrap_or_default();
         connection
-            .execute(
-                "UPDATE Picture               \n\
-             SET                          \n\
-             Label = ?2,                  \n\
-             FileSize = ?3,               \n\
-             ModifiedTime = ?4,           \n\
-             Rank = ?5,                   \n\
-             Sample = ?6,                 \n\
-             ColorCount =?7,              \n\
-             Cover = ?8,                  \n\
-             Score = ?9,                  \n\
-             Category = ?10               \n\
-               WHERE FilePath = ?1;", // ""
+            .execute(UPDATE_PICTURE,
                 params![
                     file_path_as_stored(&picture.file_path()),
                     image_data.label(),
@@ -255,24 +256,14 @@ impl Database {
     }
     fn rusqlite_delete_tags(&self, file_path: &str) -> SqlResult<usize> {
         let connection = self.connection_rc.borrow();
-        connection.execute(
-            "DELETE FROM Tag        \n\
-            WHERE FilePath = ?1;",
-            params![file_path_as_stored(file_path)],
-        )
+        connection.execute(DELETE_TAGS, params![file_path_as_stored(file_path)],)
     }
 
     fn rusqlite_add_tags(&self, file_path: &str, tags: &Tags) -> SqlResult<usize> {
         let mut count: usize = 0;
         for label in tags.iter() {
             let connection = self.connection_rc.borrow();
-            match connection.execute(
-                "INSERT INTO Tag(          \n\
-                 FilePath,                 \n\
-                 Label)                    \n\
-                 VALUES (?1, ?2);", // ""
-                params![file_path_as_stored(file_path), label,],
-            ) {
+            match connection.execute(INSERT_TAG, params![file_path_as_stored(file_path), label,]) {
                 Ok(n) => {
                     count += n;
                 }
@@ -287,17 +278,9 @@ impl Database {
     fn rusqlite_delete_picture_with_file_path(&self, file_path: &str) -> SqlResult<usize> {
         let connection = self.connection_rc.borrow();
         connection
-            .execute(
-                "DELETE FROM Picture        \n\
-            WHERE FilePath = ?1;", // ""
-                params![file_path_as_stored(file_path)],
-            )
+            .execute(DELETE_PICTURE, params![file_path_as_stored(file_path)])
             .and_then(|_| {
-                connection.execute(
-                    "DELETE FROM Tag        \n\
-            WHERE FilePath = ?1;", // ""
-                    params![file_path_as_stored(file_path)],
-                )
+                connection.execute(DELETE_TAGS, params![file_path_as_stored(file_path)])
             })
     }
 
@@ -311,7 +294,7 @@ impl Database {
 
     pub fn rusqlite_delete_folders(&self) -> SqlResult<usize> {
         let connection = self.connection_rc.borrow();
-        connection.execute("DELETE FROM Folder;", params![])
+        connection.execute(DELETE_FOLDERS, params![])
     }
 
     pub fn delete_folders(&self) -> IOResult<usize> {
@@ -333,7 +316,7 @@ impl Database {
     }
 
     pub fn rusqlite_retrieve_all_marks(&self) -> SqlResult<BTreeMap<char, String>> {
-        let sql_query = "SELECT Letter, FilePath FROM Mark;";
+        let sql_query = SELECT_MARKS;
         let connection = self.connection_rc.borrow();
         connection.prepare(&sql_query).and_then(|mut statement| {
             statement.query([]).and_then(|mut rows| {
@@ -354,11 +337,11 @@ impl Database {
         parent_opt: Option<String>,
     ) -> SqlResult<ImageDataMap> {
         let sql_query = format!(
-            "{} WHERE true AND {} AND {} ORDER BY FilePath",
-            Self::SELECT_STAR_FROM_PICTURE,
-            if cover { "Cover = true" } else { "true" },
+            "SELECT {} FROM Picture WHERE true AND {} AND {} ORDER BY FilePath",
+            PICTURE_COLUMNS,
+            if cover { " Cover = true " } else { " true " },
             if let Some(parent) = parent_opt {
-                Self::select_parent_dir(&parent)
+                format!(" FilePath LIKE '{}/%' ", file_path_as_stored(&based_path(&parent)))
             } else {
                 "true".to_string()
             }
@@ -676,12 +659,7 @@ impl Database {
                 Self::rusqlite_row_to_picture,
             )
             .and_then(|mut picture| {
-                let mut statement = connection.prepare(
-                    "SELECT                   \n\
-                Label                     \n\
-                FROM Tag                  \n\
-                WHERE FilePath = ?1;", // "
-                )?;
+                let mut statement = connection.prepare(SELECT_TAGS_FOR_FILEPATH)?;
                 let rows = statement.query_map(params![file_path_as_stored(file_path)], |row| {
                     Ok(row.get(0).expect("can't get column Label"))
                 })?;
@@ -711,25 +689,6 @@ impl Database {
             Ok(n) => Ok(n),
             Err(err) => Err(std::io::Error::other(err)),
         }
-    }
-
-    const SELECT_STAR_FROM_PICTURE: &str = "SELECT                     \n\
-             FilePath,                  \n\
-             Label,                     \n\
-             FileSize,                  \n\
-             ModifiedTime,              \n\
-             Rank,                      \n\
-             Sample,                    \n\
-             ColorCount,                \n\
-             Cover,                     \n\
-             Score,                     \n\
-             Category                   \n\
-             FROM Picture              \n"; // "
-
-    // select * from picture where concat(substring(filepath,1,23), substring(filepath,24)) = filepath ;
-    fn select_parent_dir(parent_dir: &str) -> String {
-        let parent = file_path_as_stored(&based_path(parent_dir));
-        format!("FilePath like '{}/%' ", parent,)
     }
 
     pub fn select_pictures(
