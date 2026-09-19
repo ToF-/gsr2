@@ -27,6 +27,24 @@ use std::io::Result as IOResult;
 use std::path::PathBuf;
 use std::rc::Rc;
 
+const PICTURE_COLUMNS: &str = 
+    " FilePath,  Label,  FileSize,  ModifiedTime, Rank,  Sample,  ColorCount,  Cover,  Score,  Category, FolderId ";
+
+const PARENT_DIR_CLAUSE: &str =
+    " FilePath GLOB ?1 || '/*' AND FilePath NOT GLOB ?1 || '/*/*' ";
+
+const FOLDER_COLUMNS: &str =
+    " FolderId,  FilePath,  ParentId,  PictureCount, FirstFilePath ";
+
+const SELECT_ALL_LABELS: &str = "SELECT DISTINCT Label FROM Picture WHERE Label <> '' UNION  SELECT DISTINCT Label FROM Tag WHERE Label <> '';";
+
+const SELECT_ALL_CATEGORIES: &str = "SELECT DISTINCT Category FROM Picture WHERE Category IS NOT NULL;";
+
+const SELECT_ALL_TAGS: &str = "SELECT FilePath, Label FROM Tag;";
+
+const SELECT_PICTURE_COVER_FILEPATH: &str = " SELECT Picture.FilePath FROM Picture WHERE Picture.FolderId = Folder.FolderId AND Picture.Cover > 0 ";
+
+
 pub type ImageDataMap = HashMap<String, ImageData>;
 
 #[derive(Debug, Clone)]
@@ -371,10 +389,7 @@ impl Database {
     pub fn rusqlite_retrieve_all_categories(&self) -> SqlResult<HashSet<String>> {
         let connection = self.connection_rc.borrow();
         connection
-            .prepare(
-                "SELECT DISTINCT Category      \n\
-                FROM Picture WHERE Category IS NOT NULL;", //""
-            )
+            .prepare(SELECT_ALL_CATEGORIES)
             .and_then(|mut statement| {
                 let mut map: HashSet<String> = HashSet::new();
                 statement.query([]).map(|mut rows| {
@@ -390,13 +405,7 @@ impl Database {
     pub fn rusqlite_retrieve_all_labels(&self) -> SqlResult<HashSet<String>> {
         let connection = self.connection_rc.borrow();
         connection
-            .prepare(
-                "SELECT DISTINCT Label         \n\
-                FROM Picture WHERE Label <> '' \n\
-                UNION                          \n\
-                SELECT DISTINCT Label          \n\
-                FROM Tag WHERE Label <> '';", // ""
-            )
+            .prepare(SELECT_ALL_LABELS)
             .and_then(|mut statement| {
                 let mut map: HashSet<String> = HashSet::new();
                 statement.query([]).map(|mut rows| {
@@ -412,12 +421,7 @@ impl Database {
     pub fn rusqlite_retrieve_all_tags(&self) -> SqlResult<HashMap<String, HashSet<String>>> {
         let connection = self.connection_rc.borrow();
         connection
-            .prepare(
-                "SELECT                \n\
-                FilePath,              \n\
-                Label                  \n\
-                FROM Tag;", // ""
-            )
+            .prepare(SELECT_ALL_TAGS)
             .and_then(|mut statement| {
                 let mut map: HashMap<String, HashSet<String>> = HashMap::new();
                 statement.query([]).map(|mut rows| {
@@ -439,15 +443,14 @@ impl Database {
             })
     }
 
-    const SELECT_COLUMNS_FROM_PICTURE_FOR_FOLDERID: &str = "SELECT  FilePath,  Label,  FileSize,  ModifiedTime, Rank,  Sample,  ColorCount,  Cover,  Score,  Category  FROM Picture WHERE  FolderId = ?1;"; // "
-
+// "
     fn rusqlite_retrieve_pictures_for_folder_id(
         &self,
         folder_id: usize,
     ) -> SqlResult<Vec<Picture>> {
         let connection = self.connection_rc.borrow();
         connection
-            .prepare(Self::SELECT_COLUMNS_FROM_PICTURE_FOR_FOLDERID)
+            .prepare(&format!("SELECT {} FROM Picture WHERE FolderId = ?1;", PICTURE_COLUMNS))
             .and_then(|mut statement| {
                 let mut map: ImageDataMap = HashMap::new();
                 statement.query(params![folder_id]).and_then(|mut rows| {
@@ -474,12 +477,11 @@ impl Database {
                 })
             })
     }
-    const SELECT_COLUMNS_FROM_PICTURE_FOR_DIRECTORY: &str = "SELECT  FilePath,  Label,  FileSize,  ModifiedTime, Rank,  Sample,  ColorCount,  Cover,  Score,  Category  FROM Picture WHERE  FilePath GLOB ?1 || '/*' AND FilePath NOT GLOB ?1 || '/*/*';";
 
     fn rusqlite_retrieve_pictures_for_directory(&self, directory: &str) -> SqlResult<Vec<Picture>> {
         let connection = self.connection_rc.borrow();
         connection
-            .prepare(Self::SELECT_COLUMNS_FROM_PICTURE_FOR_DIRECTORY)
+            .prepare(&format!("SELECT {} FROM Picture WHERE {};", PICTURE_COLUMNS, PARENT_DIR_CLAUSE))
             .and_then(|mut statement| {
                 let mut map: ImageDataMap = HashMap::new();
                 statement
@@ -515,7 +517,7 @@ impl Database {
         folder_id: usize,
     ) -> SqlResult<usize> {
         let connection = self.connection_rc.borrow();
-        connection.execute("UPDATE Picture SET FolderId = ?2 WHERE FilePath GLOB ?1 || '/*' AND FilePath NOT GLOB ?1 || '/*/*';",
+        connection.execute(&format!("UPDATE Picture SET FolderId = ?2 WHERE {};", PARENT_DIR_CLAUSE),
             params![directory, folder_id])
     }
 
@@ -528,20 +530,7 @@ impl Database {
 
     fn rusqlite_update_folder_first_file_path(&self) -> SqlResult<usize> {
         let connection = self.connection_rc.borrow();
-        connection.execute(
-            "UPDATE Folder                                \n\
-                            SET FirstFilePath = (                        \n\
-                            SELECT Picture.FilePath                      \n\
-                            FROM Picture                                 \n\
-                                WHERE Picture.FolderId = Folder.FolderId \n\
-                                  AND Picture.Cover > 0                  \n\
-                            )                                            \n\
-                            WHERE EXISTS (                               \n\
-                                SELECT 1                                 \n\
-                                FROM Picture                             \n\
-                                WHERE Picture.FolderId = Folder.FolderId \n\
-                                  AND Picture.Cover > 0                  \n\
-                            );",
+        connection.execute(&format!("UPDATE Folder SET FirstFilePath = ( {} ) WHERE EXISTS ( {} );", SELECT_PICTURE_COVER_FILEPATH, SELECT_PICTURE_COVER_FILEPATH),
             params![],
         )
     }
@@ -588,18 +577,11 @@ impl Database {
         }
     }
     // "
+    
     pub fn rusqlite_retrieve_all_folders(&self) -> SqlResult<FolderMap> {
         let connection = self.connection_rc.borrow();
         connection
-            .prepare(
-                "SELECT                    \n\
-            FolderId,                   \n\
-            FilePath,                  \n\
-            ParentId,                   \n\
-            PictureCount,               \n\
-            FirstFilePath               \n\
-            FROM Folder;",
-            )
+            .prepare(&format!("SELECT {} FROM Folder;", FOLDER_COLUMNS))
             .and_then(|mut statement| {
                 let mut folder_map: FolderMap = FolderMap::default();
                 let _ = statement.query([]).map(|mut rows| {
@@ -612,7 +594,7 @@ impl Database {
                         let first_file_path: String = match row.get(4) {
                             Ok(Some(s)) => s,
                             Ok(None) => "".to_string(),
-                            Err(e) => "".to_string(),
+                            Err(_) => "".to_string(),
                         };
                         folder_map.insert(
                             folder_id,
@@ -638,6 +620,7 @@ impl Database {
         let connection = self.connection_rc.borrow();
         connection.execute("DELETE FROM Folder;", [])
     }
+
     fn rusqlite_update_all_folders(&self, folder_map: FolderMap) -> SqlResult<usize> {
         self.rusqlite_delete_all_folders()
             .and_then(|_| {
@@ -749,12 +732,12 @@ impl Database {
         format!("FilePath like '{}/%' ", parent,)
     }
 
-    pub fn retrieve_all_pictures(
+    pub fn select_pictures(
         &self,
         retrieve_criteria: RetrieveCriteria,
         catalog_opt: Option<Catalog>,
     ) -> IOResult<Vec<Picture>> {
-        self.retrieve_all_parent_dirs().and_then(|parent_dirs| {
+        self.select_all_parent_dirs().and_then(|parent_dirs| {
             match self.rusqlite_retrieve_all_pictures(
                 retrieve_criteria.cover,
                 retrieve_criteria.parent_opt,
@@ -870,7 +853,7 @@ impl Database {
             parent_opt: Some(parent_dir.to_string()),
             predicate_opt: None,
         };
-        self.retrieve_all_pictures(retrieve_criteria, None)
+        self.select_pictures(retrieve_criteria, None)
     }
 
     fn rusqlite_row_to_picture(row: &Row) -> SqlResult<Picture, rusqlite::Error> {
@@ -939,7 +922,7 @@ impl Database {
         })
     }
 
-    pub fn retrieve_all_parent_dirs(&self) -> IOResult<HashMap<String, (usize, usize)>> {
+    pub fn select_all_parent_dirs(&self) -> IOResult<HashMap<String, (usize, usize)>> {
         match self.rusqulite_retrieve_all_parent_file_paths() {
             Ok(result) => Ok(result),
             Err(e) => Err(IOError::other(e)),

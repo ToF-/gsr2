@@ -40,7 +40,6 @@ use std::io::Error as IOError;
 use std::io::Result as IOResult;
 use std::io::Write;
 use std::path::PathBuf;
-use std::sync::Arc;
 
 #[derive(Debug, Clone)]
 pub struct Repository {
@@ -175,7 +174,7 @@ impl Repository {
                 };
                 *gallery = match self
                     .database
-                    .retrieve_all_pictures(retrieve_criteria, Some(catalog))
+                    .select_pictures(retrieve_criteria, Some(catalog))
                 {
                     Ok(pictures) => {
                         let mut gallery = Gallery::new_with_pictures(pictures);
@@ -191,7 +190,7 @@ impl Repository {
     }
 
     fn retrieve_all_parent_dirs(&self) -> IOResult<()> {
-        match self.database.retrieve_all_parent_dirs() {
+        match self.database.select_all_parent_dirs() {
             Ok(map) => {
                 if let Ok(mut parent_dirs) = self.parent_dirs_rc.try_borrow_mut() {
                     *parent_dirs = map;
