@@ -50,7 +50,7 @@ const SELECT_MARKS: &str = "SELECT Letter, FilePath FROM Mark;";
 
 const DELETE_PICTURE: &str = "DELETE FROM Picture WHERE FilePath = ?1;";
 
-const DELETE_TAGS: &str = "DELETE FROM Tags WHERE FilePath = ?1;";
+const DELETE_TAGS: &str = "DELETE FROM Tag WHERE FilePath = ?1;";
 
 const DELETE_FOLDERS: &str = "DELETE FROM Folder;";
 

@@ -544,6 +544,13 @@ impl Controller {
         )
     }
 
+    fn set_last_action(&self, action: &Action) {
+        if action.is_repeatable() {
+            let mut last_action = self.last_action.borrow_mut();
+            *last_action = action.clone()
+        }
+    }
+
     fn apply_view_setting_action(
         &self,
         window: GsrApplicationWindow,
@@ -590,11 +597,8 @@ impl Controller {
                         ViewOption::FullSize => window.toggle_expand(),
                         ViewOption::Catalog => window.action_view_catalog(),
                     }
-                }
-                if action.is_repeatable() {
-                    let mut last_action = this.last_action.borrow_mut();
-                    *last_action = action
-                }
+                };
+                this.set_last_action(&action);
             }
         )
     }
@@ -704,7 +708,7 @@ impl Controller {
                 let gio_action = GioAction::from((object, variant));
 
                 let action = Action::from(gio_action);
-                if let Action::Categorize(category) = action {
+                if let Action::Categorize(ref category) = action {
                     let indices = window.selected_indices();
                     for position in indices {
                         this.with_view_state_mut(|view_state| {
@@ -721,6 +725,7 @@ impl Controller {
                     }
                     window.dismiss();
                     window.deselect_pictures();
+                    this.set_last_action(&action);
                 }
             }
         )
@@ -1220,6 +1225,7 @@ impl Controller {
                     });
                     window.dismiss();
                     window.deselect_pictures();
+                    this.set_last_action(&Action::Label(label));
                 }
             }
         )
@@ -1495,7 +1501,8 @@ impl Controller {
                             });
                             view_state.gallery.set_picture(position, picture);
                         }
-                    })
+                    });
+                    this.set_last_action(&Action::RemoveTag(input));
                 }
                 window.deselect_pictures();
             }
@@ -1963,7 +1970,7 @@ impl Controller {
                             }
                         });
                     });
-
+                    this.set_last_action(&Action::Rank(rank));
                     window.dismiss();
                     window.deselect_pictures();
                 }
@@ -2182,6 +2189,7 @@ impl Controller {
                     }
                 });
                 window.deselect_pictures();
+                this.set_last_action(&Action ::Unlabel);
             }
         )
     }

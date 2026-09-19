@@ -150,7 +150,7 @@ impl Repository {
                     None => None,
                 };
                 let extraction: Option<Vec<String>> = if let Some(list_file) = &args.extraction {
-                    match self.retrieve_file_names(list_file) {
+                    match self.extraction_file_paths(list_file) {
                         Ok(list) => Some(list),
                         Err(e) => return Err(e),
                     }
@@ -857,7 +857,7 @@ impl Repository {
         }
     }
 
-    pub fn retrieve_file_names(&self, extract_file: &str) -> IOResult<Vec<String>> {
+    pub fn extraction_file_paths(&self, extract_file: &str) -> IOResult<Vec<String>> {
         File::open(extract_file).and_then(|file| {
             let reader = BufReader::new(file);
             reader.lines().collect()
