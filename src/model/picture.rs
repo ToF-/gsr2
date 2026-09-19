@@ -7,7 +7,7 @@ use crate::model::image_data::ImageData;
 use crate::model::image_data::datetime_from_time_stamp;
 use crate::model::palette::Palette;
 use crate::model::rank::Rank;
-use crate::model::selection_criteria::SelectionCriteria;
+use crate::model::tag_selection_criteria::TagSelectionCriteria;
 use crate::model::tags::Tags;
 use std::io::Result;
 
@@ -151,10 +151,10 @@ impl Picture {
             .map(|d| d.category_name().unwrap_or_default())
             .unwrap_or_default()
     }
-    pub fn selected(&self, selection_criteria: &SelectionCriteria) -> bool {
+    pub fn selected(&self, tag_selection_criteria: &TagSelectionCriteria) -> bool {
         self.image_data
             .as_ref()
-            .map(|d| selection_criteria.matches(d.tags.clone()))
+            .map(|d| tag_selection_criteria.matches(d.tags.clone()))
             .unwrap_or_default()
     }
 

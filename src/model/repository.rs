@@ -26,7 +26,7 @@ use crate::model::image_data::ImageData;
 use crate::model::order::Order;
 use crate::model::picture::Picture;
 use crate::model::predicate::Predicate;
-use crate::model::selection_criteria::SelectionCriteria;
+use crate::model::tag_selection_criteria::TagSelectionCriteria;
 use crate::model::tags::Tags;
 use regex::Regex;
 use std::cell::RefCell;
@@ -136,7 +136,7 @@ impl Repository {
     ) -> IOResult<usize> {
         let catalog_result = Catalog::from_file(&self.catalog_filepath);
         let catalog: Catalog = catalog_result?;
-        let selection_criteria = SelectionCriteria::from_args(args);
+        let tag_selection_criteria = TagSelectionCriteria::from_args(args);
         match self.gallery_rc.try_borrow_mut() {
             Ok(mut gallery) => {
                 let regex: Option<Regex> = match args.clone().pattern {
@@ -158,7 +158,7 @@ impl Repository {
                     None
                 };
                 let retrieve_criteria = RetrieveCriteria {
-                    selection_criteria: selection_criteria.clone(),
+                    tag_selection_criteria: tag_selection_criteria.clone(),
                     categories: args
                         .categories
                         .clone()
@@ -592,9 +592,9 @@ impl Repository {
         }
     }
 
-    pub fn set_selection_criteria(&self, selection_criteria: SelectionCriteria) {
+    pub fn set_tag_selection_criteria(&self, tag_selection_criteria: TagSelectionCriteria) {
         if let Ok(mut gallery) = self.gallery_rc.try_borrow_mut() {
-            gallery.set_selection_criteria(selection_criteria.clone());
+            gallery.set_tag_selection_criteria(tag_selection_criteria.clone());
         } else {
             panic!("can't borrow mut")
         }

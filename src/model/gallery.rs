@@ -6,7 +6,7 @@ use crate::model::finder::Finder;
 use crate::model::label::sort_key;
 use crate::model::order::Order;
 use crate::model::picture::Picture;
-use crate::model::selection_criteria::SelectionCriteria;
+use crate::model::tag_selection_criteria::TagSelectionCriteria;
 use rand::prelude::SliceRandom;
 use rand::rng;
 use std::cell::Cell;
@@ -22,7 +22,7 @@ use std::rc::Rc;
 pub struct Gallery {
     pictures: Vec<Picture>,
     order: Order,
-    selection_criteria: SelectionCriteria,
+    tag_selection_criteria: TagSelectionCriteria,
     current_picture_index: Rc<Cell<usize>>,
     sub_folder: Option<String>,
     pub finder: Finder,
@@ -34,7 +34,7 @@ impl Default for Gallery {
         Self {
             pictures: Vec::new(),
             order: Order::Name,
-            selection_criteria: SelectionCriteria::empty(),
+            tag_selection_criteria: TagSelectionCriteria::empty(),
             current_picture_index: Rc::new(0.into()),
             sub_folder: None,
             finder: Finder::new(Vec::new()),
@@ -53,7 +53,7 @@ impl Gallery {
         Gallery {
             pictures: pictures.clone(),
             order: Order::Name,
-            selection_criteria: SelectionCriteria::empty(),
+            tag_selection_criteria: TagSelectionCriteria::empty(),
             current_picture_index: Rc::new(0.into()),
             sub_folder: None,
             finder: Finder::new(pictures),
@@ -235,13 +235,13 @@ impl Gallery {
         }
     }
 
-    pub fn set_selection_criteria(&mut self, selection_criteria: SelectionCriteria) {
-        self.selection_criteria = selection_criteria.clone();
+    pub fn set_tag_selection_criteria(&mut self, tag_selection_criteria: TagSelectionCriteria) {
+        self.tag_selection_criteria = tag_selection_criteria.clone();
         self.sort_by(self.order)
     }
 
-    pub fn selection_criteria(&self) -> SelectionCriteria {
-        self.selection_criteria.clone()
+    pub fn tag_selection_criteria(&self) -> TagSelectionCriteria {
+        self.tag_selection_criteria.clone()
     }
 
     pub fn sort_by(&mut self, order: Order) {
@@ -250,10 +250,10 @@ impl Gallery {
         };
         let current_picture_file_path = self.current_picture().file_path();
         self.order = order;
-        let selection_criteria = self.selection_criteria.clone();
+        let tag_selection_criteria = self.tag_selection_criteria.clone();
         match order {
             Order::Name => self.pictures.sort_by_key(|picture| {
-                (!picture.selected(&selection_criteria), picture.file_path())
+                (!picture.selected(&tag_selection_criteria), picture.file_path())
             }),
             Order::Size => {
                 if self.structured {
@@ -264,7 +264,7 @@ impl Gallery {
                 } else {
                     self.pictures.sort_by_key(|picture| {
                         (
-                            !picture.selected(&selection_criteria),
+                            !picture.selected(&tag_selection_criteria),
                             picture.image_data().map(|image_data| image_data.size()),
                         )
                     })
@@ -282,26 +282,26 @@ impl Gallery {
             Order::Date => self.pictures.sort_by_key(|picture| {
                 picture.image_data().map(|image_data| {
                     (
-                        !picture.selected(&selection_criteria),
+                        !picture.selected(&tag_selection_criteria),
                         (true, Reverse(image_data.modified_time())),
                     )
                 })
             }),
             Order::Label => self.pictures.sort_by_key(|picture| {
                 (
-                    !picture.selected(&selection_criteria),
+                    !picture.selected(&tag_selection_criteria),
                     sort_key(&picture.label()),
                 )
             }),
             Order::Value => self.pictures.sort_by_key(|picture| {
                 picture
                     .image_data()
-                    .map(|image_data| (!picture.selected(&selection_criteria), image_data.rank()))
+                    .map(|image_data| (!picture.selected(&tag_selection_criteria), image_data.rank()))
             }),
             Order::ColorCount => self.pictures.sort_by_key(|picture| {
                 picture.image_data().map(|image_data| {
                     (
-                        !picture.selected(&selection_criteria),
+                        !picture.selected(&tag_selection_criteria),
                         image_data.palette().count(),
                     )
                 })
@@ -309,7 +309,7 @@ impl Gallery {
             Order::Palette => self.pictures.sort_by_key(|picture| {
                 picture.image_data().map(|image_data| {
                     (
-                        !picture.selected(&selection_criteria),
+                        !picture.selected(&tag_selection_criteria),
                         image_data.palette().sample_as_array(),
                     )
                 })
@@ -321,7 +321,7 @@ impl Gallery {
             Order::Category => self.pictures.sort_by_key(|picture| {
                 picture.image_data().map(|image_data| {
                     (
-                        !picture.selected(&selection_criteria),
+                        !picture.selected(&tag_selection_criteria),
                         if image_data.category_name().is_none() {
                             "~".to_string()
                         } else {

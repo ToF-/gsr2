@@ -5,14 +5,14 @@ pub const SOME_TAGS: bool = false;
 pub const ALL_TAGS: bool = true;
 
 #[derive(Debug, Clone)]
-pub struct SelectionCriteria {
+pub struct TagSelectionCriteria {
     tags: Tags,
     restrict: bool,
 }
 
-impl SelectionCriteria {
+impl TagSelectionCriteria {
     pub fn from(s: &str, restrict: bool) -> Self {
-        SelectionCriteria {
+        Self {
             tags: tags_from_str(s),
             restrict,
         }
@@ -20,16 +20,16 @@ impl SelectionCriteria {
 
     pub fn from_args(clargs: &CommandLineArguments) -> Self {
         if let Some(labels) = &clargs.select {
-            SelectionCriteria::from(labels, SOME_TAGS)
+            Self::from(labels, SOME_TAGS)
         } else if let Some(labels) = &clargs.restrict {
-            SelectionCriteria::from(labels, ALL_TAGS)
+            Self::from(labels, ALL_TAGS)
         } else {
-            SelectionCriteria::empty()
+            Self::empty()
         }
     }
 
     pub fn empty() -> Self {
-        SelectionCriteria {
+        Self {
             tags: empty_tags(),
             restrict: ALL_TAGS,
         }

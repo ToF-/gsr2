@@ -13,7 +13,7 @@ use crate::model::palette::Palette;
 use crate::model::picture::Picture;
 use crate::model::predicate::Predicate;
 use crate::model::rank::Rank;
-use crate::model::selection_criteria::SelectionCriteria;
+use crate::model::tag_selection_criteria::TagSelectionCriteria;
 use crate::model::tags::Tags;
 use regex::Regex;
 use rusqlite::Error::InvalidPath;
@@ -73,7 +73,7 @@ pub struct Database {
 
 #[derive(Debug)]
 pub struct RetrieveCriteria {
-    pub selection_criteria: SelectionCriteria,
+    pub tag_selection_criteria: TagSelectionCriteria,
     pub categories: Option<Categories>,
     pub label: Option<String>,
     pub extraction: Option<Vec<String>>,
@@ -719,9 +719,9 @@ impl Database {
                                     continue;
                                 }
                             };
-                            if !retrieve_criteria.selection_criteria.is_empty()
+                            if !retrieve_criteria.tag_selection_criteria.is_empty()
                                 && !retrieve_criteria
-                                    .selection_criteria
+                                    .tag_selection_criteria
                                     .matches(new_tags.clone())
                             {
                                 continue;
@@ -769,7 +769,7 @@ impl Database {
 
     pub fn retrieve_all_pictures_with_parent(&self, parent_dir: &str) -> IOResult<Vec<Picture>> {
         let retrieve_criteria = RetrieveCriteria {
-            selection_criteria: SelectionCriteria::empty(),
+            tag_selection_criteria: TagSelectionCriteria::empty(),
             categories: None,
             label: None,
             extraction: None,
@@ -1132,7 +1132,7 @@ pub mod tests {
         assert!(map.get(&file_path).unwrap().contains("bar"));
 
         let criteria = RetrieveCriteria {
-            selection_criteria: SelectionCriteria::empty(),
+            tag_selection_criteria: TagSelectionCriteria::empty(),
             categories: None,
             label: None,
             extraction: None,
@@ -1142,7 +1142,7 @@ pub mod tests {
             parent_opt: None,
             predicate_opt: None,
         };
-        let result = database.retrieve_all_pictures(criteria, None);
+        let result = database.select_all_pictures(criteria, None);
         assert!(result.is_ok());
         let pictures = result.unwrap();
         assert_eq!(nine_colors_file_path(), pictures[1].file_path());
