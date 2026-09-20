@@ -1,3 +1,4 @@
+use crate::model::image_data::ImageData;
 use std::io::BufRead;
 use std::io::BufReader;
 use std::fs::File;
@@ -64,6 +65,11 @@ impl RetrieveCriteria {
             })
         })
     }
+
+    pub fn matches(&self, file_path: &str, image_data: &ImageData) -> bool {
+        false
+    }
+
     pub fn extraction_file_paths(extract_file: &str) -> IOResult<Vec<String>> {
         File::open(extract_file).and_then(|file| {
             let reader = BufReader::new(file);
