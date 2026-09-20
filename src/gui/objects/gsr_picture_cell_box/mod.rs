@@ -229,7 +229,8 @@ impl GsrPictureCellBox {
             picture.cover(),
             picture.folder(),
             None, // focus will be inserted / flipped / removed directly on the GtkLabel
-            picture.file_size());
+            picture.file_size(),
+        );
         let label = make_label(&display);
         self.append(&label);
         *self.imp().label.borrow_mut() = Some(label);

@@ -1,4 +1,3 @@
-use crate::model::retrieve_criteria::RetrieveCriteria;
 use crate::cli::status::Status;
 use crate::env::configuration::Configuration;
 use crate::file::paths::based_path;
@@ -12,6 +11,7 @@ use crate::model::image_data::ImageData;
 use crate::model::palette::Palette;
 use crate::model::picture::Picture;
 use crate::model::rank::Rank;
+use crate::model::retrieve_criteria::RetrieveCriteria;
 use crate::model::tag_selection_criteria::TagSelectionCriteria;
 use crate::model::tags::Tags;
 use rusqlite::Error::InvalidPath;
@@ -25,18 +25,16 @@ use std::io::Result as IOResult;
 use std::path::PathBuf;
 use std::rc::Rc;
 
-const PICTURE_COLUMNS: &str = 
-    " FilePath,  Label,  FileSize,  ModifiedTime, Rank,  Sample,  ColorCount,  Cover,  Score,  Category, FolderId ";
+const PICTURE_COLUMNS: &str = " FilePath,  Label,  FileSize,  ModifiedTime, Rank,  Sample,  ColorCount,  Cover,  Score,  Category, FolderId ";
 
-const PARENT_DIR_CLAUSE: &str =
-    " FilePath GLOB ?1 || '/*' AND FilePath NOT GLOB ?1 || '/*/*' ";
+const PARENT_DIR_CLAUSE: &str = " FilePath GLOB ?1 || '/*' AND FilePath NOT GLOB ?1 || '/*/*' ";
 
-const FOLDER_COLUMNS: &str =
-    " FolderId,  FilePath,  ParentId,  PictureCount, FirstFilePath ";
+const FOLDER_COLUMNS: &str = " FolderId,  FilePath,  ParentId,  PictureCount, FirstFilePath ";
 
 const SELECT_ALL_LABELS: &str = "SELECT DISTINCT Label FROM Picture WHERE Label <> '' UNION  SELECT DISTINCT Label FROM Tag WHERE Label <> '';";
 
-const SELECT_ALL_CATEGORIES: &str = "SELECT DISTINCT Category FROM Picture WHERE Category IS NOT NULL;";
+const SELECT_ALL_CATEGORIES: &str =
+    "SELECT DISTINCT Category FROM Picture WHERE Category IS NOT NULL;";
 
 const SELECT_ALL_TAGS: &str = "SELECT FilePath, Label FROM Tag;";
 
@@ -52,7 +50,8 @@ const DELETE_TAGS: &str = "DELETE FROM Tag WHERE FilePath = ?1;";
 
 const DELETE_FOLDERS: &str = "DELETE FROM Folder;";
 
-const INSERT_FOLDER: &str = "INSERT INTO Folder(FolderId, FilePath, ParentId, PictureCount) VALUES (?1, ?2, ?3, ?4)";
+const INSERT_FOLDER: &str =
+    "INSERT INTO Folder(FolderId, FilePath, ParentId, PictureCount) VALUES (?1, ?2, ?3, ?4)";
 
 const INSERT_PICTURE: &str = "INSERT INTO Picture ( FilePath, Label, FileSize, ModifiedTime, Rank, Sample, ColorCount, Cover, Score, Category) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10);";
 
@@ -170,7 +169,8 @@ impl Database {
         let connection = self.connection_rc.borrow();
         let image_data = picture.image_data().unwrap_or_default();
         connection
-            .execute(INSERT_PICTURE,
+            .execute(
+                INSERT_PICTURE,
                 params![
                     file_path_as_stored(&picture.file_path()),
                     image_data.label(),
@@ -187,7 +187,8 @@ impl Database {
             .map(|count| {
                 let mut tag_count = 0;
                 for tag in image_data.tags() {
-                    match connection.execute(INSERT_TAG,
+                    match connection.execute(
+                        INSERT_TAG,
                         params![file_path_as_stored(&picture.file_path()), tag],
                     ) {
                         Ok(n) => tag_count += n,
@@ -204,7 +205,8 @@ impl Database {
         let connection = self.connection_rc.borrow();
         let image_data = picture.image_data().unwrap_or_default();
         connection
-            .execute(UPDATE_PICTURE,
+            .execute(
+                UPDATE_PICTURE,
                 params![
                     file_path_as_stored(&picture.file_path()),
                     image_data.label(),
@@ -225,7 +227,7 @@ impl Database {
     }
     fn rusqlite_delete_tags(&self, file_path: &str) -> SqlResult<usize> {
         let connection = self.connection_rc.borrow();
-        connection.execute(DELETE_TAGS, params![file_path_as_stored(file_path)],)
+        connection.execute(DELETE_TAGS, params![file_path_as_stored(file_path)])
     }
 
     fn rusqlite_add_tags(&self, file_path: &str, tags: &Tags) -> SqlResult<usize> {
@@ -248,9 +250,7 @@ impl Database {
         let connection = self.connection_rc.borrow();
         connection
             .execute(DELETE_PICTURE, params![file_path_as_stored(file_path)])
-            .and_then(|_| {
-                connection.execute(DELETE_TAGS, params![file_path_as_stored(file_path)])
-            })
+            .and_then(|_| connection.execute(DELETE_TAGS, params![file_path_as_stored(file_path)]))
     }
 
     pub fn delete_picture_with_file_path(&self, file_path: &str) -> IOResult<usize> {
@@ -274,7 +274,8 @@ impl Database {
     }
     pub fn rusqlite_check_picture_with_file_path(&self, file_path: &str) -> SqlResult<String> {
         let connection = self.connection_rc.borrow();
-        connection.query_one("SELECT FilePath FROM Picture WHERE FilePath = ?1;",
+        connection.query_one(
+            "SELECT FilePath FROM Picture WHERE FilePath = ?1;",
             params![&file_path_as_stored(file_path)],
             |row| row.get(0),
         )
@@ -306,7 +307,10 @@ impl Database {
             PICTURE_COLUMNS,
             if cover { " Cover = true " } else { " true " },
             if let Some(parent) = parent_opt {
-                format!(" FilePath LIKE '{}/%' ", file_path_as_stored(&based_path(&parent)))
+                format!(
+                    " FilePath LIKE '{}/%' ",
+                    file_path_as_stored(&based_path(&parent))
+                )
             } else {
                 "true".to_string()
             }
@@ -391,14 +395,17 @@ impl Database {
             })
     }
 
-// "
+    // "
     fn rusqlite_retrieve_pictures_for_folder_id(
         &self,
         folder_id: usize,
     ) -> SqlResult<Vec<Picture>> {
         let connection = self.connection_rc.borrow();
         connection
-            .prepare(&format!("SELECT {} FROM Picture WHERE FolderId = ?1;", PICTURE_COLUMNS))
+            .prepare(&format!(
+                "SELECT {} FROM Picture WHERE FolderId = ?1;",
+                PICTURE_COLUMNS
+            ))
             .and_then(|mut statement| {
                 let mut map: ImageDataMap = HashMap::new();
                 statement.query(params![folder_id]).and_then(|mut rows| {
@@ -429,7 +436,10 @@ impl Database {
     fn rusqlite_retrieve_pictures_for_directory(&self, directory: &str) -> SqlResult<Vec<Picture>> {
         let connection = self.connection_rc.borrow();
         connection
-            .prepare(&format!("SELECT {} FROM Picture WHERE {};", PICTURE_COLUMNS, PARENT_DIR_CLAUSE))
+            .prepare(&format!(
+                "SELECT {} FROM Picture WHERE {};",
+                PICTURE_COLUMNS, PARENT_DIR_CLAUSE
+            ))
             .and_then(|mut statement| {
                 let mut map: ImageDataMap = HashMap::new();
                 statement
@@ -465,8 +475,13 @@ impl Database {
         folder_id: usize,
     ) -> SqlResult<usize> {
         let connection = self.connection_rc.borrow();
-        connection.execute(&format!("UPDATE Picture SET FolderId = ?2 WHERE {};", PARENT_DIR_CLAUSE),
-            params![directory, folder_id])
+        connection.execute(
+            &format!(
+                "UPDATE Picture SET FolderId = ?2 WHERE {};",
+                PARENT_DIR_CLAUSE
+            ),
+            params![directory, folder_id],
+        )
     }
 
     pub fn update_picture_folder_id(&self, directory: &str, folder_id: usize) -> IOResult<usize> {
@@ -478,8 +493,11 @@ impl Database {
 
     fn rusqlite_update_folder_first_file_path(&self) -> SqlResult<usize> {
         let connection = self.connection_rc.borrow();
-        connection.execute(&format!("UPDATE Folder SET FirstFilePath = ( {} ) WHERE EXISTS ( {} );",
-        SELECT_PICTURE_COVER_FILEPATH, SELECT_PICTURE_COVER_FILEPATH),
+        connection.execute(
+            &format!(
+                "UPDATE Folder SET FirstFilePath = ( {} ) WHERE EXISTS ( {} );",
+                SELECT_PICTURE_COVER_FILEPATH, SELECT_PICTURE_COVER_FILEPATH
+            ),
             params![],
         )
     }
@@ -526,7 +544,7 @@ impl Database {
         }
     }
     // "
-    
+
     pub fn rusqlite_retrieve_all_folders(&self) -> SqlResult<FolderMap> {
         let connection = self.connection_rc.borrow();
         connection
@@ -571,29 +589,29 @@ impl Database {
     }
 
     fn rusqlite_update_all_folders(&self, folder_map: FolderMap) -> SqlResult<usize> {
-        self.rusqlite_delete_all_folders()
-            .and_then(|_| {
-                let mut count = 0;
-                let mut connection = self.connection_rc.borrow_mut();
-                let transaction = connection.transaction()
-                    .expect("can't open transaction");
-                {
-                    let mut statement = transaction.prepare(INSERT_FOLDER)
-                        .expect("can't prepare statement");
-                    for (_file_path, folder) in folder_map.map() {
-                        statement.execute(params![
+        self.rusqlite_delete_all_folders().and_then(|_| {
+            let mut count = 0;
+            let mut connection = self.connection_rc.borrow_mut();
+            let transaction = connection.transaction().expect("can't open transaction");
+            {
+                let mut statement = transaction
+                    .prepare(INSERT_FOLDER)
+                    .expect("can't prepare statement");
+                for (_file_path, folder) in folder_map.map() {
+                    statement
+                        .execute(params![
                             folder.id(),
                             folder.file_path(),
                             folder.parent_id(),
-                            folder.picture_count()])
-                            .expect("can't execute statement");
-                        count += 1;
-                    };
+                            folder.picture_count()
+                        ])
+                        .expect("can't execute statement");
+                    count += 1;
                 }
-                    transaction.commit()
-                        .expect("can't commit transaction");
-                    Ok(count)
-            })
+            }
+            transaction.commit().expect("can't commit transaction");
+            Ok(count)
+        })
     }
 
     pub fn update_all_folders(&self, folder_map: FolderMap) -> IOResult<usize> {
@@ -606,7 +624,11 @@ impl Database {
     fn rusqlite_retrieve_picture_with_file_path(&self, file_path: &str) -> SqlResult<Picture> {
         let connection = self.connection_rc.borrow();
         connection
-            .query_row(&format!("SELECT {} FROM Picture WHERE FilePath = ?1;", PICTURE_COLUMNS),
+            .query_row(
+                &format!(
+                    "SELECT {} FROM Picture WHERE FilePath = ?1;",
+                    PICTURE_COLUMNS
+                ),
                 params![file_path_as_stored(file_path)],
                 Self::rusqlite_row_to_picture,
             )

@@ -253,7 +253,10 @@ impl Gallery {
         let tag_selection_criteria = self.tag_selection_criteria.clone();
         match order {
             Order::Name => self.pictures.sort_by_key(|picture| {
-                (!picture.selected(&tag_selection_criteria), picture.file_path())
+                (
+                    !picture.selected(&tag_selection_criteria),
+                    picture.file_path(),
+                )
             }),
             Order::Size => {
                 if self.structured {
@@ -294,9 +297,12 @@ impl Gallery {
                 )
             }),
             Order::Value => self.pictures.sort_by_key(|picture| {
-                picture
-                    .image_data()
-                    .map(|image_data| (!picture.selected(&tag_selection_criteria), image_data.rank()))
+                picture.image_data().map(|image_data| {
+                    (
+                        !picture.selected(&tag_selection_criteria),
+                        image_data.rank(),
+                    )
+                })
             }),
             Order::ColorCount => self.pictures.sort_by_key(|picture| {
                 picture.image_data().map(|image_data| {

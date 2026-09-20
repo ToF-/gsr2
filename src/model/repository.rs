@@ -3,7 +3,6 @@ use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::Configuration;
 use crate::env::configuration::set_configuration_updated_flag;
 use crate::file::database::Database;
-use crate::model::retrieve_criteria::RetrieveCriteria;
 use crate::file::operation::execute;
 use crate::file::operation::move_picture;
 use crate::file::operation::rename_picture;
@@ -26,6 +25,7 @@ use crate::model::image_data::ImageData;
 use crate::model::order::Order;
 use crate::model::picture::Picture;
 use crate::model::predicate::Predicate;
+use crate::model::retrieve_criteria::RetrieveCriteria;
 use crate::model::tag_selection_criteria::TagSelectionCriteria;
 use crate::model::tags::Tags;
 use regex::Regex;
@@ -139,51 +139,21 @@ impl Repository {
         let tag_selection_criteria = TagSelectionCriteria::from_args(args);
         match self.gallery_rc.try_borrow_mut() {
             Ok(mut gallery) => {
-                let regex: Option<Regex> = match args.clone().pattern {
-                    Some(pattern) => match Regex::new(&pattern) {
-                        Ok(re) => Some(re),
-                        Err(e) => {
-                            eprintln!("{}", e);
-                            None
+                let retrieve_criteria_result = RetrieveCriteria::from_command_line_arguments(args, predicate_opt);
+                retrieve_criteria_result.and_then(|retrieve_criteria| {
+                    *gallery = match self
+                        .database
+                        .select_pictures(retrieve_criteria, Some(catalog))
+                    {
+                        Ok(pictures) => {
+                            let mut gallery = Gallery::new_with_pictures(pictures);
+                            gallery.sort_by(args.order.unwrap_or(Order::Name));
+                            gallery
                         }
-                    },
-                    None => None,
-                };
-                let extraction: Option<Vec<String>> = if let Some(list_file) = &args.extraction {
-                    match self.extraction_file_paths(list_file) {
-                        Ok(list) => Some(list),
                         Err(e) => return Err(e),
-                    }
-                } else {
-                    None
-                };
-                let retrieve_criteria = RetrieveCriteria {
-                    tag_selection_criteria: tag_selection_criteria.clone(),
-                    categories: args
-                        .categories
-                        .clone()
-                        .as_ref()
-                        .map(|s| Categories::from_string(s)),
-                    label: args.label.clone(),
-                    extraction: extraction.clone(),
-                    color_filter: args.filter.clone(),
-                    pattern: regex,
-                    cover: args.covers,
-                    parent_opt: args.directory.clone(),
-                    predicate_opt,
-                };
-                *gallery = match self
-                    .database
-                    .select_pictures(retrieve_criteria, Some(catalog))
-                {
-                    Ok(pictures) => {
-                        let mut gallery = Gallery::new_with_pictures(pictures);
-                        gallery.sort_by(args.order.unwrap_or(Order::Name));
-                        gallery
-                    }
-                    Err(e) => return Err(e),
-                };
-                Ok(gallery.len())
+                    };
+                    Ok(gallery.len())
+                })
             }
             Err(e) => panic!("{}", &format!("{}", e)),
         }
@@ -857,12 +827,6 @@ impl Repository {
         }
     }
 
-    pub fn extraction_file_paths(&self, extract_file: &str) -> IOResult<Vec<String>> {
-        File::open(extract_file).and_then(|file| {
-            let reader = BufReader::new(file);
-            reader.lines().collect()
-        })
-    }
 }
 
 #[cfg(test)]
