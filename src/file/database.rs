@@ -1137,7 +1137,7 @@ pub mod tests {
             categories: None,
             label: None,
             extraction: None,
-            color_filter: None,
+            color_range_opt: None,
             pattern: None,
             cover: false,
             parent_opt: None,
