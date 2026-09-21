@@ -427,6 +427,7 @@ impl Controller {
         predicate_opt: Option<Predicate>,
     ) -> IOResult<usize> {
         {
+            dbg!(&sub_directory);
             let initial_command_line_arguments = self.command_line_arguments();
             let command_line_arguments = CommandLineArguments {
                 covers: covers_only_opt.unwrap_or_default(),

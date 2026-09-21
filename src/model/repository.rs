@@ -355,13 +355,14 @@ impl Repository {
         if self.command_line_arguments.structured {
             let directory: String = match &self.command_line_arguments.directory {
                 Some(dir) => dir.to_string(),
-                None => "%".to_string(),
+                None => "".to_string(),
             };
             match self.retrieve_all_folders() {
                 Err(e) => Err(e),
                 Ok(_) => {
                     let folder_map = self.folder_map_rc.borrow();
                     dbg!(&folder_map);
+                    dbg!(&directory);
                     match folder_map.get(&directory) {
                         Some(folder) => Ok(Some(folder.id())),
                         None => Err(IOError::other(format!("folder {} not found", directory))),
