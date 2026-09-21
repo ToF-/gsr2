@@ -1,9 +1,9 @@
-use crate::model::picture::Picture;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::model::catalog::Catalog;
 use crate::model::categories::Categories;
 use crate::model::color_range::ColorRange;
 use crate::model::image_data::ImageData;
+use crate::model::picture::Picture;
 use crate::model::predicate::Predicate;
 use crate::model::tag_selection_criteria::TagSelectionCriteria;
 use regex::Regex;

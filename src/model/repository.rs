@@ -133,6 +133,7 @@ impl Repository {
         &self,
         args: &CommandLineArguments,
         predicate_opt: Option<Predicate>,
+        folder_id_opt: Option<usize>,
     ) -> IOResult<usize> {
         let catalog_result = Catalog::from_file(&self.catalog_filepath);
         let catalog: Catalog = catalog_result?;
@@ -142,12 +143,42 @@ impl Repository {
                 let retrieve_criteria_result =
                     RetrieveCriteria::new(args, predicate_opt, Some(catalog.clone()));
                 retrieve_criteria_result.and_then(|retrieve_criteria| {
-                    *gallery = match self
-                        .database
-                        .select_pictures(retrieve_criteria, Some(catalog))
-                    {
+                    *gallery = match self.database.select_pictures(
+                        retrieve_criteria,
+                        Some(catalog),
+                        folder_id_opt,
+                    ) {
                         Ok(pictures) => {
                             let mut gallery = Gallery::new_with_pictures(pictures);
+                            if args.structured {
+                                gallery.set_structured();
+                                let folder_map = self.folder_map_rc.borrow();
+                                let map = folder_map.map();
+                                let folder_id = folder_id_opt
+                                    .expect("folder_id not set in structured retrieve");
+                                for folder in map
+                                    .values()
+                                    .filter(|folder| folder.parent_id() == folder_id)
+                                {
+                                    let mut image_data = ImageData::new();
+                                    image_data.cover = None;
+                                    image_data.label = file_name_from(&folder.file_path());
+                                    image_data.folder = Some(folder.picture_count());
+                                    image_data.cover = None;
+
+                                    image_data.folder_first_file_path =
+                                        if !folder.first_file_path().is_empty() {
+                                            Some(folder.first_file_path())
+                                        } else {
+                                            None
+                                        };
+                                    dbg!(&image_data);
+                                    let based_file_path = based_path(&folder.file_path());
+                                    let picture =
+                                        Picture::new_with_image_data(&based_file_path, &image_data);
+                                    gallery.add_picture(&picture);
+                                }
+                            }
                             gallery.sort_by(args.order.unwrap_or(Order::Name));
                             gallery
                         }
@@ -306,25 +337,42 @@ impl Repository {
                 },
                 Err(e) => Err(e),
             },
-            _ => {
-                if self.command_line_arguments.structured {
-                    self.create_folder_entries()
-                } else {
-                    self.retrieve_all_labels().and_then(|()| {
-                        self.retrieve_all_parent_dirs().and_then(|()| {
-                            self.retrieve_all_pictures(
-                                &self.command_line_arguments.clone(),
-                                predicate_opt,
-                            )
-                        })
+            _ => self.get_folder_id_opt().and_then(|folder_id_opt| {
+                self.retrieve_all_labels().and_then(|()| {
+                    self.retrieve_all_parent_dirs().and_then(|()| {
+                        self.retrieve_all_pictures(
+                            &self.command_line_arguments.clone(),
+                            predicate_opt,
+                            folder_id_opt,
+                        )
                     })
+                })
+            }),
+        }
+    }
+
+    fn get_folder_id_opt(&self) -> IOResult<Option<usize>> {
+        if self.command_line_arguments.structured {
+            let directory: String = match &self.command_line_arguments.directory {
+                Some(dir) => dir.to_string(),
+                None => "%".to_string(),
+            };
+            match self.retrieve_all_folders() {
+                Err(e) => Err(e),
+                Ok(_) => {
+                    let binding = self.folder_map_rc.borrow().map();
+                    match binding.get(&directory) {
+                        Some(folder) => Ok(Some(folder.id())),
+                        None => Err(IOError::other(format!("folder {} not found", directory))),
+                    }
                 }
             }
+        } else {
+            Ok(None)
         }
     }
 
     pub fn create_folder_entries(&self) -> IOResult<usize> {
-        println!("creating folder entries…");
         let directory: String = match &self.command_line_arguments.directory {
             Some(dir) => dir.to_string(),
             None => "%".to_string(),
@@ -383,7 +431,7 @@ impl Repository {
         args: &CommandLineArguments,
         predicate_opt: Option<Predicate>,
     ) -> IOResult<usize> {
-        self.retrieve_all_pictures(args, predicate_opt)
+        self.retrieve_all_pictures(args, predicate_opt, None)
     }
 
     pub fn pictures_in_directory(&self, dir: &str) -> IOResult<Gallery> {

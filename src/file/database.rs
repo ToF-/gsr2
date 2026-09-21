@@ -301,9 +301,10 @@ impl Database {
         &self,
         cover: bool,
         parent_opt: Option<String>,
+        folder_id_opt: Option<usize>,
     ) -> SqlResult<ImageDataMap> {
         let sql_query = format!(
-            "SELECT {} FROM Picture WHERE true AND {} AND {} ORDER BY FilePath",
+            "SELECT {} FROM Picture WHERE true AND {} AND {} AND {} ORDER BY FilePath",
             PICTURE_COLUMNS,
             if cover { " Cover = true " } else { " true " },
             if let Some(parent) = parent_opt {
@@ -313,7 +314,11 @@ impl Database {
                 )
             } else {
                 "true".to_string()
-            }
+            },
+            match folder_id_opt {
+                Some(folder_id) => format!(" FolderId = {} ", folder_id),
+                None => " true ".to_string(),
+            },
         );
         let connection = self.connection_rc.borrow();
         connection.prepare(&sql_query).and_then(|mut statement| {
@@ -669,11 +674,13 @@ impl Database {
         &self,
         retrieve_criteria: RetrieveCriteria,
         catalog_opt: Option<Catalog>,
+        folder_id_opt: Option<usize>,
     ) -> IOResult<Vec<Picture>> {
         self.select_all_parent_dirs().and_then(|parent_dirs| {
             match self.rusqlite_retrieve_all_pictures(
                 retrieve_criteria.clone().cover,
                 retrieve_criteria.clone().parent_opt,
+                folder_id_opt,
             ) {
                 Ok(picture_map) => match self.rusqlite_retrieve_all_tags() {
                     Ok(tag_map) => {
@@ -780,7 +787,7 @@ impl Database {
             predicate_opt: None,
             catalog_opt: None,
         };
-        self.select_pictures(retrieve_criteria, None)
+        self.select_pictures(retrieve_criteria, None, None)
     }
 
     fn rusqlite_row_to_picture(row: &Row) -> SqlResult<Picture, rusqlite::Error> {
