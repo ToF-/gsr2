@@ -1,3 +1,4 @@
+use crate::env::default_values::NEAR_DIRECTORY_SYMBOL;
 use crate::env::default_values::BASE_DIRECTORY_SYMBOL;
 use crate::file::paths::based_path;
 use crate::file::paths::file_path_as_retrieved;
@@ -78,9 +79,20 @@ impl FolderMap {
     }
 
     pub fn get(&self, directory: &str) -> Option<Folder> {
-        let key = format!("{}/{}", BASE_DIRECTORY_SYMBOL, directory);
-        dbg!(&key);
-        self.map.get(&key).cloned()
+        if directory.is_empty() {
+            return None
+        };
+        let mut chars = directory.chars();
+        let first_char = chars.next().unwrap();
+        if first_char == NEAR_DIRECTORY_SYMBOL {
+            let target: String = chars.collect();
+            self.map.iter()
+                .find(|(key, _)| key.contains(&target))
+                .map(|(_, value)| value).cloned()
+        } else {
+            let key = format!("{}/{}", BASE_DIRECTORY_SYMBOL, directory);
+            self.map.get(&key).cloned()
+        }
     }
 }
 
@@ -147,7 +159,7 @@ mod tests {
     }
 
     #[test]
-    fn getting_a_folder_via_directory_name() {
+    fn getting_a_folder_via_directory_name_or_part() {
         let file_paths: Vec<String> = vec![
             String::from("%/foo.jpg"),
             String::from("%/bun/bar.jpg"),
@@ -165,7 +177,9 @@ mod tests {
         let folder_opt = folders.get("bun");
         assert!(folder_opt.is_some());
         let folder_opt = folders.get("gus/bam");
-        assert!(folder_opt.is_some())
+        assert!(folder_opt.is_some());
+        let folder_opt = folders.get("?def");
+        assert!(folder_opt.is_some());
 
     }
 }

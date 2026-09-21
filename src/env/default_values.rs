@@ -64,6 +64,7 @@ pub const BASED_PATH_SYMBOL: char = '@';
 pub const BASE_DIRECTORY_SYMBOL: char = '%';
 pub const HOME_DIRECTORY_SYMBOL: char = '~';
 pub const ROOT_DIRECTORY_SYMBOL: char = '/';
+pub const NEAR_DIRECTORY_SYMBOL: char = '?';
 pub const APPLICATION_ID: &str = "org.example.gsr";
 pub const CONFIG_FILE_DEFAULT: &str = ".gsr2.toml";
 pub const CONFIG_FILE_VARIABLE: &str = "GSRCFG";
