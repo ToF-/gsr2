@@ -1,3 +1,4 @@
+use crate::model::catalog::Catalog;
 use crate::model::image_data::ImageData;
 use std::io::BufRead;
 use std::io::BufReader;
@@ -22,12 +23,14 @@ pub struct RetrieveCriteria {
     pub cover: bool,
     pub parent_opt: Option<String>,
     pub predicate_opt: Option<Predicate>,
+    pub catalog_opt: Option<Catalog>,
 }
 
 impl RetrieveCriteria {
-    pub fn from_command_line_arguments(
+    pub fn new(
         args: &CommandLineArguments,
         predicate_opt: Option<Predicate>,
+        catalog_opt: Option<Catalog>,
     ) -> IOResult<Self> {
         let result: IOResult<Option<Vec<String>>> = if let Some(list_file) = &args.extraction {
             match Self::extraction_file_paths(list_file) {
@@ -61,6 +64,7 @@ impl RetrieveCriteria {
                     cover: args.covers,
                     parent_opt: args.directory.clone(),
                     predicate_opt,
+                    catalog_opt,
                 })
             })
         })

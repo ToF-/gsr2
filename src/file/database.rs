@@ -785,6 +785,7 @@ impl Database {
             cover: false,
             parent_opt: Some(parent_dir.to_string()),
             predicate_opt: None,
+            catalog_opt: None,
         };
         self.select_pictures(retrieve_criteria, None)
     }
@@ -1143,13 +1144,14 @@ pub mod tests {
             categories: None,
             label: None,
             extraction: None,
-            filter: None,
+            color_filter: None,
             pattern: None,
             cover: false,
             parent_opt: None,
             predicate_opt: None,
+            catalog_opt:None,
         };
-        let result = database.select_all_pictures(criteria, None);
+        let result = database.select_pictures(criteria, None);
         assert!(result.is_ok());
         let pictures = result.unwrap();
         assert_eq!(nine_colors_file_path(), pictures[1].file_path());
