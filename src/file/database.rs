@@ -954,7 +954,7 @@ pub mod tests {
     #[serial]
     fn retrieve_all_pictures_ordered_by_file_path() {
         let database = my_db();
-        let status = database.rusqlite_retrieve_all_pictures(false, None);
+        let status = database.rusqlite_retrieve_all_pictures(false, None, None);
         assert!(status.is_ok());
         let map = status.unwrap();
         assert_eq!(4, map.len());
@@ -1151,7 +1151,7 @@ pub mod tests {
             predicate_opt: None,
             catalog_opt: None,
         };
-        let result = database.select_pictures(criteria, None);
+        let result = database.select_pictures(criteria, None, None);
         assert!(result.is_ok());
         let pictures = result.unwrap();
         assert_eq!(nine_colors_file_path(), pictures[1].file_path());

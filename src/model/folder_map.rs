@@ -1,3 +1,6 @@
+use crate::env::default_values::BASE_DIRECTORY_SYMBOL;
+use crate::file::paths::based_path;
+use crate::file::paths::file_path_as_retrieved;
 use crate::file::paths::parent_directory;
 use crate::model::folder::Folder;
 use crate::model::id_dispenser::IdDispenser;
@@ -46,7 +49,6 @@ impl FolderMap {
         }
         Self { map: map.clone() }
     }
-
     pub fn insert(
         &mut self,
         folder_id: usize,
@@ -73,6 +75,12 @@ impl FolderMap {
 
     pub fn map(&self) -> BTreeMap<String, Folder> {
         self.map.clone()
+    }
+
+    pub fn get(&self, directory: &str) -> Option<Folder> {
+        let key = format!("{}/{}", BASE_DIRECTORY_SYMBOL, directory);
+        dbg!(&key);
+        self.map.get(&key).cloned()
     }
 }
 
@@ -136,5 +144,28 @@ mod tests {
                 .get("%/abc/def")
                 .map(|folder| folder.parent_id())
         );
+    }
+
+    #[test]
+    fn getting_a_folder_via_directory_name() {
+        let file_paths: Vec<String> = vec![
+            String::from("%/foo.jpg"),
+            String::from("%/bun/bar.jpg"),
+            String::from("%/bun/qux.jpg"),
+            String::from("%/gus/bam/blo.jpg"),
+            String::from("%/gus/bim/blu.jpg"),
+            String::from("%/gus/bam/bla.jpg"),
+            String::from("%/gus/bum/jin/bla.jpg"),
+            String::from("%/abc/def/qux.jpg"),
+            String::from("%/abc/def/ghi/ijk/lmn.jpg"),
+        ];
+        let folders = FolderMap::from_file_paths(&file_paths);
+        dbg!(&folders);
+        assert_eq!(None, folders.get("foo"));
+        let folder_opt = folders.get("bun");
+        assert!(folder_opt.is_some());
+        let folder_opt = folders.get("gus/bam");
+        assert!(folder_opt.is_some())
+
     }
 }

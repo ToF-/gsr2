@@ -360,8 +360,9 @@ impl Repository {
             match self.retrieve_all_folders() {
                 Err(e) => Err(e),
                 Ok(_) => {
-                    let binding = self.folder_map_rc.borrow().map();
-                    match binding.get(&directory) {
+                    let folder_map = self.folder_map_rc.borrow().map();
+                    dbg!(&folder_map);
+                    match folder_map.get(&directory) {
                         Some(folder) => Ok(Some(folder.id())),
                         None => Err(IOError::other(format!("folder {} not found", directory))),
                     }
