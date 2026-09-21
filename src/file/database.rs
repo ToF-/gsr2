@@ -672,25 +672,12 @@ impl Database {
     ) -> IOResult<Vec<Picture>> {
         self.select_all_parent_dirs().and_then(|parent_dirs| {
             match self.rusqlite_retrieve_all_pictures(
-                retrieve_criteria.cover,
-                retrieve_criteria.parent_opt,
+                retrieve_criteria.clone().cover,
+                retrieve_criteria.clone().parent_opt,
             ) {
                 Ok(picture_map) => match self.rusqlite_retrieve_all_tags() {
                     Ok(tag_map) => {
-                        let extraction: HashSet<String> =
-                            if let Some(list) = retrieve_criteria.extraction {
-                                list.iter().cloned().collect()
-                            } else {
-                                HashSet::new()
-                            };
                         let mut pictures: Vec<Picture> = vec![];
-                        let color_range_opt = retrieve_criteria
-                            .color_filter
-                            .map(|spec| ColorRange::from_string(&spec));
-                        let color_range: ColorRange = match color_range_opt {
-                            Some(Ok(ref r)) => r.clone(),
-                            Some(Err(_)) | None => ColorRange::default(),
-                        };
                         let mut count: usize = 0;
                         for (file_path, image_data) in picture_map.iter() {
                             count += 1;
@@ -715,6 +702,11 @@ impl Database {
                                 },
                                 ..image_data.clone()
                             };
+                            let picture = Picture::new_with_image_data(file_path, &new_image_data);
+                            if retrieve_criteria.matches(&picture) {
+                                pictures.push(picture)
+                            };
+                            /*
                             if let Some(ref catalog) = catalog_opt
                                 && let Some(categories) = retrieve_criteria.categories.clone()
                             {
@@ -751,18 +743,19 @@ impl Database {
                             if !extraction.is_empty() && !extraction.contains(file_path) {
                                 continue;
                             };
-                            if color_range_opt.is_some() && !color_range.matches(count, file_path) {
+                            if color_range_opt.clone().is_some()
+                                && !color_range_opt.as_ref().unwrap().matches(file_path)
+                            {
                                 continue;
                             };
 
-                            let picture = Picture::new_with_image_data(file_path, &new_image_data);
                             if let Some(ref predicate) = retrieve_criteria.predicate_opt {
                                 let function = &predicate.function;
                                 if !function(&picture) {
                                     continue;
                                 }
                             };
-                            pictures.push(picture)
+                            */
                         }
                         pictures.sort_by_key(|picture| picture.file_path());
                         Ok(pictures)
@@ -780,7 +773,7 @@ impl Database {
             categories: None,
             label: None,
             extraction: None,
-            color_filter: None,
+            color_range_opt: None,
             pattern: None,
             cover: false,
             parent_opt: Some(parent_dir.to_string()),
@@ -1149,7 +1142,7 @@ pub mod tests {
             cover: false,
             parent_opt: None,
             predicate_opt: None,
-            catalog_opt:None,
+            catalog_opt: None,
         };
         let result = database.select_pictures(criteria, None);
         assert!(result.is_ok());

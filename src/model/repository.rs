@@ -139,7 +139,8 @@ impl Repository {
         let tag_selection_criteria = TagSelectionCriteria::from_args(args);
         match self.gallery_rc.try_borrow_mut() {
             Ok(mut gallery) => {
-                let retrieve_criteria_result = RetrieveCriteria::new(args, predicate_opt, Some(catalog.clone()));
+                let retrieve_criteria_result =
+                    RetrieveCriteria::new(args, predicate_opt, Some(catalog.clone()));
                 retrieve_criteria_result.and_then(|retrieve_criteria| {
                     *gallery = match self
                         .database
@@ -826,7 +827,6 @@ impl Repository {
             Err(e) => Err(IOError::other(e)),
         }
     }
-
 }
 
 #[cfg(test)]
