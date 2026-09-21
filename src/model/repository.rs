@@ -172,7 +172,6 @@ impl Repository {
                                         } else {
                                             None
                                         };
-                                    dbg!(&image_data);
                                     let based_file_path = based_path(&folder.file_path());
                                     let picture =
                                         Picture::new_with_image_data(&based_file_path, &image_data);

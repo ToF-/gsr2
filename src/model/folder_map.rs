@@ -87,9 +87,10 @@ impl FolderMap {
             let first_char = chars.next().unwrap();
             if first_char == NEAR_DIRECTORY_SYMBOL {
                 let target: String = chars.collect();
+                dbg!(&target);
                 self.map
                     .iter()
-                    .find(|(key, _)| key.contains(&target))
+                    .find(|(key, _)| key.contains(&format!("/{}", &target)))
                     .map(|(_, value)| value)
                     .cloned()
             } else if first_char == BASED_PATH_SYMBOL {

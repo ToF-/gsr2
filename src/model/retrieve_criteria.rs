@@ -73,7 +73,11 @@ impl RetrieveCriteria {
                         color_range_opt: color_range_opt,
                         pattern: regex_opt,
                         cover: args.covers,
-                        parent_opt: args.directory.clone(),
+                        parent_opt: if args.structured {
+                            None
+                        } else {
+                            args.directory.clone()
+                        },
                         predicate_opt,
                         catalog_opt,
                     })
