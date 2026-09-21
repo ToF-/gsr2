@@ -90,8 +90,8 @@ impl FolderMap {
                 .find(|(key, _)| key.contains(&target))
                 .map(|(_, value)| value).cloned()
         } else {
-            let key = format!("{}/{}", BASE_DIRECTORY_SYMBOL, directory);
-            self.map.get(&key).cloned()
+            let target: String = directory.to_string();
+            self.map.get(&target).cloned()
         }
     }
 }
