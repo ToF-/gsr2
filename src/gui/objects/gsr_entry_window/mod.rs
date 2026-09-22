@@ -158,7 +158,6 @@ impl GsrEntryWindow {
                         None => None,
                         Some(v) => Some(v),
                     };
-                    dbg!(&action.clone(), &name.clone(), &variant.clone());
                     match this.activate_action(&name, variant_ref) {
                         Ok(_) => {}
                         Err(e) => {

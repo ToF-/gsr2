@@ -1,22 +1,13 @@
 use crate::model::picture::Picture;
 use crate::model::predicate::Predicate;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Default, Clone)]
 pub struct Finder {
     items: Vec<Picture>,
     predicate: Option<Predicate>,
     position: usize,
 }
 
-impl Default for Finder {
-    fn default() -> Self {
-        Self {
-            items: Vec::new(),
-            position: 0,
-            predicate: None,
-        }
-    }
-}
 impl Finder {
     pub fn new(items: Vec<Picture>) -> Self {
         Self {

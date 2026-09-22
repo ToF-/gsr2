@@ -95,7 +95,15 @@ pub type A = Action;
 
 impl Action {
     pub fn is_repeatable(&self) -> bool {
-        matches!(self, Action::AddTag(_) | Action::Categorize(_) | Action::Label(_) | Action::Rank(_) | Action::RemoveTag(_) | Action::Unlabel)
+        matches!(
+            self,
+            Action::AddTag(_)
+                | Action::Categorize(_)
+                | Action::Label(_)
+                | Action::Rank(_)
+                | Action::RemoveTag(_)
+                | Action::Unlabel
+        )
     }
 
     pub fn single_action_name(_key_name: &str, _mode: Mode) -> String {

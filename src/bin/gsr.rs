@@ -40,32 +40,32 @@ fn main() {
 }
 
 fn run_application(config: &Configuration, clargs: &CommandLineArguments) -> Result<Status> {
-        let repository = Repository::new(config.clone(), clargs.clone(), false);
-        if clargs.structured && !config.updated {
-            match repository.update_all_folders() {
-                Ok(_) => {}
-                Err(e) => return Err(e),
-            }
-        };
-        let _ = &match repository.retrieve_pictures(None) {
+    let repository = Repository::new(config.clone(), clargs.clone(), false);
+    if clargs.structured && !config.updated {
+        match repository.update_all_folders() {
             Ok(_) => {}
-            Err(e) => panic!("can't initialize repository: {}", e),
-        };
-        let result = execute_command(clargs.clone(), repository.clone(), config.clone());
-        if let Ok(Status::Ready(initial_position)) = result {
-            {
-                let mut gallery = repository.gallery_rc().borrow_mut();
-                gallery.force_current_picture_index(initial_position);
-            }
-            let gallery = {
-                let gallery = repository.gallery_rc().borrow();
-                gallery.clone()
-            };
-            build_and_run_app(clargs, &gallery, &repository);
-            Ok(Status::Done)
-        } else {
-            result
+            Err(e) => return Err(e),
         }
+    };
+    let _ = &match repository.retrieve_pictures(None) {
+        Ok(_) => {}
+        Err(e) => panic!("can't initialize repository: {}", e),
+    };
+    let result = execute_command(clargs.clone(), repository.clone(), config.clone());
+    if let Ok(Status::Ready(initial_position)) = result {
+        {
+            let mut gallery = repository.gallery_rc().borrow_mut();
+            gallery.force_current_picture_index(initial_position);
+        }
+        let gallery = {
+            let gallery = repository.gallery_rc().borrow();
+            gallery.clone()
+        };
+        build_and_run_app(clargs, &gallery, &repository);
+        Ok(Status::Done)
+    } else {
+        result
+    }
 }
 
 fn build_and_run_app(clargs: &CommandLineArguments, gallery: &Gallery, repository: &Repository) {

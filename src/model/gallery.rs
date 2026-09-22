@@ -535,12 +535,10 @@ mod tests {
         gallery.add_picture(&Picture::new(&based_path("%/gus/bim/blu.jpg")));
         gallery.add_picture(&Picture::new(&based_path("%/gus/bam/bla.jpg")));
         let folders = gallery.folders_in_directory("%");
-        dbg!(&folders);
         assert_eq!(2, folders.len());
         assert_eq!(("bun".to_string(), 2), folders[0]);
         assert_eq!(("gus".to_string(), 3), folders[1]);
         let folders = gallery.folders_in_directory("%/gus");
-        dbg!(&folders);
         assert_eq!(2, folders.len());
         assert_eq!(("bam".to_string(), 2), folders[0]);
         assert_eq!(("bim".to_string(), 1), folders[1]);

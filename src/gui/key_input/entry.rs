@@ -181,10 +181,7 @@ pub fn find_criteria_entry(find_criteria: Find, completion_tags: Tags) -> KeyInp
 pub fn select_criteria_entry(find_criteria: Find, completion_tags: Tags) -> KeyInput {
     let find = find_criteria;
     KeyInput::new(
-        &format!(
-            "Enter criteria for selecting on {}",
-            find.clone()
-        ),
+        &format!("Enter criteria for selecting on {}", find.clone()),
         match find {
             Find::AllTags | Find::SomeTags => Some(completion_tags),
             _ => None,

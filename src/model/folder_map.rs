@@ -5,21 +5,14 @@ use crate::file::paths::parent_directory;
 use crate::model::folder::Folder;
 use crate::model::id_dispenser::IdDispenser;
 use std::collections::BTreeMap;
-#[derive(Debug, Clone)]
+#[derive(Debug, Default, Clone)]
 
 pub struct FolderMap {
     map: BTreeMap<String, Folder>,
 }
 
-impl Default for FolderMap {
-    fn default() -> Self {
-        Self {
-            map: BTreeMap::new(),
-        }
-    }
-}
 impl FolderMap {
-    pub fn from_file_paths(file_paths: &Vec<String>) -> Self {
+    pub fn from_file_paths(file_paths: &[String]) -> Self {
         let mut map: BTreeMap<String, Folder> = BTreeMap::new();
         let mut id_dispenser = IdDispenser::new(1);
         for file_path in file_paths.iter() {
@@ -39,12 +32,11 @@ impl FolderMap {
             .collect();
 
         for (file_path, folder) in map.iter_mut() {
-            if let Some(directory) = parent_directory(&file_path)
+            if let Some(directory) = parent_directory(file_path)
                 && !directory.is_empty()
+                && let Some(id) = id_map.get(&directory)
             {
-                if let Some(id) = id_map.get(&directory) {
-                    folder.set_parent_id(*id);
-                }
+                folder.set_parent_id(*id);
             }
         }
         Self { map: map.clone() }
@@ -85,7 +77,6 @@ impl FolderMap {
             let first_char = chars.next().unwrap();
             if first_char == NEAR_DIRECTORY_SYMBOL {
                 let target: String = chars.collect();
-                dbg!(&target);
                 self.map
                     .iter()
                     .find(|(key, _)| key.contains(&format!("/{}", &target)))
@@ -124,7 +115,6 @@ mod tests {
         ];
         let folders = FolderMap::from_file_paths(&file_paths);
         assert_eq!(11, folders.len());
-        dbg!(&folders);
         assert_eq!(
             Some(1),
             folders
@@ -180,7 +170,6 @@ mod tests {
             String::from("%/abc/def/ghi/ijk/lmn.jpg"),
         ];
         let folders = FolderMap::from_file_paths(&file_paths);
-        dbg!(&folders);
         assert_eq!(None, folders.get("foo"));
         let folder_opt = folders.get("bun");
         assert!(folder_opt.is_some());

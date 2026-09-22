@@ -116,7 +116,6 @@ impl GsrPictureFrame {
                     transparent_folder_picture()
                 } else {
                     let gtk_picture_file_path = file_path_as_retrieved(&folder_first_file_path);
-                    dbg!(&gtk_picture_file_path);
                     if let Ok(file_path) =
                         check_path_exists(&PathBuf::from(gtk_picture_file_path.clone()))
                     {

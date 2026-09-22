@@ -155,7 +155,6 @@ impl Controller {
             shared_window,
             move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
                 let gsr_application_shared_window = shared_window.borrow();
-                dbg!(&object.name());
                 gsr_application_shared_window.process_gio_action(object, variant);
             }
         );
@@ -650,8 +649,6 @@ impl Controller {
                         } else {
                             println!("navigator can't move to: {:?}", &direction);
                         };
-                        dbg!(view_state.navigator.position());
-                        dbg!(view_state.gallery.current_picture_index());
                         view_state.navigator.set_page_changed();
                     });
 
@@ -670,7 +667,6 @@ impl Controller {
             #[strong]
             window,
             move |_, _, _| {
-                dbg!("cancel");
                 window.dismiss();
             }
         )
@@ -1016,13 +1012,11 @@ impl Controller {
                             window.present_information(&format!("{e}"));
                             None
                         }
-                        Ok(predicate) => {
-                            this.with_view_state_mut(|view_state| {
-                                view_state.finder =
-                                    Some(Finder::new(view_state.gallery.pictures().clone()));
-                                    view_state.finder.as_mut().unwrap().find_first(predicate)
-                            })
-                        }
+                        Ok(predicate) => this.with_view_state_mut(|view_state| {
+                            view_state.finder =
+                                Some(Finder::new(view_state.gallery.pictures().clone()));
+                            view_state.finder.as_mut().unwrap().find_first(predicate)
+                        }),
                     };
                     match position_opt {
                         None => {
@@ -2017,8 +2011,6 @@ impl Controller {
             #[strong]
             window,
             move |_, _, _| {
-                dbg!();
-
                 let action = this.last_action.borrow().clone();
                 window.activate_action(action);
             }
@@ -2141,7 +2133,6 @@ impl Controller {
                   object: &SimpleAction,
                   variant: Option<&gtk::glib::Variant>| {
                 let gio_action = GioAction::from((object, variant));
-                dbg!();
                 if let Action::ToggleSelected = Action::from(gio_action) {
                     this.with_view_state_mut(|view_state| {
                         let position = view_state.gallery.current_picture_index();

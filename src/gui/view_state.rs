@@ -36,20 +36,20 @@ impl ViewState {
     pub fn set_new_location(
         &mut self,
         sub_directory: Option<String>,
-        predicate: Option<Predicate>,
+        predicate_opt: Option<Predicate>,
         position: usize,
         covers_only: bool,
     ) {
-        let current_predicate = self.current_location.predicate().clone();
-        let new_predicate = if predicate.is_some() && current_predicate.is_some() {
-            Some(Predicate::and(
-                predicate.unwrap(),
-                current_predicate.unwrap(),
-            ))
+        let new_predicate_opt = if let Some(predicate) = predicate_opt {
+            if let Some(current) = self.current_location.predicate() {
+                Some(Predicate::and(predicate, current))
+            } else {
+                Some(predicate)
+            }
         } else {
-            predicate
+            self.current_location.predicate()
         };
-        let new_location = Location::new(sub_directory, new_predicate, position, covers_only);
+        let new_location = Location::new(sub_directory, new_predicate_opt, position, covers_only);
         self.saved_locations.push(self.current_location.clone());
         self.set_current_location(
             new_location.sub_directory(),

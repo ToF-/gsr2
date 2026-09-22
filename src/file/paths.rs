@@ -66,10 +66,10 @@ pub fn sub_directories(parent: &str) -> Vec<String> {
     let base_directory = base_directory();
     let base_dir = Path::new(&base_directory);
     if let Ok(relative_path) = path.strip_prefix(base_dir) {
-            for component in components(relative_path) {
-                result.push(component)
-            }
+        for component in components(relative_path) {
+            result.push(component)
         }
+    }
     result
 }
 
@@ -439,9 +439,7 @@ mod tests {
     fn all_sub_directories_of_a_path() {
         let base = base_directory();
         let path = format!("{base}/foo/bar/qux");
-        dbg!(&path);
         let components = sub_directories(&path);
-        dbg!(&components);
         assert_eq!(3, components.len());
         assert_eq!("foo", components[0]);
         assert_eq!("foo/bar", components[1]);

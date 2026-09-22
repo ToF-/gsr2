@@ -361,8 +361,7 @@ impl GsrApplicationWindow {
             .expect("grid scrolled window has no panel child")
             .downcast::<gtk::Viewport>()
             .expect("panel is not a viewport");
-        vp
-            .first_child()
+        vp.first_child()
             .expect("panel has no children")
             .downcast::<gtk::Grid>()
             .expect("panel has no grid")

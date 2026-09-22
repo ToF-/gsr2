@@ -135,10 +135,10 @@ impl Repository {
                 let retrieve_criteria_result =
                     RetrieveCriteria::new(args, predicate_opt, Some(catalog.clone()));
                 retrieve_criteria_result.and_then(|retrieve_criteria| {
-                    *gallery = match self.database.select_pictures(
-                        retrieve_criteria,
-                        folder_id_opt,
-                    ) {
+                    *gallery = match self
+                        .database
+                        .select_pictures(retrieve_criteria, folder_id_opt)
+                    {
                         Ok(pictures) => {
                             let mut gallery = Gallery::new_with_pictures(pictures);
                             if args.structured {
@@ -346,7 +346,6 @@ impl Repository {
             }
         }
     }
-
 
     pub fn initialize_for_args(
         &self,
