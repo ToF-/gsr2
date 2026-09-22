@@ -336,7 +336,7 @@ impl Repository {
                 },
                 Err(e) => Err(e),
             },
-            _ => self.get_folder_id_opt().and_then(|folder_id_opt| {
+            _ => self.retrieve_folders().and_then(|folder_id_opt| {
                 self.retrieve_all_labels().and_then(|()| {
                     self.retrieve_all_parent_dirs().and_then(|()| {
                         self.retrieve_all_pictures(
@@ -350,26 +350,24 @@ impl Repository {
         }
     }
 
-    fn get_folder_id_opt(&self) -> IOResult<Option<usize>> {
-        if self.command_line_arguments.structured {
-            let directory: String = match &self.command_line_arguments.directory {
-                Some(dir) => dir.to_string(),
-                None => "".to_string(),
-            };
-            match self.retrieve_all_folders() {
-                Err(e) => Err(e),
-                Ok(_) => {
+    fn retrieve_folders(&self) -> IOResult<Option<usize>> {
+        match self.retrieve_all_folders() {
+            Err(e) => Err(e),
+            Ok(_) => {
+                if self.command_line_arguments.structured {
+                    let directory: String = match &self.command_line_arguments.directory {
+                        Some(dir) => dir.to_string(),
+                        None => "".to_string(),
+                    };
                     let folder_map = self.folder_map_rc.borrow();
-                    dbg!(&folder_map);
-                    dbg!(&directory);
                     match folder_map.get(&directory) {
                         Some(folder) => Ok(Some(folder.id())),
                         None => Err(IOError::other(format!("folder {} not found", directory))),
                     }
+                } else {
+                    Ok(None)
                 }
             }
-        } else {
-            Ok(None)
         }
     }
 
