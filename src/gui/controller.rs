@@ -138,7 +138,7 @@ impl Controller {
         let shared_repository_opt = self.gsr_application().shared_repository_opt();
         let binding = shared_repository_opt.borrow();
         let repository = binding.as_ref().unwrap();
-        f(&repository)
+        f(repository)
     }
 
     // LAW
@@ -1017,14 +1017,11 @@ impl Controller {
                             None
                         }
                         Ok(predicate) => {
-                            let position_opt = this.with_view_state_mut(|view_state| {
+                            this.with_view_state_mut(|view_state| {
                                 view_state.finder =
                                     Some(Finder::new(view_state.gallery.pictures().clone()));
-                                let position_opt =
-                                    view_state.finder.as_mut().unwrap().find_first(predicate);
-                                position_opt
-                            });
-                            position_opt
+                                    view_state.finder.as_mut().unwrap().find_first(predicate)
+                            })
                         }
                     };
                     match position_opt {
@@ -1067,7 +1064,7 @@ impl Controller {
         });
         match position_res {
             Err(e) => window.present_information(&format!("{e}")),
-            Ok(None) => self.redo_find(&window),
+            Ok(None) => self.redo_find(window),
             Ok(Some(position)) => {
                 self.with_view_state_mut(|view_state| {
                     if view_state
@@ -1316,7 +1313,6 @@ impl Controller {
                                     Ok(_) => {}
                                     Err(e) => {
                                         window.present_information(&format!("{e}"));
-                                        return;
                                     }
                                 }
                             });
@@ -1682,7 +1678,7 @@ impl Controller {
                     &window,
                     &window.gsr_application().shared_controller(),
                     &catalog,
-                    &format!("Select the category to move"),
+                    "Select the category to move",
                     None,
                     Action::SelectCategoryMoveTarget(String::from("")),
                 );
@@ -1707,7 +1703,7 @@ impl Controller {
                     &window,
                     &window.gsr_application().shared_controller(),
                     &catalog,
-                    &format!("Select the category to remove"),
+                    "Select the category to remove",
                     None,
                     Action::RemoveCategory(String::from("")),
                 );
@@ -1987,7 +1983,7 @@ impl Controller {
             self.find_next(window);
         } else {
             let gsr_entry_window = GsrEntryWindow::new_with(
-                &window,
+                window,
                 &window.gsr_application().shared_controller(),
                 find_menu(),
                 None,
@@ -2064,7 +2060,7 @@ impl Controller {
                     view_state.settings.blinking_on()
                 });
 
-                if on == true {
+                if on {
                     window.gsr_picture_grid().initialize_pictures();
                     window.gsr_picture_grid().leave_current_picture_focus();
                     window.gsr_picture_grid().enter_current_picture_focus();

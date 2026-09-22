@@ -1,23 +1,12 @@
 use std::collections::HashSet;
 use std::mem;
 
-#[derive(Debug, Clone)]
+#[derive(Default, Debug, Clone)]
 pub struct Selection {
     range_start: Option<usize>,
     range_end: Option<usize>,
     selected: HashSet<usize>,
     last: Option<(usize, usize)>,
-}
-
-impl Default for Selection {
-    fn default() -> Self {
-        Self {
-            range_start: None,
-            range_end: None,
-            selected: HashSet::new(),
-            last: None,
-        }
-    }
 }
 
 impl Selection {

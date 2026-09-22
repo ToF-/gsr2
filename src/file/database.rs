@@ -281,8 +281,8 @@ impl Database {
     pub fn rusqlite_retrieve_all_marks(&self) -> SqlResult<BTreeMap<char, String>> {
         let sql_query = SELECT_MARKS;
         let connection = self.connection_rc.borrow();
-        connection.prepare(&sql_query).and_then(|mut statement| {
-            statement.query([]).and_then(|mut rows| {
+        connection.prepare(sql_query).and_then(|mut statement| {
+            statement.query([]).map(|mut rows| {
                 let mut map: BTreeMap<char, String> = BTreeMap::new();
                 while let Some(row) = rows.next().unwrap() {
                     let key: String = row.get(0).expect("can't read first column");
@@ -290,7 +290,7 @@ impl Database {
                     let file_path: String = row.get(1).expect("can't read second column");
                     map.insert(letter, file_path);
                 }
-                Ok(map)
+                map
             })
         })
     }
@@ -521,7 +521,7 @@ impl Database {
         let mut result: Vec<String> = Vec::new();
         let sql_query = "SELECT FilePath FROM Picture;";
         let connection = self.connection_rc.borrow();
-        let _ = connection.prepare(&sql_query).and_then(|mut statement| {
+        let _ = connection.prepare(sql_query).and_then(|mut statement| {
             statement.query([]).map(|mut rows| {
                 while let Some(row) = rows.next().unwrap() {
                     let file_path: String = row.get(0).expect("can't get column FilePath");
@@ -551,7 +551,7 @@ impl Database {
         let connection = self.connection_rc.borrow();
         connection
             .prepare(&format!("SELECT {} FROM Folder;", FOLDER_COLUMNS))
-            .and_then(|mut statement| {
+            .map(|mut statement| {
                 let mut folder_map: FolderMap = FolderMap::default();
                 let _ = statement.query([]).map(|mut rows| {
                     while let Some(row) = rows.next().unwrap() {
@@ -574,7 +574,7 @@ impl Database {
                         );
                     }
                 });
-                Ok(folder_map)
+                folder_map
             })
     }
 
@@ -591,7 +591,7 @@ impl Database {
     }
 
     fn rusqlite_update_all_folders(&self, folder_map: FolderMap) -> SqlResult<usize> {
-        self.rusqlite_delete_all_folders().and_then(|_| {
+        self.rusqlite_delete_all_folders().map(|_| {
             let mut count = 0;
             let mut connection = self.connection_rc.borrow_mut();
             let transaction = connection.transaction().expect("can't open transaction");
@@ -612,7 +612,7 @@ impl Database {
                 }
             }
             transaction.commit().expect("can't commit transaction");
-            Ok(count)
+            count
         })
     }
 

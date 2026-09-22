@@ -39,6 +39,12 @@ glib::wrapper! {
 const WRAP_IN_TREELISTROWS: bool = false;
 const AUTOEXPAND: bool = true;
 
+impl Default for GsrTreelistWindow {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl GsrTreelistWindow {
     pub fn new() -> Self {
         gtk::glib::Object::new()
@@ -276,7 +282,7 @@ impl GsrTreelistWindow {
         let variant = action_call.1.clone();
         let variant_ref: Option<&Variant> = match &variant {
             None => None,
-            Some(v) => Some(v.as_ref()),
+            Some(v) => Some(v),
         };
         match self.activate_action(&name, variant_ref) {
             Ok(_) => {}

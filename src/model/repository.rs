@@ -6,9 +6,7 @@ use crate::file::database::Database;
 use crate::file::operation::execute;
 use crate::file::operation::move_picture;
 use crate::file::operation::rename_picture;
-use crate::file::paths::based_path;
 use crate::file::paths::file_exists;
-use crate::file::paths::file_name_from;
 use crate::file::paths::parent_directory;
 use crate::file::paths::timestamp_filename;
 use crate::file::picture_file::collect_picture_data;
@@ -20,7 +18,6 @@ use crate::model::catalog::Catalog;
 use crate::model::catalog::load_catalog;
 use crate::model::folder_map::FolderMap;
 use crate::model::gallery::Gallery;
-use crate::model::image_data::ImageData;
 use crate::model::order::Order;
 use crate::model::picture::Picture;
 use crate::model::predicate::Predicate;
@@ -350,59 +347,6 @@ impl Repository {
         }
     }
 
-    pub fn create_folder_entries(&self) -> IOResult<usize> {
-        let directory: String = match &self.command_line_arguments.directory {
-            Some(dir) => dir.to_string(),
-            None => "%".to_string(),
-        };
-        match self.retrieve_all_folders() {
-            Ok(_) => {}
-            Err(e) => return Err(e),
-        };
-
-        let binding = self.folder_map_rc.borrow().map();
-        let folder = binding.get(&directory).unwrap();
-        let pictures: Vec<Picture> =
-            match self.database.retrieve_pictures_for_folder_id(folder.id()) {
-                Ok(pictures) => pictures,
-                Err(_) => Vec::new(),
-            };
-        let mut gallery = self.gallery_rc.borrow_mut();
-        gallery.clear();
-        gallery.set_structured();
-        for picture in pictures.iter() {
-            gallery.add_picture(&picture)
-        }
-
-        let folder_map = self.folder_map_rc.borrow();
-        let map = folder_map.map();
-        let binding = folder_map.map();
-        let folder = binding
-            .get(&directory)
-            .expect("can't find directory in folders");
-        let folder_id = folder.id();
-        for folder in map
-            .values()
-            .filter(|folder| folder.parent_id() == folder_id)
-        {
-            let mut image_data = ImageData::new();
-            image_data.cover = None;
-            image_data.label = file_name_from(&folder.file_path());
-            image_data.folder = Some(folder.picture_count());
-            image_data.cover = None;
-
-            image_data.folder_first_file_path = if !folder.first_file_path().is_empty() {
-                Some(folder.first_file_path())
-            } else {
-                None
-            };
-            dbg!(&image_data);
-            let based_file_path = based_path(&folder.file_path());
-            let picture = Picture::new_with_image_data(&based_file_path, &image_data);
-            gallery.add_picture(&picture);
-        }
-        Ok(gallery.len())
-    }
 
     pub fn initialize_for_args(
         &self,

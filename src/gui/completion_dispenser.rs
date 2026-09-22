@@ -26,7 +26,7 @@ impl CompletionDispenser {
         {
             let mut result: Vec<String> = vec![];
             self.tags.iter().for_each(|tag| {
-                if tag.starts_with(&last_entry_tag) {
+                if tag.starts_with(last_entry_tag) {
                     result.push(tag.into())
                 }
             });

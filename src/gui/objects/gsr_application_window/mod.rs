@@ -100,7 +100,7 @@ impl GsrApplicationWindow {
         let shared_repository_opt = self.gsr_application().shared_repository_opt();
         let binding = shared_repository_opt.borrow();
         let repository = binding.as_ref().unwrap();
-        f(&repository)
+        f(repository)
     }
 
     pub fn stack(&self) -> gtk::Stack {
@@ -361,7 +361,7 @@ impl GsrApplicationWindow {
             .expect("grid scrolled window has no panel child")
             .downcast::<gtk::Viewport>()
             .expect("panel is not a viewport");
-        let grid = vp
+        vp
             .first_child()
             .expect("panel has no children")
             .downcast::<gtk::Grid>()
@@ -369,8 +369,7 @@ impl GsrApplicationWindow {
             .child_at(1, 0)
             .expect("panel grid has no middle child")
             .downcast::<GsrPictureGrid>()
-            .expect("middle child is not a gsr_picture_grid");
-        grid
+            .expect("middle child is not a gsr_picture_grid")
     }
     pub fn full_size_arrow_move(&self, direction: &Direction) {
         let full_size_on = self
@@ -440,7 +439,7 @@ impl GsrApplicationWindow {
                 if let Some(control) = default_controls().get(&(key_name, Mode::View)) {
                     match control {
                         Control::Right | Control::Left | Control::Up | Control::Down => {
-                            let direction = Direction::from(control.clone());
+                            let direction = Direction::from(*control);
                             if settings.single_view() {
                                 if settings.full_size_on() {
                                     this.full_size_arrow_move(&direction)
@@ -725,8 +724,8 @@ impl GsrApplicationWindow {
 
     fn move_navigator(&self, direction: &Direction) -> Navigator {
         let navigator = self.with_view_state_mut(|view_state| {
-            if view_state.navigator.can_move(&direction) {
-                view_state.navigator.move_towards(&direction);
+            if view_state.navigator.can_move(direction) {
+                view_state.navigator.move_towards(direction);
             }
             view_state.navigator.clone()
         });
@@ -767,7 +766,7 @@ impl GsrApplicationWindow {
         }
     }
     pub fn popup_treelist_window(&self, prompt: &str, catalog: &Catalog) -> TreeListWindow {
-        let treelist_window = TreeListWindow::new(&self, prompt, "", catalog);
+        let treelist_window = TreeListWindow::new(self, prompt, "", catalog);
         treelist_window.popup();
         treelist_window
     }

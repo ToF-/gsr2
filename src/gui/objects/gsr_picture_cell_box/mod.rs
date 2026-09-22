@@ -265,7 +265,7 @@ impl GsrPictureCellBox {
                 let variant = action_call.1.clone();
                 let variant_ref: Option<&Variant> = match &variant {
                     None => None,
-                    Some(v) => Some(v.as_ref()),
+                    Some(v) => Some(v),
                 };
                 if n_pressed == 1 {
                     match this.activate_action(&name, variant_ref) {
@@ -303,7 +303,7 @@ fn make_picture(picture_file_path: &str) -> GtkPicture {
 // bar -> ⭓ bar
 
 fn flip_focus_symbol_on_label(label: &GtkLabel) {
-    label.set_text(&flip_focus_symbol(&label.text().to_string()));
+    label.set_text(&flip_focus_symbol(label.text().as_ref()));
 }
 
 fn flip_focus_symbol(label_text: &str) -> String {
@@ -331,7 +331,7 @@ fn flip_focus_symbol(label_text: &str) -> String {
 // ⭔ foo -> foo
 // bar -> bar
 fn remove_focus_symbol_from_label(label: &GtkLabel) {
-    label.set_text(&remove_focus_symbol(&label.text().to_string()));
+    label.set_text(&remove_focus_symbol(label.text().as_ref()));
 }
 
 fn remove_focus_symbol(label_text: &str) -> String {

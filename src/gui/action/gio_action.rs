@@ -27,16 +27,13 @@ pub type GAT = GioActionType;
 impl From<(&SimpleAction, Option<&Variant>)> for GioAction {
     fn from(tuple: (&SimpleAction, Option<&Variant>)) -> Self {
         let simple_action: &SimpleAction = tuple.0;
-        let variant: Option<Variant> = match tuple.1 {
-            None => None,
-            Some(value) => Some(value.clone()),
-        };
-        let parameter: Option<GioActionParameter> = variant.map(|v| GioActionParameter::from(v));
+        let variant: Option<Variant> = tuple.1.cloned();
+        let parameter: Option<GioActionParameter> = variant.map(GioActionParameter::from);
         let name = simple_action.name().clone().to_string();
         Self {
             name: name.clone(),
             action_entry_name: format!("{}.{}", MAIN_CONTROLLER_GROUP_NAME, name),
-            parameter: parameter,
+            parameter,
         }
     }
 }

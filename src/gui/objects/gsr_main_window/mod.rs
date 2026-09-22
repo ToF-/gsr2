@@ -10,6 +10,12 @@ glib::wrapper! {
                     gtk::Native, gtk::Root, gtk::ShortcutManager;
 }
 
+impl Default for GsrMainWindow {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl GsrMainWindow {
     pub fn new() -> Self {
         glib::Object::new()

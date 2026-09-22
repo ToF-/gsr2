@@ -23,6 +23,12 @@ glib::wrapper! {
                     gtk::Native, gtk::Root, gtk::ShortcutManager;
 }
 
+impl Default for GsrEntryWindow {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl GsrEntryWindow {
     pub fn new() -> Self {
         gtk::glib::Object::new()
@@ -150,7 +156,7 @@ impl GsrEntryWindow {
                     let variant = action_call.1.clone();
                     let variant_ref: Option<&Variant> = match &variant {
                         None => None,
-                        Some(v) => Some(v.as_ref()),
+                        Some(v) => Some(v),
                     };
                     dbg!(&action.clone(), &name.clone(), &variant.clone());
                     match this.activate_action(&name, variant_ref) {

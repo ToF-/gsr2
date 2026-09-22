@@ -22,7 +22,7 @@ impl GioActionParameter {
 
 impl From<Variant> for GioActionParameter {
     fn from(variant: Variant) -> Self {
-        Self { variant: variant }
+        Self { variant }
     }
 }
 

@@ -58,7 +58,7 @@ impl GsrEntryWindow {
             .halign(Align::Center)
             .build();
         if let Some(input) = initial_input_opt {
-            entry_text.set_label(&input)
+            entry_text.set_label(input)
         };
         entry_text.add_css_class("entry");
         let prompt = self.key_input_rc.borrow().prompt();

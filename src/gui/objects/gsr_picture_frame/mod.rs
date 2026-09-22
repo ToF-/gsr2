@@ -36,6 +36,12 @@ glib::wrapper! {
             gtk::ConstraintTarget;
 }
 
+impl Default for GsrPictureFrame {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl GsrPictureFrame {
     pub fn new() -> Self {
         let obj: Self = glib::Object::builder()
@@ -155,7 +161,7 @@ impl GsrPictureFrame {
         let picture_opt = {
             let shared_view_state = self.gsr_application().shared_view_state();
             let view_state = shared_view_state.borrow_mut();
-            if view_state.gallery.len() > 0 {
+            if !view_state.gallery.is_empty() {
                 Some(view_state.gallery.current_picture())
             } else {
                 None

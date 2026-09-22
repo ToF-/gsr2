@@ -20,6 +20,12 @@ glib::wrapper! {
             gtk::ConstraintTarget;
 }
 
+impl Default for GsrPictureGrid {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl GsrPictureGrid {
     pub fn new() -> Self {
         let obj: Self = glib::Object::builder().build();

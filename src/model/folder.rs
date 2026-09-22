@@ -27,10 +27,10 @@ impl Folder {
         first_file_path: &str,
     ) -> Self {
         Self {
-            id: id,
+            id,
             file_path: file_path.to_string(),
-            parent_id: parent_id,
-            picture_count: picture_count,
+            parent_id,
+            picture_count,
             first_file_path: first_file_path.to_string(),
         }
     }

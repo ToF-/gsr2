@@ -49,10 +49,7 @@ impl KeyInputRules for KeyInput {
     ) -> Self {
         Self {
             prompt: prompt.to_string(),
-            completion_dispenser_opt: match completion_tags_opt {
-                None => None,
-                Some(tags) => Some(CompletionDispenser::new_with(tags)),
-            },
+            completion_dispenser_opt: completion_tags_opt.map(CompletionDispenser::new_with),
             key_input_mode: key_input_mode.clone(),
             accepter: Arc::new(accepter),
             converter: Arc::new(converter),

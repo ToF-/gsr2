@@ -65,14 +65,11 @@ pub fn sub_directories(parent: &str) -> Vec<String> {
     let path: PathBuf = PathBuf::from(parent);
     let base_directory = base_directory();
     let base_dir = Path::new(&base_directory);
-    match path.strip_prefix(base_dir) {
-        Ok(relative_path) => {
+    if let Ok(relative_path) = path.strip_prefix(base_dir) {
             for component in components(relative_path) {
                 result.push(component)
             }
         }
-        Err(_) => {}
-    };
     result
 }
 

@@ -23,7 +23,7 @@ pub fn label_change_entry(completion_tags: Tags) -> KeyInput {
             }
             input
         },
-        |s| Action::Label(s),
+        Action::Label,
     )
 }
 
@@ -44,7 +44,7 @@ pub fn add_tags_entry(completion_tags: Tags) -> KeyInput {
             }
             input
         },
-        |s| Action::AddTag(s),
+        Action::AddTag,
     )
 }
 
@@ -65,7 +65,7 @@ pub fn add_new_category() -> KeyInput {
             }
             input
         },
-        |s| Action::SelectCategoryAddTarget(s),
+        Action::SelectCategoryAddTarget,
     )
 }
 
@@ -86,7 +86,7 @@ pub fn remove_tags_entry(completion_tags: Tags) -> KeyInput {
             }
             input
         },
-        |s| Action::RemoveTag(s),
+        Action::RemoveTag,
     )
 }
 
@@ -107,7 +107,7 @@ pub fn rename_entry() -> KeyInput {
             }
             input
         },
-        |s| Action::Rename(s),
+        Action::Rename,
     )
 }
 
@@ -122,7 +122,7 @@ pub fn target_directory_entry() -> KeyInput {
             input.push(ch);
             input
         },
-        |s| Action::MoveSelectedPicture(s),
+        Action::MoveSelectedPicture,
     )
 }
 
@@ -137,26 +137,26 @@ pub fn confirm_delete_entry() -> KeyInput {
             input.push(ch);
             input
         },
-        |s| Action::DeleteSelectedPicture(s),
+        Action::DeleteSelectedPicture,
     )
 }
 
 pub fn find_criteria_entry(find_criteria: Find, completion_tags: Tags) -> KeyInput {
-    let find = find_criteria.clone();
+    let find = find_criteria;
     KeyInput::new(
-        &format!("Enter criteria for finding on {}", find.clone().to_string()),
-        match find.clone() {
+        &format!("Enter criteria for finding on {}", find.clone()),
+        match find {
             Find::AllTags | Find::SomeTags => Some(completion_tags),
             _ => None,
         },
         KeyInputMode::Entry,
-        match find.clone() {
+        match find {
             Find::AllTags | Find::SomeTags => {
                 |_, ch| matches!(ch, 'a'..='z' | 'A'..='Z' | '0'..='9' | '-' | '_' | ' ' | ',')
             }
             _ => |_, _| true,
         },
-        match find.clone() {
+        match find {
             Find::AllTags | Find::SomeTags => |s: String, ch: char| {
                 let mut input = s;
                 if ch.is_ascii_uppercase() {
@@ -174,29 +174,29 @@ pub fn find_criteria_entry(find_criteria: Find, completion_tags: Tags) -> KeyInp
                 input
             },
         },
-        move |s: String| Action::Find(find.clone(), s),
+        move |s: String| Action::Find(find, s),
     )
 }
 
 pub fn select_criteria_entry(find_criteria: Find, completion_tags: Tags) -> KeyInput {
-    let find = find_criteria.clone();
+    let find = find_criteria;
     KeyInput::new(
         &format!(
             "Enter criteria for selecting on {}",
-            find.clone().to_string()
+            find.clone()
         ),
-        match find.clone() {
+        match find {
             Find::AllTags | Find::SomeTags => Some(completion_tags),
             _ => None,
         },
         KeyInputMode::Entry,
-        match find.clone() {
+        match find {
             Find::AllTags | Find::SomeTags => {
                 |_, ch| matches!(ch, 'a'..='z' | 'A'..='Z' | '0'..='9' | '-' | '_' | ' ' | ',')
             }
             _ => |_, _| true,
         },
-        match find.clone() {
+        match find {
             Find::AllTags | Find::SomeTags => |s: String, ch: char| {
                 let mut input = s;
                 if ch.is_ascii_uppercase() {
@@ -214,7 +214,7 @@ pub fn select_criteria_entry(find_criteria: Find, completion_tags: Tags) -> KeyI
                 input
             },
         },
-        move |s: String| Action::Select(find.clone(), s),
+        move |s: String| Action::Select(find, s),
     )
 }
 

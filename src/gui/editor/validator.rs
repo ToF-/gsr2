@@ -12,11 +12,7 @@ impl Validator {
     }
 
     pub fn validate_entry(&self, entry: &str, ch: char) -> Option<String> {
-        if let Some(input) = self.append_char(entry, ch) {
-            Some(input)
-        } else {
-            None
-        }
+        self.append_char(entry, ch)
     }
 
     pub fn append_char(&self, entry: &str, ch: char) -> Option<String> {

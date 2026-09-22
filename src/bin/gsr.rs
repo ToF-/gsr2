@@ -40,7 +40,6 @@ fn main() {
 }
 
 fn run_application(config: &Configuration, clargs: &CommandLineArguments) -> Result<Status> {
-    let result = {
         let repository = Repository::new(config.clone(), clargs.clone(), false);
         if clargs.structured && !config.updated {
             match repository.update_all_folders() {
@@ -67,8 +66,6 @@ fn run_application(config: &Configuration, clargs: &CommandLineArguments) -> Res
         } else {
             result
         }
-    };
-    result
 }
 
 fn build_and_run_app(clargs: &CommandLineArguments, gallery: &Gallery, repository: &Repository) {

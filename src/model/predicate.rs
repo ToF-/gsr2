@@ -52,7 +52,7 @@ impl Predicate {
             Err(e) => Err(e),
         };
         result.map(|function| Self {
-            function: function,
+            function,
             criteria: vec![Criterion::new(find, pattern)],
         })
     }

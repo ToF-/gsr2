@@ -14,7 +14,7 @@ use itertools::Itertools;
 fn select_pattern_display(view_state: &ViewState) -> String {
     let location = view_state.current_location();
     match location.predicate() {
-        None => format!("{}", location.sub_directory().unwrap_or_default()),
+        None => location.sub_directory().unwrap_or_default().to_string(),
         Some(predicate) => format!(
             "{}{}",
             location.sub_directory().unwrap_or_default(),
@@ -26,7 +26,7 @@ fn select_pattern_display(view_state: &ViewState) -> String {
 fn find_pattern_display(view_state: &ViewState) -> String {
     match &view_state.finder {
         Some(finder) => match finder.predicate() {
-            Some(predicate) => format!("[{}]", predicate.to_string()),
+            Some(predicate) => format!("[{}]", predicate),
             None => "".to_string(),
         },
         None => "".to_string(),
@@ -196,13 +196,12 @@ pub fn small_picture_display(
 }
 
 fn selected_count_display(view_state: &ViewState) -> String {
-    let sel_count = if view_state.selection.is_empty() {
+    if view_state.selection.is_empty() {
         "".to_string()
     } else {
         let count = view_state.selection.count();
         format!("[{count}]")
-    };
-    sel_count
+    }
 }
 
 pub fn title_display(view_state: &ViewState) -> String {

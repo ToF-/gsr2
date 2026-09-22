@@ -69,7 +69,7 @@ impl RetrieveCriteria {
                             .map(|s| Categories::from_string(s)),
                         label: args.label.clone(),
                         extraction: extraction.clone(),
-                        color_range_opt: color_range_opt,
+                        color_range_opt,
                         pattern: regex_opt,
                         cover: args.covers,
                         parent_opt: if args.structured {
