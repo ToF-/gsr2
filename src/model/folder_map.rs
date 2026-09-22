@@ -1,8 +1,6 @@
-use crate::env::default_values::BASED_PATH_SYMBOL;
 use crate::env::default_values::BASE_DIRECTORY_SYMBOL;
+use crate::env::default_values::BASED_PATH_SYMBOL;
 use crate::env::default_values::NEAR_DIRECTORY_SYMBOL;
-use crate::file::paths::based_path;
-use crate::file::paths::file_path_as_retrieved;
 use crate::file::paths::parent_directory;
 use crate::model::folder::Folder;
 use crate::model::id_dispenser::IdDispenser;

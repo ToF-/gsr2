@@ -18,7 +18,6 @@ use crate::file::picture_file::get_all_picture_file_paths;
 use crate::file::picture_file::get_picture_file_path;
 use crate::model::catalog::Catalog;
 use crate::model::catalog::load_catalog;
-use crate::model::categories::Categories;
 use crate::model::folder_map::FolderMap;
 use crate::model::gallery::Gallery;
 use crate::model::image_data::ImageData;
@@ -28,13 +27,10 @@ use crate::model::predicate::Predicate;
 use crate::model::retrieve_criteria::RetrieveCriteria;
 use crate::model::tag_selection_criteria::TagSelectionCriteria;
 use crate::model::tags::Tags;
-use regex::Regex;
 use std::cell::RefCell;
 use std::collections::BTreeMap;
 use std::collections::HashMap;
 use std::fs::File;
-use std::io::BufRead;
-use std::io::BufReader;
 use std::io::BufWriter;
 use std::io::Error as IOError;
 use std::io::Result as IOResult;
@@ -137,7 +133,6 @@ impl Repository {
     ) -> IOResult<usize> {
         let catalog_result = Catalog::from_file(&self.catalog_filepath);
         let catalog: Catalog = catalog_result?;
-        let tag_selection_criteria = TagSelectionCriteria::from_args(args);
         match self.gallery_rc.try_borrow_mut() {
             Ok(mut gallery) => {
                 let retrieve_criteria_result =
@@ -145,7 +140,6 @@ impl Repository {
                 retrieve_criteria_result.and_then(|retrieve_criteria| {
                     *gallery = match self.database.select_pictures(
                         retrieve_criteria,
-                        Some(catalog),
                         folder_id_opt,
                     ) {
                         Ok(pictures) => {
@@ -160,22 +154,7 @@ impl Repository {
                                     .values()
                                     .filter(|folder| folder.parent_id() == folder_id)
                                 {
-                                    let mut image_data = ImageData::new();
-                                    image_data.cover = None;
-                                    image_data.label = file_name_from(&folder.file_path());
-                                    image_data.folder = Some(folder.picture_count());
-                                    image_data.cover = None;
-
-                                    image_data.folder_first_file_path =
-                                        if !folder.first_file_path().is_empty() {
-                                            Some(folder.first_file_path())
-                                        } else {
-                                            None
-                                        };
-                                    let based_file_path = based_path(&folder.file_path());
-                                    let picture =
-                                        Picture::new_with_image_data(&based_file_path, &image_data);
-                                    gallery.add_picture(&picture);
+                                    gallery.add_picture(&Picture::for_folder(folder));
                                 }
                             }
                             gallery.sort_by(args.order.unwrap_or(Order::Name));

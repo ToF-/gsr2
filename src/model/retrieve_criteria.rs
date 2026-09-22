@@ -7,7 +7,6 @@ use crate::model::picture::Picture;
 use crate::model::predicate::Predicate;
 use crate::model::tag_selection_criteria::TagSelectionCriteria;
 use regex::Regex;
-use std::env::args;
 use std::fs::File;
 use std::io::BufRead;
 use std::io::BufReader;

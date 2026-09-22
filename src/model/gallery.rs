@@ -62,7 +62,6 @@ impl Gallery {
     }
 
     pub fn from_gallery_and_navigator(gallery: Gallery, navigator: &Navigator) -> Self {
-        dbg!();
         Self {
             current_picture_index: navigator.position_cell(),
             ..gallery

@@ -1,3 +1,5 @@
+use crate::file::paths::based_path;
+use crate::model::folder::Folder;
 use crate::file::paths::file_path_as_stored;
 use crate::file::paths::renamed_file_path;
 use crate::file::paths::{file_name_from, thumbnail_name_from};
@@ -52,6 +54,21 @@ impl Picture {
             file_path: file_path.to_string(),
             image_data: Some(image_data.clone()),
         }
+    }
+
+    pub fn for_folder(folder: &Folder) -> Self {
+        let mut image_data = ImageData::new();
+        image_data.cover = None;
+        image_data.label = file_name_from(&folder.file_path());
+        image_data.folder = Some(folder.picture_count());
+        image_data.cover = None;
+        image_data.folder_first_file_path = if !folder.first_file_path().is_empty() {
+            Some(folder.first_file_path())
+        } else {
+            None
+        };
+        let based_file_path = based_path(&folder.file_path());
+        Self::new_with_image_data(&based_file_path, &image_data)
     }
 
     pub fn new_with_file_image_data(file_path: &str, label: &str) -> Result<Self> {

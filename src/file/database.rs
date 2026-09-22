@@ -3,8 +3,6 @@ use crate::env::configuration::Configuration;
 use crate::file::paths::based_path;
 use crate::file::paths::parent_directory;
 use crate::file::paths::{file_exists, file_path_as_retrieved, file_path_as_stored};
-use crate::model::catalog::Catalog;
-use crate::model::color_range::ColorRange;
 use crate::model::cover::{bool_to_cover, cover_to_bool};
 use crate::model::folder_map::FolderMap;
 use crate::model::image_data::ImageData;
@@ -95,7 +93,6 @@ impl Database {
         if !file_exists(connection_string) && !create {
             return Err(InvalidPath(PathBuf::from(connection_string)));
         };
-        println!("connecting to {connection_string}…");
         match Connection::open(connection_string) {
             Ok(connection) => Ok(Database {
                 connection_rc: Rc::new(RefCell::new(connection)),
@@ -673,7 +670,6 @@ impl Database {
     pub fn select_pictures(
         &self,
         retrieve_criteria: RetrieveCriteria,
-        catalog_opt: Option<Catalog>,
         folder_id_opt: Option<usize>,
     ) -> IOResult<Vec<Picture>> {
         self.select_all_parent_dirs().and_then(|parent_dirs| {
@@ -685,9 +681,7 @@ impl Database {
                 Ok(picture_map) => match self.rusqlite_retrieve_all_tags() {
                     Ok(tag_map) => {
                         let mut pictures: Vec<Picture> = vec![];
-                        let mut count: usize = 0;
                         for (file_path, image_data) in picture_map.iter() {
-                            count += 1;
                             let new_tags = if let Some(tags) = tag_map.get(file_path) {
                                 tags.clone()
                             } else {
@@ -787,7 +781,7 @@ impl Database {
             predicate_opt: None,
             catalog_opt: None,
         };
-        self.select_pictures(retrieve_criteria, None, None)
+        self.select_pictures(retrieve_criteria, None)
     }
 
     fn rusqlite_row_to_picture(row: &Row) -> SqlResult<Picture, rusqlite::Error> {
