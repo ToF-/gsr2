@@ -71,6 +71,7 @@ impl From<Action> for GioActionType {
             A::MoveSelectedPicture(_) => GAT::new("move-selected-picture", GAPT::String),
             A::MoveTowards(_) => GAT::new("move-towards", GAPT::Int32),
             A::Nothing => GAT::new("nothing", GAPT::None),
+            A::NextSlide => GAT::new("next-slide", GAPT::None),
             A::PickCatalogChange => GAT::new("pick-catalog-change", GAPT::None),
             A::PickChange => GAT::new("pick-change", GAPT::None),
             A::PickFindOption => GAT::new("pick-find-option", GAPT::None),

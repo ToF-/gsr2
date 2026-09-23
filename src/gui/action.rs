@@ -47,6 +47,7 @@ pub enum Action {
     MoveSelectedPicture(String),   // input a yes to moving selected picture files
     FocusAt(i32, i32),             // set the picture at col,row the current picture
     MoveTowards(Direction),        // move to a direction
+    NextSlide,                     // move to next page in slideshow mode
     Nothing,                       // do nothing (test)
     PickCatalogChange,             // interactively select what catalog change to make
     PickChange,                    // interactively select what change to make

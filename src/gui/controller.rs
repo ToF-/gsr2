@@ -280,6 +280,10 @@ impl Controller {
             activate.clone(),
         ));
         entries.push(Self::action_entry(
+            GioActionType::from(Action::NextSlide),
+            self.next_slide_action(window.clone()),
+        ));
+        entries.push(Self::action_entry(
             GioActionType::from(Action::PickCatalogChange),
             self.pick_catalog_change_action(window.clone()),
         ));
@@ -1318,6 +1322,20 @@ impl Controller {
             }
         )
     }
+
+    fn next_slide_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong]
+            window,
+            move |_, _, _| {
+                window.move_next_slide()
+            }
+        )
+    }
+
     fn pick_catalog_change_action(
         &self,
         window: GsrApplicationWindow,

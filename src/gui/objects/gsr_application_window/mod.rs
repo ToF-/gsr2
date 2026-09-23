@@ -206,7 +206,12 @@ impl GsrApplicationWindow {
         right_panel.add_controller(Self::right_panel_click_gesture(self));
         self.gsr_picture_grid().leave_current_picture_focus();
         self.gsr_picture_grid().enter_current_picture_focus();
-        self.attach_timeout_event_handler(3); // TEMPORARY TEST
+        let slideshow_delay = self.with_view_state(|view_state| {
+            view_state.settings.slideshow_delay()
+        });
+        if let Some(delay) = slideshow_delay {
+            self.attach_timeout_event_handler(delay);
+        }
     }
 
     fn left_panel_click_gesture(gsr_application_window: &Self) -> gtk::GestureClick {
@@ -432,6 +437,11 @@ impl GsrApplicationWindow {
             #[strong (rename_to = this)]
             self,
             move |_, key, _key_code, _modifier_type| {
+                this.with_view_state_mut(|view_state| {
+                    if view_state.settings.slideshow_on() {
+                        view_state.settings.toggle_slideshow();
+                    }
+                });
                 let settings = {
                     let shared_view_state = this.gsr_application().shared_view_state();
                     let view_state = shared_view_state.borrow();
@@ -558,7 +568,7 @@ impl GsrApplicationWindow {
                         view_state.settings.clone()
                     };
                     if settings.slideshow_on() {
-                        println!("here I launch next page action…");
+                        this.activate_action(Action::NextSlide);
                         gtk::glib::ControlFlow::Continue
                     } else {
                         gtk::glib::ControlFlow::Break
@@ -761,6 +771,18 @@ impl GsrApplicationWindow {
             view_state.set_current_location_position(navigator.position());
         });
         navigator
+    }
+
+    pub fn move_next_slide(&self) {
+        let direction = self.with_view_state_mut(|view_state| {
+            if view_state.navigator.can_move(&Direction::NextPage) {
+                Direction::NextPage
+            } else {
+                Direction::First
+            }
+        });
+        self.move_navigator(&direction);
+        self.refresh_view();
     }
 
     fn single_view_move(&self, direction: &Direction) {

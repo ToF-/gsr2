@@ -79,6 +79,7 @@ impl From<Action> for GioAction {
             Action::MoveFile => None,
             Action::MoveSelectedPicture(file_path) => Some(GioActionParameter::from(file_path)),
             Action::MoveTowards(direction) => Some(GioActionParameter::from(direction)),
+            Action::NextSlide => None,
             Action::Nothing => None,
             Action::PickCatalogChange => None,
             Action::PickChange => None,

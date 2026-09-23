@@ -12,6 +12,7 @@ pub struct Settings {
     file_path_on: bool,
     file_size_on: bool,
     slideshow_on: bool,
+    slideshow_delay: Option<i32>,
 }
 
 impl Default for Settings {
@@ -27,6 +28,7 @@ impl Default for Settings {
             file_path_on: false,
             file_size_on: false,
             slideshow_on: false,
+            slideshow_delay: None,
         }
     }
 }
@@ -84,6 +86,10 @@ impl Settings {
         self.slideshow_on
     }
 
+    pub fn slideshow_delay(&self) -> Option<i32> {
+        self.slideshow_delay
+    }
+
     fn swap_pictures_per_row(&mut self) {
         std::mem::swap(
             &mut self.current_pictures_per_row,
@@ -95,6 +101,14 @@ impl Settings {
         self.last_pictures_per_row = new;
         self.swap_pictures_per_row();
         self.current_pictures_per_row
+    }
+
+    pub fn set_slideshow_delay(&mut self, slideshow_delay: Option<i32>) {
+        self.slideshow_delay = slideshow_delay;
+        if slideshow_delay.is_some() {
+            self.slideshow_on = true
+        }
+
     }
 
     pub fn toggle_pictures_per_row(&mut self, new: i32) -> i32 {
