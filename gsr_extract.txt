@@ -1,0 +1,2 @@
+/Users/tof/Coding/gsr2/testdata/single_dot.png
+/Users/tof/Coding/gsr2/testdata/subdir/nine_colors.png

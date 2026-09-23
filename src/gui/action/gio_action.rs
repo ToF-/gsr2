@@ -62,6 +62,7 @@ impl From<Action> for GioAction {
             Action::EnterNewCategory => None,
             Action::EnterRemoveTag => None,
             Action::EnterRename => None,
+            Action::ExtractFileNames => None,
             Action::EnterSelect(find) => Some(GioActionParameter::from(find)),
             Action::Find(find, criteria) => Some(GioActionParameter::from((find, criteria))),
             Action::FindNext => None,

@@ -33,6 +33,7 @@ pub enum Action {
     EnterRemoveTag,                // enter tag(s) to remove from the selected pictures
     EnterRename,                   // enter new name for selected picture
     EnterSelect(Find),             // interactively enter criteria for selecting
+    ExtractFileNames,              // extract all of selected file names in gsr_extract.txt
     Find(Find, String),            // find the first picture matching the find criteria
     FindNext,                      // find the next picture matching the current criteria
     GotoDirectory,                 // view only pictures from a sub directory
@@ -124,6 +125,7 @@ impl From<Control> for Action {
             Control::PickChange => Action::PickChange,
             Control::EnterFind => Action::PickFindOption,
             Control::EnterSelect => Action::PickSelectOption,
+            Control::ExtractFileNames => Action::ExtractFileNames,
             Control::FindNext => Action::FindNext,
             Control::GotoDirectory => Action::GotoDirectory,
             Control::GotoMark => Action::PickTargetMark,

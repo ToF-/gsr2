@@ -56,6 +56,7 @@ impl From<Action> for GioActionType {
             A::EnterRemoveTag => GAT::new("enter-remove-tag", GAPT::None),
             A::EnterRename => GAT::new("enter-rename", GAPT::None),
             A::EnterSelect(_) => GAT::new("enter-select", GAPT::Int32),
+            A::ExtractFileNames => GAT::new("extract-filenames", GAPT::None),
             A::Find(_, _) => GAT::new("find", GAPT::Int32String),
             A::FindNext => GAT::new("find-next", GAPT::None),
             A::FocusAt(_, _) => GAT::new("focus-at", GAPT::Int32Pair),

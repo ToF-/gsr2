@@ -1,3 +1,6 @@
+use crate::env::default_values::EXTRACTION_FILE;
+use std::fs;
+use crate::file::paths::file_path_as_retrieved;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
@@ -230,6 +233,10 @@ impl Controller {
         entries.push(Self::action_entry(
             GioActionType::from(Action::EnterSelect(Find::Name)),
             self.enter_select_action(window.clone()),
+        ));
+        entries.push(Self::action_entry(
+            GioActionType::from(Action::ExtractFileNames),
+            self.extract_file_names_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::Find(Find::Name, "foo".to_string())),
@@ -996,6 +1003,32 @@ impl Controller {
                     window.dismiss();
                     window.begin_entry(gsr_entry_window);
                 }
+            }
+        )
+    }
+    
+    fn extract_file_names_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            window,
+            move |_, _, _| {
+                println!("extracting selected picture file names…");
+                let mut file_names: Vec<String> = Vec::new();
+                this.with_view_state(|view_state| {
+                    let indices = view_state.selected_indices();
+                    for position in indices {
+                        let picture = view_state.gallery.picture(position);
+                        let file_name = file_path_as_retrieved(&picture.file_path());
+                        file_names.push(file_name);
+                        }
+                });
+                fs::write(EXTRACTION_FILE, file_names.join("\n"))
+                    .expect(&format!("can't create extraction file: {}", EXTRACTION_FILE));
             }
         )
     }

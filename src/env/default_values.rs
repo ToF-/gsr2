@@ -70,3 +70,4 @@ pub const CONFIG_FILE_DEFAULT: &str = ".gsr2.toml";
 pub const CONFIG_FILE_VARIABLE: &str = "GSRCFG";
 #[cfg(test)]
 pub const TEST_DATABASE_FILE: &str = "testdata/gsr2.db";
+pub const EXTRACTION_FILE: &str = "gsr_extract.txt";
