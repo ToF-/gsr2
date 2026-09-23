@@ -1,3 +1,6 @@
+use std::ops::ControlFlow;
+use gtk::glib::timeout_add_local;
+use std::time::Duration;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::default_values::FRAME_WINDOW_NAME;
@@ -152,6 +155,7 @@ impl GsrApplicationWindow {
             let mut controller = shared_controller.borrow_mut();
             let shared_gsr_application_window = Rc::new(RefCell::new(self.clone()));
             controller.set_application_window(shared_gsr_application_window);
+
             controller.initialize();
         }
 
@@ -202,6 +206,7 @@ impl GsrApplicationWindow {
         right_panel.add_controller(Self::right_panel_click_gesture(self));
         self.gsr_picture_grid().leave_current_picture_focus();
         self.gsr_picture_grid().enter_current_picture_focus();
+        self.attach_timeout_event_handler(3); // TEMPORARY TEST
     }
 
     fn left_panel_click_gesture(gsr_application_window: &Self) -> gtk::GestureClick {
@@ -537,6 +542,30 @@ impl GsrApplicationWindow {
             }
         ));
         self.add_controller(event_controller_key);
+    }
+
+    pub fn attach_timeout_event_handler(&self, seconds: i32) -> glib::SourceId {
+        let delay: u64 = seconds.try_into().unwrap();
+        timeout_add_local(
+            Duration::new(delay, 0),
+            clone!(
+                #[strong (rename_to = this)]
+                self,
+                move || {
+                    let settings = {
+                        let shared_view_state = this.gsr_application().shared_view_state();
+                        let view_state = shared_view_state.borrow();
+                        view_state.settings.clone()
+                    };
+                    if settings.slideshow_on() {
+                        println!("here I launch next page action…");
+                        gtk::glib::ControlFlow::Continue
+                    } else {
+                        gtk::glib::ControlFlow::Break
+                    }
+                }
+            ),
+        )
     }
 
     pub fn activate_action(&self, action: Action) {

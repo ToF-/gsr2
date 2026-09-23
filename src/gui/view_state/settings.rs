@@ -11,6 +11,7 @@ pub struct Settings {
     file_date_on: bool,
     file_path_on: bool,
     file_size_on: bool,
+    slideshow_on: bool,
 }
 
 impl Default for Settings {
@@ -25,6 +26,7 @@ impl Default for Settings {
             file_date_on: false,
             file_path_on: false,
             file_size_on: false,
+            slideshow_on: false,
         }
     }
 }
@@ -76,6 +78,10 @@ impl Settings {
 
     pub fn file_size_on(&self) -> bool {
         self.file_size_on
+    }
+
+    pub fn slideshow_on(&self) -> bool {
+        self.slideshow_on
     }
 
     fn swap_pictures_per_row(&mut self) {
@@ -135,6 +141,11 @@ impl Settings {
     pub fn toggle_file_size(&mut self) -> bool {
         self.file_size_on = !self.file_size_on;
         self.file_size_on
+    }
+
+    pub fn toggle_slideshow(&mut self) -> bool {
+        self.slideshow_on = !self.slideshow_on;
+        self.slideshow_on
     }
 }
 #[cfg(test)]
