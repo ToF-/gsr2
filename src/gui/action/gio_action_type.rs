@@ -87,6 +87,7 @@ impl From<Action> for GioActionType {
             A::RemoveCategory(_) => GAT::new("remove-category", GAPT::String),
             A::RemoveTag(_) => GAT::new("remove-tag", GAPT::String),
             A::Rename(_) => GAT::new("rename", GAPT::String),
+            A::ResumeSlideShow => GAT::new("resume-slideshow", GAPT::None),
             A::RepeatAction => GAT::new("repeat-action", GAPT::None),
             A::RepeatRangeSelection => GAT::new("repeat-range-selection", GAPT::None),
             A::Select(_, _) => GAT::new("select", GAPT::Int32String),

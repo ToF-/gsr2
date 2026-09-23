@@ -352,6 +352,10 @@ impl Controller {
             self.repeat_range_selection_action(window.clone()),
         ));
         entries.push(Self::action_entry(
+            GioActionType::from(Action::ResumeSlideShow),
+            self.resume_slideshow_action(window.clone()),
+        ));
+        entries.push(Self::action_entry(
             GioActionType::from(Action::Select(Find::Name, "foo".to_string())),
             self.select_action(window.clone()),
         ));
@@ -1330,9 +1334,7 @@ impl Controller {
         clone!(
             #[strong]
             window,
-            move |_, _, _| {
-                window.move_next_slide()
-            }
+            move |_, _, _| window.move_next_slide() 
         )
     }
 
@@ -2050,6 +2052,27 @@ impl Controller {
                     view_state.navigator.set_page_changed();
                 });
 
+                window.refresh_view();
+            }
+        )
+    }
+
+    fn resume_slideshow_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            window,
+            move |_, _, _| {
+                this.with_view_state_mut(|view_state| {
+                    if view_state.settings.slideshow_delay().is_some() {
+                            view_state.settings.toggle_slideshow();
+                    }
+                });
+                window.start_slide_show();
                 window.refresh_view();
             }
         )

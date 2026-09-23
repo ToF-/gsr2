@@ -14,6 +14,7 @@ pub struct GsrApplicationWindow {
     pub entry_on: Cell<bool>,
     pub treelist_on: Cell<bool>,
     pub last_action: Shared<Action>,
+    pub timeout_rc: RefCell<Option<gtk::glib::SourceId>>,
 }
 
 impl Default for GsrApplicationWindow {
@@ -24,6 +25,7 @@ impl Default for GsrApplicationWindow {
             entry_on: Cell::new(false),
             treelist_on: Cell::new(false),
             last_action: Rc::new(RefCell::new(Action::Nothing)),
+            timeout_rc: RefCell::new(None),
         }
     }
 }

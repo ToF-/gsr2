@@ -66,6 +66,7 @@ pub enum Action {
     Rename(String),                // rename the selected picture file
     RepeatAction,                  // redo the last action
     RepeatRangeSelection,          // redo the last selection
+    ResumeSlideShow,               // resume slide show
     SelectCategoryAddTarget(String), // select category to add another category to in the catalog
     SelectCategoryForPicture, // interactively select category to apply to the selected pictures
     SelectCategoryMoveTarget(String), // select category to move another category to in the catalog
@@ -143,6 +144,7 @@ impl From<Control> for Action {
             Control::RedoFind => Action::RedoFind,
             Control::RepeatRange => Action::RepeatRangeSelection,
             Control::RepeatLastAction => Action::RepeatAction,
+            Control::ToggleSlideShow => Action::ResumeSlideShow,
             Control::Right => Action::MoveTowards(Direction::Right),
             Control::SetOrder => Action::PickOrderSetting,
             Control::SetView => Action::PickViewOption,

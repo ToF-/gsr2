@@ -1,6 +1,3 @@
-use std::ops::ControlFlow;
-use gtk::glib::timeout_add_local;
-use std::time::Duration;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::default_values::FRAME_WINDOW_NAME;
@@ -35,12 +32,15 @@ use crate::model::view_option::ViewOption;
 use gtk::glib;
 use gtk::glib::Propagation;
 use gtk::glib::clone;
+use gtk::glib::timeout_add_local;
 use gtk::prelude::WidgetExt;
 use gtk::prelude::*;
 use gtk::subclass::prelude::ObjectSubclassIsExt;
 use std::cell::RefCell;
 use std::io::Result as IOResult;
+use std::ops::ControlFlow;
 use std::rc::Rc;
+use std::time::Duration;
 
 pub const LEFT_PANE: usize = 0;
 pub const RIGHT_PANE: usize = 1;
@@ -206,13 +206,27 @@ impl GsrApplicationWindow {
         right_panel.add_controller(Self::right_panel_click_gesture(self));
         self.gsr_picture_grid().leave_current_picture_focus();
         self.gsr_picture_grid().enter_current_picture_focus();
-        let slideshow_delay = self.with_view_state(|view_state| {
-            view_state.settings.slideshow_delay()
-        });
+        self.start_slide_show();
+    }
+
+    pub fn start_slide_show(&self) {
+        let slideshow_delay =
+            self.with_view_state(|view_state| view_state.settings.slideshow_delay());
         if let Some(delay) = slideshow_delay {
+            self.with_view_state_mut(|view_state| {
+                view_state.settings.set_slideshow_on(true);
+            });
             self.attach_timeout_event_handler(delay);
         }
     }
+
+    pub fn stop_slide_show(&self) {
+        self.with_view_state_mut(|view_state| {
+            view_state.settings.set_slideshow_on(false);
+        });
+        self.detach_timeout_event_handler();
+    }
+
 
     fn left_panel_click_gesture(gsr_application_window: &Self) -> gtk::GestureClick {
         let gesture_click = gtk::GestureClick::new();
@@ -437,11 +451,6 @@ impl GsrApplicationWindow {
             #[strong (rename_to = this)]
             self,
             move |_, key, _key_code, _modifier_type| {
-                this.with_view_state_mut(|view_state| {
-                    if view_state.settings.slideshow_on() {
-                        view_state.settings.toggle_slideshow();
-                    }
-                });
                 let settings = {
                     let shared_view_state = this.gsr_application().shared_view_state();
                     let view_state = shared_view_state.borrow();
@@ -451,6 +460,7 @@ impl GsrApplicationWindow {
                 let key_name = key_name.as_str();
                 let key_name = key_name.to_string();
                 if let Some(control) = default_controls().get(&(key_name, Mode::View)) {
+                    this.stop_slide_show();
                     match control {
                         Control::Right | Control::Left | Control::Up | Control::Down => {
                             let direction = Direction::from(*control);
@@ -554,9 +564,9 @@ impl GsrApplicationWindow {
         self.add_controller(event_controller_key);
     }
 
-    pub fn attach_timeout_event_handler(&self, seconds: i32) -> glib::SourceId {
+    pub fn attach_timeout_event_handler(&self, seconds: i32) {
         let delay: u64 = seconds.try_into().unwrap();
-        timeout_add_local(
+        *self.imp().timeout_rc.borrow_mut() = Some(timeout_add_local(
             Duration::new(delay, 0),
             clone!(
                 #[strong (rename_to = this)]
@@ -571,11 +581,18 @@ impl GsrApplicationWindow {
                         this.activate_action(Action::NextSlide);
                         gtk::glib::ControlFlow::Continue
                     } else {
+                        this.detach_timeout_event_handler();
                         gtk::glib::ControlFlow::Break
                     }
                 }
             ),
-        )
+        ))
+    }
+
+    fn detach_timeout_event_handler(&self) {
+        if let Some(id) = self.imp().timeout_rc.borrow_mut().take() {
+            id.remove();
+        }
     }
 
     pub fn activate_action(&self, action: Action) {

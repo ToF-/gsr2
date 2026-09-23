@@ -98,6 +98,7 @@ impl From<Action> for GioAction {
             Action::Rename(name) => Some(GioActionParameter::from(name)),
             Action::RepeatAction => None,
             Action::RepeatRangeSelection => None,
+            Action::ResumeSlideShow => None,
             Action::Select(find, criteria) => Some(GioActionParameter::from((find, criteria))),
             Action::SelectCategoryAddTarget(category_name) => {
                 Some(GioActionParameter::from(category_name))

@@ -108,9 +108,11 @@ impl Settings {
         if slideshow_delay.is_some() {
             self.slideshow_on = true
         }
-
     }
 
+    pub fn set_slideshow_on(&mut self, on: bool) {
+        self.slideshow_on = on
+    }
     pub fn toggle_pictures_per_row(&mut self, new: i32) -> i32 {
         if new != self.current_pictures_per_row {
             self.last_pictures_per_row = self.current_pictures_per_row;
