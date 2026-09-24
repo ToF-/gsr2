@@ -1,3 +1,5 @@
+use rand::Rng;
+use rand::rng;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
@@ -273,6 +275,10 @@ impl Controller {
         entries.push(Self::action_entry(
             GioActionType::from(Action::JumpToMark('a')),
             self.jump_to_mark_action(window.clone()),
+        ));
+        entries.push(Self::action_entry(
+            GioActionType::from(Action::JumpToRandom),
+            self.jump_to_random_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::Label("foo".to_string())),
@@ -885,8 +891,6 @@ impl Controller {
         window: GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
-            #[strong (rename_to=this)]
-            self,
             #[strong]
             window,
             move |_, _, _| {
@@ -1270,7 +1274,9 @@ impl Controller {
                 if let Action::JumpToIndex(index) = Action::from(gio_action) {
                     window.dismiss();
                     this.with_view_state_mut(|view_state| {
-                        let direction = Direction::Index { value: index as usize };
+                        let direction = Direction::Index {
+                            value: index as usize,
+                        };
                         if view_state.navigator.can_move(&direction) {
                             view_state.navigator.move_towards(&direction);
                         }
@@ -1317,6 +1323,32 @@ impl Controller {
             }
         )
     }
+    fn jump_to_random_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            window,
+            move |_, _, _| {
+                this.with_view_state_mut(|view_state| {
+                    let position = rng().random_range(0..view_state.navigator.limit());
+                    if view_state
+                        .navigator
+                        .can_move(&Direction::Index { value: position })
+                    {
+                        view_state
+                            .navigator
+                            .move_towards(&Direction::Index { value: position })
+                    }
+                });
+                window.refresh_view()
+            }
+        )
+    }
+
     fn label_action(
         &self,
         window: GsrApplicationWindow,

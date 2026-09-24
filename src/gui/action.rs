@@ -139,6 +139,7 @@ impl From<Control> for Action {
             Control::MoveLast => Action::MoveTowards(Direction::Last),
             Control::MoveNext => Action::MoveTowards(Direction::NextPage),
             Control::MovePrev => Action::MoveTowards(Direction::PrevPage),
+            Control::MoveRandom => Action::JumpToRandom,
             Control::MoveStartPage => Action::MoveTowards(Direction::PageStart),
             Control::PickMark => Action::PickMark,
             Control::Quit => Action::Quit,
