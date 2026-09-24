@@ -227,7 +227,6 @@ impl GsrApplicationWindow {
         self.detach_timeout_event_handler();
     }
 
-
     fn left_panel_click_gesture(gsr_application_window: &Self) -> gtk::GestureClick {
         let gesture_click = gtk::GestureClick::new();
         gesture_click.set_button(1);

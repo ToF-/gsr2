@@ -54,7 +54,6 @@ impl GsrApplication {
         view_state.settings.set_slideshow_delay(clargs.slideshow());
         view_state.settings.set_pictures_per_row(pictures_per_row);
         view_state.settings.set_covers_only(clargs.covers);
-        dbg!(&view_state.settings);
         navigator.move_towards(&Direction::Index {
             value: gallery.current_picture_index(),
         });

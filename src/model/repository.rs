@@ -243,6 +243,9 @@ impl Repository {
         }
     }
 
+    pub fn temp_dir(&self) -> String {
+        self.temp_dir.clone()
+    }
     pub fn add_category(
         &self,
         new_category_name: &str,
@@ -744,8 +747,11 @@ impl Repository {
         }
     }
 
-    pub fn extract_file_names(&self, indexes: &Vec<usize>) -> IOResult<()> {
-        let extract_file = timestamp_filename("selection", "txt");
+    pub fn extract_file_names(
+        &self,
+        indexes: &Vec<usize>,
+        extraction_file_path: &str,
+    ) -> IOResult<String> {
         let mut lines: Vec<String> = vec![];
         match self.gallery_rc().try_borrow() {
             Ok(gallery) => {
@@ -753,17 +759,19 @@ impl Repository {
                     let picture = &gallery.picture(*index);
                     lines.push(picture.file_path());
                 }
-                let mut path: PathBuf = PathBuf::from(&self.temp_dir);
-                path.push(extract_file);
-                println!("copying {} file names to {}", lines.len(), path.display());
-                let file = File::create(path)?;
+                let file = File::create(&extraction_file_path)?;
+                let message = format!(
+                    "copied {} file names to {}",
+                    lines.len(),
+                    extraction_file_path
+                );
                 let mut writer = BufWriter::new(file);
                 for line in lines {
                     writer.write_all(line.as_bytes())?;
                     writer.write_all(b"\n")?;
                 }
                 writer.flush()?;
-                Ok(())
+                Ok(message)
             }
             Err(e) => Err(IOError::other(e)),
         }

@@ -1,12 +1,13 @@
-use crate::env::default_values::EXTRACTION_FILE;
-use std::fs;
-use crate::file::paths::file_path_as_retrieved;
+use crate::gui::key_input::entry::extraction_file_name_entry;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
 use crate::env::configuration::set_configuration_updated_flag;
+use crate::env::default_values::EXTRACTION_FILE;
 use crate::file::paths::check_path_is_directory;
+use crate::file::paths::extraction_file_path;
 use crate::file::paths::file_name_from;
+use crate::file::paths::file_path_as_retrieved;
 use crate::file::paths::name_and_extension;
 use crate::file::paths::parent_directory;
 use crate::gui::action::Action;
@@ -56,6 +57,7 @@ use gtk::gio::prelude::*;
 use gtk::glib::Variant;
 use gtk::glib::clone;
 use std::cell::RefCell;
+use std::fs;
 use std::io::Error as IOError;
 use std::io::Result as IOResult;
 use std::path::PathBuf;
@@ -211,6 +213,10 @@ impl Controller {
             self.enter_delete_picture_action(window.clone()),
         ));
         entries.push(Self::action_entry(
+            GioActionType::from(Action::EnterExtractFileNames),
+            self.enter_extract_filenames_action(window.clone()),
+        ));
+        entries.push(Self::action_entry(
             GioActionType::from(Action::EnterFind(Find::Name)),
             self.enter_find_action(window.clone()),
         ));
@@ -235,7 +241,7 @@ impl Controller {
             self.enter_select_action(window.clone()),
         ));
         entries.push(Self::action_entry(
-            GioActionType::from(Action::ExtractFileNames),
+            GioActionType::from(Action::ExtractFileNames("foo".to_string())),
             self.extract_file_names_action(window.clone()),
         ));
         entries.push(Self::action_entry(
@@ -840,6 +846,36 @@ impl Controller {
             }
         )
     }
+    fn enter_extract_filenames_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            window,
+            move |_, _, _| {
+                if !this.with_view_state(|view_state| view_state.selection.has_selected()) {
+                    window.present_information("cannot extract: no picture selected");
+                    return;
+                };
+                let temp_dir = this.with_repository(|repository| {
+                    repository.temp_dir()
+                });
+                let extraction_file_path = extraction_file_path(&temp_dir);
+                let gsr_entry_window = GsrEntryWindow::new_with(
+                    &window,
+                    &window.gsr_application().shared_controller(),
+                    extraction_file_name_entry(),
+                    None,
+                );
+                gsr_entry_window.set_entry_text(&extraction_file_path);
+                window.begin_entry(gsr_entry_window);
+            }
+        )
+    }
+
     fn enter_find_action(
         &self,
         window: GsrApplicationWindow,
@@ -1006,7 +1042,7 @@ impl Controller {
             }
         )
     }
-    
+
     fn extract_file_names_action(
         &self,
         window: GsrApplicationWindow,
@@ -1016,19 +1052,21 @@ impl Controller {
             self,
             #[strong]
             window,
-            move |_, _, _| {
-                println!("extracting selected picture file names…");
-                let mut file_names: Vec<String> = Vec::new();
-                this.with_view_state(|view_state| {
-                    let indices = view_state.selected_indices();
-                    for position in indices {
-                        let picture = view_state.gallery.picture(position);
-                        let file_name = file_path_as_retrieved(&picture.file_path());
-                        file_names.push(file_name);
+            move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
+                let gio_action = GioAction::from((object, variant));
+                if let Action::ExtractFileNames(extraction_file_path) = Action::from(gio_action) {
+                    window.dismiss();
+                    let indices =
+                        this.with_view_state(|view_state| view_state.selected_indices().clone());
+                    this.with_repository(|repository| {
+                        match repository.extract_file_names(&indices, &extraction_file_path) {
+                            Ok(extraction_file) => window.present_information(&format!(
+                                "selection extracted to {extraction_file}"
+                            )),
+                            Err(e) => window.present_information(&format!("Error:{e}")),
                         }
-                });
-                fs::write(EXTRACTION_FILE, file_names.join("\n"))
-                    .expect(&format!("can't create extraction file: {}", EXTRACTION_FILE));
+                    })
+                }
             }
         )
     }
@@ -1367,7 +1405,7 @@ impl Controller {
         clone!(
             #[strong]
             window,
-            move |_, _, _| window.move_next_slide() 
+            move |_, _, _| window.move_next_slide()
         )
     }
 
@@ -2102,7 +2140,7 @@ impl Controller {
             move |_, _, _| {
                 this.with_view_state_mut(|view_state| {
                     if view_state.settings.slideshow_delay().is_some() {
-                            view_state.settings.toggle_slideshow();
+                        view_state.settings.toggle_slideshow();
                     }
                 });
                 window.start_slide_show();

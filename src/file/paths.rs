@@ -289,6 +289,13 @@ pub fn timestamp_filename(prefix: &str, ext: &str) -> String {
     )
 }
 
+pub fn extraction_file_path(temp_dir: &str) -> String {
+    let extract_file = timestamp_filename("selection", "txt");
+    let mut path: PathBuf = PathBuf::from(temp_dir);
+    path.push(extract_file.clone());
+    path.display().to_string()
+}
+
 #[cfg(test)]
 
 mod tests {

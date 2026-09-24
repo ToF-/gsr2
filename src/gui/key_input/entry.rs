@@ -111,6 +111,27 @@ pub fn rename_entry() -> KeyInput {
     )
 }
 
+pub fn extraction_file_name_entry() -> KeyInput {
+    KeyInput::new(
+        "Enter a file name for extraction",
+        None,
+        KeyInputMode::Entry,
+        |_, ch| matches!(ch, 'a'..='z' |'A'..='Z' | '0'..='9' | '-' | '_' | '.' ),
+        |s, ch| {
+            let mut input = s;
+            if ch.is_ascii_uppercase() {
+                input.push(ch.to_lowercase().next().unwrap())
+            } else if ch.is_ascii_whitespace() {
+                input.push(SPACE_REPLACEMENT_CHAR_FOR_TAGS)
+            } else {
+                input.push(ch)
+            }
+            input
+        },
+        move |s: String| Action::ExtractFileNames(s),
+    )
+}
+
 pub fn target_directory_entry() -> KeyInput {
     KeyInput::new(
         "Enter a target directory for selected pictures",
