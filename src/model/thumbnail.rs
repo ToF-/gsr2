@@ -64,19 +64,19 @@ pub fn make_transparent_folder_picture() -> gtk::Picture {
 
 pub fn no_thumbnail_picture() -> gtk::Picture {
     let cell = OnceCell::new();
-    let picture = cell.get_or_init(|| make_no_thumbnail_picture());
+    let picture = cell.get_or_init(make_no_thumbnail_picture);
     picture.clone()
 }
 
 pub fn folder_picture() -> gtk::Picture {
     let cell = OnceCell::new();
-    let picture = cell.get_or_init(|| make_folder_picture());
+    let picture = cell.get_or_init(make_folder_picture);
     picture.clone()
 }
 
 pub fn transparent_folder_picture() -> gtk::Picture {
     let cell = OnceCell::new();
-    let picture = cell.get_or_init(|| make_transparent_folder_picture());
+    let picture = cell.get_or_init(make_transparent_folder_picture);
     picture.clone()
 }
 

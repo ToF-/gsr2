@@ -172,7 +172,9 @@ impl From<GioAction> for Action {
             "enter-remove-tag" => Action::EnterRemoveTag,
             "enter-rename" => Action::EnterRename,
             "enter-select" => Action::EnterSelect(Find::from(gio_action.parameter().unwrap())),
-            "extract-filenames" => Action::ExtractFileNames(String::from(gio_action.parameter().unwrap())),
+            "extract-filenames" => {
+                Action::ExtractFileNames(String::from(gio_action.parameter().unwrap()))
+            }
             "find" => {
                 let (find, criteria): (Find, String) =
                     <(Find, String)>::from(gio_action.parameter().unwrap());

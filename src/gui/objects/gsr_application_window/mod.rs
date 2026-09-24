@@ -38,7 +38,6 @@ use gtk::prelude::*;
 use gtk::subclass::prelude::ObjectSubclassIsExt;
 use std::cell::RefCell;
 use std::io::Result as IOResult;
-use std::ops::ControlFlow;
 use std::rc::Rc;
 use std::time::Duration;
 

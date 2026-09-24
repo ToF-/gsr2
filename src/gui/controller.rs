@@ -1,13 +1,10 @@
-use crate::gui::key_input::entry::extraction_file_name_entry;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
 use crate::env::configuration::set_configuration_updated_flag;
-use crate::env::default_values::EXTRACTION_FILE;
 use crate::file::paths::check_path_is_directory;
 use crate::file::paths::extraction_file_path;
 use crate::file::paths::file_name_from;
-use crate::file::paths::file_path_as_retrieved;
 use crate::file::paths::name_and_extension;
 use crate::file::paths::parent_directory;
 use crate::gui::action::Action;
@@ -19,6 +16,7 @@ use crate::gui::direction::Direction;
 use crate::gui::key_input::entry::add_new_category;
 use crate::gui::key_input::entry::add_tags_entry;
 use crate::gui::key_input::entry::confirm_delete_entry;
+use crate::gui::key_input::entry::extraction_file_name_entry;
 use crate::gui::key_input::entry::find_criteria_entry;
 use crate::gui::key_input::entry::label_change_entry;
 use crate::gui::key_input::entry::remove_tags_entry;
@@ -57,7 +55,6 @@ use gtk::gio::prelude::*;
 use gtk::glib::Variant;
 use gtk::glib::clone;
 use std::cell::RefCell;
-use std::fs;
 use std::io::Error as IOError;
 use std::io::Result as IOResult;
 use std::path::PathBuf;
@@ -860,9 +857,7 @@ impl Controller {
                     window.present_information("cannot extract: no picture selected");
                     return;
                 };
-                let temp_dir = this.with_repository(|repository| {
-                    repository.temp_dir()
-                });
+                let temp_dir = this.with_repository(|repository| repository.temp_dir());
                 let extraction_file_path = extraction_file_path(&temp_dir);
                 let gsr_entry_window = GsrEntryWindow::new_with(
                     &window,

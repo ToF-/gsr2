@@ -52,34 +52,32 @@ impl RetrieveCriteria {
             result.and_then(|regex_opt| {
                 let tag_selection_criteria = TagSelectionCriteria::from_args(args);
                 let result = if let Some(filter) = &args.filter {
-                    match ColorRange::from_string(&filter) {
+                    match ColorRange::from_string(filter) {
                         Ok(color_range) => Ok(Some(color_range)),
                         Err(e) => Err(IOError::other(e)),
                     }
                 } else {
                     Ok(None)
                 };
-                result.and_then(|color_range_opt| {
-                    Ok(Self {
-                        tag_selection_criteria: tag_selection_criteria.clone(),
-                        categories: args
-                            .categories
-                            .clone()
-                            .as_ref()
-                            .map(|s| Categories::from_string(s)),
-                        label: args.label.clone(),
-                        extraction: extraction.clone(),
-                        color_range_opt,
-                        pattern: regex_opt,
-                        cover: args.covers,
-                        parent_opt: if args.structured {
-                            None
-                        } else {
-                            args.directory.clone()
-                        },
-                        predicate_opt,
-                        catalog_opt,
-                    })
+                result.map(|color_range_opt| Self {
+                    tag_selection_criteria: tag_selection_criteria.clone(),
+                    categories: args
+                        .categories
+                        .clone()
+                        .as_ref()
+                        .map(|s| Categories::from_string(s)),
+                    label: args.label.clone(),
+                    extraction: extraction.clone(),
+                    color_range_opt,
+                    pattern: regex_opt,
+                    cover: args.covers,
+                    parent_opt: if args.structured {
+                        None
+                    } else {
+                        args.directory.clone()
+                    },
+                    predicate_opt,
+                    catalog_opt,
                 })
             })
         })
@@ -93,7 +91,7 @@ impl RetrieveCriteria {
             && self.check_pattern(&picture.file_path())
             && self.check_extraction(&picture.file_path())
             && self.check_color_range(&picture.file_path())
-            && self.check_predicate(&picture)
+            && self.check_predicate(picture)
     }
 
     fn check_one_of_categories(&self, image_data: &ImageData) -> bool {

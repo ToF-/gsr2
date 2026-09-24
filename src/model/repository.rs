@@ -759,7 +759,7 @@ impl Repository {
                     let picture = &gallery.picture(*index);
                     lines.push(picture.file_path());
                 }
-                let file = File::create(&extraction_file_path)?;
+                let file = File::create(extraction_file_path)?;
                 let message = format!(
                     "copied {} file names to {}",
                     lines.len(),

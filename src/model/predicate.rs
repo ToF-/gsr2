@@ -7,11 +7,11 @@ use crate::model::tags::tags_from_str;
 use regex::Error;
 use regex::Regex;
 use std::fmt::Display;
-use std::sync::Arc;
+use std::rc::Rc;
 
 #[derive(Clone)]
 pub struct Predicate {
-    pub function: Arc<dyn Fn(&Picture) -> bool>,
+    pub function: Rc<dyn Fn(&Picture) -> bool>,
     pub criteria: Vec<Criterion>,
 }
 
@@ -19,32 +19,32 @@ impl Predicate {
     pub fn new(pattern: &str, find: Find, catalog: Catalog) -> Result<Self, Error> {
         let result = match Regex::new(pattern) {
             Ok(re) => {
-                let function: Arc<dyn Fn(&Picture) -> bool> = match find {
+                let function: Rc<dyn Fn(&Picture) -> bool> = match find {
                     Find::Name => {
-                        Arc::new(move |picture: &Picture| re.is_match(&picture.file_name()))
+                        Rc::new(move |picture: &Picture| re.is_match(&picture.file_name()))
                     }
                     Find::FilePath => {
-                        Arc::new(move |picture: &Picture| re.is_match(&picture.file_path()))
+                        Rc::new(move |picture: &Picture| re.is_match(&picture.file_path()))
                     }
-                    Find::Label => Arc::new(move |picture: &Picture| re.is_match(&picture.label())),
+                    Find::Label => Rc::new(move |picture: &Picture| re.is_match(&picture.label())),
                     Find::Category => {
-                        Arc::new(move |picture: &Picture| re.is_match(&picture.category_name()))
+                        Rc::new(move |picture: &Picture| re.is_match(&picture.category_name()))
                     }
                     Find::SubCategory => {
                         let categories: Categories = Categories::from_string(pattern);
-                        Arc::new(move |picture: &Picture| {
+                        Rc::new(move |picture: &Picture| {
                             catalog.is_one_of(&categories, &picture.category_name())
                         })
                     }
                     Find::SomeTags => {
                         let tags = tags_from_str(pattern);
-                        Arc::new(move |picture: &Picture| {
+                        Rc::new(move |picture: &Picture| {
                             picture.tags().intersection(&tags).count() > 0
                         })
                     }
                     Find::AllTags => {
                         let tags = tags_from_str(pattern);
-                        Arc::new(move |picture: &Picture| tags.is_subset(&picture.tags()))
+                        Rc::new(move |picture: &Picture| tags.is_subset(&picture.tags()))
                     }
                 };
                 Ok(function)
@@ -57,7 +57,7 @@ impl Predicate {
         })
     }
     pub fn and(predicate: Self, other: Self) -> Self {
-        let function: Arc<dyn Fn(&Picture) -> bool> = Arc::new(move |picture: &Picture| {
+        let function: Rc<dyn Fn(&Picture) -> bool> = Rc::new(move |picture: &Picture| {
             (predicate.function)(picture) && (other.function)(picture)
         });
         let mut criteria = predicate.criteria.clone();

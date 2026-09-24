@@ -133,16 +133,13 @@ impl Gallery {
         let mut folders: BTreeMap<String, usize> = BTreeMap::new();
         for (folder, count) in self.folders_map().iter() {
             let folder_path = Path::new(folder);
-            if folder_path.starts_with(directory_path) {
-                if let Ok(sub_path) = folder_path.strip_prefix(directory_path) {
-                    if !sub_path.as_os_str().is_empty() {
-                        if let Some(part) = sub_path.components().next() {
-                            *folders
-                                .entry(part.as_os_str().to_string_lossy().into_owned())
-                                .or_insert(0) += *count;
-                        }
-                    }
-                }
+            if folder_path.starts_with(directory_path)
+                && let Ok(sub_path) = folder_path.strip_prefix(directory_path)
+                && let Some(part) = sub_path.components().next()
+            {
+                *folders
+                    .entry(part.as_os_str().to_string_lossy().into_owned())
+                    .or_insert(0) += *count;
             }
         }
         let mut result = Vec::new();
@@ -244,7 +241,7 @@ impl Gallery {
     }
 
     pub fn sort_by(&mut self, order: Order) {
-        if self.len() == 0 {
+        if self.is_empty() {
             return;
         };
         let current_picture_file_path = self.current_picture().file_path();

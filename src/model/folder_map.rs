@@ -22,7 +22,7 @@ impl FolderMap {
             {
                 map.entry(directory.clone())
                     .and_modify(|folder| folder.increase_count(1))
-                    .or_insert(Folder::new(id_dispenser.next(), &directory, 0, 1, ""));
+                    .or_insert(Folder::new(id_dispenser.next_id(), &directory, 0, 1, ""));
                 current_directory = directory;
             }
         }
@@ -59,10 +59,6 @@ impl FolderMap {
                 first_file_path,
             ),
         );
-    }
-
-    pub fn len(&self) -> usize {
-        self.map.len()
     }
 
     pub fn map(&self) -> BTreeMap<String, Folder> {

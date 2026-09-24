@@ -7,7 +7,7 @@ impl IdDispenser {
         Self { next_id: initial }
     }
 
-    pub fn next(&mut self) -> usize {
+    pub fn next_id(&mut self) -> usize {
         let id = self.next_id;
         self.next_id += 1;
         id
