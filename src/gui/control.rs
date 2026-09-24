@@ -119,12 +119,12 @@ pub fn help_on_controls() -> String {
         C: view covers only\n\
         P: palette on/off\n\
         . or ^ : single view, e: expand, %: full size \n\
-        R go to random picture  S: resume slide show\n\
+        R go to random picture  *: resume slide show\n\
         M: move selected pictures to target dir set by label\n\
         X: delete selected pictures\n\
         g: view this cover subgroup, or directory\n\
         q: back from subgroup or directory\n\
-        q: quit  H:help"
+        Q: quit  H:help"
     )
 }
 // these default controls are valid on my ergodox bepo modified
