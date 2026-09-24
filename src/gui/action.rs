@@ -29,6 +29,7 @@ pub enum Action {
     EnterExtractFileNames,         // enter file name for extraction
     EnterFind(Find),               // interactively enter criteria for finding
     EnterIndex,                    // interactively enter index to jump to
+    EnterJump,                     // interactively select a picture number to jump to
     EnterLabel,                    // enter label to apply to the selected pictures
     EnterNewCategory,              // enter new category to add to the catalog
     EnterRemoveTag,                // enter tag(s) to remove from the selected pictures
@@ -39,7 +40,7 @@ pub enum Action {
     FindNext,                      // find the next picture matching the current criteria
     GotoDirectory,                 // view only pictures from a sub directory
     Help,                          // display help
-    JumpToIndex(usize),            // jump to picture #n
+    JumpToIndex(i32),              // jump to picture #n
     JumpToMark(char),              // jump to picture marked a|b|…|z
     JumpToRandom,                  // jump to a random picture
     Label(Label),                  // label the selected pictures
@@ -131,6 +132,7 @@ impl From<Control> for Action {
             Control::GotoDirectory => Action::GotoDirectory,
             Control::GotoMark => Action::PickTargetMark,
             Control::Help => Action::Help,
+            Control::Jump => Action::EnterJump,
             Control::Left => Action::MoveTowards(Direction::Left),
             Control::MoveEndPage => Action::MoveTowards(Direction::PageEnd),
             Control::MoveFirst => Action::MoveTowards(Direction::First),

@@ -90,6 +90,20 @@ pub fn remove_tags_entry(completion_tags: Tags) -> KeyInput {
     )
 }
 
+pub fn jump_entry() -> KeyInput {
+    KeyInput::new(
+        "Enter a picture number",
+        None,
+        KeyInputMode::Entry,
+        |_, ch| ch.is_digit(10),
+        |s, ch| {
+            let mut input = s;
+            input.push(ch);
+            input
+        },
+        move |s: String| Action::JumpToIndex(s.parse().unwrap_or(0)),
+    )
+}
 pub fn rename_entry() -> KeyInput {
     KeyInput::new(
         "Enter a name",

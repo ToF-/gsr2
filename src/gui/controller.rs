@@ -18,6 +18,7 @@ use crate::gui::key_input::entry::add_tags_entry;
 use crate::gui::key_input::entry::confirm_delete_entry;
 use crate::gui::key_input::entry::extraction_file_name_entry;
 use crate::gui::key_input::entry::find_criteria_entry;
+use crate::gui::key_input::entry::jump_entry;
 use crate::gui::key_input::entry::label_change_entry;
 use crate::gui::key_input::entry::remove_tags_entry;
 use crate::gui::key_input::entry::rename_entry;
@@ -218,6 +219,10 @@ impl Controller {
             self.enter_find_action(window.clone()),
         ));
         entries.push(Self::action_entry(
+            GioActionType::from(Action::EnterJump),
+            self.enter_jump_action(window.clone()),
+        ));
+        entries.push(Self::action_entry(
             GioActionType::from(Action::EnterLabel),
             self.enter_label_action(window.clone()),
         ));
@@ -260,6 +265,10 @@ impl Controller {
         entries.push(Self::action_entry(
             GioActionType::from(Action::GotoDirectory),
             self.goto_directory_action(window.clone()),
+        ));
+        entries.push(Self::action_entry(
+            GioActionType::from(Action::JumpToIndex(42)),
+            self.jump_to_index_action(window.clone()),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::JumpToMark('a')),
@@ -871,6 +880,28 @@ impl Controller {
         )
     }
 
+    fn enter_jump_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            window,
+            move |_, _, _| {
+                let gsr_entry_window = GsrEntryWindow::new_with(
+                    &window,
+                    &window.gsr_application().shared_controller(),
+                    jump_entry(),
+                    None,
+                );
+
+                window.dismiss();
+                window.begin_entry(gsr_entry_window);
+            }
+        )
+    }
     fn enter_find_action(
         &self,
         window: GsrApplicationWindow,
@@ -1222,6 +1253,30 @@ impl Controller {
                     };
                     window.refresh_view();
                 }
+            }
+        )
+    }
+    fn jump_to_index_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            window,
+            move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
+                let gio_action = GioAction::from((object, variant));
+                if let Action::JumpToIndex(index) = Action::from(gio_action) {
+                    window.dismiss();
+                    this.with_view_state_mut(|view_state| {
+                        let direction = Direction::Index { value: index as usize };
+                        if view_state.navigator.can_move(&direction) {
+                            view_state.navigator.move_towards(&direction);
+                        }
+                    })
+                };
+                window.refresh_view()
             }
         )
     }

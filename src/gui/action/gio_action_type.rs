@@ -52,6 +52,7 @@ impl From<Action> for GioActionType {
             A::EnterExtractFileNames => GAT::new("enter-extract-filenames", GAPT::None),
             A::EnterFind(_) => GAT::new("enter-find", GAPT::Int32),
             A::EnterIndex => GAT::new("enter-index", GAPT::None),
+            A::EnterJump => GAT::new("enter-jump", GAPT::None),
             A::EnterLabel => GAT::new("enter-label", GAPT::None),
             A::EnterNewCategory => GAT::new("enter-new-category", GAPT::None),
             A::EnterRemoveTag => GAT::new("enter-remove-tag", GAPT::None),

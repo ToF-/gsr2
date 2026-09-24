@@ -59,6 +59,7 @@ impl From<Action> for GioAction {
             Action::EnterExtractFileNames => None,
             Action::EnterFind(find) => Some(GioActionParameter::from(find)),
             Action::EnterIndex => None,
+            Action::EnterJump => None,
             Action::EnterLabel => None,
             Action::EnterNewCategory => None,
             Action::EnterRemoveTag => None,
@@ -186,7 +187,7 @@ impl From<GioAction> for Action {
                 Action::FocusAt(i32_pair.0, i32_pair.1)
             }
             "go-to-directory" => Action::GotoDirectory,
-            "jump-to-index" => Action::JumpToIndex(usize::from(gio_action.parameter().unwrap())),
+            "jump-to-index" => Action::JumpToIndex(i32::from(gio_action.parameter().unwrap())),
             "jump-to-mark" => Action::JumpToMark(char::from(gio_action.parameter().unwrap())),
             "jump-to-random" => Action::JumpToRandom,
             "label" => Action::Label(String::from(gio_action.parameter().unwrap())),
