@@ -1149,19 +1149,28 @@ pub mod tests {
         let result = database.select_pictures(criteria, None);
         assert!(result.is_ok());
         let pictures = result.unwrap();
-        if let Some(picture) = pictures.iter().find(|p| p.file_path() == nine_colors_file_path()) {
+        if let Some(picture) = pictures
+            .iter()
+            .find(|p| p.file_path() == nine_colors_file_path())
+        {
             assert!(picture.image_data().unwrap().tags.contains("foo"));
             assert!(picture.image_data().unwrap().tags.contains("bar"));
         } else {
             assert!(false)
         };
-        if let Some(picture) = pictures.iter().find(|p| p.file_path() == single_dot_file_path()) {
+        if let Some(picture) = pictures
+            .iter()
+            .find(|p| p.file_path() == single_dot_file_path())
+        {
             assert!(picture.image_data().unwrap().tags.contains("dot"));
             assert!(picture.image_data().unwrap().tags.contains("bar"));
         } else {
             assert!(false)
         };
-        if let Some(picture) = pictures.iter().find(|p| p.file_path() == white_square_file_path()) {
+        if let Some(picture) = pictures
+            .iter()
+            .find(|p| p.file_path() == white_square_file_path())
+        {
             assert!(picture.image_data().unwrap().tags.contains("qux"));
             assert!(picture.image_data().unwrap().tags.contains("foo"));
         } else {

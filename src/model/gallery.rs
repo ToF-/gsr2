@@ -505,13 +505,19 @@ mod tests {
         };
         let p = gallery.finder.find_first(predicate);
         assert!(p.is_some());
-        assert_eq!( "large_picture.png", gallery.pictures()[p.unwrap()].file_name());
+        assert_eq!(
+            "large_picture.png",
+            gallery.pictures()[p.unwrap()].file_name()
+        );
         let p = gallery.finder.find_next();
         assert!(p.is_some());
         assert_eq!("single_dot.png", gallery.pictures()[p.unwrap()].file_name());
         let p = gallery.finder.find_next();
         assert!(p.is_some());
-        assert_eq!( "nine_colors.png", gallery.pictures()[p.unwrap()].file_name());
+        assert_eq!(
+            "nine_colors.png",
+            gallery.pictures()[p.unwrap()].file_name()
+        );
         let p = gallery.finder.find_next();
         assert!(p.is_none());
     }

@@ -1,5 +1,3 @@
-use crate::test_data::WHITE_SQUARE;
-use crate::test_data::SINGLE_DOT;
 use crate::cli::command::Command;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::Configuration;
@@ -26,6 +24,8 @@ use crate::model::predicate::Predicate;
 use crate::model::retrieve_criteria::RetrieveCriteria;
 use crate::model::tag_selection_criteria::TagSelectionCriteria;
 use crate::model::tags::Tags;
+use crate::test_data::SINGLE_DOT;
+use crate::test_data::WHITE_SQUARE;
 use std::cell::RefCell;
 use std::collections::BTreeMap;
 use std::collections::HashMap;
@@ -132,40 +132,41 @@ impl Repository {
     ) -> IOResult<usize> {
         let catalog_result = Catalog::from_file(&self.catalog_filepath);
         let catalog: Catalog = catalog_result?;
-        match self.gallery_rc.try_borrow_mut() {
-            Ok(mut gallery) => {
-                let retrieve_criteria_result =
-                    RetrieveCriteria::new(args, predicate_opt, Some(catalog.clone()));
-                retrieve_criteria_result.and_then(|retrieve_criteria| {
-                    *gallery = match self
-                        .database
-                        .select_pictures(retrieve_criteria, folder_id_opt)
-                    {
-                        Ok(pictures) => {
-                            let mut gallery = Gallery::new_with_pictures(pictures);
-                            if args.structured {
-                                gallery.set_structured();
-                                let folder_map = self.folder_map_rc.borrow();
-                                let map = folder_map.map();
-                                let folder_id = folder_id_opt
-                                    .expect("folder_id not set in structured retrieve");
-                                for folder in map
-                                    .values()
-                                    .filter(|folder| folder.parent_id() == folder_id)
-                                {
-                                    gallery.add_picture(&Picture::for_folder(folder));
-                                }
+        let result = {
+            let mut gallery = self.gallery_rc.borrow_mut();
+            let retrieve_criteria_result =
+                RetrieveCriteria::new(args, predicate_opt, Some(catalog.clone()));
+            retrieve_criteria_result.and_then(|retrieve_criteria| {
+                *gallery = match self
+                    .database
+                    .select_pictures(retrieve_criteria, folder_id_opt)
+                {
+                    Ok(pictures) => {
+                        let mut gallery = Gallery::new_with_pictures(pictures);
+                        if args.structured {
+                            gallery.set_structured();
+                            let folder_map = self.folder_map_rc.borrow();
+                            let map = folder_map.map();
+                            let folder_id =
+                                folder_id_opt.expect("folder_id not set in structured retrieve");
+                            for folder in map
+                                .values()
+                                .filter(|folder| folder.parent_id() == folder_id)
+                            {
+                                gallery.add_picture(&Picture::for_folder(folder));
                             }
-                            gallery.sort_by(args.order.unwrap_or(Order::Name));
-                            gallery
                         }
-                        Err(e) => return Err(e),
-                    };
-                    Ok(gallery.len())
-                })
-            }
-            Err(e) => panic!("{}", &format!("{}", e)),
-        }
+                        gallery.sort_by(args.order.unwrap_or(Order::Name));
+                        gallery.clone()
+                    }
+                    Err(e) => return Err(e),
+                };
+                Ok(gallery.len())
+            })
+        };
+        let gallery = self.gallery_rc.borrow();
+        dbg!(&gallery.len());
+        result
     }
 
     fn retrieve_all_parent_dirs(&self) -> IOResult<()> {

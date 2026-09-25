@@ -407,13 +407,15 @@ mod test {
         assert_eq!(
             Operation::Copy(
                 file_path_as_retrieved(&format!("{}white_squareTHUMBSmall.png", source_dir)).into(),
-                file_path_as_retrieved(&format!("{}/white_squareTHUMBSmall.png", target_dir)).into()
+                file_path_as_retrieved(&format!("{}/white_squareTHUMBSmall.png", target_dir))
+                    .into()
             ),
             operations[0]
         );
         assert_eq!(
             Operation::Copy(
-                file_path_as_retrieved(&format!("{}white_squareTHUMBMedium.png", source_dir)).into(),
+                file_path_as_retrieved(&format!("{}white_squareTHUMBMedium.png", source_dir))
+                    .into(),
                 file_path_as_retrieved(&format!("{}/white_squareTHUMBMedium.png", target_dir))
                     .into()
             ),
@@ -422,13 +424,15 @@ mod test {
         assert_eq!(
             Operation::Copy(
                 file_path_as_retrieved(&format!("{}white_squareTHUMBLarge.png", source_dir)).into(),
-                file_path_as_retrieved(&format!("{}/white_squareTHUMBLarge.png", target_dir)).into()
+                file_path_as_retrieved(&format!("{}/white_squareTHUMBLarge.png", target_dir))
+                    .into()
             ),
             operations[2]
         );
         assert_eq!(
             Operation::Copy(
-                file_path_as_retrieved(&format!("{}white_squareTHUMBLarger.png", source_dir)).into(),
+                file_path_as_retrieved(&format!("{}white_squareTHUMBLarger.png", source_dir))
+                    .into(),
                 file_path_as_retrieved(&format!("{}/white_squareTHUMBLarger.png", target_dir))
                     .into()
             ),
@@ -449,7 +453,8 @@ mod test {
         );
         assert_eq!(
             Operation::Delete(
-                file_path_as_retrieved(&format!("{}white_squareTHUMBMedium.png", source_dir)).into()
+                file_path_as_retrieved(&format!("{}white_squareTHUMBMedium.png", source_dir))
+                    .into()
             ),
             operations[6]
         );
@@ -461,7 +466,8 @@ mod test {
         );
         assert_eq!(
             Operation::Delete(
-                file_path_as_retrieved(&format!("{}white_squareTHUMBLarger.png", source_dir)).into()
+                file_path_as_retrieved(&format!("{}white_squareTHUMBLarger.png", source_dir))
+                    .into()
             ),
             operations[8]
         );
@@ -498,7 +504,8 @@ mod test {
         );
         assert_eq!(
             Operation::Copy(
-                file_path_as_retrieved(&format!("{}white_squareTHUMBMedium.png", source_dir)).into(),
+                file_path_as_retrieved(&format!("{}white_squareTHUMBMedium.png", source_dir))
+                    .into(),
                 file_path_as_retrieved(&format!("{}white_square_fooTHUMBMedium.png", source_dir))
                     .into()
             ),
@@ -514,7 +521,8 @@ mod test {
         );
         assert_eq!(
             Operation::Copy(
-                file_path_as_retrieved(&format!("{}white_squareTHUMBLarger.png", source_dir)).into(),
+                file_path_as_retrieved(&format!("{}white_squareTHUMBLarger.png", source_dir))
+                    .into(),
                 file_path_as_retrieved(&format!("{}white_square_fooTHUMBLarger.png", source_dir))
                     .into()
             ),
@@ -535,7 +543,8 @@ mod test {
         );
         assert_eq!(
             Operation::Delete(
-                file_path_as_retrieved(&format!("{}white_squareTHUMBMedium.png", source_dir)).into()
+                file_path_as_retrieved(&format!("{}white_squareTHUMBMedium.png", source_dir))
+                    .into()
             ),
             operations[6]
         );
@@ -547,7 +556,8 @@ mod test {
         );
         assert_eq!(
             Operation::Delete(
-                file_path_as_retrieved(&format!("{}white_squareTHUMBLarger.png", source_dir)).into()
+                file_path_as_retrieved(&format!("{}white_squareTHUMBLarger.png", source_dir))
+                    .into()
             ),
             operations[8]
         );

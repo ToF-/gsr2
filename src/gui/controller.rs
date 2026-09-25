@@ -1,5 +1,3 @@
-use rand::Rng;
-use rand::rng;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
@@ -57,6 +55,8 @@ use gtk::gio::SimpleActionGroup;
 use gtk::gio::prelude::*;
 use gtk::glib::Variant;
 use gtk::glib::clone;
+use rand::Rng;
+use rand::rng;
 use std::cell::RefCell;
 use std::io::Error as IOError;
 use std::io::Result as IOResult;
@@ -146,6 +146,15 @@ impl Controller {
         f(repository)
     }
 
+    pub fn with_repository_mut<F, R>(&self, f: F) -> R
+    where
+        F: FnOnce(&mut Repository) -> R,
+    {
+        let shared_repository_opt = self.gsr_application().shared_repository_opt();
+        let mut binding = shared_repository_opt.borrow_mut();
+        let mut repository = binding.as_mut().unwrap();
+        f(&mut repository)
+    }
     // LAW
     pub fn initialize(&self) {
         let mut entries = vec![];
@@ -457,7 +466,7 @@ impl Controller {
         covers_only_opt: Option<bool>,
         sub_directory: Option<String>,
         predicate_opt: Option<Predicate>,
-    ) -> IOResult<usize> {
+    ) -> IOResult<usize>
         {
             let initial_command_line_arguments = self.command_line_arguments();
             let command_line_arguments = CommandLineArguments {
@@ -467,14 +476,14 @@ impl Controller {
             };
             let configuration = CONFIGURATION.get().expect("configuration not set");
 
-            let repository =
-                Repository::new(configuration.clone(), command_line_arguments.clone(), false);
-
-            match repository.retrieve_pictures(predicate_opt) {
+            self.with_repository_mut(|repository| {
+                *repository = Repository::new(configuration.clone(), command_line_arguments.clone(), false);
+            match    repository.retrieve_pictures(predicate_opt) {
                 Err(e) => Err(e),
                 Ok(0) => Ok(0),
                 Ok(n) => {
-                    let repository_gallery = repository.gallery_rc().borrow_mut();
+                    let repository_gallery = repository.gallery_rc().borrow();
+                    dbg!(&repository_gallery.len());
                     self.with_view_state_mut(|view_state| {
                         view_state.navigator = Navigator::new(
                             repository_gallery.len(),
@@ -488,7 +497,7 @@ impl Controller {
                     Ok(n)
                 }
             }
-        }
+            })
     }
 
     fn retrieve_current_location(&self) {
