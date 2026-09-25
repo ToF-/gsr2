@@ -423,7 +423,7 @@ mod tests {
     }
     #[test]
     fn total_pages_according_to_len_and_page_size() {
-        let mut navigator = Navigator::new(10, 2);
+        let navigator = Navigator::new(10, 2);
         assert_eq!(navigator.total_pages(), 3);
     }
 }

@@ -401,7 +401,6 @@ mod tests {
     use crate::model::predicate::Predicate;
     use crate::test_data::*;
     use serial_test::serial;
-    use std::sync::Arc;
 
     #[test]
     #[serial]

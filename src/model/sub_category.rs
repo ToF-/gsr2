@@ -312,7 +312,7 @@ mod tests {
             &lexpr::from_str("(foo (jug mix alf) (qux bag) (bar law))").unwrap(),
         )
         .unwrap();
-        foo.remove_sub_category("jug", true);
+        let _ = foo.remove_sub_category("jug", true);
         assert_eq!(
             "(foo\n  (qux\n      bag)\n  (bar\n      law))",
             foo.format_at_level(0)

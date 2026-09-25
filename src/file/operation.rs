@@ -182,7 +182,6 @@ mod test {
     use serial_test::serial;
     use std::fs::{File, remove_file};
     use std::io::prelude::*;
-    use std::process::Command;
 
     fn create_dummy_file(file_path: &str) {
         let mut file = File::create(file_path).expect("can't create test file");
@@ -192,7 +191,7 @@ mod test {
 
     fn remove_dummy_file(file_path: &str) {
         let path = PathBuf::from(file_path);
-        remove_file(path);
+        let _ = remove_file(path);
     }
 
     #[test]
@@ -325,12 +324,6 @@ mod test {
             current_directory(),
             TEST_DATA_DIR,
             "fooTHUMBLarge.jpg"
-        );
-        let other_target_file = format!(
-            "{}/{}/{}",
-            current_directory(),
-            TEST_DATA_DIR,
-            "barTHUMBLarge.jpg"
         );
         create_dummy_file(&file_path_to_copy);
         create_dummy_file(&other_file_path_to_copy);
@@ -484,7 +477,6 @@ mod test {
     #[test]
     fn renaming_a_picture_takes_all_necessary_operations() {
         let source_dir = format!("{}/{}/", current_directory(), TEST_DATA_DIR);
-        let picture: Picture = Picture::new(&white_square_file_path());
         let target_name = "white_square_foo";
         let operations = rename_picture(&white_square_file_path(), &target_name);
         let source_file = file_path_as_stored(&white_square_file_path());
@@ -574,10 +566,9 @@ mod test {
     #[serial]
     fn executing_operation() {
         let database = my_db();
-        let picture: Picture = Picture::new(&single_dot_file_path());
         let target_dir = format!("{}/{}/subdir", current_directory(), TEST_DATA_DIR);
         let operations = move_picture(&single_dot_file_path(), &target_dir);
-        execute(&database, &operations);
+        let _ = execute(&database, &operations);
         assert!(file_exists(&format!(
             "{}/{}/subdir/{}",
             current_directory(),
@@ -592,7 +583,7 @@ mod test {
             SINGLE_DOT
         );
         let roll_back = move_picture(&new_file_path, &source_dir);
-        execute(&database, &roll_back);
+        let _ = execute(&database, &roll_back);
     }
 
     #[test]

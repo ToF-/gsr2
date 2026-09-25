@@ -288,7 +288,7 @@ pub mod test {
     #[serial]
     fn deleting_picture_files() {
         create_dummy_files();
-        delete_picture_files("testdata/dummy_pic.png");
+        let _ = delete_picture_files("testdata/dummy_pic.png");
         assert!(!file_exists("testdata/dummy_pic.png"));
         assert!(!file_exists("testdata/dummy_picTHUMBLarge.png"));
         assert!(!file_exists("testdata/dummy_picTHUMBLarger.png"));
@@ -346,6 +346,6 @@ pub mod test {
         assert!(file_exists(&thumbnail_name_from(&target_file_path, 4)));
         assert!(file_exists(&thumbnail_name_from(&target_file_path, 2)));
 
-        move_picture_files(&target_file_path, &test_dir);
+        let _ = move_picture_files(&target_file_path, &test_dir);
     }
 }

@@ -51,22 +51,22 @@ mod tests {
 
     #[test]
     fn no_candidates_when_only_one_char_entry() {
-        let mut dispenser = CompletionDispenser::new_with(tags_from_str("bar,foo,qux,zoo"));
+        let dispenser = CompletionDispenser::new_with(tags_from_str("bar,foo,qux,zoo"));
         assert!(dispenser.candidates("f").is_empty());
     }
 
     #[test]
     fn candidates_when_two_or_more_chars_entry() {
-        let mut dispenser = CompletionDispenser::new_with(tags_from_str("bar,foo,qux,zoo"));
+        let dispenser = CompletionDispenser::new_with(tags_from_str("bar,foo,qux,zoo"));
         assert_eq!(vec!["bar"], dispenser.candidates("ba"));
 
-        let mut dispenser = CompletionDispenser::new_with(tags_from_str("bar,foo,qux,zoo,fog"));
+        let dispenser = CompletionDispenser::new_with(tags_from_str("bar,foo,qux,zoo,fog"));
         assert_eq!(vec!["fog", "foo"], dispenser.candidates("fo"));
     }
 
     #[test]
     fn candidates_when_entry_is_a_sequence_of_tags() {
-        let mut dispenser = CompletionDispenser::new_with(tags_from_str("bar,foo,qux,zoo,fog"));
+        let dispenser = CompletionDispenser::new_with(tags_from_str("bar,foo,qux,zoo,fog"));
         assert_eq!(vec!["fog", "foo"], dispenser.candidates("bar,fo"));
     }
 }

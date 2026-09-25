@@ -90,9 +90,7 @@ fn color_to_u32(color: &Color) -> u32 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::env::default_values::MAX_PALETTE_COLORS;
     use crate::test_data::*;
-    use palette_extract::Color;
 
     #[test]
     fn counting_the_numbers_of_distinct_colors_in_an_image() {

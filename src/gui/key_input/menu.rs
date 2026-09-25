@@ -243,7 +243,6 @@ pub fn target_mark_menu(file_path: &str) -> KeyInput {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::model::tags::tags_from_str;
     use gtk::gdk::Key;
 
     #[test]

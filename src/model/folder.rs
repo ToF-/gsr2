@@ -54,6 +54,11 @@ impl Folder {
     pub fn first_file_path(&self) -> String {
         self.first_file_path.clone()
     }
+
+    pub fn set_first_file_path(&mut self, file_path: &str) {
+        self.first_file_path = file_path.to_string()
+    }
+
     pub fn increase_count(&mut self, n: usize) {
         self.picture_count += n;
     }

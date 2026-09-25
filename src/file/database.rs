@@ -59,6 +59,8 @@ const INSERT_MARK: &str = "INSERT INTO Mark (Letter, FilePath) VALUES(?1, ?2) ON
 
 const UPDATE_PICTURE: &str = "UPDATE Picture SET Label = ?2, FileSize = ?3, ModifiedTime = ?4, Rank = ?5, Sample = ?6, ColorCount =?7, Cover = ?8, Score = ?9, Category = ?10 WHERE FilePath = ?1;";
 
+const UPDATE_FOLDER_FIRST_FILE_PATH: &str = "UPDATE Folder SET FirstFilePath = ?2 WHERE FolderId = ?1;";
+
 pub type ImageDataMap = HashMap<String, ImageData>;
 
 #[derive(Debug, Clone)]
@@ -510,6 +512,22 @@ impl Database {
             Err(e) => Err(std::io::Error::other(e)),
         }
     }
+
+    fn rusqlite_update_folder_first_file_path_for_id(&self, folder_id: usize, first_file_path: &str) -> SqlResult<usize> {
+        let connection = self.connection_rc.borrow();
+        connection
+            .execute(
+                UPDATE_FOLDER_FIRST_FILE_PATH,
+                params![folder_id, first_file_path]
+            )
+    }
+
+    pub fn update_folder_first_file_path_for_id(&self, folder_id: usize, first_file_path: &str) -> IOResult<usize> {
+        match self.rusqlite_update_folder_first_file_path_for_id(folder_id, first_file_path) {
+            Ok(n) => Ok(n),
+            Err(e) => Err(std::io::Error::other(e)),
+        }
+    }
     pub fn retrieve_pictures_for_directory(&self, directory: &str) -> IOResult<Vec<Picture>> {
         match self.rusqlite_retrieve_pictures_for_directory(directory) {
             Ok(pictures) => Ok(pictures),
@@ -881,17 +899,12 @@ pub mod tests {
     use crate::file::paths::test::current_directory;
     use crate::file::picture_file::get_data_from_picture_file;
     use crate::model::image_data::TimeStamp;
-    use crate::model::image_data::timestamp;
     use crate::model::order::Order;
     use crate::model::palette::Palette;
     use crate::test_data::*;
-    use chrono::naive::*;
-    use chrono::prelude::*;
     use palette_extract::Color;
     use serial_test::serial;
     use std::collections::HashSet;
-    use std::env;
-    use std::time::SystemTime;
 
     pub fn my_db() -> Database {
         let database = Database::rusqlite_from_connection(TEST_DATABASE_FILE, false)
@@ -1016,11 +1029,11 @@ pub mod tests {
         picture.set_image_data(image_data.clone());
         assert_eq!(100, picture.image_data().unwrap().palette().count());
         let initial: TimeStamp = picture_file_data.1;
-        database.delete_picture_with_file_path(&file_path);
+        let _ = database.delete_picture_with_file_path(&file_path);
 
         assert!(database.rusqlite_insert_picture(&picture).is_ok());
         let result = database.rusqlite_retrieve_picture_with_file_path(&file_path);
-        database.delete_picture_with_file_path(&file_path);
+        let _ = database.delete_picture_with_file_path(&file_path);
         assert!(result.is_ok(), "could not retrieve picture in db");
         let retrieved_picture = result.unwrap();
         assert_eq!("testdata/some_pic.jpeg", retrieved_picture.file_path());
@@ -1063,7 +1076,7 @@ pub mod tests {
                 .expect("can't access image data")
                 .rank()
         );
-        database.rusqlite_update_picture(&old_picture);
+        let _ = database.rusqlite_update_picture(&old_picture);
     }
 
     #[test]
@@ -1075,9 +1088,6 @@ pub mod tests {
             .rusqlite_retrieve_picture_with_file_path(&nine_colors_file_path())
             .unwrap();
         let old_picture = picture.clone();
-        let mut image_data = picture
-            .image_data()
-            .expect("can't access picture image data");
         picture.add_tag("foo");
         picture.add_tag("bar");
         assert!(database.rusqlite_update_picture(&picture).is_ok());
@@ -1086,7 +1096,7 @@ pub mod tests {
             .unwrap();
         assert!(new_picture.image_data().unwrap().tags.contains("foo"));
         assert!(new_picture.image_data().unwrap().tags.contains("bar"));
-        database.rusqlite_update_picture(&old_picture);
+        let _ = database.rusqlite_update_picture(&old_picture);
     }
 
     #[test]
@@ -1096,41 +1106,32 @@ pub mod tests {
         let mut picture = database
             .rusqlite_retrieve_picture_with_file_path(&nine_colors_file_path())
             .unwrap();
-        let mut image_data = picture
-            .image_data()
-            .expect("can't access picture image data");
         picture.add_tag("foo");
         picture.add_tag("bar");
         assert!(database.rusqlite_update_picture(&picture).is_ok());
         let mut picture = database
             .rusqlite_retrieve_picture_with_file_path(&single_dot_file_path())
             .unwrap();
-        let mut image_data = picture
-            .image_data()
-            .expect("can't access picture image data");
         picture.add_tag("dot");
         picture.add_tag("bar");
         assert!(database.rusqlite_update_picture(&picture).is_ok());
         let mut picture = database
             .rusqlite_retrieve_picture_with_file_path(&white_square_file_path())
             .unwrap();
-        let mut image_data = picture
-            .image_data()
-            .expect("can't access picture image data");
         picture.add_tag("qux");
         picture.add_tag("foo");
         assert!(database.rusqlite_update_picture(&picture).is_ok());
 
-        let mut result = database.rusqlite_retrieve_all_tags();
+        let result = database.rusqlite_retrieve_all_tags();
         assert!(result.is_ok());
         let map = result.unwrap();
-        let mut file_path = nine_colors_file_path();
+        let file_path = nine_colors_file_path();
         assert!(map.get(&file_path).unwrap().contains("foo"));
         assert!(map.get(&file_path).unwrap().contains("bar"));
-        let mut file_path = white_square_file_path();
+        let file_path = white_square_file_path();
         assert!(map.get(&file_path).unwrap().contains("qux"));
         assert!(map.get(&file_path).unwrap().contains("foo"));
-        let mut file_path = single_dot_file_path();
+        let file_path = single_dot_file_path();
         assert!(map.get(&file_path).unwrap().contains("dot"));
         assert!(map.get(&file_path).unwrap().contains("bar"));
 

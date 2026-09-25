@@ -165,9 +165,6 @@ pub fn create_thumbnail_file(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::env::default_values::MAX_PALETTE_COLORS;
-    use crate::test_data::{NINE_COLORS, SINGLE_DOT};
-    use palette_extract::Color;
 
     #[test]
     fn check_thumbnail_size_display() {

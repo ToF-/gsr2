@@ -176,41 +176,7 @@ impl Default for ImageData {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::file::picture_file::test::get_palette_from_picture_file;
     use crate::test_data::*;
-    use image::DynamicImage;
-
-    #[test]
-    fn extract_a_palette_of_9_most_used_colors() {
-        let image: DynamicImage = gen_nine_colors();
-        let palette = Palette::from(&image);
-        let sample = palette.sample();
-        // assert_eq!(Rgb([4, 4, 4]), sample[0]);
-        // assert_eq!(Rgb([4, 4, 252]), sample[1]);
-        // assert_eq!(Rgb([4, 132, 132]), sample[2]);
-        // assert_eq!(Rgb([136, 100, 76]), sample[3]);
-        // assert_eq!(Rgb([156, 204, 52]), sample[4]);
-        // assert_eq!(Rgb([236, 132, 236]), sample[5]);
-        // assert_eq!(Rgb([252, 4, 4]), sample[6]);
-        // assert_eq!(Rgb([252, 140, 4]), sample[7]);
-        // assert_eq!(Rgb([252, 252, 4]), sample[8]);
-    }
-
-    #[test]
-    fn extract_a_palette_from_a_picture_file() {
-        let image: DynamicImage = gen_nine_colors();
-        let palette = Palette::from(&image);
-        let sample = palette.sample();
-        // assert_eq!(Rgb([4, 4, 4]), sample[0]);
-        // assert_eq!(Rgb([4, 4, 252]), sample[1]);
-        // assert_eq!(Rgb([4, 132, 132]), sample[2]);
-        // assert_eq!(Rgb([136, 100, 76]), sample[3]);
-        // assert_eq!(Rgb([156, 204, 52]), sample[4]);
-        // assert_eq!(Rgb([236, 132, 236]), sample[5]);
-        // assert_eq!(Rgb([252, 4, 4]), sample[6]);
-        // assert_eq!(Rgb([252, 140, 4]), sample[7]);
-        // assert_eq!(Rgb([252, 252, 4]), sample[8]);
-    }
 
     #[test]
     fn extract_size_from_a_picture_file() {

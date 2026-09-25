@@ -65,6 +65,12 @@ impl FolderMap {
         self.map.clone()
     }
 
+    pub fn update(&mut self, directory: &str, folder: &Folder) {
+        if let Some(entry) = self.map.get_mut(directory) {
+            *entry = folder.clone()
+        };
+    }
+
     pub fn get(&self, directory: &str) -> Option<Folder> {
         if directory.is_empty() {
             self.map.get(&format!("{}", BASE_DIRECTORY_SYMBOL)).cloned()

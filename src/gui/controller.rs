@@ -466,24 +466,23 @@ impl Controller {
         covers_only_opt: Option<bool>,
         sub_directory: Option<String>,
         predicate_opt: Option<Predicate>,
-    ) -> IOResult<usize>
-        {
-            let initial_command_line_arguments = self.command_line_arguments();
-            let command_line_arguments = CommandLineArguments {
-                covers: covers_only_opt.unwrap_or_default(),
-                directory: sub_directory,
-                ..initial_command_line_arguments
-            };
-            let configuration = CONFIGURATION.get().expect("configuration not set");
+    ) -> IOResult<usize> {
+        let initial_command_line_arguments = self.command_line_arguments();
+        let command_line_arguments = CommandLineArguments {
+            covers: covers_only_opt.unwrap_or_default(),
+            directory: sub_directory,
+            ..initial_command_line_arguments
+        };
+        let configuration = CONFIGURATION.get().expect("configuration not set");
 
-            self.with_repository_mut(|repository| {
-                *repository = Repository::new(configuration.clone(), command_line_arguments.clone(), false);
-            match    repository.retrieve_pictures(predicate_opt) {
+        self.with_repository_mut(|repository| {
+            *repository =
+                Repository::new(configuration.clone(), command_line_arguments.clone(), false);
+            match repository.retrieve_pictures(predicate_opt) {
                 Err(e) => Err(e),
                 Ok(0) => Ok(0),
                 Ok(n) => {
                     let repository_gallery = repository.gallery_rc().borrow();
-                    dbg!(&repository_gallery.len());
                     self.with_view_state_mut(|view_state| {
                         view_state.navigator = Navigator::new(
                             repository_gallery.len(),
@@ -497,7 +496,7 @@ impl Controller {
                     Ok(n)
                 }
             }
-            })
+        })
     }
 
     fn retrieve_current_location(&self) {
@@ -1937,16 +1936,20 @@ impl Controller {
                 window.dismiss();
                 this.with_view_state_mut(|view_state| {
                     let position = view_state.gallery.current_picture_index();
-                    this.with_repository(|repository| {
-                        let counts = repository.directory_count_at_index(position);
-                        let mut picture = view_state.gallery.current_picture().clone();
-                        picture.toggle_cover(counts.0);
-                        match repository.update_picture(&picture) {
-                            Ok(_) => {}
-                            Err(e) => eprintln!("{}", e),
-                        }
-                        view_state.gallery.set_picture(position, picture);
-                    });
+                    if ! view_state.gallery.current_picture().is_folder() {
+                        this.with_repository(|repository| {
+                            let counts = repository.directory_count_at_index(position);
+                            let mut picture = view_state.gallery.current_picture().clone();
+                            picture.toggle_cover(counts.0);
+                            match repository.update_picture(&picture) {
+                                Ok(_) => {}
+                                Err(e) => eprintln!("{}", e),
+                            }
+                            view_state.gallery.set_picture(position, picture);
+                        })
+                    } else {
+                        window.present_information("can't set a directory as cover")
+                    }
                 });
                 window.deselect_pictures();
             }
