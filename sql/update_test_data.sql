@@ -1,5 +1,5 @@
 UPDATE Picture
-    SET Label = 'nine-colors', Rank = 0, Cover = true WHERE FilePath like '%nine_colors.png';
+    SET Label = 'nine-colors', Rank = 0, Cover = false WHERE FilePath like '%nine_colors.png';
 
 UPDATE Picture
     SET Label = 'white_square', Rank = 2, Cover = false WHERE FilePath like '%white_square.png';
@@ -8,7 +8,7 @@ UPDATE Picture
     SET Label = 'large_picture', Rank = 4, Cover = false WHERE FilePath like '%large_picture.png';
 
 UPDATE Picture
-    SET Label = 'dot', Rank = 4, Cover = false WHERE FilePath like '%single_dot.png';
+    SET Label = 'dot', Rank = 4, Cover = true WHERE FilePath like '%single_dot.png';
 
 DELETE FROM Tag;
 

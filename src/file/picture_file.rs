@@ -333,10 +333,10 @@ pub mod test {
     #[test]
     #[serial]
     fn moving_picture_files_to_a_directory() {
-        let file_path = my_file_path();
-        let target_dir = my_target_dir();
+        let file_path = format!("{}/{}/{}", current_directory(), TEST_DATA_DIR, WHITE_SQUARE);
+        let target_dir = format!("{}/{}/subdir", current_directory(), TEST_DATA_DIR);
         let test_dir = my_test_dir();
-        let target_file_path = format!("{}/{}", target_dir, NINE_COLORS);
+        let target_file_path = format!("{}/{}", target_dir, WHITE_SQUARE);
         let result = move_picture_files(&file_path, &target_dir);
         assert!(result.is_ok());
         assert!(file_exists(&target_file_path));

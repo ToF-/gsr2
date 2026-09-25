@@ -418,11 +418,11 @@ mod tests {
             gallery.picture(0).file_path()
         );
         assert_eq!(
-            String::from(&nine_colors_file_path()),
+            String::from(&single_dot_file_path()),
             gallery.picture(1).file_path()
         );
         assert_eq!(
-            String::from(&single_dot_file_path()),
+            String::from(&nine_colors_file_path()),
             gallery.picture(2).file_path()
         );
         assert_eq!(
@@ -505,19 +505,13 @@ mod tests {
         };
         let p = gallery.finder.find_first(predicate);
         assert!(p.is_some());
-        assert_eq!(
-            "large_picture.png",
-            gallery.pictures()[p.unwrap()].file_name()
-        );
-        let p = gallery.finder.find_next();
-        assert!(p.is_some());
-        assert_eq!(
-            "nine_colors.png",
-            gallery.pictures()[p.unwrap()].file_name()
-        );
+        assert_eq!( "large_picture.png", gallery.pictures()[p.unwrap()].file_name());
         let p = gallery.finder.find_next();
         assert!(p.is_some());
         assert_eq!("single_dot.png", gallery.pictures()[p.unwrap()].file_name());
+        let p = gallery.finder.find_next();
+        assert!(p.is_some());
+        assert_eq!( "nine_colors.png", gallery.pictures()[p.unwrap()].file_name());
         let p = gallery.finder.find_next();
         assert!(p.is_none());
     }

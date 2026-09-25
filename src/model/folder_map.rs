@@ -153,7 +153,7 @@ mod tests {
     }
 
     #[test]
-    fn getting_a_folder_via_directory_name_or_part() {
+    fn getting_a_folder_via_directory_name_or_part_depending_on_syntax() {
         let file_paths: Vec<String> = vec![
             String::from("%/foo.jpg"),
             String::from("%/bun/bar.jpg"),
@@ -167,9 +167,11 @@ mod tests {
         ];
         let folders = FolderMap::from_file_paths(&file_paths);
         assert_eq!(None, folders.get("foo"));
-        let folder_opt = folders.get("bun");
+        assert_eq!(None, folders.get("bun"));
+        dbg!(&folders);
+        let folder_opt = folders.get("@bun");
         assert!(folder_opt.is_some());
-        let folder_opt = folders.get("gus/bam");
+        let folder_opt = folders.get("@gus/bam");
         assert!(folder_opt.is_some());
         let folder_opt = folders.get("?def");
         assert!(folder_opt.is_some());

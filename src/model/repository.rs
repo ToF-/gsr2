@@ -1,3 +1,5 @@
+use crate::test_data::WHITE_SQUARE;
+use crate::test_data::SINGLE_DOT;
 use crate::cli::command::Command;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::Configuration;
@@ -883,7 +885,7 @@ mod tests {
         args.order = Some(Order::Size);
         let mut repository = Repository::new(my_cfg(), args, false);
         assert!(repository.retrieve_pictures(None).is_ok());
-        let result = repository.picture_from_file_path(&format!("testdata/{}", NINE_COLORS));
+        let result = repository.picture_from_file_path(&format!("testdata/{}", WHITE_SQUARE));
         assert!(result.is_ok());
         let gallery = result.unwrap();
         assert_eq!(1, gallery.len());
@@ -920,7 +922,7 @@ mod tests {
             .try_borrow()
             .expect("can't borrow repository gallery");
         assert_eq!(1, gallery.len()); // only 1 pic is cover
-        assert!(gallery.pictures()[0].file_path().contains(NINE_COLORS));
+        assert!(gallery.pictures()[0].file_path().contains(SINGLE_DOT));
     }
     #[test]
     #[serial]
@@ -933,10 +935,11 @@ mod tests {
             .try_borrow()
             .expect("can't borrow repository gallery");
         let cover_picture = gallery.pictures()[1].clone();
-        assert!(cover_picture.file_path().contains(NINE_COLORS));
+        dbg!(&cover_picture.file_path());
+        assert!(cover_picture.file_path().contains(SINGLE_DOT));
         assert!(cover_picture.cover().is_some());
         let count = cover_picture.cover().unwrap();
-        assert_eq!(4, count);
+        assert_eq!(3, count); // because NINE_COLORS is in a subdir
     }
     #[test]
     #[serial]
@@ -948,7 +951,7 @@ mod tests {
         let counts: (usize, usize) = *map
             .get(&format!("{}/{}", current_directory(), TEST_DATA_DIR))
             .expect("can't access parent dir count");
-        assert_eq!((4, 1), counts);
+        assert_eq!((3, 1), counts);
     }
     #[test]
     #[serial]

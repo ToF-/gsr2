@@ -38,14 +38,9 @@ reinit_data:
 	echo '(- (foo bar qux) (bog gap) (pat (jxs lam lom lum) (zzz tic tac toe) (pin blo) ))' >$(TEST_DIR)/catalog.sexp
 	sqlite3 $(DATABASE) ".read sql/create_db.sql"
 	sqlite3 $(DATABASE) ".schema"
-	cargo run --bin gen_data
+	cp -r test_sample/* testdata
 	tree testdata
 	cargo run -- collect $(TEST_DIR)
-	cp test_thumbs/* testdata/.
-	mv testdata/nine_colorsTHUMBSmall.png testdata/subdir/.
-	mv testdata/nine_colorsTHUMBMedium.png testdata/subdir/.
-	mv testdata/nine_colorsTHUMBLarge.png testdata/subdir/.
-	mv testdata/nine_colorsTHUMBLarger.png testdata/subdir/.
 	cargo run -- update
 	sqlite3 $(DATABASE) $(SQLITE_PARAM) ".read sql/update_test_data.sql"
 	sqlite3 $(DATABASE) "SELECT RowId, FilePath, Label, FileSize, ModifiedTime, Rank, ColorCount, Cover, Score, Category  FROM Picture;"
