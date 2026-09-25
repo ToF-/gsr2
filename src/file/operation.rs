@@ -478,44 +478,44 @@ mod test {
     #[test]
     fn renaming_a_picture_takes_all_necessary_operations() {
         let source_dir = format!("{}/{}/", current_directory(), TEST_DATA_DIR);
-        let picture: Picture = Picture::new(&nine_colors_file_path());
-        let target_name = "nine_colors_foo";
-        let operations = rename_picture(&nine_colors_file_path(), &target_name);
-        let source_file = file_path_as_stored(&nine_colors_file_path());
+        let picture: Picture = Picture::new(&white_square_file_path());
+        let target_name = "white_square_foo";
+        let operations = rename_picture(&white_square_file_path(), &target_name);
+        let source_file = file_path_as_stored(&white_square_file_path());
         let target_file = file_path_as_stored(&format!(
-            "{}/{}/nine_colors_foo.png",
+            "{}/{}/white_square_foo.png",
             current_directory(),
             TEST_DATA_DIR
         ));
         assert_eq!(11, operations.len());
         assert_eq!(
             Operation::Copy(
-                file_path_as_retrieved(&format!("{}nine_colorsTHUMBSmall.png", source_dir)).into(),
-                file_path_as_retrieved(&format!("{}nine_colors_fooTHUMBSmall.png", source_dir))
+                file_path_as_retrieved(&format!("{}subdir/white_squareTHUMBSmall.png", source_dir)).into(),
+                file_path_as_retrieved(&format!("{}subdir/white_square_fooTHUMBSmall.png", source_dir))
                     .into()
             ),
             operations[0]
         );
         assert_eq!(
             Operation::Copy(
-                file_path_as_retrieved(&format!("{}nine_colorsTHUMBMedium.png", source_dir)).into(),
-                file_path_as_retrieved(&format!("{}nine_colors_fooTHUMBMedium.png", source_dir))
+                file_path_as_retrieved(&format!("{}subdir/white_squareTHUMBMedium.png", source_dir)).into(),
+                file_path_as_retrieved(&format!("{}subdir/white_square_fooTHUMBMedium.png", source_dir))
                     .into()
             ),
             operations[1]
         );
         assert_eq!(
             Operation::Copy(
-                file_path_as_retrieved(&format!("{}nine_colorsTHUMBLarge.png", source_dir)).into(),
-                file_path_as_retrieved(&format!("{}nine_colors_fooTHUMBLarge.png", source_dir))
+                file_path_as_retrieved(&format!("{}white_squareTHUMBLarge.png", source_dir)).into(),
+                file_path_as_retrieved(&format!("{}white_square_fooTHUMBLarge.png", source_dir))
                     .into()
             ),
             operations[2]
         );
         assert_eq!(
             Operation::Copy(
-                file_path_as_retrieved(&format!("{}nine_colorsTHUMBLarger.png", source_dir)).into(),
-                file_path_as_retrieved(&format!("{}nine_colors_fooTHUMBLarger.png", source_dir))
+                file_path_as_retrieved(&format!("{}white_squareTHUMBLarger.png", source_dir)).into(),
+                file_path_as_retrieved(&format!("{}white_square_fooTHUMBLarger.png", source_dir))
                     .into()
             ),
             operations[3]
@@ -529,25 +529,25 @@ mod test {
         );
         assert_eq!(
             Operation::Delete(
-                file_path_as_retrieved(&format!("{}nine_colorsTHUMBSmall.png", source_dir)).into()
+                file_path_as_retrieved(&format!("{}white_squareTHUMBSmall.png", source_dir)).into()
             ),
             operations[5]
         );
         assert_eq!(
             Operation::Delete(
-                file_path_as_retrieved(&format!("{}nine_colorsTHUMBMedium.png", source_dir)).into()
+                file_path_as_retrieved(&format!("{}white_squareTHUMBMedium.png", source_dir)).into()
             ),
             operations[6]
         );
         assert_eq!(
             Operation::Delete(
-                file_path_as_retrieved(&format!("{}nine_colorsTHUMBLarge.png", source_dir)).into()
+                file_path_as_retrieved(&format!("{}white_squareTHUMBLarge.png", source_dir)).into()
             ),
             operations[7]
         );
         assert_eq!(
             Operation::Delete(
-                file_path_as_retrieved(&format!("{}nine_colorsTHUMBLarger.png", source_dir)).into()
+                file_path_as_retrieved(&format!("{}white_squareTHUMBLarger.png", source_dir)).into()
             ),
             operations[8]
         );
@@ -588,7 +588,7 @@ mod test {
     #[test]
     fn moving_picture_to_the_same_directory_not_allowed() {
         let target_dir = format!("{}/{}", current_directory(), TEST_DATA_DIR);
-        let operations = move_picture(&nine_colors_file_path(), &target_dir);
+        let operations = move_picture(&white_square_file_path(), &target_dir);
         assert_eq!(0, operations.len());
     }
     #[test]

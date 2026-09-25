@@ -500,7 +500,7 @@ mod tests {
         let ch = 'l';
 
         let predicate: Predicate = Predicate {
-            function: Arc::new(move |picture: &Picture| picture.file_name().contains(ch)),
+            function: Rc::new(move |picture: &Picture| picture.file_name().contains(ch)),
             criteria: Vec::new(),
         };
         let p = gallery.finder.find_first(predicate);

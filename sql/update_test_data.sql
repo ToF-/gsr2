@@ -12,9 +12,9 @@ UPDATE Picture
 
 DELETE FROM Tag;
 
-INSERT INTO Tag (FilePath, Label) VALUES ('%/nine_colors.png', 'foo');
-INSERT INTO Tag (FilePath, Label) VALUES ('%/nine_colors.png', 'bar');
-INSERT INTO Tag (FilePath, Label) VALUES ('%/nine_colors.png', 'qux');
+INSERT INTO Tag (FilePath, Label) VALUES ('%/subdir/nine_colors.png', 'foo');
+INSERT INTO Tag (FilePath, Label) VALUES ('%/subdir/nine_colors.png', 'bar');
+INSERT INTO Tag (FilePath, Label) VALUES ('%/subdir/nine_colors.png', 'qux');
 INSERT INTO Tag (FilePath, Label) VALUES ('%/white_square.png', 'foo');
 INSERT INTO Tag (FilePath, Label) VALUES ('%/white_square.png', 'bar');
 INSERT INTO Tag (FilePath, Label) VALUES ('%/single_dot.png', 'bar');

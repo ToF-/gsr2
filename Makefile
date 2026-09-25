@@ -39,10 +39,13 @@ reinit_data:
 	sqlite3 $(DATABASE) ".read sql/create_db.sql"
 	sqlite3 $(DATABASE) ".schema"
 	cargo run --bin gen_data
-	mv testdata/nine_colors* testdata/subdir/.
+	tree testdata
 	cargo run -- collect $(TEST_DIR)
 	cp test_thumbs/* testdata/.
-	mv testdata/nine_colors* testdata/subdir/.
+	mv testdata/nine_colorsTHUMBSmall.png testdata/subdir/.
+	mv testdata/nine_colorsTHUMBMedium.png testdata/subdir/.
+	mv testdata/nine_colorsTHUMBLarge.png testdata/subdir/.
+	mv testdata/nine_colorsTHUMBLarger.png testdata/subdir/.
 	cargo run -- update
 	sqlite3 $(DATABASE) $(SQLITE_PARAM) ".read sql/update_test_data.sql"
 	sqlite3 $(DATABASE) "SELECT RowId, FilePath, Label, FileSize, ModifiedTime, Rank, ColorCount, Cover, Score, Category  FROM Picture;"

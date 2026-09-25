@@ -110,7 +110,7 @@ mod tests {
             String::from("%/abc/def/ghi/ijk/lmn.jpg"),
         ];
         let folders = FolderMap::from_file_paths(&file_paths);
-        assert_eq!(11, folders.len());
+        assert_eq!(11, folders.map().len());
         assert_eq!(
             Some(1),
             folders

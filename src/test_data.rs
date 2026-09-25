@@ -19,7 +19,7 @@ pub fn test_directory() -> String {
 }
 
 pub fn nine_colors_file_path() -> String {
-    current_directory() + "/" + TEST_DATA_DIR + "/" + NINE_COLORS
+    current_directory() + "/" + TEST_DATA_DIR + "/subdir/" + NINE_COLORS
 }
 
 pub fn single_dot_file_path() -> String {
