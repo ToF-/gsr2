@@ -1069,6 +1069,7 @@ pub mod tests {
     #[test]
     #[serial]
     fn add_a_tag_to_a_picture_image_data() {
+        dbg!(&nine_colors_file_path());
         let database = my_db();
         let mut picture = database
             .rusqlite_retrieve_picture_with_file_path(&nine_colors_file_path())
