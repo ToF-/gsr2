@@ -488,6 +488,22 @@ impl Database {
         )
     }
 
+    pub fn rusqlite_update_picture_is_cover(&self, picture: &Picture) -> SqlResult<usize> {
+        let image_data = picture.image_data().expect("can't access image data");
+        let connection = self.connection_rc.borrow();
+        connection.execute(
+            "UPDATE Picture SET Cover = ?2 WHERE FilePath = ?1;",
+            params![file_path_as_stored(&picture.file_path()), cover_to_bool(image_data.cover())],
+        )
+    }
+    pub fn update_picture_is_cover(&self, picture: &Picture) -> IOResult<usize> {
+        match self.rusqlite_update_picture_is_cover(picture) {
+            Ok(n) => {
+                Ok(n)
+            },
+            Err(e) => Err(std::io::Error::other(e)),
+        }
+    }
     pub fn update_picture_folder_id(&self, directory: &str, folder_id: usize) -> IOResult<usize> {
         match self.rusqlite_update_picture_folder_id(directory, folder_id) {
             Ok(n) => Ok(n),
@@ -1082,7 +1098,6 @@ pub mod tests {
     #[test]
     #[serial]
     fn add_a_tag_to_a_picture_image_data() {
-        dbg!(&nine_colors_file_path());
         let database = my_db();
         let mut picture = database
             .rusqlite_retrieve_picture_with_file_path(&nine_colors_file_path())

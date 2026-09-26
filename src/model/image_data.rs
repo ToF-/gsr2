@@ -143,6 +143,10 @@ impl ImageData {
         self.score += score
     }
 
+    pub fn set_cover_off(&mut self) {
+        self.cover = None
+    }
+
     pub fn toggle_cover(&mut self, dir_count: usize) {
         if self.cover().is_some() {
             self.cover = None

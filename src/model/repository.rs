@@ -707,6 +707,35 @@ impl Repository {
         }
     }
 
+    pub fn update_former_cover_picture(&self, picture: &Picture) -> IOResult<Vec<usize>> {
+        if let Some(parent_dir) = parent_directory(&picture.file_path()) {
+            let directory = file_path_as_stored(&parent_dir);
+            let file_path = file_path_as_stored(&picture.file_path());
+            let mut indices: Vec<usize> = Vec::new();
+            match self.database.retrieve_all_pictures_with_parent(&directory) {
+                Ok(pictures) => {
+                    for (index, mut picture) in pictures.into_iter().enumerate() {
+                        if picture.is_cover() && file_path_as_stored(&picture.file_path()) != file_path {
+                            let mut new_picture = picture.clone();
+                            let mut image_data = picture.image_data().expect("image data not set");
+                            image_data.set_cover_off();
+                            new_picture.set_image_data(image_data);
+                            match self.database.update_picture_is_cover(&new_picture) {
+                                Ok(_) => {},
+                                Err(e) => eprintln!("Error:{}", e),
+                            }
+                            indices.push(index);
+                        }
+                    };
+                    Ok(indices)
+                },
+                Err(e) => Err(IOError::other(e)),
+            }
+        } else {
+            Ok(Vec::new())
+        }
+    }
+
     pub fn update_picture(&self, picture: &Picture) -> IOResult<()> {
         if self.command_line_arguments.on_database() {
             if picture.is_cover() {

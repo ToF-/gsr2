@@ -1945,6 +1945,14 @@ impl Controller {
                                 Ok(_) => {}
                                 Err(e) => eprintln!("{}", e),
                             }
+                            match repository.update_former_cover_picture(&picture) {
+                                Ok(indices) => {
+                                    for index in indices.iter() {
+                                        view_state.gallery.picture(*index).toggle_cover(0)
+                                    }
+                                }
+                                Err(e) => eprintln!("{}", e),
+                            }
                             view_state.gallery.set_picture(position, picture);
                         })
                     } else {
@@ -1952,6 +1960,7 @@ impl Controller {
                     }
                 });
                 window.deselect_pictures();
+                window.refresh_view();
             }
         )
     }
