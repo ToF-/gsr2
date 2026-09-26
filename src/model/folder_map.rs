@@ -174,7 +174,6 @@ mod tests {
         let folders = FolderMap::from_file_paths(&file_paths);
         assert_eq!(None, folders.get("foo"));
         assert_eq!(None, folders.get("bun"));
-        dbg!(&folders);
         let folder_opt = folders.get("@bun");
         assert!(folder_opt.is_some());
         let folder_opt = folders.get("@gus/bam");

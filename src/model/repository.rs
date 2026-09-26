@@ -152,7 +152,6 @@ impl Repository {
                                 .values()
                                 .filter(|folder| folder.parent_id() == folder_id)
                             {
-                                dbg!(&folder);
                                 gallery.add_picture(&Picture::for_folder(folder));
                             }
                         }
@@ -165,7 +164,6 @@ impl Repository {
             })
         };
         let gallery = self.gallery_rc.borrow();
-        dbg!(&gallery.len());
         result
     }
 
@@ -694,7 +692,6 @@ impl Repository {
             let folders = self.folder_map_rc.borrow();
             match folders.get(parent_dir) {
                 Some(folder) => {
-                    dbg!(&folder);
                     folder
                 }
                 None => return Ok(0),
@@ -1000,7 +997,6 @@ mod tests {
             .try_borrow()
             .expect("can't borrow repository gallery");
         let cover_picture = gallery.pictures()[1].clone();
-        dbg!(&cover_picture.file_path());
         assert!(cover_picture.file_path().contains(SINGLE_DOT));
         assert!(cover_picture.cover().is_some());
         let count = cover_picture.cover().unwrap();
