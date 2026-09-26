@@ -194,8 +194,9 @@ fn thumbnail_name_for_path(
 pub fn thumbnail_name_from(file_name: &str, pictures_per_row: usize) -> String {
     let path: PathBuf = PathBuf::from(&based_path(file_name));
     if let Some(extension) = path.extension()
-        && let Some(file_stem) = path.file_stem() {
-            thumbnail_name_for_path(path.clone(), file_stem, extension, pictures_per_row)
+        && let Some(file_stem) = path.file_stem()
+    {
+        thumbnail_name_for_path(path.clone(), file_stem, extension, pictures_per_row)
     } else {
         "".to_string()
     }

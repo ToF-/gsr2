@@ -59,7 +59,8 @@ const INSERT_MARK: &str = "INSERT INTO Mark (Letter, FilePath) VALUES(?1, ?2) ON
 
 const UPDATE_PICTURE: &str = "UPDATE Picture SET Label = ?2, FileSize = ?3, ModifiedTime = ?4, Rank = ?5, Sample = ?6, ColorCount =?7, Cover = ?8, Score = ?9, Category = ?10 WHERE FilePath = ?1;";
 
-const UPDATE_FOLDER_FIRST_FILE_PATH: &str = "UPDATE Folder SET FirstFilePath = ?2 WHERE FolderId = ?1;";
+const UPDATE_FOLDER_FIRST_FILE_PATH: &str =
+    "UPDATE Folder SET FirstFilePath = ?2 WHERE FolderId = ?1;";
 
 pub type ImageDataMap = HashMap<String, ImageData>;
 
@@ -493,14 +494,15 @@ impl Database {
         let connection = self.connection_rc.borrow();
         connection.execute(
             "UPDATE Picture SET Cover = ?2 WHERE FilePath = ?1;",
-            params![file_path_as_stored(&picture.file_path()), cover_to_bool(image_data.cover())],
+            params![
+                file_path_as_stored(&picture.file_path()),
+                cover_to_bool(image_data.cover())
+            ],
         )
     }
     pub fn update_picture_is_cover(&self, picture: &Picture) -> IOResult<usize> {
         match self.rusqlite_update_picture_is_cover(picture) {
-            Ok(n) => {
-                Ok(n)
-            },
+            Ok(n) => Ok(n),
             Err(e) => Err(std::io::Error::other(e)),
         }
     }
@@ -529,16 +531,23 @@ impl Database {
         }
     }
 
-    fn rusqlite_update_folder_first_file_path_for_id(&self, folder_id: usize, first_file_path: &str) -> SqlResult<usize> {
+    fn rusqlite_update_folder_first_file_path_for_id(
+        &self,
+        folder_id: usize,
+        first_file_path: &str,
+    ) -> SqlResult<usize> {
         let connection = self.connection_rc.borrow();
-        connection
-            .execute(
-                UPDATE_FOLDER_FIRST_FILE_PATH,
-                params![folder_id, first_file_path]
-            )
+        connection.execute(
+            UPDATE_FOLDER_FIRST_FILE_PATH,
+            params![folder_id, first_file_path],
+        )
     }
 
-    pub fn update_folder_first_file_path_for_id(&self, folder_id: usize, first_file_path: &str) -> IOResult<usize> {
+    pub fn update_folder_first_file_path_for_id(
+        &self,
+        folder_id: usize,
+        first_file_path: &str,
+    ) -> IOResult<usize> {
         match self.rusqlite_update_folder_first_file_path_for_id(folder_id, first_file_path) {
             Ok(n) => Ok(n),
             Err(e) => Err(std::io::Error::other(e)),

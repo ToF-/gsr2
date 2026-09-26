@@ -685,7 +685,11 @@ impl Repository {
         }
     }
 
-    pub fn update_folder_first_file_path(&self, parent_dir: &str, file_path: &str) -> IOResult<usize> {
+    pub fn update_folder_first_file_path(
+        &self,
+        parent_dir: &str,
+        file_path: &str,
+    ) -> IOResult<usize> {
         let folder = {
             let folders = self.folder_map_rc.borrow();
             match folders.get(parent_dir) {
@@ -693,9 +697,7 @@ impl Repository {
                     dbg!(&folder);
                     folder
                 }
-                None => {
-                    return Ok(0)
-                }
+                None => return Ok(0),
             }
         };
         {
@@ -703,7 +705,10 @@ impl Repository {
             new_folder.set_first_file_path(&file_path);
             let mut folder_map = self.folder_map_rc.borrow_mut();
             folder_map.update(parent_dir, &new_folder);
-            self.database.update_folder_first_file_path_for_id(new_folder.id(), &new_folder.first_file_path())
+            self.database.update_folder_first_file_path_for_id(
+                new_folder.id(),
+                &new_folder.first_file_path(),
+            )
         }
     }
 
@@ -715,20 +720,22 @@ impl Repository {
             match self.database.retrieve_all_pictures_with_parent(&directory) {
                 Ok(pictures) => {
                     for (index, mut picture) in pictures.into_iter().enumerate() {
-                        if picture.is_cover() && file_path_as_stored(&picture.file_path()) != file_path {
+                        if picture.is_cover()
+                            && file_path_as_stored(&picture.file_path()) != file_path
+                        {
                             let mut new_picture = picture.clone();
                             let mut image_data = picture.image_data().expect("image data not set");
                             image_data.set_cover_off();
                             new_picture.set_image_data(image_data);
                             match self.database.update_picture_is_cover(&new_picture) {
-                                Ok(_) => {},
+                                Ok(_) => {}
                                 Err(e) => eprintln!("Error:{}", e),
                             }
                             indices.push(index);
                         }
-                    };
+                    }
                     Ok(indices)
-                },
+                }
                 Err(e) => Err(IOError::other(e)),
             }
         } else {
@@ -875,12 +882,10 @@ mod tests {
     use crate::file::database::tests::my_args;
     use crate::file::paths::test::current_directory;
     use crate::model::order::Order;
-    use crate::test_data::TEST_DATA_DIR;
-    use serial_test::serial;
-    use crate::test_data::WHITE_SQUARE;
     use crate::test_data::SINGLE_DOT;
-
-
+    use crate::test_data::TEST_DATA_DIR;
+    use crate::test_data::WHITE_SQUARE;
+    use serial_test::serial;
 
     #[test]
     #[serial]
