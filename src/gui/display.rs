@@ -56,7 +56,7 @@ fn page_display(view_state: &ViewState, position: usize) -> String {
     let page = if view_state.settings.single_view() {
         "".to_string()
     } else {
-        let len = view_state.gallery.len();
+        let len = view_state.gallery().len();
         let pictures_per_row = view_state.settings.pictures_per_row() as usize;
         let page_size = pictures_per_row * pictures_per_row;
         let number = 1 + position / page_size;
@@ -88,7 +88,7 @@ fn name_display(view_state: &ViewState, picture: &Picture) -> String {
 }
 
 fn order_display(view_state: &ViewState) -> String {
-    format!("{}{}", ORDER_SYMBOL, view_state.gallery.order())
+    format!("{}{}", ORDER_SYMBOL, view_state.gallery().order())
 }
 pub fn picture_label_display(
     label: &str,
@@ -110,7 +110,7 @@ pub fn picture_label_display(
 }
 
 fn directory_display(view_state: &ViewState) -> String {
-    if let Some(folder) = view_state.gallery.sub_folder() {
+    if let Some(folder) = view_state.gallery().sub_folder() {
         file_name_from(&folder)
     } else {
         String::from("")
@@ -131,7 +131,7 @@ fn folder_display(folder: Option<usize>) -> String {
     }
 }
 fn label_display(view_state: &ViewState) -> String {
-    let label = view_state.gallery.current_picture().label();
+    let label = view_state.gallery().current_picture().label();
     if !label.is_empty() {
         format!("<{}>", label)
     } else {
@@ -141,7 +141,7 @@ fn label_display(view_state: &ViewState) -> String {
 
 fn date_display(view_state: &ViewState) -> String {
     if view_state.settings.file_date_on() {
-        view_state.gallery.current_picture().modified_time_display()
+        view_state.gallery().current_picture().modified_time_display()
     } else {
         String::from("")
     }
@@ -149,7 +149,7 @@ fn date_display(view_state: &ViewState) -> String {
 
 fn size_display(view_state: &ViewState) -> String {
     if view_state.settings.file_size_on() {
-        view_state.gallery.current_picture().file_size_display()
+        view_state.gallery().current_picture().file_size_display()
     } else {
         String::from("")
     }
@@ -208,17 +208,17 @@ pub fn title_display(view_state: &ViewState) -> String {
     let select = select_pattern_display(view_state);
     let pattern = find_pattern_display(view_state);
     let covers_only = covers_only_display(view_state);
-    let picture = view_state.gallery.current_picture();
-    view_state.gallery.current_picture().file_name();
+    let picture = view_state.gallery().current_picture();
+    view_state.gallery().current_picture().file_name();
     let folder = directory_display(view_state);
-    let position = view_state.gallery.current_picture_index();
+    let position = view_state.gallery().current_picture_index();
     let page = page_display(view_state, position);
     let sel_count = selected_count_display(view_state);
     let order = order_display(view_state);
     let small = small_picture_display(
         picture.image_data().map(|data| data.size()),
-        view_state.gallery.current_picture().cover(),
-        view_state.gallery.current_picture().folder(),
+        view_state.gallery().current_picture().cover(),
+        view_state.gallery().current_picture().folder(),
     );
     let cover = cover_display(picture.cover());
     let name = name_display(view_state, &picture);

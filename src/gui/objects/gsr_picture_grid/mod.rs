@@ -70,7 +70,7 @@ impl GsrPictureGrid {
                         gsr_picture_cell_box
                             .set_right_click_controller(self.gsr_application_window());
                     }
-                    let picture = view_state.gallery.picture(index);
+                    let picture = view_state.gallery().picture(index);
                     self.set_picture_at(col, row, &picture, index);
 
                     let opacity = picture_opacity(view_state.selection.contains(index));

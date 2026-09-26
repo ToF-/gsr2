@@ -312,7 +312,7 @@ impl GsrApplicationWindow {
                             repository_gallery.len(),
                             view_state.settings.pictures_per_row() as usize,
                         );
-                        view_state.gallery = Gallery::from_gallery_and_navigator(
+                        *view_state.gallery_mut() = Gallery::from_gallery_and_navigator(
                             repository_gallery.clone(),
                             &view_state.navigator,
                         );
@@ -717,7 +717,7 @@ impl GsrApplicationWindow {
             None,
         );
         let directory = self.with_view_state(|view_state| {
-            parent_directory(&view_state.gallery.current_picture().file_path())
+            parent_directory(&view_state.gallery().current_picture().file_path())
         });
         gsr_entry_window.set_entry_text(&directory.unwrap_or_default());
         self.begin_entry(gsr_entry_window);

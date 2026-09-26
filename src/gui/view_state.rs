@@ -1,3 +1,5 @@
+use std::cell::Ref;
+
 use crate::gui::direction::Direction;
 use crate::gui::view_state::location::Location;
 use crate::gui::view_state::navigator::Navigator;
@@ -6,6 +8,10 @@ use crate::gui::view_state::settings::Settings;
 use crate::model::finder::Finder;
 use crate::model::gallery::Gallery;
 use crate::model::predicate::Predicate;
+use std::cell::Cell;
+use std::cell::RefCell;
+use std::cell::RefMut;
+use std::rc::Rc;
 pub mod location;
 pub mod navigator;
 pub mod selection;
@@ -17,7 +23,7 @@ pub struct ViewState {
     pub settings: Settings,
     pub navigator: Navigator,
     pub selection: Selection,
-    pub gallery: Gallery,
+    pub gallery_rc: Rc<RefCell<Gallery>>,
     pub focus_at_coords: (i32, i32),
     pub saved_locations: Vec<Location>,
     pub current_location: Location,
@@ -29,8 +35,16 @@ impl ViewState {
         if self.selection.has_selected() {
             self.selection.indices()
         } else {
-            vec![self.gallery.current_picture_index()]
+            vec![self.gallery().current_picture_index()]
         }
+    }
+
+    pub fn gallery(&self) -> Ref<Gallery> {
+        self.gallery_rc.borrow()
+    }
+
+    pub fn gallery_mut(&self) -> RefMut<Gallery> {
+        self.gallery_rc.borrow_mut()
     }
 
     pub fn set_new_location(
@@ -75,7 +89,7 @@ impl ViewState {
     ) {
         self.current_location =
             Location::new(sub_directory.clone(), predicate, position, covers_only);
-        self.gallery.set_sub_folder(sub_directory);
+        self.gallery_mut().set_sub_folder(sub_directory);
         if self
             .navigator
             .can_move(&Direction::Index { value: position })

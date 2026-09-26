@@ -58,7 +58,7 @@ impl GsrApplication {
             value: gallery.current_picture_index(),
         });
         view_state.navigator = navigator.clone();
-        view_state.gallery =
+        *view_state.gallery_mut() =
             Gallery::from_gallery_and_navigator(gallery.clone(), &view_state.navigator);
         if let Some((row, col)) = navigator.coords_from_position(navigator.position()) {
             view_state.focus_at_coords = (col as i32, row as i32);

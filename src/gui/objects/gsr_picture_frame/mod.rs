@@ -160,8 +160,8 @@ impl GsrPictureFrame {
         let picture_opt = {
             let shared_view_state = self.gsr_application().shared_view_state();
             let view_state = shared_view_state.borrow_mut();
-            if !view_state.gallery.is_empty() {
-                Some(view_state.gallery.current_picture())
+            if !view_state.gallery().is_empty() {
+                Some(view_state.gallery().current_picture())
             } else {
                 None
             }

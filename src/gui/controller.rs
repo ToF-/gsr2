@@ -488,7 +488,7 @@ impl Controller {
                             repository_gallery.len(),
                             view_state.settings.pictures_per_row() as usize,
                         );
-                        view_state.gallery = Gallery::from_gallery_and_navigator(
+                        *view_state.gallery_mut() = Gallery::from_gallery_and_navigator(
                             repository_gallery.clone(),
                             &view_state.navigator,
                         );
@@ -564,7 +564,7 @@ impl Controller {
                     let indices = window.selected_indices();
                     for position in indices {
                         this.with_view_state_mut(|view_state| {
-                            let mut picture = view_state.gallery.picture(position);
+                            let mut picture = view_state.gallery().picture(position);
                             tags.iter().for_each(|tag| {
                                 picture.add_tag(tag);
                                 this.with_repository(|repository| {
@@ -574,7 +574,7 @@ impl Controller {
                                     }
                                 })
                             });
-                            view_state.gallery.set_picture(position, picture);
+                            view_state.gallery_mut().set_picture(position, picture);
                         });
                     }
                     window.dismiss();
@@ -679,9 +679,11 @@ impl Controller {
                 let gio_action = GioAction::from((object, variant));
                 if let Action::ApplyOrderSetting(order) = Action::from(gio_action) {
                     this.with_view_state_mut(|view_state| {
-                        let gallery = &mut view_state.gallery;
-                        gallery.sort_by(order);
-                        let new_position = gallery.current_picture_index();
+                        {
+                            let mut gallery = view_state.gallery_mut();
+                            gallery.sort_by(order);
+                        }
+                        let new_position = view_state.gallery().current_picture_index();
                         let direction = Direction::Index {
                             value: new_position,
                         };
@@ -749,7 +751,7 @@ impl Controller {
                     let indices = window.selected_indices();
                     for position in indices {
                         this.with_view_state_mut(|view_state| {
-                            let mut picture = view_state.gallery.picture(position);
+                            let mut picture = view_state.gallery().picture(position);
                             picture.set_category(category.clone());
                             this.with_repository(|repository| {
                                 match repository.update_picture(&picture) {
@@ -757,7 +759,7 @@ impl Controller {
                                     Err(e) => eprintln!("{}", e),
                                 }
                             });
-                            view_state.gallery.set_picture(position, picture);
+                            view_state.gallery_mut().set_picture(position, picture);
                         });
                     }
                     window.dismiss();
@@ -787,7 +789,7 @@ impl Controller {
                             let indices = window.selected_indices();
                             this.with_repository(|repository| {
                                 for position in indices {
-                                    let picture = view_state.gallery.picture(position);
+                                    let picture = view_state.gallery().picture(position);
                                     match repository.delete_picture(&picture) {
                                         Ok(_) => {}
                                         Err(err) => {
@@ -958,7 +960,7 @@ impl Controller {
                     repository.all_labels()
                 });
                 let label =
-                    this.with_view_state(|view_state| view_state.gallery.current_picture().label());
+                    this.with_view_state(|view_state| view_state.gallery().current_picture().label());
                 let gsr_entry_window = GsrEntryWindow::new_with(
                     &window,
                     &window.gsr_application().shared_controller(),
@@ -1007,7 +1009,7 @@ impl Controller {
                 let (selected_count, current_picture_name) = this.with_view_state(|view_state| {
                     (
                         view_state.selection.count(),
-                        view_state.gallery.current_picture().file_name(),
+                        view_state.gallery().current_picture().file_name(),
                     )
                 });
                 if selected_count != 1 {
@@ -1122,6 +1124,10 @@ impl Controller {
                 let gio_action = GioAction::from((object, variant));
                 if let Action::Find(find, pattern) = Action::from(gio_action) {
                     window.dismiss();
+                    let pictures = this.with_view_state(|view_state| {
+                        view_state.gallery().pictures().clone()
+                    });
+
                     let catalog = this.with_repository(|repository| repository.catalog());
                     let predicate_res = Predicate::new(&pattern, find, catalog.clone());
                     let position_opt = match predicate_res {
@@ -1131,7 +1137,7 @@ impl Controller {
                         }
                         Ok(predicate) => this.with_view_state_mut(|view_state| {
                             view_state.finder =
-                                Some(Finder::new(view_state.gallery.pictures().clone()));
+                                Some(Finder::new(pictures));
                             view_state.finder.as_mut().unwrap().find_first(predicate)
                         }),
                     };
@@ -1159,7 +1165,7 @@ impl Controller {
                             window.refresh_view();
                             window.refresh_title();
                             this.with_view_state(|view_state| {
-                                println!("{}", view_state.gallery.current_picture_index());
+                                println!("{}", view_state.gallery().current_picture_index());
                             })
                         }
                     };
@@ -1226,7 +1232,7 @@ impl Controller {
             move |_, _, _| {
                 let (current_picture, covers_only) = this.with_view_state(|view_state| {
                     (
-                        view_state.gallery.current_picture(),
+                        view_state.gallery().current_picture(),
                         view_state.settings.covers_only(),
                     )
                 });
@@ -1244,10 +1250,11 @@ impl Controller {
                     return;
                 };
                 if directory_opt.clone().is_some() {
+                    let position = this.with_view_state(|view_state| {
+                        view_state.gallery().current_picture_index()
+                    });
                     this.with_view_state_mut(|view_state| {
-                        view_state.set_current_location_position(
-                            view_state.gallery.current_picture_index(),
-                        );
+                        view_state.set_current_location_position(position);
                         view_state
                             .set_current_location_covers_only(view_state.settings.covers_only());
                         view_state.set_new_location(directory_opt, None, 0, false)
@@ -1312,10 +1319,11 @@ impl Controller {
                     match map_result {
                         Ok(map) => {
                             if let Some(file_path) = map.get(&letter) {
+                                let position_opt = this.with_view_state(|view_state| {
+                                    view_state.gallery().find_file_path(file_path)
+                                });
                                 this.with_view_state_mut(|view_state| {
-                                    if let Some(position) =
-                                        view_state.gallery.find_file_path(file_path)
-                                    {
+                                    if let Some(position) = position_opt {
                                         let direction = Direction::Index { value: position };
                                         if view_state.navigator.can_move(&direction) {
                                             view_state.navigator.move_towards(&direction);
@@ -1369,10 +1377,12 @@ impl Controller {
             move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
                 let gio_action = GioAction::from((object, variant));
                 if let Action::Label(label) = Action::from(gio_action) {
+                    let indices = this.with_view_state(|view_state|
+                        view_state.selected_indices()
+                    );
                     this.with_view_state_mut(|view_state| {
-                        let indices = view_state.selected_indices();
                         for position in indices {
-                            let mut picture = view_state.gallery.picture(position);
+                            let mut picture = view_state.gallery().picture(position);
                             picture.set_label(&label);
                             this.with_repository(|repository| {
                                 match repository.update_picture(&picture) {
@@ -1380,7 +1390,7 @@ impl Controller {
                                     Err(e) => eprintln!("{}", e),
                                 }
                             });
-                            view_state.gallery.set_picture(position, picture);
+                            view_state.gallery_mut().set_picture(position, picture);
                         }
                     });
                     window.dismiss();
@@ -1405,7 +1415,7 @@ impl Controller {
                 let gio_action = GioAction::from((object, variant));
                 if let Action::Mark(letter) = Action::from(gio_action) {
                     let file_path = this.with_view_state(|view_state| {
-                        view_state.gallery.current_picture().file_path()
+                        view_state.gallery().current_picture().file_path()
                     });
                     this.with_repository(|repository| {
                         match repository.insert_mark(letter, &file_path) {
@@ -1469,7 +1479,7 @@ impl Controller {
                     this.with_view_state_mut(|view_state| {
                         let indices = view_state.selected_indices();
                         for position in indices {
-                            let picture = view_state.gallery.picture(position);
+                            let picture = view_state.gallery().picture(position);
                             this.with_repository(|repository| {
                                 match repository.move_picture_to_target(&picture, &target_directory)
                                 {
@@ -1589,10 +1599,10 @@ impl Controller {
                 this.with_view_state(|view_state| {
                     if let Ok(mut configuration) = Configuration::from_env() {
                         configuration.current_picture =
-                            Some(view_state.gallery.current_picture().file_path());
+                            Some(view_state.gallery().current_picture().file_path());
                         configuration.current_pictures_per_row =
                             Some(view_state.settings.pictures_per_row() as usize);
-                        configuration.current_order = Some(view_state.gallery.order());
+                        configuration.current_order = Some(view_state.gallery().order());
                         let _ = configuration.save();
                     }
                 });
@@ -1657,10 +1667,12 @@ impl Controller {
                 if let Action::RemoveTag(input) = Action::from(gio_action) {
                     let tags: Vec<String> = input.split(',').map(|s| s.to_string()).collect();
                     window.dismiss();
+                    let indices = this.with_view_state(|view_state|
+                        view_state.selected_indices()
+                    );
                     this.with_view_state_mut(|view_state| {
-                        let indices = view_state.selected_indices();
                         for position in indices {
-                            let mut picture = view_state.gallery.picture(position);
+                            let mut picture = view_state.gallery().picture(position);
                             tags.iter().for_each(|tag| {
                                 picture.remove_tag(tag);
                                 this.with_repository(|repository| {
@@ -1670,7 +1682,7 @@ impl Controller {
                                     }
                                 })
                             });
-                            view_state.gallery.set_picture(position, picture);
+                            view_state.gallery_mut().set_picture(position, picture);
                         }
                     });
                     this.set_last_action(&Action::RemoveTag(input));
@@ -1697,20 +1709,20 @@ impl Controller {
                         return;
                     }
                     let (current_name, _) = this.with_view_state(|view_state| {
-                        name_and_extension(&view_state.gallery.current_picture().file_name())
+                        name_and_extension(&view_state.gallery().current_picture().file_name())
                     });
                     if new_name == current_name {
                         window.present_information("picture name is unchanged");
                         return;
                     }
                     this.with_view_state_mut(|view_state| {
-                        let position = view_state.gallery.current_picture_index();
-                        let picture = view_state.gallery.current_picture();
+                        let position = view_state.gallery().current_picture_index();
+                        let picture = view_state.gallery().current_picture();
                         let new_picture = Picture::copy_with_name(&picture, &new_name);
                         this.with_repository(|repository| {
                             let _ = repository.rename_picture(&picture, &new_name);
                         });
-                        view_state.gallery.set_picture(position, new_picture);
+                        view_state.gallery_mut().set_picture(position, new_picture);
                     });
                     window.dismiss();
                     window.deselect_pictures();
@@ -1810,7 +1822,7 @@ impl Controller {
                 this.with_view_state(|view_state| {
                     for position in view_state.selected_indices() {
                         let category = category_from_string(
-                            &view_state.gallery.picture(position).category_name(),
+                            &view_state.gallery().picture(position).category_name(),
                         );
                         if !category_found {
                             current_category = category;
@@ -1935,13 +1947,13 @@ impl Controller {
             move |_, _, _| {
                 window.dismiss();
                 this.with_view_state_mut(|view_state| {
-                    let position = view_state.gallery.current_picture_index();
-                    if !view_state.gallery.current_picture().is_folder() {
+                    let position = view_state.gallery().current_picture_index();
+                    if !view_state.gallery().current_picture().is_folder() {
                         this.with_repository(|repository| {
                             let counts = repository.directory_count_at_index(position);
-                            let mut picture = view_state.gallery.current_picture().clone();
+                            let mut picture = view_state.gallery().current_picture().clone();
                             picture.toggle_cover(counts.0);
-                            view_state.gallery.set_picture(position, picture.clone());
+                            view_state.gallery_mut().set_picture(position, picture.clone());
                             match repository.update_picture(&picture) {
                                 Ok(_) => {}
                                 Err(e) => eprintln!("{}", e),
@@ -1949,14 +1961,14 @@ impl Controller {
                             match repository.update_former_cover_picture(&picture) {
                                 Ok(indices) => {
                                     for index in indices.iter() {
-                                        let mut picture = view_state.gallery.picture(*index);
+                                        let mut picture = view_state.gallery().picture(*index);
                                         picture.toggle_cover(0);
-                                        view_state.gallery.set_picture(*index, picture);
+                                        view_state.gallery_mut().set_picture(*index, picture);
                                         if view_state.settings.pictures_per_row() > 1
                                             && let Some((row, col)) =
                                                 view_state.navigator.coords_from_position(*index)
                                         {
-                                            let picture = view_state.gallery.picture(*index);
+                                            let picture = view_state.gallery().picture(*index);
                                             window.gsr_picture_grid().set_label_from_picture_at(
                                                 &picture, col as i32, row as i32,
                                             );
@@ -1988,8 +2000,8 @@ impl Controller {
             move |_, _, _| {
                 let (gallery_has_covers, sub_folder) = this.with_view_state(|view_state| {
                     (
-                        view_state.gallery.has_covers(),
-                        view_state.gallery.sub_folder(),
+                        view_state.gallery().has_covers(),
+                        view_state.gallery().sub_folder(),
                     )
                 });
                 if gallery_has_covers && sub_folder.is_none() {
@@ -2034,7 +2046,7 @@ impl Controller {
             window,
             move |_, _, _| {
                 let file_path = this
-                    .with_view_state(|view_state| view_state.gallery.current_picture().file_path());
+                    .with_view_state(|view_state| view_state.gallery().current_picture().file_path());
                 let gsr_entry_window = GsrEntryWindow::new_with(
                     &window,
                     &this.gsr_application().shared_controller(),
@@ -2092,7 +2104,7 @@ impl Controller {
             window,
             move |_, _, _| {
                 let file_path = this
-                    .with_view_state(|view_state| view_state.gallery.current_picture().file_path());
+                    .with_view_state(|view_state| view_state.gallery().current_picture().file_path());
                 let gsr_entry_window = GsrEntryWindow::new_with(
                     &window,
                     &this.gsr_application().shared_controller(),
@@ -2155,13 +2167,13 @@ impl Controller {
                         this.with_view_state_mut(|view_state| {
                             let indices = view_state.selected_indices();
                             for position in indices {
-                                let mut picture = view_state.gallery.picture(position);
+                                let mut picture = view_state.gallery().picture(position);
                                 picture.set_rank(rank);
                                 match repository.update_picture(&picture) {
                                     Ok(_) => {}
                                     Err(e) => eprintln!("{}", e),
                                 }
-                                view_state.gallery.set_picture(position, picture);
+                                view_state.gallery_mut().set_picture(position, picture);
                             }
                         });
                     });
@@ -2361,7 +2373,7 @@ impl Controller {
                 let gio_action = GioAction::from((object, variant));
                 if let Action::ToggleSelected = Action::from(gio_action) {
                     this.with_view_state_mut(|view_state| {
-                        let position = view_state.gallery.current_picture_index();
+                        let position = view_state.gallery().current_picture_index();
                         if view_state.selection.contains(position) {
                             view_state.selection.unselect(position)
                         } else {
@@ -2390,7 +2402,7 @@ impl Controller {
                 this.with_view_state_mut(|view_state| {
                     let indices = view_state.selected_indices();
                     for position in indices {
-                        let mut picture = view_state.gallery.picture(position);
+                        let mut picture = view_state.gallery().picture(position);
                         picture.set_label("");
                         this.with_repository(|repository| {
                             match repository.update_picture(&picture) {
@@ -2398,7 +2410,7 @@ impl Controller {
                                 Err(e) => eprintln!("{}", e),
                             }
                         });
-                        view_state.gallery.set_picture(position, picture);
+                        view_state.gallery_mut().set_picture(position, picture);
                     }
                 });
                 window.deselect_pictures();
