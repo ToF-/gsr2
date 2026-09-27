@@ -732,7 +732,17 @@ impl Repository {
                                 Ok(_) => {}
                                 Err(e) => eprintln!("Error:{}", e),
                             }
-                            paths.push(file_path_as_stored(&picture.file_path()));
+                            let path = file_path_as_stored(&picture.file_path());
+                            {
+                                let mut gallery = self.gallery_rc.borrow_mut();
+                                let index_opt = gallery.position_with_stored_file_path(&path);
+                                if let Some(index) = index_opt {
+                                    let mut picture = gallery.picture(index);
+                                    picture.toggle_cover(0);
+                                    gallery.set_picture(index, picture);
+                                }
+                            }
+                            paths.push(path);
                         }
                     }
                     Ok(paths)

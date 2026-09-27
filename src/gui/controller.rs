@@ -1941,20 +1941,13 @@ impl Controller {
                 window.dismiss();
                 this.with_view_state_mut(|view_state| {
                     let position = view_state.gallery().current_picture_index();
+                    let picture = view_state.gallery().current_picture();
                     if !view_state.gallery().current_picture().is_folder() {
                         this.with_repository(|repository| {
-                            let counts = repository.directory_count_at_index(position);
-                            let mut picture = view_state.gallery().current_picture().clone();
-                            picture.toggle_cover(counts.0);
-                            {
-                                view_state
-                                    .gallery_mut()
-                                    .set_picture(position, picture.clone());
-                            }
-                            match repository.update_picture(&picture) {
+                            match repository.set_picture_cover_at_position(position) {
                                 Ok(_) => {}
                                 Err(e) => eprintln!("{}", e),
-                            }
+                            };
                             match repository.update_former_cover_picture(&picture) {
                                 Ok(stored_file_paths) => {
                                     for stored_file_path in stored_file_paths.iter() {
@@ -1962,12 +1955,6 @@ impl Controller {
                                             .gallery()
                                             .position_with_stored_file_path(stored_file_path);
                                         if let Some(index) = index_opt {
-                                            {
-                                                let mut gallery = view_state.gallery_mut();
-                                                let mut picture = gallery.picture(index);
-                                                picture.toggle_cover(0);
-                                                gallery.set_picture(index, picture);
-                                            }
                                             if view_state.settings.pictures_per_row() > 1
                                                 && let Some((row, col)) =
                                                     view_state.navigator.coords_from_position(index)
