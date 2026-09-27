@@ -5,7 +5,6 @@ use crate::env::configuration::set_configuration_updated_flag;
 use crate::file::paths::check_path_is_directory;
 use crate::file::paths::extraction_file_path;
 use crate::file::paths::file_name_from;
-use crate::file::paths::file_path_as_stored;
 use crate::file::paths::name_and_extension;
 use crate::file::paths::parent_directory;
 use crate::gui::action::Action;
@@ -1959,14 +1958,7 @@ impl Controller {
                             match repository.update_former_cover_picture(&picture) {
                                 Ok(stored_file_paths) => {
                                     for stored_file_path in stored_file_paths.iter() {
-                                        let index_opt = {
-                                            view_state.gallery().pictures().iter().position(
-                                                |picture| {
-                                                    file_path_as_stored(&picture.file_path())
-                                                        == *stored_file_path
-                                                },
-                                            )
-                                        };
+                                        let index_opt = view_state.gallery().position_with_stored_file_path(stored_file_path);
                                         if let Some(index) = index_opt {
                                             {
                                                 let mut gallery = view_state.gallery_mut();

@@ -721,10 +721,6 @@ impl Repository {
                             let mut image_data = picture.image_data().expect("image data not set");
                             image_data.set_cover_off();
                             new_picture.set_image_data(image_data);
-                            println!(
-                                "set cover off for:{}",
-                                file_path_as_stored(&picture.file_path())
-                            );
                             match self.database.update_picture_is_cover(&new_picture) {
                                 Ok(_) => {}
                                 Err(e) => eprintln!("Error:{}", e),

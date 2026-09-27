@@ -1,3 +1,4 @@
+use crate::file::paths::file_path_as_stored;
 use crate::file::paths::parent_directory;
 use crate::file::picture_file::{get_all_picture_file_paths, get_picture_file_path};
 use crate::gui::view_state::navigator::Navigator;
@@ -176,6 +177,12 @@ impl Gallery {
     pub fn picture(&self, index: usize) -> Picture {
         assert!(index < self.len());
         self.pictures[index].clone()
+    }
+
+    pub fn position_with_stored_file_path(&self, stored_file_path: &str) -> Option<usize> {
+        self.pictures.iter().position( |picture| {
+            file_path_as_stored(&picture.file_path()) == stored_file_path
+        })
     }
 
     pub fn set_picture(&mut self, index: usize, picture: Picture) {
