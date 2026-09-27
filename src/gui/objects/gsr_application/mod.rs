@@ -30,11 +30,7 @@ impl Default for GsrApplication {
 }
 
 impl GsrApplication {
-    pub fn set_state(
-        &self,
-        clargs: CommandLineArguments,
-        repository: &Repository,
-    ) {
+    pub fn set_state(&self, clargs: CommandLineArguments, repository: &Repository) {
         self.imp().set_state(clargs, repository)
     }
     pub fn shared_view_state(&self) -> Shared<ViewState> {

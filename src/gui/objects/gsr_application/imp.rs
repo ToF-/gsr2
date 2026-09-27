@@ -22,11 +22,7 @@ pub struct GsrApplication {
 // GSR_APPLICATION
 impl GsrApplication {
     // stored for sharing: command line args, view state, navigator and gallery
-    pub fn set_state(
-        &self,
-        clargs: CommandLineArguments,
-        repository: &Repository,
-    ) {
+    pub fn set_state(&self, clargs: CommandLineArguments, repository: &Repository) {
         // store clargs
         *self.command_line_arguments.borrow_mut() = clargs.clone();
 
@@ -46,19 +42,26 @@ impl GsrApplication {
                 clargs.pictures_per_row()
             }
         };
-        let gallery = repository.gallery_rc().borrow().clone();
-        let mut navigator = Navigator::new(gallery.len(), pictures_per_row as usize);
-        let mut view_state = self.view_state.borrow_mut();
-        view_state.settings.set_slideshow_delay(clargs.slideshow());
-        view_state.settings.set_pictures_per_row(pictures_per_row);
-        view_state.settings.set_covers_only(clargs.covers);
-        view_state.gallery_rc = repository.gallery_rc().clone();
-        navigator.move_towards(&Direction::Index {
-            value: gallery.current_picture_index(),
-        });
-        view_state.navigator = navigator.clone();
-        if let Some((row, col)) = navigator.coords_from_position(navigator.position()) {
-            view_state.focus_at_coords = (col as i32, row as i32);
+        {
+            let mut view_state = self.view_state.borrow_mut();
+            view_state.settings.set_slideshow_delay(clargs.slideshow());
+            view_state.settings.set_pictures_per_row(pictures_per_row);
+            view_state.settings.set_covers_only(clargs.covers);
+            view_state.gallery_rc = repository.gallery_rc().clone();
+        }
+        let (len, index) = {
+            let view_state = self.view_state.borrow();
+            let gallery = view_state.gallery();
+            (&gallery.len(), &gallery.current_picture_index())
+        };
+        let mut navigator = Navigator::new(*len, pictures_per_row as usize);
+        navigator.move_towards(&Direction::Index { value: *index });
+        {
+            let mut view_state = self.view_state.borrow_mut();
+            view_state.navigator = navigator.clone();
+            if let Some((row, col)) = navigator.coords_from_position(navigator.position()) {
+                view_state.focus_at_coords = (col as i32, row as i32);
+            }
         }
     }
 }

@@ -180,9 +180,9 @@ impl Gallery {
     }
 
     pub fn position_with_stored_file_path(&self, stored_file_path: &str) -> Option<usize> {
-        self.pictures.iter().position( |picture| {
-            file_path_as_stored(&picture.file_path()) == stored_file_path
-        })
+        self.pictures
+            .iter()
+            .position(|picture| file_path_as_stored(&picture.file_path()) == stored_file_path)
     }
 
     pub fn set_picture(&mut self, index: usize, picture: Picture) {

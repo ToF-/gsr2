@@ -100,6 +100,7 @@ impl ViewState {
 
     pub fn set_current_location_position(&mut self, position: usize) {
         self.current_location.set_position(position)
+
     }
 
     pub fn set_current_location_covers_only(&mut self, covers_only: bool) {

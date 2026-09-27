@@ -783,7 +783,10 @@ impl GsrApplicationWindow {
             view_state.navigator.clone()
         });
         self.with_view_state_mut(|view_state| {
-            view_state.set_current_location_position(navigator.position());
+            let position = navigator.position();
+            view_state.set_current_location_position(position);
+            let mut gallery = view_state.gallery_rc.borrow_mut();
+            gallery.set_current_picture_index_cell(position);
         });
         navigator
     }

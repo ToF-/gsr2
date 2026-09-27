@@ -1,6 +1,3 @@
-use std::cell::RefMut;
-use std::cell::Ref;
-use std::rc::Rc;
 use crate::cli::command::Command;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::Configuration;
@@ -28,7 +25,9 @@ use crate::model::predicate::Predicate;
 use crate::model::retrieve_criteria::RetrieveCriteria;
 use crate::model::tag_selection_criteria::TagSelectionCriteria;
 use crate::model::tags::Tags;
+use std::cell::Ref;
 use std::cell::RefCell;
+use std::cell::RefMut;
 use std::collections::BTreeMap;
 use std::collections::HashMap;
 use std::fs::File;
@@ -37,6 +36,7 @@ use std::io::Error as IOError;
 use std::io::Result as IOResult;
 use std::io::Write;
 use std::path::PathBuf;
+use std::rc::Rc;
 
 #[derive(Debug, Clone)]
 pub struct Repository {

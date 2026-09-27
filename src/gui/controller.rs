@@ -1945,7 +1945,6 @@ impl Controller {
                         this.with_repository(|repository| {
                             let counts = repository.directory_count_at_index(position);
                             let mut picture = view_state.gallery().current_picture().clone();
-                            dbg!(&picture.file_path());
                             picture.toggle_cover(counts.0);
                             {
                                 view_state
@@ -1959,7 +1958,9 @@ impl Controller {
                             match repository.update_former_cover_picture(&picture) {
                                 Ok(stored_file_paths) => {
                                     for stored_file_path in stored_file_paths.iter() {
-                                        let index_opt = view_state.gallery().position_with_stored_file_path(stored_file_path);
+                                        let index_opt = view_state
+                                            .gallery()
+                                            .position_with_stored_file_path(stored_file_path);
                                         if let Some(index) = index_opt {
                                             {
                                                 let mut gallery = view_state.gallery_mut();
