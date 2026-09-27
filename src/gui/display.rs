@@ -141,7 +141,10 @@ fn label_display(view_state: &ViewState) -> String {
 
 fn date_display(view_state: &ViewState) -> String {
     if view_state.settings.file_date_on() {
-        view_state.gallery().current_picture().modified_time_display()
+        view_state
+            .gallery()
+            .current_picture()
+            .modified_time_display()
     } else {
         String::from("")
     }

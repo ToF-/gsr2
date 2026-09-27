@@ -8,7 +8,6 @@ use crate::gui::view_state::settings::Settings;
 use crate::model::finder::Finder;
 use crate::model::gallery::Gallery;
 use crate::model::predicate::Predicate;
-use std::cell::Cell;
 use std::cell::RefCell;
 use std::cell::RefMut;
 use std::rc::Rc;
@@ -39,11 +38,11 @@ impl ViewState {
         }
     }
 
-    pub fn gallery(&self) -> Ref<Gallery> {
+    pub fn gallery(&self) -> Ref<'_, Gallery> {
         self.gallery_rc.borrow()
     }
 
-    pub fn gallery_mut(&self) -> RefMut<Gallery> {
+    pub fn gallery_mut(&self) -> RefMut<'_, Gallery> {
         self.gallery_rc.borrow_mut()
     }
 

@@ -5,6 +5,7 @@ use crate::env::configuration::set_configuration_updated_flag;
 use crate::file::paths::check_path_is_directory;
 use crate::file::paths::extraction_file_path;
 use crate::file::paths::file_name_from;
+use crate::file::paths::file_path_as_stored;
 use crate::file::paths::name_and_extension;
 use crate::file::paths::parent_directory;
 use crate::gui::action::Action;
@@ -959,8 +960,8 @@ impl Controller {
                     let _ = repository.retrieve_all_labels();
                     repository.all_labels()
                 });
-                let label =
-                    this.with_view_state(|view_state| view_state.gallery().current_picture().label());
+                let label = this
+                    .with_view_state(|view_state| view_state.gallery().current_picture().label());
                 let gsr_entry_window = GsrEntryWindow::new_with(
                     &window,
                     &window.gsr_application().shared_controller(),
@@ -1124,9 +1125,8 @@ impl Controller {
                 let gio_action = GioAction::from((object, variant));
                 if let Action::Find(find, pattern) = Action::from(gio_action) {
                     window.dismiss();
-                    let pictures = this.with_view_state(|view_state| {
-                        view_state.gallery().pictures().clone()
-                    });
+                    let pictures =
+                        this.with_view_state(|view_state| view_state.gallery().pictures().clone());
 
                     let catalog = this.with_repository(|repository| repository.catalog());
                     let predicate_res = Predicate::new(&pattern, find, catalog.clone());
@@ -1136,8 +1136,7 @@ impl Controller {
                             None
                         }
                         Ok(predicate) => this.with_view_state_mut(|view_state| {
-                            view_state.finder =
-                                Some(Finder::new(pictures));
+                            view_state.finder = Some(Finder::new(pictures));
                             view_state.finder.as_mut().unwrap().find_first(predicate)
                         }),
                     };
@@ -1250,9 +1249,8 @@ impl Controller {
                     return;
                 };
                 if directory_opt.clone().is_some() {
-                    let position = this.with_view_state(|view_state| {
-                        view_state.gallery().current_picture_index()
-                    });
+                    let position = this
+                        .with_view_state(|view_state| view_state.gallery().current_picture_index());
                     this.with_view_state_mut(|view_state| {
                         view_state.set_current_location_position(position);
                         view_state
@@ -1377,9 +1375,7 @@ impl Controller {
             move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
                 let gio_action = GioAction::from((object, variant));
                 if let Action::Label(label) = Action::from(gio_action) {
-                    let indices = this.with_view_state(|view_state|
-                        view_state.selected_indices()
-                    );
+                    let indices = this.with_view_state(|view_state| view_state.selected_indices());
                     this.with_view_state_mut(|view_state| {
                         for position in indices {
                             let mut picture = view_state.gallery().picture(position);
@@ -1667,9 +1663,7 @@ impl Controller {
                 if let Action::RemoveTag(input) = Action::from(gio_action) {
                     let tags: Vec<String> = input.split(',').map(|s| s.to_string()).collect();
                     window.dismiss();
-                    let indices = this.with_view_state(|view_state|
-                        view_state.selected_indices()
-                    );
+                    let indices = this.with_view_state(|view_state| view_state.selected_indices());
                     this.with_view_state_mut(|view_state| {
                         for position in indices {
                             let mut picture = view_state.gallery().picture(position);
@@ -1953,25 +1947,44 @@ impl Controller {
                             let counts = repository.directory_count_at_index(position);
                             let mut picture = view_state.gallery().current_picture().clone();
                             picture.toggle_cover(counts.0);
-                            view_state.gallery_mut().set_picture(position, picture.clone());
+                            {
+                                view_state
+                                    .gallery_mut()
+                                    .set_picture(position, picture.clone());
+                            }
                             match repository.update_picture(&picture) {
                                 Ok(_) => {}
                                 Err(e) => eprintln!("{}", e),
                             }
                             match repository.update_former_cover_picture(&picture) {
-                                Ok(indices) => {
-                                    for index in indices.iter() {
-                                        let mut picture = view_state.gallery().picture(*index);
-                                        picture.toggle_cover(0);
-                                        view_state.gallery_mut().set_picture(*index, picture);
-                                        if view_state.settings.pictures_per_row() > 1
-                                            && let Some((row, col)) =
-                                                view_state.navigator.coords_from_position(*index)
-                                        {
-                                            let picture = view_state.gallery().picture(*index);
-                                            window.gsr_picture_grid().set_label_from_picture_at(
-                                                &picture, col as i32, row as i32,
-                                            );
+                                Ok(stored_file_paths) => {
+                                    for stored_file_path in stored_file_paths.iter() {
+                                        let index_opt = {
+                                            view_state.gallery().pictures().iter().position(
+                                                |picture| {
+                                                    file_path_as_stored(&picture.file_path())
+                                                        == *stored_file_path
+                                                },
+                                            )
+                                        };
+                                        if let Some(index) = index_opt {
+                                            {
+                                                let mut gallery = view_state.gallery_mut();
+                                                let mut picture = gallery.picture(index);
+                                                picture.toggle_cover(0);
+                                                gallery.set_picture(index, picture);
+                                            }
+                                            if view_state.settings.pictures_per_row() > 1
+                                                && let Some((row, col)) =
+                                                    view_state.navigator.coords_from_position(index)
+                                            {
+                                                let picture = view_state.gallery().picture(index);
+                                                window
+                                                    .gsr_picture_grid()
+                                                    .set_label_from_picture_at(
+                                                        &picture, col as i32, row as i32,
+                                                    );
+                                            }
                                         }
                                     }
                                 }
@@ -2045,8 +2058,9 @@ impl Controller {
             #[strong]
             window,
             move |_, _, _| {
-                let file_path = this
-                    .with_view_state(|view_state| view_state.gallery().current_picture().file_path());
+                let file_path = this.with_view_state(|view_state| {
+                    view_state.gallery().current_picture().file_path()
+                });
                 let gsr_entry_window = GsrEntryWindow::new_with(
                     &window,
                     &this.gsr_application().shared_controller(),
@@ -2103,8 +2117,9 @@ impl Controller {
             #[strong]
             window,
             move |_, _, _| {
-                let file_path = this
-                    .with_view_state(|view_state| view_state.gallery().current_picture().file_path());
+                let file_path = this.with_view_state(|view_state| {
+                    view_state.gallery().current_picture().file_path()
+                });
                 let gsr_entry_window = GsrEntryWindow::new_with(
                     &window,
                     &this.gsr_application().shared_controller(),

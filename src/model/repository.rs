@@ -163,7 +163,6 @@ impl Repository {
                 Ok(gallery.len())
             })
         };
-        let gallery = self.gallery_rc.borrow();
         result
     }
 
@@ -691,9 +690,7 @@ impl Repository {
         let folder = {
             let folders = self.folder_map_rc.borrow();
             match folders.get(parent_dir) {
-                Some(folder) => {
-                    folder
-                }
+                Some(folder) => folder,
                 None => return Ok(0),
             }
         };
@@ -709,14 +706,14 @@ impl Repository {
         }
     }
 
-    pub fn update_former_cover_picture(&self, picture: &Picture) -> IOResult<Vec<usize>> {
+    pub fn update_former_cover_picture(&self, picture: &Picture) -> IOResult<Vec<String>> {
         if let Some(parent_dir) = parent_directory(&picture.file_path()) {
             let directory = file_path_as_stored(&parent_dir);
             let file_path = file_path_as_stored(&picture.file_path());
-            let mut indices: Vec<usize> = Vec::new();
+            let mut paths: Vec<String> = Vec::new();
             match self.database.retrieve_all_pictures_with_parent(&directory) {
                 Ok(pictures) => {
-                    for (index, mut picture) in pictures.into_iter().enumerate() {
+                    for picture in pictures.into_iter() {
                         if picture.is_cover()
                             && file_path_as_stored(&picture.file_path()) != file_path
                         {
@@ -724,14 +721,18 @@ impl Repository {
                             let mut image_data = picture.image_data().expect("image data not set");
                             image_data.set_cover_off();
                             new_picture.set_image_data(image_data);
+                            println!(
+                                "set cover off for:{}",
+                                file_path_as_stored(&picture.file_path())
+                            );
                             match self.database.update_picture_is_cover(&new_picture) {
                                 Ok(_) => {}
                                 Err(e) => eprintln!("Error:{}", e),
                             }
-                            indices.push(index);
+                            paths.push(file_path_as_stored(&picture.file_path()));
                         }
                     }
-                    Ok(indices)
+                    Ok(paths)
                 }
                 Err(e) => Err(IOError::other(e)),
             }
