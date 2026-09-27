@@ -6,7 +6,6 @@ use crate::gui::objects::gsr_application::Controller;
 use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
 use crate::gui::view_state::ViewState;
 use crate::gui::view_state::navigator::Navigator;
-use crate::model::gallery::Gallery;
 use crate::model::repository::Repository;
 use crate::model::shared::Shared;
 use gtk::{glib, prelude::*, subclass::prelude::*};
@@ -26,7 +25,6 @@ impl GsrApplication {
     pub fn set_state(
         &self,
         clargs: CommandLineArguments,
-        gallery: &Gallery,
         repository: &Repository,
     ) {
         // store clargs
@@ -48,18 +46,17 @@ impl GsrApplication {
                 clargs.pictures_per_row()
             }
         };
-        let gallery = gallery.clone();
+        let gallery = repository.gallery_rc().borrow().clone();
         let mut navigator = Navigator::new(gallery.len(), pictures_per_row as usize);
         let mut view_state = self.view_state.borrow_mut();
         view_state.settings.set_slideshow_delay(clargs.slideshow());
         view_state.settings.set_pictures_per_row(pictures_per_row);
         view_state.settings.set_covers_only(clargs.covers);
+        view_state.gallery_rc = repository.gallery_rc().clone();
         navigator.move_towards(&Direction::Index {
             value: gallery.current_picture_index(),
         });
         view_state.navigator = navigator.clone();
-        *view_state.gallery_mut() =
-            Gallery::from_gallery_and_navigator(gallery.clone(), &view_state.navigator);
         if let Some((row, col)) = navigator.coords_from_position(navigator.position()) {
             view_state.focus_at_coords = (col as i32, row as i32);
         }

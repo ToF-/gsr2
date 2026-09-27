@@ -306,7 +306,7 @@ impl GsrApplicationWindow {
                     Ok(0)
                 }
                 Ok(n) => {
-                    let repository_gallery = repository.gallery_rc().borrow_mut();
+                    let repository_gallery = repository.gallery();
                     self.with_view_state_mut(|view_state| {
                         view_state.navigator = Navigator::new(
                             repository_gallery.len(),

@@ -482,7 +482,7 @@ impl Controller {
                 Err(e) => Err(e),
                 Ok(0) => Ok(0),
                 Ok(n) => {
-                    let repository_gallery = repository.gallery_rc().borrow();
+                    let repository_gallery = repository.gallery();
                     self.with_view_state_mut(|view_state| {
                         view_state.navigator = Navigator::new(
                             repository_gallery.len(),
@@ -1945,6 +1945,7 @@ impl Controller {
                         this.with_repository(|repository| {
                             let counts = repository.directory_count_at_index(position);
                             let mut picture = view_state.gallery().current_picture().clone();
+                            dbg!(&picture.file_path());
                             picture.toggle_cover(counts.0);
                             {
                                 view_state

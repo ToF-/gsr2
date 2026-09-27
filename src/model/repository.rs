@@ -1,3 +1,6 @@
+use std::cell::RefMut;
+use std::cell::Ref;
+use std::rc::Rc;
 use crate::cli::command::Command;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::Configuration;
@@ -41,7 +44,7 @@ pub struct Repository {
     database: Database,
     tags_rc: RefCell<Tags>,
     categories_rc: RefCell<Tags>,
-    gallery_rc: RefCell<Gallery>,
+    gallery_rc: Rc<RefCell<Gallery>>,
     parent_dirs_rc: RefCell<HashMap<String, (usize, usize)>>,
     folder_map_rc: RefCell<FolderMap>,
     temp_dir: String,
@@ -57,7 +60,7 @@ impl Repository {
             database,
             tags_rc: RefCell::new(crate::model::tags::empty_tags()),
             categories_rc: RefCell::new(crate::model::tags::empty_tags()),
-            gallery_rc: RefCell::new(Gallery::new()),
+            gallery_rc: Rc::new(RefCell::new(Gallery::new())),
             parent_dirs_rc: RefCell::new(HashMap::new()),
             folder_map_rc: RefCell::new(FolderMap::default()),
             temp_dir: configuration.temp_dir,
@@ -474,28 +477,32 @@ impl Repository {
         tags.insert(label.to_string());
     }
 
-    pub fn gallery_rc(&self) -> &RefCell<Gallery> {
-        &self.gallery_rc
+    pub fn gallery_rc(&self) -> Rc<RefCell<Gallery>> {
+        self.gallery_rc.clone()
     }
 
+    pub fn gallery(&self) -> Ref<'_, Gallery> {
+        self.gallery_rc.borrow()
+    }
+
+    pub fn gallery_mut(&self) -> RefMut<'_, Gallery> {
+        self.gallery_rc.borrow_mut()
+    }
     pub fn parent_dirs(&self) -> HashMap<String, (usize, usize)> {
         self.parent_dirs_rc.borrow().clone()
     }
 
     pub fn directory_count_at_index(&self, index: usize) -> (usize, usize) {
-        if let Ok(gallery) = self.gallery_rc.try_borrow() {
-            let picture = &gallery.pictures()[index];
-            if let Some(directory) = parent_directory(&picture.file_path()) {
-                if let Some(count) = self.parent_dirs().get(&directory) {
-                    *count
-                } else {
-                    (0, 0)
-                }
+        let gallery = self.gallery_rc.borrow();
+        let picture = &gallery.pictures()[index];
+        if let Some(directory) = parent_directory(&picture.file_path()) {
+            if let Some(count) = self.parent_dirs().get(&directory) {
+                *count
             } else {
                 (0, 0)
             }
         } else {
-            panic!("can't borrow");
+            (0, 0)
         }
     }
 
@@ -735,6 +742,15 @@ impl Repository {
         } else {
             Ok(Vec::new())
         }
+    }
+
+    pub fn set_picture_cover_at_position(&self, position: usize) -> IOResult<()> {
+        let counts = self.directory_count_at_index(position);
+        let mut gallery = self.gallery_rc.borrow_mut();
+        let mut picture = gallery.current_picture().clone();
+        picture.toggle_cover(counts.0);
+        gallery.set_picture(position, picture.clone());
+        self.update_picture(&picture)
     }
 
     pub fn update_picture(&self, picture: &Picture) -> IOResult<()> {

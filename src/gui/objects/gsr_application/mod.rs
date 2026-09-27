@@ -3,7 +3,6 @@ use crate::env::configuration::CONFIGURATION;
 use crate::env::default_values::APPLICATION_ID;
 use crate::gui::controller::Controller;
 use crate::gui::view_state::ViewState;
-use crate::model::gallery::Gallery;
 use crate::model::repository::Repository;
 use crate::model::shared::Shared;
 use gtk::gdk::Display;
@@ -34,10 +33,9 @@ impl GsrApplication {
     pub fn set_state(
         &self,
         clargs: CommandLineArguments,
-        gallery: &Gallery,
         repository: &Repository,
     ) {
-        self.imp().set_state(clargs, gallery, repository)
+        self.imp().set_state(clargs, repository)
     }
     pub fn shared_view_state(&self) -> Shared<ViewState> {
         self.imp().view_state.clone()

@@ -5,7 +5,6 @@ use gsr::cli::status::Status;
 use gsr::env::configuration::Configuration;
 use gsr::file::database::Database;
 use gsr::gui::objects::gsr_application::GsrApplication;
-use gsr::model::gallery::Gallery;
 use gsr::model::repository::Repository;
 use gtk::gio;
 use gtk::prelude::ApplicationExtManual;
@@ -54,23 +53,19 @@ fn run_application(config: &Configuration, clargs: &CommandLineArguments) -> Res
     let result = execute_command(clargs.clone(), repository.clone(), config.clone());
     if let Ok(Status::Ready(initial_position)) = result {
         {
-            let mut gallery = repository.gallery_rc().borrow_mut();
+            let mut gallery = repository.gallery_mut();
             gallery.force_current_picture_index(initial_position);
         }
-        let gallery = {
-            let gallery = repository.gallery_rc().borrow();
-            gallery.clone()
-        };
-        build_and_run_app(clargs, &gallery, &repository);
+        build_and_run_app(clargs, &repository);
         Ok(Status::Done)
     } else {
         result
     }
 }
 
-fn build_and_run_app(clargs: &CommandLineArguments, gallery: &Gallery, repository: &Repository) {
+fn build_and_run_app(clargs: &CommandLineArguments, repository: &Repository) {
     let gsr_application = GsrApplication::default();
-    gsr_application.set_state(clargs.clone(), gallery, repository);
+    gsr_application.set_state(clargs.clone(), repository);
     let no_args: Vec<String> = vec![];
     gsr_application.run_with_args(&no_args);
 }
