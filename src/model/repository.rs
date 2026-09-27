@@ -754,6 +754,24 @@ impl Repository {
         }
     }
 
+    pub fn unlabel_pictures_at_indices(&self, indices: &Vec<usize>) -> IOResult<usize> {
+        let mut gallery = self.gallery_rc.borrow_mut();
+        let mut result = Ok(indices.len());
+        for position in indices {
+            let mut picture = gallery.picture(*position);
+            picture.set_label("");
+            gallery.set_picture(*position, picture.clone());
+            match self.update_picture(&picture) {
+                Ok(_) => {},
+                Err(e) => {
+                    result = Err(e);
+                    break;
+                }
+            };
+        };
+        result
+    }
+
     pub fn set_picture_cover_at_position(&self, position: usize) -> IOResult<()> {
         let counts = self.directory_count_at_index(position);
         let mut gallery = self.gallery_rc.borrow_mut();

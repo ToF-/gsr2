@@ -2395,18 +2395,13 @@ impl Controller {
             window,
             move |_, _, _| {
                 window.dismiss();
-                this.with_view_state_mut(|view_state| {
-                    let indices = view_state.selected_indices();
-                    for position in indices {
-                        let mut picture = view_state.gallery().picture(position);
-                        picture.set_label("");
-                        this.with_repository(|repository| {
-                            match repository.update_picture(&picture) {
-                                Ok(_) => {}
-                                Err(e) => eprintln!("{}", e),
-                            }
-                        });
-                        view_state.gallery_mut().set_picture(position, picture);
+                let indices = this.with_view_state_mut(|view_state| {
+                    view_state.selected_indices()
+                });
+                this.with_repository(|repository| {
+                    match repository.unlabel_pictures_at_indices(&indices) {
+                        Ok(_) => {},
+                        Err(e) => window.present_information(&format!("error:{}", e)),
                     }
                 });
                 window.deselect_pictures();
