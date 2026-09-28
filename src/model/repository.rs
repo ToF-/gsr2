@@ -1,4 +1,3 @@
-use crate::model::rank::Rank;
 use crate::cli::command::Command;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::Configuration;
@@ -23,6 +22,7 @@ use crate::model::gallery::Gallery;
 use crate::model::order::Order;
 use crate::model::picture::Picture;
 use crate::model::predicate::Predicate;
+use crate::model::rank::Rank;
 use crate::model::retrieve_criteria::RetrieveCriteria;
 use crate::model::tag_selection_criteria::TagSelectionCriteria;
 use crate::model::tags::Tags;
@@ -789,6 +789,23 @@ impl Repository {
             };
         }
         result
+    }
+
+    pub fn set_picture_cover_at_current_position(&self) -> IOResult<Vec<String>> {
+        let position = {
+            let gallery = self.gallery_rc.borrow();
+            gallery.current_picture_index()
+        };
+        let counts = self.directory_count_at_index(position);
+        let picture = {
+            let mut gallery = self.gallery_rc.borrow_mut();
+            let mut picture = gallery.current_picture().clone();
+            picture.toggle_cover(counts.0);
+            gallery.set_picture(position, picture.clone());
+            picture.clone()
+        };
+        self.update_picture(&picture)
+            .and_then(|_| self.update_former_cover_picture(&picture))
     }
 
     pub fn set_picture_cover_at_position(&self, position: usize) -> IOResult<()> {

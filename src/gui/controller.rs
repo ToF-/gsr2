@@ -1944,11 +1944,7 @@ impl Controller {
                     let picture = view_state.gallery().current_picture();
                     if !view_state.gallery().current_picture().is_folder() {
                         this.with_repository(|repository| {
-                            match repository.set_picture_cover_at_position(position) {
-                                Ok(_) => {}
-                                Err(e) => eprintln!("{}", e),
-                            };
-                            match repository.update_former_cover_picture(&picture) {
+                            match repository.set_picture_cover_at_current_position() {
                                 Ok(stored_file_paths) => {
                                     for stored_file_path in stored_file_paths.iter() {
                                         let index_opt = view_state
