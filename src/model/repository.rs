@@ -1,5 +1,6 @@
 use crate::cli::command::Command;
 use crate::cli::command_line_arguments::CommandLineArguments;
+use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
 use crate::env::configuration::set_configuration_updated_flag;
 use crate::file::database::Database;
@@ -39,6 +40,9 @@ use std::io::Write;
 use std::path::PathBuf;
 use std::rc::Rc;
 
+pub const CREATE_DATABASE: bool = false;
+pub const DATABASE_EXISTS: bool = true;
+
 #[derive(Debug, Clone)]
 pub struct Repository {
     command_line_arguments: CommandLineArguments,
@@ -48,13 +52,12 @@ pub struct Repository {
     gallery_rc: Rc<RefCell<Gallery>>,
     parent_dirs_rc: RefCell<HashMap<String, (usize, usize)>>,
     folder_map_rc: RefCell<FolderMap>,
-    temp_dir: String,
-    catalog_filepath: String,
     catalog_rc: RefCell<Catalog>,
 }
 
 impl Repository {
-    pub fn new(configuration: Configuration, clargs: CommandLineArguments, create: bool) -> Self {
+    pub fn new(clargs: CommandLineArguments, create: bool) -> Self {
+        let configuration = CONFIGURATION.get().expect("configuration not set");
         let database = Database::from_connection(&configuration.database_file, create).unwrap();
         Repository {
             command_line_arguments: clargs.clone(),
@@ -64,8 +67,6 @@ impl Repository {
             gallery_rc: Rc::new(RefCell::new(Gallery::new())),
             parent_dirs_rc: RefCell::new(HashMap::new()),
             folder_map_rc: RefCell::new(FolderMap::default()),
-            temp_dir: configuration.temp_dir,
-            catalog_filepath: configuration.catalog_filepath.clone(),
             catalog_rc: RefCell::new(load_catalog(&configuration.catalog_filepath)),
         }
     }
@@ -133,7 +134,11 @@ impl Repository {
         predicate_opt: Option<Predicate>,
         folder_id_opt: Option<usize>,
     ) -> IOResult<usize> {
-        let catalog_result = Catalog::from_file(&self.catalog_filepath);
+        let catalog_filepath = &CONFIGURATION
+            .get()
+            .expect("configuration not set")
+            .catalog_filepath;
+        let catalog_result = Catalog::from_file(catalog_filepath);
         let catalog: Catalog = catalog_result?;
         let result = {
             let mut gallery = self.gallery_rc.borrow_mut();
@@ -247,9 +252,6 @@ impl Repository {
         }
     }
 
-    pub fn temp_dir(&self) -> String {
-        self.temp_dir.clone()
-    }
     pub fn add_category(
         &self,
         new_category_name: &str,
@@ -442,6 +444,9 @@ impl Repository {
         }
     }
 
+    pub fn set_command_line_arguments(&mut self, clargs: CommandLineArguments) {
+        self.command_line_arguments = clargs
+    }
     pub fn set_picture_at(&self, position: usize, picture: &Picture) {
         if let Ok(mut gallery) = self.gallery_rc().try_borrow_mut() {
             gallery.set_picture(position, picture.clone());
@@ -883,8 +888,9 @@ impl Repository {
         match self.gallery_rc().try_borrow() {
             Ok(gallery) => {
                 let picture = gallery.picture(index);
-                println!("copying {} to {}", &picture.file_path(), &self.temp_dir);
-                copy_picture_file_to_directory(&picture.file_path(), &self.temp_dir)
+                let temp_dir = &CONFIGURATION.get().expect("configuration not set").temp_dir;
+                println!("copying {} to {}", &picture.file_path(), temp_dir);
+                copy_picture_file_to_directory(&picture.file_path(), temp_dir)
             }
             Err(e) => Err(IOError::other(e)),
         }

@@ -72,7 +72,6 @@ impl GsrPictureGrid {
                     }
                     let picture = view_state.gallery().picture(index);
                     self.set_picture_at(col, row, &picture, index);
-
                     let opacity = picture_opacity(view_state.selection.contains(index));
                     self.set_picture_opacity_at(col, row, opacity);
                 } else {

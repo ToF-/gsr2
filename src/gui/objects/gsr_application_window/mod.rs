@@ -26,6 +26,7 @@ use crate::gui::view_state::selection_range::SelectionRange;
 use crate::model::catalog::Catalog;
 use crate::model::gallery::Gallery;
 use crate::model::predicate::Predicate;
+use crate::model::repository::DATABASE_EXISTS;
 use crate::model::repository::Repository;
 use crate::model::shared::Shared;
 use crate::model::view_option::ViewOption;
@@ -103,6 +104,16 @@ impl GsrApplicationWindow {
         let binding = shared_repository_opt.borrow();
         let repository = binding.as_ref().unwrap();
         f(repository)
+    }
+
+    pub fn with_repository_mut<F, R>(&self, f: F) -> R
+    where
+        F: FnOnce(&mut Repository) -> R,
+    {
+        let shared_repository_opt = self.gsr_application().shared_repository_opt();
+        let mut binding = shared_repository_opt.borrow_mut();
+        let mut repository = binding.as_mut().unwrap();
+        f(&mut repository)
     }
 
     pub fn stack(&self) -> gtk::Stack {
@@ -279,49 +290,6 @@ impl GsrApplicationWindow {
         self.refresh_view()
     }
 
-    pub fn retrieve_from_repository(
-        &self,
-        covers_only_opt: Option<bool>,
-        sub_directory: Option<String>,
-        predicate_opt: Option<Predicate>,
-    ) -> IOResult<usize> {
-        {
-            let shared_command_line_arguments =
-                self.gsr_application().shared_command_line_arguments();
-            let initial_command_line_arguments = shared_command_line_arguments.borrow().clone();
-            let command_line_arguments = CommandLineArguments {
-                covers: covers_only_opt.unwrap_or_default(),
-                directory: sub_directory,
-                ..initial_command_line_arguments
-            };
-            let configuration = CONFIGURATION.get().expect("configuration not set");
-
-            let repository =
-                Repository::new(configuration.clone(), command_line_arguments.clone(), false);
-
-            match repository.retrieve_pictures(predicate_opt) {
-                Err(e) => Err(e),
-                Ok(0) => {
-                    self.present_information("no picture matching these criteria");
-                    Ok(0)
-                }
-                Ok(n) => {
-                    let repository_gallery = repository.gallery();
-                    self.with_view_state_mut(|view_state| {
-                        view_state.navigator = Navigator::new(
-                            repository_gallery.len(),
-                            view_state.settings.pictures_per_row() as usize,
-                        );
-                        *view_state.gallery_mut() = Gallery::from_gallery_and_navigator(
-                            repository_gallery.clone(),
-                            &view_state.navigator,
-                        );
-                    });
-                    Ok(n)
-                }
-            }
-        }
-    }
 
     pub fn refresh_view(&self) {
         let pictures_per_row =

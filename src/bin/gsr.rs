@@ -39,7 +39,7 @@ fn main() {
 }
 
 fn run_application(config: &Configuration, clargs: &CommandLineArguments) -> Result<Status> {
-    let repository = Repository::new(config.clone(), clargs.clone(), false);
+    let repository = Repository::new(clargs.clone(), false);
     if clargs.structured && !config.updated {
         match repository.update_all_folders() {
             Ok(_) => {}

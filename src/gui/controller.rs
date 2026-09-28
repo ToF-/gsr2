@@ -473,25 +473,18 @@ impl Controller {
             directory: sub_directory,
             ..initial_command_line_arguments
         };
-        let configuration = CONFIGURATION.get().expect("configuration not set");
-
         self.with_repository_mut(|repository| {
-            *repository =
-                Repository::new(configuration.clone(), command_line_arguments.clone(), false);
+            repository.set_command_line_arguments(command_line_arguments.clone());
+        });
+        self.with_repository(|repository| {
             match repository.retrieve_pictures(predicate_opt) {
                 Err(e) => Err(e),
                 Ok(0) => Ok(0),
                 Ok(n) => {
-                    let repository_gallery = repository.gallery();
                     self.with_view_state_mut(|view_state| {
-                        view_state.navigator = Navigator::new(
-                            repository_gallery.len(),
-                            view_state.settings.pictures_per_row() as usize,
-                        );
-                        *view_state.gallery_mut() = Gallery::from_gallery_and_navigator(
-                            repository_gallery.clone(),
-                            &view_state.navigator,
-                        );
+                        let mut gallery = view_state.gallery_rc.borrow_mut();
+                        gallery.set_current_picture_index_cell(0);
+                        view_state.navigator = Navigator::new(gallery.len(), view_state.settings.pictures_per_row() as usize);
                     });
                     Ok(n)
                 }
@@ -882,7 +875,7 @@ impl Controller {
                     window.present_information("cannot extract: no picture selected");
                     return;
                 };
-                let temp_dir = this.with_repository(|repository| repository.temp_dir());
+                let temp_dir = &CONFIGURATION.get().expect("configuration not set").temp_dir;
                 let extraction_file_path = extraction_file_path(&temp_dir);
                 let gsr_entry_window = GsrEntryWindow::new_with(
                     &window,
@@ -1939,15 +1932,12 @@ impl Controller {
             window,
             move |_, _, _| {
                 window.dismiss();
-                let (position, picture) = this.with_view_state(|view_state| {
-                    let position = view_state.gallery().current_picture_index();
-                    let picture = view_state.gallery().current_picture();
-                    (position, picture)
-                });
+                let picture =
+                    this.with_view_state(|view_state| view_state.gallery().current_picture());
                 if !picture.is_folder() {
                     this.with_repository(|repository| {
                         match repository.set_picture_cover_at_current_position() {
-                            Ok(_) => {},
+                            Ok(_) => {}
                             Err(e) => eprintln!("{}", e),
                         }
                     })
