@@ -1939,39 +1939,21 @@ impl Controller {
             window,
             move |_, _, _| {
                 window.dismiss();
-                this.with_view_state_mut(|view_state| {
+                let (position, picture) = this.with_view_state(|view_state| {
                     let position = view_state.gallery().current_picture_index();
                     let picture = view_state.gallery().current_picture();
-                    if !view_state.gallery().current_picture().is_folder() {
-                        this.with_repository(|repository| {
-                            match repository.set_picture_cover_at_current_position() {
-                                Ok(stored_file_paths) => {
-                                    for stored_file_path in stored_file_paths.iter() {
-                                        let index_opt = view_state
-                                            .gallery()
-                                            .position_with_stored_file_path(stored_file_path);
-                                        if let Some(index) = index_opt {
-                                            if view_state.settings.pictures_per_row() > 1
-                                                && let Some((row, col)) =
-                                                    view_state.navigator.coords_from_position(index)
-                                            {
-                                                let picture = view_state.gallery().picture(index);
-                                                window
-                                                    .gsr_picture_grid()
-                                                    .set_label_from_picture_at(
-                                                        &picture, col as i32, row as i32,
-                                                    );
-                                            }
-                                        }
-                                    }
-                                }
-                                Err(e) => eprintln!("{}", e),
-                            }
-                        })
-                    } else {
-                        window.present_information("can't set a directory as cover")
-                    }
+                    (position, picture)
                 });
+                if !picture.is_folder() {
+                    this.with_repository(|repository| {
+                        match repository.set_picture_cover_at_current_position() {
+                            Ok(_) => {},
+                            Err(e) => eprintln!("{}", e),
+                        }
+                    })
+                } else {
+                    window.present_information("can't set a directory as cover")
+                };
                 window.deselect_pictures();
                 window.refresh_view();
             }
