@@ -531,7 +531,6 @@ impl Database {
         }
     }
 
-
     fn rusqlite_update_folder_first_file_path_for_id(
         &self,
         folder_id: usize,

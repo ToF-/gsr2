@@ -1,3 +1,4 @@
+use crate::model::rank::Rank;
 use crate::cli::command::Command;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::Configuration;
@@ -754,6 +755,24 @@ impl Repository {
         }
     }
 
+    pub fn rank_pictures_at_indices(&self, indices: &Vec<usize>, rank: Rank) -> IOResult<usize> {
+        let mut gallery = self.gallery_rc.borrow_mut();
+        let mut result = Ok(indices.len());
+        for position in indices {
+            let mut picture = gallery.picture(*position);
+            picture.set_rank(rank);
+            gallery.set_picture(*position, picture.clone());
+            match self.update_picture(&picture) {
+                Ok(_) => {}
+                Err(e) => {
+                    result = Err(e);
+                    break;
+                }
+            };
+        }
+        result
+    }
+
     pub fn unlabel_pictures_at_indices(&self, indices: &Vec<usize>) -> IOResult<usize> {
         let mut gallery = self.gallery_rc.borrow_mut();
         let mut result = Ok(indices.len());
@@ -762,13 +781,13 @@ impl Repository {
             picture.set_label("");
             gallery.set_picture(*position, picture.clone());
             match self.update_picture(&picture) {
-                Ok(_) => {},
+                Ok(_) => {}
                 Err(e) => {
                     result = Err(e);
                     break;
                 }
             };
-        };
+        }
         result
     }
 
