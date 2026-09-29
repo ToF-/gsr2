@@ -92,14 +92,12 @@ pub fn main() {
             if let Some(command) = command.commands {
                 match command {
                     Commands::List => list(&catalog),
-                    Commands::Import { file } => {
-                        match Catalog::from_file(&file) {
-                            Ok(catalog) => {
-                                list(&catalog);
-                                save_catalog(&catalog, &database);
-                            },
-                            Err(err) => eprintln!("error: {}", err),
+                    Commands::Import { file } => match Catalog::from_file(&file) {
+                        Ok(catalog) => {
+                            list(&catalog);
+                            save_catalog(&catalog, &database);
                         }
+                        Err(err) => eprintln!("error: {}", err),
                     },
                     Commands::Add {
                         sub_category,

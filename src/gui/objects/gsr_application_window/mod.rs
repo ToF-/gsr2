@@ -375,6 +375,7 @@ impl GsrApplicationWindow {
         }
     }
     pub fn cell_box_left_click(&self, col: i32, row: i32, n_pressed: i32) {
+        dbg!();
         let position_opt = self.with_view_state(|view_state| {
             view_state
                 .navigator

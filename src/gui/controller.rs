@@ -265,10 +265,6 @@ impl Controller {
             self.find_next_action(window.clone()),
         ));
         entries.push(Self::action_entry(
-            GioActionType::from(Action::FocusAt(0, 0)),
-            activate.clone(),
-        ));
-        entries.push(Self::action_entry(
             GioActionType::from(Action::Help),
             self.help_action(window.clone()),
         ));
@@ -303,14 +299,6 @@ impl Controller {
         entries.push(Self::action_entry(
             GioActionType::from(Action::MoveSelectedPicture("foo".to_string())),
             self.move_selected_pictures_action(window.clone()),
-        ));
-        entries.push(Self::action_entry(
-            GioActionType::from(Action::MoveTowards(Direction::Left)),
-            activate.clone(),
-        ));
-        entries.push(Self::action_entry(
-            GioActionType::from(Action::Nothing),
-            activate.clone(),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::NextSlide),
@@ -1203,6 +1191,25 @@ impl Controller {
             move |_, _, _| this.find_next(&window)
         )
     }
+
+    fn focus_at_action(
+        &self,
+        window: GsrApplicationWindow,
+    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
+        clone!(
+            #[strong (rename_to=this)]
+            self,
+            #[strong]
+            window,
+            move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
+                let gio_action = GioAction::from((object, variant));
+                if let Action::FocusAt(col, row) = Action::from(gio_action) {
+
+                }
+            }
+        )
+    }
+
     fn help_action(
         &self,
         window: GsrApplicationWindow,
