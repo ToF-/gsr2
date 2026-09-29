@@ -155,6 +155,13 @@ impl Database {
                                              params![],
                                         )
                                     })
+                                .and_then(|_| {
+                                        connection.execute(
+                                            "CREATE TABLE IF NOT EXISTS Catalog (       \n\
+                                             Sexp TEXT NOT NULL DEFAULT '(-))';",
+                                             params![],
+                                        )
+                                    })
                             })
                     })
             })
@@ -163,6 +170,18 @@ impl Database {
     pub fn rusqlite_insert_mark(&self, letter: char, file_path: &str) -> SqlResult<usize> {
         let connection = self.connection_rc.borrow();
         connection.execute(INSERT_MARK, params![letter.to_string(), file_path])
+    }
+
+    pub fn rusqlite_update_catalog(&self, sexpr: &str) -> SqlResult<usize> {
+        let connection = self.connection_rc.borrow();
+        connection.execute(
+            "DELETE FROM Catalog",
+            params![])
+            .and_then(|_| {
+                connection.execute(
+                    "INSERT INTO Catalog (Sexpr) VALUES (?1);",
+                    params![sexpr])
+            })
     }
 
     fn rusqlite_insert_picture(&self, picture: &Picture) -> SqlResult<usize> {
@@ -357,6 +376,11 @@ impl Database {
                     map
                 })
             })
+    }
+
+    pub fn rusqlite_retrieve_catalog(&self) -> SqlResult<String> {
+        let connection = self.connection_rc.borrow();
+        connection.query_one("SELECT Sexp FROM Catalog;", params![], |row| row.get(0))
     }
 
     pub fn rusqlite_retrieve_all_labels(&self) -> SqlResult<HashSet<String>> {

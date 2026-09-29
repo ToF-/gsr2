@@ -290,7 +290,6 @@ impl GsrApplicationWindow {
         self.refresh_view()
     }
 
-
     pub fn refresh_view(&self) {
         let pictures_per_row =
             self.with_view_state(|view_state| view_state.settings.pictures_per_row());

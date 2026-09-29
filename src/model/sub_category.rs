@@ -41,15 +41,16 @@ impl SubCategory {
         });
         result
     }
-    pub fn format_at_level(&self, level: usize) -> String {
-        let indent: String = " ".repeat(level * 2);
+    pub fn format_at_level(&self, level: usize, pretty: bool) -> String {
+        let indent: String = if pretty { " ".repeat(level * 2) } else { "".to_string() };
         if self.sub_categories.is_empty() {
             format!("{}{}", indent, self.name)
         } else {
+            let cr = if pretty { "\n" } else { "" };
             let children_string: String = self
                 .sub_categories
                 .iter()
-                .map(|child| format!("\n{}{}", indent, child.format_at_level(level + 1)))
+                .map(|child| format!("{}{}{}", cr,indent, child.format_at_level(level + 1, pretty)))
                 .collect::<Vec<String>>()
                 .join("");
             format!("{}({}{})", indent, self.name, children_string)

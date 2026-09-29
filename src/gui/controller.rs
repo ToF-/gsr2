@@ -476,20 +476,23 @@ impl Controller {
         self.with_repository_mut(|repository| {
             repository.set_command_line_arguments(command_line_arguments.clone());
         });
-        self.with_repository(|repository| {
-            match repository.retrieve_pictures(predicate_opt) {
+        self.with_repository(
+            |repository| match repository.retrieve_pictures(predicate_opt) {
                 Err(e) => Err(e),
                 Ok(0) => Ok(0),
                 Ok(n) => {
                     self.with_view_state_mut(|view_state| {
                         let mut gallery = view_state.gallery_rc.borrow_mut();
                         gallery.set_current_picture_index_cell(0);
-                        view_state.navigator = Navigator::new(gallery.len(), view_state.settings.pictures_per_row() as usize);
+                        view_state.navigator = Navigator::new(
+                            gallery.len(),
+                            view_state.settings.pictures_per_row() as usize,
+                        );
                     });
                     Ok(n)
                 }
-            }
-        })
+            },
+        )
     }
 
     fn retrieve_current_location(&self) {

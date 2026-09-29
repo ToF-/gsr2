@@ -760,6 +760,13 @@ impl Repository {
         }
     }
 
+    pub fn retrieve_catalog(&self) -> IOResult<Catalog> {
+        match self.database.rusqlite_retrieve_catalog() {
+            Ok(sexp) => Catalog::from_sexpr(&sexp, true),
+            Err(e) => Err(IOError::other(e)),
+        }
+    }
+
     pub fn rank_pictures_at_indices(&self, indices: &Vec<usize>, rank: Rank) -> IOResult<usize> {
         let mut gallery = self.gallery_rc.borrow_mut();
         let mut result = Ok(indices.len());

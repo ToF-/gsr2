@@ -1,7 +1,9 @@
 use clap::Parser;
 use clap::Subcommand;
 use gsr::env::configuration::Configuration;
+use gsr::file::database::Database;
 use gsr::model::catalog::Catalog;
+use std::io::Error as IOError;
 use std::process::exit;
 
 #[derive(Parser, Clone, Debug, PartialEq)]
@@ -57,7 +59,7 @@ pub enum Commands {
 }
 
 pub fn list(catalog: &Catalog) {
-    println!("{}", catalog.root_category().format_at_level(0));
+    println!("{}", catalog.root_category().format_at_level(0, false));
 }
 
 pub fn main() {
@@ -68,45 +70,49 @@ pub fn main() {
             exit(1)
         }
     };
-    if let Ok(mut catalog) = Catalog::from_file(&config.catalog_filepath) {
-        let command = Command::parse();
-        if let Some(command) = command.commands {
-            match command {
-                Commands::List => list(&catalog),
-                Commands::Add {
-                    sub_category,
-                    category,
-                } => match catalog.add_and_save(&sub_category, &category) {
-                    Ok(_) => {
-                        println!("added {} to {}", sub_category, category);
-                        list(&catalog);
-                    }
-                    Err(err) => eprintln!("error: {}", err),
-                },
-                Commands::Move {
-                    sub_category,
-                    category,
-                } => match catalog.move_and_save(&sub_category, &category) {
-                    Ok(_) => {
-                        println!("moved {} to {}", sub_category, category);
-                        list(&catalog);
-                    }
-                    Err(err) => eprintln!("error: {}", err),
-                },
-                Commands::Remove { category, force } => {
-                    match catalog.remove_and_save(&category, force) {
+    let database = Database::from_connection(&config.database_file, false).unwrap();
+    match Catalog::from_database(&database) {
+        Ok(mut catalog) => {
+            let command = Command::parse();
+            if let Some(command) = command.commands {
+                match command {
+                    Commands::List => list(&catalog),
+                    Commands::Add {
+                        sub_category,
+                        category,
+                    } => match catalog.add_and_save(&sub_category, &category) {
                         Ok(_) => {
-                            println!("removed {}", category);
+                            println!("added {} to {}", sub_category, category);
                             list(&catalog);
                         }
                         Err(err) => eprintln!("error: {}", err),
+                    },
+                    Commands::Move {
+                        sub_category,
+                        category,
+                    } => match catalog.move_and_save(&sub_category, &category) {
+                        Ok(_) => {
+                            println!("moved {} to {}", sub_category, category);
+                            list(&catalog);
+                        }
+                        Err(err) => eprintln!("error: {}", err),
+                    },
+                    Commands::Remove { category, force } => {
+                        match catalog.remove_and_save(&category, force) {
+                            Ok(_) => {
+                                println!("removed {}", category);
+                                list(&catalog);
+                            }
+                            Err(err) => eprintln!("error: {}", err),
+                        }
                     }
                 }
+            } else {
+                list(&catalog)
             }
-        } else {
-            list(&catalog)
         }
-    } else {
-        println!("can't open file {}", config.catalog_filepath);
+        Err(e) => {
+            println!("can't open catalog: {}", e);
+        }
     }
 }

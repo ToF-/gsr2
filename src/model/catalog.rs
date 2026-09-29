@@ -1,3 +1,4 @@
+use crate::file::database::Database;
 use crate::env::configuration::Configuration;
 use crate::model::categories::Categories;
 use crate::model::sub_category::SubCategory;
@@ -14,6 +15,7 @@ use std::io::{Error, Result};
 
 #[derive(Debug, Clone)]
 pub struct Catalog {
+    database: bool,
     root: SubCategory,
 }
 
@@ -26,7 +28,7 @@ pub fn load_catalog(catalog_filepath: &str) -> Catalog {
 }
 
 impl Catalog {
-    pub fn from_sexpr(source: &str) -> Result<Self> {
+    pub fn from_sexpr(source: &str, database: bool) -> Result<Self> {
         match lexpr::from_str(source) {
             Ok(value) => match SubCategory::from_value(&value) {
                 Ok(root) => {
@@ -36,7 +38,7 @@ impl Catalog {
                         let initial = keys.clone();
                         keys.dedup();
                         if keys.len() == initial.len() {
-                            Ok(Catalog { root })
+                            Ok(Catalog { database, root })
                         } else {
                             Err(Error::other(format!(
                                 "incorrect s_expression value: duplicate sub_categories in {:?}",
@@ -58,7 +60,14 @@ impl Catalog {
 
     pub fn from_file(file_path: &str) -> Result<Self> {
         match fs::read_to_string(file_path) {
-            Ok(content) => Self::from_sexpr(&content),
+            Ok(content) => Self::from_sexpr(&content, false),
+            Err(e) => Err(Error::other(e)),
+        }
+    }
+
+    pub fn from_database(database: &Database) -> Result<Self> {
+        match database.rusqlite_retrieve_catalog() {
+            Ok(sexpr) => Catalog::from_sexpr(&sexpr, true),
             Err(e) => Err(Error::other(e)),
         }
     }
@@ -84,10 +93,29 @@ impl Catalog {
     pub fn tags(&self) -> Tags {
         tags_from_vec(self.root.sub_category_names())
     }
-    pub fn save_to_file(&mut self, file_path: &str) -> Result<()> {
+    pub fn save(&mut self) -> Result<()> {
+        self.save_to_file()
+    }
+    pub fn save_to_file(&mut self) -> Result<()> {
+        let config = match Configuration::from_env() {
+            Ok(config) => config,
+            Err(err) => {
+                eprintln!("{}", err);
+                return Err(err);
+            }
+        };
         self.sort();
-        let content: String = self.root.format_at_level(0);
-        fs::write(file_path, content)
+        let content: String = self.root.format_at_level(0, true);
+        fs::write(config.catalog_filepath, content)
+    }
+
+    pub fn save_to_database(&mut self, database: &Database) -> Result<()> {
+        self.sort();
+        let content: String = self.root.format_at_level(0, false);
+        match database.rusqlite_update_catalog(&content) {
+            Ok(_) => Ok(()),
+            Err(e) => Err(Error::other(e)),
+        }
     }
     pub fn root_category(&self) -> SubCategory {
         self.root.clone()
@@ -102,7 +130,7 @@ impl Catalog {
             }
         };
         match self.add_sub_category(sub_category_name, category_name) {
-            Ok(_) => match self.save_to_file(&config.catalog_filepath) {
+            Ok(_) => match self.save() {
                 Ok(_) => {
                     println!(
                         "adding sub category {} to category {}",
@@ -165,7 +193,7 @@ impl Catalog {
             }
         };
         match self.move_sub_category(sub_category_name, category_name) {
-            Ok(_) => match self.save_to_file(&config.catalog_filepath) {
+            Ok(_) => match self.save() {
                 Ok(_) => {
                     println!(
                         "moving sub category {} to category {}",
@@ -236,7 +264,7 @@ impl Catalog {
             }
         };
         match self.remove_category(category_name, force) {
-            Ok(_) => match self.save_to_file(&config.catalog_filepath) {
+            Ok(_) => match self.save() {
                 Ok(_) => {
                     println!("removing category {}", category_name);
                     Ok(())
@@ -267,7 +295,7 @@ impl Catalog {
     }
 
     pub fn s_expression(&self) -> String {
-        self.root.format_at_level(0)
+        self.root.format_at_level(0, true)
     }
 
     pub fn is_a(&self, target_category_name: &str, sub_category_name: &str) -> bool {
