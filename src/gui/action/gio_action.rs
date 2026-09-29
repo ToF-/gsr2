@@ -138,7 +138,7 @@ impl From<Action> for GioAction {
         }
     }
 }
-// QUX
+
 impl From<GioAction> for Action {
     fn from(gio_action: GioAction) -> Self {
         match &gio_action.name() as &str {

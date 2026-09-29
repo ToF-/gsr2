@@ -571,6 +571,7 @@ impl GsrApplicationWindow {
         let action = Action::from(*control);
         self.activate_action(action);
     }
+
     fn activate_action_toggle_selected(&self) {
         let action = Action::ToggleSelected;
         let (name, variant) = GioAction::from(action.clone()).to_simple_action_call();

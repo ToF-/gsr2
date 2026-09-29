@@ -154,7 +154,7 @@ impl Controller {
         let mut repository = binding.as_mut().unwrap();
         f(&mut repository)
     }
-    // LAW
+
     pub fn initialize(&self) {
         let mut entries = vec![];
         let shared_window = self
