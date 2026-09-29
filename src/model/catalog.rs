@@ -1,4 +1,3 @@
-use crate::env::configuration::Configuration;
 use crate::file::database::Database;
 use crate::model::categories::Categories;
 use crate::model::sub_category::SubCategory;
@@ -37,7 +36,9 @@ impl Catalog {
                         let initial = keys.clone();
                         keys.dedup();
                         if keys.len() == initial.len() {
-                            Ok(Catalog { root })
+                            let mut catalog = Catalog { root };
+                            catalog.sort();
+                            Ok(catalog)
                         } else {
                             Err(Error::other(format!(
                                 "incorrect s_expression value: duplicate sub_categories in {:?}",
@@ -134,7 +135,6 @@ impl Catalog {
                 .add_sub_category_leaf(sub_category_name, category_name)
         }
     }
-
 
     pub fn move_sub_category(
         &mut self,
@@ -272,7 +272,8 @@ mod tests {
     }
     #[test]
     fn creating_sub_categories_from_s_expression_with_root_and_sub_subs() {
-        let catalog = Catalog::from_s_expression("(- (foo bar) (qux law))").expect("incorrect sexpr");
+        let catalog =
+            Catalog::from_s_expression("(- (foo bar) (qux law))").expect("incorrect sexpr");
         assert_eq!(TOP_CATEGORY, catalog.root.name());
         println!("{:?}", catalog);
         assert_eq!(2, catalog.root.sub_categories().len());
@@ -313,12 +314,14 @@ mod tests {
     }
     #[test]
     fn is_a_sub_category_relationship_equality_case() {
-        let catalog = Catalog::from_s_expression("(- (foo bar) (qux law))").expect("incorrect sexpr");
+        let catalog =
+            Catalog::from_s_expression("(- (foo bar) (qux law))").expect("incorrect sexpr");
         assert!(catalog.is_a("bar", "bar"));
     }
     #[test]
     fn is_a_sub_category_relationship_sub_category_case() {
-        let catalog = Catalog::from_s_expression("(- (foo bar) (qux law))").expect("incorrect sexpr");
+        let catalog =
+            Catalog::from_s_expression("(- (foo bar) (qux law))").expect("incorrect sexpr");
         assert!(catalog.is_a("foo", "bar"));
         assert!(catalog.is_a("qux", "law"));
         assert!(!catalog.is_a("foo", "qux"));
@@ -347,8 +350,8 @@ mod tests {
     #[test]
     fn is_one_of_categories_from_a_catalog() {
         let categories = Categories::from_string("bam,foo");
-        let catalog =
-            Catalog::from_s_expression("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
+        let catalog = Catalog::from_s_expression("(- (foo (bar gus)) (qux (bam bol)))")
+            .expect("incorrect sexpr");
         assert!(catalog.is_one_of(&categories, "gus"));
         assert!(!catalog.is_one_of(&categories, "bap"));
         assert!(catalog.is_one_of(&categories, "bol"));
@@ -357,8 +360,8 @@ mod tests {
     }
     #[test]
     fn adding_a_sub_category() {
-        let mut catalog =
-            Catalog::from_s_expression("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
+        let mut catalog = Catalog::from_s_expression("(- (foo (bar gus)) (qux (bam bol)))")
+            .expect("incorrect sexpr");
         assert!(catalog.add_sub_category("law", "gus").is_ok());
         assert!(catalog.add_sub_category("bru", "qux").is_ok());
         assert!(catalog.is_a("gus", "law"));
@@ -366,8 +369,8 @@ mod tests {
     }
     #[test]
     fn adding_a_sub_category_is_not_allowed_if_that_sub_category_already_exists() {
-        let mut catalog =
-            Catalog::from_s_expression("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
+        let mut catalog = Catalog::from_s_expression("(- (foo (bar gus)) (qux (bam bol)))")
+            .expect("incorrect sexpr");
         let result = catalog.add_sub_category("foo", "gus");
         assert_eq!(
             "Err(Custom { kind: Other, error: \"subcategory foo already exists\" })",
@@ -376,8 +379,8 @@ mod tests {
     }
     #[test]
     fn adding_a_sub_category_is_not_allowed_if_the_category_does_not_exist() {
-        let mut catalog =
-            Catalog::from_s_expression("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
+        let mut catalog = Catalog::from_s_expression("(- (foo (bar gus)) (qux (bam bol)))")
+            .expect("incorrect sexpr");
         let result = catalog.add_sub_category("bal", "sch");
         assert_eq!(
             "Err(Custom { kind: Other, error: \"unknown category:sch\" })",
@@ -387,71 +390,71 @@ mod tests {
     }
     #[test]
     fn removing_a_sub_category() {
-        let mut catalog =
-            Catalog::from_s_expression("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
+        let mut catalog = Catalog::from_s_expression("(- (foo (bar gus)) (qux (bam bol)))")
+            .expect("incorrect sexpr");
         assert!(catalog.remove_category("bol", true).is_ok());
         assert!(!catalog.is_a("qux", "bol"));
     }
     #[test]
     fn removing_a_sub_category_with_subs_not_possible_if_not_forced() {
-        let mut catalog =
-            Catalog::from_s_expression("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
+        let mut catalog = Catalog::from_s_expression("(- (foo (bar gus)) (qux (bam bol)))")
+            .expect("incorrect sexpr");
         assert!(catalog.remove_category("qux", false).is_err());
         assert!(catalog.is_a("qux", "bol"));
     }
     #[test]
     fn removing_a_non_existent_sub_category_is_not_possible() {
-        let mut catalog =
-            Catalog::from_s_expression("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
+        let mut catalog = Catalog::from_s_expression("(- (foo (bar gus)) (qux (bam bol)))")
+            .expect("incorrect sexpr");
         assert!(catalog.remove_category("zzz", true).is_err());
     }
     #[test]
     fn adding_a_sub_category_with_illegal_chars_is_not_allowed() {
-        let mut catalog =
-            Catalog::from_s_expression("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
+        let mut catalog = Catalog::from_s_expression("(- (foo (bar gus)) (qux (bam bol)))")
+            .expect("incorrect sexpr");
         assert!(catalog.add_sub_category("!ag", "-").is_err());
         assert!(catalog.add_sub_category("-", "foo").is_err());
     }
     #[test]
     fn moving_a_sub_category() {
-        let mut catalog =
-            Catalog::from_s_expression("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
+        let mut catalog = Catalog::from_s_expression("(- (foo (bar gus)) (qux (bam bol)))")
+            .expect("incorrect sexpr");
         let result = catalog.move_sub_category("qux", "foo");
         assert!(result.is_ok());
         assert!(catalog.is_a("foo", "bol"));
     }
     #[test]
     fn moving_a_sub_category_is_not_allowed_if_sub_category_do_not_exist() {
-        let mut catalog =
-            Catalog::from_s_expression("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
+        let mut catalog = Catalog::from_s_expression("(- (foo (bar gus)) (qux (bam bol)))")
+            .expect("incorrect sexpr");
         let result = catalog.move_sub_category("lux", "foo");
         assert!(result.is_err());
     }
     #[test]
     fn moving_a_sub_category_is_not_allowed_if_target_category_do_not_exist() {
-        let mut catalog =
-            Catalog::from_s_expression("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
+        let mut catalog = Catalog::from_s_expression("(- (foo (bar gus)) (qux (bam bol)))")
+            .expect("incorrect sexpr");
         let result = catalog.move_sub_category("qux", "moo");
         assert!(result.is_err());
     }
     #[test]
     fn moving_a_sub_category_is_not_allowed_for_top_category() {
-        let mut catalog =
-            Catalog::from_s_expression("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
+        let mut catalog = Catalog::from_s_expression("(- (foo (bar gus)) (qux (bam bol)))")
+            .expect("incorrect sexpr");
         let result = catalog.move_sub_category("-", "foo");
         assert!(result.is_err());
     }
     #[test]
     fn moving_a_sub_category_is_not_allowed_to_a_sub_category_of_that_sub_category() {
-        let mut catalog =
-            Catalog::from_s_expression("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
+        let mut catalog = Catalog::from_s_expression("(- (foo (bar gus)) (qux (bam bol)))")
+            .expect("incorrect sexpr");
         let result = catalog.move_sub_category("foo", "gus");
         assert!(result.is_err());
     }
     #[test]
     fn can_obtain_tags_from_the_sub_categories() {
-        let catalog =
-            Catalog::from_s_expression("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
+        let catalog = Catalog::from_s_expression("(- (foo (bar gus)) (qux (bam bol)))")
+            .expect("incorrect sexpr");
         let tags: Tags = catalog.tags();
         assert!(tags.contains("foo"));
         assert!(tags.contains("bol"));

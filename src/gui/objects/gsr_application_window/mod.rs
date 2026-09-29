@@ -1,5 +1,3 @@
-use crate::cli::command_line_arguments::CommandLineArguments;
-use crate::env::configuration::CONFIGURATION;
 use crate::env::default_values::FRAME_WINDOW_NAME;
 use crate::env::default_values::FULL_OPACITY;
 use crate::env::default_values::GRID_WINDOW_NAME;
@@ -24,9 +22,6 @@ use crate::gui::view_state::ViewState;
 use crate::gui::view_state::navigator::Navigator;
 use crate::gui::view_state::selection_range::SelectionRange;
 use crate::model::catalog::Catalog;
-use crate::model::gallery::Gallery;
-use crate::model::predicate::Predicate;
-use crate::model::repository::DATABASE_EXISTS;
 use crate::model::repository::Repository;
 use crate::model::shared::Shared;
 use crate::model::view_option::ViewOption;
@@ -38,7 +33,6 @@ use gtk::prelude::WidgetExt;
 use gtk::prelude::*;
 use gtk::subclass::prelude::ObjectSubclassIsExt;
 use std::cell::RefCell;
-use std::io::Result as IOResult;
 use std::rc::Rc;
 use std::time::Duration;
 

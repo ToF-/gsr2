@@ -3,7 +3,6 @@ use clap::Subcommand;
 use gsr::env::configuration::Configuration;
 use gsr::file::database::Database;
 use gsr::model::catalog::Catalog;
-use std::io::Error as IOError;
 use std::process::exit;
 
 #[derive(Parser, Clone, Debug, PartialEq)]
@@ -38,6 +37,11 @@ pub enum Commands {
         #[arg(short, long, value_name = "CATEGORY")]
         category: String,
     },
+    /// import <FILE>
+    Import {
+        #[arg(short, long, value_name = "FILE")]
+        file: String,
+    },
     /// list all categories (default)
     List,
     /// move <SUB_CATEGORY> under <CATEGORY>
@@ -62,6 +66,13 @@ pub fn list(catalog: &Catalog) {
     println!("{}", catalog.root_category().format_at_level(0, true));
 }
 
+fn save_catalog(catalog: &Catalog, database: &Database) {
+    match database.rusqlite_update_catalog(&catalog.to_sexp()) {
+        Ok(_) => {}
+        Err(err) => eprintln!("error: {}", err),
+    }
+}
+
 pub fn main() {
     let config = match Configuration::from_env() {
         Ok(config) => config,
@@ -81,6 +92,15 @@ pub fn main() {
             if let Some(command) = command.commands {
                 match command {
                     Commands::List => list(&catalog),
+                    Commands::Import { file } => {
+                        match Catalog::from_file(&file) {
+                            Ok(catalog) => {
+                                list(&catalog);
+                                save_catalog(&catalog, &database);
+                            },
+                            Err(err) => eprintln!("error: {}", err),
+                        }
+                    },
                     Commands::Add {
                         sub_category,
                         category,
@@ -88,10 +108,7 @@ pub fn main() {
                         Ok(_) => {
                             println!("added {} to {}", sub_category, category);
                             list(&catalog);
-                            match database.rusqlite_update_catalog(&catalog.to_sexp()) {
-                                Ok(_) => {}
-                                Err(err) => eprintln!("error: {}", err),
-                            }
+                            save_catalog(&catalog, &database);
                         }
                         Err(err) => eprintln!("error: {}", err),
                     },
@@ -102,10 +119,7 @@ pub fn main() {
                         Ok(_) => {
                             println!("moved {} to {}", sub_category, category);
                             list(&catalog);
-                            match database.rusqlite_update_catalog(&catalog.to_sexp()) {
-                                Ok(_) => {}
-                                Err(err) => eprintln!("error: {}", err),
-                            }
+                            save_catalog(&catalog, &database);
                         }
                         Err(err) => eprintln!("error: {}", err),
                     },
@@ -114,10 +128,7 @@ pub fn main() {
                             Ok(_) => {
                                 println!("removed {}", category);
                                 list(&catalog);
-                                match database.rusqlite_update_catalog(&catalog.to_sexp()) {
-                                    Ok(_) => {}
-                                    Err(err) => eprintln!("error: {}", err),
-                                }
+                                save_catalog(&catalog, &database);
                             }
                             Err(err) => eprintln!("error: {}", err),
                         }

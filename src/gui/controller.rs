@@ -41,7 +41,6 @@ use crate::model::category::Category;
 use crate::model::category::category_from_string;
 use crate::model::find::Find;
 use crate::model::finder::Finder;
-use crate::model::gallery::Gallery;
 use crate::model::order::Order;
 use crate::model::picture::Picture;
 use crate::model::predicate::Predicate;

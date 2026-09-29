@@ -186,9 +186,7 @@ impl Database {
         let connection = self.connection_rc.borrow();
         connection
             .execute(DELETE_CATALOG, params![])
-            .and_then(|_| {
-                connection.execute(INSERT_CATALOG, params![sexpr])
-            })
+            .and_then(|_| connection.execute(INSERT_CATALOG, params![sexpr]))
     }
 
     fn rusqlite_insert_picture(&self, picture: &Picture) -> SqlResult<usize> {

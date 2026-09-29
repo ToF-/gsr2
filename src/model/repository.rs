@@ -17,7 +17,6 @@ use crate::file::picture_file::delete_picture_files;
 use crate::file::picture_file::get_all_picture_file_paths;
 use crate::file::picture_file::get_picture_file_path;
 use crate::model::catalog::Catalog;
-use crate::model::catalog::load_catalog;
 use crate::model::folder_map::FolderMap;
 use crate::model::gallery::Gallery;
 use crate::model::order::Order;
