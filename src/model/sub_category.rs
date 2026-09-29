@@ -42,7 +42,11 @@ impl SubCategory {
         result
     }
     pub fn format_at_level(&self, level: usize, pretty: bool) -> String {
-        let indent: String = if pretty { " ".repeat(level * 2) } else { " ".to_string() };
+        let indent: String = if pretty {
+            " ".repeat(level * 2)
+        } else {
+            " ".to_string()
+        };
         if self.sub_categories.is_empty() {
             format!("{}{}", indent, self.name)
         } else {
@@ -50,7 +54,14 @@ impl SubCategory {
             let children_string: String = self
                 .sub_categories
                 .iter()
-                .map(|child| format!("{}{}{}", cr,indent, child.format_at_level(level + 1, pretty)))
+                .map(|child| {
+                    format!(
+                        "{}{}{}",
+                        cr,
+                        indent,
+                        child.format_at_level(level + 1, pretty)
+                    )
+                })
                 .collect::<Vec<String>>()
                 .join("");
             format!("{}({}{})", indent, self.name, children_string)
@@ -64,6 +75,7 @@ impl SubCategory {
     ) -> Result<()> {
         if self.name == category_name {
             self.sub_categories.push(Self::leaf(sub_category_name));
+            self.sub_categories.sort_by(|a, b| a.name.cmp(&b.name));
             Ok(())
         } else {
             let mut result: Result<()> = Ok(());

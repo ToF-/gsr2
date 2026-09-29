@@ -9,13 +9,13 @@ use crate::model::view_option::ViewOption;
 
 pub fn view_menu() -> KeyInput {
     KeyInput::new(
-        "View: 1x1 2x2 3x3 4x4 5x5 thumbs full covers palette Date Filepath Size Categories",
+        "View: 1x1 2x2 3x3 4x4 5x5 thumbs fUll covers palette date filepath size cAtegories",
         None,
         KeyInputMode::Menu,
         |_, ch| {
             matches!(
                 ch,
-                '1' | '2' | '3' | '4' | '5' | 't' | 'c' | 'p' | 'D' | 'F' | 'S' | 'f' | 'C'
+                '1' | '2' | '3' | '4' | '5' | 't' | 'u' | 'c' | 'p' | 'd' | 'f' | 's' | 'f' | 'a'
             )
         },
         |_, ch| {
@@ -28,11 +28,11 @@ pub fn view_menu() -> KeyInput {
                 't' => ViewOption::Thumbnails,
                 'c' => ViewOption::Covers,
                 'p' => ViewOption::Palette,
-                'D' => ViewOption::FileDate,
-                'F' => ViewOption::FilePath,
-                'S' => ViewOption::FileSize,
-                'f' => ViewOption::FullSize,
-                'C' => ViewOption::Catalog,
+                'd' => ViewOption::FileDate,
+                'f' => ViewOption::FilePath,
+                's' => ViewOption::FileSize,
+                'u' => ViewOption::FullSize,
+                'a' => ViewOption::Catalog,
                 _ => todo!(),
             };
             let s: String = (view_option as i32).to_string();

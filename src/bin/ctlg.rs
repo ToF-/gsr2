@@ -59,7 +59,7 @@ pub enum Commands {
 }
 
 pub fn list(catalog: &Catalog) {
-    println!("{}", catalog.root_category().format_at_level(0, false));
+    println!("{}", catalog.root_category().format_at_level(0, true));
 }
 
 pub fn main() {
@@ -71,7 +71,11 @@ pub fn main() {
         }
     };
     let database = Database::from_connection(&config.database_file, false).unwrap();
-    match Catalog::from_database(&database) {
+    let catalog_result = match database.retrieve_catalog() {
+        Ok(s_expression) => Catalog::from_s_expression(&s_expression),
+        Err(e) => Err(e),
+    };
+    match catalog_result {
         Ok(mut catalog) => {
             let command = Command::parse();
             if let Some(command) = command.commands {
@@ -80,28 +84,40 @@ pub fn main() {
                     Commands::Add {
                         sub_category,
                         category,
-                    } => match catalog.add_and_save(&sub_category, &category) {
+                    } => match catalog.add_sub_category(&sub_category, &category) {
                         Ok(_) => {
                             println!("added {} to {}", sub_category, category);
                             list(&catalog);
+                            match database.rusqlite_update_catalog(&catalog.to_sexp()) {
+                                Ok(_) => {}
+                                Err(err) => eprintln!("error: {}", err),
+                            }
                         }
                         Err(err) => eprintln!("error: {}", err),
                     },
                     Commands::Move {
                         sub_category,
                         category,
-                    } => match catalog.move_and_save(&sub_category, &category) {
+                    } => match catalog.move_sub_category(&sub_category, &category) {
                         Ok(_) => {
                             println!("moved {} to {}", sub_category, category);
                             list(&catalog);
+                            match database.rusqlite_update_catalog(&catalog.to_sexp()) {
+                                Ok(_) => {}
+                                Err(err) => eprintln!("error: {}", err),
+                            }
                         }
                         Err(err) => eprintln!("error: {}", err),
                     },
                     Commands::Remove { category, force } => {
-                        match catalog.remove_and_save(&category, force) {
+                        match catalog.remove_category(&category, force) {
                             Ok(_) => {
                                 println!("removed {}", category);
                                 list(&catalog);
+                                match database.rusqlite_update_catalog(&catalog.to_sexp()) {
+                                    Ok(_) => {}
+                                    Err(err) => eprintln!("error: {}", err),
+                                }
                             }
                             Err(err) => eprintln!("error: {}", err),
                         }

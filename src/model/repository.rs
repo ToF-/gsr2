@@ -138,7 +138,7 @@ impl Repository {
             .get()
             .expect("configuration not set")
             .catalog_filepath;
-        let catalog_result = Catalog::from_file(catalog_filepath);
+        let catalog_result = self.retrieve_catalog();
         let catalog: Catalog = catalog_result?;
         let result = {
             let mut gallery = self.gallery_rc.borrow_mut();
@@ -258,8 +258,8 @@ impl Repository {
         target_category_name: &str,
     ) -> IOResult<()> {
         if let Ok(mut catalog) = self.catalog_rc.try_borrow_mut() {
-            match catalog.add_and_save(new_category_name, target_category_name) {
-                Ok(_) => Ok(()),
+            match catalog.add_sub_category(new_category_name, target_category_name) {
+                Ok(_) => self.save_catalog(&catalog),
                 Err(e) => Err(IOError::other(e)),
             }
         } else {
@@ -273,8 +273,8 @@ impl Repository {
         target_category_name: &str,
     ) -> IOResult<()> {
         if let Ok(mut catalog) = self.catalog_rc.try_borrow_mut() {
-            match catalog.move_and_save(moving_category_name, target_category_name) {
-                Ok(_) => Ok(()),
+            match catalog.move_sub_category(moving_category_name, target_category_name) {
+                Ok(_) => self.save_catalog(&catalog),
                 Err(e) => Err(IOError::other(e)),
             }
         } else {
@@ -284,8 +284,8 @@ impl Repository {
 
     pub fn remove_category(&self, category_name: &str) -> IOResult<()> {
         if let Ok(mut catalog) = self.catalog_rc.try_borrow_mut() {
-            match catalog.remove_and_save(category_name, false) {
-                Ok(_) => Ok(()),
+            match catalog.remove_category(category_name, false) {
+                Ok(_) => self.save_catalog(&catalog),
                 Err(e) => Err(IOError::other(e)),
             }
         } else {
@@ -356,6 +356,12 @@ impl Repository {
         }
     }
 
+    pub fn save_catalog(&self, catalog: &Catalog) -> IOResult<()> {
+        match self.database.rusqlite_update_catalog(&catalog.to_sexp()) {
+            Ok(_) => Ok(()),
+            Err(e) => Err(IOError::other(e)),
+        }
+    }
     pub fn initialize_for_args(
         &self,
         args: &CommandLineArguments,
@@ -761,9 +767,9 @@ impl Repository {
     }
 
     pub fn retrieve_catalog(&self) -> IOResult<Catalog> {
-        match self.database.rusqlite_retrieve_catalog() {
-            Ok(sexp) => Catalog::from_sexpr(&sexp, true),
-            Err(e) => Err(IOError::other(e)),
+        match self.database.retrieve_catalog() {
+            Ok(s_expression) => Catalog::from_s_expression(&s_expression),
+            Err(e) => Err(e),
         }
     }
 

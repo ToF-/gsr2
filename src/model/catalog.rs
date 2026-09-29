@@ -1,5 +1,5 @@
-use crate::file::database::Database;
 use crate::env::configuration::Configuration;
+use crate::file::database::Database;
 use crate::model::categories::Categories;
 use crate::model::sub_category::SubCategory;
 use crate::model::sub_category::TOP_CATEGORY;
@@ -15,7 +15,6 @@ use std::io::{Error, Result};
 
 #[derive(Debug, Clone)]
 pub struct Catalog {
-    database: bool,
     root: SubCategory,
 }
 
@@ -28,7 +27,7 @@ pub fn load_catalog(catalog_filepath: &str) -> Catalog {
 }
 
 impl Catalog {
-    pub fn from_sexpr(source: &str, database: bool) -> Result<Self> {
+    pub fn from_s_expression(source: &str) -> Result<Self> {
         match lexpr::from_str(source) {
             Ok(value) => match SubCategory::from_value(&value) {
                 Ok(root) => {
@@ -38,7 +37,7 @@ impl Catalog {
                         let initial = keys.clone();
                         keys.dedup();
                         if keys.len() == initial.len() {
-                            Ok(Catalog { database, root })
+                            Ok(Catalog { root })
                         } else {
                             Err(Error::other(format!(
                                 "incorrect s_expression value: duplicate sub_categories in {:?}",
@@ -60,14 +59,7 @@ impl Catalog {
 
     pub fn from_file(file_path: &str) -> Result<Self> {
         match fs::read_to_string(file_path) {
-            Ok(content) => Self::from_sexpr(&content, false),
-            Err(e) => Err(Error::other(e)),
-        }
-    }
-
-    pub fn from_database(database: &Database) -> Result<Self> {
-        match database.rusqlite_retrieve_catalog() {
-            Ok(sexpr) => Catalog::from_sexpr(&sexpr, true),
+            Ok(content) => Self::from_s_expression(&content),
             Err(e) => Err(Error::other(e)),
         }
     }
@@ -93,61 +85,20 @@ impl Catalog {
     pub fn tags(&self) -> Tags {
         tags_from_vec(self.root.sub_category_names())
     }
-    pub fn save(&mut self) -> Result<()> {
-        self.save_to_file()
-    }
-    pub fn save_to_file(&mut self) -> Result<()> {
-        let config = match Configuration::from_env() {
-            Ok(config) => config,
-            Err(err) => {
-                eprintln!("{}", err);
-                return Err(err);
-            }
-        };
-        self.sort();
-        let content: String = self.root.format_at_level(0, true);
-        fs::write(config.catalog_filepath, content)
+
+    pub fn to_sexp(&self) -> String {
+        self.root.format_at_level(0, false)
     }
 
     pub fn save_to_database(&mut self, database: &Database) -> Result<()> {
         self.sort();
-        let content: String = self.root.format_at_level(0, false);
-        match database.rusqlite_update_catalog(&content) {
+        match database.rusqlite_update_catalog(&self.to_sexp()) {
             Ok(_) => Ok(()),
             Err(e) => Err(Error::other(e)),
         }
     }
     pub fn root_category(&self) -> SubCategory {
         self.root.clone()
-    }
-
-    pub fn add_and_save(&mut self, sub_category_name: &str, category_name: &str) -> Result<()> {
-        let config = match Configuration::from_env() {
-            Ok(config) => config,
-            Err(err) => {
-                eprintln!("{}", err);
-                return Err(err);
-            }
-        };
-        match self.add_sub_category(sub_category_name, category_name) {
-            Ok(_) => match self.save() {
-                Ok(_) => {
-                    println!(
-                        "adding sub category {} to category {}",
-                        sub_category_name, category_name
-                    );
-                    Ok(())
-                }
-                Err(err) => {
-                    eprintln!("error: {}", err);
-                    Err(err)
-                }
-            },
-            Err(err) => {
-                eprintln!("error: {}", err);
-                Err(err)
-            }
-        }
     }
 
     pub fn add_sub_category(&mut self, sub_category_name: &str, category_name: &str) -> Result<()> {
@@ -184,34 +135,6 @@ impl Catalog {
         }
     }
 
-    pub fn move_and_save(&mut self, sub_category_name: &str, category_name: &str) -> Result<()> {
-        let config = match Configuration::from_env() {
-            Ok(config) => config,
-            Err(err) => {
-                eprintln!("{}", err);
-                return Err(err);
-            }
-        };
-        match self.move_sub_category(sub_category_name, category_name) {
-            Ok(_) => match self.save() {
-                Ok(_) => {
-                    println!(
-                        "moving sub category {} to category {}",
-                        sub_category_name, category_name
-                    );
-                    Ok(())
-                }
-                Err(err) => {
-                    eprintln!("error: {}", err);
-                    Err(err)
-                }
-            },
-            Err(err) => {
-                eprintln!("error: {}", err);
-                Err(err)
-            }
-        }
-    }
 
     pub fn move_sub_category(
         &mut self,
@@ -255,31 +178,6 @@ impl Catalog {
         }
     }
 
-    pub fn remove_and_save(&mut self, category_name: &str, force: bool) -> Result<()> {
-        let config = match Configuration::from_env() {
-            Ok(config) => config,
-            Err(err) => {
-                eprintln!("{}", err);
-                return Err(err);
-            }
-        };
-        match self.remove_category(category_name, force) {
-            Ok(_) => match self.save() {
-                Ok(_) => {
-                    println!("removing category {}", category_name);
-                    Ok(())
-                }
-                Err(err) => {
-                    eprintln!("error: {}", err);
-                    Err(err)
-                }
-            },
-            Err(err) => {
-                eprintln!("error: {}", err);
-                Err(err)
-            }
-        }
-    }
     pub fn remove_category(&mut self, category_name: &str, force: bool) -> Result<()> {
         if category_name != TOP_CATEGORY {
             match self.root.find_sub_category_by_name(category_name) {
@@ -349,23 +247,23 @@ mod tests {
 
     #[test]
     fn creating_sub_categories_from_a_s_expression_with_only_root_category() {
-        let catalog = Catalog::from_sexpr("(-)").expect("incorrect sexpr");
+        let catalog = Catalog::from_s_expression("(-)").expect("incorrect sexpr");
         assert_eq!(TOP_CATEGORY.to_string(), catalog.root.name())
     }
     #[test]
     fn root_subcategory_name_should_be_dash() {
-        assert!(Catalog::from_sexpr("(meh)").is_err());
+        assert!(Catalog::from_s_expression("(meh)").is_err());
     }
     #[test]
     fn creating_sub_categories_from_a_s_expression_with_root_and_a_sub() {
-        let catalog = Catalog::from_sexpr("(- foo)").expect("incorrect sexpr");
+        let catalog = Catalog::from_s_expression("(- foo)").expect("incorrect sexpr");
         assert_eq!(TOP_CATEGORY, catalog.root.name());
         assert_eq!(1, catalog.root.sub_categories().len());
         assert_eq!("foo", catalog.root.sub_categories()[0].name());
     }
     #[test]
     fn creating_sub_categories_from_a_s_expression_with_root_and_three_subs() {
-        let catalog = Catalog::from_sexpr("(- foo bar qux)").expect("incorrect sexpr");
+        let catalog = Catalog::from_s_expression("(- foo bar qux)").expect("incorrect sexpr");
         assert_eq!(TOP_CATEGORY, catalog.root.name());
         assert_eq!(3, catalog.root.sub_categories().len());
         assert_eq!("foo", catalog.root.sub_categories()[0].name());
@@ -374,7 +272,7 @@ mod tests {
     }
     #[test]
     fn creating_sub_categories_from_s_expression_with_root_and_sub_subs() {
-        let catalog = Catalog::from_sexpr("(- (foo bar) (qux law))").expect("incorrect sexpr");
+        let catalog = Catalog::from_s_expression("(- (foo bar) (qux law))").expect("incorrect sexpr");
         assert_eq!(TOP_CATEGORY, catalog.root.name());
         println!("{:?}", catalog);
         assert_eq!(2, catalog.root.sub_categories().len());
@@ -391,17 +289,17 @@ mod tests {
     }
     #[test]
     fn singleton_sub_categories_are_not_allowed() {
-        assert!(Catalog::from_sexpr("(- foo (bar))").is_err());
-        assert!(Catalog::from_sexpr("(- (foo) bar)").is_err());
-        assert!(Catalog::from_sexpr("(- ((foo bar))").is_err());
-        assert!(Catalog::from_sexpr("(- (foo bar) (qux (law)))").is_err());
-        assert!(Catalog::from_sexpr("(- ((((foo)))))").is_err());
-        assert!(Catalog::from_sexpr("((-))").is_err());
+        assert!(Catalog::from_s_expression("(- foo (bar))").is_err());
+        assert!(Catalog::from_s_expression("(- (foo) bar)").is_err());
+        assert!(Catalog::from_s_expression("(- ((foo bar))").is_err());
+        assert!(Catalog::from_s_expression("(- (foo bar) (qux (law)))").is_err());
+        assert!(Catalog::from_s_expression("(- ((((foo)))))").is_err());
+        assert!(Catalog::from_s_expression("((-))").is_err());
     }
     #[test]
     fn duplicate_categories_are_not_allowed() {
-        assert!(Catalog::from_sexpr("(- (foo bar) (gus bin (pog (qux bar))))").is_err());
-        assert!(Catalog::from_sexpr("(- (foo foo))").is_err());
+        assert!(Catalog::from_s_expression("(- (foo bar) (gus bin (pog (qux bar))))").is_err());
+        assert!(Catalog::from_s_expression("(- (foo foo))").is_err());
     }
     #[test]
     fn catalog_can_be_read_from_a_file() {
@@ -415,12 +313,12 @@ mod tests {
     }
     #[test]
     fn is_a_sub_category_relationship_equality_case() {
-        let catalog = Catalog::from_sexpr("(- (foo bar) (qux law))").expect("incorrect sexpr");
+        let catalog = Catalog::from_s_expression("(- (foo bar) (qux law))").expect("incorrect sexpr");
         assert!(catalog.is_a("bar", "bar"));
     }
     #[test]
     fn is_a_sub_category_relationship_sub_category_case() {
-        let catalog = Catalog::from_sexpr("(- (foo bar) (qux law))").expect("incorrect sexpr");
+        let catalog = Catalog::from_s_expression("(- (foo bar) (qux law))").expect("incorrect sexpr");
         assert!(catalog.is_a("foo", "bar"));
         assert!(catalog.is_a("qux", "law"));
         assert!(!catalog.is_a("foo", "qux"));
@@ -428,14 +326,14 @@ mod tests {
     #[test]
     fn is_a_sub_category_relationship_sub_sub_category_case() {
         let catalog =
-            Catalog::from_sexpr("(- (foo bar) (qux (law bug)))").expect("incorrect sexpr");
+            Catalog::from_s_expression("(- (foo bar) (qux (law bug)))").expect("incorrect sexpr");
         assert!(catalog.is_a("qux", "bug"));
         assert!(!catalog.is_a("foo", "bug"));
     }
     #[test]
     fn is_a_sub_category_relationship_inexistent_sub_category_case() {
         let catalog =
-            Catalog::from_sexpr("(- (foo bar) (qux (law bug)))").expect("incorrect sexpr");
+            Catalog::from_s_expression("(- (foo bar) (qux (law bug)))").expect("incorrect sexpr");
         assert!(!catalog.is_a(TOP_CATEGORY, "paw"));
         assert!(!catalog.is_a("paw", "bar"));
         assert!(!catalog.is_a("paw", "paw"));
@@ -443,14 +341,14 @@ mod tests {
     #[test]
     fn is_a_sub_category_relationship_root_target_sub_category_case() {
         let catalog =
-            Catalog::from_sexpr("(- (foo bar) (qux (law bug)))").expect("incorrect sexpr");
+            Catalog::from_s_expression("(- (foo bar) (qux (law bug)))").expect("incorrect sexpr");
         assert!(!catalog.is_a(TOP_CATEGORY, "bug"));
     }
     #[test]
     fn is_one_of_categories_from_a_catalog() {
         let categories = Categories::from_string("bam,foo");
         let catalog =
-            Catalog::from_sexpr("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
+            Catalog::from_s_expression("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
         assert!(catalog.is_one_of(&categories, "gus"));
         assert!(!catalog.is_one_of(&categories, "bap"));
         assert!(catalog.is_one_of(&categories, "bol"));
@@ -460,7 +358,7 @@ mod tests {
     #[test]
     fn adding_a_sub_category() {
         let mut catalog =
-            Catalog::from_sexpr("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
+            Catalog::from_s_expression("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
         assert!(catalog.add_sub_category("law", "gus").is_ok());
         assert!(catalog.add_sub_category("bru", "qux").is_ok());
         assert!(catalog.is_a("gus", "law"));
@@ -469,7 +367,7 @@ mod tests {
     #[test]
     fn adding_a_sub_category_is_not_allowed_if_that_sub_category_already_exists() {
         let mut catalog =
-            Catalog::from_sexpr("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
+            Catalog::from_s_expression("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
         let result = catalog.add_sub_category("foo", "gus");
         assert_eq!(
             "Err(Custom { kind: Other, error: \"subcategory foo already exists\" })",
@@ -479,7 +377,7 @@ mod tests {
     #[test]
     fn adding_a_sub_category_is_not_allowed_if_the_category_does_not_exist() {
         let mut catalog =
-            Catalog::from_sexpr("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
+            Catalog::from_s_expression("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
         let result = catalog.add_sub_category("bal", "sch");
         assert_eq!(
             "Err(Custom { kind: Other, error: \"unknown category:sch\" })",
@@ -490,34 +388,34 @@ mod tests {
     #[test]
     fn removing_a_sub_category() {
         let mut catalog =
-            Catalog::from_sexpr("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
+            Catalog::from_s_expression("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
         assert!(catalog.remove_category("bol", true).is_ok());
         assert!(!catalog.is_a("qux", "bol"));
     }
     #[test]
     fn removing_a_sub_category_with_subs_not_possible_if_not_forced() {
         let mut catalog =
-            Catalog::from_sexpr("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
+            Catalog::from_s_expression("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
         assert!(catalog.remove_category("qux", false).is_err());
         assert!(catalog.is_a("qux", "bol"));
     }
     #[test]
     fn removing_a_non_existent_sub_category_is_not_possible() {
         let mut catalog =
-            Catalog::from_sexpr("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
+            Catalog::from_s_expression("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
         assert!(catalog.remove_category("zzz", true).is_err());
     }
     #[test]
     fn adding_a_sub_category_with_illegal_chars_is_not_allowed() {
         let mut catalog =
-            Catalog::from_sexpr("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
+            Catalog::from_s_expression("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
         assert!(catalog.add_sub_category("!ag", "-").is_err());
         assert!(catalog.add_sub_category("-", "foo").is_err());
     }
     #[test]
     fn moving_a_sub_category() {
         let mut catalog =
-            Catalog::from_sexpr("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
+            Catalog::from_s_expression("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
         let result = catalog.move_sub_category("qux", "foo");
         assert!(result.is_ok());
         assert!(catalog.is_a("foo", "bol"));
@@ -525,35 +423,35 @@ mod tests {
     #[test]
     fn moving_a_sub_category_is_not_allowed_if_sub_category_do_not_exist() {
         let mut catalog =
-            Catalog::from_sexpr("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
+            Catalog::from_s_expression("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
         let result = catalog.move_sub_category("lux", "foo");
         assert!(result.is_err());
     }
     #[test]
     fn moving_a_sub_category_is_not_allowed_if_target_category_do_not_exist() {
         let mut catalog =
-            Catalog::from_sexpr("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
+            Catalog::from_s_expression("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
         let result = catalog.move_sub_category("qux", "moo");
         assert!(result.is_err());
     }
     #[test]
     fn moving_a_sub_category_is_not_allowed_for_top_category() {
         let mut catalog =
-            Catalog::from_sexpr("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
+            Catalog::from_s_expression("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
         let result = catalog.move_sub_category("-", "foo");
         assert!(result.is_err());
     }
     #[test]
     fn moving_a_sub_category_is_not_allowed_to_a_sub_category_of_that_sub_category() {
         let mut catalog =
-            Catalog::from_sexpr("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
+            Catalog::from_s_expression("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
         let result = catalog.move_sub_category("foo", "gus");
         assert!(result.is_err());
     }
     #[test]
     fn can_obtain_tags_from_the_sub_categories() {
         let catalog =
-            Catalog::from_sexpr("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
+            Catalog::from_s_expression("(- (foo (bar gus)) (qux (bam bol)))").expect("incorrect sexpr");
         let tags: Tags = catalog.tags();
         assert!(tags.contains("foo"));
         assert!(tags.contains("bol"));

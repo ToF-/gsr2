@@ -42,11 +42,15 @@ const SELECT_PICTURE_COVER_FILEPATH: &str = " SELECT Picture.FilePath FROM Pictu
 
 const SELECT_MARKS: &str = "SELECT Letter, FilePath FROM Mark;";
 
+const DELETE_CATALOG: &str = "DELETE FROM CATALOG;";
+
 const DELETE_PICTURE: &str = "DELETE FROM Picture WHERE FilePath = ?1;";
 
 const DELETE_TAGS: &str = "DELETE FROM Tag WHERE FilePath = ?1;";
 
 const DELETE_FOLDERS: &str = "DELETE FROM Folder;";
+
+const INSERT_CATALOG: &str = "INSERT INTO Catalog(Sexp) VALUES (?1);";
 
 const INSERT_FOLDER: &str =
     "INSERT INTO Folder(FolderId, FilePath, ParentId, PictureCount) VALUES (?1, ?2, ?3, ?4)";
@@ -167,6 +171,12 @@ impl Database {
             })
     }
 
+    pub fn retrieve_catalog(&self) -> IOResult<String> {
+        match self.rusqlite_retrieve_catalog() {
+            Ok(sexp) => Ok(sexp),
+            Err(e) => Err(IOError::other(e)),
+        }
+    }
     pub fn rusqlite_insert_mark(&self, letter: char, file_path: &str) -> SqlResult<usize> {
         let connection = self.connection_rc.borrow();
         connection.execute(INSERT_MARK, params![letter.to_string(), file_path])
@@ -174,13 +184,10 @@ impl Database {
 
     pub fn rusqlite_update_catalog(&self, sexpr: &str) -> SqlResult<usize> {
         let connection = self.connection_rc.borrow();
-        connection.execute(
-            "DELETE FROM Catalog",
-            params![])
+        connection
+            .execute(DELETE_CATALOG, params![])
             .and_then(|_| {
-                connection.execute(
-                    "INSERT INTO Catalog (Sexpr) VALUES (?1);",
-                    params![sexpr])
+                connection.execute(INSERT_CATALOG, params![sexpr])
             })
     }
 
