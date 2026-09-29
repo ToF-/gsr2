@@ -540,29 +540,19 @@ impl Controller {
             window,
             move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
                 let gio_action = GioAction::from((object, variant));
-
                 let action = Action::from(gio_action);
                 if let Action::AddTag(tags) = action {
-                    let tags: Vec<String> = tags.split(',').map(|s| s.to_string()).collect();
-                    let indices = window.selected_indices();
-                    for position in indices {
-                        this.with_view_state_mut(|view_state| {
-                            let mut picture = view_state.gallery().picture(position);
-                            tags.iter().for_each(|tag| {
-                                picture.add_tag(tag);
-                                this.with_repository(|repository| {
-                                    match repository.update_picture(&picture) {
-                                        Ok(_) => {}
-                                        Err(e) => eprintln!("{}", e),
-                                    }
-                                })
-                            });
-                            view_state.gallery_mut().set_picture(position, picture);
-                        });
-                    }
-                    window.dismiss();
-                    window.deselect_pictures();
+                    let indices =
+                        this.with_view_state_mut(|view_state| view_state.selected_indices());
+                    this.with_repository(|repository| {
+                        match repository.add_tags_for_pictures_at_indices(&tags, &indices) {
+                            Ok(_) => {}
+                            Err(e) => window.present_information(&format!("error:{}", e)),
+                        }
+                    });
                 }
+                window.dismiss();
+                window.deselect_pictures();
             }
         )
     }
@@ -1203,9 +1193,7 @@ impl Controller {
             window,
             move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
                 let gio_action = GioAction::from((object, variant));
-                if let Action::FocusAt(col, row) = Action::from(gio_action) {
-
-                }
+                if let Action::FocusAt(col, row) = Action::from(gio_action) {}
             }
         )
     }

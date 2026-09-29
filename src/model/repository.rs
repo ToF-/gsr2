@@ -784,6 +784,30 @@ impl Repository {
         result
     }
 
+    pub fn add_tags_for_pictures_at_indices(
+        &self,
+        tags: &str,
+        indices: &Vec<usize>,
+    ) -> IOResult<usize> {
+        let mut gallery = self.gallery_rc.borrow_mut();
+        let mut result = Ok(indices.len());
+        for position in indices {
+            let mut picture = gallery.picture(*position);
+            let tags: Vec<String> = tags.split(',').map(|s| s.to_string()).collect();
+            tags.iter().for_each(|tag| {
+                picture.add_tag(tag);
+                gallery.set_picture(*position, picture.clone());
+                match self.update_picture(&picture) {
+                    Ok(_) => {}
+                    Err(e) => {
+                        result = Err(e);
+                    }
+                };
+            });
+        }
+        result
+    }
+
     pub fn unlabel_pictures_at_indices(&self, indices: &Vec<usize>) -> IOResult<usize> {
         let mut gallery = self.gallery_rc.borrow_mut();
         let mut result = Ok(indices.len());
