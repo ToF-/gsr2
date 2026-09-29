@@ -20,7 +20,6 @@ pub struct Configuration {
     pub current_pictures_per_row: Option<usize>,
     pub current_order: Option<Order>,
     pub base_dir: String,
-    pub catalog_filepath: String,
     pub updated: bool,
 }
 

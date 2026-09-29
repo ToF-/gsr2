@@ -52,7 +52,6 @@ pub struct Repository {
     gallery_rc: Rc<RefCell<Gallery>>,
     parent_dirs_rc: RefCell<HashMap<String, (usize, usize)>>,
     folder_map_rc: RefCell<FolderMap>,
-    catalog_rc: RefCell<Catalog>,
 }
 
 impl Repository {
@@ -67,7 +66,6 @@ impl Repository {
             gallery_rc: Rc::new(RefCell::new(Gallery::new())),
             parent_dirs_rc: RefCell::new(HashMap::new()),
             folder_map_rc: RefCell::new(FolderMap::default()),
-            catalog_rc: RefCell::new(load_catalog(&configuration.catalog_filepath)),
         }
     }
 
@@ -134,10 +132,6 @@ impl Repository {
         predicate_opt: Option<Predicate>,
         folder_id_opt: Option<usize>,
     ) -> IOResult<usize> {
-        let catalog_filepath = &CONFIGURATION
-            .get()
-            .expect("configuration not set")
-            .catalog_filepath;
         let catalog_result = self.retrieve_catalog();
         let catalog: Catalog = catalog_result?;
         let result = {
@@ -245,7 +239,7 @@ impl Repository {
     }
 
     pub fn catalog(&self) -> Catalog {
-        if let Ok(catalog) = self.catalog_rc.try_borrow() {
+        if let Ok(catalog) = self.retrieve_catalog() {
             catalog.clone()
         } else {
             panic!("can't borrow")
@@ -257,7 +251,7 @@ impl Repository {
         new_category_name: &str,
         target_category_name: &str,
     ) -> IOResult<()> {
-        if let Ok(mut catalog) = self.catalog_rc.try_borrow_mut() {
+        if let Ok(mut catalog) = self.retrieve_catalog() {
             match catalog.add_sub_category(new_category_name, target_category_name) {
                 Ok(_) => self.save_catalog(&catalog),
                 Err(e) => Err(IOError::other(e)),
@@ -272,7 +266,7 @@ impl Repository {
         moving_category_name: &str,
         target_category_name: &str,
     ) -> IOResult<()> {
-        if let Ok(mut catalog) = self.catalog_rc.try_borrow_mut() {
+        if let Ok(mut catalog) = self.retrieve_catalog() {
             match catalog.move_sub_category(moving_category_name, target_category_name) {
                 Ok(_) => self.save_catalog(&catalog),
                 Err(e) => Err(IOError::other(e)),
@@ -283,7 +277,7 @@ impl Repository {
     }
 
     pub fn remove_category(&self, category_name: &str) -> IOResult<()> {
-        if let Ok(mut catalog) = self.catalog_rc.try_borrow_mut() {
+        if let Ok(mut catalog) = self.retrieve_catalog() {
             match catalog.remove_category(category_name, false) {
                 Ok(_) => self.save_catalog(&catalog),
                 Err(e) => Err(IOError::other(e)),
