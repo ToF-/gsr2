@@ -721,20 +721,14 @@ impl Controller {
 
                 let action = Action::from(gio_action);
                 if let Action::Categorize(ref category) = action {
-                    let indices = window.selected_indices();
-                    for position in indices {
-                        this.with_view_state_mut(|view_state| {
-                            let mut picture = view_state.gallery().picture(position);
-                            picture.set_category(category.clone());
-                            this.with_repository(|repository| {
-                                match repository.update_picture(&picture) {
-                                    Ok(_) => {}
-                                    Err(e) => eprintln!("{}", e),
-                                }
-                            });
-                            view_state.gallery_mut().set_picture(position, picture);
-                        });
-                    }
+                    let indices =
+                        this.with_view_state_mut(|view_state| view_state.selected_indices());
+                    this.with_repository(|repository| {
+                        match repository.categorize_pictures_at_indices(&indices, &category) {
+                            Ok(_) => {}
+                            Err(e) => eprintln!("{}", e),
+                        }
+                    });
                     window.dismiss();
                     window.deselect_pictures();
                     this.set_last_action(&action);

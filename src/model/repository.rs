@@ -1,3 +1,4 @@
+use crate::model::category::Category;
 use crate::cli::command::Command;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
@@ -764,6 +765,27 @@ impl Repository {
             Ok(s_expression) => Catalog::from_s_expression(&s_expression),
             Err(e) => Err(e),
         }
+    }
+
+    pub fn categorize_pictures_at_indices(
+        &self,
+        indices: &Vec<usize>,
+        category: &Category,
+    ) -> IOResult<usize> {
+        let mut gallery = self.gallery_rc.borrow_mut();
+        let mut result = Ok(indices.len());
+        for position in indices {
+            let mut picture = gallery.picture(*position);
+            picture.set_category(category.clone());
+            gallery.set_picture(*position, picture.clone());
+            match self.update_picture(&picture) {
+                Ok(_) => {}
+                Err(e) => {
+                    result = Err(e);
+                }
+            };
+        }
+        result
     }
 
     pub fn rank_pictures_at_indices(&self, indices: &Vec<usize>, rank: Rank) -> IOResult<usize> {
