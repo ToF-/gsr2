@@ -545,7 +545,13 @@ impl Controller {
                     let indices =
                         this.with_view_state_mut(|view_state| view_state.selected_indices());
                     this.with_repository(|repository| {
-                        match repository.add_tags_for_pictures_at_indices(&tags, &indices) {
+                        match repository.modify_pictures_at_indices(&indices, |picture| {
+                            let tags: Vec<String> =
+                                tags.split(',').map(|s| s.to_string()).collect();
+                            tags.iter().for_each(|tag| {
+                                picture.add_tag(tag);
+                            })
+                        }) {
                             Ok(_) => {}
                             Err(e) => window.present_information(&format!("error:{}", e)),
                         }
@@ -724,7 +730,9 @@ impl Controller {
                     let indices =
                         this.with_view_state_mut(|view_state| view_state.selected_indices());
                     this.with_repository(|repository| {
-                        match repository.categorize_pictures_at_indices(&indices, &category) {
+                        match repository.modify_pictures_at_indices(&indices, |picture| {
+                            picture.set_category(category.clone())
+                        }) {
                             Ok(_) => {}
                             Err(e) => eprintln!("{}", e),
                         }
@@ -1359,17 +1367,12 @@ impl Controller {
                 let gio_action = GioAction::from((object, variant));
                 if let Action::Label(label) = Action::from(gio_action) {
                     let indices = this.with_view_state(|view_state| view_state.selected_indices());
-                    this.with_view_state_mut(|view_state| {
-                        for position in indices {
-                            let mut picture = view_state.gallery().picture(position);
-                            picture.set_label(&label);
-                            this.with_repository(|repository| {
-                                match repository.update_picture(&picture) {
-                                    Ok(_) => {}
-                                    Err(e) => eprintln!("{}", e),
-                                }
-                            });
-                            view_state.gallery_mut().set_picture(position, picture);
+                    this.with_repository(|repository| {
+                        match repository.modify_pictures_at_indices(&indices, |picture| {
+                            picture.set_label(&label)
+                        }) {
+                            Ok(_) => {}
+                            Err(e) => eprintln!("{}", e),
                         }
                     });
                     window.dismiss();
@@ -1647,23 +1650,18 @@ impl Controller {
                     let tags: Vec<String> = input.split(',').map(|s| s.to_string()).collect();
                     window.dismiss();
                     let indices = this.with_view_state(|view_state| view_state.selected_indices());
-                    this.with_view_state_mut(|view_state| {
-                        for position in indices {
-                            let mut picture = view_state.gallery().picture(position);
+                    let result = this.with_repository(|repository| {
+                        match repository.modify_pictures_at_indices(&indices, |picture| {
                             tags.iter().for_each(|tag| {
                                 picture.remove_tag(tag);
-                                this.with_repository(|repository| {
-                                    match repository.update_picture(&picture) {
-                                        Ok(_) => {}
-                                        Err(e) => eprintln!("{}", e),
-                                    }
-                                })
-                            });
-                            view_state.gallery_mut().set_picture(position, picture);
+                            })
+                        }) {
+                            Ok(_) => {}
+                            Err(e) => eprintln!("{}", e),
                         }
                     });
-                    this.set_last_action(&Action::RemoveTag(input));
-                }
+                this.set_last_action(&Action::RemoveTag(input));
+                };
                 window.deselect_pictures();
             }
         )
@@ -2123,7 +2121,9 @@ impl Controller {
                     let indices =
                         this.with_view_state_mut(|view_state| view_state.selected_indices());
                     this.with_repository(|repository| {
-                        match repository.rank_pictures_at_indices(&indices, rank) {
+                        match repository
+                            .modify_pictures_at_indices(&indices, |picture| picture.set_rank(rank))
+                        {
                             Ok(_) => {}
                             Err(e) => window.present_information(&format!("error:{}", e)),
                         }
@@ -2351,7 +2351,9 @@ impl Controller {
                 window.dismiss();
                 let indices = this.with_view_state_mut(|view_state| view_state.selected_indices());
                 this.with_repository(|repository| {
-                    match repository.unlabel_pictures_at_indices(&indices) {
+                    match repository
+                        .modify_pictures_at_indices(&indices, |picture| picture.set_label(""))
+                    {
                         Ok(_) => {}
                         Err(e) => window.present_information(&format!("error:{}", e)),
                     }
