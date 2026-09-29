@@ -37,6 +37,7 @@ reinit_data:
 	mkdir -p $(TEST_DIR)/subdir
 	echo '(- (foo bar qux) (bog gap) (pat (jxs lam lom lum) (zzz tic tac toe) (pin blo) ))' >$(TEST_DIR)/catalog.sexp
 	sqlite3 $(DATABASE) ".read sql/create_db.sql"
+	sqlite3 $(DATABASE) "INSERT INTO Catalog (Sexp) VALUES ('(- (foo bar qux) (bog gap) (pat (jxs lam lom lum) (zzz tic tac toe) (pin blo) ))');"
 	sqlite3 $(DATABASE) ".schema"
 	cp -r test_sample/* testdata
 	tree testdata

@@ -42,7 +42,7 @@ impl SubCategory {
         result
     }
     pub fn format_at_level(&self, level: usize, pretty: bool) -> String {
-        let indent: String = if pretty { " ".repeat(level * 2) } else { "".to_string() };
+        let indent: String = if pretty { " ".repeat(level * 2) } else { " ".to_string() };
         if self.sub_categories.is_empty() {
             format!("{}{}", indent, self.name)
         } else {
