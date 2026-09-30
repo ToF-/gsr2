@@ -561,10 +561,7 @@ impl GsrApplicationWindow {
         match WidgetExt::activate_action(self, &name, variant_ref) {
             Ok(_) => {}
             Err(e) => {
-                eprintln!(
-                    "connect_key_pressed_controller for gsr_entry_window {} {:?} : {}",
-                    name, variant_ref, e
-                )
+                eprintln!("activate action {} {:?} : {}", name, variant_ref, e)
             }
         }
     }

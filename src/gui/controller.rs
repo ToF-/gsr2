@@ -47,6 +47,7 @@ use crate::model::predicate::Predicate;
 use crate::model::rank::Rank;
 use crate::model::repository::Repository;
 use crate::model::shared::Shared;
+use crate::model::tags::tags_from_str;
 use crate::model::view_option::ViewOption;
 use gtk::gio::ActionEntry;
 use gtk::gio::SimpleAction;
@@ -174,7 +175,7 @@ impl Controller {
 
         entries.push(Self::action_entry(
             GioActionType::from(Action::AddCategory("foo".to_string(), "bar".to_string())),
-            self.add_category_action(window.clone()),
+            self.add_category_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::AddTag("foo".to_string())),
@@ -194,7 +195,7 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::CancelSelectionRange),
-            self.cancel_selection_range_action(window.clone()),
+            self.cancel_selection_range_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::Categorize(None)),
@@ -358,7 +359,7 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::RemoveTag("foo".to_string())),
-            self.remove_tag_action(window.clone()),
+            self.remove_tag_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::Rename("foo".to_string())),
@@ -410,11 +411,11 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::ToggleCoversView),
-            self.toggle_covers_view_action(window.clone()),
+            self.toggle_covers_view_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::ToggleExpand),
-            self.toggle_expand_action(window.clone()),
+            self.toggle_expand_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::TogglePalette),
@@ -430,7 +431,7 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::Unlabel),
-            self.unlabel_action(window.clone()),
+            self.unlabel_action(&window),
         ));
 
         self.gio_action_group.add_action_entries(entries);
@@ -506,7 +507,7 @@ impl Controller {
 
     fn add_category_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -514,17 +515,18 @@ impl Controller {
             #[strong]
             window,
             move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
-                let gio_action = GioAction::from((object, variant));
-                let action = Action::from(gio_action);
-                if let Action::AddCategory(new_category_name, target_category_name) = action {
-                    let result = this.with_repository(|repository| {
-                        repository.add_category(&new_category_name, &target_category_name)
-                    });
-                    match result {
-                        Ok(_) => {}
-                        Err(e) => window.present_information(&format!("{}", e)),
+                match Action::from(GioAction::from((object, variant))) {
+                    Action::AddCategory(new_category_name, target_category_name) => {
+                        let result = this.with_repository(|repository| {
+                            repository.add_category(&new_category_name, &target_category_name)
+                        });
+                        match result {
+                            Ok(_) => {}
+                            Err(e) => window.present_information(&format!("{}", e)),
+                        }
+                        window.dismiss();
                     }
-                    window.dismiss();
+                    _ => {}
                 }
             }
         )
@@ -539,26 +541,24 @@ impl Controller {
             #[strong]
             window,
             move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
-                let gio_action = GioAction::from((object, variant));
-                let action = Action::from(gio_action);
-                if let Action::AddTag(tags) = action {
-                    let indices =
-                        this.with_view_state_mut(|view_state| view_state.selected_indices());
-                    this.with_repository(|repository| {
-                        match repository.modify_pictures_at_indices(&indices, |picture| {
-                            let tags: Vec<String> =
-                                tags.split(',').map(|s| s.to_string()).collect();
-                            tags.iter().for_each(|tag| {
-                                picture.add_tag(tag);
-                            })
-                        }) {
-                            Ok(_) => {}
-                            Err(e) => window.present_information(&format!("error:{}", e)),
-                        }
-                    });
-                }
                 window.dismiss();
-                window.deselect_pictures();
+                match Action::from(GioAction::from((object, variant))) {
+                    Action::AddTag(input) => {
+                        let tags = tags_from_str(&input);
+                        let indices =
+                            this.with_view_state_mut(|view_state| view_state.selected_indices());
+                        this.with_repository(|repository| {
+                            match repository.modify_pictures_at_indices(&indices, |picture| {
+                                tags.iter().for_each(|tag| picture.add_tag(tag));
+                            }) {
+                                Ok(_) => {}
+                                Err(e) => window.present_information(&format!("error:{}", e)),
+                            }
+                        });
+                        window.deselect_pictures();
+                    }
+                    _ => {}
+                }
             }
         )
     }
@@ -696,7 +696,7 @@ impl Controller {
 
     fn cancel_selection_range_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -707,7 +707,6 @@ impl Controller {
                 this.with_view_state_mut(|view_state| {
                     view_state.selection.cancel();
                 });
-
                 window.refresh_view();
             }
         )
@@ -1637,7 +1636,7 @@ impl Controller {
     }
     fn remove_tag_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -1645,24 +1644,26 @@ impl Controller {
             #[strong]
             window,
             move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
-                let gio_action = GioAction::from((object, variant));
-                if let Action::RemoveTag(input) = Action::from(gio_action) {
-                    let tags: Vec<String> = input.split(',').map(|s| s.to_string()).collect();
-                    window.dismiss();
-                    let indices = this.with_view_state(|view_state| view_state.selected_indices());
-                    let result = this.with_repository(|repository| {
-                        match repository.modify_pictures_at_indices(&indices, |picture| {
-                            tags.iter().for_each(|tag| {
-                                picture.remove_tag(tag);
-                            })
-                        }) {
-                            Ok(_) => {}
-                            Err(e) => eprintln!("{}", e),
-                        }
-                    });
-                this.set_last_action(&Action::RemoveTag(input));
+                window.dismiss();
+                match Action::from(GioAction::from((object, variant))) {
+                    Action::RemoveTag(input) => {
+                        let tags = tags_from_str(&input);
+                        let indices =
+                            this.with_view_state(|view_state| view_state.selected_indices());
+                        let result = this.with_repository(|repository| {
+                            match repository.modify_pictures_at_indices(&indices, |picture| {
+                                tags.iter().for_each(|tag| picture.remove_tag(tag))
+                            }) {
+                                Ok(_) => {}
+                                Err(e) => eprintln!("{}", e),
+                            }
+                        });
+                        this.set_last_action(&Action::RemoveTag(input));
+                    }
+                    _ => {}
                 };
                 window.deselect_pictures();
+                window.refresh_view();
             }
         )
     }
@@ -1941,7 +1942,7 @@ impl Controller {
 
     fn toggle_covers_view_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -2115,21 +2116,23 @@ impl Controller {
             #[strong]
             window,
             move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
-                let gio_action = GioAction::from((object, variant));
-                if let Action::Rank(rank) = Action::from(gio_action) {
-                    window.dismiss();
-                    let indices =
-                        this.with_view_state_mut(|view_state| view_state.selected_indices());
-                    this.with_repository(|repository| {
-                        match repository
-                            .modify_pictures_at_indices(&indices, |picture| picture.set_rank(rank))
-                        {
-                            Ok(_) => {}
-                            Err(e) => window.present_information(&format!("error:{}", e)),
-                        }
-                    });
-                    window.deselect_pictures();
-                    this.set_last_action(&Action::Rank(rank));
+                match Action::from(GioAction::from((object, variant))) {
+                    Action::Rank(rank) => {
+                        window.dismiss();
+                        let indices =
+                            this.with_view_state_mut(|view_state| view_state.selected_indices());
+                        this.with_repository(|repository| {
+                            match repository.modify_pictures_at_indices(&indices, |picture| {
+                                picture.set_rank(rank)
+                            }) {
+                                Ok(_) => {}
+                                Err(e) => window.present_information(&format!("error:{}", e)),
+                            }
+                        });
+                        window.deselect_pictures();
+                        this.set_last_action(&Action::Rank(rank));
+                    }
+                    _ => {}
                 }
             }
         )
@@ -2252,7 +2255,7 @@ impl Controller {
 
     fn toggle_expand_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -2340,7 +2343,7 @@ impl Controller {
 
     fn unlabel_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
