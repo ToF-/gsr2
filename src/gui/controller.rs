@@ -179,19 +179,19 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::AddTag("foo".to_string())),
-            self.add_tag_action(window.clone()),
+            self.add_tag_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::ApplyOrderSetting(Order::Name)),
-            self.apply_order_setting_action(window.clone()),
+            self.apply_order_setting_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::ApplyViewSetting(ViewOption::Grid2x2)),
-            self.apply_view_setting_action(window.clone()),
+            self.apply_view_setting_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::Cancel),
-            self.cancel_action(window.clone()),
+            self.cancel_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::CancelSelectionRange),
@@ -199,163 +199,163 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::Categorize(None)),
-            self.categorize_action(window.clone()),
+            self.categorize_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::Categorize(Some("foo".to_string()))),
-            self.categorize_action(window.clone()),
+            self.categorize_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::DeleteSelectedPicture("yes".to_string())),
-            self.delete_selected_picture_action(window.clone()),
+            self.delete_selected_picture_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::Dismiss),
-            self.dismiss_action(window.clone()),
+            self.dismiss_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::EnterAddTag),
-            self.enter_add_tag_action(window.clone()),
+            self.enter_add_tag_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::EnterDeletePicture),
-            self.enter_delete_picture_action(window.clone()),
+            self.enter_delete_picture_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::EnterExtractFileNames),
-            self.enter_extract_filenames_action(window.clone()),
+            self.enter_extract_filenames_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::EnterFind(Find::Name)),
-            self.enter_find_action(window.clone()),
+            self.enter_find_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::EnterJump),
-            self.enter_jump_action(window.clone()),
+            self.enter_jump_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::EnterLabel),
-            self.enter_label_action(window.clone()),
+            self.enter_label_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::EnterNewCategory),
-            self.enter_new_category_action(window.clone()),
+            self.enter_new_category_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::EnterRemoveTag),
-            self.enter_remove_tag_action(window.clone()),
+            self.enter_remove_tag_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::EnterRename),
-            self.enter_rename_action(window.clone()),
+            self.enter_rename_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::EnterSelect(Find::Name)),
-            self.enter_select_action(window.clone()),
+            self.enter_select_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::ExtractFileNames("foo".to_string())),
-            self.extract_file_names_action(window.clone()),
+            self.extract_file_names_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::Find(Find::Name, "foo".to_string())),
-            self.find_action(window.clone()),
+            self.find_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::FindNext),
-            self.find_next_action(window.clone()),
+            self.find_next_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::Help),
-            self.help_action(window.clone()),
+            self.help_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::GotoDirectory),
-            self.goto_directory_action(window.clone()),
+            self.goto_directory_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::JumpToIndex(42)),
-            self.jump_to_index_action(window.clone()),
+            self.jump_to_index_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::JumpToMark('a')),
-            self.jump_to_mark_action(window.clone()),
+            self.jump_to_mark_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::JumpToRandom),
-            self.jump_to_random_action(window.clone()),
+            self.jump_to_random_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::Label("foo".to_string())),
-            self.label_action(window.clone()),
+            self.label_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::Mark('a')),
-            self.mark_action(window.clone()),
+            self.mark_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::MoveCategory("foo".to_string(), "bar".to_string())),
-            self.move_category_action(window.clone()),
+            self.move_category_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::MoveSelectedPicture("foo".to_string())),
-            self.move_selected_pictures_action(window.clone()),
+            self.move_selected_pictures_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::NextSlide),
-            self.next_slide_action(window.clone()),
+            self.next_slide_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::PickCatalogChange),
-            self.pick_catalog_change_action(window.clone()),
+            self.pick_catalog_change_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::PickChange),
-            self.pick_change_action(window.clone()),
+            self.pick_change_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::PickFindOption),
-            self.pick_find_option_action(window.clone()),
+            self.pick_find_option_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::PickMark),
-            self.pick_mark_action(window.clone()),
+            self.pick_mark_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::PickOrderSetting),
-            self.pick_order_setting_action(window.clone()),
+            self.pick_order_setting_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::PickSelectOption),
-            self.pick_select_option_action(window.clone()),
+            self.pick_select_option_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::PickTargetMark),
-            self.pick_target_mark_action(window.clone()),
+            self.pick_target_mark_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::PickViewOption),
-            self.pick_view_option_action(window.clone()),
+            self.pick_view_option_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::Quit),
-            self.quit_action(window.clone()),
+            self.quit_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::QuitDirectory),
-            self.quit_directory_action(window.clone()),
+            self.quit_directory_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::Rank(Rank::ThreeStars)),
-            self.rank_action(window.clone()),
+            self.rank_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::RedoFind),
-            self.redo_find_action(window.clone()),
+            self.redo_find_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::RemoveCategory("foo".to_string())),
-            self.remove_category_action(window.clone()),
+            self.remove_category_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::RemoveTag("foo".to_string())),
@@ -363,51 +363,51 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::Rename("foo".to_string())),
-            self.rename_action(window.clone()),
+            self.rename_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::RepeatAction),
-            self.repeat_last_action_action(window.clone()),
+            self.repeat_last_action_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::RepeatRangeSelection),
-            self.repeat_range_selection_action(window.clone()),
+            self.repeat_range_selection_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::ResumeSlideShow),
-            self.resume_slideshow_action(window.clone()),
+            self.resume_slideshow_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::Select(Find::Name, "foo".to_string())),
-            self.select_action(window.clone()),
+            self.select_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::SelectCategoryAddTarget("foo".to_string())),
-            self.select_category_add_target_action(window.clone()),
+            self.select_category_add_target_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::SelectCategoryForPicture),
-            self.select_category_for_picture_action(window.clone()),
+            self.select_category_for_picture_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::SelectCategoryMoveTarget("foo".to_string())),
-            self.select_category_move_target_action(window.clone()),
+            self.select_category_move_target_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::SelectCategoryToMove),
-            self.select_category_to_move_action(window.clone()),
+            self.select_category_to_move_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::SelectCategoryToRemove),
-            self.select_category_to_remove_action(window.clone()),
+            self.select_category_to_remove_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::ToggleBlinking),
-            self.toggle_blinking_action(window.clone()),
+            self.toggle_blinking_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::ToggleCover),
-            self.toggle_cover_action(window.clone()),
+            self.toggle_cover_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::ToggleCoversView),
@@ -419,15 +419,15 @@ impl Controller {
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::TogglePalette),
-            self.toggle_palette_action(window.clone()),
+            self.toggle_palette_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::TogglePicturesPerRow(1)),
-            self.toggle_pictures_per_row_action(window.clone()),
+            self.toggle_pictures_per_row_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::ToggleSelected),
-            self.toggle_selected_action(window.clone()),
+            self.toggle_selected_action(&window),
         ));
         entries.push(Self::action_entry(
             GioActionType::from(Action::Unlabel),
@@ -533,7 +533,7 @@ impl Controller {
     }
     fn add_tag_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -572,7 +572,7 @@ impl Controller {
 
     fn apply_view_setting_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -647,7 +647,7 @@ impl Controller {
     }
     fn apply_order_setting_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -683,7 +683,7 @@ impl Controller {
 
     fn cancel_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong]
@@ -714,7 +714,7 @@ impl Controller {
 
     fn categorize_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -746,7 +746,7 @@ impl Controller {
 
     fn delete_selected_picture_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -783,7 +783,7 @@ impl Controller {
 
     fn dismiss_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong]
@@ -794,7 +794,7 @@ impl Controller {
 
     fn enter_add_tag_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -820,7 +820,7 @@ impl Controller {
 
     fn enter_delete_picture_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -844,7 +844,7 @@ impl Controller {
     }
     fn enter_extract_filenames_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -872,7 +872,7 @@ impl Controller {
 
     fn enter_jump_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong]
@@ -892,7 +892,7 @@ impl Controller {
     }
     fn enter_find_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -921,7 +921,7 @@ impl Controller {
 
     fn enter_label_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -950,7 +950,7 @@ impl Controller {
 
     fn enter_new_category_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong]
@@ -971,7 +971,7 @@ impl Controller {
 
     fn enter_rename_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -1004,7 +1004,7 @@ impl Controller {
 
     fn enter_remove_tag_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -1030,7 +1030,7 @@ impl Controller {
 
     fn enter_select_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -1059,7 +1059,7 @@ impl Controller {
 
     fn extract_file_names_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -1087,7 +1087,7 @@ impl Controller {
 
     fn find_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -1172,7 +1172,7 @@ impl Controller {
     }
     fn find_next_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -1185,7 +1185,7 @@ impl Controller {
 
     fn focus_at_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -1201,7 +1201,7 @@ impl Controller {
 
     fn help_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong]
@@ -1211,7 +1211,7 @@ impl Controller {
     }
     fn goto_directory_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -1265,7 +1265,7 @@ impl Controller {
     }
     fn jump_to_index_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -1291,7 +1291,7 @@ impl Controller {
     }
     fn jump_to_mark_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -1329,7 +1329,7 @@ impl Controller {
     }
     fn jump_to_random_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -1355,7 +1355,7 @@ impl Controller {
 
     fn label_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -1384,7 +1384,7 @@ impl Controller {
 
     fn mark_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -1411,7 +1411,7 @@ impl Controller {
 
     fn move_category_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -1438,7 +1438,7 @@ impl Controller {
 
     fn move_selected_pictures_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -1481,7 +1481,7 @@ impl Controller {
 
     fn next_slide_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong]
@@ -1492,7 +1492,7 @@ impl Controller {
 
     fn pick_catalog_change_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong]
@@ -1512,7 +1512,7 @@ impl Controller {
 
     fn pick_change_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong]
@@ -1531,7 +1531,7 @@ impl Controller {
 
     fn pick_find_option_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong]
@@ -1550,7 +1550,7 @@ impl Controller {
 
     fn pick_select_option_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong]
@@ -1569,7 +1569,7 @@ impl Controller {
 
     fn quit_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -1596,7 +1596,7 @@ impl Controller {
 
     fn quit_directory_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -1613,7 +1613,7 @@ impl Controller {
 
     fn remove_category_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -1670,7 +1670,7 @@ impl Controller {
 
     fn rename_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -1709,7 +1709,7 @@ impl Controller {
 
     fn select_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -1756,7 +1756,7 @@ impl Controller {
 
     fn select_category_add_target_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -1784,7 +1784,7 @@ impl Controller {
 
     fn select_category_for_picture_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -1827,7 +1827,7 @@ impl Controller {
 
     fn select_category_to_move_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -1852,7 +1852,7 @@ impl Controller {
 
     fn select_category_to_remove_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -1877,7 +1877,7 @@ impl Controller {
 
     fn select_category_move_target_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -1913,7 +1913,7 @@ impl Controller {
 
     fn toggle_cover_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -1970,7 +1970,7 @@ impl Controller {
     }
     fn toggle_palette_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -1989,7 +1989,7 @@ impl Controller {
 
     fn pick_mark_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -2028,7 +2028,7 @@ impl Controller {
     }
     fn pick_order_setting_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -2048,7 +2048,7 @@ impl Controller {
     }
     fn pick_target_mark_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -2087,7 +2087,7 @@ impl Controller {
     }
     fn pick_view_option_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -2108,7 +2108,7 @@ impl Controller {
 
     fn rank_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -2158,7 +2158,7 @@ impl Controller {
 
     fn redo_find_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -2173,7 +2173,7 @@ impl Controller {
 
     fn repeat_last_action_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -2189,7 +2189,7 @@ impl Controller {
 
     fn repeat_range_selection_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -2209,7 +2209,7 @@ impl Controller {
 
     fn resume_slideshow_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -2230,7 +2230,7 @@ impl Controller {
 
     fn toggle_blinking_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -2279,7 +2279,7 @@ impl Controller {
 
     fn toggle_pictures_per_row_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
@@ -2313,7 +2313,7 @@ impl Controller {
 
     fn toggle_selected_action(
         &self,
-        window: GsrApplicationWindow,
+        window: &GsrApplicationWindow,
     ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
         clone!(
             #[strong (rename_to=this)]
