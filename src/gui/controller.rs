@@ -645,6 +645,7 @@ impl Controller {
             }
         });
     }
+
     fn apply_order_setting_action(
         &self,
         window: &GsrApplicationWindow,
@@ -655,27 +656,28 @@ impl Controller {
             #[strong]
             window,
             move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
-                let gio_action = GioAction::from((object, variant));
-                if let Action::ApplyOrderSetting(order) = Action::from(gio_action) {
-                    this.with_view_state_mut(|view_state| {
-                        {
-                            let mut gallery = view_state.gallery_mut();
-                            gallery.sort_by(order);
-                        }
-                        let new_position = view_state.gallery().current_picture_index();
-                        let direction = Direction::Index {
-                            value: new_position,
-                        };
-                        if view_state.navigator.can_move(&direction) {
-                            view_state.navigator.move_towards(&direction);
-                        } else {
-                            println!("navigator can't move to: {:?}", &direction);
-                        };
-                        view_state.navigator.set_page_changed();
-                    });
-
-                    window.dismiss();
-                    window.refresh_view();
+                match Action::from(GioAction::from((object, variant))) {
+                    Action::ApplyOrderSetting(order) => {
+                        this.with_view_state_mut(|view_state| {
+                            {
+                                let mut gallery = view_state.gallery_mut();
+                                gallery.sort_by(order);
+                            }
+                            let new_position = view_state.gallery().current_picture_index();
+                            let direction = Direction::Index {
+                                value: new_position,
+                            };
+                            if view_state.navigator.can_move(&direction) {
+                                view_state.navigator.move_towards(&direction);
+                            } else {
+                                println!("navigator can't move to: {:?}", &direction);
+                            };
+                            view_state.navigator.set_page_changed();
+                        });
+                        window.dismiss();
+                        window.refresh_view();
+                    }
+                    _ => {}
                 }
             }
         )
@@ -722,23 +724,23 @@ impl Controller {
             #[strong]
             window,
             move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
-                let gio_action = GioAction::from((object, variant));
-
-                let action = Action::from(gio_action);
-                if let Action::Categorize(ref category) = action {
-                    let indices =
-                        this.with_view_state_mut(|view_state| view_state.selected_indices());
-                    this.with_repository(|repository| {
-                        match repository.modify_pictures_at_indices(&indices, |picture| {
-                            picture.set_category(category.clone())
-                        }) {
-                            Ok(_) => {}
-                            Err(e) => eprintln!("{}", e),
-                        }
-                    });
-                    window.dismiss();
-                    window.deselect_pictures();
-                    this.set_last_action(&action);
+                match Action::from(GioAction::from((object, variant))) {
+                    Action::Categorize(ref category) => {
+                        let indices =
+                            this.with_view_state_mut(|view_state| view_state.selected_indices());
+                        this.with_repository(|repository| {
+                            match repository.modify_pictures_at_indices(&indices, |picture| {
+                                picture.set_category(category.clone())
+                            }) {
+                                Ok(_) => {}
+                                Err(e) => eprintln!("{}", e),
+                            }
+                        });
+                        window.dismiss();
+                        window.deselect_pictures();
+                        this.set_last_action(&Action::Categorize(category.clone()));
+                    }
+                    _ => {}
                 }
             }
         )
@@ -754,28 +756,29 @@ impl Controller {
             #[strong]
             window,
             move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
-                let gio_action = GioAction::from((object, variant));
-                let action = Action::from(gio_action);
-                if let Action::DeleteSelectedPicture(response) = action {
-                    window.dismiss();
-                    if response == "yes" {
-                        this.with_view_state(|view_state| {
-                            let indices = window.selected_indices();
-                            this.with_repository(|repository| {
-                                for position in indices {
-                                    let picture = view_state.gallery().picture(position);
-                                    match repository.delete_picture(&picture) {
-                                        Ok(_) => {}
-                                        Err(err) => {
-                                            println!("{}", err);
+                match Action::from(GioAction::from((object, variant))) {
+                    Action::DeleteSelectedPicture(response) => {
+                        window.dismiss();
+                        if response == "yes" {
+                            this.with_view_state(|view_state| {
+                                let indices = window.selected_indices();
+                                this.with_repository(|repository| {
+                                    for position in indices {
+                                        let picture = view_state.gallery().picture(position);
+                                        match repository.delete_picture(&picture) {
+                                            Ok(_) => {}
+                                            Err(err) => {
+                                                println!("{}", err);
+                                            }
                                         }
                                     }
-                                }
+                                });
                             });
-                        });
-                        window.deselect_pictures();
-                        this.retrieve_current_location()
+                            window.deselect_pictures();
+                            this.retrieve_current_location()
+                        }
                     }
+                    _ => {}
                 }
             }
         )
@@ -900,20 +903,22 @@ impl Controller {
             #[strong]
             window,
             move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
-                let gio_action = GioAction::from((object, variant));
-                if let Action::EnterFind(find) = Action::from(gio_action) {
-                    let tags = this.with_repository(|repository| {
-                        let _ = repository.retrieve_all_labels();
-                        repository.all_labels()
-                    });
-                    let gsr_entry_window = GsrEntryWindow::new_with(
-                        &window,
-                        &window.gsr_application().shared_controller(),
-                        find_criteria_entry(find, tags),
-                        None,
-                    );
-                    window.dismiss();
-                    window.begin_entry(gsr_entry_window);
+                match Action::from(GioAction::from((object, variant))) {
+                    Action::EnterFind(find) => {
+                        let tags = this.with_repository(|repository| {
+                            let _ = repository.retrieve_all_labels();
+                            repository.all_labels()
+                        });
+                        let gsr_entry_window = GsrEntryWindow::new_with(
+                            &window,
+                            &window.gsr_application().shared_controller(),
+                            find_criteria_entry(find, tags),
+                            None,
+                        );
+                        window.dismiss();
+                        window.begin_entry(gsr_entry_window);
+                    }
+                    _ => {}
                 }
             }
         )
@@ -1038,20 +1043,22 @@ impl Controller {
             #[strong]
             window,
             move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
-                let gio_action = GioAction::from((object, variant));
-                if let Action::EnterSelect(find) = Action::from(gio_action) {
-                    let tags = this.with_repository(|repository| {
-                        let _ = repository.retrieve_all_labels();
-                        repository.all_labels()
-                    });
-                    let gsr_entry_window = GsrEntryWindow::new_with(
-                        &window,
-                        &window.gsr_application().shared_controller(),
-                        select_criteria_entry(find, tags),
-                        None,
-                    );
-                    window.dismiss();
-                    window.begin_entry(gsr_entry_window);
+                match Action::from(GioAction::from((object, variant))) {
+                    Action::EnterSelect(find) => {
+                        let tags = this.with_repository(|repository| {
+                            let _ = repository.retrieve_all_labels();
+                            repository.all_labels()
+                        });
+                        let gsr_entry_window = GsrEntryWindow::new_with(
+                            &window,
+                            &window.gsr_application().shared_controller(),
+                            select_criteria_entry(find, tags),
+                            None,
+                        );
+                        window.dismiss();
+                        window.begin_entry(gsr_entry_window);
+                    }
+                    _ => {}
                 }
             }
         )
@@ -1067,19 +1074,21 @@ impl Controller {
             #[strong]
             window,
             move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
-                let gio_action = GioAction::from((object, variant));
-                if let Action::ExtractFileNames(extraction_file_path) = Action::from(gio_action) {
-                    window.dismiss();
-                    let indices =
-                        this.with_view_state(|view_state| view_state.selected_indices().clone());
-                    this.with_repository(|repository| {
-                        match repository.extract_file_names(&indices, &extraction_file_path) {
-                            Ok(extraction_file) => window.present_information(&format!(
-                                "selection extracted to {extraction_file}"
-                            )),
-                            Err(e) => window.present_information(&format!("Error:{e}")),
-                        }
-                    })
+                match Action::from(GioAction::from((object, variant))) {
+                    Action::ExtractFileNames(extraction_file_path) => {
+                        window.dismiss();
+                        let indices = this
+                            .with_view_state(|view_state| view_state.selected_indices().clone());
+                        this.with_repository(|repository| {
+                            match repository.extract_file_names(&indices, &extraction_file_path) {
+                                Ok(extraction_file) => window.present_information(&format!(
+                                    "selection extracted to {extraction_file}"
+                                )),
+                                Err(e) => window.present_information(&format!("Error:{e}")),
+                            }
+                        })
+                    }
+                    _ => {}
                 }
             }
         )
@@ -1095,52 +1104,54 @@ impl Controller {
             #[strong]
             window,
             move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
-                let gio_action = GioAction::from((object, variant));
-                if let Action::Find(find, pattern) = Action::from(gio_action) {
-                    window.dismiss();
-                    let pictures =
-                        this.with_view_state(|view_state| view_state.gallery().pictures().clone());
+                match Action::from(GioAction::from((object, variant))) {
+                    Action::Find(find, pattern) => {
+                        window.dismiss();
+                        let pictures = this
+                            .with_view_state(|view_state| view_state.gallery().pictures().clone());
 
-                    let catalog = this.with_repository(|repository| repository.catalog());
-                    let predicate_res = Predicate::new(&pattern, find, catalog.clone());
-                    let position_opt = match predicate_res {
-                        Err(e) => {
-                            window.present_information(&format!("{e}"));
-                            None
-                        }
-                        Ok(predicate) => this.with_view_state_mut(|view_state| {
-                            view_state.finder = Some(Finder::new(pictures));
-                            view_state.finder.as_mut().unwrap().find_first(predicate)
-                        }),
-                    };
-                    match position_opt {
-                        None => {
-                            window.present_information(&format!(
-                                "no picture match this criterion: {} {}",
-                                find, pattern
-                            ));
-                            this.with_view_state_mut(|view_state| {
-                                view_state.finder = None;
-                            });
-                        }
-                        Some(position) => {
-                            this.with_view_state_mut(|view_state| {
-                                if view_state
-                                    .navigator
-                                    .can_move(&Direction::Index { value: position })
-                                {
-                                    view_state
+                        let catalog = this.with_repository(|repository| repository.catalog());
+                        let predicate_res = Predicate::new(&pattern, find, catalog.clone());
+                        let position_opt = match predicate_res {
+                            Err(e) => {
+                                window.present_information(&format!("{e}"));
+                                None
+                            }
+                            Ok(predicate) => this.with_view_state_mut(|view_state| {
+                                view_state.finder = Some(Finder::new(pictures));
+                                view_state.finder.as_mut().unwrap().find_first(predicate)
+                            }),
+                        };
+                        match position_opt {
+                            None => {
+                                window.present_information(&format!(
+                                    "no picture match this criterion: {} {}",
+                                    find, pattern
+                                ));
+                                this.with_view_state_mut(|view_state| {
+                                    view_state.finder = None;
+                                });
+                            }
+                            Some(position) => {
+                                this.with_view_state_mut(|view_state| {
+                                    if view_state
                                         .navigator
-                                        .move_towards(&Direction::Index { value: position });
-                                }
-                            });
-                            window.refresh_view();
-                            window.refresh_title();
-                            this.with_view_state(|view_state| {
-                                println!("{}", view_state.gallery().current_picture_index());
-                            })
-                        }
-                    };
+                                        .can_move(&Direction::Index { value: position })
+                                    {
+                                        view_state
+                                            .navigator
+                                            .move_towards(&Direction::Index { value: position });
+                                    }
+                                });
+                                window.refresh_view();
+                                window.refresh_title();
+                                this.with_view_state(|view_state| {
+                                    println!("{}", view_state.gallery().current_picture_index());
+                                })
+                            }
+                        };
+                    }
+                    _ => {}
                 }
             }
         )
@@ -1273,19 +1284,21 @@ impl Controller {
             #[strong]
             window,
             move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
-                let gio_action = GioAction::from((object, variant));
-                if let Action::JumpToIndex(index) = Action::from(gio_action) {
-                    window.dismiss();
-                    this.with_view_state_mut(|view_state| {
-                        let direction = Direction::Index {
-                            value: index as usize,
-                        };
-                        if view_state.navigator.can_move(&direction) {
-                            view_state.navigator.move_towards(&direction);
-                        }
-                    })
-                };
-                window.refresh_view()
+                match Action::from(GioAction::from((object, variant))) {
+                    Action::JumpToIndex(index) => {
+                        window.dismiss();
+                        this.with_view_state_mut(|view_state| {
+                            let direction = Direction::Index {
+                                value: index as usize,
+                            };
+                            if view_state.navigator.can_move(&direction) {
+                                view_state.navigator.move_towards(&direction);
+                            }
+                        });
+                        window.refresh_view()
+                    }
+                    _ => {}
+                }
             }
         )
     }
@@ -1299,31 +1312,33 @@ impl Controller {
             #[strong]
             window,
             move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
-                let gio_action = GioAction::from((object, variant));
-                if let Action::JumpToMark(letter) = Action::from(gio_action) {
-                    window.dismiss();
-                    let map_result =
-                        this.with_repository(|repository| repository.retrieve_all_marks());
-                    match map_result {
-                        Ok(map) => {
-                            if let Some(file_path) = map.get(&letter) {
-                                let position_opt = this.with_view_state(|view_state| {
-                                    view_state.gallery().find_file_path(file_path)
-                                });
-                                this.with_view_state_mut(|view_state| {
-                                    if let Some(position) = position_opt {
-                                        let direction = Direction::Index { value: position };
-                                        if view_state.navigator.can_move(&direction) {
-                                            view_state.navigator.move_towards(&direction);
+                match Action::from(GioAction::from((object, variant))) {
+                    Action::JumpToMark(letter) => {
+                        window.dismiss();
+                        let map_result =
+                            this.with_repository(|repository| repository.retrieve_all_marks());
+                        match map_result {
+                            Ok(map) => {
+                                if let Some(file_path) = map.get(&letter) {
+                                    let position_opt = this.with_view_state(|view_state| {
+                                        view_state.gallery().find_file_path(file_path)
+                                    });
+                                    this.with_view_state_mut(|view_state| {
+                                        if let Some(position) = position_opt {
+                                            let direction = Direction::Index { value: position };
+                                            if view_state.navigator.can_move(&direction) {
+                                                view_state.navigator.move_towards(&direction);
+                                            }
                                         }
-                                    }
-                                })
-                            };
-                        }
-                        Err(e) => eprintln!("{}", e),
+                                    })
+                                };
+                            }
+                            Err(e) => eprintln!("{}", e),
+                        };
+                        window.refresh_view()
                     }
-                };
-                window.refresh_view()
+                    _ => {}
+                }
             }
         )
     }
@@ -1363,20 +1378,23 @@ impl Controller {
             #[strong]
             window,
             move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
-                let gio_action = GioAction::from((object, variant));
-                if let Action::Label(label) = Action::from(gio_action) {
-                    let indices = this.with_view_state(|view_state| view_state.selected_indices());
-                    this.with_repository(|repository| {
-                        match repository.modify_pictures_at_indices(&indices, |picture| {
-                            picture.set_label(&label)
-                        }) {
-                            Ok(_) => {}
-                            Err(e) => eprintln!("{}", e),
-                        }
-                    });
-                    window.dismiss();
-                    window.deselect_pictures();
-                    this.set_last_action(&Action::Label(label));
+                match Action::from(GioAction::from((object, variant))) {
+                    Action::Label(label) => {
+                        let indices =
+                            this.with_view_state(|view_state| view_state.selected_indices());
+                        this.with_repository(|repository| {
+                            match repository.modify_pictures_at_indices(&indices, |picture| {
+                                picture.set_label(&label)
+                            }) {
+                                Ok(_) => {}
+                                Err(e) => eprintln!("{}", e),
+                            }
+                        });
+                        window.dismiss();
+                        window.deselect_pictures();
+                        this.set_last_action(&Action::Label(label));
+                    }
+                    _ => {}
                 }
             }
         )
@@ -1392,19 +1410,21 @@ impl Controller {
             #[strong]
             window,
             move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
-                window.dismiss();
-                let gio_action = GioAction::from((object, variant));
-                if let Action::Mark(letter) = Action::from(gio_action) {
-                    let file_path = this.with_view_state(|view_state| {
-                        view_state.gallery().current_picture().file_path()
-                    });
-                    this.with_repository(|repository| {
-                        match repository.insert_mark(letter, &file_path) {
-                            Ok(_) => {}
-                            Err(e) => eprintln!("{}", e),
-                        }
-                    })
-                };
+                match Action::from(GioAction::from((object, variant))) {
+                    Action::Mark(letter) => {
+                        window.dismiss();
+                        let file_path = this.with_view_state(|view_state| {
+                            view_state.gallery().current_picture().file_path()
+                        });
+                        this.with_repository(|repository| {
+                            match repository.insert_mark(letter, &file_path) {
+                                Ok(_) => {}
+                                Err(e) => eprintln!("{}", e),
+                            }
+                        })
+                    }
+                    _ => {}
+                }
             }
         )
     }
@@ -1419,18 +1439,18 @@ impl Controller {
             #[strong]
             window,
             move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
-                let gio_action = GioAction::from((object, variant));
-                if let Action::MoveCategory(category_name, target_category_name) =
-                    Action::from(gio_action)
-                {
-                    window.dismiss();
-                    let result = this.with_repository(|repository| {
-                        repository.move_category(&category_name, &target_category_name)
-                    });
-                    match result {
-                        Ok(_) => {}
-                        Err(e) => window.present_information(&format!("{}", e)),
+                match Action::from(GioAction::from((object, variant))) {
+                    Action::MoveCategory(category_name, target_category_name) => {
+                        window.dismiss();
+                        let result = this.with_repository(|repository| {
+                            repository.move_category(&category_name, &target_category_name)
+                        });
+                        match result {
+                            Ok(_) => {}
+                            Err(e) => window.present_information(&format!("{}", e)),
+                        }
                     }
+                    _ => {}
                 }
             }
         )
@@ -1446,34 +1466,37 @@ impl Controller {
             #[strong]
             window,
             move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
-                let gio_action = GioAction::from((object, variant));
-                if let Action::MoveSelectedPicture(target_directory) = Action::from(gio_action) {
-                    window.dismiss();
-                    let path = PathBuf::from(&target_directory);
-                    match check_path_is_directory(&path) {
-                        Ok(_) => {}
-                        Err(e) => {
-                            window.present_information(&format!("{e}"));
-                            return;
+                match Action::from(GioAction::from((object, variant))) {
+                    Action::MoveSelectedPicture(target_directory) => {
+                        window.dismiss();
+                        let path = PathBuf::from(&target_directory);
+                        match check_path_is_directory(&path) {
+                            Ok(_) => {}
+                            Err(e) => {
+                                window.present_information(&format!("{e}"));
+                                return;
+                            }
                         }
-                    }
-                    this.with_view_state_mut(|view_state| {
-                        let indices = view_state.selected_indices();
-                        for position in indices {
-                            let picture = view_state.gallery().picture(position);
-                            this.with_repository(|repository| {
-                                match repository.move_picture_to_target(&picture, &target_directory)
-                                {
-                                    Ok(_) => {}
-                                    Err(e) => {
-                                        window.present_information(&format!("{e}"));
+                        this.with_view_state_mut(|view_state| {
+                            let indices = view_state.selected_indices();
+                            for position in indices {
+                                let picture = view_state.gallery().picture(position);
+                                this.with_repository(|repository| {
+                                    match repository
+                                        .move_picture_to_target(&picture, &target_directory)
+                                    {
+                                        Ok(_) => {}
+                                        Err(e) => {
+                                            window.present_information(&format!("{e}"));
+                                        }
                                     }
-                                }
-                            });
-                        }
-                    });
-                    set_configuration_updated_flag(false);
-                    window.deselect_pictures();
+                                });
+                            }
+                        });
+                        set_configuration_updated_flag(false);
+                        window.deselect_pictures();
+                    }
+                    _ => {}
                 }
             }
         )
@@ -1621,15 +1644,18 @@ impl Controller {
             #[strong]
             window,
             move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
-                let gio_action = GioAction::from((object, variant));
-                if let Action::RemoveCategory(category_name) = Action::from(gio_action) {
-                    window.dismiss();
-                    let result = this
-                        .with_repository(|repository| repository.remove_category(&category_name));
-                    match result {
-                        Ok(_) => {}
-                        Err(e) => window.present_information(&format!("{}", e)),
+                match Action::from(GioAction::from((object, variant))) {
+                    Action::RemoveCategory(category_name) => {
+                        window.dismiss();
+                        let result = this.with_repository(|repository| {
+                            repository.remove_category(&category_name)
+                        });
+                        match result {
+                            Ok(_) => {}
+                            Err(e) => window.present_information(&format!("{}", e)),
+                        }
                     }
+                    _ => {}
                 }
             }
         )
@@ -1678,30 +1704,32 @@ impl Controller {
             #[strong]
             window,
             move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
-                let gio_action = GioAction::from((object, variant));
-                if let Action::Rename(new_name) = Action::from(gio_action) {
-                    if new_name.is_empty() {
-                        window.present_information("picture name can't be empty");
-                        return;
-                    }
-                    let (current_name, _) = this.with_view_state(|view_state| {
-                        name_and_extension(&view_state.gallery().current_picture().file_name())
-                    });
-                    if new_name == current_name {
-                        window.present_information("picture name is unchanged");
-                        return;
-                    }
-                    this.with_view_state_mut(|view_state| {
-                        let position = view_state.gallery().current_picture_index();
-                        let picture = view_state.gallery().current_picture();
-                        let new_picture = Picture::copy_with_name(&picture, &new_name);
-                        this.with_repository(|repository| {
-                            let _ = repository.rename_picture(&picture, &new_name);
+                match Action::from(GioAction::from((object, variant))) {
+                    Action::Rename(new_name) => {
+                        if new_name.is_empty() {
+                            window.present_information("picture name can't be empty");
+                            return;
+                        }
+                        let (current_name, _) = this.with_view_state(|view_state| {
+                            name_and_extension(&view_state.gallery().current_picture().file_name())
                         });
-                        view_state.gallery_mut().set_picture(position, new_picture);
-                    });
-                    window.dismiss();
-                    window.deselect_pictures();
+                        if new_name == current_name {
+                            window.present_information("picture name is unchanged");
+                            return;
+                        }
+                        this.with_view_state_mut(|view_state| {
+                            let position = view_state.gallery().current_picture_index();
+                            let picture = view_state.gallery().current_picture();
+                            let new_picture = Picture::copy_with_name(&picture, &new_name);
+                            this.with_repository(|repository| {
+                                let _ = repository.rename_picture(&picture, &new_name);
+                            });
+                            view_state.gallery_mut().set_picture(position, new_picture);
+                        });
+                        window.dismiss();
+                        window.deselect_pictures();
+                    }
+                    _ => {}
                 }
             }
         )
@@ -1717,38 +1745,42 @@ impl Controller {
             #[strong]
             window,
             move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
-                let gio_action = GioAction::from((object, variant));
-                if let Action::Select(find, pattern) = Action::from(gio_action) {
-                    window.dismiss();
-                    let location = this.with_view_state(|view_state| view_state.current_location());
-                    let catalog = this.with_repository(|repository| repository.catalog());
-                    let predicate_res = Predicate::new(&pattern, find, catalog.clone());
-                    match predicate_res {
-                        Err(e) => {
-                            window.present_information(&format!("{e}"));
-                        }
-                        Ok(new_predicate) => {
-                            this.with_view_state_mut(|view_state| {
-                                view_state.set_new_location(
+                match Action::from(GioAction::from((object, variant))) {
+                    Action::Select(find, pattern) => {
+                        window.dismiss();
+                        let location =
+                            this.with_view_state(|view_state| view_state.current_location());
+                        let catalog = this.with_repository(|repository| repository.catalog());
+                        let predicate_res = Predicate::new(&pattern, find, catalog.clone());
+                        match predicate_res {
+                            Err(e) => {
+                                window.present_information(&format!("{e}"));
+                            }
+                            Ok(new_predicate) => {
+                                this.with_view_state_mut(|view_state| {
+                                    view_state.set_new_location(
+                                        location.sub_directory(),
+                                        Some(new_predicate),
+                                        0,
+                                        location.covers_only(),
+                                    )
+                                });
+                                let location = this.with_view_state(|view_state| {
+                                    view_state.current_location.clone()
+                                });
+                                match this.retrieve_from_repository(
+                                    Some(location.covers_only()),
                                     location.sub_directory(),
-                                    Some(new_predicate),
-                                    0,
-                                    location.covers_only(),
-                                )
-                            });
-                            let location = this
-                                .with_view_state(|view_state| view_state.current_location.clone());
-                            match this.retrieve_from_repository(
-                                Some(location.covers_only()),
-                                location.sub_directory(),
-                                location.predicate(),
-                            ) {
-                                Err(e) => panic!("{}", e),
-                                Ok(0) => this.back_to_previous_location(),
-                                Ok(_) => window.refresh_view(),
-                            };
+                                    location.predicate(),
+                                ) {
+                                    Err(e) => panic!("{}", e),
+                                    Ok(0) => this.back_to_previous_location(),
+                                    Ok(_) => window.refresh_view(),
+                                };
+                            }
                         }
                     }
+                    _ => {}
                 }
             }
         )
@@ -1764,19 +1796,21 @@ impl Controller {
             #[strong]
             window,
             move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
-                let gio_action = GioAction::from((object, variant));
-                if let Action::SelectCategoryAddTarget(name) = Action::from(gio_action) {
-                    window.dismiss();
-                    let catalog = this.with_repository(|repository| repository.catalog());
-                    let gsr_treelist_window = GsrTreelistWindow::new_with(
-                        &window,
-                        &window.gsr_application().shared_controller(),
-                        &catalog,
-                        &format!("Select the category where to add {name}"),
-                        None,
-                        Action::AddCategory(name.to_string(), String::from("")),
-                    );
-                    window.begin_treelist_selection(gsr_treelist_window);
+                match Action::from(GioAction::from((object, variant))) {
+                    Action::SelectCategoryAddTarget(name) => {
+                        window.dismiss();
+                        let catalog = this.with_repository(|repository| repository.catalog());
+                        let gsr_treelist_window = GsrTreelistWindow::new_with(
+                            &window,
+                            &window.gsr_application().shared_controller(),
+                            &catalog,
+                            &format!("Select the category where to add {name}"),
+                            None,
+                            Action::AddCategory(name.to_string(), String::from("")),
+                        );
+                        window.begin_treelist_selection(gsr_treelist_window);
+                    }
+                    _ => {}
                 }
             }
         )
@@ -1885,27 +1919,29 @@ impl Controller {
             #[strong]
             window,
             move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
-                let gio_action = GioAction::from((object, variant));
-                if let Action::SelectCategoryMoveTarget(name) = Action::from(gio_action) {
-                    window.dismiss();
-                    let mut catalog = this.with_repository(|repository| repository.catalog());
-                    match catalog.remove_category(&name, true) {
-                        Err(e) => {
-                            window.present_information(&format!("{e}"));
-                            return;
-                        }
-                        Ok(_) => {
-                            let gsr_treelist_window = GsrTreelistWindow::new_with(
-                                &window,
-                                &window.gsr_application().shared_controller(),
-                                &catalog,
-                                &format!("Select the category where to rattach {name}"),
-                                None,
-                                Action::MoveCategory(name.to_string(), String::from("")),
-                            );
-                            window.begin_treelist_selection(gsr_treelist_window);
+                match Action::from(GioAction::from((object, variant))) {
+                    Action::SelectCategoryMoveTarget(name) => {
+                        window.dismiss();
+                        let mut catalog = this.with_repository(|repository| repository.catalog());
+                        match catalog.remove_category(&name, true) {
+                            Err(e) => {
+                                window.present_information(&format!("{e}"));
+                                return;
+                            }
+                            Ok(_) => {
+                                let gsr_treelist_window = GsrTreelistWindow::new_with(
+                                    &window,
+                                    &window.gsr_application().shared_controller(),
+                                    &catalog,
+                                    &format!("Select the category where to rattach {name}"),
+                                    None,
+                                    Action::MoveCategory(name.to_string(), String::from("")),
+                                );
+                                window.begin_treelist_selection(gsr_treelist_window);
+                            }
                         }
                     }
+                    _ => {}
                 }
             }
         )
@@ -2287,25 +2323,27 @@ impl Controller {
             #[strong]
             window,
             move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
-                let gio_action = GioAction::from((object, variant));
-                if let Action::TogglePicturesPerRow(pictures_per_row) = Action::from(gio_action) {
-                    this.with_view_state_mut(|view_state| {
-                        let new_pictures_per_row = view_state
-                            .settings
-                            .toggle_pictures_per_row(pictures_per_row);
-                        view_state
-                            .navigator
-                            .set_pictures_per_row(new_pictures_per_row as usize);
-                        view_state.navigator.update_page_limits();
-                        if let Some((row, col)) = view_state
-                            .navigator
-                            .coords_from_position(view_state.navigator.position())
-                        {
-                            view_state.focus_at_coords = (col as i32, row as i32);
-                        }
-                    });
+                match Action::from(GioAction::from((object, variant))) {
+                    Action::TogglePicturesPerRow(pictures_per_row) => {
+                        this.with_view_state_mut(|view_state| {
+                            let new_pictures_per_row = view_state
+                                .settings
+                                .toggle_pictures_per_row(pictures_per_row);
+                            view_state
+                                .navigator
+                                .set_pictures_per_row(new_pictures_per_row as usize);
+                            view_state.navigator.update_page_limits();
+                            if let Some((row, col)) = view_state
+                                .navigator
+                                .coords_from_position(view_state.navigator.position())
+                            {
+                                view_state.focus_at_coords = (col as i32, row as i32);
+                            }
+                        });
 
-                    window.refresh_view()
+                        window.refresh_view()
+                    }
+                    _ => {}
                 }
             }
         )
@@ -2323,19 +2361,21 @@ impl Controller {
             move |_group: &SimpleActionGroup,
                   object: &SimpleAction,
                   variant: Option<&gtk::glib::Variant>| {
-                let gio_action = GioAction::from((object, variant));
-                if let Action::ToggleSelected = Action::from(gio_action) {
-                    this.with_view_state_mut(|view_state| {
-                        let position = view_state.gallery().current_picture_index();
-                        if view_state.selection.contains(position) {
-                            view_state.selection.unselect(position)
-                        } else {
-                            view_state.selection.select(position)
-                        }
-                        view_state.navigator.set_page_changed()
-                    });
+                match Action::from(GioAction::from((object, variant))) {
+                    Action::ToggleSelected => {
+                        this.with_view_state_mut(|view_state| {
+                            let position = view_state.gallery().current_picture_index();
+                            if view_state.selection.contains(position) {
+                                view_state.selection.unselect(position)
+                            } else {
+                                view_state.selection.select(position)
+                            }
+                            view_state.navigator.set_page_changed()
+                        });
 
-                    window.refresh_view()
+                        window.refresh_view()
+                    }
+                    _ => {}
                 }
             }
         )
