@@ -1,3 +1,4 @@
+use crate::gui::mode::Mode;
 pub mod gio_action;
 pub mod gio_action_parameter;
 pub mod gio_action_parameter_type;
@@ -5,7 +6,6 @@ pub mod gio_action_type;
 use crate::gui::control::Control;
 use crate::gui::controller::MAIN_CONTROLLER_GROUP_NAME;
 use crate::gui::direction::Direction;
-use crate::gui::mode::Mode;
 use crate::model::category::Category;
 use crate::model::find::Find;
 use crate::model::label::Label;
