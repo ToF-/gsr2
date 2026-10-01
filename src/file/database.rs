@@ -978,7 +978,6 @@ pub mod tests {
             current_order: Some(Order::Name),
             current_pictures_per_row: Some(1),
             base_dir: format!("{}/{}", current_directory(), TEST_DATA_DIR),
-            catalog_filepath: "".to_string(),
             updated: false,
         };
         CommandLineArguments::parse_and_check(cmd, &config)

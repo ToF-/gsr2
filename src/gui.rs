@@ -13,7 +13,6 @@ pub mod event;
 pub mod key_input;
 pub mod mode;
 pub mod objects;
-pub mod selector;
 pub mod view;
 pub mod view_mode;
 pub mod view_state;

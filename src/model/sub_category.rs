@@ -316,7 +316,7 @@ mod tests {
         foo.sort();
         assert_eq!(
             "(foo\n  (bar\n      law)\n  (jug\n      alf\n      mix)\n  (qux\n      bag))",
-            foo.format_at_level(0)
+            foo.format_at_level(0, true)
         );
     }
     #[test]
@@ -328,7 +328,7 @@ mod tests {
         let _ = foo.remove_sub_category("jug", true);
         assert_eq!(
             "(foo\n  (qux\n      bag)\n  (bar\n      law))",
-            foo.format_at_level(0)
+            foo.format_at_level(0, true)
         );
     }
     #[test]
@@ -341,7 +341,7 @@ mod tests {
         foo.sort();
         assert_eq!(
             "(foo\n  (bar\n      law)\n  (jug\n      alf\n      mix)\n  (qux\n      bag))",
-            foo.format_at_level(0)
+            foo.format_at_level(0, true)
         );
     }
     #[test]

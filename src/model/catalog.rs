@@ -266,8 +266,8 @@ mod tests {
         let catalog = Catalog::from_s_expression("(- foo bar qux)").expect("incorrect sexpr");
         assert_eq!(TOP_CATEGORY, catalog.root.name());
         assert_eq!(3, catalog.root.sub_categories().len());
-        assert_eq!("foo", catalog.root.sub_categories()[0].name());
-        assert_eq!("bar", catalog.root.sub_categories()[1].name());
+        assert_eq!("bar", catalog.root.sub_categories()[0].name());
+        assert_eq!("foo", catalog.root.sub_categories()[1].name());
         assert_eq!("qux", catalog.root.sub_categories()[2].name());
     }
     #[test]
@@ -309,7 +309,7 @@ mod tests {
         let content = read_to_string("testdata/catalog.sexp").expect("I/O");
         let value = lexpr::from_str(&content).expect("incorrect sexp");
         println!("{}", format_value(&value));
-        let expected = "\"Cat - [foo [bar, qux], bog [gap], pat [jxs [lam, lom, lum], zzz [tic, tac, toe], pin [blo]]]\"";
+        let expected = "\"Cat - [bog [gap], foo [bar, qux], pat [jxs [lam, lom, lum], pin [blo], zzz [tac, tic, toe]]]\"";
         assert_eq!(expected, format!("{:?}", format_catalog(&catalog)));
     }
     #[test]
