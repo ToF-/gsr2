@@ -34,6 +34,8 @@ const SELECT_ALL_LABELS: &str = "SELECT DISTINCT Label FROM Picture WHERE Label 
 const SELECT_ALL_CATEGORIES: &str =
     "SELECT DISTINCT Category FROM Picture WHERE Category IS NOT NULL;";
 
+const SELECT_ALL_COVERS: &str = "SELECT FilePath FROM Picture WHERE Cover > 0;";
+
 const SELECT_ALL_TAGS: &str = "SELECT FilePath, Label FROM Tag;";
 
 const SELECT_TAGS_FOR_FILEPATH: &str = "SELECT Label FROM Tag WHERE FilePath = ?1;";
@@ -303,6 +305,28 @@ impl Database {
             params![&file_path_as_stored(file_path)],
             |row| row.get(0),
         )
+    }
+
+    pub fn rusqlite_retrieve_all_cover_filepaths(&self) -> SqlResult<Vec<String>> {
+        let sql_query = SELECT_ALL_COVERS;
+        let connection = self.connection_rc.borrow();
+        connection.prepare(sql_query).and_then(|mut statement| {
+            statement.query([]).map(|mut rows| {
+                let mut vec: Vec<String> = Vec::new();
+                while let Some(row) = rows.next().unwrap() {
+                    let file_path: String = row.get(0).expect("can't read first column");
+                    vec.push(file_path);
+                }
+                vec
+            })
+        })
+    }
+
+    pub fn retrieve_all_cover_filepaths(&self) -> IOResult<Vec<String>> {
+        match self.rusqlite_retrieve_all_cover_filepaths() {
+            Ok(vec) => Ok(vec),
+            Err(err) => Err(std::io::Error::other(err)),
+        }
     }
 
     pub fn rusqlite_retrieve_all_marks(&self) -> SqlResult<BTreeMap<char, String>> {

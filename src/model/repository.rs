@@ -196,23 +196,42 @@ impl Repository {
     pub fn update_all_folders(&self) -> IOResult<usize> {
         match self.retrieve_all_picture_file_paths() {
             Ok(folder_map) => match self.database.update_all_folders(folder_map) {
-                Ok(n) => {
-                    let _ = self.retrieve_all_folders();
-                    let folder_map = self.folder_map_rc.borrow();
-                    for folder in folder_map.map().values() {
-                        let directory = folder.file_path();
-                        let folder_id = folder.id();
-                        match self
-                            .database
-                            .update_picture_folder_id(&directory, folder_id)
-                        {
-                            Ok(_) => {}
-                            Err(e) => return Err(e),
+                Ok(n) => match self.database.retrieve_all_cover_filepaths() {
+                    Ok(covers) => {
+                        let cover_map: BTreeMap<String, String> = covers
+                            .into_iter()
+                            .filter_map(|file_path| {
+                                parent_directory(&file_path).map(|parent| (parent, file_path))
+                            })
+                            .collect();
+                        let _ = self.retrieve_all_folders();
+                        let folder_map = self.folder_map_rc.borrow();
+                        for folder in folder_map.map().values() {
+                            let directory = folder.file_path();
+                            let folder_id = folder.id();
+                            match self
+                                .database
+                                .update_picture_folder_id(&directory, folder_id)
+                            {
+                                Ok(_) => {}
+                                Err(e) => return Err(e),
+                            }
+                            if let Some(cover_file_path) = cover_map.get(&directory) {
+                                println!("{}->{}", folder_id, cover_file_path);
+                                match self
+                                    .database
+                                    .update_folder_first_file_path_for_id(folder_id, cover_file_path)
+                                {
+                                    Ok(_) => {}
+                                    Err(e) => return Err(e),
+                                }
+                            }
                         }
+                        set_configuration_updated_flag(true);
+                        Ok(n)
                     }
-                    set_configuration_updated_flag(true);
-                    Ok(n)
-                }
+                    Err(e) => Err(e),
+                },
                 Err(e) => Err(e),
             },
             Err(e) => Err(e),
