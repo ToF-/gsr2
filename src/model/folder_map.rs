@@ -14,16 +14,20 @@ pub struct FolderMap {
 impl FolderMap {
     pub fn from_file_paths(file_paths: &[String]) -> Self {
         let mut map: BTreeMap<String, Folder> = BTreeMap::new();
-        let mut id_dispenser = IdDispenser::new(1);
+        let mut id_dispenser = IdDispenser::new(0);
+        let mut current_id = id_dispenser.next_id();
+        println!("collecting folders from {} files", file_paths.len());
         for file_path in file_paths.iter() {
-            let mut current_directory = file_path.clone();
-            while let Some(directory) = parent_directory(&current_directory)
-                && !directory.is_empty()
+            if let Some(parent_directory) = parent_directory(&file_path)
+                && !parent_directory.is_empty()
             {
-                map.entry(directory.clone())
+                if !map.contains_key(&parent_directory) {
+                    current_id = id_dispenser.next_id();
+                    println!("{} = {}", parent_directory, current_id);
+                };
+                map.entry(parent_directory.clone())
                     .and_modify(|folder| folder.increase_count(1))
-                    .or_insert(Folder::new(id_dispenser.next_id(), &directory, 0, 1, ""));
-                current_directory = directory;
+                    .or_insert(Folder::new(current_id, &parent_directory, 0, 1, ""));
             }
         }
         let id_map: BTreeMap<String, usize> = map
