@@ -184,7 +184,7 @@ impl Repository {
     }
 
     pub fn retrieve_all_picture_file_paths(&self) -> IOResult<FolderMap> {
-        match self.database.retrieve_all_picture_file_paths() {
+        match self.database.select_all_picture_file_paths() {
             Ok(file_paths) => {
                 let folder_map = FolderMap::from_file_paths(&file_paths);
                 Ok(folder_map)

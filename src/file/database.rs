@@ -454,7 +454,7 @@ impl Database {
     }
 
     // "
-    fn rusqlite_retrieve_pictures_for_folder_id(
+    fn rusqlite_select_pictures_for_folder_id(
         &self,
         folder_id: usize,
     ) -> SqlResult<Vec<Picture>> {
@@ -491,7 +491,7 @@ impl Database {
             })
     }
 
-    fn rusqlite_retrieve_pictures_for_directory(&self, directory: &str) -> SqlResult<Vec<Picture>> {
+    fn rusqlite_select_pictures_for_directory(&self, directory: &str) -> SqlResult<Vec<Picture>> {
         let connection = self.connection_rc.borrow();
         connection
             .prepare(&format!(
@@ -606,14 +606,14 @@ impl Database {
             Err(e) => Err(std::io::Error::other(e)),
         }
     }
-    pub fn retrieve_pictures_for_directory(&self, directory: &str) -> IOResult<Vec<Picture>> {
-        match self.rusqlite_retrieve_pictures_for_directory(directory) {
+    pub fn select_pictures_for_directory(&self, directory: &str) -> IOResult<Vec<Picture>> {
+        match self.rusqlite_select_pictures_for_directory(directory) {
             Ok(pictures) => Ok(pictures),
             Err(err) => Err(std::io::Error::other(err)),
         }
     }
 
-    fn rusqlite_retrieve_all_picture_file_paths(&self) -> SqlResult<Vec<String>> {
+    fn rusqlite_select_all_picture_file_paths(&self) -> SqlResult<Vec<String>> {
         let mut result: Vec<String> = Vec::new();
         let sql_query = "SELECT FilePath FROM Picture;";
         let connection = self.connection_rc.borrow();
@@ -628,15 +628,15 @@ impl Database {
         Ok(result)
     }
 
-    pub fn retrieve_pictures_for_folder_id(&self, folder_id: usize) -> IOResult<Vec<Picture>> {
-        match self.rusqlite_retrieve_pictures_for_folder_id(folder_id) {
+    pub fn select_pictures_for_folder_id(&self, folder_id: usize) -> IOResult<Vec<Picture>> {
+        match self.rusqlite_select_pictures_for_folder_id(folder_id) {
             Ok(pictures) => Ok(pictures),
             Err(err) => Err(std::io::Error::other(err)),
         }
     }
 
-    pub fn retrieve_all_picture_file_paths(&self) -> IOResult<Vec<String>> {
-        match self.rusqlite_retrieve_all_picture_file_paths() {
+    pub fn select_all_picture_file_paths(&self) -> IOResult<Vec<String>> {
+        match self.rusqlite_select_all_picture_file_paths() {
             Ok(file_paths) => Ok(file_paths),
             Err(err) => Err(std::io::Error::other(err)),
         }
