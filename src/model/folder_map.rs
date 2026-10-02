@@ -18,16 +18,17 @@ impl FolderMap {
         let mut current_id = id_dispenser.next_id();
         println!("collecting folders from {} files", file_paths.len());
         for file_path in file_paths.iter() {
-            if let Some(parent_directory) = parent_directory(&file_path)
+            let mut current_file_path = file_path.clone();
+            while let Some(parent_directory) = parent_directory(&current_file_path)
                 && !parent_directory.is_empty()
+                && !map.contains_key(&parent_directory)
             {
-                if !map.contains_key(&parent_directory) {
-                    current_id = id_dispenser.next_id();
-                    println!("{} = {}", parent_directory, current_id);
-                };
+                current_id = id_dispenser.next_id();
                 map.entry(parent_directory.clone())
                     .and_modify(|folder| folder.increase_count(1))
                     .or_insert(Folder::new(current_id, &parent_directory, 0, 1, ""));
+                println!("{} = {}", parent_directory, current_id);
+                current_file_path = parent_directory.clone();
             }
         }
         let id_map: BTreeMap<String, usize> = map
@@ -136,25 +137,25 @@ mod tests {
                 .map(|folder| folder.picture_count())
         );
         assert_eq!(
-            Some(2),
+            Some(1),
             folders
                 .map()
                 .get("%/abc/def")
                 .map(|folder| folder.picture_count())
         );
         assert_eq!(
-            Some(4),
+            Some(1),
             folders
                 .map()
                 .get("%/gus")
                 .map(|folder| folder.picture_count())
         );
         assert_eq!(
-            Some(20),
+            Some(9),
             folders.map().get("%/abc").map(|folder| folder.id())
         );
         assert_eq!(
-            Some(20),
+            Some(9),
             folders
                 .map()
                 .get("%/abc/def")

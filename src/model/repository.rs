@@ -218,10 +218,10 @@ impl Repository {
                             }
                             if let Some(cover_file_path) = cover_map.get(&directory) {
                                 println!("{}->{}", folder_id, cover_file_path);
-                                match self
-                                    .database
-                                    .update_folder_first_file_path_for_id(folder_id, cover_file_path)
-                                {
+                                match self.database.update_folder_first_file_path_for_id(
+                                    folder_id,
+                                    cover_file_path,
+                                ) {
                                     Ok(_) => {}
                                     Err(e) => return Err(e),
                                 }
