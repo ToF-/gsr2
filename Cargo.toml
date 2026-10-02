@@ -5,9 +5,6 @@ edition = "2024"
 authors = ["ToF-"]
 default-run = "gsr"
 
-[build]
-jobs = 8
-
 [[bin]]
 name = "gen_data"
 path = "src/bin/gen_data.rs"

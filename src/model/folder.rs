@@ -1,6 +1,7 @@
+use crate::model::id_dispenser::FolderId;
 #[derive(Debug, Clone, PartialEq)]
 pub struct Folder {
-    id: usize,
+    id: FolderId,
     file_path: String,
     parent_id: usize,
     picture_count: usize,
@@ -20,7 +21,7 @@ impl Default for Folder {
 }
 impl Folder {
     pub fn new(
-        id: usize,
+        id: FolderId,
         file_path: &str,
         parent_id: usize,
         picture_count: usize,
@@ -35,7 +36,7 @@ impl Folder {
         }
     }
 
-    pub fn id(&self) -> usize {
+    pub fn id(&self) -> FolderId {
         self.id
     }
 
@@ -43,7 +44,7 @@ impl Folder {
         self.file_path.clone()
     }
 
-    pub fn parent_id(&self) -> usize {
+    pub fn parent_id(&self) -> FolderId {
         self.parent_id
     }
 
@@ -62,7 +63,7 @@ impl Folder {
     pub fn increase_count(&mut self, n: usize) {
         self.picture_count += n;
     }
-    pub fn set_parent_id(&mut self, id: usize) {
+    pub fn set_parent_id(&mut self, id: FolderId) {
         self.parent_id = id
     }
 }

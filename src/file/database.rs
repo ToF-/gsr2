@@ -173,8 +173,8 @@ impl Database {
             })
     }
 
-    pub fn retrieve_catalog(&self) -> IOResult<String> {
-        match self.rusqlite_retrieve_catalog() {
+    pub fn select_catalog(&self) -> IOResult<String> {
+        match self.rusqlite_select_catalog() {
             Ok(sexp) => Ok(sexp),
             Err(e) => Err(IOError::other(e)),
         }
@@ -307,7 +307,7 @@ impl Database {
         )
     }
 
-    pub fn rusqlite_retrieve_all_cover_filepaths(&self) -> SqlResult<Vec<String>> {
+    pub fn rusqlite_select_all_cover_filepaths(&self) -> SqlResult<Vec<String>> {
         let sql_query = SELECT_ALL_COVERS;
         let connection = self.connection_rc.borrow();
         connection.prepare(sql_query).and_then(|mut statement| {
@@ -322,14 +322,14 @@ impl Database {
         })
     }
 
-    pub fn retrieve_all_cover_filepaths(&self) -> IOResult<Vec<String>> {
-        match self.rusqlite_retrieve_all_cover_filepaths() {
+    pub fn select_all_cover_filepaths(&self) -> IOResult<Vec<String>> {
+        match self.rusqlite_select_all_cover_filepaths() {
             Ok(vec) => Ok(vec),
             Err(err) => Err(std::io::Error::other(err)),
         }
     }
 
-    pub fn rusqlite_retrieve_all_marks(&self) -> SqlResult<BTreeMap<char, String>> {
+    pub fn rusqlite_select_all_marks(&self) -> SqlResult<BTreeMap<char, String>> {
         let sql_query = SELECT_MARKS;
         let connection = self.connection_rc.borrow();
         connection.prepare(sql_query).and_then(|mut statement| {
@@ -345,7 +345,7 @@ impl Database {
             })
         })
     }
-    pub fn rusqlite_retrieve_all_pictures(
+    pub fn rusqlite_select_all_pictures(
         &self,
         cover: bool,
         parent_opt: Option<String>,
@@ -391,7 +391,7 @@ impl Database {
         })
     }
 
-    pub fn rusqlite_retrieve_all_categories(&self) -> SqlResult<HashSet<String>> {
+    pub fn rusqlite_select_all_categories(&self) -> SqlResult<HashSet<String>> {
         let connection = self.connection_rc.borrow();
         connection
             .prepare(SELECT_ALL_CATEGORIES)
@@ -407,12 +407,12 @@ impl Database {
             })
     }
 
-    pub fn rusqlite_retrieve_catalog(&self) -> SqlResult<String> {
+    pub fn rusqlite_select_catalog(&self) -> SqlResult<String> {
         let connection = self.connection_rc.borrow();
         connection.query_one("SELECT Sexp FROM Catalog;", params![], |row| row.get(0))
     }
 
-    pub fn rusqlite_retrieve_all_labels(&self) -> SqlResult<HashSet<String>> {
+    pub fn rusqlite_select_all_labels(&self) -> SqlResult<HashSet<String>> {
         let connection = self.connection_rc.borrow();
         connection
             .prepare(SELECT_ALL_LABELS)
@@ -428,7 +428,7 @@ impl Database {
             })
     }
 
-    pub fn rusqlite_retrieve_all_tags(&self) -> SqlResult<HashMap<String, HashSet<String>>> {
+    pub fn rusqlite_select_all_tags(&self) -> SqlResult<HashMap<String, HashSet<String>>> {
         let connection = self.connection_rc.borrow();
         connection
             .prepare(SELECT_ALL_TAGS)
@@ -643,7 +643,7 @@ impl Database {
     }
     // "
 
-    pub fn rusqlite_retrieve_all_folders(&self) -> SqlResult<FolderMap> {
+    pub fn rusqlite_select_all_folders(&self) -> SqlResult<FolderMap> {
         let connection = self.connection_rc.borrow();
         connection
             .prepare(&format!("SELECT {} FROM Folder;", FOLDER_COLUMNS))
@@ -674,8 +674,8 @@ impl Database {
             })
     }
 
-    pub fn retrieve_all_folders(&self) -> IOResult<FolderMap> {
-        match self.rusqlite_retrieve_all_folders() {
+    pub fn select_all_folders(&self) -> IOResult<FolderMap> {
+        match self.rusqlite_select_all_folders() {
             Ok(folder_map) => Ok(folder_map),
             Err(err) => Err(std::io::Error::other(err)),
         }
@@ -719,7 +719,7 @@ impl Database {
             Err(err) => Err(std::io::Error::other(err)),
         }
     }
-    fn rusqlite_retrieve_picture_with_file_path(&self, file_path: &str) -> SqlResult<Picture> {
+    fn rusqlite_select_picture_with_file_path(&self, file_path: &str) -> SqlResult<Picture> {
         let connection = self.connection_rc.borrow();
         connection
             .query_row(
@@ -743,8 +743,8 @@ impl Database {
             })
     }
 
-    pub fn retrieve_picture_with_file_path(&self, file_path: &str) -> IOResult<Picture> {
-        match self.rusqlite_retrieve_picture_with_file_path(file_path) {
+    pub fn select_picture_with_file_path(&self, file_path: &str) -> IOResult<Picture> {
+        match self.rusqlite_select_picture_with_file_path(file_path) {
             Ok(picture) => Ok(picture),
             Err(err) => Err(std::io::Error::other(err)),
         }
@@ -769,12 +769,12 @@ impl Database {
         folder_id_opt: Option<usize>,
     ) -> IOResult<Vec<Picture>> {
         self.select_all_parent_dirs().and_then(|parent_dirs| {
-            match self.rusqlite_retrieve_all_pictures(
+            match self.rusqlite_select_all_pictures(
                 retrieve_criteria.clone().cover,
                 retrieve_criteria.clone().parent_opt,
                 folder_id_opt,
             ) {
-                Ok(picture_map) => match self.rusqlite_retrieve_all_tags() {
+                Ok(picture_map) => match self.rusqlite_select_all_tags() {
                     Ok(tag_map) => {
                         let mut pictures: Vec<Picture> = vec![];
                         for (file_path, image_data) in picture_map.iter() {
@@ -803,56 +803,6 @@ impl Database {
                             if retrieve_criteria.matches(&picture) {
                                 pictures.push(picture)
                             };
-                            /*
-                            if let Some(ref catalog) = catalog_opt
-                                && let Some(categories) = retrieve_criteria.categories.clone()
-                            {
-                                if let Some(category_name) = image_data.category_name() {
-                                    if !catalog.is_one_of(&categories, &category_name) {
-                                        continue;
-                                    }
-                                } else {
-                                    continue;
-                                }
-                            };
-                            if !retrieve_criteria.tag_selection_criteria.is_empty()
-                                && !retrieve_criteria
-                                    .tag_selection_criteria
-                                    .matches(new_tags.clone())
-                            {
-                                continue;
-                            };
-                            if retrieve_criteria.label.clone().is_some()
-                                && *retrieve_criteria.label.as_ref().unwrap()
-                                    != new_image_data.label()
-                            {
-                                continue;
-                            };
-                            if retrieve_criteria.pattern.clone().is_some()
-                                && !retrieve_criteria
-                                    .pattern
-                                    .as_ref()
-                                    .unwrap()
-                                    .is_match(file_path)
-                            {
-                                continue;
-                            };
-                            if !extraction.is_empty() && !extraction.contains(file_path) {
-                                continue;
-                            };
-                            if color_range_opt.clone().is_some()
-                                && !color_range_opt.as_ref().unwrap().matches(file_path)
-                            {
-                                continue;
-                            };
-
-                            if let Some(ref predicate) = retrieve_criteria.predicate_opt {
-                                let function = &predicate.function;
-                                if !function(&picture) {
-                                    continue;
-                                }
-                            };
-                            */
                         }
                         pictures.sort_by_key(|picture| picture.file_path());
                         Ok(pictures)
@@ -864,7 +814,7 @@ impl Database {
         })
     }
 
-    pub fn retrieve_all_pictures_with_parent(&self, parent_dir: &str) -> IOResult<Vec<Picture>> {
+    pub fn select_all_pictures_with_parent(&self, parent_dir: &str) -> IOResult<Vec<Picture>> {
         let retrieve_criteria = RetrieveCriteria {
             tag_selection_criteria: TagSelectionCriteria::empty(),
             categories: None,
@@ -919,7 +869,7 @@ impl Database {
         picture.set_image_data(image_data);
         Ok(picture)
     }
-    fn rusqulite_retrieve_all_parent_file_paths(
+    fn rusqulite_select_all_parent_file_paths(
         &self,
     ) -> SqlResult<HashMap<String, (usize, usize)>> {
         let sql_query = "SELECT FilePath, Cover FROM Picture;";
@@ -947,21 +897,21 @@ impl Database {
     }
 
     pub fn select_all_parent_dirs(&self) -> IOResult<HashMap<String, (usize, usize)>> {
-        match self.rusqulite_retrieve_all_parent_file_paths() {
+        match self.rusqulite_select_all_parent_file_paths() {
             Ok(result) => Ok(result),
             Err(e) => Err(IOError::other(e)),
         }
     }
 
-    pub fn retrieve_all_labels(&self) -> IOResult<HashSet<String>> {
-        match self.rusqlite_retrieve_all_labels() {
+    pub fn select_all_labels(&self) -> IOResult<HashSet<String>> {
+        match self.rusqlite_select_all_labels() {
             Ok(result) => Ok(result),
             Err(e) => Err(IOError::other(e)),
         }
     }
 
-    pub fn retrieve_all_categories(&self) -> IOResult<HashSet<String>> {
-        match self.rusqlite_retrieve_all_categories() {
+    pub fn select_all_categories(&self) -> IOResult<HashSet<String>> {
+        match self.rusqlite_select_all_categories() {
             Ok(result) => Ok(result),
             Err(e) => Err(IOError::other(e)),
         }
@@ -1036,16 +986,16 @@ pub mod tests {
 
     #[test]
     #[serial]
-    fn retrieve_all_pictures_ordered_by_file_path() {
+    fn select_all_pictures_ordered_by_file_path() {
         let database = my_db();
-        let status = database.rusqlite_retrieve_all_pictures(false, None, None);
+        let status = database.rusqlite_select_all_pictures(false, None, None);
         assert!(status.is_ok());
         let map = status.unwrap();
         assert_eq!(4, map.len());
     }
 
     #[serial]
-    fn insert_and_retrieve_a_picture_with_image_data() {
+    fn insert_and_select_a_picture_with_image_data() {
         let database = my_db();
         let mut picture = Picture::new("testdata/some_pic.jpeg");
         let file_path = picture.file_path();
@@ -1109,7 +1059,7 @@ pub mod tests {
         let _ = database.delete_picture_with_file_path(&file_path);
 
         assert!(database.rusqlite_insert_picture(&picture).is_ok());
-        let result = database.rusqlite_retrieve_picture_with_file_path(&file_path);
+        let result = database.rusqlite_select_picture_with_file_path(&file_path);
         let _ = database.delete_picture_with_file_path(&file_path);
         assert!(result.is_ok(), "could not retrieve picture in db");
         let retrieved_picture = result.unwrap();
@@ -1134,7 +1084,7 @@ pub mod tests {
     fn update_a_picture_image_data() {
         let database = my_db();
         let mut picture = database
-            .rusqlite_retrieve_picture_with_file_path(&nine_colors_file_path())
+            .rusqlite_select_picture_with_file_path(&nine_colors_file_path())
             .unwrap();
         let old_picture = picture.clone();
         let mut image_data = picture
@@ -1144,7 +1094,7 @@ pub mod tests {
         picture.set_image_data(image_data);
         assert!(database.rusqlite_update_picture(&picture).is_ok());
         let new_picture = database
-            .rusqlite_retrieve_picture_with_file_path(&nine_colors_file_path())
+            .rusqlite_select_picture_with_file_path(&nine_colors_file_path())
             .unwrap();
         assert_eq!(
             Rank::TwoStars,
@@ -1161,14 +1111,14 @@ pub mod tests {
     fn add_a_tag_to_a_picture_image_data() {
         let database = my_db();
         let mut picture = database
-            .rusqlite_retrieve_picture_with_file_path(&nine_colors_file_path())
+            .rusqlite_select_picture_with_file_path(&nine_colors_file_path())
             .unwrap();
         let old_picture = picture.clone();
         picture.add_tag("foo");
         picture.add_tag("bar");
         assert!(database.rusqlite_update_picture(&picture).is_ok());
         let new_picture = database
-            .rusqlite_retrieve_picture_with_file_path(&nine_colors_file_path())
+            .rusqlite_select_picture_with_file_path(&nine_colors_file_path())
             .unwrap();
         assert!(new_picture.image_data().unwrap().tags.contains("foo"));
         assert!(new_picture.image_data().unwrap().tags.contains("bar"));
@@ -1180,25 +1130,25 @@ pub mod tests {
     fn find_all_the_tags_in_the_database() {
         let database = my_db();
         let mut picture = database
-            .rusqlite_retrieve_picture_with_file_path(&nine_colors_file_path())
+            .rusqlite_select_picture_with_file_path(&nine_colors_file_path())
             .unwrap();
         picture.add_tag("foo");
         picture.add_tag("bar");
         assert!(database.rusqlite_update_picture(&picture).is_ok());
         let mut picture = database
-            .rusqlite_retrieve_picture_with_file_path(&single_dot_file_path())
+            .rusqlite_select_picture_with_file_path(&single_dot_file_path())
             .unwrap();
         picture.add_tag("dot");
         picture.add_tag("bar");
         assert!(database.rusqlite_update_picture(&picture).is_ok());
         let mut picture = database
-            .rusqlite_retrieve_picture_with_file_path(&white_square_file_path())
+            .rusqlite_select_picture_with_file_path(&white_square_file_path())
             .unwrap();
         picture.add_tag("qux");
         picture.add_tag("foo");
         assert!(database.rusqlite_update_picture(&picture).is_ok());
 
-        let result = database.rusqlite_retrieve_all_tags();
+        let result = database.rusqlite_select_all_tags();
         assert!(result.is_ok());
         let map = result.unwrap();
         let file_path = nine_colors_file_path();
@@ -1260,7 +1210,7 @@ pub mod tests {
     fn finding_all_pictures_with_file_path_having_a_parent_directory() {
         let database = my_db();
         let parent_dir = format!("{}/testdata", current_directory());
-        let result = database.retrieve_all_pictures_with_parent(&parent_dir);
+        let result = database.select_all_pictures_with_parent(&parent_dir);
         assert!(result.is_ok());
         let pictures = result.unwrap();
         assert_eq!(4, pictures.len());
@@ -1270,7 +1220,7 @@ pub mod tests {
     fn find_no_picture_for_a_parent_directory_where_no_picture_exists() {
         let database = my_db();
         let parent_dir = format!("{}", current_directory());
-        let result = database.retrieve_all_pictures_with_parent(&parent_dir);
+        let result = database.select_all_pictures_with_parent(&parent_dir);
         assert!(result.is_ok());
         let pictures = result.unwrap();
         assert_eq!(0, pictures.len());

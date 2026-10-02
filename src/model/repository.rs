@@ -1,3 +1,4 @@
+use crate::model::id_dispenser::FolderId;
 use crate::cli::command::Command;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
@@ -89,7 +90,7 @@ impl Repository {
 
     pub fn retrieve_all_categories(&self) -> IOResult<()> {
         match self.categories_rc.try_borrow_mut() {
-            Ok(mut categories) => match self.database.retrieve_all_categories() {
+            Ok(mut categories) => match self.database.select_all_categories() {
                 Ok(names) => {
                     *categories = Tags::from(names);
                     Ok(())
@@ -102,7 +103,7 @@ impl Repository {
 
     pub fn retrieve_all_folders(&self) -> IOResult<()> {
         match self.folder_map_rc.try_borrow_mut() {
-            Ok(mut folder_map) => match self.database.retrieve_all_folders() {
+            Ok(mut folder_map) => match self.database.select_all_folders() {
                 Ok(map) => {
                     *folder_map = map;
                     Ok(())
@@ -115,7 +116,7 @@ impl Repository {
 
     pub fn retrieve_all_labels(&self) -> IOResult<()> {
         match self.tags_rc.try_borrow_mut() {
-            Ok(mut tags) => match self.database.retrieve_all_labels() {
+            Ok(mut tags) => match self.database.select_all_labels() {
                 Ok(labels) => {
                     *tags = Tags::from(labels);
                     Ok(())
@@ -196,7 +197,7 @@ impl Repository {
     pub fn update_all_folders(&self) -> IOResult<usize> {
         match self.retrieve_all_picture_file_paths() {
             Ok(folder_map) => match self.database.update_all_folders(folder_map) {
-                Ok(n) => match self.database.retrieve_all_cover_filepaths() {
+                Ok(n) => match self.database.select_all_cover_filepaths() {
                     Ok(covers) => {
                         let cover_map: BTreeMap<String, String> = covers
                             .into_iter()
@@ -307,7 +308,7 @@ impl Repository {
     }
 
     pub fn retrieve_all_marks(&self) -> IOResult<BTreeMap<char, String>> {
-        match self.database.rusqlite_retrieve_all_marks() {
+        match self.database.rusqlite_select_all_marks() {
             Ok(map) => Ok(map),
             Err(e) => Err(IOError::other(e)),
         }
@@ -348,7 +349,7 @@ impl Repository {
         }
     }
 
-    fn retrieve_folders(&self) -> IOResult<Option<usize>> {
+    fn retrieve_folders(&self) -> IOResult<Option<FolderId>> {
         match self.retrieve_all_folders() {
             Err(e) => Err(e),
             Ok(_) => {
@@ -692,7 +693,7 @@ impl Repository {
     }
 
     pub fn move_pictures(&self, source_dir: &str, target_dir: &str) -> IOResult<()> {
-        match self.database.retrieve_all_pictures_with_parent(source_dir) {
+        match self.database.select_all_pictures_with_parent(source_dir) {
             Ok(pictures) => {
                 let mut count = 0;
                 for picture in &pictures {
@@ -743,7 +744,7 @@ impl Repository {
             let directory = file_path_as_stored(&parent_dir);
             let file_path = file_path_as_stored(&picture.file_path());
             let mut paths: Vec<String> = Vec::new();
-            match self.database.retrieve_all_pictures_with_parent(&directory) {
+            match self.database.select_all_pictures_with_parent(&directory) {
                 Ok(pictures) => {
                     for picture in pictures.into_iter() {
                         if picture.is_cover()
@@ -780,7 +781,7 @@ impl Repository {
     }
 
     pub fn retrieve_catalog(&self) -> IOResult<Catalog> {
-        match self.database.retrieve_catalog() {
+        match self.database.select_catalog() {
             Ok(s_expression) => Catalog::from_s_expression(&s_expression),
             Err(e) => Err(e),
         }

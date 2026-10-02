@@ -150,7 +150,7 @@ fn execute_operation(database: &Database, operation: &Operation) -> IOResult<usi
             copy(source_path, target_path).map(|n| n as usize)
         }
         Operation::MovePictureData(source_file_path, target_file_path) => database
-            .retrieve_picture_with_file_path(source_file_path)
+            .select_picture_with_file_path(source_file_path)
             .and_then(|original| {
                 let picture = Picture::copy(&original, target_file_path);
                 database

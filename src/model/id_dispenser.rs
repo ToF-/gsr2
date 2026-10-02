@@ -1,3 +1,5 @@
+pub type FolderId = usize;
+
 pub struct IdDispenser {
     next_id: usize,
 }

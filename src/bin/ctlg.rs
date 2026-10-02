@@ -82,7 +82,7 @@ pub fn main() {
         }
     };
     let database = Database::from_connection(&config.database_file, false).unwrap();
-    let catalog_result = match database.retrieve_catalog() {
+    let catalog_result = match database.select_catalog() {
         Ok(s_expression) => Catalog::from_s_expression(&s_expression),
         Err(e) => Err(e),
     };
