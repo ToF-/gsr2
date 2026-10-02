@@ -21,13 +21,17 @@ impl FolderMap {
             let mut current_file_path = file_path.clone();
             while let Some(parent_directory) = parent_directory(&current_file_path)
                 && !parent_directory.is_empty()
-                && !map.contains_key(&parent_directory)
             {
-                current_id = id_dispenser.next_id();
-                map.entry(parent_directory.clone())
-                    .and_modify(|folder| folder.increase_count(1))
-                    .or_insert(Folder::new(current_id, &parent_directory, 0, 1, ""));
-                println!("{} = {}", parent_directory, current_id);
+                if let Some(folder) = map.get_mut(&parent_directory) {
+                    folder.increase_count(1)
+                } else {
+                    current_id = id_dispenser.next_id();
+                    map.insert(
+                        parent_directory.clone(),
+                        Folder::new(current_id, &parent_directory, 0, 1, ""),
+                    );
+                    println!("{} = {}", parent_directory, current_id);
+                }
                 current_file_path = parent_directory.clone();
             }
         }
@@ -137,14 +141,14 @@ mod tests {
                 .map(|folder| folder.picture_count())
         );
         assert_eq!(
-            Some(1),
+            Some(2),
             folders
                 .map()
                 .get("%/abc/def")
                 .map(|folder| folder.picture_count())
         );
         assert_eq!(
-            Some(1),
+            Some(4),
             folders
                 .map()
                 .get("%/gus")
@@ -181,6 +185,7 @@ mod tests {
         assert_eq!(None, folders.get("bun"));
         let folder_opt = folders.get("@bun");
         assert!(folder_opt.is_some());
+        assert_eq!(2, folder_opt.unwrap().picture_count());
         let folder_opt = folders.get("@gus/bam");
         assert!(folder_opt.is_some());
         let folder_opt = folders.get("?def");
