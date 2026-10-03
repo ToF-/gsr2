@@ -780,7 +780,7 @@ impl Database {
                             } else {
                                 HashSet::new()
                             };
-                            let parent_dir = parent_directory(file_path).unwrap();
+                            let parent_dir = file_path_as_stored(&parent_directory(file_path).unwrap());
                             let new_image_data = ImageData {
                                 tags: new_tags.clone(),
                                 cover: match image_data.clone().cover {

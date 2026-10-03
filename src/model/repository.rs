@@ -1,5 +1,3 @@
-use crate::file::paths::file_path_as_retrieved;
-use crate::model::folder::Folder;
 use crate::cli::command::Command;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
@@ -10,6 +8,7 @@ use crate::file::operation::execute;
 use crate::file::operation::move_picture;
 use crate::file::operation::rename_picture;
 use crate::file::paths::file_exists;
+use crate::file::paths::file_path_as_retrieved;
 use crate::file::paths::file_path_as_stored;
 use crate::file::paths::parent_directory;
 use crate::file::paths::timestamp_filename;
@@ -20,6 +19,7 @@ use crate::file::picture_file::get_all_picture_file_paths;
 use crate::file::picture_file::get_picture_file_path;
 use crate::model::catalog::Catalog;
 use crate::model::category::Category;
+use crate::model::folder::Folder;
 use crate::model::folder_map::FolderMap;
 use crate::model::gallery::Gallery;
 use crate::model::id_dispenser::FolderId;
@@ -160,8 +160,8 @@ impl Repository {
                             {
                                 gallery.add_picture(&Picture::for_folder(folder));
                             }
-                        }
-                        gallery.sort_by(args.order.unwrap_or(Order::Name));
+                            gallery.sort_by(args.order.unwrap_or(Order::Name));
+                        };
                         gallery.clone()
                     }
                     Err(e) => return Err(e),
