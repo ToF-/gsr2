@@ -212,7 +212,7 @@ impl Repository {
         match self.retrieve_all_picture_file_paths(added_file_paths.clone()) {
             Ok(folder_map) => {
                 let res = if added_file_paths.is_some() {
-                    self.database.insert_new_folders(folder_map)
+                    self.database.insert_or_update_folders(folder_map)
                 } else {
                     self.database.renew_all_folders(folder_map)
                 };

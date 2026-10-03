@@ -54,8 +54,8 @@ const DELETE_FOLDERS: &str = "DELETE FROM Folder;";
 
 const INSERT_CATALOG: &str = "INSERT INTO Catalog(Sexp) VALUES (?1);";
 
-const INSERT_FOLDER: &str =
-    "INSERT INTO Folder(FolderId, FilePath, ParentId, PictureCount) VALUES (?1, ?2, ?3, ?4)";
+const INSERT_OR_UPDATE_FOLDER: &str =
+    "INSERT INTO Folder(FolderId, FilePath, ParentId, PictureCount) VALUES (?1, ?2, ?3, ?4) ON CONFLICT(FilePath) DO UPDATE SET PictureCount = ?4 ;";
 
 const INSERT_PICTURE: &str = "INSERT INTO Picture ( FilePath, Label, FileSize, ModifiedTime, Rank, Sample, ColorCount, Cover, Score, Category) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10);";
 
@@ -685,16 +685,16 @@ impl Database {
 
     fn rusqlite_renew_all_folders(&self, folder_map: FolderMap) -> SqlResult<usize> {
         self.rusqlite_delete_all_folders()
-            .and_then(|_| self.rusqlite_insert_new_folders(folder_map))
+            .and_then(|_| self.rusqlite_insert_or_update_folders(folder_map))
     }
 
-    fn rusqlite_insert_new_folders(&self, folder_map: FolderMap) -> SqlResult<usize> {
+    fn rusqlite_insert_or_update_folders(&self, folder_map: FolderMap) -> SqlResult<usize> {
         let mut count = 0;
         let mut connection = self.connection_rc.borrow_mut();
         let transaction = connection.transaction().expect("can't open transaction");
         {
             let mut statement = transaction
-                .prepare(INSERT_FOLDER)
+                .prepare(INSERT_OR_UPDATE_FOLDER)
                 .expect("can't prepare statement");
             for (_file_path, folder) in folder_map.map() {
                 statement
@@ -720,9 +720,9 @@ impl Database {
         }
     }
 
-    pub fn insert_new_folders(&self, folder_map: FolderMap) -> IOResult<usize> {
+    pub fn insert_or_update_folders(&self, folder_map: FolderMap) -> IOResult<usize> {
         println!("adding folders…");
-        match self.rusqlite_insert_new_folders(folder_map) {
+        match self.rusqlite_insert_or_update_folders(folder_map) {
             Ok(_) => self.update_folder_first_file_path(),
             Err(err) => Err(std::io::Error::other(err)),
         }
