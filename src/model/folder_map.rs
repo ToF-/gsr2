@@ -13,8 +13,15 @@ pub struct FolderMap {
 }
 
 impl FolderMap {
-    pub fn from_file_paths(file_paths: &[String], max_folder_id: FolderId) -> Self {
-        let mut map: BTreeMap<String, Folder> = BTreeMap::new();
+    pub fn from_file_paths(file_paths: &[String]) -> Self {
+        let mut folder_map = Self {
+            map: BTreeMap::new(),
+        };
+        folder_map.add_from_file_paths(file_paths, 0);
+        folder_map
+    }
+
+    pub fn add_from_file_paths(&mut self, file_paths: &[String], max_folder_id: FolderId) {
         let mut id_dispenser = IdDispenser::new(max_folder_id + 1);
         println!("collecting folders from {} files", file_paths.len());
         for file_path in file_paths.iter() {
@@ -22,11 +29,11 @@ impl FolderMap {
             while let Some(parent_directory) = parent_directory(&current_file_path)
                 && !parent_directory.is_empty()
             {
-                if let Some(folder) = map.get_mut(&parent_directory) {
+                if let Some(folder) = self.map.get_mut(&parent_directory) {
                     folder.increase_count(1)
                 } else {
                     let folder_id = id_dispenser.next_id();
-                    map.insert(
+                    self.map.insert(
                         parent_directory.clone(),
                         Folder::new(folder_id, &parent_directory, 0, 1, ""),
                     );
@@ -35,12 +42,13 @@ impl FolderMap {
                 current_file_path = parent_directory.clone();
             }
         }
-        let id_map: BTreeMap<String, usize> = map
+        let id_map: BTreeMap<String, usize> = self
+            .map
             .iter()
             .map(|(file_path, folder)| (file_path.clone(), folder.id()))
             .collect();
 
-        for (file_path, folder) in map.iter_mut() {
+        for (file_path, folder) in self.map.iter_mut() {
             if let Some(directory) = parent_directory(file_path)
                 && !directory.is_empty()
                 && let Some(id) = id_map.get(&directory)
@@ -48,8 +56,8 @@ impl FolderMap {
                 folder.set_parent_id(*id);
             }
         }
-        Self { map: map.clone() }
     }
+
     pub fn insert(
         &mut self,
         folder_id: usize,

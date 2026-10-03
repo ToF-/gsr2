@@ -190,21 +190,22 @@ impl Repository {
         &self,
         added_file_paths: Option<Vec<String>>,
     ) -> IOResult<FolderMap> {
-        let (res, starting_id) = if added_file_paths.is_some() {
-            let folder_map = self.folder_map_rc.borrow();
-            (
-                Ok(added_file_paths.unwrap()),
-                folder_map.last_folder_id().unwrap_or_default(),
-            )
+        if added_file_paths.is_some() {
+            let last_folder_id = {
+                let folder_map = self.folder_map_rc.borrow();
+                folder_map.last_folder_id()
+            };
+            let mut folder_map = self.folder_map_rc.borrow_mut();
+            folder_map.add_from_file_paths(
+                &added_file_paths.unwrap(),
+                last_folder_id.unwrap_or_default(),
+            );
+            Ok(folder_map.clone()
         } else {
-            (self.database.select_all_picture_file_paths(), 0)
-        };
-        match res {
-            Ok(file_paths) => {
-                let folder_map = FolderMap::from_file_paths(&file_paths, starting_id);
-                Ok(folder_map)
+            match self.database.select_all_picture_file_paths() {
+                Ok(file_paths) => Ok(FolderMap::from_file_paths(&file_paths)),
+                Err(e) => Err(IOError::other(e)),
             }
-            Err(e) => Err(IOError::other(e)),
         }
     }
 
