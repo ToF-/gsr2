@@ -454,10 +454,7 @@ impl Database {
     }
 
     // "
-    fn rusqlite_select_pictures_for_folder_id(
-        &self,
-        folder_id: usize,
-    ) -> SqlResult<Vec<Picture>> {
+    fn rusqlite_select_pictures_for_folder_id(&self, folder_id: usize) -> SqlResult<Vec<Picture>> {
         let connection = self.connection_rc.borrow();
         connection
             .prepare(&format!(
@@ -869,9 +866,7 @@ impl Database {
         picture.set_image_data(image_data);
         Ok(picture)
     }
-    fn rusqulite_select_all_parent_file_paths(
-        &self,
-    ) -> SqlResult<HashMap<String, (usize, usize)>> {
+    fn rusqulite_select_all_parent_file_paths(&self) -> SqlResult<HashMap<String, (usize, usize)>> {
         let sql_query = "SELECT FilePath, Cover FROM Picture;";
         let connection = self.connection_rc.borrow();
         connection.prepare(sql_query).and_then(|mut statement| {
@@ -880,7 +875,7 @@ impl Database {
                 while let Some(row) = rows.next().unwrap() {
                     let file_path: String = row.get(0).unwrap();
                     let cover: bool = row.get(1).unwrap();
-                    if let Some(directory) = parent_directory(&file_path_as_retrieved(&file_path)) {
+                    if let Some(directory) = parent_directory(&file_path_as_stored(&file_path)) {
                         if let Some(pair) = map.get_mut(&directory) {
                             let count = pair.0;
                             let covers = pair.1;

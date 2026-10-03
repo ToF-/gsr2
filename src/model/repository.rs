@@ -1,4 +1,5 @@
-use crate::model::id_dispenser::FolderId;
+use crate::file::paths::file_path_as_retrieved;
+use crate::model::folder::Folder;
 use crate::cli::command::Command;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
@@ -21,6 +22,7 @@ use crate::model::catalog::Catalog;
 use crate::model::category::Category;
 use crate::model::folder_map::FolderMap;
 use crate::model::gallery::Gallery;
+use crate::model::id_dispenser::FolderId;
 use crate::model::order::Order;
 use crate::model::picture::Picture;
 use crate::model::predicate::Predicate;
@@ -335,6 +337,7 @@ impl Repository {
                 },
                 Err(e) => Err(e),
             },
+            // any other command involves the picture database
             _ => self.retrieve_folders().and_then(|folder_id_opt| {
                 self.retrieve_all_labels().and_then(|()| {
                     self.retrieve_all_parent_dirs().and_then(|()| {
@@ -518,18 +521,27 @@ impl Repository {
         self.parent_dirs_rc.borrow().clone()
     }
 
-    pub fn directory_count_at_index(&self, index: usize) -> (usize, usize) {
+    pub fn directory_count_at_index(&self, index: usize) -> usize {
         let gallery = self.gallery_rc.borrow();
         let picture = &gallery.pictures()[index];
-        if let Some(directory) = parent_directory(&picture.file_path()) {
-            if let Some(count) = self.parent_dirs().get(&directory) {
-                *count
-            } else {
-                (0, 0)
-            }
-        } else {
-            (0, 0)
-        }
+        parent_directory(&picture.file_path())
+            .map(|directory| file_path_as_stored(&directory))
+            .map(|directory| {
+                let configuration = CONFIGURATION.get().expect("configuration not set");
+                if configuration.updated {
+                    let folders = self.folder_map_rc.borrow();
+                    folders
+                        .get(&directory)
+                        .map(|folder| folder.picture_count())
+                        .unwrap_or_default()
+                } else {
+                    self.parent_dirs()
+                        .get(&directory)
+                        .map(|pair| pair.0)
+                        .unwrap_or_default()
+                }
+            })
+            .unwrap_or_default()
     }
 
     pub fn covers(&self) -> usize {
@@ -812,11 +824,11 @@ impl Repository {
             let gallery = self.gallery_rc.borrow();
             gallery.current_picture_index()
         };
-        let counts = self.directory_count_at_index(position);
+        let directory_count = self.directory_count_at_index(position);
         let picture = {
             let mut gallery = self.gallery_rc.borrow_mut();
             let mut picture = gallery.current_picture().clone();
-            picture.toggle_cover(counts.0);
+            picture.toggle_cover(directory_count);
             gallery.set_picture(position, picture.clone());
             picture.clone()
         };
@@ -825,10 +837,10 @@ impl Repository {
     }
 
     pub fn set_picture_cover_at_position(&self, position: usize) -> IOResult<()> {
-        let counts = self.directory_count_at_index(position);
+        let count = self.directory_count_at_index(position);
         let mut gallery = self.gallery_rc.borrow_mut();
         let mut picture = gallery.current_picture().clone();
-        picture.toggle_cover(counts.0);
+        picture.toggle_cover(count);
         gallery.set_picture(position, picture.clone());
         self.update_picture(&picture)
     }
