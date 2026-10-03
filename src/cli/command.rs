@@ -180,7 +180,7 @@ pub fn execute_command(
         },
         Some(Command::UpdateFolders) => {
             println!("updating…");
-            match repository.update_all_folders() {
+            match repository.amend_all_folders(None) {
                 Ok(_) => Ok(Status::Exit),
                 Err(e) => Err(e),
             }

@@ -186,57 +186,76 @@ impl Repository {
         }
     }
 
-    pub fn retrieve_all_picture_file_paths(&self) -> IOResult<FolderMap> {
-        match self.database.select_all_picture_file_paths() {
+    pub fn retrieve_all_picture_file_paths(
+        &self,
+        added_file_paths: Option<Vec<String>>,
+    ) -> IOResult<FolderMap> {
+        let (res, starting_id) = if added_file_paths.is_some() {
+            let folder_map = self.folder_map_rc.borrow();
+            (
+                Ok(added_file_paths.unwrap()),
+                folder_map.last_folder_id().unwrap_or_default(),
+            )
+        } else {
+            (self.database.select_all_picture_file_paths(), 0)
+        };
+        match res {
             Ok(file_paths) => {
-                let folder_map = FolderMap::from_file_paths(&file_paths);
+                let folder_map = FolderMap::from_file_paths(&file_paths, starting_id);
                 Ok(folder_map)
             }
             Err(e) => Err(IOError::other(e)),
         }
     }
 
-    pub fn update_all_folders(&self) -> IOResult<usize> {
-        match self.retrieve_all_picture_file_paths() {
-            Ok(folder_map) => match self.database.update_all_folders(folder_map) {
-                Ok(n) => match self.database.select_all_cover_filepaths() {
-                    Ok(covers) => {
-                        let cover_map: BTreeMap<String, String> = covers
-                            .into_iter()
-                            .filter_map(|file_path| {
-                                parent_directory(&file_path).map(|parent| (parent, file_path))
-                            })
-                            .collect();
-                        let _ = self.retrieve_all_folders();
-                        let folder_map = self.folder_map_rc.borrow();
-                        for folder in folder_map.map().values() {
-                            let directory = folder.file_path();
-                            let folder_id = folder.id();
-                            match self
-                                .database
-                                .update_picture_folder_id(&directory, folder_id)
-                            {
-                                Ok(_) => {}
-                                Err(e) => return Err(e),
-                            }
-                            if let Some(cover_file_path) = cover_map.get(&directory) {
-                                println!("{}->{}", folder_id, cover_file_path);
-                                match self.database.update_folder_first_file_path_for_id(
-                                    folder_id,
-                                    cover_file_path,
-                                ) {
+    pub fn amend_all_folders(&self, added_file_paths: Option<Vec<String>>) -> IOResult<usize> {
+        match self.retrieve_all_picture_file_paths(added_file_paths.clone()) {
+            Ok(folder_map) => {
+                let res = if added_file_paths.is_some() {
+                    self.database.insert_new_folders(folder_map)
+                } else {
+                    self.database.renew_all_folders(folder_map)
+                };
+                match res {
+                    Ok(n) => match self.database.select_all_cover_filepaths() {
+                        Ok(covers) => {
+                            let cover_map: BTreeMap<String, String> = covers
+                                .into_iter()
+                                .filter_map(|file_path| {
+                                    parent_directory(&file_path).map(|parent| (parent, file_path))
+                                })
+                                .collect();
+                            let _ = self.retrieve_all_folders();
+                            let folder_map = self.folder_map_rc.borrow();
+                            for folder in folder_map.map().values() {
+                                let directory = folder.file_path();
+                                let folder_id = folder.id();
+                                match self
+                                    .database
+                                    .update_picture_folder_id(&directory, folder_id)
+                                {
                                     Ok(_) => {}
                                     Err(e) => return Err(e),
                                 }
+                                if let Some(cover_file_path) = cover_map.get(&directory) {
+                                    println!("{}->{}", folder_id, cover_file_path);
+                                    match self.database.update_folder_first_file_path_for_id(
+                                        folder_id,
+                                        cover_file_path,
+                                    ) {
+                                        Ok(_) => {}
+                                        Err(e) => return Err(e),
+                                    }
+                                }
                             }
+                            set_configuration_updated_flag(true);
+                            Ok(n)
                         }
-                        set_configuration_updated_flag(true);
-                        Ok(n)
-                    }
+                        Err(e) => Err(e),
+                    },
                     Err(e) => Err(e),
-                },
-                Err(e) => Err(e),
-            },
+                }
+            }
             Err(e) => Err(e),
         }
     }
@@ -402,6 +421,8 @@ impl Repository {
 
     pub fn collect_data(&self) -> IOResult<()> {
         println!("gallery count before collect:{}\n", self.len());
+        let mut folder_counts: HashMap<String, usize> = HashMap::new();
+        let mut added_file_paths: Vec<String> = Vec::new();
         if let Some(Command::Collect { directory }) = &self.command_line_arguments.command {
             match self.pictures_in_directory(directory) {
                 Ok(dir_gallery) => {
@@ -419,6 +440,8 @@ impl Repository {
                         {
                             Ok(_) => {}
                             Err(_) => {
+                                added_file_paths
+                                    .push(file_path_as_stored(&picture.file_path().clone()));
                                 match collect_picture_data(picture) {
                                     Ok(picture) => match self.database.insert_picture(&picture) {
                                         Ok(_) => {
@@ -429,6 +452,13 @@ impl Repository {
                                                 total,
                                                 &picture.file_path()
                                             );
+                                            if let Some(parent_directory) =
+                                                parent_directory(&picture.file_path())
+                                            {
+                                                *folder_counts
+                                                    .entry(parent_directory)
+                                                    .or_insert(0) += 1;
+                                            }
                                         }
                                         Err(err) => {
                                             eprintln!("{}:\n{}", picture.file_path(), err)
@@ -442,7 +472,9 @@ impl Repository {
                         }
                     }
                     println!("{} pictures added", count);
-                    set_configuration_updated_flag(false);
+                    if count > 0 {
+                        self.amend_all_folders(Some(added_file_paths));
+                    };
                     Ok(())
                 }
                 Err(e) => Err(e),

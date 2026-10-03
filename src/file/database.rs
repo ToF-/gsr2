@@ -683,35 +683,46 @@ impl Database {
         connection.execute("DELETE FROM Folder;", [])
     }
 
-    fn rusqlite_update_all_folders(&self, folder_map: FolderMap) -> SqlResult<usize> {
-        self.rusqlite_delete_all_folders().map(|_| {
-            let mut count = 0;
-            let mut connection = self.connection_rc.borrow_mut();
-            let transaction = connection.transaction().expect("can't open transaction");
-            {
-                let mut statement = transaction
-                    .prepare(INSERT_FOLDER)
-                    .expect("can't prepare statement");
-                for (_file_path, folder) in folder_map.map() {
-                    statement
-                        .execute(params![
-                            folder.id(),
-                            folder.file_path(),
-                            folder.parent_id(),
-                            folder.picture_count()
-                        ])
-                        .expect("can't execute statement");
-                    count += 1;
-                }
-            }
-            transaction.commit().expect("can't commit transaction");
-            count
-        })
+    fn rusqlite_renew_all_folders(&self, folder_map: FolderMap) -> SqlResult<usize> {
+        self.rusqlite_delete_all_folders()
+            .and_then(|_| self.rusqlite_insert_new_folders(folder_map))
     }
 
-    pub fn update_all_folders(&self, folder_map: FolderMap) -> IOResult<usize> {
+    fn rusqlite_insert_new_folders(&self, folder_map: FolderMap) -> SqlResult<usize> {
+        let mut count = 0;
+        let mut connection = self.connection_rc.borrow_mut();
+        let transaction = connection.transaction().expect("can't open transaction");
+        {
+            let mut statement = transaction
+                .prepare(INSERT_FOLDER)
+                .expect("can't prepare statement");
+            for (_file_path, folder) in folder_map.map() {
+                statement
+                    .execute(params![
+                        folder.id(),
+                        folder.file_path(),
+                        folder.parent_id(),
+                        folder.picture_count()
+                    ])
+                    .expect("can't execute statement");
+                count += 1;
+            }
+        }
+        transaction.commit().expect("can't commit transaction");
+        Ok(count)
+    }
+
+    pub fn renew_all_folders(&self, folder_map: FolderMap) -> IOResult<usize> {
         println!("updating folders…");
-        match self.rusqlite_update_all_folders(folder_map) {
+        match self.rusqlite_renew_all_folders(folder_map) {
+            Ok(_) => self.update_folder_first_file_path(),
+            Err(err) => Err(std::io::Error::other(err)),
+        }
+    }
+
+    pub fn insert_new_folders(&self, folder_map: FolderMap) -> IOResult<usize> {
+        println!("adding folders…");
+        match self.rusqlite_insert_new_folders(folder_map) {
             Ok(_) => self.update_folder_first_file_path(),
             Err(err) => Err(std::io::Error::other(err)),
         }
@@ -780,7 +791,8 @@ impl Database {
                             } else {
                                 HashSet::new()
                             };
-                            let parent_dir = file_path_as_stored(&parent_directory(file_path).unwrap());
+                            let parent_dir =
+                                file_path_as_stored(&parent_directory(file_path).unwrap());
                             let new_image_data = ImageData {
                                 tags: new_tags.clone(),
                                 cover: match image_data.clone().cover {

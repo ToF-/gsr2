@@ -3,6 +3,7 @@ use crate::env::default_values::BASED_PATH_SYMBOL;
 use crate::env::default_values::NEAR_DIRECTORY_SYMBOL;
 use crate::file::paths::parent_directory;
 use crate::model::folder::Folder;
+use crate::model::id_dispenser::FolderId;
 use crate::model::id_dispenser::IdDispenser;
 use std::collections::BTreeMap;
 #[derive(Debug, Default, Clone)]
@@ -12,9 +13,9 @@ pub struct FolderMap {
 }
 
 impl FolderMap {
-    pub fn from_file_paths(file_paths: &[String]) -> Self {
+    pub fn from_file_paths(file_paths: &[String], max_folder_id: FolderId) -> Self {
         let mut map: BTreeMap<String, Folder> = BTreeMap::new();
-        let mut id_dispenser = IdDispenser::new(1);
+        let mut id_dispenser = IdDispenser::new(max_folder_id + 1);
         println!("collecting folders from {} files", file_paths.len());
         for file_path in file_paths.iter() {
             let mut current_file_path = file_path.clone();
@@ -102,6 +103,9 @@ impl FolderMap {
                 self.map.get(&target).cloned()
             }
         }
+    }
+    pub fn last_folder_id(&self) -> Option<FolderId> {
+        self.map.values().map(|folder| folder.id()).max()
     }
 }
 
