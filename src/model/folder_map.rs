@@ -14,8 +14,7 @@ pub struct FolderMap {
 impl FolderMap {
     pub fn from_file_paths(file_paths: &[String]) -> Self {
         let mut map: BTreeMap<String, Folder> = BTreeMap::new();
-        let mut id_dispenser = IdDispenser::new(0);
-        let mut current_id = id_dispenser.next_id();
+        let mut id_dispenser = IdDispenser::new(1);
         println!("collecting folders from {} files", file_paths.len());
         for file_path in file_paths.iter() {
             let mut current_file_path = file_path.clone();
@@ -25,12 +24,12 @@ impl FolderMap {
                 if let Some(folder) = map.get_mut(&parent_directory) {
                     folder.increase_count(1)
                 } else {
-                    current_id = id_dispenser.next_id();
+                    let folder_id = id_dispenser.next_id();
                     map.insert(
                         parent_directory.clone(),
-                        Folder::new(current_id, &parent_directory, 0, 1, ""),
+                        Folder::new(folder_id, &parent_directory, 0, 1, ""),
                     );
-                    println!("{} = {}", parent_directory, current_id);
+                    println!("{} = {}", parent_directory, folder_id);
                 }
                 current_file_path = parent_directory.clone();
             }
