@@ -49,6 +49,8 @@ const DELETE_CATALOG: &str = "DELETE FROM CATALOG;";
 
 const DELETE_PICTURE: &str = "DELETE FROM Picture WHERE FilePath = ?1;";
 
+const DELETE_FOLDER: &str = "DELETE FROM Folder WHERE FolderId = ?1;";
+
 const DELETE_TAGS: &str = "DELETE FROM Tag WHERE FilePath = ?1;";
 
 const DELETE_FOLDERS: &str = "DELETE FROM Folder;";
@@ -284,6 +286,19 @@ impl Database {
 
     pub fn delete_picture_with_file_path(&self, file_path: &str) -> IOResult<usize> {
         match self.rusqlite_delete_picture_with_file_path(&file_path_as_stored(file_path)) {
+            Ok(n) => Ok(n),
+            Err(err) => Err(std::io::Error::other(err)),
+        }
+    }
+
+    fn rusqlite_delete_folder_with_id(&self, folder_id: FolderId) -> SqlResult<usize> {
+        let connection = self.connection_rc.borrow();
+        connection
+            .execute(DELETE_FOLDER, params![folder_id])
+    }
+
+    pub fn delete_folder_with_id(&self, folder_id: FolderId) -> IOResult<usize> {
+        match self.rusqlite_delete_folder_with_id(folder_id) {
             Ok(n) => Ok(n),
             Err(err) => Err(std::io::Error::other(err)),
         }

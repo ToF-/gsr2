@@ -622,30 +622,30 @@ impl Repository {
     }
 
     pub fn decrease_folder_picture_count(&self, folder_id: FolderId, count: usize) -> IOResult<()> {
-        let folder_opt = {
-            let folder_map = self.folder_map_rc.borrow();
-            folder_map.folder(folder_id)
-        };
-        if folder_opt.is_none() {
-            return Ok(());
-        };
-        let folder = folder_opt.unwrap();
-        let directory = folder.file_path();
-        let mut new_folder = folder.clone();
-        new_folder.decrease_count(count);
-        {
+        let (new_picture_count, parent_id) = {
             let mut folder_map = self.folder_map_rc.borrow_mut();
-            folder_map.update(&directory, &new_folder);
-        };
-        match self
-            .database
-            .update_folder_picture_count_for_id(new_folder.id(), new_folder.picture_count())
-        {
-            Ok(_) => {
-                let parent_id = new_folder.parent_id();
-                self.decrease_folder_picture_count(parent_id, count)
+            if let Some(mut folder) = folder_map.folder(folder_id) {
+                let directory = folder.file_path();
+                folder.decrease_count(count);
+                folder_map.update(&directory, &folder);
+                (folder.picture_count(), folder.parent_id())
+            } else {
+                (0, 0)
             }
-            Err(e) => Err(e),
+        };
+        if parent_id > 0 {
+            let result = if new_picture_count > 0 {
+                self.database
+                    .update_folder_picture_count_for_id(folder_id, new_picture_count)
+            } else {
+                self.database.delete_folder_with_id(folder_id)
+            };
+            match result {
+                Ok(_) => self.decrease_folder_picture_count(parent_id, count),
+                Err(e) => Err(e),
+            }
+        } else {
+            Ok(())
         }
     }
 
