@@ -112,6 +112,11 @@ impl FolderMap {
             }
         }
     }
+
+    pub fn folder(&self, folder_id: FolderId) -> Option<Folder> {
+        self.map.values().find(|folder| folder.id() == folder_id).cloned()
+    }
+
     pub fn last_folder_id(&self) -> Option<FolderId> {
         self.map.values().map(|folder| folder.id()).max()
     }

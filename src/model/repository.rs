@@ -621,6 +621,23 @@ impl Repository {
         }
     }
 
+    pub fn decrease_folder_picture_count(&self, folder_id: FolderId, count: usize) -> IOResult<()> {
+        if let Some(mut folder) = self.folder_map_rc.borrow().folder(folder_id) {
+            println!("decreasing folder: {} {} by {}", &folder.id(), &folder.file_path(), count);
+            folder.decrease_count(count);
+            match self.database.update_folder_picture_count_for_id(folder.id(), folder.picture_count()) {
+                Ok(_) => {
+                    let parent_id = folder.parent_id();
+                    self.decrease_folder_picture_count(parent_id, count)
+                },
+                Err(e) => Err(e)
+            }
+        } else {
+            Ok(())
+        }
+        
+    }
+
     pub fn delete_picture(&self, picture: &Picture) -> IOResult<()> {
         let file_path = picture.file_path();
         if self.command_line_arguments.on_database() {
@@ -629,20 +646,10 @@ impl Repository {
                 .and_then(|_| match delete_picture_files(&file_path) {
                     Ok(_) => {
                         if let Some(parent_directory) = parent_directory(&file_path) {
-                            if let Some(mut folder) =
-                                self.folder_map_rc.borrow().get(&parent_directory)
-                            {
-                                folder.decrease_count(1);
-                                let mut folder_map = self.folder_map_rc.borrow_mut();
-                                match self.database.update_folder_picture_count_for_id(
-                                    folder.id(),
-                                    folder.picture_count(),
-                                ) {
-                                    Ok(_) => Ok(()),
-                                    Err(e) => Err(e),
-                                }
+                            if let Some(folder) = self.folder_map_rc.borrow().get(&file_path_as_stored(&parent_directory)) {
+                                self.decrease_folder_picture_count(folder.id(), 1)
                             } else {
-                                Ok(())
+                                Err(IOError::other("can't access to folder"))
                             }
                         } else {
                             Ok(())
