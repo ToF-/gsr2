@@ -200,7 +200,7 @@ impl Repository {
                 &added_file_paths.unwrap(),
                 last_folder_id.unwrap_or_default(),
             );
-            Ok(folder_map.clone()
+            Ok(folder_map.clone())
         } else {
             match self.database.select_all_picture_file_paths() {
                 Ok(file_paths) => Ok(FolderMap::from_file_paths(&file_paths)),
@@ -628,8 +628,25 @@ impl Repository {
                 .delete_picture_with_file_path(&file_path)
                 .and_then(|_| match delete_picture_files(&file_path) {
                     Ok(_) => {
-                        set_configuration_updated_flag(false);
-                        Ok(())
+                        if let Some(parent_directory) = parent_directory(&file_path) {
+                            if let Some(mut folder) =
+                                self.folder_map_rc.borrow().get(&parent_directory)
+                            {
+                                folder.decrease_count(1);
+                                let mut folder_map = self.folder_map_rc.borrow_mut();
+                                match self.database.update_folder_picture_count_for_id(
+                                    folder.id(),
+                                    folder.picture_count(),
+                                ) {
+                                    Ok(_) => Ok(()),
+                                    Err(e) => Err(e),
+                                }
+                            } else {
+                                Ok(())
+                            }
+                        } else {
+                            Ok(())
+                        }
                     }
                     Err(err) => Err(err),
                 })

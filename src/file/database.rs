@@ -5,6 +5,7 @@ use crate::file::paths::parent_directory;
 use crate::file::paths::{file_exists, file_path_as_retrieved, file_path_as_stored};
 use crate::model::cover::{bool_to_cover, cover_to_bool};
 use crate::model::folder_map::FolderMap;
+use crate::model::id_dispenser::FolderId;
 use crate::model::image_data::ImageData;
 use crate::model::palette::Palette;
 use crate::model::picture::Picture;
@@ -66,6 +67,9 @@ const UPDATE_PICTURE: &str = "UPDATE Picture SET Label = ?2, FileSize = ?3, Modi
 
 const UPDATE_FOLDER_FIRST_FILE_PATH: &str =
     "UPDATE Folder SET FirstFilePath = ?2 WHERE FolderId = ?1;";
+
+const UPDATE_FOLDER_PICTURE_COUNT: &str =
+    "UPDATE Folder SET PictureCount = ?2 WHERE FolderId = ?1;";
 
 pub type ImageDataMap = HashMap<String, ImageData>;
 
@@ -575,6 +579,29 @@ impl Database {
 
     pub fn update_folder_first_file_path(&self) -> IOResult<usize> {
         match self.rusqlite_update_folder_first_file_path() {
+            Ok(n) => Ok(n),
+            Err(e) => Err(std::io::Error::other(e)),
+        }
+    }
+
+    pub fn rusqlite_update_folder_picture_count_for_id(
+        &self,
+        folder_id: FolderId,
+        picture_count: usize,
+    ) -> SqlResult<usize> {
+        let connection = self.connection_rc.borrow();
+        connection.execute(
+            UPDATE_FOLDER_PICTURE_COUNT,
+            params![folder_id, picture_count],
+        )
+    }
+
+    pub fn update_folder_picture_count_for_id(
+        &self,
+        folder_id: FolderId,
+        picture_count: usize,
+    ) -> IOResult<usize> {
+        match self.rusqlite_update_folder_picture_count_for_id(folder_id, picture_count) {
             Ok(n) => Ok(n),
             Err(e) => Err(std::io::Error::other(e)),
         }
