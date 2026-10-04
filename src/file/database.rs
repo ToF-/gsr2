@@ -293,8 +293,7 @@ impl Database {
 
     fn rusqlite_delete_folder_with_id(&self, folder_id: FolderId) -> SqlResult<usize> {
         let connection = self.connection_rc.borrow();
-        connection
-            .execute(DELETE_FOLDER, params![folder_id])
+        connection.execute(DELETE_FOLDER, params![folder_id])
     }
 
     pub fn delete_folder_with_id(&self, folder_id: FolderId) -> IOResult<usize> {

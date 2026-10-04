@@ -649,6 +649,30 @@ impl Repository {
         }
     }
 
+    pub fn increase_folder_picture_count(&self, folder_id: FolderId, count: usize) -> IOResult<()> {
+        let (new_picture_count, parent_id) = {
+            let mut folder_map = self.folder_map_rc.borrow_mut();
+            if let Some(mut folder) = folder_map.folder(folder_id) {
+                let directory = folder.file_path();
+                folder.increase_count(count);
+                folder_map.update(&directory, &folder);
+                (folder.picture_count(), folder.parent_id())
+            } else {
+                (0, 0)
+            }
+        };
+        if parent_id > 0 {
+            match self
+                .database
+                .update_folder_picture_count_for_id(folder_id, new_picture_count)
+            {
+                Ok(_) => Ok(()),
+                Err(err) => Err(err),
+            }
+        } else {
+            Ok(())
+        }
+    }
     pub fn delete_picture(&self, picture: &Picture) -> IOResult<()> {
         let file_path = picture.file_path();
         if self.command_line_arguments.on_database() {
@@ -963,6 +987,9 @@ impl Repository {
             Err(e) => Err(IOError::other(e)),
         }
     }
+    pub fn update_picture_parent_id(&self, picture: &Picture, parent_id: FolderId) -> IOResult<usize> {
+        Ok(0)
+    }
     pub fn move_picture_to_target(&self, picture: &Picture, target_dir: &str) -> IOResult<usize> {
         let operations = move_picture(&picture.file_path(), target_dir);
         if operations.is_empty() {
@@ -975,11 +1002,44 @@ impl Repository {
         } else {
             let count = operations.len();
             match execute(&self.database, &operations) {
-                Ok(_) => Ok(count),
+                Ok(_) => {
+                    if let Some(parent_directory) = &parent_directory(&picture.file_path()) {
+                        let source_directory = file_path_as_stored(&parent_directory);
+                        let folder_opt = {
+                            self.folder_map_rc
+                                .borrow()
+                                .get(&file_path_as_stored(&source_directory))
+                        };
+                        if let Some(folder) = folder_opt {
+                            self.decrease_folder_picture_count(folder.id(), 1)
+                                .and_then(|_| Ok(count))
+                        } else {
+                            Err(IOError::other("can't access to folder"))
+                        };
+                        let target_directory = file_path_as_stored(target_dir);
+                        let folder_opt = {
+                            self.folder_map_rc
+                                .borrow()
+                                .get(&file_path_as_stored(&target_directory))
+                        };
+                        if let Some(folder) = folder_opt {
+                            self.update_picture_parent_id(&picture, folder.id())
+                                .and_then(|_| {
+                                    self.increase_folder_picture_count(folder.id(), 1)
+                                        .and_then(|_| Ok(count))
+                                })
+                        } else {
+                            Err(IOError::other("can't access to folder"))
+                        }
+                    } else {
+                        Ok(count)
+                    }
+                }
                 Err(err) => Err(err),
             }
         }
     }
+
     pub fn copy_picture_at_index_to_temp_dir(&self, index: usize) -> IOResult<()> {
         match self.gallery_rc().try_borrow() {
             Ok(gallery) => {
