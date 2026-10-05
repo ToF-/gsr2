@@ -760,7 +760,6 @@ impl Database {
     }
 
     pub fn insert_or_update_folders(&self, folder_map: FolderMap) -> IOResult<usize> {
-        println!("adding folders…");
         match self.rusqlite_insert_or_update_folders(folder_map) {
             Ok(_) => self.update_folder_first_file_path(),
             Err(err) => Err(std::io::Error::other(err)),
@@ -1194,7 +1193,7 @@ pub mod tests {
         picture.add_tag("foo");
         assert!(database.rusqlite_update_picture(&picture).is_ok());
 
-        let result = database.rusqlite_select_all_tags();
+        let result = database.rusqlite_select_tags();
         assert!(result.is_ok());
         let map = result.unwrap();
         let file_path = nine_colors_file_path();

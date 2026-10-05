@@ -102,7 +102,13 @@ impl Repository {
         let mut folder_map = self.folder_map_rc.borrow_mut();
         self.database.select_folders().and_then(|map| {
             *folder_map = map;
-            Ok(())
+            if folder_map.map().is_empty() {
+                let _ = folder_map.insert(1,"%",0,0,"");
+                self.database.insert_or_update_folders(folder_map.clone());
+                Ok(())
+            } else {
+                Ok(())
+            }
         })
     }
 
