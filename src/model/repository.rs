@@ -887,7 +887,11 @@ impl Repository {
     pub fn retrieve_catalog(&self) -> IOResult<Catalog> {
         match self.database.select_catalog() {
             Ok(s_expression) => Catalog::from_s_expression(&s_expression),
-            Err(e) => Err(e),
+            Err(e) => {
+                println!("empty catalog; launch   ctlg import to import one");
+                self.database.update_catalog("(-)");
+                self.retrieve_catalog()
+            }
         }
     }
 

@@ -169,7 +169,7 @@ impl Database {
                                 .and_then(|_| {
                                         connection.execute(
                                             "CREATE TABLE IF NOT EXISTS Catalog (       \n\
-                                             Sexp TEXT NOT NULL DEFAULT '(-))';",
+                                             Sexp TEXT NOT NULL DEFAULT '(-)');",
                                              params![],
                                         )
                                     })
@@ -194,6 +194,13 @@ impl Database {
         connection
             .execute(DELETE_CATALOG, params![])
             .and_then(|_| connection.execute(INSERT_CATALOG, params![sexpr]))
+    }
+
+    pub fn update_catalog(&self, sexpr: &str) -> IOResult<usize> {
+        match self.rusqlite_update_catalog(sexpr) {
+            Ok(n) => Ok(n),
+            Err(e) => Err(IOError::other(e)),
+        }
     }
 
     fn rusqlite_insert_picture(&self, picture: &Picture) -> SqlResult<usize> {
