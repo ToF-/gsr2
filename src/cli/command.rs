@@ -72,9 +72,9 @@ pub fn execute_command(
     match command_line_arguments.command {
         Some(Command::Collect { directory }) => {
             println!("collecting data for picture files in the database…");
-            let path: PathBuf = PathBuf::from(directory);
+            let path: PathBuf = PathBuf::from(&directory);
             match check_collectable(&path) {
-                Ok(_) => match repository.collect_data() {
+                Ok(_) => match repository.collect_data(&directory) {
                     Ok(_) => Ok(Status::Done),
                     Err(err) => Err(err),
                 },

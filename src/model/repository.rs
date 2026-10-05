@@ -420,69 +420,52 @@ impl Repository {
         })
     }
 
-    pub fn collect_data(&self) -> IOResult<()> {
+    pub fn collect_data(&self, directory: &str) -> IOResult<()> {
         println!("gallery count before collect:{}\n", self.len());
         let mut folder_counts: HashMap<String, usize> = HashMap::new();
         let mut added_file_paths: Vec<String> = Vec::new();
-        if let Some(Command::Collect { directory }) = &self.command_line_arguments.command {
-            match self.pictures_in_directory(directory) {
-                Ok(dir_gallery) => {
-                    println!(
-                        "pictures in directory {} : {}\n",
-                        &directory,
-                        dir_gallery.clone().len()
-                    );
-                    let total: usize = dir_gallery.len();
-                    let mut count: usize = 0;
-                    for picture in dir_gallery.pictures() {
-                        match self
-                            .database
-                            .rusqlite_check_picture_with_file_path(&picture.file_path())
-                        {
-                            Ok(_) => {}
-                            Err(_) => {
-                                added_file_paths
-                                    .push(file_path_as_stored(&picture.file_path().clone()));
-                                match collect_picture_data(picture) {
-                                    Ok(picture) => match self.database.insert_picture(&picture) {
-                                        Ok(_) => {
-                                            count += 1;
-                                            println!(
-                                                "{}/{}:{}",
-                                                count,
-                                                total,
-                                                &picture.file_path()
-                                            );
-                                            if let Some(parent_directory) =
-                                                parent_directory(&picture.file_path())
-                                            {
-                                                *folder_counts
-                                                    .entry(parent_directory)
-                                                    .or_insert(0) += 1;
-                                            }
-                                        }
-                                        Err(err) => {
-                                            eprintln!("{}:\n{}", picture.file_path(), err)
-                                        }
-                                    },
-                                    Err(err) => {
-                                        println!("{}", err)
-                                    }
-                                };
+        self.pictures_in_directory(directory).and_then(|gallery| {
+            println!(
+                "pictures in directory {} : {}\n",
+                &directory,
+                gallery.clone().len()
+            );
+            let total: usize = gallery.len();
+            let mut count: usize = 0;
+            for picture in gallery.pictures() {
+                if self
+                    .database
+                    .rusqlite_check_picture_with_file_path(&picture.file_path())
+                    .is_err()
+                {
+                    added_file_paths.push(file_path_as_stored(&picture.file_path().clone()));
+                    match collect_picture_data(picture) {
+                        Ok(picture) => match self.database.insert_picture(&picture) {
+                            Ok(_) => {
+                                count += 1;
+                                println!("{}/{}:{}", count, total, &picture.file_path());
+                                if let Some(parent_directory) =
+                                    parent_directory(&picture.file_path())
+                                {
+                                    *folder_counts.entry(parent_directory).or_insert(0) += 1;
+                                }
                             }
+                            Err(err) => {
+                                eprintln!("{}:\n{}", picture.file_path(), err)
+                            }
+                        },
+                        Err(err) => {
+                            println!("{}", err)
                         }
-                    }
-                    println!("{} pictures added", count);
-                    if count > 0 {
-                        self.amend_all_folders(Some(added_file_paths));
                     };
-                    Ok(())
                 }
-                Err(e) => Err(e),
             }
-        } else {
-            panic!("can't borrow mut")
-        }
+            println!("{} pictures added", count);
+            if count > 0 {
+                self.amend_all_folders(Some(added_file_paths));
+            };
+            Ok(())
+        })
     }
 
     pub fn picture_from_file_path(&self, file_path: &str) -> IOResult<Gallery> {
@@ -987,7 +970,11 @@ impl Repository {
             Err(e) => Err(IOError::other(e)),
         }
     }
-    pub fn update_picture_parent_id(&self, picture: &Picture, parent_id: FolderId) -> IOResult<usize> {
+    pub fn update_picture_parent_id(
+        &self,
+        picture: &Picture,
+        parent_id: FolderId,
+    ) -> IOResult<usize> {
         Ok(0)
     }
     pub fn move_picture_to_target(&self, picture: &Picture, target_dir: &str) -> IOResult<usize> {
