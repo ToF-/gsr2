@@ -200,6 +200,9 @@ impl Repository {
         }
     }
 
+    pub fn amend_folders(&self, folder_counts: HashMap<String, (String,usize)>) -> IOResult<()> {
+        Ok(())
+    }
     pub fn amend_all_folders(&self, added_file_paths: Option<Vec<String>>) -> IOResult<usize> {
         match self.retrieve_all_picture_file_paths(added_file_paths.clone()) {
             Ok(folder_map) => {
@@ -407,7 +410,7 @@ impl Repository {
 
     pub fn collect_data(&self, directory: &str) -> IOResult<()> {
         println!("gallery count before collect:{}\n", self.len());
-        let mut folder_counts: HashMap<String, usize> = HashMap::new();
+        let mut folder_counts: HashMap<String, (String,usize)> = HashMap::new();
         let mut added_file_paths: Vec<String> = Vec::new();
         self.pictures_in_directory(directory).and_then(|gallery| {
             println!(
@@ -423,7 +426,8 @@ impl Repository {
                     .rusqlite_check_picture_with_file_path(&picture.file_path())
                     .is_err()
                 {
-                    added_file_paths.push(file_path_as_stored(&picture.file_path().clone()));
+                    let file_path = file_path_as_stored(&picture.file_path().clone());
+                    added_file_paths.push(file_path.clone());
                     match collect_picture_data(picture) {
                         Ok(picture) => match self.database.insert_picture(&picture) {
                             Ok(_) => {
@@ -432,7 +436,9 @@ impl Repository {
                                 if let Some(parent_directory) =
                                     parent_directory(&picture.file_path())
                                 {
-                                    *folder_counts.entry(parent_directory).or_insert(0) += 1;
+                                    folder_counts.entry(parent_directory)
+                                        .and_modify(|pair| pair.1 += 1)
+                                        .or_insert( (file_path.clone(), 1));  
                                 }
                             }
                             Err(err) => {
@@ -447,9 +453,10 @@ impl Repository {
             }
             println!("{} pictures added", count);
             if count > 0 {
-                self.amend_all_folders(Some(added_file_paths));
-            };
-            Ok(())
+                self.amend_folders(folder_counts)
+            } else {
+                Ok(())
+            }
         })
     }
 
