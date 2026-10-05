@@ -130,6 +130,16 @@ impl FolderMap {
             .filter(|folder| folder.parent_id() == parent_id)
             .collect()
     }
+
+    pub fn increase_picture_count(&mut self, folder_id: FolderId, count: usize) {
+        if let Some(folder) = self.folder(folder_id) {
+            let mut new_folder = folder.clone();
+            new_folder.increase_count(count);
+            self.update(&new_folder.file_path(), &new_folder);
+            self.increase_picture_count(new_folder.parent_id(), count)
+        }
+    }
+
 }
 
 #[cfg(test)]

@@ -201,6 +201,20 @@ impl Repository {
     }
 
     pub fn amend_folders(&self, folder_counts: HashMap<String, (String,usize)>) -> IOResult<()> {
+        /*
+        for (directory, (first_file_path, count)) in folder_counts.iter() {
+            let folder_opt = { self.folder_map_rc.borrow().get(&directory) };
+            if let Some(folder) = folder_opt {
+                self.increase_folder_picture_count(folder.id(), count)
+            } else {
+                let folder_id = { self.folder_map_rc.borrow().last_folder_id() + 1 };
+                {
+                    let mut folder_map = sef.folder_map.borrow_mut();
+                    folder_map.insert(folder_id, directory, 
+                    
+            }
+        }
+        */
         Ok(())
     }
     pub fn amend_all_folders(&self, added_file_paths: Option<Vec<String>>) -> IOResult<usize> {
@@ -438,7 +452,7 @@ impl Repository {
                                 {
                                     folder_counts.entry(parent_directory)
                                         .and_modify(|pair| pair.1 += 1)
-                                        .or_insert( (file_path.clone(), 1));  
+                                        .or_insert( (file_path.clone(), 1));
                                 }
                             }
                             Err(err) => {
