@@ -123,6 +123,13 @@ impl FolderMap {
     pub fn last_folder_id(&self) -> Option<FolderId> {
         self.map.values().map(|folder| folder.id()).max()
     }
+
+    pub fn folders_with_parent_id(&self, parent_id: FolderId) -> Vec<&Folder> {
+        self.map
+            .values()
+            .filter(|folder| folder.parent_id() == parent_id)
+            .collect()
+    }
 }
 
 #[cfg(test)]

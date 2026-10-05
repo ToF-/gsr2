@@ -407,7 +407,7 @@ impl Database {
         })
     }
 
-    pub fn rusqlite_select_all_categories(&self) -> SqlResult<HashSet<String>> {
+    pub fn rusqlite_select_categories(&self) -> SqlResult<HashSet<String>> {
         let connection = self.connection_rc.borrow();
         connection
             .prepare(SELECT_ALL_CATEGORIES)
@@ -428,7 +428,7 @@ impl Database {
         connection.query_one("SELECT Sexp FROM Catalog;", params![], |row| row.get(0))
     }
 
-    pub fn rusqlite_select_all_labels(&self) -> SqlResult<HashSet<String>> {
+    pub fn rusqlite_select_labels(&self) -> SqlResult<HashSet<String>> {
         let connection = self.connection_rc.borrow();
         connection
             .prepare(SELECT_ALL_LABELS)
@@ -444,7 +444,7 @@ impl Database {
             })
     }
 
-    pub fn rusqlite_select_all_tags(&self) -> SqlResult<HashMap<String, HashSet<String>>> {
+    pub fn rusqlite_select_tags(&self) -> SqlResult<HashMap<String, HashSet<String>>> {
         let connection = self.connection_rc.borrow();
         connection
             .prepare(SELECT_ALL_TAGS)
@@ -679,7 +679,7 @@ impl Database {
     }
     // "
 
-    pub fn rusqlite_select_all_folders(&self) -> SqlResult<FolderMap> {
+    pub fn rusqlite_select_folders(&self) -> SqlResult<FolderMap> {
         let connection = self.connection_rc.borrow();
         connection
             .prepare(&format!("SELECT {} FROM Folder;", FOLDER_COLUMNS))
@@ -710,8 +710,8 @@ impl Database {
             })
     }
 
-    pub fn select_all_folders(&self) -> IOResult<FolderMap> {
-        match self.rusqlite_select_all_folders() {
+    pub fn select_folders(&self) -> IOResult<FolderMap> {
+        match self.rusqlite_select_folders() {
             Ok(folder_map) => Ok(folder_map),
             Err(err) => Err(std::io::Error::other(err)),
         }
@@ -815,13 +815,13 @@ impl Database {
         retrieve_criteria: RetrieveCriteria,
         folder_id_opt: Option<usize>,
     ) -> IOResult<Vec<Picture>> {
-        self.select_all_parent_dirs().and_then(|parent_dirs| {
+        self.select_parent_dirs().and_then(|parent_dirs| {
             match self.rusqlite_select_all_pictures(
                 retrieve_criteria.clone().cover,
                 retrieve_criteria.clone().parent_opt,
                 folder_id_opt,
             ) {
-                Ok(picture_map) => match self.rusqlite_select_all_tags() {
+                Ok(picture_map) => match self.rusqlite_select_tags() {
                     Ok(tag_map) => {
                         let mut pictures: Vec<Picture> = vec![];
                         for (file_path, image_data) in picture_map.iter() {
@@ -942,22 +942,22 @@ impl Database {
         })
     }
 
-    pub fn select_all_parent_dirs(&self) -> IOResult<HashMap<String, (usize, usize)>> {
+    pub fn select_parent_dirs(&self) -> IOResult<HashMap<String, (usize, usize)>> {
         match self.rusqulite_select_all_parent_file_paths() {
             Ok(result) => Ok(result),
             Err(e) => Err(IOError::other(e)),
         }
     }
 
-    pub fn select_all_labels(&self) -> IOResult<HashSet<String>> {
-        match self.rusqlite_select_all_labels() {
+    pub fn select_labels(&self) -> IOResult<HashSet<String>> {
+        match self.rusqlite_select_labels() {
             Ok(result) => Ok(result),
             Err(e) => Err(IOError::other(e)),
         }
     }
 
-    pub fn select_all_categories(&self) -> IOResult<HashSet<String>> {
-        match self.rusqlite_select_all_categories() {
+    pub fn select_categories(&self) -> IOResult<HashSet<String>> {
+        match self.rusqlite_select_categories() {
             Ok(result) => Ok(result),
             Err(e) => Err(IOError::other(e)),
         }
