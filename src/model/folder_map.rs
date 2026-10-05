@@ -139,7 +139,6 @@ impl FolderMap {
             self.increase_picture_count(new_folder.parent_id(), count)
         }
     }
-
 }
 
 #[cfg(test)]

@@ -103,7 +103,7 @@ impl Repository {
         self.database.select_folders().and_then(|map| {
             *folder_map = map;
             if folder_map.map().is_empty() {
-                let _ = folder_map.insert(1,"%",0,0,"");
+                let _ = folder_map.insert(1, "%", 0, 0, "");
                 self.database.insert_or_update_folders(folder_map.clone());
                 Ok(())
             } else {
@@ -134,9 +134,11 @@ impl Repository {
                         .and_then(|pictures| {
                             let mut new_gallery = Gallery::new_with_pictures(pictures);
                             *gallery = new_gallery.clone();
+                            gallery.sort_by(args.order.unwrap_or(Order::Name));
                             Ok(gallery.len())
                         })
-                })
+                },
+            )
         })
     }
 
@@ -154,14 +156,15 @@ impl Repository {
                         .select_pictures(retrieve_criteria, Some(folder_id))
                         .and_then(|pictures| {
                             let mut new_gallery = Gallery::new_with_pictures(pictures);
-                                new_gallery.set_structured();
-                                let folder_map = self.folder_map_rc.borrow();
-                                let folders = folder_map.folders_with_parent_id(folder_id);
-                                for folder in folders {
-                                    new_gallery.add_picture(&Picture::for_folder(folder));
-                                }
-                                new_gallery.sort_by(args.order.unwrap_or(Order::Name));
+                            new_gallery.set_structured();
+                            let folder_map = self.folder_map_rc.borrow();
+                            let folders = folder_map.folders_with_parent_id(folder_id);
+                            for folder in folders {
+                                new_gallery.add_picture(&Picture::for_folder(folder));
+                            }
+                            new_gallery.sort_by(args.order.unwrap_or(Order::Name));
                             *gallery = new_gallery.clone();
+                            gallery.sort_by(args.order.unwrap_or(Order::Name));
                             Ok(gallery.len())
                         })
                 },
@@ -172,12 +175,9 @@ impl Repository {
     fn retrieve_all_parent_dirs(&self) -> IOResult<()> {
         match self.database.select_parent_dirs() {
             Ok(map) => {
-                if let Ok(mut parent_dirs) = self.parent_dirs_rc.try_borrow_mut() {
-                    *parent_dirs = map;
-                    Ok(())
-                } else {
-                    panic!("can't mutably borrow parent_dirs_rc");
-                }
+                let mut parent_dirs = self.parent_dirs_rc.borrow_mut();
+                *parent_dirs = map;
+                Ok(())
             }
             Err(e) => Err(e),
         }
@@ -206,7 +206,7 @@ impl Repository {
         }
     }
 
-    pub fn amend_folders(&self, folder_counts: HashMap<String, (String,usize)>) -> IOResult<()> {
+    pub fn amend_folders(&self, folder_counts: HashMap<String, (String, usize)>) -> IOResult<()> {
         /*
         for (directory, (first_file_path, count)) in folder_counts.iter() {
             let folder_opt = { self.folder_map_rc.borrow().get(&directory) };
@@ -216,8 +216,8 @@ impl Repository {
                 let folder_id = { self.folder_map_rc.borrow().last_folder_id() + 1 };
                 {
                     let mut folder_map = sef.folder_map.borrow_mut();
-                    folder_map.insert(folder_id, directory, 
-                    
+                    folder_map.insert(folder_id, directory,
+
             }
         }
         */
@@ -373,9 +373,12 @@ impl Repository {
                 Err(e) => Err(e),
             },
             // any other command involves the picture database
-            _ => self.retrieve_all_folders()
-                .and_then(|_| {
-                let directory: &String = &self.command_line_arguments.directory.clone().unwrap_or_default();
+            _ => self.retrieve_all_folders().and_then(|_| {
+                let directory: &String = &self
+                    .command_line_arguments
+                    .directory
+                    .clone()
+                    .unwrap_or_default();
                 let folder_map = self.folder_map_rc.borrow();
                 if let Some(folder) = folder_map.get(&directory) {
                     self.retrieve_all_labels().and_then(|_| {
@@ -430,7 +433,7 @@ impl Repository {
 
     pub fn collect_data(&self, directory: &str) -> IOResult<()> {
         println!("gallery count before collect:{}\n", self.len());
-        let mut folder_counts: HashMap<String, (String,usize)> = HashMap::new();
+        let mut folder_counts: HashMap<String, (String, usize)> = HashMap::new();
         let mut added_file_paths: Vec<String> = Vec::new();
         self.pictures_in_directory(directory).and_then(|gallery| {
             println!(
@@ -456,9 +459,10 @@ impl Repository {
                                 if let Some(parent_directory) =
                                     parent_directory(&picture.file_path())
                                 {
-                                    folder_counts.entry(parent_directory)
+                                    folder_counts
+                                        .entry(parent_directory)
                                         .and_modify(|pair| pair.1 += 1)
-                                        .or_insert( (file_path.clone(), 1));
+                                        .or_insert((file_path.clone(), 1));
                                 }
                             }
                             Err(err) => {
@@ -1165,7 +1169,7 @@ mod tests {
             .try_borrow()
             .expect("can't borrow repository gallery");
         assert_eq!(4, gallery.len());
-        println!("{:?}", args);
+        dbg!(&args.order);
         assert!(gallery.picture(0).file_size() <= gallery.picture(1).file_size());
         assert!(gallery.picture(1).file_size() <= gallery.picture(2).file_size());
         assert!(gallery.picture(2).file_size() <= gallery.picture(3).file_size());
@@ -1251,8 +1255,11 @@ mod tests {
         let repository = Repository::new(args.clone(), false);
         assert!(repository.retrieve_pictures(None).is_ok());
         let map = repository.parent_dirs();
+        dbg!(&map);
+        let directory = file_path_as_stored(&format!("{}/{}", current_directory(), TEST_DATA_DIR));
+        dbg!(&directory);
         let counts: (usize, usize) = *map
-            .get(&format!("{}/{}", current_directory(), TEST_DATA_DIR))
+            .get(&directory)
             .expect("can't access parent dir count");
         assert_eq!((3, 1), counts);
     }
