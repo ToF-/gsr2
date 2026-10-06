@@ -136,6 +136,7 @@ impl FolderMap {
             .cloned()
     }
 
+
     pub fn last_folder_id(&self) -> FolderId {
         self.map
             .values()
@@ -249,6 +250,14 @@ mod tests {
         assert!(folder_opt.is_some());
         let folder_opt = folders.get("?def");
         assert!(folder_opt.is_some());
+        let folder = folders
+            .get("@gus")
+            .expect("fail: %gus not in folders");
+        assert_eq!(4, folder.picture_count());
+        let folder = folders
+            .get("")
+            .expect("fail: '' not in folders");
+        assert_eq!(9, folder.picture_count());
     }
     #[test]
     fn new_folder_map_has_base_directory() {

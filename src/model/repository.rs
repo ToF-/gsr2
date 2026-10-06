@@ -218,6 +218,7 @@ impl Repository {
             }
         }
         let folders = self.folder_map_rc.borrow();
+        dbg!(&folders);
         self.database.update_folders(&folders).and_then(|_| {
             for parent_directory in new_folders {
                 if let Some(folder) = folders.get(&parent_directory) {
