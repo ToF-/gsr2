@@ -57,7 +57,7 @@ const DELETE_FOLDERS: &str = "DELETE FROM Folder;";
 
 const INSERT_CATALOG: &str = "INSERT INTO Catalog(Sexp) VALUES (?1);";
 
-const INSERT_OR_UPDATE_FOLDER: &str = "INSERT INTO Folder(FolderId, FilePath, ParentId, PictureCount) VALUES (?1, ?2, ?3, ?4) ON CONFLICT(FilePath) DO UPDATE SET PictureCount = ?4 ;";
+const INSERT_OR_UPDATE_FOLDER: &str = "INSERT INTO Folder(FolderId, FilePath, ParentId, PictureCount, FirstFilePath) VALUES (?1, ?2, ?3, ?4, ?5) ON CONFLICT(FilePath) DO UPDATE SET PictureCount = ?4 ;";
 
 const INSERT_PICTURE: &str = "INSERT INTO Picture ( FilePath, Label, FileSize, ModifiedTime, Rank, Sample, ColorCount, Cover, Score, Category) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10);";
 
@@ -198,6 +198,34 @@ impl Database {
 
     pub fn update_catalog(&self, sexpr: &str) -> IOResult<usize> {
         match self.rusqlite_update_catalog(sexpr) {
+            Ok(n) => Ok(n),
+            Err(e) => Err(IOError::other(e)),
+        }
+    }
+
+    pub fn rusqlite_update_folders(&self, folders: &FolderMap) -> SqlResult<usize> {
+        let connection = self.connection_rc.borrow();
+        let mut count = 0;
+        for folder in folders.folders() {
+            match connection.execute(
+                INSERT_OR_UPDATE_FOLDER,
+                params![
+                    folder.id(),
+                    folder.file_path(),
+                    folder.parent_id(),
+                    folder.picture_count(),
+                    folder.first_file_path()
+                ],
+            ) {
+                Ok(n) => count += n,
+                Err(e) => return Err(e),
+            }
+        }
+        Ok(count)
+    }
+
+    pub fn update_folders(&self, folders: &FolderMap) -> IOResult<usize> {
+        match self.rusqlite_update_folders(folders) {
             Ok(n) => Ok(n),
             Err(e) => Err(IOError::other(e)),
         }
@@ -748,7 +776,8 @@ impl Database {
                         folder.id(),
                         folder.file_path(),
                         folder.parent_id(),
-                        folder.picture_count()
+                        folder.picture_count(),
+                        folder.first_file_path(),
                     ])
                     .expect("can't execute statement");
                 count += 1;

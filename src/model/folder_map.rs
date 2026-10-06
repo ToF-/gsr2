@@ -144,6 +144,10 @@ impl FolderMap {
             .unwrap_or_default()
     }
 
+    pub fn folders(&self) -> Vec<&Folder> {
+        self.map.values().collect()
+    }
+
     pub fn folders_with_parent_id(&self, parent_id: FolderId) -> Vec<&Folder> {
         self.map
             .values()

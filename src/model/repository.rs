@@ -204,22 +204,38 @@ impl Repository {
     }
 
     pub fn amend_folders(&self, folder_counts: HashMap<String, (String, usize)>) -> IOResult<()> {
-        /*
-        for (directory, (first_file_path, count)) in folder_counts.iter() {
-            let folder_opt = { self.folder_map_rc.borrow().get(&directory) };
-            if let Some(folder) = folder_opt {
-                self.increase_folder_picture_count(folder.id(), count)
-            } else {
-                let folder_id = { self.folder_map_rc.borrow().last_folder_id() + 1 };
-                {
-                    let mut folder_map = sef.folder_map.borrow_mut();
-                    folder_map.insert(folder_id, directory,
-
+        let mut new_folders: Vec<String> = Vec::new();
+        {
+            let mut folders = self.folder_map_rc.borrow_mut();
+            for (directory, (first_file_path, count)) in folder_counts.iter() {
+                if let Some(folder) = folders.get(&directory) {
+                    folders.increase_picture_count(folder.id(), *count)
+                } else {
+                    folders.add_from_file_path(first_file_path);
+                    println!("{}",&directory);
+                    new_folders.push(file_path_as_stored(directory));
+                }
             }
         }
-        */
-        Ok(())
+        let folders = self.folder_map_rc.borrow();
+        self.database.update_folders(&folders).and_then(|_| {
+            for parent_directory in new_folders {
+                if let Some(folder) = folders.get(&parent_directory) {
+                    match self
+                        .database
+                        .update_picture_folder_id(&parent_directory, folder.id())
+                    {
+                        Ok(_) => {}
+                        Err(e) => return Err(e),
+                    }
+                } else {
+                    return Err(IOError::other(format!("can't access folder {}", parent_directory)));
+                }
+            }
+            Ok(())
+        })
     }
+
     pub fn amend_all_folders(&self, added_file_paths: Option<Vec<String>>) -> IOResult<usize> {
         match self.retrieve_all_picture_file_paths(added_file_paths.clone()) {
             Ok(folder_map) => {
@@ -404,6 +420,14 @@ impl Repository {
     pub fn save_catalog(&self, catalog: &Catalog) -> IOResult<()> {
         match self.database.rusqlite_update_catalog(&catalog.to_sexp()) {
             Ok(_) => Ok(()),
+            Err(e) => Err(IOError::other(e)),
+        }
+    }
+
+    pub fn save_folders(&self) -> IOResult<usize> {
+        let folders = self.folder_map_rc.borrow();
+        match self.database.rusqlite_update_folders(&folders) {
+            Ok(n) => Ok(n),
             Err(e) => Err(IOError::other(e)),
         }
     }
