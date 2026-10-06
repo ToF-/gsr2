@@ -208,11 +208,13 @@ impl Repository {
         {
             let mut folders = self.folder_map_rc.borrow_mut();
             for (directory, (first_file_path, count)) in folder_counts.iter() {
+                println!("folder: {}", &directory);
                 if let Some(folder) = folders.get(&directory) {
+                    println!("increasing folder {} picture count of by {}", &directory, *count);
                     folders.increase_picture_count(folder.id(), *count)
                 } else {
                     folders.add_from_file_path(first_file_path);
-                    println!("{}", &directory);
+                    println!("creating folder {}", &directory);
                     new_folders.push(file_path_as_stored(directory));
                 }
             }
@@ -480,12 +482,11 @@ impl Repository {
                         Ok(picture) => match self.database.insert_picture(&picture) {
                             Ok(_) => {
                                 count += 1;
-                                println!("{}/{}:{}", count, total, &picture.file_path());
                                 if let Some(parent_directory) =
                                     parent_directory(&picture.file_path())
                                 {
                                     folder_counts
-                                        .entry(parent_directory)
+                                        .entry(file_path_as_stored(&parent_directory))
                                         .and_modify(|pair| pair.1 += 1)
                                         .or_insert((file_path.clone(), 1));
                                 }
@@ -502,6 +503,9 @@ impl Repository {
             }
             println!("{} pictures added", count);
             if count > 0 {
+                for (file_path, (first_file_path, count)) in folder_counts.iter() {
+                    println!("{}:{}:{}", file_path, first_file_path, count);
+                }
                 self.amend_folders(folder_counts)
             } else {
                 Ok(())
