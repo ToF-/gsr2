@@ -212,7 +212,7 @@ impl Repository {
                     folders.increase_picture_count(folder.id(), *count)
                 } else {
                     folders.add_from_file_path(first_file_path);
-                    println!("{}",&directory);
+                    println!("{}", &directory);
                     new_folders.push(file_path_as_stored(directory));
                 }
             }
@@ -230,7 +230,10 @@ impl Repository {
                         Err(e) => return Err(e),
                     }
                 } else {
-                    return Err(IOError::other(format!("can't access folder {}", parent_directory)));
+                    return Err(IOError::other(format!(
+                        "can't access folder {}",
+                        parent_directory
+                    )));
                 }
             }
             Ok(())

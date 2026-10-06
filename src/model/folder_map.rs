@@ -99,9 +99,11 @@ impl FolderMap {
     }
 
     pub fn update(&mut self, directory: &str, folder: &Folder) {
-        if let Some(entry) = self.map.get_mut(directory) {
+        if let Some(mut entry) = self.map.get_mut(directory) {
             *entry = folder.clone()
-        };
+        } else {
+            println!("{} not found", directory);
+        }
     }
 
     pub fn get(&self, directory: &str) -> Option<Folder> {
@@ -136,7 +138,6 @@ impl FolderMap {
             .cloned()
     }
 
-
     pub fn last_folder_id(&self) -> FolderId {
         self.map
             .values()
@@ -157,15 +158,22 @@ impl FolderMap {
     }
 
     pub fn increase_picture_count(&mut self, folder_id: FolderId, count: usize) {
-        if let Some(folder) = self.folder(folder_id) {
-            let mut new_folder = folder.clone();
-            new_folder.increase_count(count);
-            self.update(&new_folder.file_path(), &new_folder);
-            self.increase_picture_count(new_folder.parent_id(), count)
-        }
+        let parent_id = if let Some(folder) = self.folder(folder_id) {
+            let file_path = folder.file_path();
+
+            let mut folder = self
+                .map
+                .get_mut(&file_path)
+                .expect("can't access to folder");
+
+            folder.increase_count(count);
+            folder.parent_id()
+        } else {
+            return;
+        };
+        self.increase_picture_count(parent_id, count);
     }
 }
-
 #[cfg(test)]
 mod tests {
 
@@ -250,13 +258,9 @@ mod tests {
         assert!(folder_opt.is_some());
         let folder_opt = folders.get("?def");
         assert!(folder_opt.is_some());
-        let folder = folders
-            .get("@gus")
-            .expect("fail: %gus not in folders");
+        let folder = folders.get("@gus").expect("fail: %gus not in folders");
         assert_eq!(4, folder.picture_count());
-        let folder = folders
-            .get("")
-            .expect("fail: '' not in folders");
+        let folder = folders.get("").expect("fail: '' not in folders");
         assert_eq!(9, folder.picture_count());
     }
     #[test]
@@ -287,5 +291,30 @@ mod tests {
             .expect("fail: %foo/bar not in folders");
         assert_eq!(2, folder.picture_count());
         assert_eq!("%/foo/bar/qux.jpg", folder.first_file_path());
+    }
+    #[test]
+    fn updating_picture_count_of_folder_recurses_to_parent_folders() {
+        let file_paths: Vec<String> = vec![
+            String::from("%/foo.jpg"),
+            String::from("%/bun/bar.jpg"),
+            String::from("%/bun/qux.jpg"),
+            String::from("%/gus/bam/blo.jpg"),
+            String::from("%/gus/bim/blu.jpg"),
+            String::from("%/gus/bam/bla.jpg"),
+            String::from("%/gus/bum/jin/bla.jpg"),
+            String::from("%/abc/def/qux.jpg"),
+            String::from("%/abc/def/ghi/ijk/lmn.jpg"),
+        ];
+        let mut folders = FolderMap::from_file_paths(&file_paths);
+        let folder = folders.get("@gus").expect("fail: %gus not in folders");
+        assert_eq!(4, folder.picture_count());
+        let folder = folders.get("@gus/bum/jin").expect("fail: %gus not in folders");
+        folders.increase_picture_count(folder.id(), 5);
+        let folder = folders.get("@gus/bum/jin").expect("fail: %gus not in folders");
+        assert_eq!(6, folder.picture_count());
+        let folder = folders.get("@gus").expect("fail: %gus not in folders");
+        assert_eq!(9, folder.picture_count());
+        let folder = folders.get("").expect("fail: % not in folders");
+        assert_eq!(14, folder.picture_count());
     }
 }
