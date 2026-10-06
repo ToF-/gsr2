@@ -1,4 +1,5 @@
 use crate::file::paths::based_path;
+use crate::file::paths::file_path_as_stored;
 use crate::model::image_data::ImageData;
 use crate::cli::command::Command;
 use crate::cli::command_line_arguments::CommandLineArguments;
@@ -11,7 +12,6 @@ use crate::file::operation::move_picture;
 use crate::file::operation::rename_picture;
 use crate::file::paths::file_exists;
 use crate::file::paths::file_path_as_retrieved;
-use crate::file::paths::file_path_as_stored;
 use crate::file::paths::parent_directory;
 use crate::file::paths::timestamp_filename;
 use crate::file::picture_file::collect_picture_data;
@@ -394,13 +394,11 @@ impl Repository {
             },
             // any other command involves the picture database
             _ => self.retrieve_all_folders().and_then(|_| {
-                dbg!(&self.command_line_arguments.directory);
-                dbg!(&based_path(&self.command_line_arguments.directory.clone().unwrap_or_default()));
-                let directory: &String = &self
+                let directory: &String = &file_path_as_stored(&self
                     .command_line_arguments
                     .directory
                     .clone()
-                    .unwrap_or_default();
+                    .unwrap_or_default());
                 let folder_map = self.folder_map_rc.borrow();
                 if let Some(folder) = folder_map.get(&directory) {
                     self.retrieve_all_labels().and_then(|_| {
