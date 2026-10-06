@@ -1,3 +1,4 @@
+use crate::file::paths::based_path;
 use crate::model::image_data::ImageData;
 use crate::cli::command::Command;
 use crate::cli::command_line_arguments::CommandLineArguments;
@@ -222,26 +223,22 @@ impl Repository {
             folders.add_from_file_paths(&added_file_paths);
         }
         let folders = self.folder_map_rc.borrow();
-        dbg!(&added_folders);
         self.database.update_folders(&folders).and_then(|_| {
-            for folder_path in added_folders.iter() {
-                if let Some(folder) = folders.get(&folder_path) {
-                    println!("updating pictures folder id for folder {}", &folder_path);
-                    match self
-                        .database
-                        .update_picture_folder_id(&folder_path, folder.id())
-                    {
-                        Ok(_) => {}
-                        Err(e) => return Err(e),
-                    }
-                } else {
-                    return Err(IOError::other(format!(
-                        "can't access folder {}",
-                        folder_path
-                    )));
-                }
-            }
-            Ok(())
+        let mut result = Ok(());
+            for file_path in added_file_paths.iter() {
+                if let Some(parent_directory) = parent_directory(&file_path)
+                    && let Some(folder) = folders.get(&parent_directory) {
+                        println!("updating folder_id {} for picture {}", folder.id(), &file_path);
+                        match self.database.update_folder_id_for_picture(&file_path, folder.id()) {
+                            Ok(_) => {},
+                            Err(e) => {
+                                result = Err(e);
+                                break
+                            },
+                        }
+                };
+            };
+            result
         })
     }
 
@@ -267,9 +264,10 @@ impl Repository {
                             for folder in folder_map.map().values() {
                                 let directory = folder.file_path();
                                 let folder_id = folder.id();
+                                println!("updating folder_id {} for {}", folder_id, &directory);
                                 match self
                                     .database
-                                    .update_picture_folder_id(&directory, folder_id)
+                                    .update_picture_folder_id_for_directory(&directory, folder_id)
                                 {
                                     Ok(_) => {}
                                     Err(e) => return Err(e),
@@ -396,6 +394,8 @@ impl Repository {
             },
             // any other command involves the picture database
             _ => self.retrieve_all_folders().and_then(|_| {
+                dbg!(&self.command_line_arguments.directory);
+                dbg!(&based_path(&self.command_line_arguments.directory.clone().unwrap_or_default()));
                 let directory: &String = &self
                     .command_line_arguments
                     .directory

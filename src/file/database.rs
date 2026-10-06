@@ -67,6 +67,8 @@ const INSERT_MARK: &str = "INSERT INTO Mark (Letter, FilePath) VALUES(?1, ?2) ON
 
 const UPDATE_PICTURE: &str = "UPDATE Picture SET Label = ?2, FileSize = ?3, ModifiedTime = ?4, Rank = ?5, Sample = ?6, ColorCount =?7, Cover = ?8, Score = ?9, Category = ?10 WHERE FilePath = ?1;";
 
+const UPDATE_FOLDER_ID_FOR_PICTURE: &str = "UPDATE Picture SET FolderId = ?2 WHERE FilePath = ?1;";
+
 const UPDATE_FOLDER_FIRST_FILE_PATH: &str =
     "UPDATE Folder SET FirstFilePath = ?2 WHERE FolderId = ?1;";
 
@@ -575,17 +577,14 @@ impl Database {
             })
     }
 
-    fn rusqlite_update_picture_folder_id(
+    fn rusqlite_update_folder_id_for_picture(
         &self,
-        directory: &str,
-        folder_id: usize,
+        file_path: &str,
+        folder_id: FolderId,
     ) -> SqlResult<usize> {
         let connection = self.connection_rc.borrow();
-        let query = &format!(
-            "UPDATE Picture SET FolderId = ?2 WHERE {};",
-            PARENT_DIR_CLAUSE
-        );
-        connection.execute(query, params![directory, folder_id])
+        connection.execute(UPDATE_FOLDER_ID_FOR_PICTURE,
+            params![file_path, folder_id])
     }
 
     pub fn rusqlite_update_picture_is_cover(&self, picture: &Picture) -> SqlResult<usize> {
@@ -605,13 +604,26 @@ impl Database {
             Err(e) => Err(std::io::Error::other(e)),
         }
     }
-    pub fn update_picture_folder_id(&self, directory: &str, folder_id: usize) -> IOResult<usize> {
-        match self.rusqlite_update_picture_folder_id(directory, folder_id) {
+    pub fn update_folder_id_for_picture(&self, file_path: &str, folder_id: FolderId) -> IOResult<usize> {
+        match self.rusqlite_update_folder_id_for_picture(file_path, folder_id) {
             Ok(n) => Ok(n),
             Err(err) => Err(std::io::Error::other(err)),
         }
     }
 
+    pub fn rusqlite_picture_folder_id_for_directory(&self, directory: &str, folder_id: FolderId) -> SqlResult<usize> {
+        let connection = self.connection_rc.borrow();
+        connection.execute(
+            &format!("UPDATE Picture SET FolderId = ?2 WHERE {} ;", PARENT_DIR_CLAUSE),
+            params![directory, folder_id])
+    }
+
+    pub fn update_picture_folder_id_for_directory(&self, directory: &str, folder_id: FolderId) -> IOResult<usize> {
+        match self.rusqlite_picture_folder_id_for_directory(directory, folder_id) {
+            Ok(n) => Ok(n),
+            Err(err) => Err(std::io::Error::other(err)),
+        }
+    }
     fn rusqlite_update_folder_first_file_path(&self) -> SqlResult<usize> {
         let connection = self.connection_rc.borrow();
         connection.execute(
