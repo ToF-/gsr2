@@ -193,10 +193,7 @@ impl Repository {
                 folder_map.last_folder_id()
             };
             let mut folder_map = self.folder_map_rc.borrow_mut();
-            folder_map.add_from_file_paths(
-                &added_file_paths.unwrap(),
-                last_folder_id.unwrap_or_default(),
-            );
+            folder_map.add_from_file_paths(&added_file_paths.unwrap());
             Ok(folder_map.clone())
         } else {
             match self.database.select_all_picture_file_paths() {
@@ -1258,9 +1255,7 @@ mod tests {
         dbg!(&map);
         let directory = file_path_as_stored(&format!("{}/{}", current_directory(), TEST_DATA_DIR));
         dbg!(&directory);
-        let counts: (usize, usize) = *map
-            .get(&directory)
-            .expect("can't access parent dir count");
+        let counts: (usize, usize) = *map.get(&directory).expect("can't access parent dir count");
         assert_eq!((3, 1), counts);
     }
     #[test]

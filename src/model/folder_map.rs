@@ -1,6 +1,8 @@
 use crate::env::default_values::BASE_DIRECTORY_SYMBOL;
 use crate::env::default_values::BASED_PATH_SYMBOL;
 use crate::env::default_values::NEAR_DIRECTORY_SYMBOL;
+use crate::file::paths::base_directory;
+use crate::file::paths::file_path_as_stored;
 use crate::file::paths::parent_directory;
 use crate::model::folder::Folder;
 use crate::model::id_dispenser::FolderId;
@@ -14,34 +16,41 @@ pub struct FolderMap {
 
 impl FolderMap {
     pub fn from_file_paths(file_paths: &[String]) -> Self {
-        let mut folder_map = Self {
-            map: BTreeMap::new(),
-        };
-        folder_map.add_from_file_paths(file_paths, 0);
+        let mut folder_map = Self::new();
+        folder_map.add_from_file_paths(file_paths);
         folder_map
     }
 
-    pub fn add_from_file_paths(&mut self, file_paths: &[String], max_folder_id: FolderId) {
-        let mut id_dispenser = IdDispenser::new(max_folder_id + 1);
-        println!("collecting folders from {} files", file_paths.len());
-        for file_path in file_paths.iter() {
-            let mut current_file_path = file_path.clone();
-            while let Some(parent_directory) = parent_directory(&current_file_path)
-                && !parent_directory.is_empty()
-            {
-                if let Some(folder) = self.map.get_mut(&parent_directory) {
-                    folder.increase_count(1)
-                } else {
-                    let folder_id = id_dispenser.next_id();
-                    self.map.insert(
-                        parent_directory.clone(),
-                        Folder::new(folder_id, &parent_directory, 0, 1, ""),
-                    );
-                    println!("{} = {}", parent_directory, folder_id);
-                }
-                current_file_path = parent_directory.clone();
+    pub fn new() -> Self {
+        let mut folder_map = Self {
+            map: BTreeMap::new(),
+        };
+        let directory = file_path_as_stored(&base_directory());
+        folder_map.insert(1, &directory, 0, 0, "");
+        folder_map
+    }
+
+    pub fn add_from_file_path(&mut self, file_path: &str) {
+        let mut id_dispenser = IdDispenser::new(self.last_folder_id() + 1);
+        let mut current_file_path: String = file_path.to_string();
+        while let Some(parent_directory) = parent_directory(&current_file_path)
+            && !parent_directory.is_empty()
+        {
+            if let Some(folder) = self.map.get_mut(&parent_directory) {
+                folder.increase_count(1)
+            } else {
+                let folder_id = id_dispenser.next_id();
+                self.map.insert(
+                    parent_directory.clone(),
+                    Folder::new(folder_id, &parent_directory, 0, 1, file_path),
+                );
             }
+            current_file_path = parent_directory;
         }
+        self.update_parent_ids();
+    }
+
+    fn update_parent_ids(&mut self) {
         let id_map: BTreeMap<String, usize> = self
             .map
             .iter()
@@ -55,6 +64,13 @@ impl FolderMap {
             {
                 folder.set_parent_id(*id);
             }
+        }
+    }
+    pub fn add_from_file_paths(&mut self, file_paths: &[String]) {
+        let mut id_dispenser = IdDispenser::new(self.last_folder_id() + 1);
+        println!("collecting folders from {} files", file_paths.len());
+        for file_path in file_paths.iter() {
+            self.add_from_file_path(file_path);
         }
     }
 
@@ -120,8 +136,12 @@ impl FolderMap {
             .cloned()
     }
 
-    pub fn last_folder_id(&self) -> Option<FolderId> {
-        self.map.values().map(|folder| folder.id()).max()
+    pub fn last_folder_id(&self) -> FolderId {
+        self.map
+            .values()
+            .map(|folder| folder.id())
+            .max()
+            .unwrap_or_default()
     }
 
     pub fn folders_with_parent_id(&self, parent_id: FolderId) -> Vec<&Folder> {
@@ -225,5 +245,34 @@ mod tests {
         assert!(folder_opt.is_some());
         let folder_opt = folders.get("?def");
         assert!(folder_opt.is_some());
+    }
+    #[test]
+    fn new_folder_map_has_base_directory() {
+        let folders = FolderMap::new();
+        let folder_opt = folders.get("");
+        assert!(folder_opt.is_some());
+        assert_eq!(1, folder_opt.unwrap().id());
+    }
+    #[test]
+    fn inserting_a_file_path_for_a_new_folder() {
+        let mut folders = FolderMap::new();
+        folders.add_from_file_path("%/foo/bar/qux.jpg");
+        let folder = folders
+            .get("@foo/bar")
+            .expect("fail: %foo/bar not in folders");
+        assert_eq!(1, folder.picture_count());
+        let folder = folders.get("@foo").expect("fail: %foo not in folders");
+        assert_eq!(1, folder.picture_count());
+    }
+    #[test]
+    fn inserting_several_file_paths_for_a_new_folder_set_the_first_as_cover() {
+        let mut folders = FolderMap::new();
+        folders.add_from_file_path("%/foo/bar/qux.jpg");
+        folders.add_from_file_path("%/foo/bar/law.jpg");
+        let folder = folders
+            .get("@foo/bar")
+            .expect("fail: %foo/bar not in folders");
+        assert_eq!(2, folder.picture_count());
+        assert_eq!("%/foo/bar/qux.jpg", folder.first_file_path());
     }
 }
