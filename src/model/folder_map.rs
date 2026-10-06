@@ -308,9 +308,13 @@ mod tests {
         let mut folders = FolderMap::from_file_paths(&file_paths);
         let folder = folders.get("@gus").expect("fail: %gus not in folders");
         assert_eq!(4, folder.picture_count());
-        let folder = folders.get("@gus/bum/jin").expect("fail: %gus not in folders");
+        let folder = folders
+            .get("@gus/bum/jin")
+            .expect("fail: %gus not in folders");
         folders.increase_picture_count(folder.id(), 5);
-        let folder = folders.get("@gus/bum/jin").expect("fail: %gus not in folders");
+        let folder = folders
+            .get("@gus/bum/jin")
+            .expect("fail: %gus not in folders");
         assert_eq!(6, folder.picture_count());
         let folder = folders.get("@gus").expect("fail: %gus not in folders");
         assert_eq!(9, folder.picture_count());

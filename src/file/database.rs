@@ -581,13 +581,11 @@ impl Database {
         folder_id: usize,
     ) -> SqlResult<usize> {
         let connection = self.connection_rc.borrow();
-        connection.execute(
-            &format!(
-                "UPDATE Picture SET FolderId = ?2 WHERE {};",
-                PARENT_DIR_CLAUSE
-            ),
-            params![directory, folder_id],
-        )
+        let query = &format!(
+            "UPDATE Picture SET FolderId = ?2 WHERE {};",
+            PARENT_DIR_CLAUSE
+        );
+        connection.execute(query, params![directory, folder_id])
     }
 
     pub fn rusqlite_update_picture_is_cover(&self, picture: &Picture) -> SqlResult<usize> {

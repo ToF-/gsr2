@@ -1,3 +1,4 @@
+use crate::model::image_data::ImageData;
 use crate::cli::command::Command;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
@@ -35,6 +36,7 @@ use std::cell::RefCell;
 use std::cell::RefMut;
 use std::collections::BTreeMap;
 use std::collections::HashMap;
+use std::collections::HashSet;
 use std::fs::File;
 use std::io::BufWriter;
 use std::io::Error as IOError;
@@ -203,30 +205,31 @@ impl Repository {
         }
     }
 
-    pub fn amend_folders(&self, folder_counts: HashMap<String, (String, usize)>) -> IOResult<()> {
-        let mut new_folders: Vec<String> = Vec::new();
+    pub fn amend_folders(&self, added_file_paths: Vec<String>) -> IOResult<()> {
+        let mut added_folders: HashSet<String> = HashSet::new();
         {
-            let mut folders = self.folder_map_rc.borrow_mut();
-            for (directory, (first_file_path, count)) in folder_counts.iter() {
-                println!("folder: {}", &directory);
-                if let Some(folder) = folders.get(&directory) {
-                    println!("increasing folder {} picture count of by {}", &directory, *count);
-                    folders.increase_picture_count(folder.id(), *count)
-                } else {
-                    folders.add_from_file_path(first_file_path);
-                    println!("creating folder {}", &directory);
-                    new_folders.push(file_path_as_stored(directory));
+            let folders = self.folder_map_rc.borrow();
+            for file_path in added_file_paths.iter() {
+                if let Some(parent_directory) = parent_directory(file_path)
+                    && folders.get(&parent_directory).is_none()
+                {
+                    added_folders.insert(parent_directory);
                 }
             }
         }
+        {
+            let mut folders = self.folder_map_rc.borrow_mut();
+            folders.add_from_file_paths(&added_file_paths);
+        }
         let folders = self.folder_map_rc.borrow();
-        dbg!(&folders);
+        dbg!(&added_folders);
         self.database.update_folders(&folders).and_then(|_| {
-            for parent_directory in new_folders {
-                if let Some(folder) = folders.get(&parent_directory) {
+            for folder_path in added_folders.iter() {
+                if let Some(folder) = folders.get(&folder_path) {
+                    println!("updating pictures folder id for folder {}", &folder_path);
                     match self
                         .database
-                        .update_picture_folder_id(&parent_directory, folder.id())
+                        .update_picture_folder_id(&folder_path, folder.id())
                     {
                         Ok(_) => {}
                         Err(e) => return Err(e),
@@ -234,7 +237,7 @@ impl Repository {
                 } else {
                     return Err(IOError::other(format!(
                         "can't access folder {}",
-                        parent_directory
+                        folder_path
                     )));
                 }
             }
@@ -460,7 +463,6 @@ impl Repository {
 
     pub fn collect_data(&self, directory: &str) -> IOResult<()> {
         println!("gallery count before collect:{}\n", self.len());
-        let mut folder_counts: HashMap<String, (String, usize)> = HashMap::new();
         let mut added_file_paths: Vec<String> = Vec::new();
         self.pictures_in_directory(directory).and_then(|gallery| {
             println!(
@@ -479,22 +481,16 @@ impl Repository {
                     let file_path = file_path_as_stored(&picture.file_path().clone());
                     added_file_paths.push(file_path.clone());
                     match collect_picture_data(picture) {
-                        Ok(picture) => match self.database.insert_picture(&picture) {
-                            Ok(_) => {
-                                count += 1;
-                                if let Some(parent_directory) =
-                                    parent_directory(&picture.file_path())
-                                {
-                                    folder_counts
-                                        .entry(file_path_as_stored(&parent_directory))
-                                        .and_modify(|pair| pair.1 += 1)
-                                        .or_insert((file_path.clone(), 1));
+                        Ok(picture) => {
+                            match self.database.insert_picture(&picture) {
+                                Ok(_) => {
+                                    count += 1;
+                                }
+                                Err(err) => {
+                                    eprintln!("{}:\n{}", picture.file_path(), err)
                                 }
                             }
-                            Err(err) => {
-                                eprintln!("{}:\n{}", picture.file_path(), err)
-                            }
-                        },
+                        }
                         Err(err) => {
                             println!("{}", err)
                         }
@@ -503,10 +499,7 @@ impl Repository {
             }
             println!("{} pictures added", count);
             if count > 0 {
-                for (file_path, (first_file_path, count)) in folder_counts.iter() {
-                    println!("{}:{}:{}", file_path, first_file_path, count);
-                }
-                self.amend_folders(folder_counts)
+                self.amend_folders(added_file_paths)
             } else {
                 Ok(())
             }
