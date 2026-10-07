@@ -1,3 +1,4 @@
+use crate::model::picture_id::PictureId;
 use crate::file::paths::based_path;
 use crate::file::paths::file_path_as_stored;
 use crate::file::paths::renamed_file_path;
@@ -16,6 +17,7 @@ use std::io::Result;
 #[derive(Debug, Clone)]
 pub struct Picture {
     file_path: String,
+    picture_id: PictureId,
     image_data: Option<ImageData>,
 }
 
@@ -23,6 +25,7 @@ impl Picture {
     pub fn new(file_path: &str) -> Self {
         Picture {
             file_path: file_path.to_string(),
+            picture_id: PictureId::from_str(file_path),
             image_data: None,
         }
     }
@@ -52,6 +55,7 @@ impl Picture {
     pub fn new_with_image_data(file_path: &str, image_data: &ImageData) -> Self {
         Picture {
             file_path: file_path.to_string(),
+            picture_id: PictureId::from_str(file_path),
             image_data: Some(image_data.clone()),
         }
     }
@@ -82,7 +86,11 @@ impl Picture {
     }
 
     pub fn file_path(&self) -> String {
-        self.file_path.clone()
+        self.file_path.to_string()
+    }
+
+    pub fn picture_id(&self) -> PictureId {
+        self.picture_id.clone()
     }
 
     pub fn is_folder(&self) -> bool {
@@ -134,7 +142,7 @@ impl Picture {
     }
 
     pub fn file_name(&self) -> String {
-        file_name_from(&self.file_path)
+        file_name_from(&self.file_path())
     }
 
     pub fn image_data(&self) -> Option<ImageData> {
@@ -242,7 +250,7 @@ impl Picture {
     }
 
     pub fn thumbnail_file_path_for_size(&self, pictures_per_row: usize) -> String {
-        thumbnail_name_from(&self.file_path, pictures_per_row)
+        thumbnail_name_from(&self.file_path(), pictures_per_row)
     }
 }
 #[cfg(test)]

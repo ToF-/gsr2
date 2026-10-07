@@ -17,6 +17,7 @@ pub mod label;
 pub mod order;
 pub mod palette;
 pub mod picture;
+pub mod picture_id;
 pub mod predicate;
 pub mod rank;
 pub mod repository;
