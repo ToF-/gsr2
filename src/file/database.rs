@@ -422,6 +422,7 @@ impl Database {
             },
         );
         let connection = self.connection_rc.borrow();
+        dbg!(&sql_query);
         connection.prepare(&sql_query).and_then(|mut statement| {
             let mut map: ImageDataMap = HashMap::new();
             statement.query([]).and_then(|mut rows| {
