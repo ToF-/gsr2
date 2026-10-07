@@ -1,3 +1,4 @@
+use crate::file::paths::file_path_as_retrieved;
 use crate::file::paths::home_directory;
 use crate::env::default_values::HOME_DIRECTORY_SYMBOL;
 use crate::file::paths::file_path_as_stored;
@@ -34,6 +35,10 @@ impl PictureId {
             .unwrap()
             .to_string()
     }
+
+    pub fn file_path(&self) -> String {
+        file_path_as_retrieved(&self)
+    }
 }
 
 #[cfg(test)]
@@ -66,5 +71,12 @@ mod tests {
         let original_file_path = "/Volumes/another_disk/tmp/4807.jpg";
         let picture_id = PictureId::from_str(&original_file_path);
         assert_eq!(original_file_path, picture_id.to_string());
+    }
+    #[test]
+    fn file_path_is_the_picture_id_as_retrieved() {
+        let base_dir = &CONFIGURATION.get().unwrap().base_dir;
+        let original_file_path = format!("{}/foo/bar/qux.jpg", &base_dir);
+        let picture_id = PictureId::from_str(&original_file_path);
+        assert_eq!(original_file_path, picture_id.file_path());
     }
 }

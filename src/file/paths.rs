@@ -1,3 +1,4 @@
+use crate::env::default_values::BASE_DIRECTORY_SYMBOL;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::default_values::BASED_PATH_SYMBOL;
 use crate::env::default_values::GARBAGE;
@@ -247,25 +248,25 @@ pub fn file_path_as_stored(source: &str) -> String {
         for _ in base_iter {
             source_iter.next();
         }
-        format!("%{}", source_iter.as_str())
+        format!("{}{}", BASE_DIRECTORY_SYMBOL, source_iter.as_str())
     } else if source.starts_with(&home) {
         let home_iter = home.chars();
         let mut source_iter = source.chars();
         for _ in home_iter {
             source_iter.next();
         }
-        format!("~{}", source_iter.as_str())
+        format!("{}{}", HOME_DIRECTORY_SYMBOL, source_iter.as_str())
     } else {
         source.to_string()
     }
 }
 
 pub fn file_path_as_retrieved(source: &str) -> String {
-    if source.starts_with("~") {
+    if source.starts_with(HOME_DIRECTORY_SYMBOL) {
         let mut source_iter = source.chars();
         source_iter.next();
         format!("{}{}", home_directory(), source_iter.as_str())
-    } else if source.starts_with("%") {
+    } else if source.starts_with(BASE_DIRECTORY_SYMBOL) {
         let mut source_iter = source.chars();
         source_iter.next();
         format!("{}{}", base_directory(), source_iter.as_str())
