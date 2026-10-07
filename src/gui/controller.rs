@@ -164,15 +164,6 @@ impl Controller {
             .expect("application shared_window not set in main controller");
         let window = shared_window.borrow();
 
-        let activate = clone!(
-            #[strong]
-            shared_window,
-            move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
-                let gsr_application_shared_window = shared_window.borrow();
-                gsr_application_shared_window.process_gio_action(object, variant);
-            }
-        );
-
         entries.push(Self::action_entry(
             GioActionType::from(Action::AddCategory("foo".to_string(), "bar".to_string())),
             self.add_category_action(&window),
@@ -1194,22 +1185,6 @@ impl Controller {
         )
     }
 
-    fn focus_at_action(
-        &self,
-        window: &GsrApplicationWindow,
-    ) -> impl Fn(&SimpleActionGroup, &SimpleAction, Option<&Variant>) + 'static {
-        clone!(
-            #[strong (rename_to=this)]
-            self,
-            #[strong]
-            window,
-            move |_group: &SimpleActionGroup, object: &SimpleAction, variant: Option<&Variant>| {
-                let gio_action = GioAction::from((object, variant));
-                if let Action::FocusAt(col, row) = Action::from(gio_action) {}
-            }
-        )
-    }
-
     fn help_action(
         &self,
         window: &GsrApplicationWindow,
@@ -1676,7 +1651,7 @@ impl Controller {
                         let tags = tags_from_str(&input);
                         let indices =
                             this.with_view_state(|view_state| view_state.selected_indices());
-                        let result = this.with_repository(|repository| {
+                        let _ = this.with_repository(|repository| {
                             match repository.modify_pictures_at_indices(&indices, |picture| {
                                 tags.iter().for_each(|tag| picture.remove_tag(tag))
                             }) {

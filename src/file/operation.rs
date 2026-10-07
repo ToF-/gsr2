@@ -20,7 +20,7 @@ pub fn delete_operation(file_path: &str) -> Operation {
     Operation::Delete(PathBuf::from(file_path_as_retrieved(file_path)))
 }
 
-fn target_file_path(file_path: &str, target_dir: &str) -> PathBuf {
+pub fn target_file_path(file_path: &str, target_dir: &str) -> PathBuf {
     let mut target_path = PathBuf::from(file_path_as_retrieved(target_dir));
     let source_path = PathBuf::from(file_path_as_retrieved(file_path));
     if let Some(file_name) = source_path.file_name() {

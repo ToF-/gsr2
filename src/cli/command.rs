@@ -74,7 +74,7 @@ pub fn execute_command(
             println!("collecting data for picture files in the database…");
             let path: PathBuf = PathBuf::from(&directory);
             match check_collectable(&path) {
-                Ok(_) => match repository.collect_data(&directory) {
+                Ok(_) => match repository.collect_pictures_and_folders(&directory) {
                     Ok(_) => Ok(Status::Done),
                     Err(err) => Err(err),
                 },

@@ -34,6 +34,11 @@ pub fn check_path_exists(path: &PathBuf) -> Result<&PathBuf> {
     }
 }
 
+pub fn moved_file_path(file_path: &str, target_dir: &str) -> String {
+    let path = crate::file::operation::target_file_path(file_path, target_dir);
+    path.to_str().unwrap().to_string()
+}
+
 pub fn parent_directory(file_path: &str) -> Option<String> {
     let path = Path::new(file_path);
     path.parent()

@@ -1,6 +1,5 @@
-use crate::file::paths::based_path;
+use crate::file::paths::moved_file_path;
 use crate::file::paths::file_path_as_stored;
-use crate::model::image_data::ImageData;
 use crate::cli::command::Command;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
@@ -11,7 +10,6 @@ use crate::file::operation::execute;
 use crate::file::operation::move_picture;
 use crate::file::operation::rename_picture;
 use crate::file::paths::file_exists;
-use crate::file::paths::file_path_as_retrieved;
 use crate::file::paths::parent_directory;
 use crate::file::paths::timestamp_filename;
 use crate::file::picture_file::collect_picture_data;
@@ -20,15 +18,12 @@ use crate::file::picture_file::delete_picture_files;
 use crate::file::picture_file::get_all_picture_file_paths;
 use crate::file::picture_file::get_picture_file_path;
 use crate::model::catalog::Catalog;
-use crate::model::category::Category;
-use crate::model::folder::Folder;
 use crate::model::folder_map::FolderMap;
 use crate::model::gallery::Gallery;
 use crate::model::id_dispenser::FolderId;
 use crate::model::order::Order;
 use crate::model::picture::Picture;
 use crate::model::predicate::Predicate;
-use crate::model::rank::Rank;
 use crate::model::retrieve_criteria::RetrieveCriteria;
 use crate::model::tag_selection_criteria::TagSelectionCriteria;
 use crate::model::tags::Tags;
@@ -135,7 +130,7 @@ impl Repository {
                     self.database
                         .select_pictures(retrieve_criteria, None)
                         .and_then(|pictures| {
-                            let mut new_gallery = Gallery::new_with_pictures(pictures);
+                            let new_gallery = Gallery::new_with_pictures(pictures);
                             *gallery = new_gallery.clone();
                             gallery.sort_by(args.order.unwrap_or(Order::Name));
                             Ok(gallery.len())
@@ -191,10 +186,6 @@ impl Repository {
         added_file_paths: Option<Vec<String>>,
     ) -> IOResult<FolderMap> {
         if added_file_paths.is_some() {
-            let last_folder_id = {
-                let folder_map = self.folder_map_rc.borrow();
-                folder_map.last_folder_id()
-            };
             let mut folder_map = self.folder_map_rc.borrow_mut();
             folder_map.add_from_file_paths(&added_file_paths.unwrap());
             Ok(folder_map.clone())
@@ -459,7 +450,7 @@ impl Repository {
         })
     }
 
-    pub fn collect_data(&self, directory: &str) -> IOResult<()> {
+    pub fn collect_pictures_and_folders(&self, directory: &str) -> IOResult<()> {
         println!("gallery count before collect:{}\n", self.len());
         let mut added_file_paths: Vec<String> = Vec::new();
         self.pictures_in_directory(directory).and_then(|gallery| {
@@ -468,7 +459,6 @@ impl Repository {
                 &directory,
                 gallery.clone().len()
             );
-            let total: usize = gallery.len();
             let mut count: usize = 0;
             for picture in gallery.pictures() {
                 if self
@@ -911,7 +901,7 @@ impl Repository {
     pub fn retrieve_catalog(&self) -> IOResult<Catalog> {
         match self.database.select_catalog() {
             Ok(s_expression) => Catalog::from_s_expression(&s_expression),
-            Err(e) => {
+            Err(_) => {
                 println!("empty catalog; launch   ctlg import to import one");
                 self.database.update_catalog("(-)");
                 self.retrieve_catalog()
@@ -1012,11 +1002,12 @@ impl Repository {
     }
     pub fn update_picture_parent_id(
         &self,
-        picture: &Picture,
+        file_path: &str,
         parent_id: FolderId,
     ) -> IOResult<usize> {
-        Ok(0)
+        self.database.update_folder_id_for_picture(&file_path, parent_id)
     }
+
     pub fn move_picture_to_target(&self, picture: &Picture, target_dir: &str) -> IOResult<usize> {
         let operations = move_picture(&picture.file_path(), target_dir);
         if operations.is_empty() {
@@ -1030,6 +1021,7 @@ impl Repository {
             let count = operations.len();
             match execute(&self.database, &operations) {
                 Ok(_) => {
+                    let target_file_path = file_path_as_stored(&moved_file_path(&picture.file_path(), target_dir));
                     if let Some(parent_directory) = &parent_directory(&picture.file_path()) {
                         let source_directory = file_path_as_stored(&parent_directory);
                         let folder_opt = {
@@ -1043,14 +1035,14 @@ impl Repository {
                         } else {
                             Err(IOError::other("can't access to folder"))
                         };
-                        let target_directory = file_path_as_stored(target_dir);
+                        let target_directory = file_path_as_stored(&target_dir);
                         let folder_opt = {
                             self.folder_map_rc
                                 .borrow()
                                 .get(&file_path_as_stored(&target_directory))
                         };
                         if let Some(folder) = folder_opt {
-                            self.update_picture_parent_id(&picture, folder.id())
+                            self.update_picture_parent_id(&target_file_path, folder.id())
                                 .and_then(|_| {
                                     self.increase_folder_picture_count(folder.id(), 1)
                                         .and_then(|_| Ok(count))

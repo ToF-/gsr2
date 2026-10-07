@@ -67,7 +67,6 @@ impl FolderMap {
         }
     }
     pub fn add_from_file_paths(&mut self, file_paths: &[String]) {
-        let mut id_dispenser = IdDispenser::new(self.last_folder_id() + 1);
         println!("collecting folders from {} files", file_paths.len());
         for file_path in file_paths.iter() {
             self.add_from_file_path(file_path);
@@ -99,7 +98,7 @@ impl FolderMap {
     }
 
     pub fn update(&mut self, directory: &str, folder: &Folder) {
-        if let Some(mut entry) = self.map.get_mut(directory) {
+        if let Some(entry) = self.map.get_mut(directory) {
             *entry = folder.clone()
         } else {
             println!("{} not found", directory);
@@ -161,7 +160,7 @@ impl FolderMap {
         let parent_id = if let Some(folder) = self.folder(folder_id) {
             let file_path = folder.file_path();
 
-            let mut folder = self
+            let folder = self
                 .map
                 .get_mut(&file_path)
                 .expect("can't access to folder");
