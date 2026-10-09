@@ -1,3 +1,4 @@
+use crate::env::default_values::FINAL_PATH_SYMBOL;
 use crate::env::default_values::BASE_DIRECTORY_SYMBOL;
 use crate::env::default_values::BASED_PATH_SYMBOL;
 use crate::env::default_values::NEAR_DIRECTORY_SYMBOL;
@@ -116,6 +117,13 @@ impl FolderMap {
                 self.map
                     .iter()
                     .find(|(key, _)| key.contains(&format!("/{}", &target)))
+                    .map(|(_, value)| value)
+                    .cloned()
+            } else if first_char == FINAL_PATH_SYMBOL {
+                let target: String = chars.collect();
+                self.map
+                    .iter()
+                    .find(|(key, _)| key.ends_with(&format!("/{}", &target)))
                     .map(|(_, value)| value)
                     .cloned()
             } else if first_char == BASED_PATH_SYMBOL {
@@ -319,5 +327,22 @@ mod tests {
         assert_eq!(9, folder.picture_count());
         let folder = folders.get("").expect("fail: % not in folders");
         assert_eq!(14, folder.picture_count());
+    }
+    #[test]
+    fn finding_a_folder_by_its_last_component() {
+        let file_paths: Vec<String> = vec![
+            String::from("%/foo.jpg"),
+            String::from("%/bun/bar.jpg"),
+            String::from("%/bun/qux.jpg"),
+            String::from("%/gus/bam/blo.jpg"),
+            String::from("%/gus/bim/blu.jpg"),
+            String::from("%/gus/bam/bla.jpg"),
+            String::from("%/gus/bum/jin/bla.jpg"),
+            String::from("%/abc/def/qux.jpg"),
+            String::from("%/abc/def/ghi/ijk/lmn.jpg"),
+        ];
+        let folders = FolderMap::from_file_paths(&file_paths);
+        let folder = folders.get("^jin").expect("fail: no folder ending with jin");
+        assert_eq!("%/gus/bum/jin", folder.file_path());
     }
 }

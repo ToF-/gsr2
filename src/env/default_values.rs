@@ -61,6 +61,7 @@ pub const THUMB_SUFFIX: &str = "THUMB";
 pub const VALID_EXTENSIONS: [&str; 6] = ["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"];
 pub const GARBAGE: &str = "!:";
 pub const BASED_PATH_SYMBOL: char = '@';
+pub const FINAL_PATH_SYMBOL: char = '^';
 pub const BASE_DIRECTORY_SYMBOL: char = '%';
 pub const HOME_DIRECTORY_SYMBOL: char = '~';
 pub const ROOT_DIRECTORY_SYMBOL: char = '/';

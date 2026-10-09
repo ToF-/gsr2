@@ -1,3 +1,5 @@
+use crate::env::default_values::FINAL_PATH_SYMBOL;
+use crate::env::default_values::NEAR_DIRECTORY_SYMBOL;
 use crate::env::default_values::BASED_PATH_SYMBOL;
 use crate::cli::command::Command;
 use crate::cli::command_line_arguments::CommandLineArguments;
@@ -405,8 +407,8 @@ impl Repository {
                 let folder_opt = folder_map.get(&directory);
                 if self.command_line_arguments.structured && folder_opt.is_none() {
                     Err(IOError::other(format!(
-                        "folder {} not found. (format should be {}directory)",
-                        directory, BASED_PATH_SYMBOL
+                        "folder {} not found. (format should be {}dir {}dir or {}dir)",
+                        directory, BASED_PATH_SYMBOL, NEAR_DIRECTORY_SYMBOL, FINAL_PATH_SYMBOL
                     )))
                 } else {
                     let folder = folder_opt.unwrap();
