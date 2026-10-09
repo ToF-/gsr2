@@ -1,5 +1,4 @@
-use crate::file::paths::moved_file_path;
-use crate::file::paths::file_path_as_stored;
+use crate::env::default_values::BASED_PATH_SYMBOL;
 use crate::cli::command::Command;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
@@ -10,6 +9,8 @@ use crate::file::operation::execute;
 use crate::file::operation::move_picture;
 use crate::file::operation::rename_picture;
 use crate::file::paths::file_exists;
+use crate::file::paths::file_path_as_stored;
+use crate::file::paths::moved_file_path;
 use crate::file::paths::parent_directory;
 use crate::file::paths::timestamp_filename;
 use crate::file::picture_file::collect_picture_data;
@@ -215,20 +216,28 @@ impl Repository {
         }
         let folders = self.folder_map_rc.borrow();
         self.database.update_folders(&folders).and_then(|_| {
-        let mut result = Ok(());
+            let mut result = Ok(());
             for file_path in added_file_paths.iter() {
                 if let Some(parent_directory) = parent_directory(&file_path)
-                    && let Some(folder) = folders.get(&parent_directory) {
-                        println!("updating folder_id {} for picture {}", folder.id(), &file_path);
-                        match self.database.update_folder_id_for_picture(&file_path, folder.id()) {
-                            Ok(_) => {},
-                            Err(e) => {
-                                result = Err(e);
-                                break
-                            },
+                    && let Some(folder) = folders.get(&parent_directory)
+                {
+                    println!(
+                        "updating folder_id {} for picture {}",
+                        folder.id(),
+                        &file_path
+                    );
+                    match self
+                        .database
+                        .update_folder_id_for_picture(&file_path, folder.id())
+                    {
+                        Ok(_) => {}
+                        Err(e) => {
+                            result = Err(e);
+                            break;
                         }
+                    }
                 };
-            };
+            }
             result
         })
     }
@@ -385,13 +394,22 @@ impl Repository {
             },
             // any other command involves the picture database
             _ => self.retrieve_all_folders().and_then(|_| {
-                let directory: &String = &file_path_as_stored(&self
-                    .command_line_arguments
-                    .directory
-                    .clone()
-                    .unwrap_or_default());
+                let directory: &String = &file_path_as_stored(
+                    &self
+                        .command_line_arguments
+                        .directory
+                        .clone()
+                        .unwrap_or_default(),
+                );
                 let folder_map = self.folder_map_rc.borrow();
-                if let Some(folder) = folder_map.get(&directory) {
+                let folder_opt = folder_map.get(&directory);
+                if self.command_line_arguments.structured && folder_opt.is_none() {
+                    Err(IOError::other(format!(
+                        "folder {} not found. (format should be {}directory)",
+                        directory, BASED_PATH_SYMBOL
+                    )))
+                } else {
+                    let folder = folder_opt.unwrap();
                     self.retrieve_all_labels().and_then(|_| {
                         self.retrieve_all_parent_dirs().and_then(|_| {
                             if self.command_line_arguments.structured {
@@ -408,8 +426,6 @@ impl Repository {
                             }
                         })
                     })
-                } else {
-                    Err(IOError::other(format!("folder {} not found", directory)))
                 }
             }),
         }
@@ -469,16 +485,14 @@ impl Repository {
                     let file_path = file_path_as_stored(&picture.file_path().clone());
                     added_file_paths.push(file_path.clone());
                     match collect_picture_data(picture) {
-                        Ok(picture) => {
-                            match self.database.insert_picture(&picture) {
-                                Ok(_) => {
-                                    count += 1;
-                                }
-                                Err(err) => {
-                                    eprintln!("{}:\n{}", picture.file_path(), err)
-                                }
+                        Ok(picture) => match self.database.insert_picture(&picture) {
+                            Ok(_) => {
+                                count += 1;
                             }
-                        }
+                            Err(err) => {
+                                eprintln!("{}:\n{}", picture.file_path(), err)
+                            }
+                        },
                         Err(err) => {
                             println!("{}", err)
                         }
@@ -1005,7 +1019,8 @@ impl Repository {
         file_path: &str,
         parent_id: FolderId,
     ) -> IOResult<usize> {
-        self.database.update_folder_id_for_picture(&file_path, parent_id)
+        self.database
+            .update_folder_id_for_picture(&file_path, parent_id)
     }
 
     pub fn move_picture_to_target(&self, picture: &Picture, target_dir: &str) -> IOResult<usize> {
@@ -1021,7 +1036,8 @@ impl Repository {
             let count = operations.len();
             match execute(&self.database, &operations) {
                 Ok(_) => {
-                    let target_file_path = file_path_as_stored(&moved_file_path(&picture.file_path(), target_dir));
+                    let target_file_path =
+                        file_path_as_stored(&moved_file_path(&picture.file_path(), target_dir));
                     if let Some(parent_directory) = &parent_directory(&picture.file_path()) {
                         let source_directory = file_path_as_stored(&parent_directory);
                         let folder_opt = {

@@ -1,4 +1,3 @@
-use crate::model::picture_id::PictureId;
 use crate::file::paths::based_path;
 use crate::file::paths::file_path_as_stored;
 use crate::file::paths::renamed_file_path;
@@ -9,6 +8,7 @@ use crate::model::image_data::FileSize;
 use crate::model::image_data::ImageData;
 use crate::model::image_data::datetime_from_time_stamp;
 use crate::model::palette::Palette;
+use crate::model::picture_id::PictureId;
 use crate::model::rank::Rank;
 use crate::model::tag_selection_criteria::TagSelectionCriteria;
 use crate::model::tags::Tags;

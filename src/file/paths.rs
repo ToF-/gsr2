@@ -1,5 +1,5 @@
-use crate::env::default_values::BASE_DIRECTORY_SYMBOL;
 use crate::env::configuration::CONFIGURATION;
+use crate::env::default_values::BASE_DIRECTORY_SYMBOL;
 use crate::env::default_values::BASED_PATH_SYMBOL;
 use crate::env::default_values::GARBAGE;
 use crate::env::default_values::HOME_DIRECTORY_SYMBOL;
@@ -162,6 +162,10 @@ pub fn check_path(source: &str) -> Result<String> {
         Ok(path) => Ok(path.display().to_string()),
         Err(e) => Err(e),
     }
+}
+
+pub fn is_based_file_path(file_path: &str) -> bool {
+    file_path.starts_with(BASE_DIRECTORY_SYMBOL)
 }
 
 pub fn name_and_extension(file_path: &str) -> (String, String) {
@@ -389,6 +393,12 @@ mod tests {
         }
     }
 
+    #[test]
+    fn file_path_starting_with_base_dir_symbol_is_based() {
+        let file_path = format!("{}foo", BASE_DIRECTORY_SYMBOL);
+        assert!(is_based_file_path(&file_path));
+        assert!(!is_based_file_path("~/foo/bar"));
+    }
     #[test]
     fn file_path_starting_with_base_dir_are_percented_as_stored() {
         let base = base_directory();

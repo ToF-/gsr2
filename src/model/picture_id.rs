@@ -1,11 +1,11 @@
-use crate::file::paths::file_path_as_retrieved;
-use crate::file::paths::home_directory;
-use crate::env::default_values::HOME_DIRECTORY_SYMBOL;
-use crate::file::paths::file_path_as_stored;
-use crate::env::default_values::BASE_DIRECTORY_SYMBOL;
 use crate::env::configuration::CONFIGURATION;
-use std::path::PathBuf;
+use crate::env::default_values::BASE_DIRECTORY_SYMBOL;
+use crate::env::default_values::HOME_DIRECTORY_SYMBOL;
+use crate::file::paths::file_path_as_retrieved;
+use crate::file::paths::file_path_as_stored;
+use crate::file::paths::home_directory;
 use std::ops::Deref;
+use std::path::PathBuf;
 // the type used to uniquely identify a picture
 
 #[derive(Clone, Debug)]
@@ -24,7 +24,7 @@ impl Deref for PictureId {
 impl PictureId {
     pub fn from_str(s: &str) -> Self {
         Self {
-            value: file_path_as_stored(s).to_string()
+            value: file_path_as_stored(s).to_string(),
         }
     }
     pub fn file_name(&self) -> String {

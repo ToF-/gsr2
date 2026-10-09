@@ -584,8 +584,7 @@ impl Database {
         folder_id: FolderId,
     ) -> SqlResult<usize> {
         let connection = self.connection_rc.borrow();
-        connection.execute(UPDATE_FOLDER_ID_FOR_PICTURE,
-            params![file_path, folder_id])
+        connection.execute(UPDATE_FOLDER_ID_FOR_PICTURE, params![file_path, folder_id])
     }
 
     pub fn rusqlite_update_picture_is_cover(&self, picture: &Picture) -> SqlResult<usize> {
@@ -605,21 +604,37 @@ impl Database {
             Err(e) => Err(std::io::Error::other(e)),
         }
     }
-    pub fn update_folder_id_for_picture(&self, file_path: &str, folder_id: FolderId) -> IOResult<usize> {
+    pub fn update_folder_id_for_picture(
+        &self,
+        file_path: &str,
+        folder_id: FolderId,
+    ) -> IOResult<usize> {
         match self.rusqlite_update_folder_id_for_picture(file_path, folder_id) {
             Ok(n) => Ok(n),
             Err(err) => Err(std::io::Error::other(err)),
         }
     }
 
-    pub fn rusqlite_picture_folder_id_for_directory(&self, directory: &str, folder_id: FolderId) -> SqlResult<usize> {
+    pub fn rusqlite_picture_folder_id_for_directory(
+        &self,
+        directory: &str,
+        folder_id: FolderId,
+    ) -> SqlResult<usize> {
         let connection = self.connection_rc.borrow();
         connection.execute(
-            &format!("UPDATE Picture SET FolderId = ?2 WHERE {} ;", PARENT_DIR_CLAUSE),
-            params![directory, folder_id])
+            &format!(
+                "UPDATE Picture SET FolderId = ?2 WHERE {} ;",
+                PARENT_DIR_CLAUSE
+            ),
+            params![directory, folder_id],
+        )
     }
 
-    pub fn update_picture_folder_id_for_directory(&self, directory: &str, folder_id: FolderId) -> IOResult<usize> {
+    pub fn update_picture_folder_id_for_directory(
+        &self,
+        directory: &str,
+        folder_id: FolderId,
+    ) -> IOResult<usize> {
         match self.rusqlite_picture_folder_id_for_directory(directory, folder_id) {
             Ok(n) => Ok(n),
             Err(err) => Err(std::io::Error::other(err)),
