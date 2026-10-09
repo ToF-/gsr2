@@ -14,6 +14,16 @@ pub fn information() -> KeyInput {
         |_| Action::Dismiss,
     )
 }
+pub fn exit_information() -> KeyInput {
+    KeyInput::new(
+        INFORMATION_SYMBOL,
+        None,
+        KeyInputMode::ExitInformation,
+        |_, _| false,
+        |s, _| s,
+        |_| Action::Quit,
+    )
+}
 #[cfg(test)]
 mod tests {
     use super::*;

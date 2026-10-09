@@ -1,3 +1,4 @@
+use crate::gui::key_input::information::exit_information;
 use crate::env::default_values::FRAME_WINDOW_NAME;
 use crate::env::default_values::FULL_OPACITY;
 use crate::env::default_values::GRID_WINDOW_NAME;
@@ -658,6 +659,19 @@ impl GsrApplicationWindow {
                 self,
                 &self.gsr_application().shared_controller(),
                 information(),
+                None,
+            );
+            gsr_entry_window.set_entry_text(message);
+            self.begin_entry(gsr_entry_window);
+        }
+    }
+
+    pub fn exit_with_information(&self, message: &str) {
+        {
+            let gsr_entry_window = GsrEntryWindow::new_with(
+                self,
+                &self.gsr_application().shared_controller(),
+                exit_information(),
                 None,
             );
             gsr_entry_window.set_entry_text(message);

@@ -1,6 +1,6 @@
-use crate::env::default_values::FINAL_PATH_SYMBOL;
 use crate::env::default_values::BASE_DIRECTORY_SYMBOL;
 use crate::env::default_values::BASED_PATH_SYMBOL;
+use crate::env::default_values::FINAL_PATH_SYMBOL;
 use crate::env::default_values::NEAR_DIRECTORY_SYMBOL;
 use crate::file::paths::base_directory;
 use crate::file::paths::file_path_as_stored;
@@ -342,7 +342,9 @@ mod tests {
             String::from("%/abc/def/ghi/ijk/lmn.jpg"),
         ];
         let folders = FolderMap::from_file_paths(&file_paths);
-        let folder = folders.get("^jin").expect("fail: no folder ending with jin");
+        let folder = folders
+            .get("^jin")
+            .expect("fail: no folder ending with jin");
         assert_eq!("%/gus/bum/jin", folder.file_path());
     }
 }

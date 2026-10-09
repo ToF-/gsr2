@@ -48,7 +48,7 @@ fn run_application(config: &Configuration, clargs: &CommandLineArguments) -> Res
     };
     let _ = &match repository.retrieve_pictures(None) {
         Ok(_) => {}
-        Err(e) => return Err(e)
+        Err(e) => return Err(e),
     };
     let result = execute_command(clargs.clone(), repository.clone(), config.clone());
     if let Ok(Status::Ready(initial_position)) = result {

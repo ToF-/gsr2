@@ -94,6 +94,9 @@ impl KeyInputRules for KeyInput {
                         KeyInputMode::Information => {
                             KeyInputStatus::new("", None, Some(Action::Dismiss))
                         }
+                        KeyInputMode::ExitInformation => {
+                            KeyInputStatus::new("", None, Some(Action::Quit))
+                        }
                         KeyInputMode::Menu => {
                             let accept = self.accepter.clone();
                             if let Some(ch) = key.to_unicode()

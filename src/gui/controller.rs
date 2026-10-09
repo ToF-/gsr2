@@ -1452,24 +1452,42 @@ impl Controller {
                                 return;
                             }
                         }
+                        let mut emptying: bool = false;
                         this.with_view_state_mut(|view_state| {
                             let indices = view_state.selected_indices();
+                            emptying = indices.len() == view_state.gallery().len();
                             for position in indices {
                                 let picture = view_state.gallery().picture(position);
-                                this.with_repository(|repository| {
-                                    match repository
-                                        .move_picture_to_target(&picture, &target_directory)
-                                    {
-                                        Ok(_) => {}
-                                        Err(e) => {
-                                            window.present_information(&format!("{e}"));
-                                        }
-                                    }
+                                let result = this.with_repository(|repository| {
+                                    repository.move_picture_to_target(&picture, &target_directory)
                                 });
+                                match result {
+                                    Ok(_) => {}
+                                    Err(e) => {
+                                        window.exit_with_information(&format!("{}:{}", target_directory, e));
+                                    }
+                                }
                             }
                         });
-                        set_configuration_updated_flag(false);
                         window.deselect_pictures();
+                        if emptying {
+                            window
+                                .exit_with_information("Empty gallery. Restart gsr with other options");
+                        } else {
+                            let location = this
+                                .with_view_state(|view_state| view_state.current_location.clone());
+                            match this.retrieve_from_repository(
+                                Some(location.covers_only()),
+                                location.sub_directory(),
+                                location.predicate(),
+                            ) {
+                                Err(e) => panic!("{}", e),
+                                Ok(0) => this.back_to_previous_location(),
+                                Ok(_) => {}
+                            };
+                            window.refresh_view();
+                            set_configuration_updated_flag(false);
+                        }
                     }
                     _ => {}
                 }
@@ -1575,6 +1593,7 @@ impl Controller {
             #[strong]
             window,
             move |_, _, _| {
+                window.dismiss();
                 this.with_view_state(|view_state| {
                     if let Ok(mut configuration) = Configuration::from_env() {
                         configuration.current_picture =

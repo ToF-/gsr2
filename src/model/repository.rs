@@ -1,11 +1,11 @@
-use crate::env::default_values::FINAL_PATH_SYMBOL;
-use crate::env::default_values::NEAR_DIRECTORY_SYMBOL;
-use crate::env::default_values::BASED_PATH_SYMBOL;
 use crate::cli::command::Command;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
 use crate::env::configuration::set_configuration_updated_flag;
+use crate::env::default_values::BASED_PATH_SYMBOL;
+use crate::env::default_values::FINAL_PATH_SYMBOL;
+use crate::env::default_values::NEAR_DIRECTORY_SYMBOL;
 use crate::file::database::Database;
 use crate::file::operation::execute;
 use crate::file::operation::move_picture;
@@ -1051,7 +1051,8 @@ impl Repository {
                             self.decrease_folder_picture_count(folder.id(), 1)
                                 .and_then(|_| Ok(count))
                         } else {
-                            Err(IOError::other("can't access to folder"))
+                            println!("can't access to folder");
+                            Ok(0)
                         };
                         let target_directory = file_path_as_stored(&target_dir);
                         let folder_opt = {
