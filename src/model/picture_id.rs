@@ -8,7 +8,7 @@ use std::ops::Deref;
 use std::path::PathBuf;
 // the type used to uniquely identify a picture
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct PictureId {
     value: String,
 }

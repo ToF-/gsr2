@@ -153,6 +153,7 @@ impl Repository {
             let mut gallery = self.gallery_rc.borrow_mut();
             RetrieveCriteria::new(args, predicate_opt, Some(catalog.clone())).and_then(
                 |retrieve_criteria| {
+                    dbg!(&folder_id);
                     self.database
                         .select_pictures(retrieve_criteria, Some(folder_id))
                         .and_then(|pictures| {

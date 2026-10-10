@@ -129,33 +129,11 @@ impl Gallery {
             .collect::<Vec<(String, usize)>>()
     }
 
-    pub fn folders_in_directory(&self, directory: &str) -> Vec<(String, usize)> {
-        let directory_path = Path::new(directory);
-        let mut folders: BTreeMap<String, usize> = BTreeMap::new();
-        for (folder, count) in self.folders_map().iter() {
-            let folder_path = Path::new(folder);
-            if folder_path.starts_with(directory_path)
-                && let Ok(sub_path) = folder_path.strip_prefix(directory_path)
-                && let Some(part) = sub_path.components().next()
-            {
-                *folders
-                    .entry(part.as_os_str().to_string_lossy().into_owned())
-                    .or_insert(0) += *count;
-            }
-        }
-        let mut result = Vec::new();
-        for (folder, count) in folders.iter() {
-            result.push((folder.to_string(), *count));
-        }
-        result.sort();
-        result
-    }
-
     pub fn pictures_in_directory(&self, directory: &str) -> Vec<Picture> {
         let directory_path = Path::new(directory);
         let mut result: Vec<Picture> = Vec::new();
         for picture in self.pictures.iter() {
-            if let Some(parent_directory) = parent_directory(&picture.file_path()) {
+            if let Some(parent_directory) = parent_directory(&picture.picture_id()) {
                 let parent_directory_path = Path::new(&parent_directory);
                 if parent_directory_path == directory_path {
                     result.push(picture.clone());
@@ -527,44 +505,25 @@ mod tests {
         let p = gallery.finder.find_next();
         assert!(p.is_none());
     }
-    #[test]
-    #[serial]
-    fn finding_folders_for_a_given_directory() {
-        let mut gallery = Gallery::new();
-        gallery.add_picture(&Picture::new(&based_path("%/foo.jpg")));
-        gallery.add_picture(&Picture::new(&based_path("%/bun/bar.jpg")));
-        gallery.add_picture(&Picture::new(&based_path("%/bun/qux.jpg")));
-        gallery.add_picture(&Picture::new(&based_path("%/gus/bam/blo.jpg")));
-        gallery.add_picture(&Picture::new(&based_path("%/gus/bim/blu.jpg")));
-        gallery.add_picture(&Picture::new(&based_path("%/gus/bam/bla.jpg")));
-        let folders = gallery.folders_in_directory("%");
-        assert_eq!(2, folders.len());
-        assert_eq!(("bun".to_string(), 2), folders[0]);
-        assert_eq!(("gus".to_string(), 3), folders[1]);
-        let folders = gallery.folders_in_directory("%/gus");
-        assert_eq!(2, folders.len());
-        assert_eq!(("bam".to_string(), 2), folders[0]);
-        assert_eq!(("bim".to_string(), 1), folders[1]);
-    }
 
     #[test]
     #[serial]
     fn finding_pictures_for_a_given_directory() {
         let mut gallery = Gallery::new();
-        gallery.add_picture(&Picture::new(&based_path("%/foo.jpg")));
-        gallery.add_picture(&Picture::new(&based_path("%/bun/bar.jpg")));
-        gallery.add_picture(&Picture::new(&based_path("%/bun/qux.jpg")));
-        gallery.add_picture(&Picture::new(&based_path("%/gus/bam/blo.jpg")));
-        gallery.add_picture(&Picture::new(&based_path("%/gus/bim/blu.jpg")));
-        gallery.add_picture(&Picture::new(&based_path("%/gus/bam/bla.jpg")));
-        let dir_gallery = gallery.pictures_in_directory("%");
+        gallery.add_picture(&Picture::new("%/foo.jpg"));
+        gallery.add_picture(&Picture::new("%/bun/bar.jpg"));
+        gallery.add_picture(&Picture::new("%/bun/qux.jpg"));
+        gallery.add_picture(&Picture::new("%/gus/bam/blo.jpg"));
+        gallery.add_picture(&Picture::new("%/gus/bim/blu.jpg"));
+        gallery.add_picture(&Picture::new("%/gus/bam/bla.jpg"));
+        let dir_gallery = gallery.pictures_in_directory(&based_path("%"));
         assert_eq!(1, dir_gallery.len());
-        assert_eq!("%/foo.jpg", dir_gallery[0].file_path());
+        assert_eq!("%/foo.jpg", &dir_gallery[0].picture_id().to_string());
         let dir_gallery = gallery.pictures_in_directory("%/gus");
         assert_eq!(0, dir_gallery.len());
         let dir_gallery = gallery.pictures_in_directory("%/gus/bam");
         assert_eq!(2, dir_gallery.len());
-        assert_eq!("%/gus/bam/bla.jpg", dir_gallery[0].file_path());
-        assert_eq!("%/gus/bam/blo.jpg", dir_gallery[1].file_path());
+        assert_eq!("%/gus/bam/bla.jpg", dir_gallery[0].picture_id().to_string());
+        assert_eq!("%/gus/bam/blo.jpg", dir_gallery[1].picture_id().to_string());
     }
 }

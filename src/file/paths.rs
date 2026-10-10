@@ -230,14 +230,22 @@ pub fn based_path(source: &str) -> String {
             let sub_directory: String = chars.collect();
             let base = home_directory();
             let base_path = Path::new(&base);
-            let path = base_path.join(sub_directory);
+            let path = if !sub_directory.is_empty() {
+                base_path.join(sub_directory)
+            } else {
+                base_path.to_path_buf()
+            };
             path.to_str().unwrap().to_string()
         }
         Some(ch) if ch == BASED_PATH_SYMBOL => {
             let sub_directory: String = chars.collect();
             let base = base_directory();
             let base_path = Path::new(&base);
-            let path = base_path.join(sub_directory);
+            let path = if !sub_directory.is_empty() {
+                base_path.join(sub_directory)
+            } else {
+                base_path.to_path_buf()
+            };
             path.to_str().unwrap().to_string()
         }
         Some(_) => source.to_string(),
@@ -456,6 +464,9 @@ mod tests {
         let base = base_directory();
         let dir = "@foo";
         assert_eq!(format!("{base}/foo"), based_path(dir));
+        let base = base_directory();
+        let dir = "@";
+        assert_eq!(format!("{base}"), based_path(dir));
     }
     #[test]
     fn based_dir_as_stored_converts_correctly_base_dir() {

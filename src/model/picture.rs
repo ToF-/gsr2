@@ -1,3 +1,4 @@
+use crate::file::paths::file_path_as_retrieved;
 use crate::file::paths::based_path;
 use crate::file::paths::file_path_as_stored;
 use crate::file::paths::renamed_file_path;
@@ -16,7 +17,6 @@ use std::io::Result;
 
 #[derive(Debug, Clone)]
 pub struct Picture {
-    file_path: String,
     picture_id: PictureId,
     image_data: Option<ImageData>,
 }
@@ -24,7 +24,6 @@ pub struct Picture {
 impl Picture {
     pub fn new(file_path: &str) -> Self {
         Picture {
-            file_path: file_path.to_string(),
             picture_id: PictureId::from_str(file_path),
             image_data: None,
         }
@@ -54,7 +53,6 @@ impl Picture {
 
     pub fn new_with_image_data(file_path: &str, image_data: &ImageData) -> Self {
         Picture {
-            file_path: file_path.to_string(),
             picture_id: PictureId::from_str(file_path),
             image_data: Some(image_data.clone()),
         }
@@ -86,7 +84,7 @@ impl Picture {
     }
 
     pub fn file_path(&self) -> String {
-        self.file_path.to_string()
+        file_path_as_retrieved(&self.picture_id)
     }
 
     pub fn picture_id(&self) -> PictureId {
