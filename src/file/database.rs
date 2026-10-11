@@ -932,6 +932,7 @@ impl Database {
             pattern: None,
             cover: false,
             parent_opt: Some(parent_dir.to_string()),
+            folder_id_opt: None,
             predicate_opt: None,
             catalog_opt: None,
         };

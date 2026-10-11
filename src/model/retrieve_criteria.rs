@@ -2,6 +2,7 @@ use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::model::catalog::Catalog;
 use crate::model::categories::Categories;
 use crate::model::color_range::ColorRange;
+use crate::model::id_dispenser::FolderId;
 use crate::model::image_data::ImageData;
 use crate::model::picture::Picture;
 use crate::model::predicate::Predicate;
@@ -23,6 +24,7 @@ pub struct RetrieveCriteria {
     pub pattern: Option<Regex>,
     pub cover: bool,
     pub parent_opt: Option<String>,
+    pub folder_id_opt: Option<FolderId>,
     pub predicate_opt: Option<Predicate>,
     pub catalog_opt: Option<Catalog>,
 }
@@ -31,6 +33,7 @@ impl RetrieveCriteria {
     pub fn new(
         args: &CommandLineArguments,
         predicate_opt: Option<Predicate>,
+        folder_id_opt: Option<FolderId>,
         catalog_opt: Option<Catalog>,
     ) -> IOResult<Self> {
         let result: IOResult<Option<Vec<String>>> = if let Some(list_file) = &args.extraction {
@@ -71,10 +74,15 @@ impl RetrieveCriteria {
                     color_range_opt,
                     pattern: regex_opt,
                     cover: args.covers,
-                    parent_opt: if args.structured {
+                    parent_opt: if args.structured || folder_id_opt.is_some() {
                         None
                     } else {
                         args.directory.clone()
+                    },
+                    folder_id_opt: if args.structured || folder_id_opt.is_some() {
+                        folder_id_opt
+                    } else {
+                        None
                     },
                     predicate_opt,
                     catalog_opt,

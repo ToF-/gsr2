@@ -1235,15 +1235,20 @@ impl Controller {
                     });
                     let location =
                         this.with_view_state(|view_state| view_state.current_location.clone());
+                    dbg!(&this.with_view_state(|view_state| view_state.gallery().len()));
                     match this.retrieve_from_repository(
                         Some(location.covers_only()),
                         location.sub_directory(),
                         location.predicate(),
                     ) {
                         Err(e) => panic!("{}", e),
-                        Ok(0) => this.back_to_previous_location(),
+                        Ok(0) => {
+                            window.present_information("no picture matching criteria");
+                            this.back_to_previous_location();
+                        }
                         Ok(_) => {}
                     };
+                    dbg!(&this.with_view_state(|view_state| view_state.gallery().len()));
                     window.refresh_view();
                 }
             }

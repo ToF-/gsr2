@@ -11,6 +11,7 @@ use crate::file::operation::execute;
 use crate::file::operation::move_picture;
 use crate::file::operation::rename_picture;
 use crate::file::paths::file_exists;
+use crate::file::paths::file_path_as_retrieved;
 use crate::file::paths::file_path_as_stored;
 use crate::file::paths::moved_file_path;
 use crate::file::paths::parent_directory;
@@ -128,7 +129,7 @@ impl Repository {
     ) -> IOResult<usize> {
         self.retrieve_catalog().and_then(|catalog| {
             let mut gallery = self.gallery_rc.borrow_mut();
-            RetrieveCriteria::new(args, predicate_opt, Some(catalog.clone())).and_then(
+            RetrieveCriteria::new(args, predicate_opt, None, Some(catalog.clone())).and_then(
                 |retrieve_criteria| {
                     self.database
                         .select_pictures(retrieve_criteria, None)
@@ -151,9 +152,8 @@ impl Repository {
     ) -> IOResult<usize> {
         self.retrieve_catalog().and_then(|catalog| {
             let mut gallery = self.gallery_rc.borrow_mut();
-            RetrieveCriteria::new(args, predicate_opt, Some(catalog.clone())).and_then(
-                |retrieve_criteria| {
-                    dbg!(&folder_id);
+            RetrieveCriteria::new(args, predicate_opt, Some(folder_id), Some(catalog.clone()))
+                .and_then(|retrieve_criteria| {
                     self.database
                         .select_pictures(retrieve_criteria, Some(folder_id))
                         .and_then(|pictures| {
@@ -169,8 +169,7 @@ impl Repository {
                             gallery.sort_by(args.order.unwrap_or(Order::Name));
                             Ok(gallery.len())
                         })
-                },
-            )
+                })
         })
     }
 
@@ -413,9 +412,12 @@ impl Repository {
                     )))
                 } else {
                     let folder = folder_opt.unwrap();
+                    println!("folder: {}", file_path_as_retrieved(&folder.file_path()));
                     self.retrieve_all_labels().and_then(|_| {
                         self.retrieve_all_parent_dirs().and_then(|_| {
-                            if self.command_line_arguments.structured {
+                            if self.command_line_arguments.structured
+                                || self.command_line_arguments.directory.is_some()
+                            {
                                 self.retrieve_all_pictures_and_folders(
                                     &self.command_line_arguments.clone(),
                                     predicate_opt,

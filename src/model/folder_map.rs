@@ -1,8 +1,8 @@
-use crate::env::default_values::PART_DIRECTORY_SYMBOL;
 use crate::env::default_values::BASE_DIRECTORY_SYMBOL;
 use crate::env::default_values::BASED_PATH_SYMBOL;
 use crate::env::default_values::FINAL_PATH_SYMBOL;
 use crate::env::default_values::NEAR_DIRECTORY_SYMBOL;
+use crate::env::default_values::PART_DIRECTORY_SYMBOL;
 use crate::file::paths::base_directory;
 use crate::file::paths::file_path_as_stored;
 use crate::file::paths::parent_directory;
@@ -188,7 +188,6 @@ impl FolderMap {
         };
         self.increase_picture_count(parent_id, count);
     }
-
 }
 #[cfg(test)]
 mod tests {
