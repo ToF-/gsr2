@@ -1,5 +1,5 @@
-use crate::file::paths::file_path_as_retrieved;
 use crate::file::paths::based_path;
+use crate::file::paths::file_path_as_retrieved;
 use crate::file::paths::file_path_as_stored;
 use crate::file::paths::renamed_file_path;
 use crate::file::paths::{file_name_from, thumbnail_name_from};

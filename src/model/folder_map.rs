@@ -1,3 +1,4 @@
+use crate::env::default_values::PART_DIRECTORY_SYMBOL;
 use crate::env::default_values::BASE_DIRECTORY_SYMBOL;
 use crate::env::default_values::BASED_PATH_SYMBOL;
 use crate::env::default_values::FINAL_PATH_SYMBOL;
@@ -119,6 +120,13 @@ impl FolderMap {
                     .find(|(key, _)| key.contains(&format!("/{}", &target)))
                     .map(|(_, value)| value)
                     .cloned()
+            } else if first_char == PART_DIRECTORY_SYMBOL {
+                let target: String = chars.collect();
+                self.map
+                    .iter()
+                    .find(|(key, _)| key.contains(&format!("{}", &target)))
+                    .map(|(_, value)| value)
+                    .cloned()
             } else if first_char == FINAL_PATH_SYMBOL {
                 let target: String = chars.collect();
                 self.map
@@ -180,15 +188,15 @@ impl FolderMap {
         };
         self.increase_picture_count(parent_id, count);
     }
+
 }
 #[cfg(test)]
 mod tests {
 
     use super::*;
 
-    #[test]
-    fn creating_a_folder_map_from_file_path() {
-        let file_paths: Vec<String> = vec![
+    fn test_file_paths() -> Vec<String> {
+        vec![
             String::from("%/foo.jpg"),
             String::from("%/bun/bar.jpg"),
             String::from("%/bun/qux.jpg"),
@@ -198,8 +206,11 @@ mod tests {
             String::from("%/gus/bum/jin/bla.jpg"),
             String::from("%/abc/def/qux.jpg"),
             String::from("%/abc/def/ghi/ijk/lmn.jpg"),
-        ];
-        let folders = FolderMap::from_file_paths(&file_paths);
+        ]
+    }
+    #[test]
+    fn creating_a_folder_map_from_file_path() {
+        let folders = FolderMap::from_file_paths(&test_file_paths());
         assert_eq!(11, folders.map().len());
         assert_eq!(
             Some(1),
@@ -244,18 +255,7 @@ mod tests {
 
     #[test]
     fn getting_a_folder_via_directory_name_or_part_depending_on_syntax() {
-        let file_paths: Vec<String> = vec![
-            String::from("%/foo.jpg"),
-            String::from("%/bun/bar.jpg"),
-            String::from("%/bun/qux.jpg"),
-            String::from("%/gus/bam/blo.jpg"),
-            String::from("%/gus/bim/blu.jpg"),
-            String::from("%/gus/bam/bla.jpg"),
-            String::from("%/gus/bum/jin/bla.jpg"),
-            String::from("%/abc/def/qux.jpg"),
-            String::from("%/abc/def/ghi/ijk/lmn.jpg"),
-        ];
-        let folders = FolderMap::from_file_paths(&file_paths);
+        let folders = FolderMap::from_file_paths(&test_file_paths());
         assert_eq!(None, folders.get("foo"));
         assert_eq!(None, folders.get("bun"));
         let folder_opt = folders.get("@bun");
@@ -301,18 +301,7 @@ mod tests {
     }
     #[test]
     fn updating_picture_count_of_folder_recurses_to_parent_folders() {
-        let file_paths: Vec<String> = vec![
-            String::from("%/foo.jpg"),
-            String::from("%/bun/bar.jpg"),
-            String::from("%/bun/qux.jpg"),
-            String::from("%/gus/bam/blo.jpg"),
-            String::from("%/gus/bim/blu.jpg"),
-            String::from("%/gus/bam/bla.jpg"),
-            String::from("%/gus/bum/jin/bla.jpg"),
-            String::from("%/abc/def/qux.jpg"),
-            String::from("%/abc/def/ghi/ijk/lmn.jpg"),
-        ];
-        let mut folders = FolderMap::from_file_paths(&file_paths);
+        let mut folders = FolderMap::from_file_paths(&test_file_paths());
         let folder = folders.get("@gus").expect("fail: %gus not in folders");
         assert_eq!(4, folder.picture_count());
         let folder = folders
@@ -330,21 +319,18 @@ mod tests {
     }
     #[test]
     fn finding_a_folder_by_its_last_component() {
-        let file_paths: Vec<String> = vec![
-            String::from("%/foo.jpg"),
-            String::from("%/bun/bar.jpg"),
-            String::from("%/bun/qux.jpg"),
-            String::from("%/gus/bam/blo.jpg"),
-            String::from("%/gus/bim/blu.jpg"),
-            String::from("%/gus/bam/bla.jpg"),
-            String::from("%/gus/bum/jin/bla.jpg"),
-            String::from("%/abc/def/qux.jpg"),
-            String::from("%/abc/def/ghi/ijk/lmn.jpg"),
-        ];
-        let folders = FolderMap::from_file_paths(&file_paths);
+        let folders = FolderMap::from_file_paths(&test_file_paths());
         let folder = folders
             .get("^jin")
             .expect("fail: no folder ending with jin");
+        assert_eq!("%/gus/bum/jin", folder.file_path());
+    }
+    #[test]
+    fn finding_an_approximate_target() {
+        let folders = FolderMap::from_file_paths(&test_file_paths());
+        let folder = folders
+            .get(":ji")
+            .expect("fail: ji not a part of any folder name");
         assert_eq!("%/gus/bum/jin", folder.file_path());
     }
 }

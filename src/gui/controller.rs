@@ -1464,15 +1464,19 @@ impl Controller {
                                 match result {
                                     Ok(_) => {}
                                     Err(e) => {
-                                        window.exit_with_information(&format!("{}:{}", target_directory, e));
+                                        window.exit_with_information(&format!(
+                                            "{}:{}",
+                                            target_directory, e
+                                        ));
                                     }
                                 }
                             }
                         });
                         window.deselect_pictures();
                         if emptying {
-                            window
-                                .exit_with_information("Empty gallery. Restart gsr with other options");
+                            window.exit_with_information(
+                                "Empty gallery. Restart gsr with other options",
+                            );
                         } else {
                             let location = this
                                 .with_view_state(|view_state| view_state.current_location.clone());

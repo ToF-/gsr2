@@ -1,4 +1,3 @@
-use crate::gui::key_input::information::exit_information;
 use crate::env::default_values::FRAME_WINDOW_NAME;
 use crate::env::default_values::FULL_OPACITY;
 use crate::env::default_values::GRID_WINDOW_NAME;
@@ -11,6 +10,7 @@ use crate::gui::control::default_controls;
 use crate::gui::direction::Direction;
 use crate::gui::display::title_display;
 use crate::gui::key_input::entry::target_directory_entry;
+use crate::gui::key_input::information::exit_information;
 use crate::gui::key_input::information::information;
 use crate::gui::mode::Mode;
 use crate::gui::objects::gsr_application::GsrApplication;
