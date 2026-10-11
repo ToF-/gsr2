@@ -406,7 +406,7 @@ impl Repository {
                 );
                 let folder_map = self.folder_map_rc.borrow();
                 let folder_opt = folder_map.get(&directory);
-                if self.command_line_arguments.structured && folder_opt.is_none() {
+                if folder_opt.is_none() {
                     Err(IOError::other(format!(
                         "folder {} not found. (format should be {}dir {}dir or {}dir)",
                         directory, BASED_PATH_SYMBOL, NEAR_DIRECTORY_SYMBOL, FINAL_PATH_SYMBOL
