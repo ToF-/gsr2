@@ -446,8 +446,6 @@ impl Controller {
         sub_directory: Option<String>,
         predicate_opt: Option<Predicate>,
     ) -> IOResult<usize> {
-        dbg!(&self.command_line_arguments().directory);
-        dbg!(&sub_directory);
         let initial_command_line_arguments = self.command_line_arguments();
         let command_line_arguments = CommandLineArguments {
             covers: covers_only_opt.unwrap_or_default(),
@@ -1238,7 +1236,6 @@ impl Controller {
                     });
                     let location =
                         this.with_view_state(|view_state| view_state.current_location.clone());
-                    dbg!(&this.with_view_state(|view_state| view_state.gallery().len()));
                     match this.retrieve_from_repository(
                         Some(location.covers_only()),
                         location.sub_directory(),
@@ -1251,7 +1248,6 @@ impl Controller {
                         }
                         Ok(_) => {}
                     };
-                    dbg!(&this.with_view_state(|view_state| view_state.gallery().len()));
                     window.refresh_view();
                 }
             }

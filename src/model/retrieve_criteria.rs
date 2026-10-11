@@ -107,6 +107,7 @@ impl RetrieveCriteria {
             && let Some(categories) = self.categories.clone()
             && let Some(category_name) = image_data.category_name()
         {
+            dbg!();
             catalog.is_one_of(&categories, &category_name)
         } else {
             true

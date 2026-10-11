@@ -1218,7 +1218,6 @@ mod tests {
             .try_borrow()
             .expect("can't borrow repository gallery");
         assert_eq!(4, gallery.len());
-        dbg!(&args.order);
         assert!(gallery.picture(0).file_size() <= gallery.picture(1).file_size());
         assert!(gallery.picture(1).file_size() <= gallery.picture(2).file_size());
         assert!(gallery.picture(2).file_size() <= gallery.picture(3).file_size());
@@ -1304,9 +1303,7 @@ mod tests {
         let repository = Repository::new(args.clone(), false);
         assert!(repository.retrieve_pictures(None).is_ok());
         let map = repository.parent_dirs();
-        dbg!(&map);
         let directory = file_path_as_stored(&format!("{}/{}", current_directory(), TEST_DATA_DIR));
-        dbg!(&directory);
         let counts: (usize, usize) = *map.get(&directory).expect("can't access parent dir count");
         assert_eq!((3, 1), counts);
     }
