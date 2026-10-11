@@ -287,7 +287,7 @@ impl GsrApplicationWindow {
 
     pub fn refresh_view(&self) {
         if self.with_view_state(|view_state| view_state.gallery().is_empty()) {
-            return
+            return;
         };
         let pictures_per_row =
             self.with_view_state(|view_state| view_state.settings.pictures_per_row());

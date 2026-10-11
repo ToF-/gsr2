@@ -102,6 +102,9 @@ impl ViewState {
         self.current_location.set_position(position)
     }
 
+    pub fn set_current_location_directory(&mut self, directory: Option<String>) {
+        self.current_location.set_sub_directory(directory)
+    }
     pub fn set_current_location_covers_only(&mut self, covers_only: bool) {
         self.current_location.set_covers_only(covers_only)
     }

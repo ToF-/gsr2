@@ -14,7 +14,7 @@ use std::io::BufReader;
 use std::io::Error as IOError;
 use std::io::Result as IOResult;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct RetrieveCriteria {
     pub tag_selection_criteria: TagSelectionCriteria,
     pub categories: Option<Categories>,

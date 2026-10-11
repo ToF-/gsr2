@@ -45,4 +45,8 @@ impl Location {
     pub fn set_covers_only(&mut self, on: bool) {
         self.covers_only = on
     }
+
+    pub fn set_sub_directory(&mut self, sub_directory: Option<String>) {
+        self.sub_directory = sub_directory
+    }
 }

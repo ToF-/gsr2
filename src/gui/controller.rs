@@ -446,6 +446,8 @@ impl Controller {
         sub_directory: Option<String>,
         predicate_opt: Option<Predicate>,
     ) -> IOResult<usize> {
+        dbg!(&self.command_line_arguments().directory);
+        dbg!(&sub_directory);
         let initial_command_line_arguments = self.command_line_arguments();
         let command_line_arguments = CommandLineArguments {
             covers: covers_only_opt.unwrap_or_default(),
@@ -1231,6 +1233,7 @@ impl Controller {
                         view_state.set_current_location_position(position);
                         view_state
                             .set_current_location_covers_only(view_state.settings.covers_only());
+                        view_state.set_current_location_directory(directory_opt.as_ref().and_then(|directory| parent_directory(&directory)));
                         view_state.set_new_location(directory_opt, None, 0, false)
                     });
                     let location =

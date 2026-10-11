@@ -4,7 +4,7 @@ use crate::model::tags::{Tags, empty_tags, tags_from_str};
 pub const SOME_TAGS: bool = false;
 pub const ALL_TAGS: bool = true;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Default, Clone)]
 pub struct TagSelectionCriteria {
     tags: Tags,
     restrict: bool,

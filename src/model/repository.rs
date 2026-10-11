@@ -51,12 +51,14 @@ pub const DATABASE_EXISTS: bool = true;
 #[derive(Debug, Clone)]
 pub struct Repository {
     command_line_arguments: CommandLineArguments,
+    clargs_stack: Vec<CommandLineArguments>,
     database: Database,
     tags_rc: RefCell<Tags>,
     categories_rc: RefCell<Tags>,
     gallery_rc: Rc<RefCell<Gallery>>,
     parent_dirs_rc: RefCell<HashMap<String, (usize, usize)>>,
     folder_map_rc: RefCell<FolderMap>,
+    retrieve_criteria_rc: RefCell<RetrieveCriteria>,
 }
 
 impl Repository {
@@ -65,12 +67,14 @@ impl Repository {
         let database = Database::from_connection(&configuration.database_file, create).unwrap();
         Repository {
             command_line_arguments: clargs.clone(),
+            clargs_stack: Vec::new(),
             database,
             tags_rc: RefCell::new(crate::model::tags::empty_tags()),
             categories_rc: RefCell::new(crate::model::tags::empty_tags()),
             gallery_rc: Rc::new(RefCell::new(Gallery::new())),
             parent_dirs_rc: RefCell::new(HashMap::new()),
             folder_map_rc: RefCell::new(FolderMap::default()),
+            retrieve_criteria_rc: RefCell::new(RetrieveCriteria::default()),
         }
     }
 
@@ -131,6 +135,7 @@ impl Repository {
             let mut gallery = self.gallery_rc.borrow_mut();
             RetrieveCriteria::new(args, predicate_opt, None, Some(catalog.clone())).and_then(
                 |retrieve_criteria| {
+                    *self.retrieve_criteria_rc.borrow_mut() = retrieve_criteria.clone();
                     self.database
                         .select_pictures(retrieve_criteria, None)
                         .and_then(|pictures| {
@@ -154,6 +159,7 @@ impl Repository {
             let mut gallery = self.gallery_rc.borrow_mut();
             RetrieveCriteria::new(args, predicate_opt, Some(folder_id), Some(catalog.clone()))
                 .and_then(|retrieve_criteria| {
+                    *self.retrieve_criteria_rc.borrow_mut() = retrieve_criteria.clone();
                     self.database
                         .select_pictures(retrieve_criteria, Some(folder_id))
                         .and_then(|pictures| {
@@ -528,6 +534,15 @@ impl Repository {
         }
     }
 
+    pub fn push_command_line_arguments(&mut self) {
+        self.clargs_stack.push(self.command_line_arguments.clone());
+    }
+
+    pub fn pop_command_line_arguments(&mut self) {
+        if let Some(clargs) = self.clargs_stack.pop() {
+            self.command_line_arguments = clargs
+        }
+    }
     pub fn set_command_line_arguments(&mut self, clargs: CommandLineArguments) {
         self.command_line_arguments = clargs
     }

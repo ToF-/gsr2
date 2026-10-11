@@ -200,7 +200,7 @@ pub fn execute_command(
                     print_tags(&gallery);
                     Ok(Status::Exit)
                 } else {
-                    println!("gallery length: {} pictures", &gallery.len());
+                    println!("gallery length: {} items", &gallery.len());
                     if let Some(initial_position) = command_line_arguments.index {
                         Ok(Status::Ready(initial_position))
                     } else if let Some(file_path) = config.current_picture
