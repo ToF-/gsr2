@@ -9,6 +9,5 @@ pub mod entry_kind;
 pub mod key_input;
 pub mod mode;
 pub mod objects;
-pub mod view;
 pub mod view_mode;
 pub mod view_state;
