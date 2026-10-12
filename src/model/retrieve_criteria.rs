@@ -105,10 +105,12 @@ impl RetrieveCriteria {
     fn check_one_of_categories(&self, image_data: &ImageData) -> bool {
         if let Some(ref catalog) = self.catalog_opt
             && let Some(categories) = self.categories.clone()
-            && let Some(category_name) = image_data.category_name()
         {
-            dbg!();
-            catalog.is_one_of(&categories, &category_name)
+            if let Some(category_name) = image_data.category_name() {
+                catalog.is_one_of(&categories, &category_name)
+            } else {
+                false
+            }
         } else {
             true
         }

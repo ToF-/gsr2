@@ -1,3 +1,4 @@
+use crate::gui::objects::gsr_palette_area::make_palette_area;
 use crate::env::default_values::FOCUS_BLINKING_DURATION;
 use crate::env::default_values::FOCUS_SYMBOL_1;
 use crate::env::default_values::FOCUS_SYMBOL_2;
@@ -13,7 +14,6 @@ use crate::gui::controller::Controller;
 use crate::gui::display::picture_label_display;
 use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
 use crate::gui::objects::gsr_picture_grid::GsrPictureGrid;
-use crate::gui::view::palette_area::make_palette_area;
 use crate::model::palette::Palette;
 use crate::model::picture::Picture;
 use crate::model::thumbnail::no_thumbnail_picture;

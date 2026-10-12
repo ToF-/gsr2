@@ -1,7 +1,9 @@
+use crate::gui::objects::gsr_palette_area::GsrPaletteArea;
+use crate::gui::objects::gsr_palette_area::make_palette_area;
 use crate::file::paths::file_path_as_retrieved;
 use crate::gui::objects::gsr_application::GsrApplication;
 use crate::gui::objects::gsr_application_window::picture_opacity;
-use crate::gui::view::gtk_picture_from_file_path;
+use crate::gui::objects::gtk_picture_from_file_path;
 use crate::gui::view_mode::ViewMode;
 use crate::model::thumbnail::transparent_folder_picture;
 use gtk::Picture as GtkPicture;
@@ -9,7 +11,6 @@ use gtk::Picture as GtkPicture;
 use crate::env::default_values::FRAME_PALETTE_AREA_HEIGHT;
 use crate::env::default_values::FRAME_PALETTE_AREA_WIDTH;
 use crate::gui::objects::gsr_application_window::GsrApplicationWindow;
-use crate::gui::view::palette_area::make_palette_area;
 use gtk::Align;
 use gtk::Orientation;
 use gtk::gio::File as GtkFile;
@@ -99,8 +100,8 @@ impl GsrPictureFrame {
         self.append(&gtk_picture);
     }
 
-    pub fn set_palette_area(&self, gtk_drawing_area: gtk::DrawingArea) {
-        self.append(&gtk_drawing_area)
+    pub fn set_palette_area(&self, gtk_palette_area: GsrPaletteArea) {
+        self.append(&gtk_palette_area)
     }
 
     pub fn set_picture_opacity(&self, opacity: f64) {

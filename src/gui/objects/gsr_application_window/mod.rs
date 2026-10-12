@@ -18,7 +18,6 @@ use crate::gui::objects::gsr_entry_window::GsrEntryWindow;
 use crate::gui::objects::gsr_picture_frame::GsrPictureFrame;
 use crate::gui::objects::gsr_picture_grid::GsrPictureGrid;
 use crate::gui::objects::gsr_treelist_window::GsrTreelistWindow;
-use crate::gui::view::treelist_window::TreeListWindow;
 use crate::gui::view_state::ViewState;
 use crate::gui::view_state::navigator::Navigator;
 use crate::gui::view_state::selection_range::SelectionRange;
@@ -809,11 +808,6 @@ impl GsrApplicationWindow {
                 self.refresh_title();
             }
         }
-    }
-    pub fn popup_treelist_window(&self, prompt: &str, catalog: &Catalog) -> TreeListWindow {
-        let treelist_window = TreeListWindow::new(self, prompt, "", catalog);
-        treelist_window.popup();
-        treelist_window
     }
 }
 

@@ -5,7 +5,9 @@ use gtk::prelude::DrawingAreaExtManual;
 use gtk::prelude::WidgetExt;
 use palette_extract::Color;
 
-pub fn make_palette_area(sample: Vec<Color>, width: i32, height: i32) -> gtk::DrawingArea {
+pub type GsrPaletteArea = gtk::DrawingArea;
+
+pub fn make_palette_area(sample: Vec<Color>, width: i32, height: i32) -> GsrPaletteArea {
     let palette_area = gtk::DrawingArea::new();
     palette_area.set_valign(Align::Center);
     palette_area.set_halign(Align::Center);

@@ -1231,7 +1231,11 @@ impl Controller {
                         view_state.set_current_location_position(position);
                         view_state
                             .set_current_location_covers_only(view_state.settings.covers_only());
-                        view_state.set_current_location_directory(directory_opt.as_ref().and_then(|directory| parent_directory(&directory)));
+                        view_state.set_current_location_directory(
+                            directory_opt
+                                .as_ref()
+                                .and_then(|directory| parent_directory(&directory)),
+                        );
                         view_state.set_new_location(directory_opt, None, 0, false)
                     });
                     let location =
