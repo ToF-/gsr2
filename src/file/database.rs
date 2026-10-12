@@ -1277,6 +1277,7 @@ pub mod tests {
             pattern: None,
             cover: false,
             parent_opt: None,
+            folder_id_opt: None,
             predicate_opt: None,
             catalog_opt: None,
         };
