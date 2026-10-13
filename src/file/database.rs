@@ -295,10 +295,10 @@ impl Database {
         }))
     }
 
-    pub fn rusqlite_select_all_marks(&self) -> SqlResult<BTreeMap<char, String>> {
+    pub fn select_all_marks(&self) -> IOResult<BTreeMap<char, String>> {
         let sql_query = SELECT_MARKS;
         let connection = self.connection_rc.borrow();
-        connection.prepare(sql_query).and_then(|mut statement| {
+        sql_to_io_result(connection.prepare(sql_query).and_then(|mut statement| {
             statement.query([]).map(|mut rows| {
                 let mut map: BTreeMap<char, String> = BTreeMap::new();
                 while let Some(row) = rows.next().unwrap() {
@@ -309,7 +309,7 @@ impl Database {
                 }
                 map
             })
-        })
+        }))
     }
     pub fn rusqlite_select_all_pictures(
         &self,
@@ -558,8 +558,7 @@ impl Database {
         sql_to_io_result(connection.execute(
             UPDATE_FOLDER_FIRST_FILE_PATH,
             params![folder_id, first_file_path],
-        )
-        )
+        ))
     }
     pub fn select_pictures_for_directory(&self, directory: &str) -> IOResult<Vec<Picture>> {
         match self.rusqlite_select_pictures_for_directory(directory) {
@@ -593,33 +592,34 @@ impl Database {
 
     pub fn select_folders(&self) -> IOResult<FolderMap> {
         let connection = self.connection_rc.borrow();
-        sql_to_io_result(connection
-            .prepare(&format!("SELECT {} FROM Folder;", FOLDER_COLUMNS))
-            .map(|mut statement| {
-                let mut folder_map: FolderMap = FolderMap::default();
-                let _ = statement.query([]).map(|mut rows| {
-                    while let Some(row) = rows.next().unwrap() {
-                        let folder_id: usize = row.get(0).expect("can't get column FolderId");
-                        let file_path: String = row.get(1).expect("can't get column FilePath");
-                        let parent_id: usize = row.get(2).expect("can't get column ParentId");
-                        let picture_count: usize =
-                            row.get(3).expect("can't get column PictureCount");
-                        let first_file_path: String = match row.get(4) {
-                            Ok(Some(s)) => s,
-                            Ok(None) => "".to_string(),
-                            Err(_) => "".to_string(),
-                        };
-                        folder_map.insert(
-                            folder_id,
-                            &file_path,
-                            parent_id,
-                            picture_count,
-                            &first_file_path,
-                        );
-                    }
-                });
-                folder_map
-            })
+        sql_to_io_result(
+            connection
+                .prepare(&format!("SELECT {} FROM Folder;", FOLDER_COLUMNS))
+                .map(|mut statement| {
+                    let mut folder_map: FolderMap = FolderMap::default();
+                    let _ = statement.query([]).map(|mut rows| {
+                        while let Some(row) = rows.next().unwrap() {
+                            let folder_id: usize = row.get(0).expect("can't get column FolderId");
+                            let file_path: String = row.get(1).expect("can't get column FilePath");
+                            let parent_id: usize = row.get(2).expect("can't get column ParentId");
+                            let picture_count: usize =
+                                row.get(3).expect("can't get column PictureCount");
+                            let first_file_path: String = match row.get(4) {
+                                Ok(Some(s)) => s,
+                                Ok(None) => "".to_string(),
+                                Err(_) => "".to_string(),
+                            };
+                            folder_map.insert(
+                                folder_id,
+                                &file_path,
+                                parent_id,
+                                picture_count,
+                                &first_file_path,
+                            );
+                        }
+                    });
+                    folder_map
+                }),
         )
     }
 
@@ -657,7 +657,6 @@ impl Database {
         transaction.commit().expect("can't commit transaction");
         sql_to_io_result(Ok(count))
     }
-
 
     pub fn insert_picture(&self, picture: &Picture) -> IOResult<usize> {
         let connection = self.connection_rc.borrow();

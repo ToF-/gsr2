@@ -356,10 +356,7 @@ impl Repository {
     }
 
     pub fn retrieve_all_marks(&self) -> IOResult<BTreeMap<char, String>> {
-        match self.database.rusqlite_select_all_marks() {
-            Ok(map) => Ok(map),
-            Err(e) => Err(IOError::other(e)),
-        }
+        self.database.select_all_marks()
     }
 
     pub fn retrieve_pictures(&self, predicate_opt: Option<Predicate>) -> IOResult<usize> {
