@@ -67,7 +67,7 @@ pub fn list(catalog: &Catalog) {
 }
 
 fn save_catalog(catalog: &Catalog, database: &Database) {
-    match database.rusqlite_update_catalog(&catalog.to_sexp()) {
+    match database.update_catalog(&catalog.to_sexp()) {
         Ok(_) => {}
         Err(err) => eprintln!("error: {}", err),
     }

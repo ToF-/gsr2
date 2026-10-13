@@ -91,12 +91,9 @@ impl Catalog {
         self.root.format_at_level(0, false)
     }
 
-    pub fn save_to_database(&mut self, database: &Database) -> Result<()> {
+    pub fn save_to_database(&mut self, database: &Database) -> Result<(usize)> {
         self.sort();
-        match database.rusqlite_update_catalog(&self.to_sexp()) {
-            Ok(_) => Ok(()),
-            Err(e) => Err(Error::other(e)),
-        }
+        database.update_catalog(&self.to_sexp())
     }
     pub fn root_category(&self) -> SubCategory {
         self.root.clone()

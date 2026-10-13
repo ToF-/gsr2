@@ -174,108 +174,67 @@ impl Database {
             })
     }
 
-    pub fn rusqlite_update_catalog(&self, sexpr: &str) -> SqlResult<usize> {
-        let connection = self.connection_rc.borrow();
-        connection
-            .execute(DELETE_CATALOG, params![])
-            .and_then(|_| connection.execute(INSERT_CATALOG, params![sexpr]))
-    }
-
     pub fn update_catalog(&self, sexpr: &str) -> IOResult<usize> {
-        sql_to_io_result(self.rusqlite_update_catalog(sexpr))
-    }
-
-    pub fn rusqlite_update_folders(&self, folders: &FolderMap) -> SqlResult<usize> {
         let connection = self.connection_rc.borrow();
-        let mut count = 0;
-        for folder in folders.folders() {
-            match connection.execute(
-                INSERT_OR_UPDATE_FOLDER,
-                params![
-                    folder.id(),
-                    folder.file_path(),
-                    folder.parent_id(),
-                    folder.picture_count(),
-                    folder.first_file_path()
-                ],
-            ) {
-                Ok(n) => count += n,
-                Err(e) => return Err(e),
-            }
-        }
-        Ok(count)
+        sql_to_io_result(
+            connection
+                .execute(DELETE_CATALOG, params![])
+                .and_then(|_| connection.execute(INSERT_CATALOG, params![sexpr])),
+        )
     }
 
     pub fn update_folders(&self, folders: &FolderMap) -> IOResult<usize> {
-        sql_to_io_result(self.rusqlite_update_folders(folders))
-    }
-
-    fn rusqlite_insert_picture(&self, picture: &Picture) -> SqlResult<usize> {
         let connection = self.connection_rc.borrow();
-        let image_data = picture.image_data().unwrap_or_default();
-        connection
-            .execute(
-                INSERT_PICTURE,
-                params![
-                    file_path_as_stored(&picture.file_path()),
-                    image_data.label(),
-                    image_data.size(),
-                    image_data.modified_time(),
-                    <Rank as Into<i64>>::into(image_data.rank()),
-                    image_data.palette().sample_as_array(),
-                    image_data.palette.count(),
-                    cover_to_bool(image_data.cover()),
-                    image_data.score,
-                    image_data.category_name,
-                ],
-            )
-            .map(|count| {
-                let mut tag_count = 0;
-                for tag in image_data.tags() {
-                    match connection.execute(
-                        INSERT_TAG,
-                        params![file_path_as_stored(&picture.file_path()), tag],
-                    ) {
-                        Ok(n) => tag_count += n,
-                        Err(err) => {
-                            eprintln!("{}", err);
-                        }
-                    }
+        let mut count = 0;
+        sql_to_io_result({
+            for folder in folders.folders() {
+                match connection.execute(
+                    INSERT_OR_UPDATE_FOLDER,
+                    params![
+                        folder.id(),
+                        folder.file_path(),
+                        folder.parent_id(),
+                        folder.picture_count(),
+                        folder.first_file_path()
+                    ],
+                ) {
+                    Ok(n) => count += n,
+                    Err(e) => return sql_to_io_result(Err(e)),
                 }
-                count + tag_count
-            })
+            }
+            Ok(count)
+        })
     }
 
-    fn rusqlite_update_picture(&self, picture: &Picture) -> SqlResult<usize> {
+    pub fn update_picture(&self, picture: &Picture) -> IOResult<usize> {
         let connection = self.connection_rc.borrow();
         let image_data = picture.image_data().unwrap_or_default();
-        connection
-            .execute(
-                UPDATE_PICTURE,
-                params![
-                    file_path_as_stored(&picture.file_path()),
-                    image_data.label(),
-                    image_data.size(),
-                    image_data.modified_time(),
-                    <Rank as Into<i64>>::into(image_data.rank()),
-                    image_data.palette().sample_as_array(),
-                    image_data.palette.count(),
-                    cover_to_bool(image_data.cover),
-                    image_data.score,
-                    image_data.category_name,
-                ],
-            )
-            .and_then(|_| {
-                self.rusqlite_delete_tags(&picture.file_path())
-                    .and_then(|_| self.rusqlite_add_tags(&picture.file_path(), &image_data.tags))
-            })
+        sql_to_io_result(connection.execute(
+            UPDATE_PICTURE,
+            params![
+                file_path_as_stored(&picture.file_path()),
+                image_data.label(),
+                image_data.size(),
+                image_data.modified_time(),
+                <Rank as Into<i64>>::into(image_data.rank()),
+                image_data.palette().sample_as_array(),
+                image_data.palette.count(),
+                cover_to_bool(image_data.cover),
+                image_data.score,
+                image_data.category_name,
+            ],
+        ))
+        .and_then(|_| {
+            self.delete_tags(&picture.file_path())
+                .and_then(|_| self.add_tags(&picture.file_path(), &image_data.tags))
+        })
     }
-    fn rusqlite_delete_tags(&self, file_path: &str) -> SqlResult<usize> {
+    fn delete_tags(&self, file_path: &str) -> IOResult<usize> {
         let connection = self.connection_rc.borrow();
-        connection.execute(DELETE_TAGS, params![file_path_as_stored(file_path)])
+        sql_to_io_result(connection.execute(DELETE_TAGS, params![file_path_as_stored(file_path)]))
     }
 
-    fn rusqlite_add_tags(&self, file_path: &str, tags: &Tags) -> SqlResult<usize> {
+    fn add_tags(&self, file_path: &str, tags: &Tags) -> IOResult<usize> {
         let mut count: usize = 0;
         for label in tags.iter() {
             let connection = self.connection_rc.borrow();
@@ -288,7 +247,7 @@ impl Database {
                 }
             }
         }
-        Ok(count)
+        sql_to_io_result(Ok(count))
     }
 
     pub fn delete_picture_with_file_path(&self, file_path: &str) -> IOResult<usize> {
@@ -312,19 +271,19 @@ impl Database {
         sql_to_io_result(connection.execute(DELETE_FOLDERS, params![]))
     }
 
-    pub fn rusqlite_check_picture_with_file_path(&self, file_path: &str) -> SqlResult<String> {
+    pub fn check_picture_with_file_path(&self, file_path: &str) -> IOResult<String> {
         let connection = self.connection_rc.borrow();
-        connection.query_one(
+        sql_to_io_result(connection.query_one(
             "SELECT FilePath FROM Picture WHERE FilePath = ?1;",
             params![&file_path_as_stored(file_path)],
             |row| row.get(0),
-        )
+        ))
     }
 
-    pub fn rusqlite_select_all_cover_filepaths(&self) -> SqlResult<Vec<String>> {
+    pub fn select_all_cover_filepaths(&self) -> IOResult<Vec<String>> {
         let sql_query = SELECT_ALL_COVERS;
         let connection = self.connection_rc.borrow();
-        connection.prepare(sql_query).and_then(|mut statement| {
+        sql_to_io_result(connection.prepare(sql_query).and_then(|mut statement| {
             statement.query([]).map(|mut rows| {
                 let mut vec: Vec<String> = Vec::new();
                 while let Some(row) = rows.next().unwrap() {
@@ -333,14 +292,7 @@ impl Database {
                 }
                 vec
             })
-        })
-    }
-
-    pub fn select_all_cover_filepaths(&self) -> IOResult<Vec<String>> {
-        match self.rusqlite_select_all_cover_filepaths() {
-            Ok(vec) => Ok(vec),
-            Err(err) => Err(std::io::Error::other(err)),
-        }
+        }))
     }
 
     pub fn rusqlite_select_all_marks(&self) -> SqlResult<BTreeMap<char, String>> {
@@ -403,27 +355,6 @@ impl Database {
                 Ok(map)
             })
         })
-    }
-
-    pub fn rusqlite_select_categories(&self) -> SqlResult<HashSet<String>> {
-        let connection = self.connection_rc.borrow();
-        connection
-            .prepare(SELECT_ALL_CATEGORIES)
-            .and_then(|mut statement| {
-                let mut map: HashSet<String> = HashSet::new();
-                statement.query([]).map(|mut rows| {
-                    while let Some(row) = rows.next().unwrap() {
-                        let label: String = row.get(0).expect("can't access to column Category");
-                        let _ = map.insert(label);
-                    }
-                    map
-                })
-            })
-    }
-
-    pub fn rusqlite_select_catalog(&self) -> SqlResult<String> {
-        let connection = self.connection_rc.borrow();
-        connection.query_one("SELECT Sexp FROM Catalog;", params![], |row| row.get(0))
     }
 
     pub fn rusqlite_select_labels(&self) -> SqlResult<HashSet<String>> {
@@ -547,22 +478,16 @@ impl Database {
         connection.execute(UPDATE_FOLDER_ID_FOR_PICTURE, params![file_path, folder_id])
     }
 
-    pub fn rusqlite_update_picture_is_cover(&self, picture: &Picture) -> SqlResult<usize> {
+    pub fn update_picture_is_cover(&self, picture: &Picture) -> IOResult<usize> {
         let image_data = picture.image_data().expect("can't access image data");
         let connection = self.connection_rc.borrow();
-        connection.execute(
+        sql_to_io_result(connection.execute(
             "UPDATE Picture SET Cover = ?2 WHERE FilePath = ?1;",
             params![
                 file_path_as_stored(&picture.file_path()),
                 cover_to_bool(image_data.cover())
             ],
-        )
-    }
-    pub fn update_picture_is_cover(&self, picture: &Picture) -> IOResult<usize> {
-        match self.rusqlite_update_picture_is_cover(picture) {
-            Ok(n) => Ok(n),
-            Err(e) => Err(std::io::Error::other(e)),
-        }
+        ))
     }
     pub fn update_folder_id_for_picture(
         &self,
@@ -575,19 +500,19 @@ impl Database {
         }
     }
 
-    pub fn rusqlite_picture_folder_id_for_directory(
+    pub fn picture_folder_id_for_directory(
         &self,
         directory: &str,
         folder_id: FolderId,
-    ) -> SqlResult<usize> {
+    ) -> IOResult<usize> {
         let connection = self.connection_rc.borrow();
-        connection.execute(
+        sql_to_io_result(connection.execute(
             &format!(
                 "UPDATE Picture SET FolderId = ?2 WHERE {} ;",
                 PARENT_DIR_CLAUSE
             ),
             params![directory, folder_id],
-        )
+        ))
     }
 
     pub fn update_picture_folder_id_for_directory(
@@ -595,39 +520,21 @@ impl Database {
         directory: &str,
         folder_id: FolderId,
     ) -> IOResult<usize> {
-        match self.rusqlite_picture_folder_id_for_directory(directory, folder_id) {
+        match self.picture_folder_id_for_directory(directory, folder_id) {
             Ok(n) => Ok(n),
             Err(err) => Err(std::io::Error::other(err)),
         }
     }
-    fn rusqlite_update_folder_first_file_path(&self) -> SqlResult<usize> {
+
+    pub fn update_folder_first_file_path(&self) -> IOResult<usize> {
         let connection = self.connection_rc.borrow();
-        connection.execute(
+        sql_to_io_result(connection.execute(
             &format!(
                 "UPDATE Folder SET FirstFilePath = ( {} ) WHERE EXISTS ( {} );",
                 SELECT_PICTURE_COVER_FILEPATH, SELECT_PICTURE_COVER_FILEPATH
             ),
             params![],
-        )
-    }
-
-    pub fn update_folder_first_file_path(&self) -> IOResult<usize> {
-        match self.rusqlite_update_folder_first_file_path() {
-            Ok(n) => Ok(n),
-            Err(e) => Err(std::io::Error::other(e)),
-        }
-    }
-
-    pub fn rusqlite_update_folder_picture_count_for_id(
-        &self,
-        folder_id: FolderId,
-        picture_count: usize,
-    ) -> SqlResult<usize> {
-        let connection = self.connection_rc.borrow();
-        connection.execute(
-            UPDATE_FOLDER_PICTURE_COUNT,
-            params![folder_id, picture_count],
-        )
+        ))
     }
 
     pub fn update_folder_picture_count_for_id(
@@ -635,22 +542,11 @@ impl Database {
         folder_id: FolderId,
         picture_count: usize,
     ) -> IOResult<usize> {
-        match self.rusqlite_update_folder_picture_count_for_id(folder_id, picture_count) {
-            Ok(n) => Ok(n),
-            Err(e) => Err(std::io::Error::other(e)),
-        }
-    }
-
-    fn rusqlite_update_folder_first_file_path_for_id(
-        &self,
-        folder_id: usize,
-        first_file_path: &str,
-    ) -> SqlResult<usize> {
         let connection = self.connection_rc.borrow();
-        connection.execute(
-            UPDATE_FOLDER_FIRST_FILE_PATH,
-            params![folder_id, first_file_path],
-        )
+        sql_to_io_result(connection.execute(
+            UPDATE_FOLDER_PICTURE_COUNT,
+            params![folder_id, picture_count],
+        ))
     }
 
     pub fn update_folder_first_file_path_for_id(
@@ -658,10 +554,12 @@ impl Database {
         folder_id: usize,
         first_file_path: &str,
     ) -> IOResult<usize> {
-        match self.rusqlite_update_folder_first_file_path_for_id(folder_id, first_file_path) {
-            Ok(n) => Ok(n),
-            Err(e) => Err(std::io::Error::other(e)),
-        }
+        let connection = self.connection_rc.borrow();
+        sql_to_io_result(connection.execute(
+            UPDATE_FOLDER_FIRST_FILE_PATH,
+            params![folder_id, first_file_path],
+        )
+        )
     }
     pub fn select_pictures_for_directory(&self, directory: &str) -> IOResult<Vec<Picture>> {
         match self.rusqlite_select_pictures_for_directory(directory) {
@@ -670,7 +568,14 @@ impl Database {
         }
     }
 
-    fn rusqlite_select_all_picture_file_paths(&self) -> SqlResult<Vec<String>> {
+    pub fn select_pictures_for_folder_id(&self, folder_id: usize) -> IOResult<Vec<Picture>> {
+        match self.rusqlite_select_pictures_for_folder_id(folder_id) {
+            Ok(pictures) => Ok(pictures),
+            Err(err) => Err(std::io::Error::other(err)),
+        }
+    }
+
+    pub fn select_all_picture_file_paths(&self) -> IOResult<Vec<String>> {
         let mut result: Vec<String> = Vec::new();
         let sql_query = "SELECT FilePath FROM Picture;";
         let connection = self.connection_rc.borrow();
@@ -682,27 +587,13 @@ impl Database {
                 }
             })
         });
-        Ok(result)
-    }
-
-    pub fn select_pictures_for_folder_id(&self, folder_id: usize) -> IOResult<Vec<Picture>> {
-        match self.rusqlite_select_pictures_for_folder_id(folder_id) {
-            Ok(pictures) => Ok(pictures),
-            Err(err) => Err(std::io::Error::other(err)),
-        }
-    }
-
-    pub fn select_all_picture_file_paths(&self) -> IOResult<Vec<String>> {
-        match self.rusqlite_select_all_picture_file_paths() {
-            Ok(file_paths) => Ok(file_paths),
-            Err(err) => Err(std::io::Error::other(err)),
-        }
+        sql_to_io_result(Ok(result))
     }
     // "
 
-    pub fn rusqlite_select_folders(&self) -> SqlResult<FolderMap> {
+    pub fn select_folders(&self) -> IOResult<FolderMap> {
         let connection = self.connection_rc.borrow();
-        connection
+        sql_to_io_result(connection
             .prepare(&format!("SELECT {} FROM Folder;", FOLDER_COLUMNS))
             .map(|mut statement| {
                 let mut folder_map: FolderMap = FolderMap::default();
@@ -729,26 +620,20 @@ impl Database {
                 });
                 folder_map
             })
+        )
     }
 
-    pub fn select_folders(&self) -> IOResult<FolderMap> {
-        match self.rusqlite_select_folders() {
-            Ok(folder_map) => Ok(folder_map),
-            Err(err) => Err(std::io::Error::other(err)),
-        }
-    }
-
-    fn rusqlite_delete_all_folders(&self) -> SqlResult<usize> {
+    fn rusqlite_delete_all_folders(&self) -> IOResult<usize> {
         let connection = self.connection_rc.borrow();
-        connection.execute("DELETE FROM Folder;", [])
+        sql_to_io_result(connection.execute("DELETE FROM Folder;", []))
     }
 
-    fn rusqlite_renew_all_folders(&self, folder_map: FolderMap) -> SqlResult<usize> {
+    pub fn renew_all_folders(&self, folder_map: FolderMap) -> IOResult<usize> {
         self.rusqlite_delete_all_folders()
-            .and_then(|_| self.rusqlite_insert_or_update_folders(folder_map))
+            .and_then(|_| self.insert_or_update_folders(folder_map))
     }
 
-    fn rusqlite_insert_or_update_folders(&self, folder_map: FolderMap) -> SqlResult<usize> {
+    pub fn insert_or_update_folders(&self, folder_map: FolderMap) -> IOResult<usize> {
         let mut count = 0;
         let mut connection = self.connection_rc.borrow_mut();
         let transaction = connection.transaction().expect("can't open transaction");
@@ -770,32 +655,50 @@ impl Database {
             }
         }
         transaction.commit().expect("can't commit transaction");
-        Ok(count)
+        sql_to_io_result(Ok(count))
     }
 
-    pub fn renew_all_folders(&self, folder_map: FolderMap) -> IOResult<usize> {
-        println!("updating folders…");
-        match self.rusqlite_renew_all_folders(folder_map) {
-            Ok(_) => self.update_folder_first_file_path(),
-            Err(err) => Err(std::io::Error::other(err)),
-        }
-    }
 
-    pub fn insert_or_update_folders(&self, folder_map: FolderMap) -> IOResult<usize> {
-        match self.rusqlite_insert_or_update_folders(folder_map) {
-            Ok(_) => self.update_folder_first_file_path(),
-            Err(err) => Err(std::io::Error::other(err)),
-        }
-    }
     pub fn insert_picture(&self, picture: &Picture) -> IOResult<usize> {
-        match self.rusqlite_insert_picture(picture) {
-            Ok(n) => Ok(n),
-            Err(err) => Err(std::io::Error::other(err)),
-        }
-    }
-    pub fn rusqlite_insert_mark(&self, letter: char, file_path: &str) -> SqlResult<usize> {
         let connection = self.connection_rc.borrow();
-        connection.execute(INSERT_MARK, params![letter.to_string(), file_path])
+        let image_data = picture.image_data().unwrap_or_default();
+        sql_to_io_result(
+            connection
+                .execute(
+                    INSERT_PICTURE,
+                    params![
+                        file_path_as_stored(&picture.file_path()),
+                        image_data.label(),
+                        image_data.size(),
+                        image_data.modified_time(),
+                        <Rank as Into<i64>>::into(image_data.rank()),
+                        image_data.palette().sample_as_array(),
+                        image_data.palette.count(),
+                        cover_to_bool(image_data.cover()),
+                        image_data.score,
+                        image_data.category_name,
+                    ],
+                )
+                .map(|count| {
+                    let mut tag_count = 0;
+                    for tag in image_data.tags() {
+                        match connection.execute(
+                            INSERT_TAG,
+                            params![file_path_as_stored(&picture.file_path()), tag],
+                        ) {
+                            Ok(n) => tag_count += n,
+                            Err(err) => {
+                                eprintln!("{}", err);
+                            }
+                        }
+                    }
+                    count + tag_count
+                }),
+        )
+    }
+    pub fn insert_mark(&self, letter: char, file_path: &str) -> IOResult<usize> {
+        let connection = self.connection_rc.borrow();
+        sql_to_io_result(connection.execute(INSERT_MARK, params![letter.to_string(), file_path]))
     }
 
     fn rusqlite_row_to_picture(row: &Row) -> SqlResult<Picture, rusqlite::Error> {
@@ -837,30 +740,7 @@ impl Database {
         picture.set_image_data(image_data);
         Ok(picture)
     }
-    fn rusqulite_select_all_parent_file_paths(&self) -> SqlResult<HashMap<String, (usize, usize)>> {
-        let sql_query = "SELECT FilePath, Cover FROM Picture;";
-        let connection = self.connection_rc.borrow();
-        connection.prepare(sql_query).and_then(|mut statement| {
-            let mut map: HashMap<String, (usize, usize)> = HashMap::new();
-            statement.query([]).map(|mut rows| {
-                while let Some(row) = rows.next().unwrap() {
-                    let file_path: String = row.get(0).unwrap();
-                    let cover: bool = row.get(1).unwrap();
-                    if let Some(directory) = parent_directory(&file_path_as_stored(&file_path)) {
-                        if let Some(pair) = map.get_mut(&directory) {
-                            let count = pair.0;
-                            let covers = pair.1;
-                            *pair = (count + 1, if cover { covers + 1 } else { covers });
-                        } else {
-                            let pair = (1, if cover { 1 } else { 0 });
-                            let _ = map.insert(directory, pair);
-                        }
-                    }
-                }
-                map
-            })
-        })
-    }
+
     fn rusqlite_select_picture_with_file_path(&self, file_path: &str) -> SqlResult<Picture> {
         let connection = self.connection_rc.borrow();
         connection
@@ -903,19 +783,72 @@ impl Database {
     }
 
     pub fn select_catalog(&self) -> IOResult<String> {
-        sql_to_io_result(self.rusqlite_select_catalog())
+        let connection = self.connection_rc.borrow();
+        sql_to_io_result(
+            connection.query_one("SELECT Sexp FROM Catalog;", params![], |row| row.get(0)),
+        )
     }
 
     pub fn select_categories(&self) -> IOResult<HashSet<String>> {
-        sql_to_io_result(self.rusqlite_select_categories())
+        let connection = self.connection_rc.borrow();
+        sql_to_io_result(
+            connection
+                .prepare(SELECT_ALL_CATEGORIES)
+                .and_then(|mut statement| {
+                    let mut map: HashSet<String> = HashSet::new();
+                    statement.query([]).map(|mut rows| {
+                        while let Some(row) = rows.next().unwrap() {
+                            let label: String =
+                                row.get(0).expect("can't access to column Category");
+                            let _ = map.insert(label);
+                        }
+                        map
+                    })
+                }),
+        )
     }
 
     pub fn select_labels(&self) -> IOResult<HashSet<String>> {
-        sql_to_io_result(self.rusqlite_select_labels())
+        let connection = self.connection_rc.borrow();
+        sql_to_io_result(
+            connection
+                .prepare(SELECT_ALL_LABELS)
+                .and_then(|mut statement| {
+                    let mut map: HashSet<String> = HashSet::new();
+                    statement.query([]).map(|mut rows| {
+                        while let Some(row) = rows.next().unwrap() {
+                            let label: String = row.get(0).expect("can't access to column Label");
+                            let _ = map.insert(label);
+                        }
+                        map
+                    })
+                }),
+        )
     }
 
     pub fn select_parent_dirs(&self) -> IOResult<HashMap<String, (usize, usize)>> {
-        sql_to_io_result(self.rusqulite_select_all_parent_file_paths())
+        let sql_query = "SELECT FilePath, Cover FROM Picture;";
+        let connection = self.connection_rc.borrow();
+        sql_to_io_result(connection.prepare(sql_query).and_then(|mut statement| {
+            let mut map: HashMap<String, (usize, usize)> = HashMap::new();
+            statement.query([]).map(|mut rows| {
+                while let Some(row) = rows.next().unwrap() {
+                    let file_path: String = row.get(0).unwrap();
+                    let cover: bool = row.get(1).unwrap();
+                    if let Some(directory) = parent_directory(&file_path_as_stored(&file_path)) {
+                        if let Some(pair) = map.get_mut(&directory) {
+                            let count = pair.0;
+                            let covers = pair.1;
+                            *pair = (count + 1, if cover { covers + 1 } else { covers });
+                        } else {
+                            let pair = (1, if cover { 1 } else { 0 });
+                            let _ = map.insert(directory, pair);
+                        }
+                    }
+                }
+                map
+            })
+        }))
     }
 
     pub fn select_pictures(
@@ -973,10 +906,6 @@ impl Database {
     pub fn select_picture_with_file_path(&self, file_path: &str) -> IOResult<Picture> {
         sql_to_io_result(self.rusqlite_select_picture_with_file_path(file_path))
     }
-
-    pub fn update_picture(&self, picture: &Picture) -> IOResult<usize> {
-        sql_to_io_result(self.rusqlite_update_picture(picture))
-    }
 }
 
 fn sql_to_io_result<T>(result: SqlResult<T>) -> IOResult<T> {
@@ -1001,7 +930,7 @@ pub mod tests {
     use std::collections::HashSet;
 
     pub fn my_db() -> Database {
-        let database = Database::rusqlite_from_connection(TEST_DATABASE_FILE, false)
+        let database = Database::from_connection(TEST_DATABASE_FILE, false)
             .expect("test database can't be open");
         database
     }
@@ -1124,7 +1053,7 @@ pub mod tests {
         let initial: TimeStamp = picture_file_data.1;
         let _ = database.delete_picture_with_file_path(&file_path);
 
-        assert!(database.rusqlite_insert_picture(&picture).is_ok());
+        assert!(database.insert_picture(&picture).is_ok());
         let result = database.rusqlite_select_picture_with_file_path(&file_path);
         let _ = database.delete_picture_with_file_path(&file_path);
         assert!(result.is_ok(), "could not retrieve picture in db");
@@ -1158,7 +1087,7 @@ pub mod tests {
             .expect("can't access picture image data");
         image_data.rank = Rank::TwoStars;
         picture.set_image_data(image_data);
-        assert!(database.rusqlite_update_picture(&picture).is_ok());
+        assert!(database.update_picture(&picture).is_ok());
         let new_picture = database
             .rusqlite_select_picture_with_file_path(&nine_colors_file_path())
             .unwrap();
@@ -1169,7 +1098,7 @@ pub mod tests {
                 .expect("can't access image data")
                 .rank()
         );
-        let _ = database.rusqlite_update_picture(&old_picture);
+        let _ = database.update_picture(&old_picture);
     }
 
     #[test]
@@ -1182,13 +1111,13 @@ pub mod tests {
         let old_picture = picture.clone();
         picture.add_tag("foo");
         picture.add_tag("bar");
-        assert!(database.rusqlite_update_picture(&picture).is_ok());
+        assert!(database.update_picture(&picture).is_ok());
         let new_picture = database
             .rusqlite_select_picture_with_file_path(&nine_colors_file_path())
             .unwrap();
         assert!(new_picture.image_data().unwrap().tags.contains("foo"));
         assert!(new_picture.image_data().unwrap().tags.contains("bar"));
-        let _ = database.rusqlite_update_picture(&old_picture);
+        let _ = database.update_picture(&old_picture);
     }
 
     #[test]
@@ -1200,19 +1129,19 @@ pub mod tests {
             .unwrap();
         picture.add_tag("foo");
         picture.add_tag("bar");
-        assert!(database.rusqlite_update_picture(&picture).is_ok());
+        assert!(database.update_picture(&picture).is_ok());
         let mut picture = database
             .rusqlite_select_picture_with_file_path(&single_dot_file_path())
             .unwrap();
         picture.add_tag("dot");
         picture.add_tag("bar");
-        assert!(database.rusqlite_update_picture(&picture).is_ok());
+        assert!(database.update_picture(&picture).is_ok());
         let mut picture = database
             .rusqlite_select_picture_with_file_path(&white_square_file_path())
             .unwrap();
         picture.add_tag("qux");
         picture.add_tag("foo");
-        assert!(database.rusqlite_update_picture(&picture).is_ok());
+        assert!(database.update_picture(&picture).is_ok());
 
         let result = database.rusqlite_select_tags();
         assert!(result.is_ok());

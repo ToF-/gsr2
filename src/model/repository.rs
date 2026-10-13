@@ -90,10 +90,7 @@ impl Repository {
     }
 
     pub fn insert_mark(&self, letter: char, file_path: &str) -> IOResult<usize> {
-        match self.database.rusqlite_insert_mark(letter, file_path) {
-            Ok(n) => Ok(n),
-            Err(e) => Err(IOError::other(e)),
-        }
+        self.database.insert_mark(letter, file_path)
     }
 
     pub fn retrieve_all_categories(&self) -> IOResult<()> {
@@ -324,22 +321,19 @@ impl Repository {
         &self,
         new_category_name: &str,
         target_category_name: &str,
-    ) -> IOResult<()> {
-        if let Ok(mut catalog) = self.retrieve_catalog() {
-            match catalog.add_sub_category(new_category_name, target_category_name) {
-                Ok(_) => self.save_catalog(&catalog),
-                Err(e) => Err(IOError::other(e)),
-            }
-        } else {
-            panic!("can't borrow")
-        }
+    ) -> IOResult<usize> {
+        self.retrieve_catalog().and_then(|mut catalog| {
+            catalog
+                .add_sub_category(new_category_name, target_category_name)
+                .and_then(|_| self.save_catalog(&catalog))
+        })
     }
 
     pub fn move_category(
         &self,
         moving_category_name: &str,
         target_category_name: &str,
-    ) -> IOResult<()> {
+    ) -> IOResult<usize> {
         if let Ok(mut catalog) = self.retrieve_catalog() {
             match catalog.move_sub_category(moving_category_name, target_category_name) {
                 Ok(_) => self.save_catalog(&catalog),
@@ -350,7 +344,7 @@ impl Repository {
         }
     }
 
-    pub fn remove_category(&self, category_name: &str) -> IOResult<()> {
+    pub fn remove_category(&self, category_name: &str) -> IOResult<usize> {
         if let Ok(mut catalog) = self.retrieve_catalog() {
             match catalog.remove_category(category_name, false) {
                 Ok(_) => self.save_catalog(&catalog),
@@ -432,16 +426,13 @@ impl Repository {
         }
     }
 
-    pub fn save_catalog(&self, catalog: &Catalog) -> IOResult<()> {
-        match self.database.rusqlite_update_catalog(&catalog.to_sexp()) {
-            Ok(_) => Ok(()),
-            Err(e) => Err(IOError::other(e)),
-        }
+    pub fn save_catalog(&self, catalog: &Catalog) -> IOResult<usize> {
+        self.database.update_catalog(&catalog.to_sexp())
     }
 
     pub fn save_folders(&self) -> IOResult<usize> {
         let folders = self.folder_map_rc.borrow();
-        match self.database.rusqlite_update_folders(&folders) {
+        match self.database.update_folders(&folders) {
             Ok(n) => Ok(n),
             Err(e) => Err(IOError::other(e)),
         }
@@ -480,7 +471,7 @@ impl Repository {
             for picture in gallery.pictures() {
                 if self
                     .database
-                    .rusqlite_check_picture_with_file_path(&picture.file_path())
+                    .check_picture_with_file_path(&picture.file_path())
                     .is_err()
                 {
                     let file_path = file_path_as_stored(&picture.file_path().clone());
