@@ -1,8 +1,8 @@
-use crate::gui::objects::gsr_palette_area::GsrPaletteArea;
-use crate::gui::objects::gsr_palette_area::make_palette_area;
 use crate::file::paths::file_path_as_retrieved;
 use crate::gui::objects::gsr_application::GsrApplication;
 use crate::gui::objects::gsr_application_window::picture_opacity;
+use crate::gui::objects::gsr_palette_area::GsrPaletteArea;
+use crate::gui::objects::gsr_palette_area::make_palette_area;
 use crate::gui::objects::gtk_picture_from_file_path;
 use crate::gui::view_mode::ViewMode;
 use crate::model::thumbnail::transparent_folder_picture;

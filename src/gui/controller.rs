@@ -547,6 +547,7 @@ impl Controller {
                             }
                         });
                         window.deselect_pictures();
+                        this.set_last_action(&Action::AddTag(input));
                     }
                     _ => {}
                 }

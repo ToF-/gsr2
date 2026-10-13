@@ -209,16 +209,6 @@ impl Repository {
     pub fn amend_folders(&self, added_file_paths: Vec<String>) -> IOResult<()> {
         let mut added_folders: HashSet<String> = HashSet::new();
         {
-            let folders = self.folder_map_rc.borrow();
-            for file_path in added_file_paths.iter() {
-                if let Some(parent_directory) = parent_directory(file_path)
-                    && folders.get(&parent_directory).is_none()
-                {
-                    added_folders.insert(parent_directory);
-                }
-            }
-        }
-        {
             let mut folders = self.folder_map_rc.borrow_mut();
             folders.add_from_file_paths(&added_file_paths);
         }

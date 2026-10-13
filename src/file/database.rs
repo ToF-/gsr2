@@ -99,22 +99,16 @@ impl Database {
         }
     }
     pub fn from_connection(connection_string: &str, create: bool) -> IOResult<Self> {
-        match Self::rusqlite_from_connection(connection_string, create) {
-            Ok(database) => Ok(database),
-            Err(err) => Err(std::io::Error::other(err)),
-        }
-    }
-
-    fn rusqlite_from_connection(connection_string: &str, create: bool) -> SqlResult<Self> {
-        if !file_exists(connection_string) && !create {
-            return Err(InvalidPath(PathBuf::from(connection_string)));
-        };
-        match Connection::open(connection_string) {
-            Ok(connection) => Ok(Database {
-                connection_rc: Rc::new(RefCell::new(connection)),
-            }),
-            Err(err) => Err(err),
-        }
+        sql_to_io_result(if !file_exists(connection_string) && !create {
+            Err(InvalidPath(PathBuf::from(connection_string)))
+        } else {
+            match Connection::open(connection_string) {
+                Ok(connection) => Ok(Database {
+                    connection_rc: Rc::new(RefCell::new(connection)),
+                }),
+                Err(err) => Err(err),
+            }
+        })
     }
 
     pub fn rusqlite_create_schema(&self) -> SqlResult<usize> {
@@ -180,17 +174,6 @@ impl Database {
             })
     }
 
-    pub fn select_catalog(&self) -> IOResult<String> {
-        match self.rusqlite_select_catalog() {
-            Ok(sexp) => Ok(sexp),
-            Err(e) => Err(IOError::other(e)),
-        }
-    }
-    pub fn rusqlite_insert_mark(&self, letter: char, file_path: &str) -> SqlResult<usize> {
-        let connection = self.connection_rc.borrow();
-        connection.execute(INSERT_MARK, params![letter.to_string(), file_path])
-    }
-
     pub fn rusqlite_update_catalog(&self, sexpr: &str) -> SqlResult<usize> {
         let connection = self.connection_rc.borrow();
         connection
@@ -199,10 +182,7 @@ impl Database {
     }
 
     pub fn update_catalog(&self, sexpr: &str) -> IOResult<usize> {
-        match self.rusqlite_update_catalog(sexpr) {
-            Ok(n) => Ok(n),
-            Err(e) => Err(IOError::other(e)),
-        }
+        sql_to_io_result(self.rusqlite_update_catalog(sexpr))
     }
 
     pub fn rusqlite_update_folders(&self, folders: &FolderMap) -> SqlResult<usize> {
@@ -227,10 +207,7 @@ impl Database {
     }
 
     pub fn update_folders(&self, folders: &FolderMap) -> IOResult<usize> {
-        match self.rusqlite_update_folders(folders) {
-            Ok(n) => Ok(n),
-            Err(e) => Err(IOError::other(e)),
-        }
+        sql_to_io_result(self.rusqlite_update_folders(folders))
     }
 
     fn rusqlite_insert_picture(&self, picture: &Picture) -> SqlResult<usize> {
@@ -314,43 +291,27 @@ impl Database {
         Ok(count)
     }
 
-    fn rusqlite_delete_picture_with_file_path(&self, file_path: &str) -> SqlResult<usize> {
-        let connection = self.connection_rc.borrow();
-        connection
-            .execute(DELETE_PICTURE, params![file_path_as_stored(file_path)])
-            .and_then(|_| connection.execute(DELETE_TAGS, params![file_path_as_stored(file_path)]))
-    }
-
     pub fn delete_picture_with_file_path(&self, file_path: &str) -> IOResult<usize> {
-        match self.rusqlite_delete_picture_with_file_path(&file_path_as_stored(file_path)) {
-            Ok(n) => Ok(n),
-            Err(err) => Err(std::io::Error::other(err)),
-        }
-    }
-
-    fn rusqlite_delete_folder_with_id(&self, folder_id: FolderId) -> SqlResult<usize> {
         let connection = self.connection_rc.borrow();
-        connection.execute(DELETE_FOLDER, params![folder_id])
+        sql_to_io_result(
+            connection
+                .execute(DELETE_PICTURE, params![file_path_as_stored(file_path)])
+                .and_then(|_| {
+                    connection.execute(DELETE_TAGS, params![file_path_as_stored(file_path)])
+                }),
+        )
     }
 
     pub fn delete_folder_with_id(&self, folder_id: FolderId) -> IOResult<usize> {
-        match self.rusqlite_delete_folder_with_id(folder_id) {
-            Ok(n) => Ok(n),
-            Err(err) => Err(std::io::Error::other(err)),
-        }
-    }
-
-    pub fn rusqlite_delete_folders(&self) -> SqlResult<usize> {
         let connection = self.connection_rc.borrow();
-        connection.execute(DELETE_FOLDERS, params![])
+        sql_to_io_result(connection.execute(DELETE_FOLDER, params![folder_id]))
     }
 
     pub fn delete_folders(&self) -> IOResult<usize> {
-        match self.rusqlite_delete_folders() {
-            Ok(n) => Ok(n),
-            Err(err) => Err(std::io::Error::other(err)),
-        }
+        let connection = self.connection_rc.borrow();
+        sql_to_io_result(connection.execute(DELETE_FOLDERS, params![]))
     }
+
     pub fn rusqlite_check_picture_with_file_path(&self, file_path: &str) -> SqlResult<String> {
         let connection = self.connection_rc.borrow();
         connection.query_one(
@@ -826,117 +787,15 @@ impl Database {
             Err(err) => Err(std::io::Error::other(err)),
         }
     }
-    fn rusqlite_select_picture_with_file_path(&self, file_path: &str) -> SqlResult<Picture> {
-        let connection = self.connection_rc.borrow();
-        connection
-            .query_row(
-                &format!(
-                    "SELECT {} FROM Picture WHERE FilePath = ?1;",
-                    PICTURE_COLUMNS
-                ),
-                params![file_path_as_stored(file_path)],
-                Self::rusqlite_row_to_picture,
-            )
-            .and_then(|mut picture| {
-                let mut statement = connection.prepare(SELECT_TAGS_FOR_FILEPATH)?;
-                let rows = statement.query_map(params![file_path_as_stored(file_path)], |row| {
-                    Ok(row.get(0).expect("can't get column Label"))
-                })?;
-                for tag in rows {
-                    let label: String = tag.unwrap();
-                    picture.add_tag(&label)
-                }
-                Ok(picture)
-            })
-    }
-
-    pub fn select_picture_with_file_path(&self, file_path: &str) -> IOResult<Picture> {
-        match self.rusqlite_select_picture_with_file_path(file_path) {
-            Ok(picture) => Ok(picture),
-            Err(err) => Err(std::io::Error::other(err)),
-        }
-    }
-
     pub fn insert_picture(&self, picture: &Picture) -> IOResult<usize> {
         match self.rusqlite_insert_picture(picture) {
             Ok(n) => Ok(n),
             Err(err) => Err(std::io::Error::other(err)),
         }
     }
-    pub fn update_picture(&self, picture: &Picture) -> IOResult<usize> {
-        match self.rusqlite_update_picture(picture) {
-            Ok(n) => Ok(n),
-            Err(err) => Err(std::io::Error::other(err)),
-        }
-    }
-
-    pub fn select_pictures(
-        &self,
-        retrieve_criteria: RetrieveCriteria,
-        folder_id_opt: Option<usize>,
-    ) -> IOResult<Vec<Picture>> {
-        self.select_parent_dirs().and_then(|parent_dirs| {
-            match self.rusqlite_select_all_pictures(
-                retrieve_criteria.clone().cover,
-                retrieve_criteria.clone().parent_opt,
-                folder_id_opt,
-            ) {
-                Ok(picture_map) => match self.rusqlite_select_tags() {
-                    Ok(tag_map) => {
-                        let mut pictures: Vec<Picture> = vec![];
-                        for (file_path, image_data) in picture_map.iter() {
-                            let new_tags = if let Some(tags) = tag_map.get(file_path) {
-                                tags.clone()
-                            } else {
-                                HashSet::new()
-                            };
-                            let parent_dir =
-                                file_path_as_stored(&parent_directory(file_path).unwrap());
-                            let new_image_data = ImageData {
-                                tags: new_tags.clone(),
-                                cover: match image_data.clone().cover {
-                                    None => None,
-                                    Some(_) => {
-                                        if let Some(pair) = parent_dirs.get(&parent_dir) {
-                                            let count = pair.0;
-                                            Some(count)
-                                        } else {
-                                            Some(0)
-                                        }
-                                    }
-                                },
-                                ..image_data.clone()
-                            };
-                            let picture = Picture::new_with_image_data(file_path, &new_image_data);
-                            if retrieve_criteria.matches(&picture) {
-                                pictures.push(picture)
-                            };
-                        }
-                        pictures.sort_by_key(|picture| picture.file_path());
-                        Ok(pictures)
-                    }
-                    Err(err) => Err(std::io::Error::other(err)),
-                },
-                Err(err) => Err(std::io::Error::other(err)),
-            }
-        })
-    }
-
-    pub fn select_all_pictures_with_parent(&self, parent_dir: &str) -> IOResult<Vec<Picture>> {
-        let retrieve_criteria = RetrieveCriteria {
-            tag_selection_criteria: TagSelectionCriteria::empty(),
-            categories: None,
-            label: None,
-            extraction: None,
-            color_range_opt: None,
-            pattern: None,
-            cover: false,
-            parent_opt: Some(parent_dir.to_string()),
-            folder_id_opt: None,
-            predicate_opt: None,
-            catalog_opt: None,
-        };
-        self.select_pictures(retrieve_criteria, None)
+    pub fn rusqlite_insert_mark(&self, letter: char, file_path: &str) -> SqlResult<usize> {
+        let connection = self.connection_rc.borrow();
+        connection.execute(INSERT_MARK, params![letter.to_string(), file_path])
     }
 
     fn rusqlite_row_to_picture(row: &Row) -> SqlResult<Picture, rusqlite::Error> {
@@ -1002,28 +861,128 @@ impl Database {
             })
         })
     }
-
-    pub fn select_parent_dirs(&self) -> IOResult<HashMap<String, (usize, usize)>> {
-        match self.rusqulite_select_all_parent_file_paths() {
-            Ok(result) => Ok(result),
-            Err(e) => Err(IOError::other(e)),
-        }
+    fn rusqlite_select_picture_with_file_path(&self, file_path: &str) -> SqlResult<Picture> {
+        let connection = self.connection_rc.borrow();
+        connection
+            .query_row(
+                &format!(
+                    "SELECT {} FROM Picture WHERE FilePath = ?1;",
+                    PICTURE_COLUMNS
+                ),
+                params![file_path_as_stored(file_path)],
+                Self::rusqlite_row_to_picture,
+            )
+            .and_then(|mut picture| {
+                let mut statement = connection.prepare(SELECT_TAGS_FOR_FILEPATH)?;
+                let rows = statement.query_map(params![file_path_as_stored(file_path)], |row| {
+                    Ok(row.get(0).expect("can't get column Label"))
+                })?;
+                for tag in rows {
+                    let label: String = tag.unwrap();
+                    picture.add_tag(&label)
+                }
+                Ok(picture)
+            })
     }
 
-    pub fn select_labels(&self) -> IOResult<HashSet<String>> {
-        match self.rusqlite_select_labels() {
-            Ok(result) => Ok(result),
-            Err(e) => Err(IOError::other(e)),
-        }
+    pub fn select_all_pictures_with_parent(&self, parent_dir: &str) -> IOResult<Vec<Picture>> {
+        let retrieve_criteria = RetrieveCriteria {
+            tag_selection_criteria: TagSelectionCriteria::empty(),
+            categories: None,
+            label: None,
+            extraction: None,
+            color_range_opt: None,
+            pattern: None,
+            cover: false,
+            parent_opt: Some(parent_dir.to_string()),
+            folder_id_opt: None,
+            predicate_opt: None,
+            catalog_opt: None,
+        };
+        self.select_pictures(retrieve_criteria, None)
+    }
+
+    pub fn select_catalog(&self) -> IOResult<String> {
+        sql_to_io_result(self.rusqlite_select_catalog())
     }
 
     pub fn select_categories(&self) -> IOResult<HashSet<String>> {
-        match self.rusqlite_select_categories() {
-            Ok(result) => Ok(result),
-            Err(e) => Err(IOError::other(e)),
-        }
+        sql_to_io_result(self.rusqlite_select_categories())
+    }
+
+    pub fn select_labels(&self) -> IOResult<HashSet<String>> {
+        sql_to_io_result(self.rusqlite_select_labels())
+    }
+
+    pub fn select_parent_dirs(&self) -> IOResult<HashMap<String, (usize, usize)>> {
+        sql_to_io_result(self.rusqulite_select_all_parent_file_paths())
+    }
+
+    pub fn select_pictures(
+        &self,
+        retrieve_criteria: RetrieveCriteria,
+        folder_id_opt: Option<usize>,
+    ) -> IOResult<Vec<Picture>> {
+        self.select_parent_dirs().and_then(|parent_dirs| {
+            match self.rusqlite_select_all_pictures(
+                retrieve_criteria.clone().cover,
+                retrieve_criteria.clone().parent_opt,
+                folder_id_opt,
+            ) {
+                Ok(picture_map) => match self.rusqlite_select_tags() {
+                    Ok(tag_map) => {
+                        let mut pictures: Vec<Picture> = vec![];
+                        for (file_path, image_data) in picture_map.iter() {
+                            let new_tags = if let Some(tags) = tag_map.get(file_path) {
+                                tags.clone()
+                            } else {
+                                HashSet::new()
+                            };
+                            let parent_dir =
+                                file_path_as_stored(&parent_directory(file_path).unwrap());
+                            let new_image_data = ImageData {
+                                tags: new_tags.clone(),
+                                cover: match image_data.clone().cover {
+                                    None => None,
+                                    Some(_) => {
+                                        if let Some(pair) = parent_dirs.get(&parent_dir) {
+                                            let count = pair.0;
+                                            Some(count)
+                                        } else {
+                                            Some(0)
+                                        }
+                                    }
+                                },
+                                ..image_data.clone()
+                            };
+                            let picture = Picture::new_with_image_data(file_path, &new_image_data);
+                            if retrieve_criteria.matches(&picture) {
+                                pictures.push(picture)
+                            };
+                        }
+                        pictures.sort_by_key(|picture| picture.file_path());
+                        Ok(pictures)
+                    }
+                    Err(err) => Err(std::io::Error::other(err)),
+                },
+                Err(err) => Err(std::io::Error::other(err)),
+            }
+        })
+    }
+
+    pub fn select_picture_with_file_path(&self, file_path: &str) -> IOResult<Picture> {
+        sql_to_io_result(self.rusqlite_select_picture_with_file_path(file_path))
+    }
+
+    pub fn update_picture(&self, picture: &Picture) -> IOResult<usize> {
+        sql_to_io_result(self.rusqlite_update_picture(picture))
     }
 }
+
+fn sql_to_io_result<T>(result: SqlResult<T>) -> IOResult<T> {
+    result.map_err(|e| std::io::Error::other(e.to_string()))
+}
+
 // ""
 #[cfg(test)]
 pub mod tests {
