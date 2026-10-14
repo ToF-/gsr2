@@ -24,7 +24,7 @@ pub struct Picture {
 impl Picture {
     pub fn new(file_path: &str) -> Self {
         Picture {
-            picture_id: PictureId::from_str(file_path),
+            picture_id: PictureId::from_file_path(file_path),
             image_data: None,
         }
     }
@@ -53,7 +53,7 @@ impl Picture {
 
     pub fn new_with_image_data(file_path: &str, image_data: &ImageData) -> Self {
         Picture {
-            picture_id: PictureId::from_str(file_path),
+            picture_id: PictureId::from_file_path(file_path),
             image_data: Some(image_data.clone()),
         }
     }

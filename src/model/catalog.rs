@@ -91,7 +91,7 @@ impl Catalog {
         self.root.format_at_level(0, false)
     }
 
-    pub fn save_to_database(&mut self, database: &Database) -> Result<(usize)> {
+    pub fn save_to_database(&mut self, database: &Database) -> Result<usize> {
         self.sort();
         database.update_catalog(&self.to_sexp())
     }

@@ -95,7 +95,7 @@ pub fn jump_entry() -> KeyInput {
         "Enter a picture number",
         None,
         KeyInputMode::Entry,
-        |_, ch| ch.is_digit(10),
+        |_, ch| ch.is_ascii_digit(),
         |s, ch| {
             let mut input = s;
             input.push(ch);

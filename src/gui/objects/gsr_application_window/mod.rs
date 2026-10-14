@@ -21,7 +21,6 @@ use crate::gui::objects::gsr_treelist_window::GsrTreelistWindow;
 use crate::gui::view_state::ViewState;
 use crate::gui::view_state::navigator::Navigator;
 use crate::gui::view_state::selection_range::SelectionRange;
-use crate::model::catalog::Catalog;
 use crate::model::repository::Repository;
 use crate::model::shared::Shared;
 use crate::model::view_option::ViewOption;
@@ -106,8 +105,8 @@ impl GsrApplicationWindow {
     {
         let shared_repository_opt = self.gsr_application().shared_repository_opt();
         let mut binding = shared_repository_opt.borrow_mut();
-        let mut repository = binding.as_mut().unwrap();
-        f(&mut repository)
+        let repository = binding.as_mut().unwrap();
+        f(repository)
     }
 
     pub fn stack(&self) -> gtk::Stack {

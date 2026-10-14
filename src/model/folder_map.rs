@@ -124,7 +124,7 @@ impl FolderMap {
                 let target: String = chars.collect();
                 self.map
                     .iter()
-                    .find(|(key, _)| key.contains(&format!("{}", &target)))
+                    .find(|(key, _)| key.contains(&target.to_string()))
                     .map(|(_, value)| value)
                     .cloned()
             } else if first_char == FINAL_PATH_SYMBOL {

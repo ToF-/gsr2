@@ -3,9 +3,6 @@ use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
 use crate::env::configuration::Configuration;
 use crate::env::configuration::set_configuration_updated_flag;
-use crate::env::default_values::BASED_PATH_SYMBOL;
-use crate::env::default_values::FINAL_PATH_SYMBOL;
-use crate::env::default_values::NEAR_DIRECTORY_SYMBOL;
 use crate::file::database::Database;
 use crate::file::operation::execute;
 use crate::file::operation::move_picture;
@@ -36,7 +33,6 @@ use std::cell::RefCell;
 use std::cell::RefMut;
 use std::collections::BTreeMap;
 use std::collections::HashMap;
-use std::collections::HashSet;
 use std::fs::File;
 use std::io::BufWriter;
 use std::io::Error as IOError;
@@ -95,31 +91,26 @@ impl Repository {
 
     pub fn retrieve_all_categories(&self) -> IOResult<()> {
         let mut categories = self.categories_rc.borrow_mut();
-        self.database.select_categories().and_then(|names| {
+        self.database.select_categories().map(|names| {
             *categories = Tags::from(names);
-            Ok(())
         })
     }
 
     pub fn retrieve_all_folders(&self) -> IOResult<()> {
         let mut folder_map = self.folder_map_rc.borrow_mut();
-        self.database.select_folders().and_then(|map| {
+        self.database.select_folders().map(|map| {
             *folder_map = map;
             if folder_map.map().is_empty() {
-                let _ = folder_map.insert(1, "%", 0, 0, "");
-                self.database.insert_or_update_folders(folder_map.clone());
-                Ok(())
-            } else {
-                Ok(())
+                folder_map.insert(1, "%", 0, 0, "");
+                let _ = self.database.insert_or_update_folders(folder_map.clone());
             }
         })
     }
 
     pub fn retrieve_all_labels(&self) -> IOResult<()> {
         let mut tags = self.tags_rc.borrow_mut();
-        self.database.select_labels().and_then(|labels| {
+        self.database.select_labels().map(|labels| {
             *tags = Tags::from(labels);
-            Ok(())
         })
     }
 
@@ -135,11 +126,11 @@ impl Repository {
                     *self.retrieve_criteria_rc.borrow_mut() = retrieve_criteria.clone();
                     self.database
                         .select_pictures(retrieve_criteria, None)
-                        .and_then(|pictures| {
+                        .map(|pictures| {
                             let new_gallery = Gallery::new_with_pictures(pictures);
                             *gallery = new_gallery.clone();
                             gallery.sort_by(args.order.unwrap_or(Order::Name));
-                            Ok(gallery.len())
+                            gallery.len()
                         })
                 },
             )
@@ -159,7 +150,7 @@ impl Repository {
                     *self.retrieve_criteria_rc.borrow_mut() = retrieve_criteria.clone();
                     self.database
                         .select_pictures(retrieve_criteria, Some(folder_id))
-                        .and_then(|pictures| {
+                        .map(|pictures| {
                             let mut new_gallery = Gallery::new_with_pictures(pictures);
                             new_gallery.set_structured();
                             let folder_map = self.folder_map_rc.borrow();
@@ -170,7 +161,7 @@ impl Repository {
                             new_gallery.sort_by(args.order.unwrap_or(Order::Name));
                             *gallery = new_gallery.clone();
                             gallery.sort_by(args.order.unwrap_or(Order::Name));
-                            Ok(gallery.len())
+                            gallery.len()
                         })
                 })
         })
@@ -191,9 +182,9 @@ impl Repository {
         &self,
         added_file_paths: Option<Vec<String>>,
     ) -> IOResult<FolderMap> {
-        if added_file_paths.is_some() {
+        if let Some(file_paths) = added_file_paths {
             let mut folder_map = self.folder_map_rc.borrow_mut();
-            folder_map.add_from_file_paths(&added_file_paths.unwrap());
+            folder_map.add_from_file_paths(&file_paths);
             Ok(folder_map.clone())
         } else {
             match self.database.select_all_picture_file_paths() {
@@ -204,7 +195,6 @@ impl Repository {
     }
 
     pub fn amend_folders(&self, added_file_paths: Vec<String>) -> IOResult<()> {
-        let mut added_folders: HashSet<String> = HashSet::new();
         {
             let mut folders = self.folder_map_rc.borrow_mut();
             folders.add_from_file_paths(&added_file_paths);
@@ -213,7 +203,7 @@ impl Repository {
         self.database.update_folders(&folders).and_then(|_| {
             let mut result = Ok(());
             for file_path in added_file_paths.iter() {
-                if let Some(parent_directory) = parent_directory(&file_path)
+                if let Some(parent_directory) = parent_directory(file_path)
                     && let Some(folder) = folders.get(&parent_directory)
                 {
                     println!(
@@ -223,7 +213,7 @@ impl Repository {
                     );
                     match self
                         .database
-                        .update_folder_id_for_picture(&file_path, folder.id())
+                        .update_folder_id_for_picture(file_path, folder.id())
                     {
                         Ok(_) => {}
                         Err(e) => {
@@ -391,14 +381,8 @@ impl Repository {
                         .unwrap_or_default(),
                 );
                 let folder_map = self.folder_map_rc.borrow();
-                let folder_opt = folder_map.get(&directory);
-                if folder_opt.is_none() {
-                    Err(IOError::other(format!(
-                        "folder {} not found in the database.",
-                        directory,
-                    )))
-                } else {
-                    let folder = folder_opt.unwrap();
+                let folder_opt = folder_map.get(directory);
+                if let Some(folder) = folder_opt {
                     println!("folder: {}", file_path_as_retrieved(&folder.file_path()));
                     self.retrieve_all_labels().and_then(|_| {
                         self.retrieve_all_parent_dirs().and_then(|_| {
@@ -418,6 +402,11 @@ impl Repository {
                             }
                         })
                     })
+                } else {
+                    Err(IOError::other(format!(
+                        "folder {} not found in the database.",
+                        directory,
+                    )))
                 }
             }),
         }
@@ -859,7 +848,7 @@ impl Repository {
         };
         {
             let mut new_folder = folder.clone();
-            new_folder.set_first_file_path(&file_path);
+            new_folder.set_first_file_path(file_path);
             let mut folder_map = self.folder_map_rc.borrow_mut();
             folder_map.update(parent_dir, &new_folder);
             self.database.update_folder_first_file_path_for_id(
@@ -915,7 +904,7 @@ impl Repository {
             Ok(s_expression) => Catalog::from_s_expression(&s_expression),
             Err(_) => {
                 println!("empty catalog; launch   ctlg import to import one");
-                self.database.update_catalog("(-)");
+                let _ = self.database.update_catalog("(-)");
                 self.retrieve_catalog()
             }
         }
@@ -969,14 +958,13 @@ impl Repository {
 
     pub fn update_picture(&self, picture: &Picture) -> IOResult<()> {
         if self.command_line_arguments.on_database() {
-            if picture.is_cover() {
-                if let Some(parent_dir) = parent_directory(&picture.file_path()) {
+            if picture.is_cover() 
+                && let Some(parent_dir) = parent_directory(&picture.file_path()) {
                     let _ = self.update_folder_first_file_path(
                         &file_path_as_stored(&parent_dir),
                         &file_path_as_stored(&picture.file_path()),
                     );
                 }
-            }
             match self.database.update_picture(picture) {
                 Ok(_) => Ok(()),
                 Err(e) => Err(e),
@@ -1018,7 +1006,7 @@ impl Repository {
         parent_id: FolderId,
     ) -> IOResult<usize> {
         self.database
-            .update_folder_id_for_picture(&file_path, parent_id)
+            .update_folder_id_for_picture(file_path, parent_id)
     }
 
     pub fn move_picture_to_target(&self, picture: &Picture, target_dir: &str) -> IOResult<usize> {
@@ -1037,20 +1025,19 @@ impl Repository {
                     let target_file_path =
                         file_path_as_stored(&moved_file_path(&picture.file_path(), target_dir));
                     if let Some(parent_directory) = &parent_directory(&picture.file_path()) {
-                        let source_directory = file_path_as_stored(&parent_directory);
+                        let source_directory = file_path_as_stored(parent_directory);
                         let folder_opt = {
                             self.folder_map_rc
                                 .borrow()
                                 .get(&file_path_as_stored(&source_directory))
                         };
-                        if let Some(folder) = folder_opt {
-                            self.decrease_folder_picture_count(folder.id(), 1)
-                                .and_then(|_| Ok(count))
+                        let _ = if let Some(folder) = folder_opt {
+                            self.decrease_folder_picture_count(folder.id(), 1).map(|_| count)
                         } else {
                             println!("can't access to folder");
                             Ok(0)
                         };
-                        let target_directory = file_path_as_stored(&target_dir);
+                        let target_directory = file_path_as_stored(target_dir);
                         let folder_opt = {
                             self.folder_map_rc
                                 .borrow()
@@ -1059,8 +1046,7 @@ impl Repository {
                         if let Some(folder) = folder_opt {
                             self.update_picture_parent_id(&target_file_path, folder.id())
                                 .and_then(|_| {
-                                    self.increase_folder_picture_count(folder.id(), 1)
-                                        .and_then(|_| Ok(count))
+                                    self.increase_folder_picture_count(folder.id(), 1).map(|_| count)
                                 })
                         } else {
                             Err(IOError::other("can't access to folder"))
@@ -1148,6 +1134,7 @@ impl Repository {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::env::configuration::CONFIGURATION;
     use crate::env::configuration::tests::my_cfg;
     use crate::file::database::tests::my_args;
     use crate::file::paths::test::current_directory;
