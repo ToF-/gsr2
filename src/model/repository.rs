@@ -77,7 +77,7 @@ impl Repository {
     pub fn create_database(configuration: Configuration) -> IOResult<()> {
         println!("creating new database file {}", configuration.database_file);
         match Database::from_connection(&configuration.database_file, true) {
-            Ok(database) => match database.rusqlite_create_schema() {
+            Ok(database) => match database.create_schema() {
                 Ok(_) => Ok(()),
                 Err(e) => Err(IOError::other(format!("{}", e))),
             },
@@ -958,13 +958,14 @@ impl Repository {
 
     pub fn update_picture(&self, picture: &Picture) -> IOResult<()> {
         if self.command_line_arguments.on_database() {
-            if picture.is_cover() 
-                && let Some(parent_dir) = parent_directory(&picture.file_path()) {
-                    let _ = self.update_folder_first_file_path(
-                        &file_path_as_stored(&parent_dir),
-                        &file_path_as_stored(&picture.file_path()),
-                    );
-                }
+            if picture.is_cover()
+                && let Some(parent_dir) = parent_directory(&picture.file_path())
+            {
+                let _ = self.update_folder_first_file_path(
+                    &file_path_as_stored(&parent_dir),
+                    &file_path_as_stored(&picture.file_path()),
+                );
+            }
             match self.database.update_picture(picture) {
                 Ok(_) => Ok(()),
                 Err(e) => Err(e),
@@ -1032,7 +1033,8 @@ impl Repository {
                                 .get(&file_path_as_stored(&source_directory))
                         };
                         let _ = if let Some(folder) = folder_opt {
-                            self.decrease_folder_picture_count(folder.id(), 1).map(|_| count)
+                            self.decrease_folder_picture_count(folder.id(), 1)
+                                .map(|_| count)
                         } else {
                             println!("can't access to folder");
                             Ok(0)
@@ -1046,7 +1048,8 @@ impl Repository {
                         if let Some(folder) = folder_opt {
                             self.update_picture_parent_id(&target_file_path, folder.id())
                                 .and_then(|_| {
-                                    self.increase_folder_picture_count(folder.id(), 1).map(|_| count)
+                                    self.increase_folder_picture_count(folder.id(), 1)
+                                        .map(|_| count)
                                 })
                         } else {
                             Err(IOError::other("can't access to folder"))

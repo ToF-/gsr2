@@ -88,7 +88,7 @@ impl Database {
         if !file_exists(&database_file) {
             println!("creating new database file {}", &database_file);
             match Database::from_connection(&database_file, true) {
-                Ok(database) => match database.rusqlite_create_schema() {
+                Ok(database) => match database.create_schema() {
                     Ok(_) => Ok(Status::Done),
                     Err(err) => Err(IOError::other(err)),
                 },
@@ -111,11 +111,12 @@ impl Database {
         })
     }
 
-    pub fn rusqlite_create_schema(&self) -> SqlResult<usize> {
+    pub fn create_schema(&self) -> IOResult<usize> {
         let connection = self.connection_rc.borrow();
-        connection
-            .execute(
-                "CREATE TABLE IF NOT EXISTS Picture (      \n\
+        sql_to_io_result(
+            connection
+                .execute(
+                    "CREATE TABLE IF NOT EXISTS Picture (      \n\
             FilePath TEXT NOT NULL PRIMARY KEY,        \n\
             Label TEXT NOT NULL,                       \n\
             FileSize INTEGER,                          \n\
@@ -127,30 +128,30 @@ impl Database {
             Score INTEGER NOT NULL DEFAULT 0,          \n\
             Category TEXT,                             \n\
             FolderId INTEGER NOT NULL DEFAULT 0);", // ""
-                params![],
-            )
-            .and_then(|_| {
-                connection
-                    .execute(
-                        "CREATE TABLE IF NOT EXISTS Tag (    \n\
+                    params![],
+                )
+                .and_then(|_| {
+                    connection
+                        .execute(
+                            "CREATE TABLE IF NOT EXISTS Tag (    \n\
                     FilePath TEXT NOT NULL,              \n\
                     Label TEXT NOT NULL,                \n\
                     PRIMARY KEY (FilePath, Label));", // ""
-                        params![],
-                    )
-                    .and_then(|_| {
-                        connection
-                            .execute(
-                                "CREATE TABLE IF NOT EXISTS Folder (   \n\
+                            params![],
+                        )
+                        .and_then(|_| {
+                            connection
+                                .execute(
+                                    "CREATE TABLE IF NOT EXISTS Folder (   \n\
                         FolderId INTEGER NOT NULL PRIMARY KEY, \n\
                         FilePath TEXT UNIQUE,                  \n\
                         ParentId INTEGER NOT NULL,             \n\
                         PictureCount INTEGER NOT NULL,         \n\
                         FirstFilePath TEXT);",
-                                params![],
-                            )
-                            .and_then(|_| {
-                                connection.execute(
+                                    params![],
+                                )
+                                .and_then(|_| {
+                                    connection.execute(
                             "CREATE INDEX IF NOT EXISTS idx_picture_folder ON Picture(FolderId);",
                             params![],
                         )
@@ -169,9 +170,10 @@ impl Database {
                                              params![],
                                         )
                                     })
-                            })
-                    })
-            })
+                                })
+                        })
+                }),
+        )
     }
 
     pub fn update_catalog(&self, sexpr: &str) -> IOResult<usize> {

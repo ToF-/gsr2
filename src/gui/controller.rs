@@ -5,6 +5,7 @@ use crate::env::configuration::set_configuration_updated_flag;
 use crate::file::paths::check_path_is_directory;
 use crate::file::paths::extraction_file_path;
 use crate::file::paths::file_name_from;
+use crate::file::paths::grand_parent_directory;
 use crate::file::paths::name_and_extension;
 use crate::file::paths::parent_directory;
 use crate::gui::action::Action;
@@ -1436,12 +1437,16 @@ impl Controller {
                             return;
                         }
                     }
-                    let mut emptying: bool = false;
-                    this.with_view_state_mut(|view_state| {
+                    let mut all_moved: bool = false;
+                    let return_directory_opt = this.with_view_state_mut(|view_state| {
                         let indices = view_state.selected_indices();
-                        emptying = indices.len() == view_state.gallery().len();
+                        all_moved = indices.len() == view_state.gallery().len();
+                        let mut directory_opt = None;
                         for position in indices {
                             let picture = view_state.gallery().picture(position);
+                            if directory_opt.is_none() {
+                                directory_opt = grand_parent_directory(&picture.file_path());
+                            }
                             let result = this.with_repository(|repository| {
                                 repository.move_picture_to_target(&picture, &target_directory)
                             });
@@ -1455,26 +1460,26 @@ impl Controller {
                                 }
                             }
                         }
+                        directory_opt
                     });
                     window.deselect_pictures();
-                    if emptying {
-                        window
-                            .exit_with_information("Empty gallery. Restart gsr with other options");
-                    } else {
-                        let location =
-                            this.with_view_state(|view_state| view_state.current_location.clone());
-                        match this.retrieve_from_repository(
-                            Some(location.covers_only()),
-                            location.sub_directory(),
-                            location.predicate(),
-                        ) {
-                            Err(e) => panic!("{}", e),
-                            Ok(0) => this.back_to_previous_location(),
-                            Ok(_) => {}
-                        };
-                        window.refresh_view();
-                        set_configuration_updated_flag(false);
-                    }
+                    let location =
+                        this.with_view_state(|view_state| view_state.current_location.clone());
+                    match this.retrieve_from_repository(
+                        Some(location.covers_only()),
+                        if all_moved {
+                            return_directory_opt
+                        } else {
+                            location.sub_directory()
+                        },
+                        location.predicate(),
+                    ) {
+                        Err(e) => panic!("{}", e),
+                        Ok(0) => this.back_to_previous_location(),
+                        Ok(_) => {}
+                    };
+                    window.refresh_view();
+                    set_configuration_updated_flag(false);
                 }
             }
         )
