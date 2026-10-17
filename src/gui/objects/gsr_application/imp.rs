@@ -52,6 +52,8 @@ impl GsrApplication {
                 .set_pictures_per_row(pictures_per_row);
             view_state.settings_mut().set_covers_only(clargs.covers);
             view_state.set_gallery_rc(repository.gallery_rc().clone());
+            view_state.set_current_location_directory(clargs.directory);
+            dbg!(&view_state.locations());
         }
         let (len, index) = {
             let view_state = self.view_state.borrow();

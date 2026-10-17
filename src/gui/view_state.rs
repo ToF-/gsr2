@@ -27,8 +27,6 @@ pub struct ViewState {
     gallery_rc: Rc<RefCell<Gallery>>,
     focus_at_coords: (i32, i32),
     locations: LocationStack,
-    saved_locations: Vec<Location>,
-    current_location: Location,
     finder: Option<Finder>,
 }
 
@@ -104,6 +102,10 @@ impl ViewState {
         self.gallery_rc.borrow_mut()
     }
 
+    pub fn locations(&self) -> &LocationStack {
+        &self.locations
+    }
+
     pub fn set_new_location(
         &mut self,
         sub_directory: Option<String>,
@@ -146,10 +148,10 @@ impl ViewState {
     }
 
     pub fn set_current_location_directory(&mut self, directory: Option<String>) {
-        self.current_location.set_sub_directory(directory)
+        self.current_location_mut().set_sub_directory(directory)
     }
     pub fn set_current_location_covers_only(&mut self, covers_only: bool) {
-        self.current_location.set_covers_only(covers_only)
+        self.current_location_mut().set_covers_only(covers_only)
     }
 
 }
