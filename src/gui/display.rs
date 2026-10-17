@@ -24,7 +24,7 @@ fn select_pattern_display(view_state: &ViewState) -> String {
 }
 
 fn find_pattern_display(view_state: &ViewState) -> String {
-    match &view_state.finder {
+    match &view_state.finder() {
         Some(finder) => match finder.predicate() {
             Some(predicate) => format!("[{}]", predicate),
             None => "".to_string(),
@@ -34,8 +34,8 @@ fn find_pattern_display(view_state: &ViewState) -> String {
 }
 
 fn view_mode_display(view_state: &ViewState) -> String {
-    if view_state.settings.single_view() {
-        match view_state.settings.single_view_mode() {
+    if view_state.settings().single_view() {
+        match view_state.settings().single_view_mode() {
             ViewMode::Normal => String::from(""),
             ViewMode::Expanded => String::from(EXPAND_ON_SYMBOL),
             ViewMode::FullSize => String::from(FULL_SIZE_ON_SYMBOL),
@@ -46,18 +46,18 @@ fn view_mode_display(view_state: &ViewState) -> String {
 }
 
 fn covers_only_display(view_state: &ViewState) -> String {
-    if view_state.settings.covers_only() {
+    if view_state.settings().covers_only() {
         String::from(COVER_SYMBOL)
     } else {
         String::from("")
     }
 }
 fn page_display(view_state: &ViewState, position: usize) -> String {
-    let page = if view_state.settings.single_view() {
+    let page = if view_state.settings().single_view() {
         "".to_string()
     } else {
         let len = view_state.gallery().len();
-        let pictures_per_row = view_state.settings.pictures_per_row() as usize;
+        let pictures_per_row = view_state.settings().pictures_per_row() as usize;
         let page_size = pictures_per_row * pictures_per_row;
         let number = 1 + position / page_size;
         let total = if len <= page_size {
@@ -67,20 +67,20 @@ fn page_display(view_state: &ViewState, position: usize) -> String {
         };
         format!("{number}/{total}")
     };
-    if view_state.settings.single_view() {
+    if view_state.settings().single_view() {
         String::from("")
     } else {
         format!(
             "p{}/{}",
-            view_state.navigator.current_page(),
-            view_state.navigator.total_pages(),
+            view_state.navigator().current_page(),
+            view_state.navigator().total_pages(),
         )
     };
     page
 }
 
 fn name_display(view_state: &ViewState, picture: &Picture) -> String {
-    if view_state.settings.file_path_on() {
+    if view_state.settings().file_path_on() {
         picture.file_path()
     } else {
         picture.file_name()
@@ -140,7 +140,7 @@ fn label_display(view_state: &ViewState) -> String {
 }
 
 fn date_display(view_state: &ViewState) -> String {
-    if view_state.settings.file_date_on() {
+    if view_state.settings().file_date_on() {
         view_state
             .gallery()
             .current_picture()
@@ -151,7 +151,7 @@ fn date_display(view_state: &ViewState) -> String {
 }
 
 fn size_display(view_state: &ViewState) -> String {
-    if view_state.settings.file_size_on() {
+    if view_state.settings().file_size_on() {
         view_state.gallery().current_picture().file_size_display()
     } else {
         String::from("")
@@ -199,10 +199,10 @@ pub fn small_picture_display(
 }
 
 fn selected_count_display(view_state: &ViewState) -> String {
-    if view_state.selection.is_empty() {
+    if view_state.selection().is_empty() {
         "".to_string()
     } else {
-        let count = view_state.selection.count();
+        let count = view_state.selection().count();
         format!("[{count}]")
     }
 }

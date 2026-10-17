@@ -178,7 +178,7 @@ impl GsrApplicationWindow {
             let pictures_per_row = {
                 let shared_view_state = self.shared_view_state();
                 let view_state = shared_view_state.borrow();
-                view_state.settings.pictures_per_row()
+                view_state.settings().pictures_per_row()
             };
             if pictures_per_row == 1 {
                 stack.set_visible_child(&frame_scrolled_window);
@@ -214,10 +214,10 @@ impl GsrApplicationWindow {
 
     pub fn start_slide_show(&self) {
         let slideshow_delay =
-            self.with_view_state(|view_state| view_state.settings.slideshow_delay());
+            self.with_view_state(|view_state| view_state.settings().slideshow_delay());
         if let Some(delay) = slideshow_delay {
             self.with_view_state_mut(|view_state| {
-                view_state.settings.set_slideshow_on(true);
+                view_state.settings_mut().set_slideshow_on(true);
             });
             self.attach_timeout_event_handler(delay);
         }
@@ -225,7 +225,7 @@ impl GsrApplicationWindow {
 
     pub fn stop_slide_show(&self) {
         self.with_view_state_mut(|view_state| {
-            view_state.settings.set_slideshow_on(false);
+            view_state.settings_mut().set_slideshow_on(false);
         });
         self.detach_timeout_event_handler();
     }
@@ -267,17 +267,17 @@ impl GsrApplicationWindow {
     pub fn toggle_pictures_per_row(&self, pictures_per_row: i32) {
         self.with_view_state_mut(|view_state| {
             let new_pictures_per_row = view_state
-                .settings
+                .settings_mut()
                 .toggle_pictures_per_row(pictures_per_row);
             view_state
-                .navigator
+                .navigator_mut()
                 .set_pictures_per_row(new_pictures_per_row as usize);
-            view_state.navigator.update_page_limits();
+            view_state.navigator_mut().update_page_limits();
             if let Some((row, col)) = view_state
-                .navigator
-                .coords_from_position(view_state.navigator.position())
+                .navigator()
+                .coords_from_position(view_state.navigator().position())
             {
-                view_state.focus_at_coords = (col as i32, row as i32);
+                view_state.set_focus_at_coords((col as i32, row as i32));
             }
         });
         self.refresh_view()
@@ -288,17 +288,17 @@ impl GsrApplicationWindow {
             return;
         };
         let pictures_per_row =
-            self.with_view_state(|view_state| view_state.settings.pictures_per_row());
+            self.with_view_state(|view_state| view_state.settings().pictures_per_row());
         self.set_stack_visible_child(pictures_per_row);
         if pictures_per_row > 1 {
             self.gsr_picture_grid().initialize_pictures();
             self.gsr_picture_grid().leave_current_picture_focus();
             self.with_view_state_mut(|view_state| {
                 if let Some((row, col)) = view_state
-                    .navigator
-                    .coords_from_position(view_state.navigator.position())
+                    .navigator()
+                    .coords_from_position(view_state.navigator().position())
                 {
-                    view_state.focus_at_coords = (col as i32, row as i32);
+                    view_state.set_focus_at_coords((col as i32, row as i32));
                 }
             });
             self.gsr_picture_grid().enter_current_picture_focus();
@@ -360,7 +360,7 @@ impl GsrApplicationWindow {
             .gsr_application()
             .shared_view_state()
             .borrow()
-            .settings
+            .settings()
             .full_size_on();
         if self.stack().visible_child_name().unwrap() == FRAME_WINDOW_NAME && full_size_on {
             let step: f64 = 100.0;
@@ -380,7 +380,7 @@ impl GsrApplicationWindow {
         dbg!();
         let position_opt = self.with_view_state(|view_state| {
             view_state
-                .navigator
+                .navigator()
                 .position_from_coords(row as usize, col as usize)
         });
         if let Some(position) = position_opt {
@@ -398,7 +398,7 @@ impl GsrApplicationWindow {
     pub fn cell_box_right_click(&self, col: i32, row: i32, _n_pressed: i32) {
         let position_opt = self.with_view_state(|view_state| {
             view_state
-                .navigator
+                .navigator()
                 .position_from_coords(row as usize, col as usize)
         });
         if let Some(position) = position_opt {
@@ -416,7 +416,7 @@ impl GsrApplicationWindow {
                 let settings = {
                     let shared_view_state = this.gsr_application().shared_view_state();
                     let view_state = shared_view_state.borrow();
-                    view_state.settings.clone()
+                    view_state.settings().clone()
                 };
                 let key_name = key.name().unwrap_or_default();
                 let key_name = key_name.as_str();
@@ -537,7 +537,7 @@ impl GsrApplicationWindow {
                     let settings = {
                         let shared_view_state = this.gsr_application().shared_view_state();
                         let view_state = shared_view_state.borrow();
-                        view_state.settings.clone()
+                        view_state.settings().clone()
                     };
                     if settings.slideshow_on() {
                         this.activate_action(Action::NextSlide);
@@ -681,7 +681,7 @@ impl GsrApplicationWindow {
     }
 
     fn enter_move_picture(&self) {
-        if !self.with_view_state(|view_state| view_state.selection.has_selected()) {
+        if !self.with_view_state(|view_state| view_state.selection().has_selected()) {
             self.present_information("cannot move: no picture selected");
             return;
         };
@@ -702,30 +702,30 @@ impl GsrApplicationWindow {
         self.with_view_state_mut(|view_state| {
             match range {
                 SelectionRange::End => {
-                    let position = view_state.navigator.position();
-                    view_state.selection.set_range_end(position);
+                    let position = view_state.navigator().position();
+                    view_state.selection_mut().set_range_end(position);
                 }
                 SelectionRange::All => {
-                    let limit = &view_state.navigator.limit();
-                    view_state.selection.set_range(0, *limit - 1);
+                    let limit = &view_state.navigator().limit();
+                    view_state.selection_mut().set_range(0, *limit - 1);
                 }
                 SelectionRange::Page => {
-                    let page_start = &view_state.navigator.page_start();
-                    let page_end = &view_state.navigator.page_end();
-                    view_state.selection.set_range(*page_start, *page_end);
+                    let page_start = &view_state.navigator().page_start();
+                    let page_end = &view_state.navigator().page_end();
+                    view_state.selection_mut().set_range(*page_start, *page_end);
                 }
             }
-            view_state.navigator.set_page_changed();
+            view_state.navigator_mut().set_page_changed();
         });
         self.refresh_view();
     }
 
     pub fn toggle_expand(&self) {
         let pictures_per_row = self.with_view_state_mut(|view_state| {
-            if view_state.settings.pictures_per_row() == 1 {
-                view_state.settings.toggle_view_mode();
+            if view_state.settings().pictures_per_row() == 1 {
+                view_state.settings_mut().toggle_view_mode();
             }
-            view_state.settings.pictures_per_row()
+            view_state.settings().pictures_per_row()
         });
         if pictures_per_row == 1 {
             self.frame().set_current_picture();
@@ -735,11 +735,10 @@ impl GsrApplicationWindow {
 
     pub fn toggle_view_display_option(&self, view_option: ViewOption) {
         self.with_view_state_mut(|view_state| {
-            let settings = &mut view_state.settings;
             let _ = match view_option {
-                ViewOption::FilePath => settings.toggle_file_path(),
-                ViewOption::FileDate => settings.toggle_file_date(),
-                ViewOption::FileSize => settings.toggle_file_size(),
+                ViewOption::FilePath => view_state.settings_mut().toggle_file_path(),
+                ViewOption::FileDate => view_state.settings_mut().toggle_file_date(),
+                ViewOption::FileSize => view_state.settings_mut().toggle_file_size(),
                 _ => true,
             };
         });
@@ -752,15 +751,16 @@ impl GsrApplicationWindow {
 
     fn move_navigator(&self, direction: &Direction) -> Navigator {
         let navigator = self.with_view_state_mut(|view_state| {
-            if view_state.navigator.can_move(direction) {
-                view_state.navigator.move_towards(direction);
+            if view_state.navigator_mut().can_move(direction) {
+                view_state.navigator_mut().move_towards(direction);
             }
-            view_state.navigator.clone()
+            view_state.navigator().clone()
         });
         self.with_view_state_mut(|view_state| {
             let position = navigator.position();
             view_state.set_current_location_position(position);
-            let mut gallery = view_state.gallery_rc.borrow_mut();
+            let binding = view_state.gallery_rc();
+            let mut gallery = binding.borrow_mut();
             gallery.set_current_picture_index_cell(position);
         });
         navigator
@@ -768,7 +768,7 @@ impl GsrApplicationWindow {
 
     pub fn move_next_slide(&self) {
         let direction = self.with_view_state_mut(|view_state| {
-            if view_state.navigator.can_move(&Direction::NextPage) {
+            if view_state.navigator_mut().can_move(&Direction::NextPage) {
                 Direction::NextPage
             } else {
                 Direction::First
@@ -797,7 +797,7 @@ impl GsrApplicationWindow {
                 self.gsr_picture_grid().leave_current_picture_focus();
                 if let Some((row, col)) = navigator.coords_from_position(navigator.position()) {
                     self.with_view_state_mut(|view_state| {
-                        view_state.focus_at_coords = (col as i32, row as i32);
+                        view_state.set_focus_at_coords((col as i32, row as i32));
                     })
                 }
                 if navigator.page_changed() {

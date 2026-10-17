@@ -44,10 +44,14 @@ impl GsrApplication {
         };
         {
             let mut view_state = self.view_state.borrow_mut();
-            view_state.settings.set_slideshow_delay(clargs.slideshow());
-            view_state.settings.set_pictures_per_row(pictures_per_row);
-            view_state.settings.set_covers_only(clargs.covers);
-            view_state.gallery_rc = repository.gallery_rc().clone();
+            view_state
+                .settings_mut()
+                .set_slideshow_delay(clargs.slideshow());
+            view_state
+                .settings_mut()
+                .set_pictures_per_row(pictures_per_row);
+            view_state.settings_mut().set_covers_only(clargs.covers);
+            view_state.set_gallery_rc(repository.gallery_rc().clone());
         }
         let (len, index) = {
             let view_state = self.view_state.borrow();
@@ -58,9 +62,9 @@ impl GsrApplication {
         navigator.move_towards(&Direction::Index { value: *index });
         {
             let mut view_state = self.view_state.borrow_mut();
-            view_state.navigator = navigator.clone();
+            view_state.set_navigator(navigator.clone());
             if let Some((row, col)) = navigator.coords_from_position(navigator.position()) {
-                view_state.focus_at_coords = (col as i32, row as i32);
+                view_state.set_focus_at_coords((col as i32, row as i32));
             }
         }
     }

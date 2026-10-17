@@ -644,12 +644,9 @@ impl Repository {
             }
         };
         if parent_id > 0 {
-            let result = if new_picture_count > 0 {
-                self.database
-                    .update_folder_picture_count_for_id(folder_id, new_picture_count)
-            } else {
-                self.database.delete_folder_with_id(folder_id)
-            };
+            let result = self
+                .database
+                .update_folder_picture_count_for_id(folder_id, new_picture_count);
             match result {
                 Ok(_) => self.decrease_folder_picture_count(parent_id, count),
                 Err(e) => Err(e),
@@ -1040,11 +1037,7 @@ impl Repository {
                             Ok(0)
                         };
                         let target_directory = file_path_as_stored(target_dir);
-                        let folder_opt = {
-                            self.folder_map_rc
-                                .borrow()
-                                .get(&file_path_as_stored(&target_directory))
-                        };
+                        let folder_opt = { self.folder_map_rc.borrow().get(&target_directory) };
                         if let Some(folder) = folder_opt {
                             self.update_picture_parent_id(&target_file_path, folder.id())
                                 .and_then(|_| {
@@ -1052,7 +1045,27 @@ impl Repository {
                                         .map(|_| count)
                                 })
                         } else {
-                            Err(IOError::other("can't access to folder"))
+                            {
+                                let mut folder_map = self.folder_map_rc.borrow_mut();
+                                folder_map.add_from_file_path(&target_file_path);
+                            }
+                            {
+                                let folder_map = self.folder_map_rc.borrow();
+                                self.database.insert_or_update_folders(folder_map.clone());
+                            }
+                            let folder_opt = { self.folder_map_rc.borrow().get(&target_directory) };
+                            if let Some(folder) = folder_opt {
+                                self.update_picture_parent_id(&target_file_path, folder.id())
+                                    .and_then(|_| {
+                                        self.increase_folder_picture_count(folder.id(), 1)
+                                            .map(|_| count)
+                                    })
+                            } else {
+                                Err(IOError::other(format!(
+                                    "can't access or create folder {}",
+                                    target_directory
+                                )))
+                            }
                         }
                     } else {
                         Ok(count)

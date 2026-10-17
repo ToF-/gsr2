@@ -82,7 +82,7 @@ impl GsrPictureFrame {
         let shared_view_state = self.imp().shared_view_state();
         let view_state = shared_view_state.borrow();
         self.remove_children();
-        match view_state.settings.single_view_mode() {
+        match view_state.settings().single_view_mode() {
             ViewMode::Normal => {
                 gtk_picture.set_valign(Align::Center);
                 gtk_picture.set_halign(Align::Center);
@@ -94,7 +94,7 @@ impl GsrPictureFrame {
             ViewMode::FullSize => {
                 gtk_picture.set_valign(Align::Center);
                 gtk_picture.set_halign(Align::Center);
-                gtk_picture.set_can_shrink(!view_state.settings.full_size_on());
+                gtk_picture.set_can_shrink(!view_state.settings().full_size_on());
             }
         };
         self.append(&gtk_picture);
@@ -135,7 +135,7 @@ impl GsrPictureFrame {
             self.set_gtk_picture(gtk_picture);
             let shared_view_state = self.imp().shared_view_state();
             let view_state = shared_view_state.borrow();
-            if view_state.settings.palette_on()
+            if view_state.settings().palette_on()
                 && let Some(image_data) = picture.image_data()
             {
                 let palette_area = make_palette_area(
@@ -155,8 +155,8 @@ impl GsrPictureFrame {
         let selected = {
             let shared_view_state = self.gsr_application().shared_view_state();
             let view_state = shared_view_state.borrow();
-            let position = view_state.navigator.position();
-            view_state.selection.contains(position)
+            let position = view_state.navigator().position();
+            view_state.selection().contains(position)
         };
         let picture_opt = {
             let shared_view_state = self.gsr_application().shared_view_state();

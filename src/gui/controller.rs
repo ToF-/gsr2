@@ -462,12 +462,13 @@ impl Controller {
                 Ok(0) => Ok(0),
                 Ok(n) => {
                     self.with_view_state_mut(|view_state| {
-                        let mut gallery = view_state.gallery_rc.borrow_mut();
+                        let binding = view_state.gallery_rc();
+                        let mut gallery = binding.borrow_mut();
                         gallery.set_current_picture_index_cell(0);
-                        view_state.navigator = Navigator::new(
+                        view_state.set_navigator(Navigator::new(
                             gallery.len(),
-                            view_state.settings.pictures_per_row() as usize,
-                        );
+                            view_state.settings().pictures_per_row() as usize,
+                        ));
                     });
                     Ok(n)
                 }
@@ -476,22 +477,24 @@ impl Controller {
     }
 
     fn retrieve_current_location(&self) {
-        let location = self.with_view_state_mut(|view_state| view_state.current_location.clone());
+        let location = self.with_view_state_mut(|view_state| view_state.current_location().clone());
         let _ = self.retrieve_from_repository(
             Some(location.covers_only()),
             location.sub_directory(),
             location.predicate(),
         );
         self.with_view_state_mut(|view_state| {
-            view_state.settings.set_covers_only(location.covers_only());
-            if view_state.navigator.can_move(&Direction::Index {
+            view_state
+                .settings_mut()
+                .set_covers_only(location.covers_only());
+            if view_state.navigator_mut().can_move(&Direction::Index {
                 value: location.position(),
             }) {
-                view_state.navigator.move_towards(&Direction::Index {
+                view_state.navigator_mut().move_towards(&Direction::Index {
                     value: location.position(),
                 })
             } else {
-                view_state.navigator.move_towards(&Direction::First)
+                view_state.navigator_mut().move_towards(&Direction::First)
             }
         });
     }
@@ -614,7 +617,7 @@ impl Controller {
     fn back_to_previous_location(&self) {
         let location = self.with_view_state_mut(|view_state| {
             view_state.set_old_location();
-            view_state.current_location.clone()
+            view_state.current_location().clone()
         });
         let _ = self.retrieve_from_repository(
             Some(location.covers_only()),
@@ -622,15 +625,17 @@ impl Controller {
             location.predicate(),
         );
         self.with_view_state_mut(|view_state| {
-            view_state.settings.set_covers_only(location.covers_only());
-            if view_state.navigator.can_move(&Direction::Index {
+            view_state
+                .settings_mut()
+                .set_covers_only(location.covers_only());
+            if view_state.navigator_mut().can_move(&Direction::Index {
                 value: location.position(),
             }) {
-                view_state.navigator.move_towards(&Direction::Index {
+                view_state.navigator_mut().move_towards(&Direction::Index {
                     value: location.position(),
                 })
             } else {
-                view_state.navigator.move_towards(&Direction::First)
+                view_state.navigator_mut().move_towards(&Direction::First)
             }
         });
     }
@@ -657,12 +662,12 @@ impl Controller {
                         let direction = Direction::Index {
                             value: new_position,
                         };
-                        if view_state.navigator.can_move(&direction) {
-                            view_state.navigator.move_towards(&direction);
+                        if view_state.navigator_mut().can_move(&direction) {
+                            view_state.navigator_mut().move_towards(&direction);
                         } else {
                             println!("navigator can't move to: {:?}", &direction);
                         };
-                        view_state.navigator.set_page_changed();
+                        view_state.navigator_mut().set_page_changed();
                     });
                     window.dismiss();
                     window.refresh_view();
@@ -695,7 +700,7 @@ impl Controller {
             window,
             move |_, _, _| {
                 this.with_view_state_mut(|view_state| {
-                    view_state.selection.cancel();
+                    view_state.selection_mut().cancel();
                 });
                 window.refresh_view();
             }
@@ -817,7 +822,7 @@ impl Controller {
             #[strong]
             window,
             move |_, _, _| {
-                if !this.with_view_state(|view_state| view_state.selection.has_selected()) {
+                if !this.with_view_state(|view_state| view_state.selection().has_selected()) {
                     window.present_information("cannot delete: no picture selected");
                     return;
                 };
@@ -841,7 +846,7 @@ impl Controller {
             #[strong]
             window,
             move |_, _, _| {
-                if !this.with_view_state(|view_state| view_state.selection.has_selected()) {
+                if !this.with_view_state(|view_state| view_state.selection().has_selected()) {
                     window.present_information("cannot extract: no picture selected");
                     return;
                 };
@@ -970,7 +975,7 @@ impl Controller {
                 window.dismiss();
                 let (selected_count, current_picture_name) = this.with_view_state(|view_state| {
                     (
-                        view_state.selection.count(),
+                        view_state.selection().count(),
                         view_state.gallery().current_picture().file_name(),
                     )
                 });
@@ -1099,8 +1104,12 @@ impl Controller {
                             None
                         }
                         Ok(predicate) => this.with_view_state_mut(|view_state| {
-                            view_state.finder = Some(Finder::new(pictures));
-                            view_state.finder.as_mut().unwrap().find_first(predicate)
+                            view_state.set_finder(Some(Finder::new(pictures)));
+                            view_state
+                                .finder_mut()
+                                .as_mut()
+                                .unwrap()
+                                .find_first(predicate)
                         }),
                     };
                     match position_opt {
@@ -1109,18 +1118,16 @@ impl Controller {
                                 "no picture match this criterion: {} {}",
                                 find, pattern
                             ));
-                            this.with_view_state_mut(|view_state| {
-                                view_state.finder = None;
-                            });
+                            this.with_view_state_mut(|view_state| view_state.set_finder(None));
                         }
                         Some(position) => {
                             this.with_view_state_mut(|view_state| {
                                 if view_state
-                                    .navigator
+                                    .navigator_mut()
                                     .can_move(&Direction::Index { value: position })
                                 {
                                     view_state
-                                        .navigator
+                                        .navigator_mut()
                                         .move_towards(&Direction::Index { value: position });
                                 }
                             });
@@ -1137,8 +1144,8 @@ impl Controller {
     }
 
     fn find_next(&self, window: &GsrApplicationWindow) {
-        let position_res = self.with_view_state_mut(|view_state| match &view_state.finder {
-            Some(_) => Ok(view_state.finder.as_mut().unwrap().find_next()),
+        let position_res = self.with_view_state_mut(|view_state| match &view_state.finder() {
+            Some(_) => Ok(view_state.finder_mut().as_mut().unwrap().find_next()),
             None => Err(IOError::other("not in a search")),
         });
         match position_res {
@@ -1147,11 +1154,11 @@ impl Controller {
             Ok(Some(position)) => {
                 self.with_view_state_mut(|view_state| {
                     if view_state
-                        .navigator
+                        .navigator_mut()
                         .can_move(&Direction::Index { value: position })
                     {
                         view_state
-                            .navigator
+                            .navigator_mut()
                             .move_towards(&Direction::Index { value: position });
                     };
                 });
@@ -1196,7 +1203,7 @@ impl Controller {
                 let (current_picture, covers_only) = this.with_view_state(|view_state| {
                     (
                         view_state.gallery().current_picture(),
-                        view_state.settings.covers_only(),
+                        view_state.settings().covers_only(),
                     )
                 });
                 let directory_opt = if current_picture.cover().is_some() {
@@ -1218,7 +1225,7 @@ impl Controller {
                     this.with_view_state_mut(|view_state| {
                         view_state.set_current_location_position(position);
                         view_state
-                            .set_current_location_covers_only(view_state.settings.covers_only());
+                            .set_current_location_covers_only(view_state.settings().covers_only());
                         view_state.set_current_location_directory(
                             directory_opt
                                 .as_ref()
@@ -1227,7 +1234,7 @@ impl Controller {
                         view_state.set_new_location(directory_opt, None, 0, false)
                     });
                     let location =
-                        this.with_view_state(|view_state| view_state.current_location.clone());
+                        this.with_view_state(|view_state| view_state.current_location().clone());
                     match this.retrieve_from_repository(
                         Some(location.covers_only()),
                         location.sub_directory(),
@@ -1262,8 +1269,8 @@ impl Controller {
                         let direction = Direction::Index {
                             value: index as usize,
                         };
-                        if view_state.navigator.can_move(&direction) {
-                            view_state.navigator.move_towards(&direction);
+                        if view_state.navigator_mut().can_move(&direction) {
+                            view_state.navigator_mut().move_towards(&direction);
                         }
                     });
                     window.refresh_view()
@@ -1295,8 +1302,8 @@ impl Controller {
                                 this.with_view_state_mut(|view_state| {
                                     if let Some(position) = position_opt {
                                         let direction = Direction::Index { value: position };
-                                        if view_state.navigator.can_move(&direction) {
-                                            view_state.navigator.move_towards(&direction);
+                                        if view_state.navigator_mut().can_move(&direction) {
+                                            view_state.navigator_mut().move_towards(&direction);
                                         }
                                     }
                                 })
@@ -1320,13 +1327,13 @@ impl Controller {
             window,
             move |_, _, _| {
                 this.with_view_state_mut(|view_state| {
-                    let position = rng().random_range(0..view_state.navigator.limit());
+                    let position = rng().random_range(0..view_state.navigator().limit());
                     if view_state
-                        .navigator
+                        .navigator_mut()
                         .can_move(&Direction::Index { value: position })
                     {
                         view_state
-                            .navigator
+                            .navigator_mut()
                             .move_towards(&Direction::Index { value: position })
                     }
                 });
@@ -1464,7 +1471,7 @@ impl Controller {
                     });
                     window.deselect_pictures();
                     let location =
-                        this.with_view_state(|view_state| view_state.current_location.clone());
+                        this.with_view_state(|view_state| view_state.current_location().clone());
                     match this.retrieve_from_repository(
                         Some(location.covers_only()),
                         if all_moved {
@@ -1479,7 +1486,6 @@ impl Controller {
                         Ok(_) => {}
                     };
                     window.refresh_view();
-                    set_configuration_updated_flag(false);
                 }
             }
         )
@@ -1589,7 +1595,7 @@ impl Controller {
                         configuration.current_picture =
                             Some(view_state.gallery().current_picture().file_path());
                         configuration.current_pictures_per_row =
-                            Some(view_state.settings.pictures_per_row() as usize);
+                            Some(view_state.settings().pictures_per_row() as usize);
                         configuration.current_order = Some(view_state.gallery().order());
                         let _ = configuration.save();
                     }
@@ -1740,8 +1746,9 @@ impl Controller {
                                     location.covers_only(),
                                 )
                             });
-                            let location = this
-                                .with_view_state(|view_state| view_state.current_location.clone());
+                            let location = this.with_view_state(|view_state| {
+                                view_state.current_location().clone()
+                            });
                             match this.retrieve_from_repository(
                                 Some(location.covers_only()),
                                 location.sub_directory(),
@@ -1963,8 +1970,9 @@ impl Controller {
                     )
                 });
                 if gallery_has_covers && sub_folder.is_none() {
-                    let covers_only: bool = this
-                        .with_view_state_mut(|view_state| view_state.settings.toggle_covers_only());
+                    let covers_only: bool = this.with_view_state_mut(|view_state| {
+                        view_state.settings_mut().toggle_covers_only()
+                    });
                     match this.retrieve_from_repository(Some(covers_only), None, None) {
                         Err(e) => eprintln!("{}", e),
                         Ok(0) => window.present_information("no picture matching these criteria"),
@@ -1985,7 +1993,7 @@ impl Controller {
             window,
             move |_, _, _| {
                 this.with_view_state_mut(|view_state| {
-                    view_state.settings.toggle_palette();
+                    view_state.settings_mut().toggle_palette();
                 });
 
                 window.refresh_view();
@@ -2142,10 +2150,10 @@ impl Controller {
     }
 
     fn redo_find(&self, window: &GsrApplicationWindow) {
-        let current_search = self.with_view_state(|view_state| view_state.finder.is_some());
+        let current_search = self.with_view_state(|view_state| view_state.finder().is_some());
         if current_search {
             self.with_view_state_mut(|view_state| {
-                view_state.finder.as_mut().unwrap().reset();
+                view_state.finder_mut().as_mut().unwrap().reset();
             });
             self.find_next(window);
         } else {
@@ -2201,8 +2209,8 @@ impl Controller {
             window,
             move |_, _, _| {
                 this.with_view_state_mut(|view_state| {
-                    view_state.selection.repeat();
-                    view_state.navigator.set_page_changed();
+                    view_state.selection_mut().repeat();
+                    view_state.navigator_mut().set_page_changed();
                 });
 
                 window.refresh_view();
@@ -2221,8 +2229,8 @@ impl Controller {
             window,
             move |_, _, _| {
                 this.with_view_state_mut(|view_state| {
-                    if view_state.settings.slideshow_delay().is_some() {
-                        view_state.settings.toggle_slideshow();
+                    if view_state.settings().slideshow_delay().is_some() {
+                        view_state.settings_mut().toggle_slideshow();
                     }
                 });
                 window.start_slide_show();
@@ -2242,8 +2250,8 @@ impl Controller {
             window,
             move |_, _, _| {
                 let on = this.with_view_state_mut(|view_state| {
-                    view_state.settings.toggle_blinking();
-                    view_state.settings.blinking_on()
+                    view_state.settings_mut().toggle_blinking();
+                    view_state.settings().blinking_on()
                 });
 
                 if on {
@@ -2267,10 +2275,10 @@ impl Controller {
             window,
             move |_, _, _| {
                 let pictures_per_row = this.with_view_state_mut(|view_state| {
-                    if view_state.settings.pictures_per_row() == 1 {
-                        view_state.settings.toggle_view_mode();
+                    if view_state.settings().pictures_per_row() == 1 {
+                        view_state.settings_mut().toggle_view_mode();
                     }
-                    view_state.settings.pictures_per_row()
+                    view_state.settings().pictures_per_row()
                 });
                 if pictures_per_row == 1 {
                     window.frame().set_current_picture();
@@ -2295,17 +2303,17 @@ impl Controller {
                 {
                     this.with_view_state_mut(|view_state| {
                         let new_pictures_per_row = view_state
-                            .settings
+                            .settings_mut()
                             .toggle_pictures_per_row(pictures_per_row);
                         view_state
-                            .navigator
+                            .navigator_mut()
                             .set_pictures_per_row(new_pictures_per_row as usize);
-                        view_state.navigator.update_page_limits();
+                        view_state.navigator_mut().update_page_limits();
                         if let Some((row, col)) = view_state
-                            .navigator
-                            .coords_from_position(view_state.navigator.position())
+                            .navigator()
+                            .coords_from_position(view_state.navigator().position())
                         {
-                            view_state.focus_at_coords = (col as i32, row as i32);
+                            view_state.set_focus_at_coords((col as i32, row as i32));
                         }
                     });
 
@@ -2330,12 +2338,12 @@ impl Controller {
                 if let Action::ToggleSelected = Action::from(GioAction::from((object, variant))) {
                     this.with_view_state_mut(|view_state| {
                         let position = view_state.gallery().current_picture_index();
-                        if view_state.selection.contains(position) {
-                            view_state.selection.unselect(position)
+                        if view_state.selection().contains(position) {
+                            view_state.selection_mut().unselect(position)
                         } else {
-                            view_state.selection.select(position)
+                            view_state.selection_mut().select(position)
                         }
-                        view_state.navigator.set_page_changed()
+                        view_state.navigator_mut().set_page_changed()
                     });
 
                     window.refresh_view()
