@@ -1,17 +1,17 @@
-use crate::gui::view_state::location_stack::LocationStack;
-use std::cell::Ref;
-
 use crate::gui::direction::Direction;
 use crate::gui::view_state::location::Location;
+use crate::gui::view_state::location_stack::LocationStack;
 use crate::gui::view_state::navigator::Navigator;
 use crate::gui::view_state::selection::Selection;
 use crate::gui::view_state::settings::Settings;
 use crate::model::finder::Finder;
 use crate::model::gallery::Gallery;
 use crate::model::predicate::Predicate;
+use std::cell::Ref;
 use std::cell::RefCell;
 use std::cell::RefMut;
 use std::rc::Rc;
+
 pub mod location;
 pub mod location_stack;
 pub mod navigator;

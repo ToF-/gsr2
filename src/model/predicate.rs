@@ -1,3 +1,4 @@
+use crate::model::retrieve_criteria::RetrieveCriteria;
 use crate::model::catalog::Catalog;
 use crate::model::categories::Categories;
 use crate::model::criterion::Criterion;
@@ -64,6 +65,16 @@ impl Predicate {
         let mut other_criteria = other.criteria.clone();
         criteria.append(&mut other_criteria);
         Self { function, criteria }
+    }
+
+    pub fn from_retrieve_criteria(retrieve_criteria: RetrieveCriteria) -> Self {
+        let function: Rc<dyn Fn(&Picture) -> bool> = Rc::new(move |picture: &Picture| {
+            retrieve_criteria.matches(picture)
+        });
+        Self {
+            function,
+            criteria: Vec::new(),
+        }
     }
 }
 
