@@ -351,26 +351,21 @@ impl Repository {
 
     pub fn retrieve_pictures(&self, predicate_opt: Option<Predicate>) -> IOResult<usize> {
         match &self.command_line_arguments.command {
-            Some(Command::File { file_path }) => match self.picture_from_file_path(file_path) {
-                Ok(file_gallery) => match self.gallery_rc.try_borrow_mut() {
-                    Ok(mut gallery) => {
+            Some(Command::File { file_path }) => {
+                self.picture_from_file_path(file_path)
+                    .and_then(|file_gallery| {
+                        let mut gallery = self.gallery_rc.borrow_mut();
                         *gallery = file_gallery.clone();
-                        Ok(1)
-                    }
-                    Err(e) => Err(IOError::other(e)),
-                },
-                Err(e) => Err(e),
-            },
-            Some(Command::Directory { directory }) => match self.pictures_in_directory(directory) {
-                Ok(dir_gallery) => match self.gallery_rc.try_borrow_mut() {
-                    Ok(mut gallery) => {
-                        *gallery = dir_gallery.clone();
                         Ok(gallery.len())
-                    }
-                    Err(e) => Err(IOError::other(e)),
-                },
-                Err(e) => Err(e),
-            },
+                    })
+            }
+            Some(Command::Directory { directory }) => self
+                .pictures_in_directory(directory)
+                .and_then(|dir_gallery| {
+                    let mut gallery = self.gallery_rc.borrow_mut();
+                    *gallery = dir_gallery.clone();
+                    Ok(gallery.len())
+                }),
             // any other command involves the picture database
             _ => self.retrieve_all_folders().and_then(|_| {
                 let directory: &String = &file_path_as_stored(

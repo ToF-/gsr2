@@ -153,5 +153,4 @@ impl ViewState {
     pub fn set_current_location_covers_only(&mut self, covers_only: bool) {
         self.current_location_mut().set_covers_only(covers_only)
     }
-
 }
