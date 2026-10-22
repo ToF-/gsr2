@@ -1219,18 +1219,15 @@ impl Controller {
                     );
                     return;
                 };
-                if directory_opt.clone().is_some() {
+                let current_directory = this
+                    .with_view_state(|view_state| view_state.current_location().sub_directory());
+                if directory_opt.clone().is_some() && directory_opt != current_directory {
                     let position = this
                         .with_view_state(|view_state| view_state.gallery().current_picture_index());
                     this.with_view_state_mut(|view_state| {
                         view_state.set_current_location_position(position);
                         view_state
                             .set_current_location_covers_only(view_state.settings().covers_only());
-                        view_state.set_current_location_directory(
-                            directory_opt
-                                .as_ref()
-                                .and_then(|directory| parent_directory(directory)),
-                        );
                         view_state.set_new_location(directory_opt, None, 0, false)
                     });
                     let location =
@@ -1241,7 +1238,7 @@ impl Controller {
                         location.predicate(),
                     ) {
                         Err(e) => {
-                            window.exit_with_information(&format!("{} launch gsr update",e));
+                            window.exit_with_information(&format!("{} launch gsr update", e));
                         }
                         Ok(0) => {
                             window.present_information("no picture matching criteria");

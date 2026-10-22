@@ -120,7 +120,6 @@ impl Repository {
         predicate_opt: Option<Predicate>,
         folder_id_opt: Option<FolderId>,
     ) -> IOResult<usize> {
-        dbg!(&folder_id_opt);
         self.retrieve_catalog().and_then(|catalog| {
             let mut gallery = self.gallery_rc.borrow_mut();
             RetrieveCriteria::new(args, predicate_opt, folder_id_opt, Some(catalog.clone()))
