@@ -456,8 +456,8 @@ impl Controller {
         self.with_repository_mut(|repository| {
             repository.set_command_line_arguments(command_line_arguments.clone());
         });
-        self.with_repository(
-            |repository| match repository.retrieve_pictures(predicate_opt) {
+        self.with_repository(|repository| {
+            match repository.retrieve_pictures(predicate_opt) {
                 Err(e) => Err(e),
                 Ok(0) => Ok(0),
                 Ok(n) => {
@@ -472,8 +472,8 @@ impl Controller {
                     });
                     Ok(n)
                 }
-            },
-        )
+            }
+        })
     }
 
     fn retrieve_current_location(&self) {

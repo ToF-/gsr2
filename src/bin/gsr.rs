@@ -46,7 +46,7 @@ fn run_application(config: &Configuration, clargs: &CommandLineArguments) -> Res
             Err(e) => return Err(e),
         }
     };
-    let _ = &match repository.retrieve_pictures(None) {
+    let _ = &match repository.retrieve_pictures_for_command(None) {
         Ok(_) => {}
         Err(e) => return Err(e),
     };

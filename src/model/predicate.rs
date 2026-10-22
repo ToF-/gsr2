@@ -1,9 +1,9 @@
-use crate::model::retrieve_criteria::RetrieveCriteria;
 use crate::model::catalog::Catalog;
 use crate::model::categories::Categories;
 use crate::model::criterion::Criterion;
 use crate::model::find::Find;
 use crate::model::picture::Picture;
+use crate::model::retrieve_criteria::RetrieveCriteria;
 use crate::model::tags::tags_from_str;
 use regex::Error;
 use regex::Regex;
@@ -68,9 +68,8 @@ impl Predicate {
     }
 
     pub fn from_retrieve_criteria(retrieve_criteria: RetrieveCriteria) -> Self {
-        let function: Rc<dyn Fn(&Picture) -> bool> = Rc::new(move |picture: &Picture| {
-            retrieve_criteria.matches(picture)
-        });
+        let function: Rc<dyn Fn(&Picture) -> bool> =
+            Rc::new(move |picture: &Picture| retrieve_criteria.matches(picture));
         Self {
             function,
             criteria: Vec::new(),

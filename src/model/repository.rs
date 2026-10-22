@@ -118,45 +118,25 @@ impl Repository {
         &self,
         args: &CommandLineArguments,
         predicate_opt: Option<Predicate>,
+        folder_id_opt: Option<FolderId>,
     ) -> IOResult<usize> {
         self.retrieve_catalog().and_then(|catalog| {
             let mut gallery = self.gallery_rc.borrow_mut();
-            RetrieveCriteria::new(args, predicate_opt, None, Some(catalog.clone())).and_then(
-                |retrieve_criteria| {
-                    *self.retrieve_criteria_rc.borrow_mut() = retrieve_criteria.clone();
-                    self.database
-                        .select_pictures(retrieve_criteria, None)
-                        .map(|pictures| {
-                            let new_gallery = Gallery::new_with_pictures(pictures);
-                            *gallery = new_gallery.clone();
-                            gallery.sort_by(args.order.unwrap_or(Order::Name));
-                            gallery.len()
-                        })
-                },
-            )
-        })
-    }
-
-    fn retrieve_all_pictures_and_folders(
-        &self,
-        args: &CommandLineArguments,
-        predicate_opt: Option<Predicate>,
-        folder_id: FolderId,
-    ) -> IOResult<usize> {
-        self.retrieve_catalog().and_then(|catalog| {
-            let mut gallery = self.gallery_rc.borrow_mut();
-            RetrieveCriteria::new(args, predicate_opt, Some(folder_id), Some(catalog.clone()))
+            RetrieveCriteria::new(args, predicate_opt, folder_id_opt, Some(catalog.clone()))
                 .and_then(|retrieve_criteria| {
                     *self.retrieve_criteria_rc.borrow_mut() = retrieve_criteria.clone();
                     self.database
-                        .select_pictures(retrieve_criteria, Some(folder_id))
+                        .select_pictures(retrieve_criteria, folder_id_opt)
                         .map(|pictures| {
                             let mut new_gallery = Gallery::new_with_pictures(pictures);
-                            new_gallery.set_structured();
-                            let folder_map = self.folder_map_rc.borrow();
-                            let folders = folder_map.folders_with_parent_id(folder_id);
-                            for folder in folders {
-                                new_gallery.add_picture(&Picture::for_folder(folder));
+                            if args.structured {
+                                new_gallery.set_structured();
+                                let folder_map = self.folder_map_rc.borrow();
+                                let folder_id = folder_id_opt.unwrap();
+                                let folders = folder_map.folders_with_parent_id(folder_id);
+                                for folder in folders {
+                                    new_gallery.add_picture(&Picture::for_folder(folder));
+                                }
                             }
                             new_gallery.sort_by(args.order.unwrap_or(Order::Name));
                             *gallery = new_gallery.clone();
@@ -349,7 +329,10 @@ impl Repository {
         self.database.select_all_marks()
     }
 
-    pub fn retrieve_pictures(&self, predicate_opt: Option<Predicate>) -> IOResult<usize> {
+    pub fn retrieve_pictures_for_command(
+        &self,
+        predicate_opt: Option<Predicate>,
+    ) -> IOResult<usize> {
         match &self.command_line_arguments.command {
             Some(Command::File { file_path }) => match self.picture_from_file_path(file_path) {
                 Ok(file_gallery) => match self.gallery_rc.try_borrow_mut() {
@@ -372,44 +355,46 @@ impl Repository {
                 Err(e) => Err(e),
             },
             // any other command involves the picture database
-            _ => self.retrieve_all_folders().and_then(|_| {
-                let directory: &String = &file_path_as_stored(
-                    &self
-                        .command_line_arguments
-                        .directory
-                        .clone()
-                        .unwrap_or_default(),
-                );
-                let folder_map = self.folder_map_rc.borrow();
-                let folder_opt = folder_map.get(directory);
-                if let Some(folder) = folder_opt {
-                    println!("folder: {}", file_path_as_retrieved(&folder.file_path()));
-                    self.retrieve_all_labels().and_then(|_| {
-                        self.retrieve_all_parent_dirs().and_then(|_| {
-                            if self.command_line_arguments.structured
-                                || self.command_line_arguments.directory.is_some()
-                            {
-                                self.retrieve_all_pictures_and_folders(
-                                    &self.command_line_arguments.clone(),
-                                    predicate_opt,
-                                    folder.id(),
-                                )
-                            } else {
-                                self.retrieve_all_pictures(
-                                    &self.command_line_arguments.clone(),
-                                    predicate_opt,
-                                )
-                            }
-                        })
-                    })
-                } else {
-                    Err(IOError::other(format!(
-                        "folder {} not found in the database.",
-                        directory,
-                    )))
-                }
-            }),
+            _ => self.retrieve_pictures(predicate_opt),
         }
+    }
+
+    pub fn retrieve_pictures(&self, predicate_opt: Option<Predicate>) -> IOResult<usize> {
+        self.retrieve_all_folders().and_then(|_| {
+            let directory: &String = &file_path_as_stored(
+                &self
+                    .command_line_arguments
+                    .directory
+                    .clone()
+                    .unwrap_or_default(),
+            );
+            let folder_map = self.folder_map_rc.borrow();
+            let folder_opt = folder_map.get(directory);
+            if let Some(folder) = folder_opt {
+                println!("folder: {}", file_path_as_retrieved(&folder.file_path()));
+                self.retrieve_all_labels().and_then(|_| {
+                    self.retrieve_all_parent_dirs().and_then(|_| {
+                        let folder_id_opt = if self.command_line_arguments.structured
+                            || self.command_line_arguments.directory.is_some()
+                        {
+                            Some(folder.id())
+                        } else {
+                            None
+                        };
+                        self.retrieve_all_pictures(
+                            &self.command_line_arguments.clone(),
+                            predicate_opt,
+                            folder_id_opt,
+                        )
+                    })
+                })
+            } else {
+                Err(IOError::other(format!(
+                    "folder {} not found in the database.",
+                    directory,
+                )))
+            }
+        })
     }
 
     pub fn save_catalog(&self, catalog: &Catalog) -> IOResult<usize> {
@@ -428,7 +413,7 @@ impl Repository {
         args: &CommandLineArguments,
         predicate_opt: Option<Predicate>,
     ) -> IOResult<usize> {
-        self.retrieve_all_pictures(args, predicate_opt)
+        self.retrieve_all_pictures(args, predicate_opt, None)
     }
 
     pub fn pictures_in_directory(&self, dir: &str) -> IOResult<Gallery> {
