@@ -456,8 +456,8 @@ impl Controller {
         self.with_repository_mut(|repository| {
             repository.set_command_line_arguments(command_line_arguments.clone());
         });
-        self.with_repository(|repository| {
-            match repository.retrieve_pictures(predicate_opt) {
+        self.with_repository(
+            |repository| match repository.retrieve_pictures(predicate_opt) {
                 Err(e) => Err(e),
                 Ok(0) => Ok(0),
                 Ok(n) => {
@@ -472,8 +472,8 @@ impl Controller {
                     });
                     Ok(n)
                 }
-            }
-        })
+            },
+        )
     }
 
     fn retrieve_current_location(&self) {
@@ -1240,7 +1240,9 @@ impl Controller {
                         location.sub_directory(),
                         location.predicate(),
                     ) {
-                        Err(e) => panic!("{}", e),
+                        Err(e) => {
+                            window.exit_with_information(&format!("{} launch gsr update",e));
+                        }
                         Ok(0) => {
                             window.present_information("no picture matching criteria");
                             this.back_to_previous_location();
