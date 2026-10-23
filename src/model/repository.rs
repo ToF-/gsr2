@@ -741,7 +741,7 @@ impl Repository {
         }
     }
 
-    pub fn check(&self) -> IOResult<()> {
+    pub fn check_picture_file_paths(&self) -> IOResult<()> {
         match self.gallery_rc.try_borrow() {
             Ok(gallery) => {
                 println!("checking pictures where picture file does not exists");
@@ -756,7 +756,7 @@ impl Repository {
         }
     }
 
-    pub fn clean(&self) -> IOResult<()> {
+    pub fn delete_non_existing_file_paths(&self) -> IOResult<()> {
         match self.gallery_rc.try_borrow() {
             Ok(gallery) => {
                 println!("deleting picture data where picture file does not exists");

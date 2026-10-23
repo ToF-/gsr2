@@ -134,11 +134,11 @@ pub fn execute_command(
             Ok(_) => Ok(Status::Done),
             Err(err) => Err(err),
         },
-        Some(Command::Check) => match repository.check() {
+        Some(Command::Check) => match repository.check_picture_file_paths() {
             Ok(_) => Ok(Status::Done),
             Err(err) => Err(err),
         },
-        Some(Command::Clean) => match repository.clean() {
+        Some(Command::Clean) => match repository.delete_non_existing_file_paths() {
             Ok(_) => Ok(Status::Done),
             Err(err) => Err(err),
         },
