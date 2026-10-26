@@ -857,7 +857,7 @@ impl Database {
         retrieve_criteria: RetrieveCriteria,
         folder_id_opt: Option<usize>,
     ) -> IOResult<Vec<Picture>> {
-        self.select_parent_dirs().and_then(|parent_dirs| {
+        self.select_folders().and_then(|folders| {
             match self.rusqlite_select_all_pictures(
                 retrieve_criteria.clone().cover,
                 retrieve_criteria.clone().parent_opt,
@@ -879,9 +879,8 @@ impl Database {
                                 cover: match image_data.clone().cover {
                                     None => None,
                                     Some(_) => {
-                                        if let Some(pair) = parent_dirs.get(&parent_dir) {
-                                            let count = pair.0;
-                                            Some(count)
+                                        if let Some(folder) = folders.get(&parent_dir) {
+                                            Some(folder.picture_count())
                                         } else {
                                             Some(0)
                                         }

@@ -368,7 +368,6 @@ impl Repository {
             if let Some(folder) = folder_opt {
                 println!("folder: {}", file_path_as_retrieved(&folder.file_path()));
                 self.retrieve_all_labels().and_then(|_| {
-                    self.retrieve_all_parent_dirs().and_then(|_| {
                         let folder_id_opt = if self.command_line_arguments.structured
                             || self.command_line_arguments.directory.is_some()
                         {
@@ -381,7 +380,6 @@ impl Repository {
                             predicate_opt,
                             folder_id_opt,
                         )
-                    })
                 })
             } else {
                 Err(IOError::other(format!(
