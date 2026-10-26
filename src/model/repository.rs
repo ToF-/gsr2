@@ -1,3 +1,4 @@
+use crate::model::folder::Folder;
 use crate::cli::command::Command;
 use crate::cli::command_line_arguments::CommandLineArguments;
 use crate::env::configuration::CONFIGURATION;
@@ -538,10 +539,10 @@ impl Repository {
     pub fn gallery_mut(&self) -> RefMut<'_, Gallery> {
         self.gallery_rc.borrow_mut()
     }
-    pub fn parent_dirs(&self) -> HashMap<String, (usize, usize)> {
-        self.parent_dirs_rc.borrow().clone()
-    }
 
+    pub fn folder_map(&self) -> Ref<'_, FolderMap> {
+        self.folder_map_rc.borrow()
+    }
     pub fn directory_count_at_index(&self, index: usize) -> usize {
         let gallery = self.gallery_rc.borrow();
         let picture = &gallery.pictures()[index];
@@ -556,9 +557,9 @@ impl Repository {
                         .map(|folder| folder.picture_count())
                         .unwrap_or_default()
                 } else {
-                    self.parent_dirs()
+                    self.folder_map()
                         .get(&directory)
-                        .map(|pair| pair.0)
+                        .map(|folder| folder.picture_count())
                         .unwrap_or_default()
                 }
             })
@@ -718,23 +719,25 @@ impl Repository {
         };
         match result {
             Ok(_) => {
-                let parent_dirs = self.parent_dirs();
-                if !parent_dirs.is_empty() {
-                    println!("----- directories:{} -----", parent_dirs.len());
-                    let mut dirs: Vec<String> = vec![];
-                    for dir in parent_dirs.keys() {
-                        dirs.push(dir.to_string());
-                    }
-                    dirs.sort();
-                    for dir in dirs {
-                        let counts = parent_dirs.get(&dir).unwrap();
-                        let count = counts.0;
-                        let covers = counts.1;
-                        println!("{}:  {}({})", dir, count, covers)
-                    }
-                };
-                Ok(())
-            }
+                self.database.select_parent_dirs()
+                    .and_then(|parent_dirs| {
+                        if !parent_dirs.is_empty() {
+                            println!("----- directories:{} -----", parent_dirs.len());
+                            let mut dirs: Vec<String> = vec![];
+                            for dir in parent_dirs.keys() {
+                                dirs.push(dir.to_string());
+                            }
+                            dirs.sort();
+                            for dir in dirs {
+                                let counts = parent_dirs.get(&dir).unwrap();
+                                let count = counts.0;
+                                let covers = counts.1;
+                                println!("{}:  {}({})", dir, count, covers)
+                            }
+                        };
+                        Ok(())
+                    })
+            },
             Err(e) => Err(e),
         }
     }

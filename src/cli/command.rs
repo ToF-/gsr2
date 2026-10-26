@@ -109,18 +109,16 @@ pub fn execute_command(
             };
             match result {
                 Ok(_) => {
-                    let parent_dirs = repository.parent_dirs();
-                    if !parent_dirs.is_empty() {
+                    let map = repository.folder_map().map();
+                    if !map.is_empty() {
                         let mut dirs: Vec<String> = vec![];
-                        for dir in parent_dirs.keys() {
-                            dirs.push(dir.to_string());
+                        for folder in map.keys() {
+                            dirs.push(folder.to_string());
                         }
                         dirs.sort();
                         for dir in dirs {
-                            let counts = parent_dirs.get(&dir).unwrap();
-                            let count = counts.0;
-                            let covers = counts.1;
-                            println!("{}:  {}({})", dir, count, covers)
+                            let count = repository.folder_map().get(&dir).unwrap().picture_count();
+                            println!("{}:  {}", dir, count)
                         }
                     };
                     Ok(Status::Done)
