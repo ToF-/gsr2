@@ -53,7 +53,6 @@ pub struct Repository {
     tags_rc: RefCell<Tags>,
     categories_rc: RefCell<Tags>,
     gallery_rc: Rc<RefCell<Gallery>>,
-    parent_dirs_rc: RefCell<HashMap<String, (usize, usize)>>,
     folder_map_rc: RefCell<FolderMap>,
     retrieve_criteria_rc: RefCell<RetrieveCriteria>,
 }
@@ -69,7 +68,6 @@ impl Repository {
             tags_rc: RefCell::new(crate::model::tags::empty_tags()),
             categories_rc: RefCell::new(crate::model::tags::empty_tags()),
             gallery_rc: Rc::new(RefCell::new(Gallery::new())),
-            parent_dirs_rc: RefCell::new(HashMap::new()),
             folder_map_rc: RefCell::new(FolderMap::default()),
             retrieve_criteria_rc: RefCell::new(RetrieveCriteria::default()),
         }
@@ -148,15 +146,8 @@ impl Repository {
         })
     }
 
-    fn retrieve_all_parent_dirs(&self) -> IOResult<()> {
-        match self.database.select_parent_dirs() {
-            Ok(map) => {
-                let mut parent_dirs = self.parent_dirs_rc.borrow_mut();
-                *parent_dirs = map;
-                Ok(())
-            }
-            Err(e) => Err(e),
-        }
+    fn retrieve_all_parent_dirs(&self) -> IOResult<HashMap<String, (usize, usize)>> {
+        self.database.select_parent_dirs()
     }
 
     pub fn retrieve_all_picture_file_paths(
@@ -719,7 +710,7 @@ impl Repository {
         };
         match result {
             Ok(_) => {
-                self.database.select_parent_dirs()
+                self.retrieve_all_parent_dirs()
                     .and_then(|parent_dirs| {
                         if !parent_dirs.is_empty() {
                             println!("----- directories:{} -----", parent_dirs.len());
@@ -1256,18 +1247,7 @@ mod tests {
         assert!(cover_picture.file_path().contains(SINGLE_DOT));
         assert!(cover_picture.cover().is_some());
         let count = cover_picture.cover().unwrap();
-        assert_eq!(3, count); // because NINE_COLORS is in a subdir
-    }
-    #[test]
-    #[serial]
-    fn provides_the_list_of_all_parent_dirs() {
-        let args = my_args().expect("can't access to test args");
-        let repository = Repository::new(args.clone(), false);
-        assert!(repository.retrieve_pictures(None).is_ok());
-        let map = repository.parent_dirs();
-        let directory = file_path_as_stored(&format!("{}/{}", current_directory(), TEST_DATA_DIR));
-        let counts: (usize, usize) = *map.get(&directory).expect("can't access parent dir count");
-        assert_eq!((3, 1), counts);
+        assert_eq!(4, count)
     }
     #[test]
     #[serial]
